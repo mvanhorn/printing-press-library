@@ -266,11 +266,12 @@ func (s *Store) migrate(ctx context.Context) error {
 
 	migrations := []string{
 		`CREATE TABLE IF NOT EXISTS resources (
-			id TEXT PRIMARY KEY,
+			id TEXT NOT NULL,
 			resource_type TEXT NOT NULL,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id, resource_type)
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_resources_type ON resources(resource_type)`,
 		`CREATE INDEX IF NOT EXISTS idx_resources_synced ON resources(synced_at)`,
@@ -610,7 +611,7 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 	_, err := tx.Exec(
 		`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
+		 ON CONFLICT(id, resource_type) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
 		id, resourceType, string(data), time.Now(), time.Now(),
 	)
 	if err != nil {
@@ -790,9 +791,9 @@ func (s *Store) upsertAnalyticsTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET automations_id = excluded.automations_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "automations_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "automations_id"),
 	); err != nil {
 		return fmt.Errorf("insert into analytics: %w", err)
 	}
@@ -840,9 +841,9 @@ func (s *Store) upsertBulkEnrollTx(tx *sql.Tx, id string, obj map[string]any, da
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET automations_id = excluded.automations_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "automations_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "automations_id"),
 	); err != nil {
 		return fmt.Errorf("insert into bulk_enroll: %w", err)
 	}
@@ -890,9 +891,9 @@ func (s *Store) upsertDryRunTx(tx *sql.Tx, id string, obj map[string]any, data j
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET automations_id = excluded.automations_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "automations_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "automations_id"),
 	); err != nil {
 		return fmt.Errorf("insert into dry_run: %w", err)
 	}
@@ -940,9 +941,9 @@ func (s *Store) upsertNodeStatsTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET automations_id = excluded.automations_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "automations_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "automations_id"),
 	); err != nil {
 		return fmt.Errorf("insert into node_stats: %w", err)
 	}
@@ -990,9 +991,9 @@ func (s *Store) upsertPublishTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET automations_id = excluded.automations_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "automations_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "automations_id"),
 	); err != nil {
 		return fmt.Errorf("insert into publish: %w", err)
 	}
@@ -1040,9 +1041,9 @@ func (s *Store) upsertStepLogsTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET automations_id = excluded.automations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
+		lookupFieldValue(obj, "automations_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "automations_id"),
 		lookupFieldValue(obj, "parent_id"),
 	); err != nil {
 		return fmt.Errorf("insert into step_logs: %w", err)
@@ -1091,9 +1092,9 @@ func (s *Store) upsertBookingPagesAvailabilityTx(tx *sql.Tx, id string, obj map[
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET booking_pages_id = excluded.booking_pages_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "booking_pages_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "booking_pages_id"),
 	); err != nil {
 		return fmt.Errorf("insert into booking_pages_availability: %w", err)
 	}
@@ -1141,9 +1142,9 @@ func (s *Store) upsertCalendarsAppointmentsTx(tx *sql.Tx, id string, obj map[str
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET calendars_id = excluded.calendars_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
+		lookupFieldValue(obj, "calendars_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "calendars_id"),
 		lookupFieldValue(obj, "parent_id"),
 	); err != nil {
 		return fmt.Errorf("insert into calendars_appointments: %w", err)
@@ -1192,9 +1193,9 @@ func (s *Store) upsertScoreTx(tx *sql.Tx, id string, obj map[string]any, data js
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET contacts_id = excluded.contacts_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "contacts_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "contacts_id"),
 	); err != nil {
 		return fmt.Errorf("insert into score: %w", err)
 	}
@@ -1242,9 +1243,9 @@ func (s *Store) upsertContactsTagsTx(tx *sql.Tx, id string, obj map[string]any, 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET contacts_id = excluded.contacts_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "contacts_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "contacts_id"),
 	); err != nil {
 		return fmt.Errorf("insert into contacts_tags: %w", err)
 	}
@@ -1292,9 +1293,9 @@ func (s *Store) upsertSubmissionsTx(tx *sql.Tx, id string, obj map[string]any, d
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET forms_id = excluded.forms_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
+		lookupFieldValue(obj, "forms_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "forms_id"),
 		lookupFieldValue(obj, "parent_id"),
 	); err != nil {
 		return fmt.Errorf("insert into submissions: %w", err)
@@ -1343,9 +1344,9 @@ func (s *Store) upsertSubmitTx(tx *sql.Tx, id string, obj map[string]any, data j
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET forms_id = excluded.forms_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "forms_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "forms_id"),
 	); err != nil {
 		return fmt.Errorf("insert into submit: %w", err)
 	}
@@ -1393,9 +1394,9 @@ func (s *Store) upsertProcessTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET imports_id = excluded.imports_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "imports_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "imports_id"),
 	); err != nil {
 		return fmt.Errorf("insert into process: %w", err)
 	}
@@ -1443,9 +1444,9 @@ func (s *Store) upsertPaymentLinkTx(tx *sql.Tx, id string, obj map[string]any, d
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET invoices_id = excluded.invoices_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "invoices_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "invoices_id"),
 	); err != nil {
 		return fmt.Errorf("insert into payment_link: %w", err)
 	}
@@ -1493,9 +1494,9 @@ func (s *Store) upsertPaymentsTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET invoices_id = excluded.invoices_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "invoices_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "invoices_id"),
 	); err != nil {
 		return fmt.Errorf("insert into payments: %w", err)
 	}
@@ -1543,9 +1544,9 @@ func (s *Store) upsertPdfTx(tx *sql.Tx, id string, obj map[string]any, data json
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET invoices_id = excluded.invoices_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "invoices_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "invoices_id"),
 	); err != nil {
 		return fmt.Errorf("insert into pdf: %w", err)
 	}
@@ -1593,9 +1594,9 @@ func (s *Store) upsertSendTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET invoices_id = excluded.invoices_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "invoices_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "invoices_id"),
 	); err != nil {
 		return fmt.Errorf("insert into send: %w", err)
 	}
@@ -1643,9 +1644,9 @@ func (s *Store) upsertVoidTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET invoices_id = excluded.invoices_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "invoices_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "invoices_id"),
 	); err != nil {
 		return fmt.Errorf("insert into void: %w", err)
 	}
@@ -1693,9 +1694,9 @@ func (s *Store) upsertStagesTx(tx *sql.Tx, id string, obj map[string]any, data j
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET pipelines_id = excluded.pipelines_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "pipelines_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "pipelines_id"),
 	); err != nil {
 		return fmt.Errorf("insert into stages: %w", err)
 	}
@@ -1743,9 +1744,9 @@ func (s *Store) upsertActivateTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET workflows_id = excluded.workflows_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "workflows_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "workflows_id"),
 	); err != nil {
 		return fmt.Errorf("insert into activate: %w", err)
 	}
@@ -1793,9 +1794,9 @@ func (s *Store) upsertDeactivateTx(tx *sql.Tx, id string, obj map[string]any, da
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET workflows_id = excluded.workflows_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "workflows_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "workflows_id"),
 	); err != nil {
 		return fmt.Errorf("insert into deactivate: %w", err)
 	}
@@ -1843,9 +1844,9 @@ func (s *Store) upsertRunsTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET workflows_id = excluded.workflows_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
+		lookupFieldValue(obj, "workflows_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "workflows_id"),
 		lookupFieldValue(obj, "parent_id"),
 	); err != nil {
 		return fmt.Errorf("insert into runs: %w", err)
@@ -1894,9 +1895,9 @@ func (s *Store) upsertTestTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET workflows_id = excluded.workflows_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "workflows_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "workflows_id"),
 	); err != nil {
 		return fmt.Errorf("insert into test: %w", err)
 	}

@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -2757,7 +2758,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
+			path = strings.ReplaceAll(path, "{"+p+"}", url.PathEscape(fmt.Sprintf("%v", v)))
 			delete(params, p)
 		}
 	}
@@ -2775,21 +2776,14 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		data, err = c.Get(path, query)
 	case "DELETE":
 		data, _, err = c.Delete(path)
+	case "POST":
+		data, _, err = c.Post(path, params)
+	case "PUT":
+		data, _, err = c.Put(path, params)
+	case "PATCH":
+		data, _, err = c.Patch(path, params)
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
-		switch ep.Method {
-		case "POST":
-			data, _, err = c.Post(path, body)
-		case "PUT":
-			data, _, err = c.Put(path, body)
-		case "PATCH":
-			data, _, err = c.Patch(path, body)
-		default:
-			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
-		}
+		return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 	}
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil

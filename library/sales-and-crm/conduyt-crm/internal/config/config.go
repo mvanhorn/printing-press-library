@@ -43,8 +43,11 @@ func Load(configPath string) (*Config, error) {
 	}
 	cfg.Path = path
 
-	// Try to load config file
+	// Try to load config file — missing file is fine, permission/IO errors are not
 	data, err := os.ReadFile(path)
+	if err != nil && !os.IsNotExist(err) {
+		return nil, fmt.Errorf("reading config %s: %w", path, err)
+	}
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
@@ -121,6 +124,9 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.AuthHeaderVal = ""
+	c.ConduytBearerAuth = ""
+	c.AuthSource = ""
 	return c.save()
 }
 

@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"net/url"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -273,7 +274,7 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
 }
 func replacePathParam(path, name, value string) string {
-	return strings.ReplaceAll(path, "{"+name+"}", value)
+	return strings.ReplaceAll(path, "{"+name+"}", url.PathEscape(value))
 }
 
 // paginatedGet fetches pages and concatenates array results. The headers
