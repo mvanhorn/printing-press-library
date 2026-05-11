@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH(novel-commands): cross-meeting intelligence commands reading from local SQLite store.
 func newCommitmentsCmd(flags *rootFlags) *cobra.Command {
 	var assignee string
 	var since string

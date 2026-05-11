@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH(db-export-restore): added db export/restore commands for local store backup without API calls.
 func newDBCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "db",
