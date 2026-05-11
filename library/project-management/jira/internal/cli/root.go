@@ -241,7 +241,7 @@ Run 'jira-cloud-platform-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newStaleCmd(flags))
-	rootCmd.AddCommand(newCycleTimeCmd(flags))
+	rootCmd.AddCommand(newCycleTimeCmd(flags)) // PATCH: novel-features
 	rootCmd.AddCommand(newWorkloadCmd(flags))
 	rootCmd.AddCommand(newBlockedCmd(flags))
 	rootCmd.AddCommand(newOrphansCmd(flags))

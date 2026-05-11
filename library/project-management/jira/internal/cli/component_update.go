@@ -71,7 +71,7 @@ func newComponentUpdateCmd(flags *rootFlags) *cobra.Command {
 	var bodyLeadName string
 	var bodyLeadSelf string
 	var bodyLeadTimeZone string
-	var bodyLeadUserName string
+	var bodyLeadUserName string // PATCH: component-duplicate-flag
 	var bodyMetadata string
 	var bodyName string
 	var bodyProject string

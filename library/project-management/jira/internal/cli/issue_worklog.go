@@ -24,6 +24,6 @@ func newIssueWorklogCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newIssueWorklogGetPropertyKeysCmd(flags))
 	cmd.AddCommand(newIssueWorklogSetPropertyCmd(flags))
 	cmd.AddCommand(newIssueWorklogUpdateCmd(flags))
-	cmd.AddCommand(newWorklogSummaryCmd(flags))
+	cmd.AddCommand(newWorklogSummaryCmd(flags)) // PATCH: novel-features
 	return cmd
 }
