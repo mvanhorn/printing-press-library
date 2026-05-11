@@ -8,9 +8,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/payments/monarch/internal/config"
 	"github.com/spf13/cobra"
 	"io"
-	"github.com/mvanhorn/printing-press-library/library/payments/monarch/internal/config"
 	"net/http"
 	"os"
 	"os/exec"
@@ -439,7 +439,10 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
+	// sqlite3 shell-out doesn't support parameter binding, so escape any
+	// embedded single quotes by doubling them per SQL string-literal rules.
+	escaped := strings.ReplaceAll(domainPattern, "'", "''")
+	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", escaped)
 	out, err := exec.Command("sqlite3", tmpPath, query).Output()
 	if err != nil {
 		return 0

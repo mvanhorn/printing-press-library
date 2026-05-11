@@ -23,6 +23,11 @@ import (
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
+// sqlIdentPattern matches a safe, unquoted SQL identifier. SQLite does not
+// support parameter binding for table or column names, so any identifier
+// interpolated into a query string must pass this allowlist first.
+var sqlIdentPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
@@ -593,8 +598,7 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -731,11 +735,19 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	// Domain tables are named after the resource type. SQLite cannot
+	// parameter-bind a table name, so reject anything that isn't a plain
+	// identifier before formatting it into the query. Unknown / unsafe
+	// names fall through to the generic resources table.
+	var rows *sql.Rows
+	var err error
+	if sqlIdentPattern.MatchString(resourceType) {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	} else {
+		err = fmt.Errorf("invalid resource type")
+	}
 	if err != nil {
-		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
 		if err != nil {
 			return nil, err
@@ -818,6 +830,13 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// SQLite cannot parameter-bind the JSON path segment, so the field
+		// name is interpolated. Reject anything that isn't a plain
+		// identifier to keep this safe even if a future caller threads a
+		// user-supplied string through matchFields.
+		if !sqlIdentPattern.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
