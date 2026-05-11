@@ -277,23 +277,53 @@ func resolveLocationFlags(
 }
 
 // isCanonicalMetro reports whether value names a single, unambiguous
-// metro in the registry. Two acceptance paths:
-//  1. reg.Lookup(value) succeeds — value is a known canonical slug or
-//     an alias chain (e.g., "sf" -> "san-francisco"). The slug-lookup
-//     path is the only one a typical --metro caller hits.
-//  2. reg.Lookup misses BUT reg.LookupByName returns exactly 1 hit —
-//     the user passed a display-name-shaped value (e.g., "Seattle")
-//     that happens to uniquely match one Place by Name. Treated as
-//     canonical so legacy --metro callers passing display names still
-//     get the back-compat shape.
+// metro in the registry. Four cases discriminated by U21:
 //
-// Zero or multi-hit on LookupByName (e.g., "bellevue" -> WA/NE/KY) is
-// the ambiguous case: not canonical, so the envelope path fires.
+//  1. Primary slug match — value equals the returned Place's Slug
+//     field (case-insensitive). Unambiguous canonical; legacy implicit
+//     --batch-accept-ambiguous fires.
+//  2. Alias match (Lookup hit, but returned Place's Slug != value) —
+//     check whether the INPUT is itself ambiguous as a city name via
+//     reg.LookupByName(value). If LookupByName returns > 1 matches the
+//     alias is masking real ambiguity (the Codex round-4 case: after
+//     U18 hydration, Tock's dynamic "bellevue" slug is appended as an
+//     alias on bellevue-wa; a bare --metro bellevue would silently pick
+//     WA again instead of disambiguating WA/NE/KY). Not canonical.
+//  3. Alias to single canonical (e.g., "sf" -> "san-francisco" where
+//     LookupByName("sf") returns 0 hits) — canonical, the alias is a
+//     true shortcut with no name ambiguity.
+//  4. No Lookup hit, single LookupByName hit — the user passed a
+//     display-name-shaped value (e.g., "Seattle") that happens to
+//     uniquely match one Place by Name. Canonical so legacy --metro
+//     callers passing display names still get the back-compat shape.
+//
+// Anything else (zero hits, or alias to ambiguous-name) is not
+// canonical, and the envelope path fires.
 func isCanonicalMetro(value string) bool {
 	reg := getRegistry()
-	if _, ok := reg.Lookup(value); ok {
+	if p, ok := reg.Lookup(value); ok {
+		// Primary slug match — unambiguous canonical regardless of
+		// whether the display name happens to be ambiguous (the user
+		// typed the disambiguated slug, e.g., "bellevue-wa").
+		if strings.EqualFold(p.Slug, value) {
+			return true
+		}
+		// Alias match. Tock hydration (U18) appends dynamic slugs as
+		// aliases on curated entries when (Name, Lat, Lng) match within
+		// 5 km. For an input like "bellevue" that resolves via an alias
+		// but is itself an ambiguous bare city name (LookupByName
+		// returns WA + NE + KY), the alias must not mask the ambiguity
+		// or --metro back-compat would silently pick the wrong city.
+		if nameMatches, found := reg.LookupByName(value); found && len(nameMatches) > 1 {
+			return false
+		}
+		// Alias to single canonical (e.g., "sf" -> "san-francisco")
+		// with no name-level ambiguity. Canonical.
 		return true
 	}
+	// No slug or alias hit. If the input matches exactly one Place by
+	// display name, treat as canonical (back-compat shape for display-
+	// name-shaped --metro values).
 	if hits, ok := reg.LookupByName(value); ok && len(hits) == 1 {
 		return true
 	}

@@ -379,6 +379,49 @@ func TestMetro_UnknownReturnsUnknownEnvelope(t *testing.T) {
 	}
 }
 
+// TestMetro_AmbiguousReturnsEnvelope_AfterTockHydration is the
+// integration-level pin for U21. Post-Tock hydration, the dynamic
+// "bellevue" entry is merged into curated bellevue-wa via U18's
+// name+coords match path and "bellevue" is appended as an alias. The
+// previous canonical check (U14) treated any Lookup hit as canonical,
+// so --metro bellevue silently picked Bellevue WA again — reopening the
+// safety regression U14 closed. U21 distinguishes primary-slug match
+// from alias match and re-checks LookupByName for ambiguity on the
+// alias path. After hydration, --metro bellevue must STILL produce the
+// disambiguation envelope.
+func TestMetro_AmbiguousReturnsEnvelope_AfterTockHydration(t *testing.T) {
+	t.Cleanup(func() { setDynamicMetros(nil, 0) })
+	setDynamicMetros([]Place{
+		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015},
+	}, 1)
+	// Sanity: hydration must have made Lookup("bellevue") succeed,
+	// otherwise this test is not exercising the regression.
+	if _, ok := getRegistry().Lookup("bellevue"); !ok {
+		t.Fatal("setup: Lookup(\"bellevue\") should succeed after hydration alias-append")
+	}
+
+	stdout, stderr, err := runRestaurantsList(t, "--query", "sushi", "--metro", "bellevue")
+	if err != nil {
+		t.Fatalf("Execute: unexpected error: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
+	}
+	if !strings.Contains(stdout, "needs_clarification") {
+		t.Fatalf("post-hydration ambiguous --metro should still emit envelope; got %s", stdout)
+	}
+	env := unmarshalEnvelope(t, stdout)
+	if !env.NeedsClarification {
+		t.Error("NeedsClarification = false; want true")
+	}
+	if env.ErrorKind != ErrorKindLocationAmbiguous {
+		t.Errorf("ErrorKind = %q; want %q", env.ErrorKind, ErrorKindLocationAmbiguous)
+	}
+	if len(env.Candidates) < 3 {
+		t.Errorf("Candidates len = %d; want >= 3 (WA, NE, KY)", len(env.Candidates))
+	}
+	if !strings.Contains(stderr, "deprecated") {
+		t.Errorf("--metro should still emit deprecation warning; got %q", stderr)
+	}
+}
+
 // TestInferTierFromGeoContext pins the heuristic that decorateForList
 // uses to map a returned GeoContext back to a tier for the
 // DecorateWithLocationContext call. The function now prefers gc.Tier

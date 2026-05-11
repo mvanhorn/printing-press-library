@@ -434,6 +434,90 @@ func TestResolveLocation_IntegratesWithApplyGeoFilter(t *testing.T) {
 	}
 }
 
+// TestIsCanonicalMetro_PrimarySlug pins the U21 "primary slug match"
+// branch: an input that equals the resolved Place's primary Slug field
+// is unambiguously canonical. Seattle has Slug="seattle"; this is the
+// trivial canonical path.
+func TestIsCanonicalMetro_PrimarySlug(t *testing.T) {
+	if !isCanonicalMetro("seattle") {
+		t.Error("isCanonicalMetro(\"seattle\") = false; want true (primary slug match)")
+	}
+}
+
+// TestIsCanonicalMetro_AliasToSingleCanonical pins the U21 "alias to
+// single canonical" branch: "sf" is an alias on san-francisco, and the
+// input is NOT itself ambiguous as a city name (LookupByName("sf")
+// returns no matches because no Place has Name="sf"). Should be
+// canonical.
+func TestIsCanonicalMetro_AliasToSingleCanonical(t *testing.T) {
+	if !isCanonicalMetro("sf") {
+		t.Error("isCanonicalMetro(\"sf\") = false; want true (alias to single canonical, no name ambiguity)")
+	}
+}
+
+// TestIsCanonicalMetro_AliasToAmbiguousName_AfterHydration is THE
+// round-4 P1 fix. After Tock hydration absorbs a dynamic "bellevue"
+// entry into curated bellevue-wa (U18 name+coords match), the dynamic
+// slug "bellevue" is added as an alias on bellevue-wa. Pre-U21,
+// isCanonicalMetro("bellevue") returned true via the Lookup hit and
+// silently picked Bellevue WA — masking the genuine WA/NE/KY ambiguity.
+// Post-U21, isCanonicalMetro must return false here because
+// LookupByName("bellevue") returns 3 matches, so the input is
+// ambiguous as a city name even though Lookup resolves it via an alias.
+func TestIsCanonicalMetro_AliasToAmbiguousName_AfterHydration(t *testing.T) {
+	t.Cleanup(func() { setDynamicMetros(nil, 0) })
+	// Mimic Tock hydration: a dynamic "bellevue" entry whose
+	// (Name, Lat, Lng) match bellevue-wa within 5 km triggers U18's
+	// name+coords merge path which appends "bellevue" to
+	// bellevue-wa's Aliases.
+	setDynamicMetros([]Place{
+		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015},
+	}, 1)
+	// Sanity: Lookup("bellevue") must now succeed (alias resolution),
+	// otherwise the test is exercising a different code path than the
+	// regression.
+	if _, ok := getRegistry().Lookup("bellevue"); !ok {
+		t.Fatal("setup: Lookup(\"bellevue\") should succeed after hydration alias-append")
+	}
+	if isCanonicalMetro("bellevue") {
+		t.Error("isCanonicalMetro(\"bellevue\") = true; want false (alias to ambiguous name; envelope path must fire)")
+	}
+}
+
+// TestIsCanonicalMetro_PrimarySlugUnambiguous_EvenAfterHydration
+// verifies the primary-slug path keeps winning even under the same
+// hydration as the round-4 fix. "bellevue-wa" equals the curated
+// Place's primary Slug; it remains canonical regardless of what aliases
+// the merge appends.
+func TestIsCanonicalMetro_PrimarySlugUnambiguous_EvenAfterHydration(t *testing.T) {
+	t.Cleanup(func() { setDynamicMetros(nil, 0) })
+	setDynamicMetros([]Place{
+		{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015},
+	}, 1)
+	if !isCanonicalMetro("bellevue-wa") {
+		t.Error("isCanonicalMetro(\"bellevue-wa\") = false; want true (primary slug; unambiguous even after hydration)")
+	}
+}
+
+// TestIsCanonicalMetro_UnknownSlug pins the false branch: a value with
+// no Lookup hit and no LookupByName hit is not canonical.
+func TestIsCanonicalMetro_UnknownSlug(t *testing.T) {
+	if isCanonicalMetro("totally-fake-place") {
+		t.Error("isCanonicalMetro(\"totally-fake-place\") = true; want false")
+	}
+}
+
+// TestIsCanonicalMetro_NameMatchSingle pins the "no Lookup hit, single
+// LookupByName hit" branch. The case is documented even though
+// "seattle" hits the primary-slug path first; the assertion here is
+// idempotent with TestIsCanonicalMetro_PrimarySlug but documents the
+// fallthrough case explicitly.
+func TestIsCanonicalMetro_NameMatchSingle(t *testing.T) {
+	if !isCanonicalMetro("seattle") {
+		t.Error("isCanonicalMetro(\"seattle\") = false; want true (canonical via slug or single name match)")
+	}
+}
+
 // TestApplyGeoFilter_NilContextIntegration is the R13 contract test
 // at the integration layer: ResolveLocation("") returns nil GeoContext
 // and applyGeoFilter(results, nil, ...) is a true pass-through. The
