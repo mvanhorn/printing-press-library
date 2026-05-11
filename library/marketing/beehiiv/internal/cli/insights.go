@@ -54,7 +54,8 @@ func newInsightsGrowthSummaryCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			pubID := args[0]
+			// PATCH: Escape compound insight publication IDs before inserting them into API paths.
+			pubID := escapePathParam(args[0])
 			if limit <= 0 {
 				limit = 100
 			}
@@ -132,7 +133,9 @@ func newInsightsSubscriberSourcesCmd(flags *rootFlags) *cobra.Command {
 			if limit <= 0 {
 				limit = 100
 			}
-			subs, meta, err := beehiivArray(c.Get("/publications/"+args[0]+"/subscriptions", map[string]string{"limit": fmt.Sprintf("%d", limit)}))
+			// PATCH: Escape compound insight publication IDs before inserting them into API paths.
+			pubID := escapePathParam(args[0])
+			subs, meta, err := beehiivArray(c.Get("/publications/"+pubID+"/subscriptions", map[string]string{"limit": fmt.Sprintf("%d", limit)}))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -175,7 +178,9 @@ func newInsightsPostPerformanceCmd(flags *rootFlags) *cobra.Command {
 			if limit <= 0 {
 				limit = 25
 			}
-			posts, meta, err := beehiivArray(c.Get("/publications/"+args[0]+"/posts", map[string]string{
+			// PATCH: Escape compound insight publication IDs before inserting them into API paths.
+			pubID := escapePathParam(args[0])
+			posts, meta, err := beehiivArray(c.Get("/publications/"+pubID+"/posts", map[string]string{
 				"limit":     fmt.Sprintf("%d", limit),
 				"expand":    "stats",
 				"order_by":  "created",
@@ -227,11 +232,13 @@ func newInsightsFieldCoverageCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fields, fieldMeta, err := beehiivArray(c.Get("/publications/"+args[0]+"/custom_fields", nil))
+			// PATCH: Escape compound insight publication IDs before inserting them into API paths.
+			pubID := escapePathParam(args[0])
+			fields, fieldMeta, err := beehiivArray(c.Get("/publications/"+pubID+"/custom_fields", nil))
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			subs, subMeta, subErr := beehiivArray(c.Get("/publications/"+args[0]+"/subscriptions", map[string]string{"limit": "100"}))
+			subs, subMeta, subErr := beehiivArray(c.Get("/publications/"+pubID+"/subscriptions", map[string]string{"limit": "100"}))
 			result := map[string]any{
 				"custom_field_count":      len(fields),
 				"custom_field_total":      numberOrMeta(fieldMeta, "total_results", len(fields)),
@@ -267,7 +274,8 @@ func newInsightsReferralHealthCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			pubID := args[0]
+			// PATCH: Escape compound insight publication IDs before inserting them into API paths.
+			pubID := escapePathParam(args[0])
 			publication, pubErr := beehiivObject(c.Get("/publications/"+pubID, nil))
 			referral, refErr := beehiivObject(c.Get("/publications/"+pubID+"/referral_program", nil))
 			subs, meta, subErr := beehiivArray(c.Get("/publications/"+pubID+"/subscriptions", map[string]string{"limit": "100"}))

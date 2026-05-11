@@ -36,12 +36,22 @@
     },
     {
       "id": "escaped-path-params",
-      "summary": "Escapes generated CLI and MCP path parameters before inserting them into URL paths.",
-      "reason": "Beehiiv email path parameters can contain reserved characters such as plus and at signs, and raw replacement breaks valid subscriber lookups.",
+      "summary": "Escapes generated CLI, MCP, and compound insight path parameters before inserting them into URL paths.",
+      "reason": "Beehiiv email and publication path parameters can contain reserved characters, and raw replacement breaks valid API paths.",
       "files": [
         "internal/cli/helpers.go",
         "internal/cli/insights.go",
         "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "review-polish",
+      "summary": "Removes dead generated scaffolding from refresh-token and update-by-email paths.",
+      "reason": "Beehiiv uses bearer-token auth in this CLI, so unsupported OAuth refresh tokens should fail explicitly instead of silently no-oping; empty generated conditionals should not ship.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/subscriptions_update-by-email.go"
       ],
       "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
     }

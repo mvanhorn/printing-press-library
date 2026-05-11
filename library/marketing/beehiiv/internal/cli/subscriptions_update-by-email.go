@@ -22,15 +22,13 @@ func newSubscriptionsUpdateByEmailCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:   "update-by-email <publicationId> <email>",
-		Short: "Update subscription by email <Badge intent='info' minimal outlined>OAuth Scope: subscriptions:write</Badge>",
-		Example: "  beehiiv-pp-cli subscriptions update-by-email 550e8400-e29b-41d4-a716-446655440000 user@example.com",
+		Use:         "update-by-email <publicationId> <email>",
+		Short:       "Update subscription by email <Badge intent='info' minimal outlined>OAuth Scope: subscriptions:write</Badge>",
+		Example:     "  beehiiv-pp-cli subscriptions update-by-email 550e8400-e29b-41d4-a716-446655440000 user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "subscriptions.update-by-email", "pp:method": "PUT", "pp:path": "/publications/{publicationId}/subscriptions/by_email/{email}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
-			}
-			if !stdinBody {
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -101,7 +99,9 @@ func newSubscriptionsUpdateByEmailCmd(flags *rootFlags) *cobra.Command {
 						return nil
 					}
 				} else {
-					var wrapped struct{ Data []map[string]any `json:"data"` }
+					var wrapped struct {
+						Data []map[string]any `json:"data"`
+					}
 					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)

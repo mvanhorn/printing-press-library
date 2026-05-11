@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/config"
 )
@@ -44,5 +46,23 @@ func TestGetFreshWithHeadersBypassesResponseCache(t *testing.T) {
 	}
 	if string(cached) != `{"token":"stale"}` {
 		t.Fatalf("cache was overwritten with %s, want stale entry unchanged", cached)
+	}
+}
+
+func TestAuthHeaderErrorsWhenExpiredRefreshTokenCannotRefresh(t *testing.T) {
+	c := &Client{
+		Config: &config.Config{
+			AccessToken:  "stale",
+			RefreshToken: "refresh",
+			TokenExpiry:  time.Now().Add(-time.Minute),
+		},
+	}
+
+	_, err := c.authHeader()
+	if err == nil {
+		t.Fatal("authHeader returned nil error for expired token with unsupported refresh token")
+	}
+	if !strings.Contains(err.Error(), "no Beehiiv OAuth refresh endpoint") {
+		t.Fatalf("authHeader error = %q, want unsupported refresh endpoint message", err)
 	}
 }
