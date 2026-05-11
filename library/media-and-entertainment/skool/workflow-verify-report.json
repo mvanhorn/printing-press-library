@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/zainhaseeb/Documents/Printing-Press/builds/skool",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
