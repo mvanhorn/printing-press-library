@@ -343,6 +343,17 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 					// its own runtime XHR — the real browser passes Akamai
 					// because it runs the JS sensor naturally.
 					if _, isBot := opentable.IsBotDetection(derr); isBot {
+						// `restSlug` may be empty when the caller passed a
+						// numeric OpenTable ID (the numeric short-circuit
+						// skips Autocomplete so we never populate restSlug).
+						// ChromeAvailability handles the empty-slug case by
+						// falling back to `/restaurant/profile/<id>?...`
+						// instead of `/r/<slug>?...` — Akamai treats both
+						// routes as legitimate user navigation, so the
+						// fallback URL is equivalent for WAF acceptance.
+						// (PR #423 round-2 Greptile P1 — documenting that
+						// the empty-slug pass-through is intentional, not
+						// a missing-data bug.)
 						chromeAvail, cerr := c.ChromeAvailability(ctx, restID, restSlug, dayStr, "19:00", party, 0)
 						if cerr == nil {
 							avail = append(avail, chromeAvail...)
