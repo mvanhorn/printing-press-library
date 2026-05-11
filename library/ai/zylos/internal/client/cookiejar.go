@@ -11,17 +11,22 @@ import (
 )
 
 type persistentJar struct {
-	jar  http.CookieJar
-	path string
-	mu   sync.Mutex
+	jar     http.CookieJar
+	path    string
+	baseURL *url.URL
+	mu      sync.Mutex
 }
 
-func newPersistentJar(cookiePath string) (*persistentJar, error) {
+func newPersistentJar(cookiePath, rawBaseURL string) (*persistentJar, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err
 	}
-	pj := &persistentJar{jar: jar, path: cookiePath}
+	u, _ := url.Parse(rawBaseURL)
+	if u == nil || u.Host == "" {
+		u = &url.URL{Scheme: "http", Host: "127.0.0.1:3456"}
+	}
+	pj := &persistentJar{jar: jar, path: cookiePath, baseURL: u}
 	pj.load()
 	return pj, nil
 }
@@ -53,7 +58,6 @@ func (pj *persistentJar) load() {
 	if json.Unmarshal(data, &entries) != nil {
 		return
 	}
-	u := &url.URL{Scheme: "http", Host: "127.0.0.1:3456"}
 	var cookies []*http.Cookie
 	for _, e := range entries {
 		cookies = append(cookies, &http.Cookie{
@@ -66,13 +70,12 @@ func (pj *persistentJar) load() {
 		})
 	}
 	if len(cookies) > 0 {
-		pj.jar.SetCookies(u, cookies)
+		pj.jar.SetCookies(pj.baseURL, cookies)
 	}
 }
 
 func (pj *persistentJar) save() {
-	u := &url.URL{Scheme: "http", Host: "127.0.0.1:3456"}
-	cookies := pj.jar.Cookies(u)
+	cookies := pj.jar.Cookies(pj.baseURL)
 	var entries []struct {
 		Domain   string `json:"domain"`
 		Path     string `json:"path"`

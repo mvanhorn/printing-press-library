@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -74,7 +75,12 @@ profile by name when the installed backend supports it.`,
 			}
 
 			w := cmd.OutOrStdout()
-			domain := ""
+			domain := "127.0.0.1"
+			if cfg, err := config.Load(flags.configPath); err == nil && cfg.BaseURL != "" {
+				if u, err := url.Parse(cfg.BaseURL); err == nil && u.Host != "" {
+					domain = u.Hostname()
+				}
+			}
 
 			// Step 1: Detect cookie extraction tool
 			tool, err := detectCookieTool()
@@ -183,7 +189,13 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
-			fmt.Fprintf(w, "  Domain: \n")
+			fmt.Fprintf(w, "  Domain: %s\n", func() string {
+					domain := "127.0.0.1"
+					if u, err := url.Parse(cfg.BaseURL); err == nil && u.Host != "" {
+						domain = u.Hostname()
+					}
+					return domain
+				}())
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
@@ -335,8 +347,8 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
-	out, err := exec.Command("sqlite3", tmpPath, query).Output()
+	query := "SELECT COUNT(*) FROM cookies WHERE host_key LIKE ?"
+	out, err := exec.Command("sqlite3", tmpPath, query, domainPattern).Output()
 	if err != nil {
 		return 0
 	}
