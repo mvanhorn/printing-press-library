@@ -16,6 +16,8 @@ type searchAnalyticsResponse struct {
 	Rows []searchAnalyticsRow `json:"rows"`
 }
 
+const maxSearchAnalyticsRowLimit = 25000
+
 type searchAnalyticsRow struct {
 	Keys        []string `json:"keys"`
 	Clicks      float64  `json:"clicks"`
@@ -71,6 +73,10 @@ func newBrandVsNonbrandSplitCmd(flags *rootFlags) *cobra.Command {
 			if startDate == "" || endDate == "" {
 				return usageErr(fmt.Errorf("--start-date and --end-date are required"))
 			}
+			rowLimit, err := normalizeSearchAnalyticsRowLimit(rowLimit)
+			if err != nil {
+				return usageErr(err)
+			}
 			matcher, err := buildBrandMatcher(brands, brandRegex)
 			if err != nil {
 				return err
@@ -111,6 +117,7 @@ func newBrandVsNonbrandSplitCmd(flags *rootFlags) *cobra.Command {
 					"non_branded": nonBranded,
 				},
 			}
+			addSearchAnalyticsMetadata(result, rows, rowLimit)
 			if includeRows {
 				result["rows"] = outRows
 			}
@@ -122,7 +129,7 @@ func newBrandVsNonbrandSplitCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&startDate, "start-date", "", "Start date YYYY-MM-DD")
 	cmd.Flags().StringVar(&endDate, "end-date", "", "End date YYYY-MM-DD")
 	cmd.Flags().StringVar(&typeFlag, "type", "WEB", "Search property type (WEB, IMAGE, VIDEO, NEWS, DISCOVER, GOOGLE_NEWS)")
-	cmd.Flags().IntVar(&rowLimit, "row-limit", 25000, "Rows to request from Search Analytics")
+	cmd.Flags().IntVar(&rowLimit, "row-limit", maxSearchAnalyticsRowLimit, "Rows to request from Search Analytics (max 25000)")
 	cmd.Flags().BoolVar(&includeRows, "include-rows", false, "Include classified query rows")
 	return cmd
 }
@@ -148,6 +155,10 @@ func newPageQueriesCmd(flags *rootFlags) *cobra.Command {
 			if startDate == "" || endDate == "" {
 				return usageErr(fmt.Errorf("--start-date and --end-date are required"))
 			}
+			rowLimit, err := normalizeSearchAnalyticsRowLimit(rowLimit)
+			if err != nil {
+				return usageErr(err)
+			}
 			filter := &searchAnalyticsFilter{Dimension: "page", Operator: "equals", Expression: args[1]}
 			rows, err := runSearchAnalyticsQuery(flags, args[0], startDate, endDate, []string{"query", "page"}, typeFlag, rowLimit, 0, filter)
 			if err != nil {
@@ -165,7 +176,7 @@ func newPageQueriesCmd(flags *rootFlags) *cobra.Command {
 					Position:    row.Position,
 				})
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+			result := map[string]any{
 				"site_url": args[0],
 				"page_url": args[1],
 				"date_range": map[string]string{
@@ -173,19 +184,21 @@ func newPageQueriesCmd(flags *rootFlags) *cobra.Command {
 					"end_date":   endDate,
 				},
 				"rows": outRows,
-			}, flags)
+			}
+			addSearchAnalyticsMetadata(result, rows, rowLimit)
+			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
 	cmd.Flags().StringVar(&startDate, "start-date", "", "Start date YYYY-MM-DD")
 	cmd.Flags().StringVar(&endDate, "end-date", "", "End date YYYY-MM-DD")
 	cmd.Flags().StringVar(&typeFlag, "type", "WEB", "Search property type (WEB, IMAGE, VIDEO, NEWS, DISCOVER, GOOGLE_NEWS)")
-	cmd.Flags().IntVar(&rowLimit, "row-limit", 25000, "Rows to request from Search Analytics")
+	cmd.Flags().IntVar(&rowLimit, "row-limit", maxSearchAnalyticsRowLimit, "Rows to request from Search Analytics (max 25000)")
 	return cmd
 }
 
 func runSearchAnalyticsQuery(flags *rootFlags, siteURL, startDate, endDate string, dimensions []string, searchType string, rowLimit, startRow int, filter *searchAnalyticsFilter) ([]searchAnalyticsRow, error) {
-	if rowLimit <= 0 || rowLimit > 25000 {
-		rowLimit = 25000
+	if rowLimit > maxSearchAnalyticsRowLimit {
+		rowLimit = maxSearchAnalyticsRowLimit
 	}
 	c, err := flags.newClient()
 	if err != nil {
@@ -220,6 +233,22 @@ func runSearchAnalyticsQuery(flags *rootFlags, siteURL, startDate, endDate strin
 		return nil, fmt.Errorf("parsing search analytics response: %w", err)
 	}
 	return resp.Rows, nil
+}
+
+func normalizeSearchAnalyticsRowLimit(rowLimit int) (int, error) {
+	if rowLimit <= 0 {
+		return 0, fmt.Errorf("--row-limit must be greater than 0")
+	}
+	if rowLimit > maxSearchAnalyticsRowLimit {
+		return maxSearchAnalyticsRowLimit, nil
+	}
+	return rowLimit, nil
+}
+
+func addSearchAnalyticsMetadata(result map[string]any, rows []searchAnalyticsRow, rowLimit int) {
+	result["rows_returned"] = len(rows)
+	result["row_limit"] = rowLimit
+	result["truncated"] = rowLimit > 0 && len(rows) == rowLimit
 }
 
 func buildBrandMatcher(brands []string, brandRegex string) (func(string) bool, error) {

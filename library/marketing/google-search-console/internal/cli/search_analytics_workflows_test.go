@@ -13,6 +13,9 @@ func TestSearchAnalyticsWorkflowCommandsRegistered(t *testing.T) {
 	if cmd, _, err := root.Find([]string{"branded-split"}); err != nil || cmd == nil || cmd.Name() != "brand-vs-nonbrand-split" {
 		t.Fatalf("branded-split alias resolved to %v, %v; want brand-vs-nonbrand-split", cmd, err)
 	}
+	if cmd, _, err := root.Find([]string{"brand-split"}); err != nil || cmd == nil || cmd.Name() != "brand-vs-nonbrand-split" {
+		t.Fatalf("brand-split alias resolved to %v, %v; want brand-vs-nonbrand-split", cmd, err)
+	}
 	if cmd, _, err := root.Find([]string{"page-query-breakdown"}); err != nil || cmd == nil || cmd.Name() != "page-queries" {
 		t.Fatalf("page-query-breakdown alias resolved to %v, %v; want page-queries", cmd, err)
 	}
@@ -31,6 +34,54 @@ func TestSearchAnalyticsWorkflowDryRunSkipsRequiredWorkflowFlags(t *testing.T) {
 		if err := root.Execute(); err != nil {
 			t.Fatalf("RootCmd(%v) returned error: %v", args, err)
 		}
+	}
+}
+
+func TestNormalizeSearchAnalyticsRowLimitRejectsZero(t *testing.T) {
+	if _, err := normalizeSearchAnalyticsRowLimit(0); err == nil {
+		t.Fatal("expected --row-limit 0 to return an error")
+	}
+	if _, err := normalizeSearchAnalyticsRowLimit(-1); err == nil {
+		t.Fatal("expected negative --row-limit to return an error")
+	}
+}
+
+func TestNormalizeSearchAnalyticsRowLimitCapsAtMax(t *testing.T) {
+	got, err := normalizeSearchAnalyticsRowLimit(maxSearchAnalyticsRowLimit + 1)
+	if err != nil {
+		t.Fatalf("normalizeSearchAnalyticsRowLimit returned error: %v", err)
+	}
+	if got != maxSearchAnalyticsRowLimit {
+		t.Fatalf("row limit: want %d, got %d", maxSearchAnalyticsRowLimit, got)
+	}
+}
+
+func TestAddSearchAnalyticsMetadataMarksTruncatedAtLimit(t *testing.T) {
+	result := map[string]any{}
+	rows := []searchAnalyticsRow{{}, {}}
+	addSearchAnalyticsMetadata(result, rows, len(rows))
+
+	if result["rows_returned"] != len(rows) {
+		t.Fatalf("rows_returned: want %d, got %v", len(rows), result["rows_returned"])
+	}
+	if result["row_limit"] != len(rows) {
+		t.Fatalf("row_limit: want %d, got %v", len(rows), result["row_limit"])
+	}
+	if result["truncated"] != true {
+		t.Fatalf("truncated: want true, got %v", result["truncated"])
+	}
+}
+
+func TestAddSearchAnalyticsMetadataLeavesPartialResultsUntruncated(t *testing.T) {
+	result := map[string]any{}
+	rows := []searchAnalyticsRow{{}}
+	addSearchAnalyticsMetadata(result, rows, len(rows)+1)
+
+	if result["rows_returned"] != len(rows) {
+		t.Fatalf("rows_returned: want %d, got %v", len(rows), result["rows_returned"])
+	}
+	if result["truncated"] != false {
+		t.Fatalf("truncated: want false, got %v", result["truncated"])
 	}
 }
 
