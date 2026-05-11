@@ -1,0 +1,78 @@
+{
+  "api_name": "pennylane",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "pennylane-cli (wanadev)",
+      "url": "https://github.com/wanadev/pennylane-mcp",
+      "language": "TypeScript",
+      "install_method": "npm",
+      "has_json_output": false,
+      "has_auth_support": true,
+      "notes": "MCP server only, no local analytics, no offline mode"
+    }
+  ],
+  "gaps": [
+    "no existing CLI provides offline analytics (AR aging, DSO, runway) without live API calls",
+    "no existing tool validates FEC files locally against DGFiP spec",
+    "no existing tool detects drift on recurring invoices",
+    "no existing CLI provides year-end checklist automation"
+  ],
+  "patterns": [
+    "REST API wrapper with OAuth2 bearer token",
+    "local SQLite cache for offline analytics",
+    "FEC validation (DGFiP conformance)"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T00:07:58Z",
+  "novel_features": [
+    {
+      "name": "Balance Agee (Aged Receivables)",
+      "command": "ar aging",
+      "description": "Classe toutes les creances clients par tranche de retard (0-30j, 30-60j, 60-90j, 90j+) en une commande.",
+      "rationale": "Rapport mensuel obligatoire pour tout cabinet comptable — genere en <1s offline.",
+      "why_it_matters": "Identifie les risques d'impaye avant qu'ils deviennent critiques."
+    },
+    {
+      "name": "DSO Tracker",
+      "command": "cash dso",
+      "description": "Calcule le delai moyen de paiement par client et globalement sur une periode glissante.",
+      "rationale": "Indicateur cle de la sante du poste client — absent de l'interface Pennylane.",
+      "why_it_matters": "Identifie les mauvais payeurs avant qu'ils impactent la tresorerie."
+    },
+    {
+      "name": "Projection Tresorerie",
+      "command": "cash runway",
+      "description": "Projette la position de tresorerie jour par jour sur N jours en combinant AR ouvert et AP ouvert.",
+      "rationale": "Repond a la question cle : quand est-ce que je manque de cash ? sans Excel.",
+      "why_it_matters": "Permet d'anticiper les besoins de financement a court terme."
+    },
+    {
+      "name": "Validateur FEC DGFiP",
+      "command": "fec validate",
+      "description": "Valide un fichier FEC DGFiP : equilibre debit/credit, champs obligatoires, monotonie des dates.",
+      "rationale": "Obligation legale annuelle — la validation manuelle est source d'erreurs.",
+      "why_it_matters": "Detecte les anomalies avant depot fiscal."
+    },
+    {
+      "name": "Import Factures CSV",
+      "command": "invoice bulk-create",
+      "description": "Cree N factures depuis un CSV avec validation dry-run, correspondance client fuzzy et throttling API.",
+      "rationale": "Migration ou import en masse impossible via l'interface Pennylane.",
+      "why_it_matters": "Reduit de plusieurs heures a quelques secondes la saisie en masse."
+    },
+    {
+      "name": "Checklist Cloture Annuelle",
+      "command": "yearend check",
+      "description": "Execute une checklist de 4 controles de cloture : transactions non rapprochees, factures draft, avoirs ouverts.",
+      "rationale": "La cloture annuelle est risquee — une checklist automatisee reduit les oublis.",
+      "why_it_matters": "Evite les erreurs de bilan et les retraitements comptables."
+    }
+  ],
+  "novel_features_built": [
+    "ar aging", "cash dso", "cash runway", "vat preview",
+    "invoice bulk-create", "invoice check-recurring",
+    "fec validate", "clients rank", "yearend check",
+    "audit anomalies", "ap schedule", "ar remind"
+  ]
+}

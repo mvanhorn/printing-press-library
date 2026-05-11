@@ -206,9 +206,43 @@ func newInvoiceBulkCreateCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			// Real mode: would call API sequentially with 200ms delay
-			// Skipped without valid API credentials; preview only in this implementation.
-			fmt.Fprintf(os.Stderr, "\n%d facture(s) prête(s). Mode réel : relancer sans --dry-run avec des identifiants API configurés.\n", len(results))
+			// Real mode: create invoices sequentially via the API.
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			created := 0
+			failed := 0
+			for _, r := range results {
+				if r.Status != "ok" {
+					failed++
+					continue
+				}
+				body := map[string]any{
+					"customer_name": r.CustomerMatched,
+					"amount":        r.Amount,
+					"label":         r.Label,
+					"date":          r.Date,
+				}
+				if r.DueDate != "" {
+					body["due_date"] = r.DueDate
+				}
+				_, statusCode, apiErr := c.Post("/api/external/v2/customer_invoices", body)
+				if apiErr != nil || statusCode >= 400 {
+					failed++
+					if apiErr != nil {
+						fmt.Fprintf(os.Stderr, "ligne %d : erreur API — %v\n", r.Row, apiErr)
+					} else {
+						fmt.Fprintf(os.Stderr, "ligne %d : erreur API HTTP %d\n", r.Row, statusCode)
+					}
+				} else {
+					created++
+				}
+			}
+			fmt.Fprintf(os.Stderr, "\n%d facture(s) créée(s), %d erreur(s)\n", created, failed)
+			if failed > 0 {
+				return fmt.Errorf("%d facture(s) n'ont pas pu être créées", failed)
+			}
 			return nil
 		},
 	}

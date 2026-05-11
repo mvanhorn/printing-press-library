@@ -263,11 +263,13 @@ func detectFECSep(line string) rune {
 			counts[c]++
 		}
 	}
+	// Iterate in a fixed priority order to guarantee deterministic results on ties.
+	// Priority: tab (DGFiP default) > pipe > semicolon.
 	best := '\t'
-	bestN := 0
-	for sep, n := range counts {
-		if n > bestN {
-			bestN = n
+	bestN := counts['\t']
+	for _, sep := range []rune{'|', ';'} {
+		if counts[sep] > bestN {
+			bestN = counts[sep]
 			best = sep
 		}
 	}

@@ -118,9 +118,9 @@ func newCashDSOCmd(flags *rootFlags) *cobra.Command {
 				  AND resource_type IN ('external-v2-customer-invoices','external-v2-changelogs-customer-invoices')
 				GROUP BY client
 			`, prevStart, periodStart)
+			prev := make(map[string]float64)
 			if err == nil {
 				defer prevRows.Close()
-				prev := make(map[string]float64)
 				for prevRows.Next() {
 					var client string
 					var avgDays float64
@@ -128,59 +128,59 @@ func newCashDSOCmd(flags *rootFlags) *cobra.Command {
 						prev[client] = avgDays
 					}
 				}
-
-				var result []dsoRow
-				for client, agg := range current {
-					avg := 0.0
-					if agg.count > 0 {
-						avg = agg.totalDays / float64(agg.count)
-					}
-					trend := "stable"
-					if p, ok := prev[client]; ok {
-						diff := avg - p
-						if diff > 2 {
-							trend = "↑ pire"
-						} else if diff < -2 {
-							trend = "↓ meilleur"
-						}
-					}
-					result = append(result, dsoRow{
-						Client:       client,
-						AvgDays:      math.Round(avg*10) / 10,
-						InvoiceCount: agg.count,
-						Trend:        trend,
-					})
-				}
-				sort.Slice(result, func(i, j int) bool {
-					return result[i].AvgDays > result[j].AvgDays
-				})
-
-				globalDSO := 0.0
-				if globalAmt > 0 {
-					globalDSO = math.Round((globalDays/globalAmt)*10) / 10
-				}
-
-				res := dsoResult{
-					GlobalDSO: globalDSO,
-					Period:    fmt.Sprintf("derniers %d jours", rolling),
-					Clients:   result,
-				}
-
-				if flags.asJSON {
-					enc := json.NewEncoder(os.Stdout)
-					enc.SetIndent("", "  ")
-					return enc.Encode(res)
-				}
-
-				fmt.Printf("DSO global : %.1f jours (période : %s)\n\n", globalDSO, res.Period)
-				tw := tabwriter.NewWriter(os.Stdout, 2, 4, 2, ' ', 0)
-				fmt.Fprintln(tw, "CLIENT\tMOY (j)\tFACTURES\tTENDANCE")
-				for _, r := range result {
-					fmt.Fprintf(tw, "%s\t%.1f\t%d\t%s\n", r.Client, r.AvgDays, r.InvoiceCount, r.Trend)
-				}
-				return tw.Flush()
 			}
-			return nil
+			// Previous-period query failure is non-fatal: trends show "stable" for all clients.
+
+			var result []dsoRow
+			for client, agg := range current {
+				avg := 0.0
+				if agg.count > 0 {
+					avg = agg.totalDays / float64(agg.count)
+				}
+				trend := "stable"
+				if p, ok := prev[client]; ok {
+					diff := avg - p
+					if diff > 2 {
+						trend = "↑ pire"
+					} else if diff < -2 {
+						trend = "↓ meilleur"
+					}
+				}
+				result = append(result, dsoRow{
+					Client:       client,
+					AvgDays:      math.Round(avg*10) / 10,
+					InvoiceCount: agg.count,
+					Trend:        trend,
+				})
+			}
+			sort.Slice(result, func(i, j int) bool {
+				return result[i].AvgDays > result[j].AvgDays
+			})
+
+			globalDSO := 0.0
+			if globalAmt > 0 {
+				globalDSO = math.Round((globalDays/globalAmt)*10) / 10
+			}
+
+			res := dsoResult{
+				GlobalDSO: globalDSO,
+				Period:    fmt.Sprintf("derniers %d jours", rolling),
+				Clients:   result,
+			}
+
+			if flags.asJSON {
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(res)
+			}
+
+			fmt.Printf("DSO global : %.1f jours (période : %s)\n\n", globalDSO, res.Period)
+			tw := tabwriter.NewWriter(os.Stdout, 2, 4, 2, ' ', 0)
+			fmt.Fprintln(tw, "CLIENT\tMOY (j)\tFACTURES\tTENDANCE")
+			for _, r := range result {
+				fmt.Fprintf(tw, "%s\t%.1f\t%d\t%s\n", r.Client, r.AvgDays, r.InvoiceCount, r.Trend)
+			}
+			return tw.Flush()
 		},
 	}
 

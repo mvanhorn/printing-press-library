@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "name": "accounting-pp-mcp",
+  "name": "pennylane-pp-mcp",
   "display_name": "Pennylane",
   "version": "4.2.1",
   "description": "Accounting API surface as MCP tools.",
@@ -10,9 +10,9 @@
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/accounting-pp-mcp",
+    "entry_point": "bin/pennylane-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/accounting-pp-mcp",
+      "command": "${__dirname}/bin/pennylane-pp-mcp",
       "args": [],
       "env": {
         "ACCOUNTING_OAUTH2": "${user_config.accounting_oauth2}"

@@ -90,11 +90,19 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
-	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
 	}
-	h := sha256.Sum256([]byte(key))
+	sort.Strings(keys)
+	var sb strings.Builder
+	sb.WriteString(path)
+	for _, k := range keys {
+		sb.WriteString(k)
+		sb.WriteByte('=')
+		sb.WriteString(params[k])
+	}
+	h := sha256.Sum256([]byte(sb.String()))
 	return hex.EncodeToString(h[:8])
 }
 

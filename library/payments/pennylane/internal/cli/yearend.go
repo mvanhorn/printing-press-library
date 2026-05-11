@@ -62,7 +62,7 @@ func newYearEndCheckCmd(flags *rootFlags) *cobra.Command {
 				SELECT COUNT(*) FROM resources
 				WHERE resource_type IN ('external-v2-transactions','external-v2-changelogs-transactions')
 				  AND json_extract(data,'$.date') BETWEEN ? AND ?
-				  AND json_extract(data,'$.reconciled') IS NULL OR json_extract(data,'$.reconciled') = 0
+				  AND (json_extract(data,'$.reconciled') IS NULL OR json_extract(data,'$.reconciled') = 0)
 			`, start, end).Scan(&unreconciledCount)
 			status := "ok"
 			if unreconciledCount > 0 {
