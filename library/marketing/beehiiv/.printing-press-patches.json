@@ -54,6 +54,16 @@
         "internal/cli/subscriptions_update-by-email.go"
       ],
       "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "workflow-archive-endpoints",
+      "summary": "Routes workflow archive through the generated sync endpoint map.",
+      "reason": "Beehiiv user and workspace identity resources live at /users/identify and /workspaces/identify, not collection paths.",
+      "files": [
+        "internal/cli/channel_workflow.go",
+        "internal/cli/channel_workflow_test.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
     }
   ]
 }

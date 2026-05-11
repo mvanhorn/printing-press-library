@@ -55,10 +55,15 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"publications", "users", "workspaces",  }
+			resources := defaultSyncResources()
 			totalSynced := 0
 
 			for _, resource := range resources {
+				// PATCH: Use the generated sync endpoint map so identity resources do not call invalid collection URLs.
+				endpoint, err := syncResourcePath(resource)
+				if err != nil {
+					return err
+				}
 				cursor := ""
 				if !full {
 					existing, _, _, err := s.GetSyncState(resource)
@@ -76,7 +81,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				count := 0
 				for {
-					data, fetchErr := c.Get("/"+resource, params)
+					data, fetchErr := c.Get(endpoint, params)
 					if fetchErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
@@ -94,7 +99,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						break
 					}
 					for _, item := range items {
-						var obj struct{ ID string `json:"id"` }
+						var obj struct {
+							ID string `json:"id"`
+						}
 						json.Unmarshal(item, &obj)
 						id := obj.ID
 						if id == "" {
