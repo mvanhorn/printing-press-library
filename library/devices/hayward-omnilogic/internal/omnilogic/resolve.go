@@ -84,19 +84,44 @@ func ResolveHeater(cfg *MspConfig, name string) (poolID, heaterID int, heater He
 // SystemID. Pass kindFilter to restrict to "pump", "light", "valve",
 // "relay", or "" for any.
 func ResolveEquipment(cfg *MspConfig, name, kindFilter string) (poolID, equipID int, kind, displayName string, err error) {
+	return ResolveEquipmentInBoW(cfg, name, kindFilter, "")
+}
+
+// ResolveEquipmentInBoW is like ResolveEquipment but constrained to a
+// specific Body-of-Water by name (case-insensitive substring; empty matches
+// any). Used when the same equipment name appears in both Pool and Spa
+// (e.g., both BoWs have a pump literally named "Filter Pump").
+func ResolveEquipmentInBoW(cfg *MspConfig, name, kindFilter, bowFilter string) (poolID, equipID int, kind, displayName string, err error) {
 	type match struct {
-		poolID int
-		eqID   int
-		kind   string
-		name   string
+		poolID  int
+		eqID    int
+		kind    string
+		name    string
+		bowName string
 	}
 	var matches []match
+	seen := map[string]bool{} // dedupe shared equipment that appears in multiple BoWs
 	nl := strings.ToLower(name)
+	bf := strings.ToLower(strings.TrimSpace(bowFilter))
 	for _, bow := range cfg.BodiesOfWater {
+		// Skip BoWs that don't match the filter, if a filter was given.
+		if bf != "" && !strings.Contains(strings.ToLower(bow.Name), bf) {
+			continue
+		}
 		bowID := atoiSafe(bow.SystemID)
+		bowName := bow.Name
 		add := func(k, n, sid string) {
 			if (kindFilter == "" || kindFilter == k) && (nl == "" || strings.Contains(strings.ToLower(n), nl)) {
-				matches = append(matches, match{bowID, atoiSafe(sid), k, n})
+				// Hayward marks shared pumps/heaters/lights as
+				// BOW_SHARED_EQUIPMENT and lists them under every BoW
+				// that references them. Dedupe by (kind, systemId) so
+				// "Filter Pump" resolves to one match, not two.
+				key := k + ":" + sid
+				if seen[key] {
+					return
+				}
+				seen[key] = true
+				matches = append(matches, match{bowID, atoiSafe(sid), k, n, bowName})
 			}
 		}
 		for _, p := range bow.Pumps {
@@ -109,26 +134,41 @@ func ResolveEquipment(cfg *MspConfig, name, kindFilter string) (poolID, equipID 
 			add("relay", r.Name, r.SystemID)
 		}
 	}
-	// Also try backyard-level relays for "relay" or empty kindFilter.
-	if kindFilter == "" || kindFilter == "relay" {
+	// Also try backyard-level relays for "relay" or empty kindFilter
+	// (only when no BoW filter was given — backyard relays aren't scoped to a BoW).
+	if (kindFilter == "" || kindFilter == "relay") && bf == "" {
 		for _, r := range cfg.Relays {
 			if nl == "" || strings.Contains(strings.ToLower(r.Name), nl) {
-				matches = append(matches, match{0, atoiSafe(r.SystemID), "relay", r.Name})
+				key := "relay:" + r.SystemID
+				if seen[key] {
+					continue
+				}
+				seen[key] = true
+				matches = append(matches, match{0, atoiSafe(r.SystemID), "relay", r.Name, ""})
 			}
 		}
 	}
 	switch len(matches) {
 	case 0:
-		return 0, 0, "", "", fmt.Errorf("no equipment matched %q", name)
+		hint := ""
+		if bf != "" {
+			hint = fmt.Sprintf(" in BoW %q", bowFilter)
+		}
+		return 0, 0, "", "", fmt.Errorf("no equipment matched %q%s", name, hint)
 	case 1:
 		m := matches[0]
 		return m.poolID, m.eqID, m.kind, m.name, nil
 	default:
 		var names []string
 		for _, m := range matches {
-			names = append(names, fmt.Sprintf("%s (%s)", m.name, m.kind))
+			label := fmt.Sprintf("%s (%s", m.name, m.kind)
+			if m.bowName != "" {
+				label += fmt.Sprintf(" in %s", m.bowName)
+			}
+			label += ")"
+			names = append(names, label)
 		}
-		return 0, 0, "", "", fmt.Errorf("name %q matched multiple: %s", name, strings.Join(names, ", "))
+		return 0, 0, "", "", fmt.Errorf("name %q matched multiple: %s — disambiguate with --bow Pool or --bow Spa", name, strings.Join(names, ", "))
 	}
 }
 
@@ -211,11 +251,27 @@ func ChemistryVerdict(ph *float64, orp, salt *int) (verdict string, reasons []st
 	return verdict, reasons
 }
 
+// bumpVerdict folds a new finding into the running verdict. The legal
+// terminal states are:
+//   - ok       → all readings in range
+//   - low      → every out-of-range reading is below safe range
+//   - high     → every out-of-range reading is above safe range
+//   - mixed    → at least one low AND at least one high (e.g. pH low + ORP high)
+//
+// Without this, the original implementation kept the first non-"ok" verdict
+// and silently dropped every subsequent finding from the verdict string —
+// users reading "low" wouldn't see that ORP was also "high", which could
+// lead to under-treating the pool. The full reasons list is always in the
+// returned reasons slice; the verdict is the one-word summary.
 func bumpVerdict(cur, next string) string {
+	if cur == next {
+		return cur
+	}
 	if cur == "ok" {
 		return next
 	}
-	return cur
+	// cur and next are both non-ok and differ → mixed direction (low+high).
+	return "mixed"
 }
 
 // FormatTemp formats an *int temp as "82°F" or "-" when nil.

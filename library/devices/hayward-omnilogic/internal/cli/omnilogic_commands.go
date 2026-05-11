@@ -465,14 +465,12 @@ func newOmniPumpCmd(flags *rootFlags) *cobra.Command {
 
 func newOmniPumpSetSpeedCmd(flags *rootFlags) *cobra.Command {
 	var siteID, speed int
+	var bow string
 	cmd := &cobra.Command{
 		Use:     "set-speed [pump-name]",
-		Short:   "Set a pump's running speed (range comes from MSP config).",
-		Example: "  hayward-omnilogic-pp-cli pump set-speed 'Main Pump' --speed 75",
+		Short:   "Set a pump's running speed (range comes from MSP config). Sending 0 stops the pump.",
+		Example: "  hayward-omnilogic-pp-cli pump set-speed 'Filter Pump' --bow Pool --speed 50",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if speed == 0 {
-				return cmd.Help()
-			}
 			name := ""
 			if len(args) > 0 {
 				name = args[0]
@@ -494,7 +492,7 @@ func newOmniPumpSetSpeedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			poolID, eqID, _, displayName, err := omnilogic.ResolveEquipment(cfg, name, "pump")
+			poolID, eqID, _, displayName, err := omnilogic.ResolveEquipmentInBoW(cfg, name, "pump", bow)
 			if err != nil {
 				return usageErr(err)
 			}
@@ -514,7 +512,8 @@ func newOmniPumpSetSpeedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
-	cmd.Flags().IntVar(&speed, "speed", 0, "Speed value (RPM or percent depending on pump).")
+	cmd.Flags().IntVar(&speed, "speed", 0, "Speed value (RPM or percent depending on pump). 0 stops the pump.")
+	cmd.Flags().StringVar(&bow, "bow", "", "Constrain to a body-of-water by name (e.g. 'Pool' or 'Spa'). Useful when pumps in different BoWs share names.")
 	return cmd
 }
 
@@ -532,31 +531,34 @@ func newOmniEquipmentCmd(flags *rootFlags) *cobra.Command {
 
 func newOmniEquipmentOnCmd(flags *rootFlags) *cobra.Command {
 	var siteID int
-	var forDur string
+	var forDur, bow string
 	cmd := &cobra.Command{
 		Use:     "on [equipment-name]",
 		Short:   "Turn an equipment item on, optionally for a bounded duration.",
-		Example: "  hayward-omnilogic-pp-cli equipment on 'Spa Air Blower' --for 30m",
-		RunE:    runEquipmentOnOff(flags, &siteID, &forDur, true),
+		Example: "  hayward-omnilogic-pp-cli equipment on 'Filter Pump' --bow Pool --for 1h",
+		RunE:    runEquipmentOnOff(flags, &siteID, &forDur, &bow, true),
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
 	cmd.Flags().StringVar(&forDur, "for", "", "Run for a bounded duration (e.g. 30m, 1h, 2h30m). Omit to run indefinitely.")
+	cmd.Flags().StringVar(&bow, "bow", "", "Constrain to a body-of-water by name (e.g. 'Pool' or 'Spa'). Useful when equipment in different BoWs share names.")
 	return cmd
 }
 
 func newOmniEquipmentOffCmd(flags *rootFlags) *cobra.Command {
 	var siteID int
+	var bow string
 	cmd := &cobra.Command{
 		Use:     "off [equipment-name]",
 		Short:   "Turn an equipment item off.",
-		Example: "  hayward-omnilogic-pp-cli equipment off 'Spa Air Blower'",
-		RunE:    runEquipmentOnOff(flags, &siteID, nil, false),
+		Example: "  hayward-omnilogic-pp-cli equipment off 'Filter Pump' --bow Pool",
+		RunE:    runEquipmentOnOff(flags, &siteID, nil, &bow, false),
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
+	cmd.Flags().StringVar(&bow, "bow", "", "Constrain to a body-of-water by name (e.g. 'Pool' or 'Spa').")
 	return cmd
 }
 
-func runEquipmentOnOff(flags *rootFlags, siteID *int, forDur *string, on bool) func(cmd *cobra.Command, args []string) error {
+func runEquipmentOnOff(flags *rootFlags, siteID *int, forDur *string, bowFilter *string, on bool) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		name := ""
 		if len(args) > 0 {
@@ -590,16 +592,20 @@ func runEquipmentOnOff(flags *rootFlags, siteID *int, forDur *string, on bool) f
 		if err != nil {
 			return classifyOmnilogicError(err)
 		}
-		poolID, eqID, kind, display, err := omnilogic.ResolveEquipment(cfg, name, "")
+		bf := ""
+		if bowFilter != nil {
+			bf = *bowFilter
+		}
+		poolID, eqID, kind, display, err := omnilogic.ResolveEquipmentInBoW(cfg, name, "", bf)
 		if err != nil {
 			return usageErr(err)
 		}
 		op := "SetUIEquipmentCmd"
 		target := fmt.Sprintf("%s (%s %d)", display, kind, eqID)
-		params := map[string]any{"on": on, "duration_min": dur, "pool_id": poolID, "equipment_id": eqID}
+		params := map[string]any{"on": on, "duration_min": dur, "pool_id": poolID, "equipment_id": eqID, "bow": bf}
 		if flags.dryRun {
 			logDryRun(s, op, target, params)
-			return printCommandPreview(cmd, op, target, map[string]any{"on": on, "duration_min": dur})
+			return printCommandPreview(cmd, op, target, map[string]any{"on": on, "duration_min": dur, "pool_id": poolID, "equipment_id": eqID})
 		}
 		result, err := c.SetEquipment(site.MspSystemID, poolID, eqID, on, dur)
 		if err != nil {

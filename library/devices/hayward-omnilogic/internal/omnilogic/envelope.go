@@ -3,6 +3,7 @@ package omnilogic
 import (
 	"encoding/xml"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -28,14 +29,26 @@ type envParamsW struct {
 // buildRequest mirrors the Python wrapper's buildRequest. Each param dataType
 // is inferred from the Go type: int/int32/int64 -> "int", bool -> "bool",
 // float -> "double", string -> "string". The Token key is dropped from the
-// body — it travels in the HTTP header instead.
+// body — it travels in the HTTP header instead. Params are sorted by name
+// to keep the wire format deterministic: Go map iteration is randomized,
+// and Hayward's .NET handler is order-sensitive for at least one Set*
+// operation (SetCHLORParams). Deterministic alphabetical order means the
+// same logical request emits byte-identical XML across processes, which
+// makes troubleshooting and regression-testing tractable. Order-sensitive
+// Set* operations should use buildOrderedRequest with a hand-authored slice
+// instead.
 func buildRequest(opName string, params map[string]any) (string, error) {
-	req := envRequest{Name: opName}
-	for k, v := range params {
+	keys := make([]string, 0, len(params))
+	for k := range params {
 		if k == "Token" {
 			continue
 		}
-		dt, val, err := paramRepr(v)
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	req := envRequest{Name: opName}
+	for _, k := range keys {
+		dt, val, err := paramRepr(params[k])
 		if err != nil {
 			return "", fmt.Errorf("param %q: %w", k, err)
 		}
@@ -46,6 +59,42 @@ func buildRequest(opName string, params map[string]any) (string, error) {
 		return "", err
 	}
 	return xml.Header + string(out), nil
+}
+
+// orderedParam describes one Parameter element in canonical order. Hayward's
+// .NET backend can return "Input string was not in a correct format" on
+// otherwise-valid XML when the parameter order differs from what the
+// SetUIEquipmentCmd handler expects, so callers that hit the .ashx endpoint
+// build their request via this typed list rather than a map.
+type orderedParam struct {
+	Name     string
+	DataType string
+	Value    any
+}
+
+// buildOrderedRequest is the deterministic-order variant of buildRequest:
+// callers pass an []orderedParam in the exact order Hayward's handler
+// expects. The Token param is filtered out (it travels in the HTTP header,
+// not the body). Entries with nil Value are skipped so callers can include
+// optional params in canonical position without sending blanks.
+func buildOrderedRequest(opName string, params []orderedParam) (string, error) {
+	var b strings.Builder
+	b.WriteString(xml.Header)
+	b.WriteString("<Request><Name>")
+	b.WriteString(opName)
+	b.WriteString("</Name><Parameters>")
+	for _, p := range params {
+		if p.Name == "Token" || p.Value == nil {
+			continue
+		}
+		_, val, err := paramRepr(p.Value)
+		if err != nil {
+			return "", fmt.Errorf("param %q: %w", p.Name, err)
+		}
+		fmt.Fprintf(&b, `<Parameter name="%s" dataType="%s">%s</Parameter>`, p.Name, p.DataType, val)
+	}
+	b.WriteString("</Parameters></Request>")
+	return b.String(), nil
 }
 
 // buildChlorRequest constructs SetCHLORParams using the exact parameter order
@@ -90,10 +139,12 @@ func paramRepr(v any) (datatype, value string, err error) {
 	case int64:
 		return "int", strconv.FormatInt(x, 10), nil
 	case bool:
+		// Hayward's .NET handler is strict about bool casing — it expects
+		// lowercase "true"/"false", not Python's str(bool) "True"/"False".
 		if x {
-			return "bool", "True", nil
+			return "bool", "true", nil
 		}
-		return "bool", "False", nil
+		return "bool", "false", nil
 	case float64:
 		return "double", strconv.FormatFloat(x, 'f', -1, 64), nil
 	case float32:

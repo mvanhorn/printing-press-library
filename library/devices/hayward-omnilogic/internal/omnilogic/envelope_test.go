@@ -36,7 +36,7 @@ func TestBuildRequest_DataTypeInference(t *testing.T) {
 	}
 	tests := []struct{ frag, label string }{
 		{`name="PoolID" dataType="int">1<`, "int param"},
-		{`name="Enabled" dataType="bool">True<`, "bool param"},
+		{`name="Enabled" dataType="bool">true<`, "bool param"},
 		{`name="Version" dataType="string">0<`, "string param"},
 	}
 	for _, tc := range tests {
@@ -179,5 +179,68 @@ func TestChemistryVerdict_AllNil(t *testing.T) {
 	v, _ := ChemistryVerdict(nil, nil, nil)
 	if v != "unknown" {
 		t.Errorf("expected unknown, got %s", v)
+	}
+}
+
+// TestChemistryVerdict_MixedDirections covers the Greptile review finding
+// that the original bumpVerdict collapsed pH-low + ORP-high into "low" and
+// silently dropped the second finding from the verdict string.
+func TestChemistryVerdict_MixedDirections(t *testing.T) {
+	ph := 7.0  // low (want >=7.2)
+	orp := 850 // high (want <=800)
+	v, r := ChemistryVerdict(&ph, &orp, nil)
+	if v != "mixed" {
+		t.Errorf("expected mixed verdict when pH low + ORP high, got %s", v)
+	}
+	if len(r) != 2 {
+		t.Errorf("expected 2 reasons (one per out-of-range metric), got %d: %v", len(r), r)
+	}
+}
+
+// TestChemistryVerdict_SameDirection ensures the verdict stays single-word
+// when every out-of-range metric is on the same side (e.g. pH low + salt low).
+func TestChemistryVerdict_SameDirection(t *testing.T) {
+	ph := 7.0      // low
+	salt := 2400   // low
+	v, r := ChemistryVerdict(&ph, nil, &salt)
+	if v != "low" {
+		t.Errorf("expected low when every metric is low, got %s", v)
+	}
+	if len(r) != 2 {
+		t.Errorf("expected 2 reasons, got %d", len(r))
+	}
+}
+
+// TestBuildRequest_SortedOrder ensures buildRequest emits parameters in a
+// deterministic alphabetical sequence regardless of map iteration order.
+// Hayward's .NET handler is order-sensitive on at least one Set* operation
+// (SetCHLORParams), so deterministic output is the floor.
+func TestBuildRequest_SortedOrder(t *testing.T) {
+	// Run several iterations because Go map iteration is randomized;
+	// without sort, this test would flake roughly (N-1)! / N! ~= 1/N of
+	// the time. With sort, output is byte-identical every iteration.
+	want := ""
+	for i := 0; i < 20; i++ {
+		got, err := buildRequest("GetSomething", map[string]any{
+			"Zeta":  1,
+			"Alpha": 2,
+			"Mu":    "x",
+			"Beta":  true,
+		})
+		if err != nil {
+			t.Fatalf("iter %d: build err: %v", i, err)
+		}
+		if i == 0 {
+			want = got
+			// Confirm the order is alphabetical.
+			expected := `<Parameter name="Alpha" dataType="int">2</Parameter><Parameter name="Beta" dataType="bool">true</Parameter><Parameter name="Mu" dataType="string">x</Parameter><Parameter name="Zeta" dataType="int">1</Parameter>`
+			if !strings.Contains(got, expected) {
+				t.Errorf("expected alphabetical order, got: %s", got)
+			}
+			continue
+		}
+		if got != want {
+			t.Errorf("iter %d: byte-identical XML expected, got divergence:\nwant: %s\n got: %s", i, want, got)
+		}
 	}
 }

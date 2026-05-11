@@ -42,10 +42,13 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 	return json.RawMessage(data), true
 }
 
-// Set stores a value in the cache.
+// Set stores a value in the cache. Permissions are user-only (0o700 dir,
+// 0o600 file) to match the auth cache: cached responses can include site
+// topology, equipment IDs, and configuration details the user may prefer
+// not to expose to other local accounts.
 func (s *Store) Set(key string, value json.RawMessage) {
-	_ = os.MkdirAll(s.Dir, 0o755)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o644)
+	_ = os.MkdirAll(s.Dir, 0o700)
+	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
 }
 
 // Clear removes all cached entries.

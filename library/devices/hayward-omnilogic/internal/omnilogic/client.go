@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -174,6 +175,44 @@ func (c *Client) callOp(opName string, params map[string]any) (string, error) {
 	return body, nil
 }
 
+// callOpOrdered is the ordered-param variant of callOp. Set* operations that
+// hit the .ashx endpoint with deterministic parameter ordering (Hayward's
+// .NET handler is order-sensitive on SetUIEquipmentCmd and SetUI*Cmd
+// variants) should use this path.
+func (c *Client) callOpOrdered(opName string, ordered []orderedParam, mspSystemID int) (string, error) {
+	if err := c.EnsureToken(); err != nil {
+		return "", err
+	}
+	body, status, err := c.doOpOrdered(opName, ordered, mspSystemID)
+	if err != nil {
+		return "", err
+	}
+	if status == 401 {
+		c.mu.Lock()
+		c.state = nil
+		c.mu.Unlock()
+		if err := c.EnsureToken(); err != nil {
+			return "", err
+		}
+		body, status, err = c.doOpOrdered(opName, ordered, mspSystemID)
+		if err != nil {
+			return "", err
+		}
+	}
+	if status >= 400 {
+		return "", &APIError{Op: opName, StatusCode: status, Body: body}
+	}
+	return body, nil
+}
+
+func (c *Client) doOpOrdered(opName string, ordered []orderedParam, mspSystemID int) (string, int, error) {
+	payload, err := buildOrderedRequest(opName, ordered)
+	if err != nil {
+		return "", 0, err
+	}
+	return c.sendOpRequest(opName, payload, mspSystemID)
+}
+
 func (c *Client) doOp(opName string, params map[string]any) (string, int, error) {
 	var payload string
 	if opName == "SetCHLORParams" {
@@ -184,6 +223,23 @@ func (c *Client) doOp(opName string, params map[string]any) (string, int, error)
 			return "", 0, err
 		}
 		payload = p
+	}
+	msp := 0
+	if v, ok := params["MspSystemID"]; ok {
+		msp = asInt(v)
+	}
+	return c.sendOpRequest(opName, payload, msp)
+}
+
+// sendOpRequest is the shared HTTP-and-response leg used by both the
+// map-based doOp and the ordered-slice doOpOrdered. Sets Content-Type,
+// Token header (from cached auth state), SiteID header (when msp > 0),
+// limiter integration, and 429 mapping to cliutil.RateLimitError.
+func (c *Client) sendOpRequest(opName, payload string, mspSystemID int) (string, int, error) {
+	if os.Getenv("HAYWARD_DEBUG") != "" {
+		// Opt-in payload dump for protocol debugging against Hayward's
+		// .NET-shaped error responses. Set HAYWARD_DEBUG=1 to enable.
+		fmt.Fprintf(os.Stderr, "[debug] %s payload:\n%s\n", opName, payload)
 	}
 	req, err := http.NewRequest("POST", OpsURL, bytes.NewReader([]byte(payload)))
 	if err != nil {
@@ -196,8 +252,8 @@ func (c *Client) doOp(opName string, params map[string]any) (string, int, error)
 		req.Header.Set("Token", c.state.Token)
 	}
 	c.mu.Unlock()
-	if msp, ok := params["MspSystemID"]; ok {
-		req.Header.Set("SiteID", asString(msp))
+	if mspSystemID > 0 {
+		req.Header.Set("SiteID", strconv.Itoa(mspSystemID))
 	}
 	if c.limiter != nil {
 		c.limiter.Wait()
@@ -208,8 +264,6 @@ func (c *Client) doOp(opName string, params map[string]any) (string, int, error)
 	}
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
-	// Surface 429s as typed rate-limit errors so commands can distinguish
-	// "throttled" from "empty response."
 	if resp.StatusCode == 429 {
 		if c.limiter != nil {
 			c.limiter.OnRateLimit()
@@ -225,6 +279,21 @@ func (c *Client) doOp(opName string, params map[string]any) (string, int, error)
 		c.limiter.OnSuccess()
 	}
 	return string(body), resp.StatusCode, nil
+}
+
+func asInt(v any) int {
+	switch x := v.(type) {
+	case int:
+		return x
+	case int32:
+		return int(x)
+	case int64:
+		return int(x)
+	case string:
+		n, _ := strconv.Atoi(x)
+		return n
+	}
+	return 0
 }
 
 func asString(v any) string {

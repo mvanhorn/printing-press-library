@@ -243,19 +243,45 @@ actually enabling the heater.`,
 				"start_heating_at":  startAt.Format(time.RFC3339),
 				"arrival":           target.Format(time.RFC3339),
 			}
-			// If start time is now or in the past, enable the heater (unless dry-run).
-			if !flags.dryRun && time.Now().After(startAt) {
+			// Enable the heater now and set the target setpoint. Hayward's
+			// gas/heat-pump heaters take time to reach setpoint, so starting
+			// immediately when the user runs the command is the correct
+			// action: the report's start_heating_at and hours_needed fields
+			// tell them whether they're ahead of schedule, on time, or behind.
+			// Scheduling the heater to fire later (instead of now) would need
+			// Hayward's schedule API, which isn't wired up yet — future work.
+			if flags.dryRun {
+				report["dry_run"] = true
+			} else {
 				poolID, heaterID, h, herr := omnilogic.ResolveHeater(cfg, "")
-				if herr == nil {
+				if herr != nil {
+					report["heater_enabled"] = false
+					report["heater_error"] = herr.Error()
+				} else {
 					params := map[string]any{"heater": h.Name, "set_temp": targetTemp}
-					if _, err := c.SetHeaterEnable(site.MspSystemID, poolID, heaterID, true); err == nil {
+					enableResult, enableErr := c.SetHeaterEnable(site.MspSystemID, poolID, heaterID, true)
+					if enableErr != nil {
+						report["heater_enabled"] = false
+						report["heater_error"] = enableErr.Error()
+					} else if enableResult != nil && enableResult.Status != "ok" {
+						report["heater_enabled"] = false
+						report["heater_error"] = enableResult.Detail
+					} else {
 						_, _ = c.SetHeaterTemp(site.MspSystemID, poolID, heaterID, targetTemp)
 						logResult(s, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "ok"})
 						report["heater_enabled"] = true
+						report["heater_name"] = h.Name
+						// Surface whether the user is ahead of, on, or behind schedule.
+						switch {
+						case time.Now().Before(startAt):
+							report["schedule_state"] = "ahead-of-schedule"
+						case time.Now().After(startAt):
+							report["schedule_state"] = "behind-schedule"
+						default:
+							report["schedule_state"] = "on-schedule"
+						}
 					}
 				}
-			} else if flags.dryRun {
-				report["dry_run"] = true
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), report, flags)
 		},

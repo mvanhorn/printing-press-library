@@ -78,136 +78,148 @@ func (c *Client) GetTelemetry(mspSystemID int) (*Telemetry, error) {
 }
 
 // SetHeaterEnable turns a heater on (enable=true) or off (enable=false).
+// Order matches the Python reference wrapper's dict insertion order.
 func (c *Client) SetHeaterEnable(mspSystemID, poolID, heaterID int, enable bool) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID": mspSystemID,
-		"PoolID":      poolID,
-		"HeaterID":    heaterID,
-		"Version":     "0",
-		"Enabled":     enable,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"HeaterID", "int", heaterID},
+		{"Enabled", "bool", enable},
 	}
-	return c.runSetOp("SetHeaterEnable", params, fmt.Sprintf("heater %d", heaterID))
+	return c.runSetOpOrdered("SetHeaterEnable", ordered, mspSystemID, fmt.Sprintf("heater %d", heaterID))
 }
 
 // SetHeaterTemp sets a heater setpoint in °F.
 func (c *Client) SetHeaterTemp(mspSystemID, poolID, heaterID, tempF int) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID": mspSystemID,
-		"PoolID":      poolID,
-		"HeaterID":    heaterID,
-		"Version":     "0",
-		"Temp":        tempF,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"HeaterID", "int", heaterID},
+		{"Temp", "int", tempF},
 	}
-	return c.runSetOp("SetUIHeaterCmd", params, fmt.Sprintf("heater %d", heaterID))
+	return c.runSetOpOrdered("SetUIHeaterCmd", ordered, mspSystemID, fmt.Sprintf("heater %d", heaterID))
 }
 
-// SetPumpSpeed sets a pump's running speed.
+// SetPumpSpeed sets a VSP pump's running speed. Speed=0 stops the pump.
+// Hayward's .NET SetUIEquipmentCmd handler is parameter-order sensitive
+// AND specific about which params it accepts. Field order matches the
+// handler's own "you should input following parameters" list verbatim:
+// PoolID, EquipmentID, IsOn, IsCountDownTimer, StartTimeHours,
+// StartTimeMinutes, EndTimeHours, EndTimeMinutes, DaysActive, Recurring.
+// Speed is sent after the timer block; the handler interprets IsOn=true +
+// Speed=N as "set this VSP to N%" and IsOn=false as "stop the pump".
+// MspSystemID and Version travel separately (header and Version param).
 func (c *Client) SetPumpSpeed(mspSystemID, poolID, pumpID, speed int) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID":      mspSystemID,
-		"PoolID":           poolID,
-		"EquipmentID":      pumpID,
-		"Version":          "0",
-		"Speed":            speed,
-		"IsCountDownTimer": false,
-		"StartTimeHours":   0,
-		"StartTimeMinutes": 0,
-		"EndTimeHours":     0,
-		"EndTimeMinutes":   0,
-		"DaysActive":       0,
-		"Recurring":        false,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"EquipmentID", "int", pumpID},
+		{"IsOn", "bool", speed > 0},
+		{"Speed", "int", speed},
+		{"IsCountDownTimer", "bool", false},
+		{"StartTimeHours", "int", 0},
+		{"StartTimeMinutes", "int", 0},
+		{"EndTimeHours", "int", 0},
+		{"EndTimeMinutes", "int", 0},
+		{"DaysActive", "int", 0},
+		{"Recurring", "bool", false},
 	}
-	return c.runSetOp("SetUIEquipmentCmd", params, fmt.Sprintf("pump %d", pumpID))
+	return c.runSetOpOrdered("SetUIEquipmentCmd", ordered, mspSystemID, fmt.Sprintf("pump %d", pumpID))
 }
 
 // SetEquipment turns an equipment item on/off, optionally for a bounded
-// duration. dur of 0 means run indefinitely.
+// duration. durationMinutes=0 means run indefinitely; >0 schedules a
+// countdown timer that auto-turns-off after the window. Order matches
+// Hayward's "you should input following parameters" expected list.
 func (c *Client) SetEquipment(mspSystemID, poolID, equipmentID int, isOn bool, durationMinutes int) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID":      mspSystemID,
-		"PoolID":           poolID,
-		"EquipmentID":      equipmentID,
-		"Version":          "0",
-		"IsOn":             isOn,
-		"IsCountDownTimer": durationMinutes > 0,
-		"StartTimeHours":   0,
-		"StartTimeMinutes": 0,
-		"EndTimeHours":     durationMinutes / 60,
-		"EndTimeMinutes":   durationMinutes % 60,
-		"DaysActive":       0,
-		"Recurring":        false,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"EquipmentID", "int", equipmentID},
+		{"IsOn", "bool", isOn},
+		{"IsCountDownTimer", "bool", durationMinutes > 0},
+		{"StartTimeHours", "int", 0},
+		{"StartTimeMinutes", "int", 0},
+		{"EndTimeHours", "int", durationMinutes / 60},
+		{"EndTimeMinutes", "int", durationMinutes % 60},
+		{"DaysActive", "int", 0},
+		{"Recurring", "bool", false},
 	}
-	return c.runSetOp("SetUIEquipmentCmd", params, fmt.Sprintf("equipment %d", equipmentID))
+	return c.runSetOpOrdered("SetUIEquipmentCmd", ordered, mspSystemID, fmt.Sprintf("equipment %d", equipmentID))
 }
 
 // SetSpillover sets the spillover speed.
 func (c *Client) SetSpillover(mspSystemID, poolID, speed, durationMinutes int) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID":      mspSystemID,
-		"PoolID":           poolID,
-		"Version":          "0",
-		"Speed":            speed,
-		"IsCountDownTimer": durationMinutes > 0,
-		"StartTimeHours":   0,
-		"StartTimeMinutes": 0,
-		"EndTimeHours":     durationMinutes / 60,
-		"EndTimeMinutes":   durationMinutes % 60,
-		"DaysActive":       0,
-		"Recurring":        false,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"Speed", "int", speed},
+		{"IsCountDownTimer", "bool", durationMinutes > 0},
+		{"StartTimeHours", "int", 0},
+		{"StartTimeMinutes", "int", 0},
+		{"EndTimeHours", "int", durationMinutes / 60},
+		{"EndTimeMinutes", "int", durationMinutes % 60},
+		{"DaysActive", "int", 0},
+		{"Recurring", "bool", false},
 	}
-	return c.runSetOp("SetUISpilloverCmd", params, fmt.Sprintf("pool %d", poolID))
+	return c.runSetOpOrdered("SetUISpilloverCmd", ordered, mspSystemID, fmt.Sprintf("pool %d", poolID))
 }
 
 // SetSuperchlor toggles superchlorination on a salt chlorinator.
 func (c *Client) SetSuperchlor(mspSystemID, poolID, chlorID int, isOn bool) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID": mspSystemID,
-		"PoolID":      poolID,
-		"ChlorID":     chlorID,
-		"Version":     "0",
-		"IsOn":        isOn,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"ChlorID", "int", chlorID},
+		{"IsOn", "bool", isOn},
 	}
-	return c.runSetOp("SetUISuperCHLORCmd", params, fmt.Sprintf("chlor %d", chlorID))
+	return c.runSetOpOrdered("SetUISuperCHLORCmd", ordered, mspSystemID, fmt.Sprintf("chlor %d", chlorID))
 }
 
 // SetLightShow sets a ColorLogic light show (V1).
 func (c *Client) SetLightShow(mspSystemID, poolID, lightID, showID int) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID":      mspSystemID,
-		"PoolID":           poolID,
-		"LightID":          lightID,
-		"Version":          "0",
-		"Show":             showID,
-		"IsCountDownTimer": false,
-		"StartTimeHours":   0,
-		"StartTimeMinutes": 0,
-		"EndTimeHours":     0,
-		"EndTimeMinutes":   0,
-		"DaysActive":       0,
-		"Recurring":        false,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"LightID", "int", lightID},
+		{"Show", "int", showID},
+		{"IsCountDownTimer", "bool", false},
+		{"StartTimeHours", "int", 0},
+		{"StartTimeMinutes", "int", 0},
+		{"EndTimeHours", "int", 0},
+		{"EndTimeMinutes", "int", 0},
+		{"DaysActive", "int", 0},
+		{"Recurring", "bool", false},
 	}
-	return c.runSetOp("SetStandAloneLightShow", params, fmt.Sprintf("light %d", lightID))
+	return c.runSetOpOrdered("SetStandAloneLightShow", ordered, mspSystemID, fmt.Sprintf("light %d", lightID))
 }
 
 // SetLightShowV2 sets a ColorLogic light show with speed + brightness (V2 lights only).
 func (c *Client) SetLightShowV2(mspSystemID, poolID, lightID, showID, speed, brightness int) (*CommandResult, error) {
-	params := map[string]any{
-		"MspSystemID":      mspSystemID,
-		"PoolID":           poolID,
-		"LightID":          lightID,
-		"Version":          "0",
-		"Show":             showID,
-		"Speed":            speed,
-		"Brightness":       brightness,
-		"IsCountDownTimer": false,
-		"StartTimeHours":   0,
-		"StartTimeMinutes": 0,
-		"EndTimeHours":     0,
-		"EndTimeMinutes":   0,
-		"DaysActive":       0,
-		"Recurring":        false,
+	ordered := []orderedParam{
+		{"MspSystemID", "int", mspSystemID},
+		{"Version", "string", "0"},
+		{"PoolID", "int", poolID},
+		{"LightID", "int", lightID},
+		{"Show", "int", showID},
+		{"Speed", "int", speed},
+		{"Brightness", "int", brightness},
+		{"IsCountDownTimer", "bool", false},
+		{"StartTimeHours", "int", 0},
+		{"StartTimeMinutes", "int", 0},
+		{"EndTimeHours", "int", 0},
+		{"EndTimeMinutes", "int", 0},
+		{"DaysActive", "int", 0},
+		{"Recurring", "bool", false},
 	}
-	return c.runSetOp("SetStandAloneLightShowV2", params, fmt.Sprintf("light %d", lightID))
+	return c.runSetOpOrdered("SetStandAloneLightShowV2", ordered, mspSystemID, fmt.Sprintf("light %d", lightID))
 }
 
 // SetChlorParams writes chlorinator configuration. Pass nil for any field to
@@ -256,6 +268,21 @@ func (c *Client) SetChlorParams(p ChlorParams) (*CommandResult, error) {
 	return c.runSetOp("SetCHLORParams", params, fmt.Sprintf("chlor %d", p.ChlorID))
 }
 
+// runSetOpOrdered is the ordered-params variant of runSetOp. Use this for
+// Set* operations against the .ashx endpoint where Hayward's .NET handler
+// requires a specific parameter order (SetUIEquipmentCmd, SetUIHeaterCmd,
+// SetUISpilloverCmd, SetStandAloneLightShow, SetUISuperCHLORCmd, etc.).
+func (c *Client) runSetOpOrdered(op string, ordered []orderedParam, mspSystemID int, target string) (*CommandResult, error) {
+	if err := c.EnsureToken(); err != nil {
+		return nil, err
+	}
+	body, err := c.callOpOrdered(op, ordered, mspSystemID)
+	if err != nil {
+		return nil, err
+	}
+	return interpretSetResponse(body, op, target), nil
+}
+
 // runSetOp shares the boilerplate for Set* operations: token, call, parse
 // Status, wrap as CommandResult.
 func (c *Client) runSetOp(op string, params map[string]any, target string) (*CommandResult, error) {
@@ -266,6 +293,13 @@ func (c *Client) runSetOp(op string, params map[string]any, target string) (*Com
 	if err != nil {
 		return nil, err
 	}
+	return interpretSetResponse(body, op, target), nil
+}
+
+// interpretSetResponse parses a Set* XML response into a CommandResult.
+// Status == 0 means success; any other status surfaces the StatusMessage
+// (or a generic detail when Hayward omits one).
+func interpretSetResponse(body, op, target string) *CommandResult {
 	status, msg, hasStatus := statusFromResponse(body)
 	result := &CommandResult{Operation: op, Target: target}
 	if hasStatus {
@@ -283,7 +317,7 @@ func (c *Client) runSetOp(op string, params map[string]any, target string) (*Com
 		// No Status param — treat as success (mirrors the Python wrapper).
 		result.Status = "ok"
 	}
-	return result, nil
+	return result
 }
 
 // ParseDuration accepts strings like "30m", "1h", "2h30m" and returns whole
