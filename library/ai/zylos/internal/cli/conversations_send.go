@@ -14,15 +14,14 @@ import (
 
 func newConversationsSendCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
+	var message string
 
 	cmd := &cobra.Command{
 		Use:         "send",
 		Short:       "Send a message to the AI",
-		Example:     "  zylos-pp-cli conversations send",
+		Example:     "  zylos-pp-cli conversations send --message \"Hello\"\n  echo '{\"message\":\"Hello\"}' | zylos-pp-cli conversations send --stdin",
 		Annotations: map[string]string{"pp:endpoint": "conversations.send", "pp:method": "POST", "pp:path": "/api/send"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -40,8 +39,10 @@ func newConversationsSendCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
 				body = jsonBody
+			} else if message != "" {
+				body = map[string]any{"message": message}
 			} else {
-				body = map[string]any{}
+				return fmt.Errorf("message required: use --message flag or --stdin")
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
@@ -111,6 +112,7 @@ func newConversationsSendCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().StringVarP(&message, "message", "m", "", "Message text to send")
 
 	return cmd
 }

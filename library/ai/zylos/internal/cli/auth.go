@@ -347,8 +347,16 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := "SELECT COUNT(*) FROM cookies WHERE host_key LIKE ?"
-	out, err := exec.Command("sqlite3", tmpPath, query, domainPattern).Output()
+	// Sanitize domainPattern: strip anything that isn't a word char, %, or _
+	// to prevent injection. This runs against a temp copy of the DB, not live data.
+	safe := strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '%' || r == '_' || r == '.' {
+			return r
+		}
+		return -1
+	}, domainPattern)
+	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", safe)
+	out, err := exec.Command("sqlite3", tmpPath, query).Output()
 	if err != nil {
 		return 0
 	}
