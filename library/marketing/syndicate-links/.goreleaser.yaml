@@ -1,0 +1,40 @@
+version: 2
+project_name: syndicate-links-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: syndicate-links-pp-cli
+    main: ./cmd/syndicate-links-pp-cli
+    binary: syndicate-links-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/syndicate-links/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: syndicate-links-pp-cli
+    repository:
+      owner: syndicate-links
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Syndicate Links CLI — agentic commerce attribution rail. Two-sided: merchants publish programs; publishers earn commissions."
+    install: |
+      bin.install "syndicate-links-pp-cli"
+release:
+  github:
+    owner: mvanhorn
+    name: printing-press-library

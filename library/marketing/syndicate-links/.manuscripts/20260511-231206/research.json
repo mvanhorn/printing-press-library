@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "run_id": "20260511-231206",
+  "api": "syndicate-links",
+  "display_name": "Syndicate Links",
+  "secret_identity": "Syndicate Links isn't an affiliate platform — it's an agentic commerce rail. Every commission row is a recorded handshake between two autonomous systems (merchant agent ↔ publisher agent).",
+  "spec_source": "Hand-curated OpenAPI 3.0 derived from API-REFERENCE.md (the canonical SL docs, https://syndicatelinks.co/docs/api-reference). 52 documented operations spanning merchant (programs, products, conversions, refunds, webhooks, reports, billing) and publisher (registration, partnerships, tracking links, events, balance, payouts, agent attribution).",
+  "stable_endpoints": 52,
+  "skipped_experimental": [
+    "POST /merchant/refunds — partial refund (refundAmount param) not implemented",
+    "POST /affiliate/payouts/claim — Stripe and USDC methods (Lightning only today)",
+    "GET /merchant/stripe/status — stub, always disconnected"
+  ],
+  "narrative_commands": [
+    {
+      "intent": "List my programs",
+      "command": "syndicate-links-pp-cli merchant list-programs --agent",
+      "verified": true,
+      "verification_target": "https://api.syndicatelinks.co"
+    },
+    {
+      "intent": "Create a new program",
+      "command": "syndicate-links-pp-cli merchant create-program --name \"Agent Tools\" --default-commission-pct 15 --auto-approve --agent",
+      "verified": true,
+      "verification_target": "https://api.syndicatelinks.co"
+    },
+    {
+      "intent": "Check billing/plan limits",
+      "command": "syndicate-links-pp-cli merchant billing --agent",
+      "verified": true,
+      "verification_target": "https://api.syndicatelinks.co"
+    },
+    {
+      "intent": "Mint an attribution token for an agent checkout",
+      "command": "syndicate-links-pp-cli affiliate attribution-token --program-id $PROG --tracking-code $CODE --agent",
+      "verified": false,
+      "note": "Tested syntactically; not executed live (requires approved publisher partnership)"
+    }
+  ],
+  "auth_model": {
+    "scheme": "Bearer",
+    "env_vars": ["SL_API_KEY", "SYNDICATE_LINKS_BEARER_AUTH"],
+    "key_prefixes": {
+      "mk_live_": "merchant — routes to /merchant/*",
+      "ak_live_": "human publisher — routes to /affiliate/*",
+      "aff_human_": "human publisher — alias of ak_live_",
+      "aff_agent_": "agent publisher — routes to /affiliate/* with agent privileges"
+    }
+  },
+  "live_smoke_results": {
+    "merchant_billing": "PASS — real plan + usage returned",
+    "merchant_list_programs": "PASS — empty array (as expected for new account)",
+    "merchant_create_program": "PASS — 201, real program ID assigned"
+  },
+  "dropped_artifacts": {
+    "mcp_server": "Syndicate Links ships a hand-tuned MCP server (syndicate-links-mcp on npm) shaped specifically for agent commerce flows (7 tools). Press-generated MCP would have been 52 thin endpoint mirrors; we chose to keep the focused one and ship CLI-only here.",
+    "cli_skill_only": false
+  }
+}

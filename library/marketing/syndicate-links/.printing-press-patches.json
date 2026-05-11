@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": null,
+  "base_printing_press_version": "4.3.0",
+  "patches": [
+    {
+      "id": "sl-api-key-env-var",
+      "summary": "Honor SL_API_KEY in addition to the press-default SYNDICATE_LINKS_BEARER_AUTH.",
+      "reason": "Syndicate Links docs and existing tooling (syndicate-links-mcp, SDKs, dashboard examples) all reference SL_API_KEY. The press generates the env var from the OpenAPI security scheme name; the human-readable canonical name diverges. Both are accepted to avoid breaking either path.",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "doctor and merchant list-programs succeed when only SL_API_KEY is set (live against api.syndicatelinks.co)."
+    },
+    {
+      "id": "drop-press-generated-mcp",
+      "summary": "Remove the press-generated MCP server (cmd/syndicate-links-pp-mcp, internal/mcp/, manifest.json) and trim Makefile targets.",
+      "reason": "Syndicate Links already ships a hand-tuned MCP server (`syndicate-links-mcp` on npm, https://www.npmjs.com/package/syndicate-links-mcp) maintained alongside the API. Shipping a second auto-generated MCP server creates a maintenance fork and ambiguity for agents that discover both. The hand-tuned server has 7 tools shaped for the agent commerce use case; the press generated 52 thin endpoint mirrors. Two MCPs hurts; one focused one wins.",
+      "files": [
+        "cmd/syndicate-links-pp-mcp/ (deleted)",
+        "internal/mcp/ (deleted)",
+        "manifest.json (deleted)",
+        "Makefile",
+        ".printing-press.json"
+      ],
+      "validated_outcome": "go build ./... succeeds; CLI works against live API."
+    }
+  ]
+}
