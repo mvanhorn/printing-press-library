@@ -74,6 +74,25 @@ class AttributionVerifierTest(unittest.TestCase):
 
         self.assertEqual(1, verifier.run(base, "HEAD"))
 
+    def test_new_cli_allows_printer_equal_to_owner(self) -> None:
+        self.write("README.md", "# repo\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "base")
+        base = self.git("rev-parse", "HEAD").stdout.strip()
+
+        self.git("switch", "-c", "feature")
+        self.write_manifest(
+            "library/other/openalex",
+            owner="hiten-shah",
+            printer="hiten-shah",
+            printer_name="Hiten Shah",
+        )
+        self.write("library/other/openalex/README.md", "# OpenAlex\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "add openalex")
+
+        self.assertEqual(0, verifier.run(base, "HEAD"))
+
 
 if __name__ == "__main__":
     unittest.main()
