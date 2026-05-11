@@ -9,8 +9,8 @@ import (
 	"os"
 	"sort"
 
-	"github.com/spf13/cobra"
 	"jimmy-johns-pp-cli/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {

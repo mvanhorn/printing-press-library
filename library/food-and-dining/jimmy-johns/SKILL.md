@@ -1,6 +1,6 @@
 ---
 name: pp-jimmy-johns
-description: "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder."
+description: "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed. Trigger phrases: `jimmy john's`, `freaky fast`, `unwich`, `jj order`, `use jimmy-johns`, `run jimmy-johns`."
 author: "Omar Shahine"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -29,11 +29,11 @@ If the `npx` install fails before this CLI has a public-library category, instal
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-CLI for the Jimmy John's ordering API. Browse stores, menus, and product
-modifiers; manage your cart; place orders; view rewards and saved payments.
-Backed by Jimmy John's proprietary API at www.jimmyjohns.com/api and
-authenticated via cookies imported from a logged-in Chrome session
-(PerimeterX clearance + JJ session cookies).
+Browse stores and menus, build carts, view rewards, and one-shot reorders from the terminal. The Unwich converter computes lettuce-wrap modifier deltas locally so agents can build no-bread orders without an extra API round trip.
+
+## When to Use This CLI
+
+Use this CLI when scripting Jimmy John's order workflows from the terminal, when building a cart for an agent that needs typed access to JJ's menu and rewards data, or when caching menu state for offline composition. The Unwich converter is particularly useful for low-carb diet flows.
 
 ## Unique Capabilities
 
@@ -113,15 +113,20 @@ jimmy-johns-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Auth Setup
+## Recipes
 
-This CLI uses a browser session. Log in to jimmyjohns.com in Chrome, then:
+
+### Show every menu item that has Unwich support
 
 ```bash
-jimmy-johns-pp-cli auth login --chrome
+jimmy-johns-pp-cli menu products --json | jq '.[] | select(.category=="sandwich")'
 ```
 
-Requires a cookie extraction tool (`pycookiecheat` via pip, or `cookies` via Homebrew).
+Filter the local menu cache to sandwiches before piping into the unwich converter.
+
+## Auth Setup
+
+Jimmy John's runs PerimeterX bot protection. Authenticate by capturing cookies from a fresh, hand-driven Chrome session via 'browser-use cookies export', then 'jimmy-johns-pp-cli auth import-cookies --from-file <path>'. Sessions that get fingerprinted by automation stay flagged for ~1 hour.
 
 Run `jimmy-johns-pp-cli doctor` to verify setup.
 

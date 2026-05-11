@@ -27,22 +27,9 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "account current", Description: "Get the authenticated user's profile (name, email, preferences).", Group: "account"},
-	{Command: "account delivery_addresses", Description: "List the authenticated user's saved delivery addresses.", Group: "account"},
-	{Command: "account login", Description: "Authenticate with email + password. Sets JJ session cookies.", Group: "account"},
-	{Command: "account saved_payments", Description: "List the authenticated user's saved payment methods.", Group: "account"},
-	{Command: "account web_token", Description: "Refresh the web session token (called internally by the SPA).", Group: "account"},
-	{Command: "menu product_filters", Description: "List available menu filter dimensions (categories, dietary tags, allergens).", Group: "menu"},
-	{Command: "menu product_modifiers", Description: "List modifier groups (bread, toppings, add-ons) for a specific product.", Group: "menu"},
-	{Command: "menu products", Description: "List menu products for the current store (subs, sides, drinks, cookies, catering).", Group: "menu"},
-	{Command: "order add_items", Description: "Add one or more items to the current cart in a single call.", Group: "order"},
-	{Command: "order current", Description: "Get the current in-progress order/cart.", Group: "order"},
-	{Command: "order upsell", Description: "Get upsell suggestions for the current cart (sides, drinks, cookies).", Group: "order"},
-	{Command: "rewards catalog", Description: "List available reward redemptions for the current points balance.", Group: "rewards"},
-	{Command: "rewards summary", Description: "Get the authenticated user's rewards points balance and recent activity.", Group: "rewards"},
-	{Command: "stores get_disclaimers", Description: "Get store-specific disclaimers (delivery zone caveats, hours warnings).", Group: "stores"},
-	{Command: "stores list", Description: "List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags.", Group: "stores"},
-	{Command: "system sign_map_url", Description: "Sign a Google Maps URL for client-side use (used internally by store finder)", Group: "system"},
+	{Command: "menu unwich-convert", Description: "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.", Group: "Local cart composition", WhyItMatters: "Reach for this when an agent is building a JJ cart for a user with a no-bread preference — it gives you the exact modifier delta with no API round-trip."},
+	{Command: "order plan", Description: "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters.", Group: "Local cart composition", WhyItMatters: "Reach for this when an agent gets a 'lunch for the team' request — it returns a ready-to-submit cart structure with rationale per line."},
+	{Command: "menu half-and-half", Description: "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.", Group: "Local cart composition", WhyItMatters: "Reach for this when a user says 'half Vito, half Pepe' — the command outputs the actual cart and the in-store ask the user has to make."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

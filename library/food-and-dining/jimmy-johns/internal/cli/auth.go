@@ -8,9 +8,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
-	"jimmy-johns-pp-cli/internal/config"
 	"net/http"
 	"os"
 	"os/exec"
@@ -19,6 +17,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"jimmy-johns-pp-cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -34,7 +34,6 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 
 	return cmd
 }
-
 // chromeProfile holds info about a discovered Chrome profile.
 type chromeProfile struct {
 	Dir         string // directory name (e.g. "Default", "Profile 1")
@@ -577,7 +576,6 @@ func extractViaCookieScoop(domain, profileDir string) (string, error) {
 	result = strings.TrimPrefix(result, "Cookie: ")
 	return result, nil
 }
-
 // --- Live browser cookie extraction (session cookies fallback) ---
 
 // extractLiveCookies reads document.cookie from a live Chrome session.

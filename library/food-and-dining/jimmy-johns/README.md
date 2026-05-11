@@ -1,10 +1,8 @@
 # Jimmy John's CLI
 
-CLI for the Jimmy John's ordering API. Browse stores, menus, and product
-modifiers; manage your cart; place orders; view rewards and saved payments.
-Backed by Jimmy John's proprietary API at www.jimmyjohns.com/api and
-authenticated via cookies imported from a logged-in Chrome session
-(PerimeterX clearance + JJ session cookies).
+**First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed.**
+
+Browse stores and menus, build carts, view rewards, and one-shot reorders from the terminal. The Unwich converter computes lettuce-wrap modifier deltas locally so agents can build no-bread orders without an extra API round trip.
 
 Learn more at [Jimmy John's](https://www.jimmyjohns.com).
 
@@ -54,51 +52,28 @@ Tell your OpenClaw agent (copy this):
 Install the pp-jimmy-johns skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-jimmy-johns. The skill defines how its required CLI can be installed.
 ```
 
+## Authentication
+
+Jimmy John's runs PerimeterX bot protection. Authenticate by capturing cookies from a fresh, hand-driven Chrome session via 'browser-use cookies export', then 'jimmy-johns-pp-cli auth import-cookies --from-file <path>'. Sessions that get fingerprinted by automation stay flagged for ~1 hour.
+
 ## Quick Start
 
-### 1. Install
-
-See [Install](#install) above.
-
-### 2. Authenticate
-
-This CLI uses your browser session for authentication. **Jimmy John's runs PerimeterX bot protection** that aggressively fingerprints automation; the canonical way in is to capture a fresh session from a real Chrome browser, then import the cookies.
-
-**Recommended (works against PerimeterX):**
-
 ```bash
-# 1. Open Chrome, navigate to jimmyjohns.com, solve any PerimeterX challenge,
-#    and browse naturally — find a store, view the menu, sign in if you want
-#    rewards/order endpoints. Do NOT let any automation touch this session.
-# 2. Export cookies from that exact Chrome session:
-browser-use -b real --profile "Default" cookies export ~/jj-cookies.json
-
-# 3. Import into the CLI:
+# Import cookies captured from a clean Chrome session
 jimmy-johns-pp-cli auth import-cookies --from-file ~/jj-cookies.json
-```
 
-**Legacy path (often fails — Chrome locks its cookie DB while running):**
 
-```bash
-jimmy-johns-pp-cli auth login --chrome
-```
+# Find stores near a ZIP — returns hours, distance, delivery/pickup flags
+jimmy-johns-pp-cli stores list --address 98112 --json
 
-Requires `pycookiecheat`, `cookies`, or `cookie-scoop-cli` on PATH. Chrome must NOT be running for these tools to read the encrypted cookie DB.
 
-When your session expires, repeat the recommended flow above. See **Known Gaps** below for the PerimeterX caveat.
+# Generate a sized cart for 6 people — sandwiches + sides + drinks with dietary filters
+jimmy-johns-pp-cli order plan --people 6 --json
 
-### 3. Verify Setup
 
-```bash
-jimmy-johns-pp-cli doctor
-```
+# Compute the modifier delta for converting a sandwich to a lettuce wrap
+jimmy-johns-pp-cli menu unwich-convert --from-file mods.json --product-id 33328641 --json
 
-This checks your configuration and credentials.
-
-### 4. Try Your First Command
-
-```bash
-jimmy-johns-pp-cli stores list
 ```
 
 ## Unique Features
@@ -298,30 +273,21 @@ Config file: `~/.config/jimmy-johns-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
-## Known Gaps
-
-This CLI is `ship-with-gaps`. The structural surface is complete (16 endpoints typed, MCP server bundled, dry-run works for every command), but the live API has real limitations:
-
-- **PerimeterX bot protection.** Jimmy John's runs a `browser_required`-class anti-automation stack. Even with valid session cookies + Surf's Chrome TLS impersonation, requests can return HTTP 403 if PerimeterX has flagged the session. The reliable workaround is the **fresh session** capture documented in [Authenticate](#2-authenticate) — do NOT touch the source Chrome window with automation between login and cookie export. Sessions that get fingerprinted as bots stay flagged for ~1 hour.
-- **No transcendence features yet.** Planned but not yet built: `unwich-mode` (auto-convert a cart to lettuce wraps), `office-lunch --people N` (sized cart suggestion for groups), `freaky-fast` (per-store delivery ETA predictor based on local order history). All are pure local computations on synced data; they'd ship in the next iteration.
-- **Cookie auth is hand-wired.** `auth import-cookies` was added by hand because the spec's `auth.type: cookie` doesn't map cleanly onto the press's v4.x templates. Future press versions may emit this natively.
-
 ## Troubleshooting
-
 **Authentication errors (exit code 4)**
 - Run `jimmy-johns-pp-cli doctor` to check credentials
-- Re-import a fresh cookie export from your real Chrome session (see [Authenticate](#2-authenticate)); the cookie may have expired
-
-**HTTP 403 from `stores list` / `menu products` / etc.**
-- PerimeterX flagged the session. Capture a fresh cookie set from a Chrome window that has NEVER been driven by automation, then re-run `auth import-cookies`.
-
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
+### API-specific
+
+- **HTTP 403 from every API call** — PerimeterX flagged the session. Capture a fresh cookie set from an undriven Chrome window and re-import.
+- **auth login --chrome can't read cookies** — Chrome must be closed for pycookiecheat/cookies to read the encrypted DB. Use 'auth import-cookies --from-file' with a browser-use export instead.
+
 ## HTTP Transport
 
-This CLI uses Surf with Chrome TLS impersonation for the underlying HTTP transport. It does not keep a resident browser process — discovery is one-shot at auth time. See [Known Gaps](#known-gaps) for the PerimeterX caveat.
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
 ---
 

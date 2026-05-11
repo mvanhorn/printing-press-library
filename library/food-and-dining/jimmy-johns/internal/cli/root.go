@@ -13,32 +13,32 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"jimmy-johns-pp-cli/internal/client"
 	"jimmy-johns-pp-cli/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON        bool
-	compact       bool
-	csv           bool
-	plain         bool
-	quiet         bool
-	dryRun        bool
-	noCache       bool
-	noInput       bool
-	idempotent    bool
-	yes           bool
-	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
+	asJSON       bool
+	compact      bool
+	csv          bool
+	plain        bool
+	quiet        bool
+	dryRun       bool
+	noCache      bool
+	noInput      bool
+	idempotent   bool
+	yes          bool
+	agent        bool
+	selectFields string
+	configPath   string
+	profileName  string
+	deliverSpec  string
+	timeout      time.Duration
+	rateLimit    float64
+	dataSource   string
 	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -90,8 +90,9 @@ Highlights (not in the official API docs):
   • order plan   Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters.
   • menu half-and-half   Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.
 
-Add --agent to any command for JSON output + non-interactive mode.
-Run 'jimmy-johns-pp-cli doctor' to verify auth and connectivity.`,
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'jimmy-johns-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
 		SilenceUsage: true,
 		Version:      version,
 	}

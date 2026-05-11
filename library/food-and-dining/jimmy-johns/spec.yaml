@@ -29,6 +29,16 @@ auth:
     - "PXGHzDhy7F_px" # PerimeterX session cookie (JJ-specific app id)
     - "JJ_SESSION"    # JJ session cookie (placeholder; actual name discovered at login)
 
+# MCP surface: dual-transport (stdio for local Claude Desktop, http for remote
+# managed agents) with hidden raw endpoint mirrors. The orchestration model
+# exposes a thin search+execute pair that covers the full surface compactly.
+mcp:
+  transport:
+    - stdio
+    - http
+  orchestration: code
+  endpoint_tools: hidden
+
 config:
   format: toml
   path: "~/.config/jimmy-johns-pp-cli/config.toml"

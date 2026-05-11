@@ -1,9 +1,0 @@
-{
-  "timestamp": "2026-05-11T04:18:42.340483Z",
-  "cli_dir": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/working/jimmy-johns-pp-cli",
-  "findings": null,
-  "scorecard_before": {
-    "mcp_description_quality": 10,
-    "captured": "2026-05-11T04:18:42.340483Z"
-  }
-}

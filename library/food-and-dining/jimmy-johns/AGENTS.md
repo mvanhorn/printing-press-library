@@ -1,4 +1,4 @@
-# Jimmy Johns Printed CLI Agent Guide
+# Jimmy John's Printed CLI Agent Guide
 
 This directory is a generated `jimmy-johns-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
 

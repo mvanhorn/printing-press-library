@@ -22,13 +22,13 @@ const agentContextSchemaVersion = "3"
 // (2026-04-13 Wrangler post): agents can introspect the live CLI without
 // parsing --help or reading source.
 type agentContext struct {
-	SchemaVersion              string                 `json:"schema_version"`
-	CLI                        agentContextCLI        `json:"cli"`
-	Auth                       agentContextAuth       `json:"auth"`
-	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
-	Commands                   []agentContextCommand  `json:"commands"`
-	AvailableProfiles          []string               `json:"available_profiles"`
-	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	SchemaVersion               string                `json:"schema_version"`
+	CLI                         agentContextCLI       `json:"cli"`
+	Auth                        agentContextAuth      `json:"auth"`
+	Discovery                   *agentContextDiscovery `json:"discovery,omitempty"`
+	Commands                    []agentContextCommand `json:"commands"`
+	AvailableProfiles           []string              `json:"available_profiles"`
+	FeedbackEndpointConfigured  bool                  `json:"feedback_endpoint_configured"`
 }
 
 type agentContextCLI struct {
@@ -103,7 +103,8 @@ reading source. Schema is versioned via schema_version.`,
 }
 
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
-	envVars := []agentContextAuthEnvVar{}
+	envVars := []agentContextAuthEnvVar{
+	}
 	authMode := "cookie"
 	if authMode == "" {
 		authMode = "none"
@@ -116,7 +117,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "jimmy-johns-pp-cli",
-			Description: "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
+			Description: "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

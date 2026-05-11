@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"jimmy-johns-pp-cli/internal/cli"
-	"jimmy-johns-pp-cli/internal/client"
 	"jimmy-johns-pp-cli/internal/cliutil"
+	"jimmy-johns-pp-cli/internal/client"
 	"jimmy-johns-pp-cli/internal/config"
 	"jimmy-johns-pp-cli/internal/mcp/cobratree"
 	"jimmy-johns-pp-cli/internal/store"
@@ -24,155 +24,9 @@ import (
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("account_current",
-			mcplib.WithDescription("Get the authenticated user's profile (name, email, preferences)."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/users/current", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_delivery_addresses",
-			mcplib.WithDescription("List the authenticated user's saved delivery addresses."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/users/current/deliveryAddresses", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_login",
-			mcplib.WithDescription("Authenticate with email + password. Sets JJ session cookies. Required: email, password."),
-			mcplib.WithString("email", mcplib.Required(), mcplib.Description("Account email")),
-			mcplib.WithString("password", mcplib.Required(), mcplib.Description("Account password")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/login", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "password", WireName: "password", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_saved_payments",
-			mcplib.WithDescription("List the authenticated user's saved payment methods."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/users/current/savedPayments", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_web_token",
-			mcplib.WithDescription("Refresh the web session token (called internally by the SPA)."),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/webToken", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("menu_product_filters",
-			mcplib.WithDescription("List available menu filter dimensions (categories, dietary tags, allergens)."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/products/filters", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("menu_product_modifiers",
-			mcplib.WithDescription("List modifier groups (bread, toppings, add-ons) for a specific product. Required: productId."),
-			mcplib.WithString("productId", mcplib.Required(), mcplib.Description("Numeric product ID from `menu products`.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/products/{productId}/modifiers", []mcpParamBinding{{PublicName: "productId", WireName: "productId", Location: "path"}}, []string{"productId"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("menu_products",
-			mcplib.WithDescription("List menu products for the current store (subs, sides, drinks, cookies, catering). Returns array of Product."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/products", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("order_add_items",
-			mcplib.WithDescription("Add one or more items to the current cart in a single call. Required: items."),
-			mcplib.WithString("items", mcplib.Required(), mcplib.Description("JSON array of items with productId, modifiers, and quantity.")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/order/batchItems", []mcpParamBinding{{PublicName: "items", WireName: "items", Location: "body"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("order_current",
-			mcplib.WithDescription("Get the current in-progress order/cart."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/order", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("order_upsell",
-			mcplib.WithDescription("Get upsell suggestions for the current cart (sides, drinks, cookies)."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/order/upsell", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("rewards_catalog",
-			mcplib.WithDescription("List available reward redemptions for the current points balance."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/users/current/rewards/catalog", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("rewards_summary",
-			mcplib.WithDescription("Get the authenticated user's rewards points balance and recent activity."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/users/current/rewards", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("stores_get_disclaimers",
-			mcplib.WithDescription("Get store-specific disclaimers (delivery zone caveats, hours warnings). Required: storeId."),
-			mcplib.WithString("storeId", mcplib.Required(), mcplib.Description("Numeric store ID from `stores list`.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/stores/{storeId}/disclaimers", []mcpParamBinding{{PublicName: "storeId", WireName: "storeId", Location: "path"}}, []string{"storeId"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("stores_list",
-			mcplib.WithDescription("List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags. Optional: address, filter."),
-			mcplib.WithString("address", mcplib.Description("Free-form address, city/state, or ZIP code (e.g. '98112', 'Seattle, WA').")),
-			mcplib.WithString("filter", mcplib.Description("Filter mode (delivery|pickup; empty = both)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/stores", []mcpParamBinding{{PublicName: "address", WireName: "addressSearch", Location: "query"}, {PublicName: "filter", WireName: "filter", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("system_sign_map_url",
-			mcplib.WithDescription("Sign a Google Maps URL for client-side use (used internally by store finder). Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Map URL to sign")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/maps/signUrl", []mcpParamBinding{{PublicName: "url", WireName: "url", Location: "query"}}, []string{}),
-	)
+	// Code-orchestration mode — the full surface is covered by two tools
+	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
+	RegisterCodeOrchestrationTools(s)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
@@ -355,7 +209,6 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "jimmy-johns-pp-cli", "data.db")
 }
-
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -469,41 +322,41 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		},
 		"resources": []map[string]any{
 			{
-				"name":        "account",
+				"name": "account",
 				"description": "User account, profile, addresses, and saved payments",
-				"endpoints":   []string{"current", "delivery_addresses", "login", "saved_payments", "web_token"},
-				"searchable":  true,
+				"endpoints": []string{"current", "delivery_addresses", "login", "saved_payments", "web_token",  },
+				"searchable": true,
 			},
 			{
-				"name":        "menu",
+				"name": "menu",
 				"description": "Menu products, filters, and modifier options",
-				"endpoints":   []string{"product_filters", "product_modifiers", "products"},
-				"syncable":    true,
-				"searchable":  true,
+				"endpoints": []string{"product_filters", "product_modifiers", "products",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "order",
+				"name": "order",
 				"description": "Cart and order management",
-				"endpoints":   []string{"add_items", "current", "upsell"},
-				"searchable":  true,
+				"endpoints": []string{"add_items", "current", "upsell",  },
+				"searchable": true,
 			},
 			{
-				"name":        "rewards",
+				"name": "rewards",
 				"description": "Freaky Fast Rewards points balance and catalog",
-				"endpoints":   []string{"catalog", "summary"},
+				"endpoints": []string{"catalog", "summary",  },
 			},
 			{
-				"name":        "stores",
+				"name": "stores",
 				"description": "Jimmy John's store locations and operating info",
-				"endpoints":   []string{"get_disclaimers", "list"},
-				"syncable":    true,
-				"searchable":  true,
+				"endpoints": []string{"get_disclaimers", "list",  },
+				"syncable": true,
+				"searchable": true,
 			},
 			{
-				"name":        "system",
+				"name": "system",
 				"description": "System utilities (Google Maps signing for store finder)",
-				"endpoints":   []string{"sign_map_url"},
-				"searchable":  true,
+				"endpoints": []string{"sign_map_url",  },
+				"searchable": true,
 			},
 		},
 		"query_tips": []string{

@@ -45,7 +45,7 @@ brews:
       owner: omar-shahine
       name: homebrew-tap
     homepage: "https://github.com/omar-shahine/jimmy-johns-pp-cli"
-    description: "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder."
+    description: "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed."
     install: |
       bin.install "jimmy-johns-pp-cli"
       bin.install "jimmy-johns-pp-mcp"
