@@ -16,6 +16,12 @@
       "reason": "Both methods interpolated caller-supplied strings directly into SQL via fmt.Sprintf. Greptile flagged as P1 security. This is a generator-template issue affecting other library CLIs as well — should also be fixed upstream in cli-printing-press templates. Patching here so this PR can land cleanly while the upstream fix propagates.",
       "files": ["internal/store/store.go"],
       "deferred_to_upstream": ["Fix the same pattern in the generator template so future CLIs ship without the injection vector."]
+    },
+    {
+      "id": "today-format-exact-match",
+      "summary": "Use exact equality in today.go's formatMatches helper. Was strings.Contains, which silently included T20I matches when user passed --format t20.",
+      "reason": "Substring matching meant any format that's a prefix/substring of another would match unintended formats. Greptile P1. CricAPI's matchType tokens are short (t20, odi, test, t10, hundred); exact case-insensitive comparison is the correct semantics. Also updated the --format flag help text to drop the misleading 't20i' suggestion since CricAPI returns 't20' for T20I matches.",
+      "files": ["internal/cli/today.go"]
     }
   ]
 }
