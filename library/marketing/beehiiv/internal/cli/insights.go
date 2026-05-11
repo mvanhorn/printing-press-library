@@ -60,11 +60,12 @@ func newInsightsGrowthSummaryCmd(flags *rootFlags) *cobra.Command {
 				limit = 100
 			}
 
-			publication, _ := beehiivObject(c.Get("/publications/"+pubID, nil))
+			// PATCH: Surface partial-failure warnings for compound Beehiiv insight calls.
+			publication, pubErr := beehiivObject(c.Get("/publications/"+pubID, nil))
 			subscriptions, subMeta, subErr := beehiivArray(c.Get("/publications/"+pubID+"/subscriptions", map[string]string{"limit": fmt.Sprintf("%d", limit)}))
 			posts, postMeta, postErr := beehiivArray(c.Get("/publications/"+pubID+"/posts", map[string]string{"limit": fmt.Sprintf("%d", limit)}))
 			fields, _, fieldErr := beehiivArray(c.Get("/publications/"+pubID+"/custom_fields", nil))
-			referral, _ := beehiivObject(c.Get("/publications/"+pubID+"/referral_program", nil))
+			referral, refErr := beehiivObject(c.Get("/publications/"+pubID+"/referral_program", nil))
 
 			result := map[string]any{
 				"publication": map[string]any{
@@ -92,9 +93,11 @@ func newInsightsGrowthSummaryCmd(flags *rootFlags) *cobra.Command {
 				},
 				"referral_program": referralSummary(referral),
 				"warnings": compactWarnings(map[string]error{
-					"subscriptions": subErr,
-					"posts":         postErr,
-					"custom_fields": fieldErr,
+					"publication":      pubErr,
+					"subscriptions":    subErr,
+					"posts":            postErr,
+					"custom_fields":    fieldErr,
+					"referral_program": refErr,
 				}),
 				"sample_limit": limit,
 				"generated_at": time.Now().UTC().Format(time.RFC3339),
@@ -266,7 +269,7 @@ func newInsightsReferralHealthCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			pubID := args[0]
-			publication, _ := beehiivObject(c.Get("/publications/"+pubID, nil))
+			publication, pubErr := beehiivObject(c.Get("/publications/"+pubID, nil))
 			referral, refErr := beehiivObject(c.Get("/publications/"+pubID+"/referral_program", nil))
 			subs, meta, subErr := beehiivArray(c.Get("/publications/"+pubID+"/subscriptions", map[string]string{"limit": "100"}))
 			withCodes := 0
@@ -292,6 +295,14 @@ func newInsightsReferralHealthCmd(flags *rootFlags) *cobra.Command {
 					"with_referral_code":   withCodes,
 					"with_referral_source": referred,
 				},
+				"warnings": compactWarnings(map[string]error{
+					"publication":       pubErr,
+					"referral_program":  refErr,
+					"subscriber_sample": subErr,
+				}),
+			}
+			if pubErr != nil {
+				result["publication_warning"] = pubErr.Error()
 			}
 			if refErr != nil {
 				result["referral_program_warning"] = refErr.Error()
