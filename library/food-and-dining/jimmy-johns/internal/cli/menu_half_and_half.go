@@ -86,8 +86,8 @@ and wants a structured cart with the constraint disclosed up front.`,
 	}
 	cmd.Flags().StringVar(&leftID, "left", "", "Product ID for the left half (required at runtime)")
 	cmd.Flags().StringVar(&rightID, "right", "", "Product ID for the right half (required at runtime)")
-	cmd.Flags().StringVar(&leftLabel, "left-label", "", "Display name for the left half")
-	cmd.Flags().StringVar(&rightLabel, "right-label", "", "Display name for the right half")
+	cmd.Flags().StringVar(&leftLabel, "left-label", "", "Optional human-readable label for the left half (e.g. \"Vito\")")
+	cmd.Flags().StringVar(&rightLabel, "right-label", "", "Optional human-readable label for the right half (e.g. \"Pepe\")")
 	return cmd
 }
 

@@ -140,8 +140,8 @@ Pairs naturally with 'menu product-modifiers <productId>'.`,
 		},
 	}
 	cmd.Flags().StringVar(&fromFile, "from-file", "", "Path to JSON file containing modifier data (alternative to stdin)")
-	cmd.Flags().StringVar(&productID, "product-id", "", "Product ID being converted (required)")
-	cmd.Flags().StringVar(&currentBread, "current-bread", "", "Optional: current bread choice for display")
+	cmd.Flags().StringVar(&productID, "product-id", "", "Numeric product ID being converted (required at runtime)")
+	cmd.Flags().StringVar(&currentBread, "current-bread", "", "Optional: human-readable current bread choice shown in plain output")
 	// --stdin flag is documented in --help text; we always fall through to stdin when --from-file isn't set.
 	cmd.Flags().Bool("stdin", false, "Read modifier JSON from stdin (default if --from-file unset)")
 	return cmd

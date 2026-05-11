@@ -42,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 50,
-      "registered": 50
+      "defined": 54,
+      "registered": 54
     },
     "config_consistency": {
       "consistent": true
@@ -90,13 +90,13 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 43
+    "checked": 47
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 43
+    "checked": 47
   },
   "issues": [
     "3/3 novel features look reimplemented: menu unwich-convert (menu_unwich.go) — hand-rolled response: no API client call, no store access; order plan (order_plan.go) — hand-rolled response: no API client call, no store access; menu half-and-half (menu_half_and_half.go) — hand-rolled response: no API client call, no store access"

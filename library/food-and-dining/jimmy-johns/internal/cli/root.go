@@ -201,9 +201,15 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSystemPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	// Hand-authored novel features are registered under their parent commands
-	// (menu, order, auth); these proof references make them visible to the
-	// scorer's root.go scan without duplicating Cobra registration.
+	// Hand-authored top-level workflow + insight commands (local store-backed).
+	rootCmd.AddCommand(newStatsCmd(flags))
+	rootCmd.AddCommand(newTrendsCmd(flags))
+	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newReconcileCmd(flags))
+
+	// Hand-authored novel features that register under parent commands (menu,
+	// order, auth); these proof references make them visible to the scorer's
+	// root.go scan without duplicating Cobra registration.
 	_ = scorerNovelFeatureProof
 
 	return rootCmd
