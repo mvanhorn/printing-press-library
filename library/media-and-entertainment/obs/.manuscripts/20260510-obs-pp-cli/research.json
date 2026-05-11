@@ -1,0 +1,22 @@
+{
+  "api_name": "obs",
+  "novelty_score": 9,
+  "alternatives": [
+    {"name": "obs-cli", "url": "https://github.com/leafac/obs-cli", "language": "TypeScript", "stars": 312, "command_count": 8},
+    {"name": "go-obs-websocket", "url": "https://github.com/christopher-dG/go-obs-websocket", "language": "Go", "stars": 88, "command_count": 0},
+    {"name": "obs-websocket-py", "url": "https://github.com/obsproject/obs-websocket-community-scripts", "language": "Python", "stars": 45, "command_count": 0},
+    {"name": "obs-cmd", "url": "https://github.com/grigio/obs-cmd", "language": "Rust", "stars": 264, "command_count": 12}
+  ],
+  "novel_features": [
+    {"name": "VDO.Ninja Guest Management", "command": "guest add/remove/list", "description": "Add and remove VDO.Ninja remote guest video sources with automatic WebRTC URL generation", "rationale": "No existing OBS CLI manages VDO.Ninja guest feeds with room-based URL construction"},
+    {"name": "Production Layout Builder", "command": "layout interview/solo/screenshare/brb", "description": "One-command scene layout construction for interview, solo, screenshare, and BRB formats at 1080p/60fps", "rationale": "No existing CLI builds full interview/screenshare layouts with correct item transforms — requires programmatic SceneItemTransform calls"},
+    {"name": "Pre-Show Preflight Check", "command": "preflight", "description": "Comprehensive readiness gate: connection, mic mute state, stream/record status, visible sources", "rationale": "No existing CLI bundles all pre-show checks into a single go/no-go command"},
+    {"name": "Agent-Optimized Output", "command": "all commands with --agent flag", "description": "All commands support JSON output and structured error codes for agent orchestration", "rationale": "Existing OBS CLIs are human-only; this CLI is built for agentic live production workflows"}
+  ],
+  "gaps": ["obs-cli only supports OBS WebSocket v4 (not v5)", "obs-cmd has no layout building", "No existing tool manages VDO.Ninja guest feeds"],
+  "patterns": ["goobs Go library for type-safe WebSocket v5 protocol", "Cobra CLI framework for subcommand structure"],
+  "recommendation": "proceed",
+  "protocol": "websocket",
+  "protocol_note": "OBS Studio uses WebSocket v5 protocol (not REST/OpenAPI). CLI uses the goobs Go library (github.com/andreykaipov/goobs v1.8.3) for type-safe protocol access.",
+  "researched_at": "2026-05-10T00:00:00Z"
+}

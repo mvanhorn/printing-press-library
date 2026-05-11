@@ -1,0 +1,6 @@
+{
+  "api_name": "obs",
+  "mcp_ready": "none",
+  "note": "obs-pp-cli communicates via OBS WebSocket v5 (local port 4455). No MCP server is included because the CLI directly wraps the WebSocket protocol — there is no REST API to expose via MCP tools.",
+  "tools": []
+}

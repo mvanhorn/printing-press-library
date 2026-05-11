@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T00:00:00Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "obs",
+  "display_name": "OBS Studio",
+  "cli_name": "obs-pp-cli",
+  "printer": "FuFicFac",
+  "printer_name": "Ekello Harrid",
+  "spec_path": "websocket://localhost:4455",
+  "spec_format": "websocket",
+  "run_id": "20260510-obs-pp-cli",
+  "catalog_entry": "obs",
+  "category": "media-and-entertainment",
+  "description": "Control OBS Studio via WebSocket — scenes, layouts, VDO.Ninja guest sources, streaming, recording, and preflight checks",
+  "mcp_ready": "none",
+  "auth_type": "optional_password",
+  "novel_features": [
+    {
+      "name": "VDO.Ninja Guest Management",
+      "command": "guest add",
+      "description": "Add VDO.Ninja remote guest browser sources with automatic WebRTC URL construction — no account required"
+    },
+    {
+      "name": "Production Layout Builder",
+      "command": "layout interview",
+      "description": "One-command scene layout construction for interview, solo, screenshare, and BRB formats at 1920x1080"
+    },
+    {
+      "name": "Pre-Show Preflight Gate",
+      "command": "preflight",
+      "description": "Comprehensive go/no-go check: connection, mic mute state, stream/record status, visible sources — exits 1 on failure"
+    },
+    {
+      "name": "Performance Trend Analysis",
+      "command": "trends",
+      "description": "Sample OBS metrics over time and report CPU, FPS, and frame-drop trends with linear regression"
+    },
+    {
+      "name": "Production Analytics",
+      "command": "analytics",
+      "description": "Cross-reference delivery logs and session feedback to surface quality trends and rating distributions"
+    }
+  ]
+}

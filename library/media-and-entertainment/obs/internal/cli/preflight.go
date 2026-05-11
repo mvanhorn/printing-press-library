@@ -1,4 +1,4 @@
-package commands
+package cli
 
 import (
 	"fmt"
@@ -6,61 +6,82 @@ import (
 
 	"github.com/andreykaipov/goobs/api/requests/inputs"
 	"github.com/andreykaipov/goobs/api/requests/sceneitems"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/obs/internal/client"
 	"github.com/spf13/cobra"
 )
 
 var preflightCmd = &cobra.Command{
 	Use:   "preflight",
-	Short: "Pre-show readiness check",
-	Long: `Checks OBS is ready before going live:
-  - Connection
-  - Current scene has visible sources
-  - Microphones not muted
-  - Stream/record not already running
+	Short: "Run pre-show readiness checks before going live",
+	Long: `Runs a comprehensive pre-show checklist:
 
-Exits with code 1 if any check fails (useful for scripted automation).`,
+  ✅ OBS connection
+  ✅ Current scene has visible sources
+  ✅ Microphones are not muted
+  ✅ Stream/record not already running
+
+Exits with code 0 if all checks pass.
+Exits with code 5 if any check fails (code: 5).
+Use this in automated workflows to gate going live.`,
+	Example: `  obs-pp-cli preflight
+  obs-pp-cli preflight --format=json
+  obs-pp-cli preflight && obs-pp-cli stream start`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := connect()
+		c, err := client.New()
 		if err != nil {
 			return err
 		}
-		defer client.Disconnect()
+		defer c.Disconnect()
 
 		allGood := true
+
+		type checkResult struct {
+			Name   string `json:"name"`
+			OK     bool   `json:"ok"`
+			Detail string `json:"detail,omitempty"`
+		}
+		var results []checkResult
+
 		check := func(ok bool, label, detail string) {
 			icon := "✅"
 			if !ok {
 				icon = "❌"
 				allGood = false
 			}
-			if detail != "" {
-				fmt.Printf("%s  %-22s %s\n", icon, label, detail)
-			} else {
-				fmt.Printf("%s  %s\n", icon, label)
+			if currentFormat() != "json" {
+				if detail != "" {
+					fmt.Printf("%s  %-24s %s\n", icon, label, detail)
+				} else {
+					fmt.Printf("%s  %s\n", icon, label)
+				}
 			}
+			results = append(results, checkResult{Name: label, OK: ok, Detail: detail})
 		}
 
-		fmt.Println("OBS Preflight Check")
-		fmt.Println("─────────────────────────────────────")
+		if currentFormat() != "json" {
+			fmt.Println("OBS Preflight Check")
+			fmt.Println("─────────────────────────────────────")
+		}
 
-		// Connection
-		version, err := client.General.GetVersion()
-		if err != nil {
+		// OBS version + connection
+		version, vErr := c.General.GetVersion()
+		if vErr != nil {
 			check(false, "OBS connection", "unreachable")
 			goto summary
 		}
-		check(true, "OBS connection", fmt.Sprintf("OBS %s / WS %s", version.ObsVersion, version.ObsWebSocketVersion))
+		check(true, "OBS connection",
+			fmt.Sprintf("OBS %s / WS %s", version.ObsVersion, version.ObsWebSocketVersion))
 
 		// Current scene + visible sources
 		{
-			sceneList, err := client.Scenes.GetSceneList()
+			sceneList, err := c.Scenes.GetSceneList()
 			if err != nil {
 				check(false, "Scene list", "failed")
 				goto summary
 			}
 			check(true, "Current scene", sceneList.CurrentProgramSceneName)
 
-			items, err := client.SceneItems.GetSceneItemList(
+			items, err := c.SceneItems.GetSceneItemList(
 				sceneitems.NewGetSceneItemListParams().WithSceneName(sceneList.CurrentProgramSceneName),
 			)
 			if err == nil {
@@ -75,15 +96,15 @@ Exits with code 1 if any check fails (useful for scripted automation).`,
 			}
 		}
 
-		// Microphones muted?
+		// Microphone mute check
 		{
-			allInputs, err := client.Inputs.GetInputList()
+			allInputs, err := c.Inputs.GetInputList()
 			if err == nil {
 				muted := []string{}
 				for _, input := range allInputs.Inputs {
 					kind := fmt.Sprintf("%v", input.InputKind)
 					if kind == "coreaudio_input_capture" || kind == "pulse_input_capture" || kind == "wasapi_input_capture" {
-						muteResp, err := client.Inputs.GetInputMute(
+						muteResp, err := c.Inputs.GetInputMute(
 							inputs.NewGetInputMuteParams().WithInputName(input.InputName),
 						)
 						if err == nil && muteResp.InputMuted {
@@ -99,9 +120,9 @@ Exits with code 1 if any check fails (useful for scripted automation).`,
 			}
 		}
 
-		// Stream already live?
+		// Stream status
 		{
-			streamStatus, _ := client.Stream.GetStreamStatus()
+			streamStatus, _ := c.Stream.GetStreamStatus()
 			if streamStatus != nil && streamStatus.OutputActive {
 				check(false, "Stream", "already live")
 			} else {
@@ -109,9 +130,9 @@ Exits with code 1 if any check fails (useful for scripted automation).`,
 			}
 		}
 
-		// Already recording?
+		// Record status
 		{
-			recStatus, _ := client.Record.GetRecordStatus()
+			recStatus, _ := c.Record.GetRecordStatus()
 			if recStatus != nil && recStatus.OutputActive {
 				check(false, "Recording", "already running")
 			} else {
@@ -120,13 +141,17 @@ Exits with code 1 if any check fails (useful for scripted automation).`,
 		}
 
 	summary:
+		if currentFormat() == "json" {
+			return printJSON(map[string]any{"ok": allGood, "checks": results})
+		}
+
 		fmt.Println("─────────────────────────────────────")
 		if allGood {
 			fmt.Println("✅ All checks passed. You're good to go.")
 			return nil
 		}
 		fmt.Println("⚠️  Issues found. Review above before going live.")
-		os.Exit(1)
+		os.Exit(ExitPreflight) // code: 5
 		return nil
 	},
 }

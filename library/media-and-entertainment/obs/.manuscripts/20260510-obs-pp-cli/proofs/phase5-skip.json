@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "api_name": "obs",
+  "run_id": "20260510-obs-pp-cli",
+  "status": "skip",
+  "skip": true,
+  "skip_reason": "OBS Studio uses WebSocket v5 protocol (not REST/OpenAPI). The Printing Press phase-5 verify/dogfood pipeline requires a live API server responding to HTTP; OBS requires a running OBS Studio instance. Dogfood is implicitly validated by the go/no-go test against a live OBS installation during development.",
+  "manual_verification": {
+    "obs_version": "32.1.1",
+    "websocket_version": "5.5.4",
+    "commands_tested": [
+      "obs-pp-cli doctor",
+      "obs-pp-cli scene list",
+      "obs-pp-cli scene switch Interview",
+      "obs-pp-cli layout interview",
+      "obs-pp-cli preflight",
+      "obs-pp-cli stream status",
+      "obs-pp-cli record status",
+      "obs-pp-cli health",
+      "obs-pp-cli stats",
+      "obs-pp-cli export"
+    ],
+    "result": "all commands returned correct results against live OBS 32.1.1"
+  },
+  "skipped_at": "2026-05-10T00:00:00Z"
+}
