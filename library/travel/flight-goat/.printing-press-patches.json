@@ -1,11 +1,14 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-11",
   "base_run_id": "2026-05-02T22:09:06.820184Z",
   "base_printing_press_version": "3.6.0",
   "upstream_tracking": [
     "https://github.com/mvanhorn/printing-press-library/issues/293",
     "https://github.com/mvanhorn/cli-printing-press/issues/804"
+  ],
+  "deferred_to_upstream": [
+    "watch-command-group: the `watch` command group is currently hand-written. cli-printing-press has no template for stateful, long-running monitors on Google Flights prices today. If/when the generator grows one, the registerWatchCommands hook in root.go and the internal/watch package should migrate behind it."
   ],
   "patches": [
     {
@@ -45,6 +48,24 @@
       "summary": "Replace krisukox/google-flights-api with a native f.req protobuf-shaped client matching fli's Python implementation; remove the upstream dependency.",
       "reason": "krisukox/google-flights-api only exposed Stops, Class, TripType in its Options struct and silently dropped airlines, bags, emissions, layover, carry-on, exclude-basic-economy, show-all-results, and the expanded sort options (top_flights, best, emissions). Users passing --airlines BA,KL got results that ignored the filter. Ports fli/models/google_flights/flights.py format() to Go in internal/gflights/flights_native.go, reaches feature parity with fli, and drops github.com/krisukox/google-flights-api from go.mod entirely.",
       "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values. Search() now has the same 90s defensive ctx-timeout fallback as Dates(). Airport.Name and Airline.Name now populated from response slots leg[4]/leg[5]/leg[22][3]; verified live (SEA \u2192 'Seattle-Tacoma International Airport', VS \u2192 'Virgin Atlantic')."
+    },
+    {
+      "id": "watch-command-group",
+      "upstream_issue": "",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/watch.go",
+        "internal/watch/watch.go",
+        "internal/watch/store.go",
+        "internal/watch/check.go",
+        "internal/watch/alert.go",
+        "internal/watch/watch_test.go",
+        "internal/watch/store_test.go",
+        "internal/watch/check_test.go"
+      ],
+      "summary": "Add a `watch` command group for monitoring purchased-flight prices (add, list, show, check, remove, alert-test) with exact-match alerting, stable JSON envelope (schema flight-goat.watch.check.v1), webhook + stdout dispatch, dedup via last_alerted_price, and a mandatory rebooking safety notice on every alert.",
+      "reason": "The Google Flights `flights`/`dates` commands answer 'what is the cheapest flight today' but users who have already bought a ticket need 'tell me when MY exact flight drops below paid - threshold.' The watch primitive persists purchased flights in a separate watches.db, re-checks via gflights.Search, and refuses to alert on route-cheaper-different-flight matches (which would mislead users into thinking they can swap fares freely).",
+      "validated_outcome": "go build ./...; go vet ./...; go test ./internal/watch/...; flight-goat-pp-cli watch --help; smoke-tested add + list + alert-test + show + remove with FLIGHT_GOAT_WATCH_DB=/tmp/fg-watch-test.db."
     }
   ]
 }

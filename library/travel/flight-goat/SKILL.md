@@ -63,6 +63,119 @@ The flag is only valid on Google Flights price commands: `flights`, `dates`,
 `compare`, `gf-search`, and `cheapest-longhaul`. Do not add it to AeroAPI or
 Kayak-only commands.
 
+## Watch a Purchased Flight for Price Drops
+
+`watch` monitors a flight the user has *already booked* and alerts when the
+same exact itinerary (airline + flight number + date + route + cabin) reappears
+on Google Flights below `paid - threshold`. Use it when the user says "did my
+flight get cheaper?" or "watch DL 669 for me."
+
+State is persisted in a local SQLite file (default
+`~/.local/share/flight-goat-pp-cli/watches.db`, override with `--watch-db` or
+`$FLIGHT_GOAT_WATCH_DB`). Subcommands: `add`, `list`, `show`, `check`,
+`remove`, `alert-test`.
+
+```bash
+# Register a watch (all required fields)
+flight-goat-pp-cli watch add \
+  --from SFO --to JFK --date 2026-06-21 \
+  --airline DL --flight-number 669 --cabin economy \
+  --paid 428.20 --threshold 50 --currency USD \
+  --notify webhook:https://hooks.example.com/flight-drops --agent
+
+# Stricter watch with departure-time guard, explicit fare brand, and
+# basic-economy excluded so a $300 basic fare won't false-match your
+# $700 main-cabin ticket
+flight-goat-pp-cli watch add \
+  --from SFO --to JFK --date 2026-06-21 --departure-time 07:30 \
+  --airline DL --flight-number 668 --cabin economy --fare-brand "Main Cabin" \
+  --paid 700 --threshold 50 --agent
+
+# Add a watch on a basic-economy ticket you actually paid for (opt-in)
+flight-goat-pp-cli watch add \
+  --from LAX --to ATL --date 2026-07-10 \
+  --airline DL --flight-number 1234 --cabin economy --fare-brand "Basic Economy" \
+  --include-basic --paid 198 --threshold 30 --agent
+
+# List, inspect, re-check
+flight-goat-pp-cli watch list --agent
+flight-goat-pp-cli watch show watch_5a25c89c2966 --agent
+flight-goat-pp-cli watch check watch_5a25c89c2966 --agent     # one watch
+flight-goat-pp-cli watch check --agent                        # all active watches
+
+# Verify the alert path without burning a Google Flights request
+flight-goat-pp-cli watch alert-test watch_5a25c89c2966 --agent
+
+# Force a re-alert after a previous one fired (dedup is on by default)
+flight-goat-pp-cli watch check watch_5a25c89c2966 --force-alert --agent
+
+# Re-alert only when the price drops by at least 25 more
+flight-goat-pp-cli watch check --repeat-delta 25 --agent
+
+flight-goat-pp-cli watch remove watch_5a25c89c2966 --agent
+```
+
+`watch check` returns a stable JSON envelope (also POSTed verbatim to
+`--notify webhook:`):
+
+```json
+{
+  "schema": "flight-goat.watch.check.v1",
+  "watch_id": "watch_…",
+  "origin": "SFO", "destination": "JFK",
+  "departure_date": "2026-06-21", "departure_time": "07:30",
+  "airline": "DL", "flight_number": "668",
+  "cabin": "economy", "fare_brand": "Main Cabin",
+  "original_price": 700, "threshold": 50, "currency": "USD",
+  "booking_url": "https://www.google.com/travel/flights?q=Flights+from+SFO+to+JFK+on+2026-06-21+economy&curr=USD",
+  "found_price": 609, "route_cheapest_price": 280, "delta": 91,
+  "confidence": "high",
+  "match_reason": "exact match: same airline DL, flight 668; date 2026-06-21; route SFO→JFK; cabin economy; basic-economy excluded; departure 07:25 within ±30 min of your 07:30",
+  "threshold_crossed": true,
+  "alert_dispatched": true,
+  "matched_flight": {
+    "airline": "DL", "flight_number": "668", "price": 609,
+    "cabin": "economy", "fare_brand": "Main Cabin",
+    "departure_time": "2026-06-21T07:25:00",
+    "arrival_time":   "2026-06-21T15:55:00",
+    "duration_minutes": 330, "stops": 0
+  },
+  "safety_notice": "Same flight appears cheaper. Verify fare rules, refundability, cancellation fees, credits, and seat/bag differences before canceling or rebooking."
+}
+```
+
+When relaying an alert to the user, always include:
+
+1. `match_reason` — the chain of constraints the matcher verified, so the user can sanity-check the conclusion themselves.
+2. `matched_flight.departure_time` / `arrival_time` / `duration_minutes` — so the user can confirm this is the same operating itinerary, not a different flight that happens to share a number.
+3. `booking_url` — the Google Flights search URL pre-filled with the route + date + cabin + currency. One tap to verify the live fare.
+4. `safety_notice` verbatim.
+
+**Fare-class safety:** alerts fire only on the cabin the user registered (Google Flights filters by cabin at search time), and `exclude_basic` defaults to **on** so a $300 basic-economy result never false-matches a $700 main-cabin ticket. Override with `--include-basic` only when the user actually purchased basic economy.
+
+Match-confidence rules — read carefully, this is the safety property of the
+feature:
+
+- `high` — the cheaper itinerary is the user's exact flight (airline + flight
+  number + date + route + cabin all match). Only `high` matches trigger
+  alerts.
+- `medium` — same airline + cabin + date + route, but the provider didn't
+  return a flight number. Surfaced as `found_price` for context but never
+  alerts.
+- `low` — the cheapest fare on the route belongs to a different airline or
+  flight number. Returned only as `route_cheapest_price`; never alerts. A
+  cheaper-on-route flight does NOT help users who can't move their ticket
+  without losing it.
+
+**Always pass the `safety_notice` through to the user when relaying a watch
+alert.** The notice covers fare rules, refundability, change fees, credits,
+and seat/bag differences — the four most common ways a "the same flight is
+cheaper now" message becomes an expensive mistake.
+
+`--notify` accepts `stdout` (default), `json` (machine-readable stdout), or
+`webhook:<https-url>` (POSTs the JSON envelope above). Validation happens at
+`watch add` time so a bad webhook URL is caught before the first check.
+
 ## Development Tools
 AeroAPI is defined using the OpenAPI Spec 3.0, which means it can be easily
 imported into tools like Postman. To get started try importing the API
@@ -208,6 +321,15 @@ your account enabled for Foresight.
 **schedules** — Manage schedules
 
 - `flight-goat-pp-cli schedules` — Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...
+
+**watch** — Monitor purchased-flight prices for drops (see *Watch a Purchased Flight for Price Drops* above for full semantics).
+
+- `flight-goat-pp-cli watch add` — Register a purchased flight. Required: `--from`, `--to`, `--date`, `--airline`, `--flight-number`, `--paid`, `--threshold`. Optional: `--departure-time HH:MM` (matcher rejects candidates ±30 min outside), `--cabin`, `--fare-brand`, `--include-basic` (off by default), `--passengers`, `--currency`, `--notify`, `--booking-ref`, `--notes`.
+- `flight-goat-pp-cli watch list` — List registered watches; filter by `--status active|paused|archived`.
+- `flight-goat-pp-cli watch show <watch_id>` — Show one watch's full state.
+- `flight-goat-pp-cli watch check [watch_id]` — Re-check the live price for one watch (or all active watches if omitted), dispatch alert on threshold-crossing exact matches, persist `last_seen_price`/`last_alerted_price`. Flags: `--force-alert`, `--repeat-delta`.
+- `flight-goat-pp-cli watch remove <watch_id>` — Delete a watch.
+- `flight-goat-pp-cli watch alert-test <watch_id>` — Send a synthetic alert through the watch's `--notify` sink without hitting Google Flights.
 
 
 ### Finding the right command

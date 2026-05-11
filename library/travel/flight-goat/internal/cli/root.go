@@ -170,6 +170,9 @@ Run 'flight-goat-pp-cli doctor' to verify auth and connectivity.`,
 	// transcend.go for definitions.
 	registerPrimaryCommands(rootCmd, flags)
 	registerTranscendCommands(rootCmd, flags)
+	// PATCH(library): hand-written `watch` command group for monitoring
+	// purchased-flight prices. See internal/cli/watch.go.
+	registerWatchCommands(rootCmd, flags)
 	rootCmd.AddCommand(newAirportsCmd(flags))
 	rootCmd.AddCommand(newAlertsCmd(flags))
 	rootCmd.AddCommand(newDisruptionCountsCmd(flags))

@@ -146,6 +146,79 @@ flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP
 ask Google Flights for prices (`flights`, `dates`, `compare`, `gf-search`, and
 `cheapest-longhaul`), not on AeroAPI or Kayak-only commands.
 
+### Watch a purchased flight for price drops
+
+`flight-goat-pp-cli watch` tracks flights you have already booked and alerts
+when the same exact itinerary (airline + flight number + date + route + cabin)
+becomes cheaper on Google Flights by more than your threshold. Watches are
+persisted in `~/.local/share/flight-goat-pp-cli/watches.db` (override with
+`--watch-db` or `$FLIGHT_GOAT_WATCH_DB`). No FlightAware API key required —
+the price check uses the Google Flights backend that powers `flights`/`dates`.
+
+```bash
+# Register a purchased flight (tight match — recommended)
+flight-goat-pp-cli watch add \
+  --from SFO --to JFK --date 2026-06-21 --departure-time 07:30 \
+  --airline DL --flight-number 668 --cabin economy --fare-brand "Main Cabin" \
+  --paid 700 --threshold 50 --currency USD \
+  --notify webhook:https://hooks.example.com/flight-drops
+
+# If you actually bought basic economy, opt in
+flight-goat-pp-cli watch add \
+  --from LAX --to ATL --date 2026-07-10 \
+  --airline DL --flight-number 1234 --cabin economy --fare-brand "Basic Economy" \
+  --include-basic --paid 198 --threshold 30
+
+# Re-check the live price (alerts on threshold-crossing EXACT matches)
+flight-goat-pp-cli watch check               # all active watches
+flight-goat-pp-cli watch check watch_abc123  # just one
+
+# Verify the alert path without hitting Google Flights
+flight-goat-pp-cli watch alert-test watch_abc123
+
+# Inspect / clean up
+flight-goat-pp-cli watch list
+flight-goat-pp-cli watch show watch_abc123
+flight-goat-pp-cli watch remove watch_abc123
+```
+
+`watch check` outputs (and webhook sinks POST) a stable JSON envelope keyed by
+`schema: "flight-goat.watch.check.v1"`. Notable fields:
+
+- `confidence` — `high` (exact match including departure-time check),
+  `medium` (provider didn't echo flight number), or `low` (route-cheapest is a
+  different flight).
+- `match_reason` — a one-sentence chain-of-evidence describing every
+  constraint the matcher verified (e.g. "same airline DL, flight 668; date
+  2026-06-21; route SFO→JFK; cabin economy; basic-economy excluded; departure
+  07:25 within ±30 min of your 07:30").
+- `match_mismatch_reason` — populated when the same airline+flight number was
+  found but a guard rejected it (e.g. departure time drifted out of tolerance).
+- `matched_flight` — the live itinerary with departure/arrival timestamps,
+  total duration, and stop count.
+- `booking_url` — a Google Flights search URL pre-filled with the route + date
+  + cabin + currency. One tap to verify the live fare.
+- `safety_notice` — the rebooking warning (refundability, change fees, etc.).
+  Always relay this to the user verbatim.
+
+**Fare-class safety:** alerts fire only on the cabin the user registered
+(Google Flights filters by cabin at search time). Within the economy cabin,
+`exclude_basic` defaults to **on** so a $300 basic-economy result never
+false-matches a $700 main-cabin ticket. Override with `--include-basic` only
+when the user actually purchased basic economy.
+
+**Flight-number reuse safety:** when `--departure-time` is set, the matcher
+rejects candidates whose departure time drifts more than ±30 min. Catches the
+case where an airline reuses the same flight number for a different departure
+on the same day (rescheduled, second daily, etc.).
+
+Alerts trigger only on `confidence: "high"` matches (your exact flight). A
+cheaper fare on the same route by a different flight number is surfaced as
+`route_cheapest_price` for context but never alerts — swapping carriers
+typically requires losing the original ticket. Dedup is based on
+`last_alerted_price`; use `--repeat-delta <amount>` to require an additional
+drop before re-alerting, or `--force-alert` to override dedup.
+
 ## Commands
 
 ### aircraft
