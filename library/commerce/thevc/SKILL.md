@@ -1,57 +1,57 @@
 ---
-name: thevc
-description: Korean startup investment database from theVC.kr (더브이씨). Company profiles, funding rounds, investor tracking, rankings, and news. No API key required.
+name: pp-thevc
+description: "Korean startup investment database from theVC.kr (더브이씨). Company profiles, funding rounds, investor tracking, rankings, and news from Korea's leading startup data platform. No API key required. Trigger phrases: `Korean startup`, `look up Korean company`, `search thevc`, `run thevc-pp-cli`, `theVC.kr`, `한국 스타트업`."
+author: "Allen Lee"
+license: "Apache-2.0"
+argument-hint: "<command> [args] | install cli|mcp"
+allowed-tools: "Read Bash"
 metadata:
   openclaw:
-    writablePaths: ["~/.local/share/thevc-pp-cli/"]
-    security: "reads theVC.kr public API, no auth required"
+    requires:
+      bins:
+        - thevc-pp-cli
+    install:
+      - kind: go
+        bins: [thevc-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/commerce/thevc/cmd/thevc-pp-cli
 ---
 
-# thevc — Korean Startup Data CLI
+# THE VC — Printing Press CLI
 
-Query Korea's leading startup investment database from the terminal.
+## Prerequisites: Install the CLI
 
-## Quick Start
+This skill drives the `thevc-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-\`\`\`bash
-# Install
-npx @mvanhorn/printing-press install thevc
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press install thevc --cli-only
+   ```
+2. Verify: `thevc-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-# Sync all company data locally
-thevc-pp-cli sync
+## Core Workflows
 
-# Search for startups
+### Get Startup Rankings
+```
 thevc-pp-cli interaction --kind ALL --json | jq '.results.DATE[] | {name, profilePage}'
+```
 
-# Get full company profile
+### Get Company Profile
+```
 thevc-pp-cli information get-organization-profile rebellions --json | jq '.results'
+```
 
-# Run SQL on local data
-thevc-pp-cli sql "SELECT name, org_type, founded_date FROM companies ORDER BY founded_date DESC LIMIT 10"
-\`\`\`
+### Sync All Data to Local SQLite
+```
+thevc-pp-cli sync
+thevc-pp-cli sql "SELECT name, org_type, founded_date FROM companies ORDER BY founded_date DESC"
+```
 
-## Agent Usage
+### Agent-Friendly Mode
+Use `--agent` flag for JSON + compact + non-interactive output:
+```
+thevc-pp-cli interaction --agent
+```
 
-Use the MCP server for Claude Code integration:
-
-\`\`\`json
-{
-  "mcpServers": {
-    "thevc": {
-      "command": "thevc-pp-mcp"
-    }
-  }
-}
-\`\`\`
-
-## API
-
-All endpoints are public — no authentication, no API key, no Cloudflare.
-
-- Rankings: \`GET /api/interaction/hits/organizations/rankings/{ALL|STARTUP}\`
-- Profiles: \`GET /api/information/organizations/profiles/{slug}\`
-- News: \`GET /api/information/organizations/profiles/{slug}/news-article/items\`
-
-## About theVC.kr
-
-더브이씨 (THE VC) is Korea's leading startup investment database. Tracks funding rounds, investors, products, employee counts, patents, and financial data. Founded in 2013, it covers the entire Korean startup ecosystem.
+## About THE VC
+더브이씨 (THE VC) is Korea's leading startup investment database. Tracks funding rounds, investors, products, employee counts, patents, and financial data. Public API — no authentication required.
