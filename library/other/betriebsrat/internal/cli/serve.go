@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -43,7 +44,13 @@ colleagues on the same WiFi).`,
 			mux := http.NewServeMux()
 			mux.HandleFunc("/", serveUI)
 			mux.HandleFunc("/ask", serveAsk)
-			srv := &http.Server{Addr: addr, Handler: mux}
+			srv := &http.Server{
+				Addr:         addr,
+				Handler:      mux,
+				ReadTimeout:  10 * time.Second,
+				WriteTimeout: 30 * time.Second,
+				IdleTimeout:  60 * time.Second,
+			}
 			go func() {
 				<-cmd.Context().Done()
 				srv.Shutdown(context.Background()) //nolint:errcheck
@@ -77,9 +84,9 @@ func serveAsk(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ip := r.RemoteAddr
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		ip = strings.SplitN(xff, ",", 2)[0]
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	if ip == "" {
+		ip = r.RemoteAddr
 	}
 	now := time.Now()
 	if last, ok := askLimiter.Load(ip); ok && now.Sub(last.(time.Time)) < askMinGap {

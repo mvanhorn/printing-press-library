@@ -54,16 +54,27 @@ Key deadlines (BetrVG):
 			words := tokenize(situation)
 
 			var matched *betrvg.DeadlineRule
+			// Full-phrase pass: prevents "ordentliche kündigung" from matching "außerordentliche kündigung".
 			for _, rule := range betrvg.Deadlines() {
-				for _, w := range words {
-					if betrvg.ContainsFold(rule.Situation, w) || betrvg.ContainsFold(w, rule.Situation) {
-						r := rule
-						matched = &r
+				if betrvg.ContainsFold(rule.Situation, situation) || betrvg.ContainsFold(situation, rule.Situation) {
+					r := rule
+					matched = &r
+					break
+				}
+			}
+			// Word-level fallback for single-word queries like "Kündigung".
+			if matched == nil {
+				for _, rule := range betrvg.Deadlines() {
+					for _, w := range words {
+						if betrvg.ContainsFold(rule.Situation, w) || betrvg.ContainsFold(w, rule.Situation) {
+							r := rule
+							matched = &r
+							break
+						}
+					}
+					if matched != nil {
 						break
 					}
-				}
-				if matched != nil {
-					break
 				}
 			}
 
