@@ -125,6 +125,15 @@ type SearchOptions struct {
 // fli subprocess fallback was already removed (MCPB packaging requirement);
 // no fallback exists today.
 func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
+	// PATCH(greptile P1): mirror Dates()'s defensive 90s fallback timeout so
+	// callers that supply a context without a deadline don't hang forever on
+	// a stuck Google request. The utls client uses ctx for per-request
+	// deadlines but won't impose its own.
+	if _, ok := ctx.Deadline(); !ok {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, 90*time.Second)
+		defer cancel()
+	}
 	return searchNativeDirect(ctx, opts)
 }
 

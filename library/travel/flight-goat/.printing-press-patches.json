@@ -44,7 +44,10 @@
       ],
       "summary": "Replace krisukox/google-flights-api with a native f.req protobuf-shaped client matching fli's Python implementation; remove the upstream dependency.",
       "reason": "krisukox/google-flights-api only exposed Stops, Class, TripType in its Options struct and silently dropped airlines, bags, emissions, layover, carry-on, exclude-basic-economy, show-all-results, and the expanded sort options (top_flights, best, emissions). Users passing --airlines BA,KL got results that ignored the filter. Ports fli/models/google_flights/flights.py format() to Go in internal/gflights/flights_native.go, reaches feature parity with fli, and drops github.com/krisukox/google-flights-api from go.mod entirely.",
-      "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values."
+      "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values. Search() now has the same 90s defensive ctx-timeout fallback as Dates().",
+      "known_limitations": [
+        "Flight.Legs[].Airline.Name and DepartureAirport/ArrivalAirport.Name are not populated. fli's parser (the source of this port) only carries IATA codes; airport/airline names live in a static Python enum (fli.models.airline.Airline / fli.models.airport.Airport). Krisukox carried both because its parser reads adjacent response slots we don't yet decode. Codes are correct and stable identifiers; downstream consumers needing names can look them up against the IATA registry. Follow-up: either port fli's enum tables or decode the adjacent slots in parseOfferLeg."
+      ]
     }
   ]
 }
