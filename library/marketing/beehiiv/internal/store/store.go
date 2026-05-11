@@ -3237,6 +3237,39 @@ func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	return ids, rows.Err()
 }
 
+// ResourceParentRef records a synced resource ID and the parent_id stored in
+// its raw JSON payload.
+type ResourceParentRef struct {
+	ID       string
+	ParentID string
+}
+
+// ListResourceParentRefs returns IDs plus their generic-store parent_id values.
+// Dependent sync uses this for nested paths such as
+// /publications/{publicationId}/automations/{automationId}/emails, where the
+// automation ID and publication ID are both required.
+func (s *Store) ListResourceParentRefs(resourceType string) ([]ResourceParentRef, error) {
+	rows, err := s.db.Query(`
+		SELECT id, COALESCE(CAST(json_extract(data, '$.parent_id') AS TEXT), '')
+		FROM resources
+		WHERE resource_type = ?
+	`, resourceType)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var refs []ResourceParentRef
+	for rows.Next() {
+		var ref ResourceParentRef
+		if err := rows.Scan(&ref.ID, &ref.ParentID); err != nil {
+			continue
+		}
+		refs = append(refs, ref)
+	}
+	return refs, rows.Err()
+}
+
 // GetLastSyncedAt returns the last sync timestamp for a resource type.
 func (s *Store) GetLastSyncedAt(resourceType string) string {
 	var ts sql.NullString

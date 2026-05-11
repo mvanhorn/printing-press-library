@@ -14,6 +14,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -713,8 +714,7 @@ type discriminatorDispatch struct {
 	Values map[string]string
 }
 
-var discriminatorDispatchers = map[string]discriminatorDispatch{
-}
+var discriminatorDispatchers = map[string]discriminatorDispatch{}
 
 func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
 	if _, ok := discriminatorDispatchers[resource]; !ok {
@@ -888,8 +888,8 @@ func defaultSyncResources() []string {
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
 		"publications": "/publications",
-		"users": "/users/identify",
-		"workspaces": "/workspaces/identify",
+		"users":        "/users/identify",
+		"workspaces":   "/workspaces/identify",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -902,6 +902,8 @@ type dependentResourceDef struct {
 	Name          string
 	ParentTable   string
 	ParentIDParam string
+	ScopeTable    string
+	ScopeIDParam  string
 	PathTemplate  string
 }
 
@@ -911,22 +913,37 @@ func dependentResourceDefs() []dependentResourceDef {
 		{Name: "automations", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/automations"},
 		{Name: "condition_sets", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/condition_sets"},
 		{Name: "email_blasts", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/email_blasts"},
-		{Name: "emails", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/automations/{automationId}/emails"},
-		{Name: "journeys", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/automations/{automationId}/journeys"},
-		{Name: "members", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/segments/{segmentId}/members"},
 		{Name: "newsletter_lists", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/newsletter_lists"},
-		{Name: "newsletter_lists_subscriptions", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions"},
 		{Name: "polls", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/polls"},
 		{Name: "post_templates", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/post_templates"},
 		{Name: "posts", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/posts"},
 		{Name: "publications_subscriptions", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/subscriptions"},
 		{Name: "referral_program", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/referral_program"},
-		{Name: "responses", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/polls/{pollId}/responses"},
-		{Name: "results", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/segments/{segmentId}/results"},
 		{Name: "segments", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/segments"},
 		{Name: "tiers", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/tiers"},
 		{Name: "webhooks", ParentTable: "publications", ParentIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/webhooks"},
+		{Name: "emails", ParentTable: "automations", ParentIDParam: "automationId", ScopeTable: "publications", ScopeIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/automations/{automationId}/emails"},
+		{Name: "journeys", ParentTable: "automations", ParentIDParam: "automationId", ScopeTable: "publications", ScopeIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/automations/{automationId}/journeys"},
+		{Name: "members", ParentTable: "segments", ParentIDParam: "segmentId", ScopeTable: "publications", ScopeIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/segments/{segmentId}/members"},
+		{Name: "newsletter_lists_subscriptions", ParentTable: "newsletter_lists", ParentIDParam: "newsletterListId", ScopeTable: "publications", ScopeIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions"},
+		{Name: "responses", ParentTable: "polls", ParentIDParam: "pollId", ScopeTable: "publications", ScopeIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/polls/{pollId}/responses"},
+		{Name: "results", ParentTable: "segments", ParentIDParam: "segmentId", ScopeTable: "publications", ScopeIDParam: "publicationId", PathTemplate: "/publications/{publicationId}/segments/{segmentId}/results"},
 	}
+}
+
+// PATCH: Resolve nested Beehiiv dependent sync URLs with every path parameter filled before request.
+func syncPathWithParams(template string, params map[string]string) (string, error) {
+	path := template
+	for name, value := range params {
+		if value == "" {
+			return "", fmt.Errorf("empty path parameter %s", name)
+		}
+		path = strings.ReplaceAll(path, "{"+name+"}", escapePathParam(value))
+	}
+	if strings.Contains(path, "{") || strings.Contains(path, "}") {
+		return "", fmt.Errorf("unresolved path parameter in %s", path)
+	}
+	return path, nil
 }
 
 // syncDependentResources iterates parent tables and syncs child resources per parent ID.
@@ -949,24 +966,48 @@ func syncDependentResource(c interface {
 }, db *store.Store, dep dependentResourceDef, sinceTS string, full bool, maxPages int) syncResult {
 	started := time.Now()
 
-	// Query parent table for all IDs
-	parentIDs, err := db.ListIDs(dep.ParentTable)
-	if err != nil || len(parentIDs) == 0 {
-		if len(parentIDs) == 0 {
-			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "  %s: skipping (parent table %s is empty, sync it first)\n", dep.Name, dep.ParentTable)
-			}
-			return syncResult{Resource: dep.Name, Duration: time.Since(started)}
+	type parentRef struct {
+		id      string
+		scopeID string
+	}
+
+	var parentRefs []parentRef
+	if dep.ScopeIDParam != "" {
+		refs, err := db.ListResourceParentRefs(dep.ParentTable)
+		if err != nil {
+			return syncResult{Resource: dep.Name, Err: fmt.Errorf("querying parent table %s: %w", dep.ParentTable, err), Duration: time.Since(started)}
 		}
-		return syncResult{Resource: dep.Name, Err: fmt.Errorf("querying parent table %s: %w", dep.ParentTable, err), Duration: time.Since(started)}
+		for _, ref := range refs {
+			parentRefs = append(parentRefs, parentRef{id: ref.ID, scopeID: ref.ParentID})
+		}
+	} else {
+		parentIDs, err := db.ListIDs(dep.ParentTable)
+		if err != nil {
+			return syncResult{Resource: dep.Name, Err: fmt.Errorf("querying parent table %s: %w", dep.ParentTable, err), Duration: time.Since(started)}
+		}
+		for _, parentID := range parentIDs {
+			parentRefs = append(parentRefs, parentRef{id: parentID})
+		}
+	}
+
+	if len(parentRefs) == 0 {
+		if humanFriendly {
+			fmt.Fprintf(os.Stderr, "  %s: skipping (parent table %s is empty, sync it first)\n", dep.Name, dep.ParentTable)
+		}
+		return syncResult{Resource: dep.Name, Duration: time.Since(started)}
 	}
 
 	if humanFriendly {
-		fmt.Fprintf(os.Stderr, "  %s: syncing for %d %s parents\n", dep.Name, len(parentIDs), dep.ParentTable)
+		if dep.ScopeTable != "" {
+			fmt.Fprintf(os.Stderr, "  %s: syncing for %d %s parents scoped by %s\n", dep.Name, len(parentRefs), dep.ParentTable, dep.ScopeTable)
+		} else {
+			fmt.Fprintf(os.Stderr, "  %s: syncing for %d %s parents\n", dep.Name, len(parentRefs), dep.ParentTable)
+		}
 	}
 
 	var totalCount int
 	var deniedParents int
+	var missingScopeParents int
 	var firstDenial *accessWarning
 	pageSize := determinePaginationDefaults()
 	// Per-resource extract-failure tracking for the F4b symptom probe and
@@ -976,12 +1017,28 @@ func syncDependentResource(c interface {
 	var depConsumedTotal int
 	depAnomalyEmitted := false
 
-	for idx, parentID := range parentIDs {
-		// Build child endpoint path by replacing the param placeholder
-		path := strings.Replace(dep.PathTemplate, "{"+dep.ParentIDParam+"}", parentID, 1)
+	for idx, parent := range parentRefs {
+		replacements := map[string]string{dep.ParentIDParam: parent.id}
+		if dep.ScopeIDParam != "" {
+			if parent.scopeID == "" {
+				missingScopeParents++
+				if humanFriendly {
+					fmt.Fprintf(os.Stderr, "\n  %s: skipping parent %s because %s is missing; re-sync %s first\n", dep.Name, parent.id, dep.ScopeIDParam, dep.ParentTable)
+				} else {
+					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","parent":"%s","reason":"missing_scope_parent","message":"missing %s; re-sync %s first"}`+"\n",
+						dep.Name, parent.id, dep.ScopeIDParam, dep.ParentTable)
+				}
+				continue
+			}
+			replacements[dep.ScopeIDParam] = parent.scopeID
+		}
+		path, err := syncPathWithParams(dep.PathTemplate, replacements)
+		if err != nil {
+			return syncResult{Resource: dep.Name, Err: err, Duration: time.Since(started)}
+		}
 
 		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "\r  %s: syncing for %s (%d/%d parents)", dep.Name, dep.ParentTable, idx+1, len(parentIDs))
+			fmt.Fprintf(os.Stderr, "\r  %s: syncing for %s (%d/%d parents)", dep.Name, dep.ParentTable, idx+1, len(parentRefs))
 		}
 
 		cursor := ""
@@ -1009,13 +1066,13 @@ func syncDependentResource(c interface {
 						firstDenial = w
 					}
 					if humanFriendly {
-						fmt.Fprintf(os.Stderr, "\n  %s: access denied for parent %s: %s\n", dep.Name, parentID, w.Reason)
+						fmt.Fprintf(os.Stderr, "\n  %s: access denied for parent %s: %s\n", dep.Name, parent.id, w.Reason)
 					} else {
 						fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","parent":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
-							dep.Name, parentID, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
+							dep.Name, parent.id, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
 					}
 				} else if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\n  %s: error for parent %s: %v\n", dep.Name, parentID, err)
+					fmt.Fprintf(os.Stderr, "\n  %s: error for parent %s: %v\n", dep.Name, parent.id, err)
 				}
 				break
 			}
@@ -1029,7 +1086,7 @@ func syncDependentResource(c interface {
 			for i, item := range items {
 				var obj map[string]json.RawMessage
 				if err := json.Unmarshal(item, &obj); err == nil {
-					parentIDJSON, _ := json.Marshal(parentID)
+					parentIDJSON, _ := json.Marshal(parent.id)
 					obj["parent_id"] = parentIDJSON
 					if modified, err := json.Marshal(obj); err == nil {
 						items[i] = modified
@@ -1040,7 +1097,7 @@ func syncDependentResource(c interface {
 			stored, extractFailures, err := upsertResourceBatch(db, dep.Name, items)
 			if err != nil {
 				if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\n  %s: upsert error for parent %s: %v\n", dep.Name, parentID, err)
+					fmt.Fprintf(os.Stderr, "\n  %s: upsert error for parent %s: %v\n", dep.Name, parent.id, err)
 				}
 				break
 			}
@@ -1053,16 +1110,16 @@ func syncDependentResource(c interface {
 			// how many extractions failed individually.
 			if len(items) > 0 && stored == 0 && !depAnomalyEmitted {
 				if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\nwarning: %s returned %d items for parent %s but stored 0 — likely scalar item shape or unrecognized primary-key field name.\n", dep.Name, len(items), parentID)
+					fmt.Fprintf(os.Stderr, "\nwarning: %s returned %d items for parent %s but stored 0 — likely scalar item shape or unrecognized primary-key field name.\n", dep.Name, len(items), parent.id)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","parent":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", dep.Name, parentID, len(items))
+					fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","parent":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", dep.Name, parent.id, len(items))
 				}
 				depAnomalyEmitted = true
 			} else if extractFailures > 0 && stored > 0 && !depAnomalyEmitted {
 				if humanFriendly {
 					fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", dep.Name, extractFailures)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","parent":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", dep.Name, parentID, len(items), stored, extractFailures)
+					fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","parent":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", dep.Name, parent.id, len(items), stored, extractFailures)
 				}
 				depAnomalyEmitted = true
 			}
@@ -1072,9 +1129,9 @@ func syncDependentResource(c interface {
 
 			if maxPages > 0 && pagesFetched >= maxPages {
 				if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items) for parent %s\n", dep.Name, maxPages, totalCount, parentID)
+					fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items) for parent %s\n", dep.Name, maxPages, totalCount, parent.id)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","parent":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", dep.Name, parentID, maxPages)
+					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","parent":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", dep.Name, parent.id, maxPages)
 				}
 				break
 			}
@@ -1083,9 +1140,9 @@ func syncDependentResource(c interface {
 			// non-advancing next cursor.
 			if nextCursor != "" && nextCursor == lastNextCursor {
 				if humanFriendly {
-					fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages for parent %s; aborting to prevent budget waste.\n", dep.Name, parentID)
+					fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages for parent %s; aborting to prevent budget waste.\n", dep.Name, parent.id)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","parent":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", dep.Name, parentID, dep.Name)
+					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","parent":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", dep.Name, parent.id, dep.Name)
 				}
 				break
 			}
@@ -1118,11 +1175,19 @@ func syncDependentResource(c interface {
 
 	// If every parent was access-denied and nothing was synced, surface as a
 	// warning so the run-level summary and exit code reflect insufficient access.
-	if deniedParents == len(parentIDs) && totalCount == 0 && firstDenial != nil {
+	if deniedParents == len(parentRefs) && totalCount == 0 && firstDenial != nil {
 		return syncResult{
 			Resource: dep.Name,
 			Count:    0,
-			Warn:     fmt.Errorf("skipped %s: %s on all %d parents", dep.Name, firstDenial.Reason, len(parentIDs)),
+			Warn:     fmt.Errorf("skipped %s: %s on all %d parents", dep.Name, firstDenial.Reason, len(parentRefs)),
+			Duration: time.Since(started),
+		}
+	}
+	if missingScopeParents == len(parentRefs) && totalCount == 0 {
+		return syncResult{
+			Resource: dep.Name,
+			Count:    0,
+			Warn:     fmt.Errorf("skipped %s: every %s parent is missing %s; re-sync %s first", dep.Name, dep.ParentTable, dep.ScopeIDParam, dep.ParentTable),
 			Duration: time.Since(started),
 		}
 	}
@@ -1139,25 +1204,25 @@ func syncDependentResource(c interface {
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
 var resourceIDFieldOverrides = map[string]string{
-	"authors": "id",
-	"automations": "id",
-	"condition_sets": "id",
-	"email_blasts": "id",
-	"emails": "id",
-	"journeys": "id",
-	"members": "id",
-	"newsletter_lists": "id",
+	"authors":                        "id",
+	"automations":                    "id",
+	"condition_sets":                 "id",
+	"email_blasts":                   "id",
+	"emails":                         "id",
+	"journeys":                       "id",
+	"members":                        "id",
+	"newsletter_lists":               "id",
 	"newsletter_lists_subscriptions": "id",
-	"polls": "id",
-	"post_templates": "id",
-	"posts": "id",
-	"publications": "id",
-	"publications_subscriptions": "id",
-	"referral_program": "id",
-	"responses": "id",
-	"segments": "id",
-	"tiers": "id",
-	"webhooks": "id",
+	"polls":                          "id",
+	"post_templates":                 "id",
+	"posts":                          "id",
+	"publications":                   "id",
+	"publications_subscriptions":     "id",
+	"referral_program":               "id",
+	"responses":                      "id",
+	"segments":                       "id",
+	"tiers":                          "id",
+	"webhooks":                       "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
@@ -1173,8 +1238,7 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 // Includes both flat resources and dependent (parent-child) resources so a
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
-var criticalResources = map[string]bool{
-}
+var criticalResources = map[string]bool{}
 
 // extractID resolves an item's primary-key field. It consults the
 // per-resource templated override first; on miss, it falls through to the
