@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T14:52:58Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "artyfacts",
+  "display_name": "Artyfacts",
+  "cli_name": "artyfacts-pp-cli",
+  "owner": "bernard-maltais",
+  "printer": "bmaltais",
+  "printer_name": "Bernard Maltais",
+  "run_id": "20260511-145258",
+  "category": "ai",
+  "description": "Persistent workspace for AI agent work products — create, sync, search, and manage AI-generated artifacts across sessions",
+  "mcp_binary": "artyfacts-pp-mcp",
+  "mcp_tool_count": 20,
+  "mcp_public_tool_count": 20,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ARTYFACTS_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ARTYFACTS_API_KEY",
+      "description": "Artyfacts API key. Get one at https://artyfacts.ai",
+      "required": true,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Offline FTS5 Search",
+      "command": "artyfacts-pp-cli search-local <query>",
+      "description": "Full-text search over synced artifacts and sections using SQLite FTS5 — no API call, instant results from the local store"
+    },
+    {
+      "name": "Compound Artifact + Sections Workflow",
+      "command": "artyfacts-pp-cli workflow create-with-sections",
+      "description": "Creates an artifact and all its sections in a single guided flow, eliminating the multi-step create-then-add-sections dance"
+    },
+    {
+      "name": "Stale Artifact Detection",
+      "command": "artyfacts-pp-cli artifacts stale",
+      "description": "Compares local store timestamps against the live API to surface artifacts that haven't been updated within a configurable staleness window"
+    },
+    {
+      "name": "Workspace Statistics",
+      "command": "artyfacts-pp-cli artifacts stats",
+      "description": "Aggregates the local store to produce contribution breakdowns by agent, artifact type, and status — impossible via a single stateless API call"
+    },
+    {
+      "name": "Hierarchical Tree View",
+      "command": "artyfacts-pp-cli artifacts tree",
+      "description": "Renders the full folder/artifact hierarchy as an ASCII tree from the local store, including nesting depth and child counts"
+    },
+    {
+      "name": "Batch Status Transitions",
+      "command": "artyfacts-pp-cli artifacts bulk-status",
+      "description": "Transitions multiple artifacts matching filter criteria to a new status in one command, with a pre-flight check to surface API limitations early"
+    }
+  ]
+}

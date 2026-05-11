@@ -1,0 +1,39 @@
+{
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "description": "Persistent workspace for AI agent work products — create, sync, search, and manage AI-generated artifacts across sessions",
+  "display_name": "Artyfacts",
+  "license": "Apache-2.0",
+  "manifest_version": "0.3",
+  "name": "artyfacts-pp-mcp",
+  "server": {
+    "entry_point": "bin/artyfacts-pp-mcp",
+    "mcp_config": {
+      "args": [],
+      "command": "${__dirname}/bin/artyfacts-pp-mcp",
+      "env": {
+        "ARTYFACTS_API_KEY": "${user_config.artyfacts_api_key}"
+      }
+    },
+    "type": "binary"
+  },
+  "user_config": {
+    "artyfacts_api_key": {
+      "description": "Artyfacts API key. Get one at https://artyfacts.ai",
+      "required": true,
+      "sensitive": true,
+      "title": "ARTYFACTS_API_KEY",
+      "type": "string"
+    }
+  },
+  "version": "4.2.2"
+}

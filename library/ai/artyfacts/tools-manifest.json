@@ -1,0 +1,144 @@
+{
+  "api_name": "artyfacts",
+  "base_url": "https://artyfacts.ai/api/v1",
+  "description": "Persistent workspace for AI agent work products — create, sync, search, and manage AI-generated artifacts across sessions",
+  "mcp_ready": "full",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "in": "header",
+    "env_vars": [
+      "ARTYFACTS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ARTYFACTS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Artyfacts API key. Get one at https://artyfacts.ai"
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "artifacts_create",
+      "description": "Create a new artifact envelope. Add content using section tools after creation.",
+      "method": "POST",
+      "path": "/artifacts",
+      "params": [
+        {"name": "title", "type": "string", "location": "body", "required": true, "description": "Artifact title"},
+        {"name": "type", "type": "string", "location": "body", "required": true, "description": "Artifact type: doc, spec, research, report, experiment, phase, runbook, folder"},
+        {"name": "summary", "type": "string", "location": "body", "required": true, "description": "Brief description (max 500 chars)"},
+        {"name": "parent_id", "type": "string", "location": "body", "description": "Parent folder ID for nesting"},
+        {"name": "tags", "type": "string", "location": "body", "description": "Tags for categorization"},
+        {"name": "status", "type": "string", "location": "body", "description": "Status: draft, active, final, superseded, archived"}
+      ]
+    },
+    {
+      "name": "artifacts_get",
+      "description": "Get a specific artifact with all sections.",
+      "method": "GET",
+      "path": "/artifacts/{artifact_id}",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID (UUID)"}
+      ]
+    },
+    {
+      "name": "artifacts_list",
+      "description": "List artifacts, optionally filtered by type, folder, or root-level.",
+      "method": "GET",
+      "path": "/artifacts",
+      "params": [
+        {"name": "type", "type": "string", "location": "query", "description": "Filter by type: doc, spec, research, report, experiment, phase, runbook, folder"},
+        {"name": "parent_id", "type": "string", "location": "query", "description": "Filter by parent folder ID"},
+        {"name": "is_root", "type": "string", "location": "query", "description": "Only return root-level artifacts"},
+        {"name": "limit", "type": "string", "location": "query", "description": "Max results (default 50)"},
+        {"name": "search", "type": "string", "location": "query", "description": "Full-text search query across titles, summaries, and section bodies"}
+      ]
+    },
+    {
+      "name": "artifacts_update",
+      "description": "Update artifact metadata (title, summary, status, tags, visibility, retention).",
+      "method": "PATCH",
+      "path": "/artifacts/{artifact_id}",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID"},
+        {"name": "title", "type": "string", "location": "body", "description": "New title"},
+        {"name": "summary", "type": "string", "location": "body", "description": "New summary"},
+        {"name": "status", "type": "string", "location": "body", "description": "Status: draft, active, final, superseded, archived"},
+        {"name": "tags", "type": "string", "location": "body", "description": "New tags (replaces existing)"},
+        {"name": "visibility", "type": "string", "location": "body", "description": "Visibility: private, team, organization, public"},
+        {"name": "retention", "type": "string", "location": "body", "description": "Retention: ephemeral, 7d, 30d, 90d, 1y, permanent"},
+        {"name": "parent_id", "type": "string", "location": "body", "description": "Move to a different parent folder"}
+      ]
+    },
+    {
+      "name": "org_context",
+      "description": "Get organization details, agent conventions, and preferred workflows.",
+      "method": "GET",
+      "path": "/org/context",
+      "params": []
+    },
+    {
+      "name": "sections_create",
+      "description": "Create a new section with content in one step.",
+      "method": "POST",
+      "path": "/artifacts/{artifact_id}/sections",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID"},
+        {"name": "id", "type": "string", "location": "body", "required": true, "description": "Section ID (lowercase slug)"},
+        {"name": "heading", "type": "string", "location": "body", "required": true, "description": "Section heading"},
+        {"name": "type", "type": "string", "location": "body", "required": true, "description": "Content type: document/markdown, code/python, code/javascript, data/json, data/yaml, image/png"},
+        {"name": "body", "type": "string", "location": "body", "description": "Section content text"},
+        {"name": "position", "type": "string", "location": "body", "description": "Display order (0-indexed)"},
+        {"name": "agent_name", "type": "string", "location": "body", "description": "Author name shown in UI"}
+      ]
+    },
+    {
+      "name": "sections_delete",
+      "description": "Delete a section from an artifact.",
+      "method": "DELETE",
+      "path": "/artifacts/{artifact_id}/sections/{section_id}",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID"},
+        {"name": "section_id", "type": "string", "location": "path", "required": true, "description": "Section ID"}
+      ]
+    },
+    {
+      "name": "sections_get",
+      "description": "Get a specific section by artifact and section ID.",
+      "method": "GET",
+      "path": "/artifacts/{artifact_id}/sections/{section_id}",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID"},
+        {"name": "section_id", "type": "string", "location": "path", "required": true, "description": "Section ID"}
+      ]
+    },
+    {
+      "name": "sections_list",
+      "description": "List all sections of an artifact, ordered by position.",
+      "method": "GET",
+      "path": "/artifacts/{artifact_id}/sections",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID"}
+      ]
+    },
+    {
+      "name": "sections_update",
+      "description": "Update section content or streaming state.",
+      "method": "PATCH",
+      "path": "/artifacts/{artifact_id}/sections/{section_id}",
+      "params": [
+        {"name": "artifact_id", "type": "string", "location": "path", "required": true, "description": "Artifact ID"},
+        {"name": "section_id", "type": "string", "location": "path", "required": true, "description": "Section ID"},
+        {"name": "body", "type": "string", "location": "body", "description": "New section content"},
+        {"name": "heading", "type": "string", "location": "body", "description": "New section heading"},
+        {"name": "is_streaming", "type": "string", "location": "body", "description": "Streaming state flag"},
+        {"name": "agent_name", "type": "string", "location": "body", "description": "Author name shown in UI"}
+      ]
+    }
+  ]
+}
