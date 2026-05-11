@@ -401,29 +401,33 @@ func newOmniHeaterCmd(flags *rootFlags) *cobra.Command {
 
 func newOmniHeaterEnableCmd(flags *rootFlags) *cobra.Command {
 	var siteID int
+	var bow string
 	cmd := &cobra.Command{
 		Use:     "enable [heater-name]",
 		Short:   "Enable a heater. Heater stays on until you disable it (or it reaches its setpoint).",
-		Example: "  hayward-omnilogic-pp-cli heater enable 'Pool Heater'",
-		RunE:    runHeaterEnableDisable(flags, &siteID, true),
+		Example: "  hayward-omnilogic-pp-cli heater enable Gas --bow Pool",
+		RunE:    runHeaterEnableDisable(flags, &siteID, &bow, true),
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
+	cmd.Flags().StringVar(&bow, "bow", "", "Constrain to a body-of-water by name (e.g. 'Pool' or 'Spa'). Useful when shared heaters appear under multiple BoWs.")
 	return cmd
 }
 
 func newOmniHeaterDisableCmd(flags *rootFlags) *cobra.Command {
 	var siteID int
+	var bow string
 	cmd := &cobra.Command{
 		Use:     "disable [heater-name]",
 		Short:   "Disable a heater by name; if only one heater is on the BoW, omit the name.",
-		Example: "  hayward-omnilogic-pp-cli heater disable 'Pool Heater'",
-		RunE:    runHeaterEnableDisable(flags, &siteID, false),
+		Example: "  hayward-omnilogic-pp-cli heater disable Gas --bow Pool",
+		RunE:    runHeaterEnableDisable(flags, &siteID, &bow, false),
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
+	cmd.Flags().StringVar(&bow, "bow", "", "Constrain to a body-of-water by name (e.g. 'Pool' or 'Spa').")
 	return cmd
 }
 
-func runHeaterEnableDisable(flags *rootFlags, siteID *int, enable bool) func(cmd *cobra.Command, args []string) error {
+func runHeaterEnableDisable(flags *rootFlags, siteID *int, bowFilter *string, enable bool) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		name := ""
 		if len(args) > 0 {
@@ -446,7 +450,11 @@ func runHeaterEnableDisable(flags *rootFlags, siteID *int, enable bool) func(cmd
 		if err != nil {
 			return classifyOmnilogicError(err)
 		}
-		poolID, heaterID, h, err := omnilogic.ResolveHeater(cfg, name)
+		bf := ""
+		if bowFilter != nil {
+			bf = *bowFilter
+		}
+		poolID, heaterID, h, err := omnilogic.ResolveHeaterInBoW(cfg, name, bf)
 		if err != nil {
 			return usageErr(err)
 		}
@@ -467,10 +475,11 @@ func runHeaterEnableDisable(flags *rootFlags, siteID *int, enable bool) func(cmd
 
 func newOmniHeaterSetTempCmd(flags *rootFlags) *cobra.Command {
 	var siteID int
+	var bow string
 	cmd := &cobra.Command{
 		Use:     "set-temp [heater-name]",
 		Short:   "Set a heater's target setpoint in °F (must fall within heater Min-Settable / Max-Settable from MSP config).",
-		Example: "  hayward-omnilogic-pp-cli heater set-temp 'Pool Heater' --temp 84",
+		Example: "  hayward-omnilogic-pp-cli heater set-temp Gas --bow Pool --temp 84",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			temp, _ := cmd.Flags().GetInt("temp")
 			if temp == 0 {
@@ -497,7 +506,7 @@ func newOmniHeaterSetTempCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			poolID, heaterID, h, err := omnilogic.ResolveHeater(cfg, name)
+			poolID, heaterID, h, err := omnilogic.ResolveHeaterInBoW(cfg, name, bow)
 			if err != nil {
 				return usageErr(err)
 			}
@@ -524,6 +533,7 @@ func newOmniHeaterSetTempCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
+	cmd.Flags().StringVar(&bow, "bow", "", "Constrain to a body-of-water by name (e.g. 'Pool' or 'Spa').")
 	cmd.Flags().Int("temp", 0, "Target temperature in °F.")
 	return cmd
 }

@@ -40,31 +40,55 @@ func listSites(sites []Site) string {
 // returns the BoW's SystemID + the heater's SystemID needed for SetHeater*.
 // When name is empty and exactly one BoW has a heater, that heater wins.
 func ResolveHeater(cfg *MspConfig, name string) (poolID, heaterID int, heater Heater, err error) {
+	return ResolveHeaterInBoW(cfg, name, "")
+}
+
+// ResolveHeaterInBoW is the BoW-aware variant. Hayward's shared-equipment
+// pattern means a single heater can appear under both Pool and Spa BoWs
+// with identical name, so callers need a way to constrain by BoW name when
+// disambiguating. Empty bowFilter matches any BoW.
+func ResolveHeaterInBoW(cfg *MspConfig, name, bowFilter string) (poolID, heaterID int, heater Heater, err error) {
 	type match struct {
 		poolID   int
 		heaterID int
 		heater   Heater
+		bowName  string
 	}
 	var matches []match
+	seen := map[string]bool{} // dedupe shared heaters that appear under multiple BoWs
 	nl := strings.ToLower(name)
+	bf := strings.ToLower(strings.TrimSpace(bowFilter))
 	for _, bow := range cfg.BodiesOfWater {
+		if bf != "" && !strings.Contains(strings.ToLower(bow.Name), bf) {
+			continue
+		}
 		bowID := atoiSafe(bow.SystemID)
 		for _, h := range bow.Heaters {
 			hid := atoiSafe(h.SystemID)
+			key := fmt.Sprintf("%d:%d", bowID, hid) // dedupe within (BoW, heater) only
+			if seen[key] {
+				continue
+			}
 			if nl == "" {
-				matches = append(matches, match{bowID, hid, h})
+				seen[key] = true
+				matches = append(matches, match{bowID, hid, h, bow.Name})
 				continue
 			}
 			hname := strings.ToLower(h.Name)
 			if hname == nl || strings.Contains(hname, nl) {
-				matches = append(matches, match{bowID, hid, h})
+				seen[key] = true
+				matches = append(matches, match{bowID, hid, h, bow.Name})
 			}
 		}
 	}
 	switch len(matches) {
 	case 0:
 		if name == "" {
-			return 0, 0, Heater{}, fmt.Errorf("no heaters configured for this site")
+			suffix := ""
+			if bowFilter != "" {
+				suffix = fmt.Sprintf(" for BoW %q", bowFilter)
+			}
+			return 0, 0, Heater{}, fmt.Errorf("no heaters configured for this site%s", suffix)
 		}
 		return 0, 0, Heater{}, fmt.Errorf("no heater matched %q (use 'config get' to list heaters)", name)
 	case 1:
@@ -73,9 +97,9 @@ func ResolveHeater(cfg *MspConfig, name string) (poolID, heaterID int, heater He
 	default:
 		var names []string
 		for _, m := range matches {
-			names = append(names, m.heater.Name)
+			names = append(names, fmt.Sprintf("%s in %s", m.heater.Name, m.bowName))
 		}
-		return 0, 0, Heater{}, fmt.Errorf("heater name %q matched multiple: %s", name, strings.Join(names, ", "))
+		return 0, 0, Heater{}, fmt.Errorf("heater name %q matched multiple: %s — disambiguate with --bow Pool or --bow Spa", name, strings.Join(names, ", "))
 	}
 }
 

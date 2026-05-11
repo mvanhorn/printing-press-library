@@ -308,9 +308,29 @@ actually enabling the heater.`,
 						report["heater_enabled"] = false
 						report["heater_error"] = enableResult.Detail
 					} else {
-						_, _ = c.SetHeaterTemp(site.MspSystemID, poolID, heaterID, targetTemp)
-						logResult(s, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "ok"})
-						report["heater_enabled"] = true
+						// SetHeaterTemp may fail after SetHeaterEnable succeeds
+						// (range out-of-bounds, API hiccup, Hayward parse error).
+						// Previously we swallowed the result with `_, _ = ...` and
+						// reported "ok" unconditionally; now propagate both errors
+						// and the result's non-ok status into the report so a
+						// silent setpoint failure doesn't read as success.
+						tempResult, tempErr := c.SetHeaterTemp(site.MspSystemID, poolID, heaterID, targetTemp)
+						switch {
+						case tempErr != nil:
+							report["heater_enabled"] = true
+							report["setpoint_set"] = false
+							report["setpoint_error"] = tempErr.Error()
+							logResult(s, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "error", Detail: tempErr.Error()})
+						case tempResult != nil && tempResult.Status != "ok":
+							report["heater_enabled"] = true
+							report["setpoint_set"] = false
+							report["setpoint_error"] = tempResult.Detail
+							logResult(s, "ready-by", h.Name, params, tempResult)
+						default:
+							logResult(s, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "ok"})
+							report["heater_enabled"] = true
+							report["setpoint_set"] = true
+						}
 						report["heater_name"] = h.Name
 						// Surface whether the user is ahead of, on, or behind schedule.
 						switch {
@@ -1229,10 +1249,23 @@ offline_controllers count (sites where telemetry fetch failed).`,
 					if len(tele.BodiesOfWater) > 0 {
 						bow := tele.BodiesOfWater[0]
 						ss.PrimaryBoW = bow.Name
-						v, reasons := omnilogic.ChemistryVerdict(bow.PH, bow.ORP, bow.SaltPPM)
-						ss.ChemVerdict = v
-						ss.ChemReasons = reasons
-						if v != "ok" && v != "unknown" {
+						// Honor per-site capabilities so a sweep over multiple
+						// sites doesn't false-positive on operators who've
+						// declared their site has no pH/ORP/salt sensors.
+						// Raw ChemistryVerdict(bow.PH, bow.ORP, bow.SaltPPM)
+						// would treat a missing sensor as "unknown" and emit
+						// chemistry_verdict="unknown" forever; loading the
+						// capabilities row collapses to "not_equipped" or
+						// drops unequipped sensors from the verdict math.
+						caps, _ := loadEffectiveCapabilities(s, site.MspSystemID)
+						ch := buildChemistryForBow(site.MspSystemID, bow, tele, caps)
+						ss.ChemVerdict = ch.Verdict
+						ss.ChemReasons = ch.Reasons
+						// "unknown" (no data and no capabilities row) and
+						// "not_equipped" (sensors absent by configuration)
+						// are both non-actionable for sweep priority.
+						switch ch.Verdict {
+						case "low", "high", "mixed":
 							if ss.Priority < 1 {
 								ss.Priority = 1
 							}

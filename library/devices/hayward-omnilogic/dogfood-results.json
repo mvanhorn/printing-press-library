@@ -1,6 +1,6 @@
 {
-  "dir": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/working/hayward-omnilogic-pp-cli",
-  "spec_path": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/working/hayward-omnilogic-pp-cli/../../research/hayward-omnilogic-spec.yaml",
+  "dir": "/Users/zehner/printing-press/library/hayward-omnilogic",
+  "spec_path": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/research/hayward-omnilogic-spec.yaml",
   "verdict": "WARN",
   "path_check": {
     "tested": 0,
@@ -42,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 57,
-      "registered": 57
+      "defined": 61,
+      "registered": 61
     },
     "config_consistency": {
       "consistent": true
@@ -72,13 +72,13 @@
     "checked": 9
   },
   "print_json_filtered_check": {
-    "checked": 13
+    "checked": 14
   },
   "test_presence": {
     "checked": 1
   },
   "naming_check": {
-    "checked": 13
+    "checked": 14
   },
   "issues": [
     "sync uses generic Upsert only"
