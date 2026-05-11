@@ -1,0 +1,51 @@
+version: 2
+project_name: jira-cloud-platform-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: jira-cloud-platform-pp-cli
+    main: ./cmd/jira-cloud-platform-pp-cli
+    binary: jira-cloud-platform-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/project-management/jira/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: jira-cloud-platform-pp-mcp
+    main: ./cmd/jira-cloud-platform-pp-mcp
+    binary: jira-cloud-platform-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: jira-cloud-platform-pp-cli
+    repository:
+      owner: nikica-jokic
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Jira Cloud platform REST API documentation"
+    install: |
+      bin.install "jira-cloud-platform-pp-cli"
+      bin.install "jira-cloud-platform-pp-mcp"

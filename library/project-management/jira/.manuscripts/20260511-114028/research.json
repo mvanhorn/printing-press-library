@@ -1,0 +1,244 @@
+{
+  "api_name": "jira",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "jira-cli (ankitpokhrel)",
+      "url": "https://github.com/ankitpokhrel/jira-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 5610,
+      "last_updated": "",
+      "command_count": 32,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-jira",
+      "url": "https://github.com/go-jira/jira",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2740,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jira-pilot",
+      "url": "https://github.com/Aarul5/jira-pilot",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 29,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cosmix/jira-mcp",
+      "url": "https://github.com/cosmix/jira-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 27,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "atlassian/atlassian-mcp-server",
+      "url": "https://github.com/atlassian/atlassian-mcp-server",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 662,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Warzuponus/mcp-jira",
+      "url": "https://github.com/Warzuponus/mcp-jira",
+      "language": "Python",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T11:40:28Z",
+  "novel_features": [
+    {
+      "name": "Cycle Time Analytics",
+      "command": "cycle-time",
+      "description": "Show p50/p75/p90 cycle time and a histogram for issues resolved in a time window.",
+      "rationale": "Computed from resolved_at minus created_at across synced issues — no Jira API endpoint returns this.",
+      "example": "jira-cloud-platform-pp-cli cycle-time --project MYPROJ --type Bug --last 30 --agent",
+      "why_it_matters": "Use when analyzing SLA compliance or comparing issue resolution speed across projects.",
+      "group": "Agile intelligence"
+    },
+    {
+      "name": "Assignee Workload (cross-project)",
+      "command": "workload",
+      "description": "Show open issues and story point load per assignee, optionally across multiple projects.",
+      "rationale": "Cross-project aggregation requires a local SQLite join — the Jira API returns one project at a time.",
+      "example": "jira-cloud-platform-pp-cli workload --project MYPROJ --agent",
+      "why_it_matters": "Use before assigning new work to identify team members with capacity vs. those already overloaded.",
+      "group": "Agile intelligence"
+    },
+    {
+      "name": "Blocked Issue Chain Traversal",
+      "command": "blocked",
+      "description": "Show issues that are blocked, following the blocker link graph recursively to surface dependency chains.",
+      "rationale": "Traversing issue links recursively requires local SQLite graph walk — API requires N serial calls.",
+      "example": "jira-cloud-platform-pp-cli blocked --project MYPROJ --agent",
+      "why_it_matters": "Use during standup prep to surface the full dependency chain behind a blocked ticket, not just the immediate blocker.",
+      "group": "Agile intelligence"
+    },
+    {
+      "name": "Stale Issue Detector",
+      "command": "stale",
+      "description": "Find issues that haven't been updated in N days, scoped by project, sprint, or status.",
+      "rationale": "SQLite date filter on updated_at across synced issues — no Jira API staleness endpoint exists.",
+      "example": "jira-cloud-platform-pp-cli stale --days 14 --project MYPROJ --agent",
+      "why_it_matters": "Use during weekly triage to surface zombie cards that are assigned but not moving.",
+      "group": "Triage intelligence"
+    },
+    {
+      "name": "Issue Changelog Diff",
+      "command": "issue changelog get-change-logs",
+      "description": "Show the full field-change history for an issue: who changed status, assignee, priority and when.",
+      "rationale": "Calls /rest/api/3/issue/{key}/changelog and formats it as a readable diff — no existing CLI tool surfaces this.",
+      "example": "jira-cloud-platform-pp-cli issue changelog get-change-logs MYPROJ-123 --agent",
+      "why_it_matters": "Use when debugging why an issue is stuck or auditing who made a workflow change and when.",
+      "group": "Triage intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cycle Time Analytics",
+      "command": "cycle-time",
+      "description": "Show p50/p75/p90 cycle time and a histogram for issues resolved in a time window.",
+      "rationale": "Computed from resolved_at minus created_at across synced issues — no Jira API endpoint returns this.",
+      "example": "jira-cloud-platform-pp-cli cycle-time --project MYPROJ --type Bug --last 30 --agent",
+      "why_it_matters": "Use when analyzing SLA compliance or comparing issue resolution speed across projects.",
+      "group": "Agile intelligence"
+    },
+    {
+      "name": "Assignee Workload (cross-project)",
+      "command": "workload",
+      "description": "Show open issues and story point load per assignee, optionally across multiple projects.",
+      "rationale": "Cross-project aggregation requires a local SQLite join — the Jira API returns one project at a time.",
+      "example": "jira-cloud-platform-pp-cli workload --project MYPROJ --agent",
+      "why_it_matters": "Use before assigning new work to identify team members with capacity vs. those already overloaded.",
+      "group": "Agile intelligence"
+    },
+    {
+      "name": "Blocked Issue Chain Traversal",
+      "command": "blocked",
+      "description": "Show issues that are blocked, following the blocker link graph recursively to surface dependency chains.",
+      "rationale": "Traversing issue links recursively requires local SQLite graph walk — API requires N serial calls.",
+      "example": "jira-cloud-platform-pp-cli blocked --project MYPROJ --agent",
+      "why_it_matters": "Use during standup prep to surface the full dependency chain behind a blocked ticket, not just the immediate blocker.",
+      "group": "Agile intelligence"
+    },
+    {
+      "name": "Stale Issue Detector",
+      "command": "stale",
+      "description": "Find issues that haven't been updated in N days, scoped by project, sprint, or status.",
+      "rationale": "SQLite date filter on updated_at across synced issues — no Jira API staleness endpoint exists.",
+      "example": "jira-cloud-platform-pp-cli stale --days 14 --project MYPROJ --agent",
+      "why_it_matters": "Use during weekly triage to surface zombie cards that are assigned but not moving.",
+      "group": "Triage intelligence"
+    },
+    {
+      "name": "Issue Changelog Diff",
+      "command": "issue changelog get-change-logs",
+      "description": "Show the full field-change history for an issue: who changed status, assignee, priority and when.",
+      "rationale": "Calls /rest/api/3/issue/{key}/changelog and formats it as a readable diff — no existing CLI tool surfaces this.",
+      "example": "jira-cloud-platform-pp-cli issue changelog get-change-logs MYPROJ-123 --agent",
+      "why_it_matters": "Use when debugging why an issue is stuck or auditing who made a workflow change and when.",
+      "group": "Triage intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Jira",
+    "headline": "Every Jira operation in your terminal, plus sprint velocity, cycle time, and workload analytics no other CLI can produce.",
+    "value_prop": "jira-pp-cli syncs your workspace locally so searches and analytics work offline. It matches every command in jira-cli and adds eight data-layer features — velocity trends, cycle time distributions, workload heatmaps — that require the local store to compute.",
+    "auth_narrative": "Uses HTTP Basic auth: set JIRA_API_TOKEN (your Atlassian API token), JIRA_BASE_URL (your workspace URL like https://yourco.atlassian.net), and JIRA_EMAIL. Run `jira-pp-cli auth setup` to configure interactively.",
+    "quickstart": [
+      {
+        "command": "jira-pp-cli auth setup",
+        "comment": "Configure your workspace URL, email, and API token"
+      },
+      {
+        "command": "jira-pp-cli doctor",
+        "comment": "Verify auth and connectivity"
+      },
+      {
+        "command": "jira-pp-cli sync --project MYPROJ",
+        "comment": "Pull issues into local store (enables offline search and analytics)"
+      },
+      {
+        "command": "jira-pp-cli issue list --assignee me --status 'In Progress'",
+        "comment": "See your active issues"
+      },
+      {
+        "command": "jira-pp-cli workload --project MYPROJ --sprint active",
+        "comment": "Check who's overloaded before assigning new work"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Run `jira-pp-cli auth setup` — your API token may have expired or JIRA_EMAIL is wrong"
+      },
+      {
+        "symptom": "search returns no results after sync",
+        "fix": "Run `jira-pp-cli sync --full --project MYPROJ` to force a full resync"
+      },
+      {
+        "symptom": "sprint velocity shows 0 story points",
+        "fix": "Ensure issues have story points set in Jira; check with `jira-pp-cli issue list --sprint active --json | jq '.[0].story_points'`"
+      }
+    ],
+    "when_to_use": "Use jira-pp-cli when you want to manage Jira without leaving the terminal, run analytics on your team's sprint data, or integrate Jira operations into agent workflows. Especially useful for engineers who want to triage issues, update status, and check sprint health from the command line.",
+    "recipes": [
+      {
+        "title": "Cycle time for a project",
+        "command": "jira-cloud-platform-pp-cli cycle-time --project MYPROJ --last 90 --agent",
+        "explanation": "Show p50/p75/p90 resolution time for resolved issues to measure team throughput."
+      },
+      {
+        "title": "Pre-standup blocked chain",
+        "command": "jira-cloud-platform-pp-cli blocked --project MYPROJ --agent",
+        "explanation": "Show all blocked issues and their blocker chains in agent-friendly JSON before standup."
+      },
+      {
+        "title": "Find stale in-progress work",
+        "command": "jira-cloud-platform-pp-cli stale --days 7 --status 'In Progress' --agent",
+        "explanation": "Surface tickets assigned and in-flight but untouched this week."
+      },
+      {
+        "title": "Team workload before planning",
+        "command": "jira-cloud-platform-pp-cli workload --project MYPROJ --agent",
+        "explanation": "Show each team member's current issue load before assigning new work."
+      }
+    ],
+    "trigger_phrases": [
+      "show my jira issues",
+      "what's blocked in jira",
+      "check sprint velocity",
+      "log time on jira ticket",
+      "transition jira issue",
+      "use jira",
+      "run jira"
+    ]
+  }
+}

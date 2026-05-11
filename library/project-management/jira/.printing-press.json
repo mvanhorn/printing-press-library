@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T12:24:51.392512Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "jira",
+  "cli_name": "jira-cloud-platform-pp-cli",
+  "spec_path": "/Users/neektza/printing-press/.runstate/jira-4403e15e/runs/20260511-114028/jira-spec.json",
+  "run_id": "20260511-114028",
+  "novel_features": [
+    {
+      "name": "Cycle Time Analytics",
+      "command": "cycle-time",
+      "description": "Show p50/p75/p90 cycle time and a histogram for issues resolved in a time window."
+    },
+    {
+      "name": "Assignee Workload (cross-project)",
+      "command": "workload",
+      "description": "Show open issues and story point load per assignee, optionally across multiple projects."
+    },
+    {
+      "name": "Blocked Issue Chain Traversal",
+      "command": "blocked",
+      "description": "Show issues that are blocked, following the blocker link graph recursively to surface dependency chains."
+    },
+    {
+      "name": "Stale Issue Detector",
+      "command": "stale",
+      "description": "Find issues that haven't been updated in N days, scoped by project, sprint, or status."
+    },
+    {
+      "name": "Issue Changelog Diff",
+      "command": "issue changelog get-change-logs",
+      "description": "Show the full field-change history for an issue: who changed status, assignee, priority and when."
+    }
+  ],
+  "category": "project-management",
+  "printer": "neektza",
+  "printer_name": "Nikica Jokic"
+}
