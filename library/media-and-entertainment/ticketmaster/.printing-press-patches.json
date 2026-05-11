@@ -144,6 +144,16 @@
       ],
       "validated_outcome": "go test ./internal/store/... PASS; fixture updated to provide events_id and added column-content assertions that would catch a future bind-order regression. Full module `go test ./...` PASS.",
       "upstream_issue": "see upstream_tracking.press-upsert-images-bind-order"
+    },
+    {
+      "id": "greptile-pr444-brief-classification-segment-only",
+      "summary": "Fix `events brief --classification` so it matches both segment names (Music, Arts & Theatre) AND genre names (Rock, Jazz, Comedy) — previously only segments were matched, so `--classification Rock` returned 0 results silently. Push the flag value into both wl.Segments and wl.Genres before queryFilteredEvents, matching the inline behavior of `events on-sale-soon --classification`. Help text updated.",
+      "reason": "Greptile P1 finding on PR #444 (events_brief.go:65). Hand-authored novel command — not a generator-template bug; entirely in my code.",
+      "files": [
+        "internal/cli/events_brief.go"
+      ],
+      "validated_outcome": "go test ./... PASS; help text now reads 'segment OR genre name (Music, Arts & Theatre, Sports, Rock, Jazz, Comedy, etc.)'.",
+      "upstream_issue": null
     }
   ],
   "upstream_tracking": [

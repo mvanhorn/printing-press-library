@@ -62,7 +62,15 @@ Run 'sync --resource events' first to populate the local store.
 				wl.DMAIDs = append(wl.DMAIDs, dmaID)
 			}
 			if classification != "" {
+				// PATCH(greptile P1 events_brief.go:65 — --classification only
+				// matched segments): the value the user passes could be a
+				// segment name ("Music", "Arts & Theatre") OR a genre name
+				// ("Rock", "Jazz"). Push into both filter lists so the OR
+				// match in queryFilteredEvents catches either taxonomy level;
+				// matches the inline behavior of `events on-sale-soon
+				// --classification`.
 				wl.Segments = append(wl.Segments, classification)
+				wl.Genres = append(wl.Genres, classification)
 			}
 
 			events, err := queryFilteredEvents(cmd.Context(), db.DB(), wl, window)
@@ -81,7 +89,7 @@ Run 'sync --resource events' first to populate the local store.
 	}
 	cmd.Flags().IntVar(&window, "window", 7, "Window in days from today")
 	cmd.Flags().StringVar(&dmaID, "dma", "", "Restrict to a single DMA ID")
-	cmd.Flags().StringVar(&classification, "classification", "", "Filter by segment name (Music, Arts & Theatre, Sports, etc.)")
+	cmd.Flags().StringVar(&classification, "classification", "", "Filter by segment OR genre name (Music, Arts & Theatre, Sports, Rock, Jazz, Comedy, etc.)")
 	cmd.Flags().StringVar(&watchlistName, "watchlist", "", "Apply a saved watchlist's filters")
 	cmd.Flags().StringVar(&title, "title", "", "Heading for the brief (default: 'What's On — Next N Days')")
 	return cmd
