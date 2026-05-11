@@ -161,8 +161,18 @@ func (c *Client) ProbeGet(path string) (int, error) {
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	// Sort param keys before concatenating so the cache key is deterministic
+	// regardless of Go's randomized map iteration order. Without this, two
+	// calls with the same {path, params} produce different SHA-256 digests
+	// and either miss the warm cache or (worse) collide with an unrelated
+	// request whose iteration order matches by chance.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		key += k + "=" + params[k]
 	}
 	// Include resolved template-var values in the cache identity so two
 	// tenants (different SHOPIFY_SHOP) never collide on the same path, and

@@ -211,10 +211,11 @@ Available --by signals:
 				if flagFull {
 					row.Content = p.Metadata.Content
 					row.Attachments = p.Metadata.Attachments
-				} else {
-					row.Content = p.Metadata.Content
-					row.Attachments = p.Metadata.Attachments
 				}
+				// --full=false omits Content / Attachments so callers can
+				// fetch a tight list of ranked post handles without paying
+				// the content tax. URL + id are always present so the user
+				// can fetch a specific body via `posts get` afterwards.
 				rows = append(rows, row)
 			}
 

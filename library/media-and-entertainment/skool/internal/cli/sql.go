@@ -47,9 +47,13 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 			if db == "" {
 				db = defaultDBPath("skool-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), db)
+			// Open read-only at the SQLite driver level. mode=ro rejects every
+			// write (including CTE-wrapped INSERT/UPDATE/DELETE) regardless of
+			// the application-level hasMutation regex, so the read-only
+			// guarantee survives any edge case in stripSQLStrings.
+			s, err := store.OpenReadOnly(db)
 			if err != nil {
-				return fmt.Errorf("opening database: %w", err)
+				return fmt.Errorf("opening database (read-only): %w", err)
 			}
 			defer s.Close()
 			rows, err := s.DB().QueryContext(cmd.Context(), trimmed)

@@ -752,9 +752,38 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
+// safeTableName is the whitelist for resourceType values that may be
+// interpolated into a SQL identifier position. SQLite has no parameterized
+// way to bind a table name; the only safe approach is to reject anything
+// that isn't a plain ASCII identifier before substitution. Hyphens are
+// allowed because some generated resource tables include them.
+var safeTableName = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_-]*$`)
+
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	// Reject anything that isn't a plain identifier before letting it reach
+	// the SQL identifier position. Without this, a caller passing a crafted
+	// resourceType (e.g., via a malicious sync_state row or config field)
+	// would execute arbitrary SQL against the local store.
+	if !safeTableName.MatchString(resourceType) {
+		// Skip the domain-table fast path and fall through to the
+		// parameterized generic-resources query, which is safe.
+		rows, err := s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		var ids []string
+		for rows.Next() {
+			var id string
+			if err := rows.Scan(&id); err != nil {
+				continue
+			}
+			ids = append(ids, id)
+		}
+		return ids, rows.Err()
+	}
+	// Whitelist passed — safe to interpolate into the identifier position.
+	query := fmt.Sprintf("SELECT id FROM %q", resourceType)
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table

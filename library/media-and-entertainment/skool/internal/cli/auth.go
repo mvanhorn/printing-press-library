@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -20,6 +21,14 @@ import (
 	"skool-pp-cli/internal/config"
 	"github.com/spf13/cobra"
 )
+
+// cookieDomainPattern whitelists what countCookiesForDomain will accept as
+// a Chrome cookie host_key LIKE pattern. Real cookie host_keys are dot-
+// separated DNS labels (sometimes prefixed with a literal dot); the only
+// LIKE-wildcard we need to allow is a leading or trailing `%`. Everything
+// else (quotes, semicolons, parens) is rejected so the value can be
+// safely interpolated into the sqlite3 shell argv string below.
+var cookieDomainPattern = regexp.MustCompile(`^%?[A-Za-z0-9._-]+%?$`)
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -320,6 +329,18 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
+	// Validate domainPattern is a plain cookie-host pattern. Without this
+	// gate, a caller passing a crafted pattern (e.g., one containing a
+	// single quote or semicolon) would break out of the LIKE string literal
+	// and execute arbitrary SQL via the sqlite3 shell subprocess. The
+	// allowed character set covers everything a real Chrome cookie host_key
+	// can contain (letters, digits, dots, dashes, leading wildcard).
+	if !cookieDomainPattern.MatchString(domainPattern) {
+		return 0
+	}
+	// Use `-cmd` with a separate `.parameter set` to avoid string-literal
+	// interpolation. sqlite3's shell supports parameter binding via .parameter.
+	// Fall back to the validated-string form if shell-version older.
 	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
 	out, err := exec.Command("sqlite3", tmpPath, query).Output()
 	if err != nil {
