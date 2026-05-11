@@ -8,6 +8,22 @@ import (
 	"testing"
 )
 
+func TestEscapePathParamEscapesReservedCharacters(t *testing.T) {
+	got := escapePathParam("user+tag@example.com")
+	want := "user%2Btag%40example.com"
+	if got != want {
+		t.Fatalf("escapePathParam() = %q, want %q", got, want)
+	}
+}
+
+func TestEscapePathParamEscapesPathSeparators(t *testing.T) {
+	got := escapePathParam("a/b c")
+	want := "a%2Fb%20c"
+	if got != want {
+		t.Fatalf("escapePathParam() = %q, want %q", got, want)
+	}
+}
+
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
 // sql tool's allowlist accepts SELECT and WITH-prefix queries, including
 // CTEs, mixed case, leading whitespace, leading SQL comments, and leading

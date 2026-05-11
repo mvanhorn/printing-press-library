@@ -33,6 +33,17 @@
         "internal/cli/import.go"
       ],
       "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "escaped-path-params",
+      "summary": "Escapes generated CLI and MCP path parameters before inserting them into URL paths.",
+      "reason": "Beehiiv email path parameters can contain reserved characters such as plus and at signs, and raw replacement breaks valid subscriber lookups.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/insights.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
     }
   ]
 }

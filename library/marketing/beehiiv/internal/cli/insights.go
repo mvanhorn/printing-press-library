@@ -5,7 +5,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -336,9 +335,9 @@ func newInsightsSubscriberLookupCmd(flags *rootFlags) *cobra.Command {
 			}
 			path := ""
 			if email != "" {
-				path = "/publications/" + args[0] + "/subscriptions/by_email/" + url.PathEscape(email)
+				path = "/publications/" + escapePathParam(args[0]) + "/subscriptions/by_email/" + escapePathParam(email)
 			} else {
-				path = "/publications/" + args[0] + "/subscriptions/" + url.PathEscape(subscriptionID)
+				path = "/publications/" + escapePathParam(args[0]) + "/subscriptions/" + escapePathParam(subscriptionID)
 			}
 			obj, err := beehiivObject(c.Get(path, nil))
 			if err != nil {

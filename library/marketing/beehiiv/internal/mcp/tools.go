@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,12 +16,16 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/store"
 )
+
+func escapePathParam(value string) string {
+	return strings.ReplaceAll(url.QueryEscape(value), "+", "%20")
+}
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
@@ -32,7 +37,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/advertisement_opportunities", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/advertisement_opportunities", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("authors_index",
@@ -45,7 +50,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/authors", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "name", WireName: "name", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/authors", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "name", WireName: "name", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("authors_show",
@@ -56,7 +61,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/authors/{authorId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "authorId", WireName: "authorId", Location: "path"}, }, []string{"publicationId","authorId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/authors/{authorId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "authorId", WireName: "authorId", Location: "path"}}, []string{"publicationId", "authorId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("automations_index",
@@ -69,7 +74,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/automations", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/automations", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("automations_show",
@@ -81,7 +86,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "automationId", WireName: "automationId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","automationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "automationId", WireName: "automationId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "automationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("automations_emails_automations-list",
@@ -95,7 +100,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}/emails", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "automationId", WireName: "automationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"}, }, []string{"publicationId","automationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}/emails", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "automationId", WireName: "automationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{"publicationId", "automationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("automations_journeys_automation-create",
@@ -108,7 +113,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/automations/{automationId}/journeys", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "automationId", WireName: "automationId", Location: "path"},{PublicName: "double_opt_override", WireName: "double_opt_override", Location: "body"},{PublicName: "email", WireName: "email", Location: "body"},{PublicName: "subscription_id", WireName: "subscription_id", Location: "body"}, }, []string{"publicationId","automationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/automations/{automationId}/journeys", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "automationId", WireName: "automationId", Location: "path"}, {PublicName: "double_opt_override", WireName: "double_opt_override", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "subscription_id", WireName: "subscription_id", Location: "body"}}, []string{"publicationId", "automationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("automations_journeys_automation-index",
@@ -122,7 +127,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}/journeys", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "automationId", WireName: "automationId", Location: "path"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"}, }, []string{"publicationId","automationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}/journeys", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "automationId", WireName: "automationId", Location: "path"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{"publicationId", "automationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("automations_journeys_automation-show",
@@ -134,7 +139,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}/journeys/{automationJourneyId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "automationId", WireName: "automationId", Location: "path"},{PublicName: "automationJourneyId", WireName: "automationJourneyId", Location: "path"}, }, []string{"publicationId","automationId","automationJourneyId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/automations/{automationId}/journeys/{automationJourneyId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "automationId", WireName: "automationId", Location: "path"}, {PublicName: "automationJourneyId", WireName: "automationJourneyId", Location: "path"}}, []string{"publicationId", "automationId", "automationJourneyId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bulk-subscription-updates_index",
@@ -144,7 +149,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/bulk_subscription_updates", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/bulk_subscription_updates", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bulk-subscription-updates_show",
@@ -155,7 +160,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/bulk_subscription_updates/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"publicationId","id", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/bulk_subscription_updates/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"publicationId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("bulk-subscriptions_create",
@@ -165,7 +170,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/bulk_subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptions", WireName: "subscriptions", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/bulk_subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptions", WireName: "subscriptions", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("condition-sets_index",
@@ -179,7 +184,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/condition_sets", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "purpose", WireName: "purpose", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/condition_sets", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "purpose", WireName: "purpose", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("condition-sets_show",
@@ -191,7 +196,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/condition_sets/{conditionSetId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "conditionSetId", WireName: "conditionSetId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","conditionSetId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/condition_sets/{conditionSetId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "conditionSetId", WireName: "conditionSetId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "conditionSetId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("custom-fields_create",
@@ -202,7 +207,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/custom_fields", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "display", WireName: "display", Location: "body"},{PublicName: "kind", WireName: "kind", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/custom_fields", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "display", WireName: "display", Location: "body"}, {PublicName: "kind", WireName: "kind", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("custom-fields_delete",
@@ -212,7 +217,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"publicationId","id", }),
+		makeAPIHandler("DELETE", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"publicationId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("custom-fields_index",
@@ -222,7 +227,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/custom_fields", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/custom_fields", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("custom-fields_patch",
@@ -232,7 +237,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("display", mcplib.Description("Display")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "display", WireName: "display", Location: "body"}, }, []string{"publicationId","id", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "display", WireName: "display", Location: "body"}}, []string{"publicationId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("custom-fields_put",
@@ -242,7 +247,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("display", mcplib.Description("Display")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "display", WireName: "display", Location: "body"}, }, []string{"publicationId","id", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "display", WireName: "display", Location: "body"}}, []string{"publicationId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("custom-fields_show",
@@ -253,7 +258,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"publicationId","id", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/custom_fields/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"publicationId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("data-privacy_data-deletion-create",
@@ -263,7 +268,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/data_privacy/deletion_requests", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "email", WireName: "email", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/data_privacy/deletion_requests", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "email", WireName: "email", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("data-privacy_data-deletion-index",
@@ -273,7 +278,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/data_privacy/deletion_requests", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/data_privacy/deletion_requests", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("data-privacy_data-deletion-show",
@@ -284,7 +289,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/data_privacy/deletion_requests/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"publicationId","id", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/data_privacy/deletion_requests/{id}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"publicationId", "id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("email-blasts_index",
@@ -300,7 +305,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/email_blasts", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/email_blasts", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("email-blasts_show",
@@ -312,7 +317,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/email_blasts/{emailBlastId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "emailBlastId", WireName: "emailBlastId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","emailBlastId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/email_blasts/{emailBlastId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "emailBlastId", WireName: "emailBlastId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "emailBlastId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("engagements_index",
@@ -327,7 +332,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/engagements", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "start_date", WireName: "start_date", Location: "query"},{PublicName: "number_of_days", WireName: "number_of_days", Location: "query"},{PublicName: "granularity", WireName: "granularity", Location: "query"},{PublicName: "email_type", WireName: "email_type", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/engagements", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "start_date", WireName: "start_date", Location: "query"}, {PublicName: "number_of_days", WireName: "number_of_days", Location: "query"}, {PublicName: "granularity", WireName: "granularity", Location: "query"}, {PublicName: "email_type", WireName: "email_type", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_index",
@@ -340,7 +345,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_show",
@@ -351,7 +356,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists/{newsletterListId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}, }, []string{"publicationId","newsletterListId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists/{newsletterListId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}}, []string{"publicationId", "newsletterListId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_subscriptions_newsletter-list-create",
@@ -363,7 +368,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"},{PublicName: "email", WireName: "email", Location: "body"},{PublicName: "subscription_id", WireName: "subscription_id", Location: "body"}, }, []string{"publicationId","newsletterListId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "subscription_id", WireName: "subscription_id", Location: "body"}}, []string{"publicationId", "newsletterListId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_subscriptions_newsletter-list-index",
@@ -378,7 +383,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"}, }, []string{"publicationId","newsletterListId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}}, []string{"publicationId", "newsletterListId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_subscriptions_newsletter-list-show",
@@ -390,7 +395,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"},{PublicName: "newsletterListSubscriptionId", WireName: "newsletterListSubscriptionId", Location: "path"}, }, []string{"publicationId","newsletterListId","newsletterListSubscriptionId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}, {PublicName: "newsletterListSubscriptionId", WireName: "newsletterListSubscriptionId", Location: "path"}}, []string{"publicationId", "newsletterListId", "newsletterListSubscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_subscriptions_newsletter-list-update",
@@ -401,7 +406,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("unsubscribe", mcplib.Description("Set to true to unsubscribe the subscription from this newsletter list.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"},{PublicName: "newsletterListSubscriptionId", WireName: "newsletterListSubscriptionId", Location: "path"},{PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}, }, []string{"publicationId","newsletterListId","newsletterListSubscriptionId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}, {PublicName: "newsletterListSubscriptionId", WireName: "newsletterListSubscriptionId", Location: "path"}, {PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}}, []string{"publicationId", "newsletterListId", "newsletterListSubscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("newsletter-lists_subscriptions_newsletter-list-update-by-id",
@@ -412,7 +417,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("unsubscribe", mcplib.Description("Set to true to unsubscribe the subscription from this newsletter list.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/by_subscription_id/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"},{PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}, }, []string{"publicationId","newsletterListId","subscriptionId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/by_subscription_id/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "newsletterListId", WireName: "newsletterListId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, {PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}}, []string{"publicationId", "newsletterListId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("polls_index",
@@ -429,7 +434,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/polls", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"},{PublicName: "post_id", WireName: "post_id", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/polls", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}, {PublicName: "post_id", WireName: "post_id", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("polls_show",
@@ -441,7 +446,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/polls/{pollId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "pollId", WireName: "pollId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","pollId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/polls/{pollId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "pollId", WireName: "pollId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "pollId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("polls_responses_polls-list",
@@ -459,7 +464,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/polls/{pollId}/responses", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "pollId", WireName: "pollId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"},{PublicName: "post_id", WireName: "post_id", Location: "query"}, }, []string{"publicationId","pollId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/polls/{pollId}/responses", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "pollId", WireName: "pollId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}, {PublicName: "post_id", WireName: "post_id", Location: "query"}}, []string{"publicationId", "pollId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("post-templates_index",
@@ -473,7 +478,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/post_templates", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "order", WireName: "order", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/post_templates", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "order", WireName: "order", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_aggregate-stats",
@@ -489,7 +494,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/posts/aggregate_stats", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "audience", WireName: "audience", Location: "query"},{PublicName: "platform", WireName: "platform", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "content_tags[]", WireName: "content_tags[]", Location: "query"},{PublicName: "authors[]", WireName: "authors[]", Location: "query"},{PublicName: "hidden_from_feed", WireName: "hidden_from_feed", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/posts/aggregate_stats", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "audience", WireName: "audience", Location: "query"}, {PublicName: "platform", WireName: "platform", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "content_tags[]", WireName: "content_tags[]", Location: "query"}, {PublicName: "authors[]", WireName: "authors[]", Location: "query"}, {PublicName: "hidden_from_feed", WireName: "hidden_from_feed", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_create",
@@ -518,7 +523,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/posts", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "blocks", WireName: "blocks", Location: "body"},{PublicName: "body_content", WireName: "body_content", Location: "body"},{PublicName: "content_tags", WireName: "content_tags", Location: "body"},{PublicName: "custom_fields", WireName: "custom_fields", Location: "body"},{PublicName: "custom_link_tracking_enabled", WireName: "custom_link_tracking_enabled", Location: "body"},{PublicName: "email_capture_type_override", WireName: "email_capture_type_override", Location: "body"},{PublicName: "email_settings", WireName: "email_settings", Location: "body"},{PublicName: "headers", WireName: "headers", Location: "body"},{PublicName: "newsletter_list_id", WireName: "newsletter_list_id", Location: "body"},{PublicName: "override_scheduled_at", WireName: "override_scheduled_at", Location: "body"},{PublicName: "post_template_id", WireName: "post_template_id", Location: "body"},{PublicName: "recipients", WireName: "recipients", Location: "body"},{PublicName: "scheduled_at", WireName: "scheduled_at", Location: "body"},{PublicName: "seo_settings", WireName: "seo_settings", Location: "body"},{PublicName: "social_share", WireName: "social_share", Location: "body"},{PublicName: "status", WireName: "status", Location: "body"},{PublicName: "subtitle", WireName: "subtitle", Location: "body"},{PublicName: "thumbnail_image_url", WireName: "thumbnail_image_url", Location: "body"},{PublicName: "title", WireName: "title", Location: "body"},{PublicName: "web_settings", WireName: "web_settings", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/posts", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "blocks", WireName: "blocks", Location: "body"}, {PublicName: "body_content", WireName: "body_content", Location: "body"}, {PublicName: "content_tags", WireName: "content_tags", Location: "body"}, {PublicName: "custom_fields", WireName: "custom_fields", Location: "body"}, {PublicName: "custom_link_tracking_enabled", WireName: "custom_link_tracking_enabled", Location: "body"}, {PublicName: "email_capture_type_override", WireName: "email_capture_type_override", Location: "body"}, {PublicName: "email_settings", WireName: "email_settings", Location: "body"}, {PublicName: "headers", WireName: "headers", Location: "body"}, {PublicName: "newsletter_list_id", WireName: "newsletter_list_id", Location: "body"}, {PublicName: "override_scheduled_at", WireName: "override_scheduled_at", Location: "body"}, {PublicName: "post_template_id", WireName: "post_template_id", Location: "body"}, {PublicName: "recipients", WireName: "recipients", Location: "body"}, {PublicName: "scheduled_at", WireName: "scheduled_at", Location: "body"}, {PublicName: "seo_settings", WireName: "seo_settings", Location: "body"}, {PublicName: "social_share", WireName: "social_share", Location: "body"}, {PublicName: "status", WireName: "status", Location: "body"}, {PublicName: "subtitle", WireName: "subtitle", Location: "body"}, {PublicName: "thumbnail_image_url", WireName: "thumbnail_image_url", Location: "body"}, {PublicName: "title", WireName: "title", Location: "body"}, {PublicName: "web_settings", WireName: "web_settings", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_delete",
@@ -528,7 +533,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/publications/{publicationId}/posts/{postId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "postId", WireName: "postId", Location: "path"}, }, []string{"publicationId","postId", }),
+		makeAPIHandler("DELETE", "/publications/{publicationId}/posts/{postId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "postId", WireName: "postId", Location: "path"}}, []string{"publicationId", "postId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_index",
@@ -551,7 +556,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/posts", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "audience", WireName: "audience", Location: "query"},{PublicName: "platform", WireName: "platform", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "content_tags[]", WireName: "content_tags[]", Location: "query"},{PublicName: "slugs[]", WireName: "slugs[]", Location: "query"},{PublicName: "authors[]", WireName: "authors[]", Location: "query"},{PublicName: "premium_tiers", WireName: "premium_tiers", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"},{PublicName: "hidden_from_feed", WireName: "hidden_from_feed", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/posts", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "expand", WireName: "expand", Location: "query"}, {PublicName: "audience", WireName: "audience", Location: "query"}, {PublicName: "platform", WireName: "platform", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "content_tags[]", WireName: "content_tags[]", Location: "query"}, {PublicName: "slugs[]", WireName: "slugs[]", Location: "query"}, {PublicName: "authors[]", WireName: "authors[]", Location: "query"}, {PublicName: "premium_tiers", WireName: "premium_tiers", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "hidden_from_feed", WireName: "hidden_from_feed", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_show",
@@ -564,7 +569,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/posts/{postId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "postId", WireName: "postId", Location: "path"},{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "premium_tiers", WireName: "premium_tiers", Location: "query"}, }, []string{"publicationId","postId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/posts/{postId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "postId", WireName: "postId", Location: "path"}, {PublicName: "expand", WireName: "expand", Location: "query"}, {PublicName: "premium_tiers", WireName: "premium_tiers", Location: "query"}}, []string{"publicationId", "postId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("posts_update",
@@ -587,7 +592,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("web_settings", mcplib.Description("Web settings")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/posts/{postId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "postId", WireName: "postId", Location: "path"},{PublicName: "blocks", WireName: "blocks", Location: "body"},{PublicName: "body_content", WireName: "body_content", Location: "body"},{PublicName: "content_tags", WireName: "content_tags", Location: "body"},{PublicName: "custom_link_tracking_enabled", WireName: "custom_link_tracking_enabled", Location: "body"},{PublicName: "email_capture_type_override", WireName: "email_capture_type_override", Location: "body"},{PublicName: "email_settings", WireName: "email_settings", Location: "body"},{PublicName: "override_scheduled_at", WireName: "override_scheduled_at", Location: "body"},{PublicName: "scheduled_at", WireName: "scheduled_at", Location: "body"},{PublicName: "seo_settings", WireName: "seo_settings", Location: "body"},{PublicName: "social_share", WireName: "social_share", Location: "body"},{PublicName: "subtitle", WireName: "subtitle", Location: "body"},{PublicName: "thumbnail_image_url", WireName: "thumbnail_image_url", Location: "body"},{PublicName: "title", WireName: "title", Location: "body"},{PublicName: "web_settings", WireName: "web_settings", Location: "body"}, }, []string{"publicationId","postId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/posts/{postId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "postId", WireName: "postId", Location: "path"}, {PublicName: "blocks", WireName: "blocks", Location: "body"}, {PublicName: "body_content", WireName: "body_content", Location: "body"}, {PublicName: "content_tags", WireName: "content_tags", Location: "body"}, {PublicName: "custom_link_tracking_enabled", WireName: "custom_link_tracking_enabled", Location: "body"}, {PublicName: "email_capture_type_override", WireName: "email_capture_type_override", Location: "body"}, {PublicName: "email_settings", WireName: "email_settings", Location: "body"}, {PublicName: "override_scheduled_at", WireName: "override_scheduled_at", Location: "body"}, {PublicName: "scheduled_at", WireName: "scheduled_at", Location: "body"}, {PublicName: "seo_settings", WireName: "seo_settings", Location: "body"}, {PublicName: "social_share", WireName: "social_share", Location: "body"}, {PublicName: "subtitle", WireName: "subtitle", Location: "body"}, {PublicName: "thumbnail_image_url", WireName: "thumbnail_image_url", Location: "body"}, {PublicName: "title", WireName: "title", Location: "body"}, {PublicName: "web_settings", WireName: "web_settings", Location: "body"}}, []string{"publicationId", "postId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("publications_index",
@@ -601,7 +606,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications", []mcpParamBinding{{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/publications", []mcpParamBinding{{PublicName: "expand", WireName: "expand", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("publications_show",
@@ -612,7 +617,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "expand", WireName: "expand", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "expand", WireName: "expand", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("referral-program_show",
@@ -624,7 +629,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/referral_program", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/referral_program", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_create",
@@ -635,7 +640,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/segments", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "input", WireName: "input", Location: "body"},{PublicName: "name", WireName: "name", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/segments", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "input", WireName: "input", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_delete",
@@ -645,7 +650,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/publications/{publicationId}/segments/{segmentId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "segmentId", WireName: "segmentId", Location: "path"}, }, []string{"publicationId","segmentId", }),
+		makeAPIHandler("DELETE", "/publications/{publicationId}/segments/{segmentId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "segmentId", WireName: "segmentId", Location: "path"}}, []string{"publicationId", "segmentId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_index",
@@ -662,7 +667,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/segments", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "type", WireName: "type", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/segments", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "type", WireName: "type", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_show",
@@ -674,7 +679,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/segments/{segmentId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "segmentId", WireName: "segmentId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","segmentId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/segments/{segmentId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "segmentId", WireName: "segmentId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "segmentId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_members_segments-list",
@@ -688,7 +693,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/segments/{segmentId}/members", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "segmentId", WireName: "segmentId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","segmentId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/segments/{segmentId}/members", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "segmentId", WireName: "segmentId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "segmentId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_recalculate_segments",
@@ -697,7 +702,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("segmentId", mcplib.Required(), mcplib.Description("The prefixed ID of the segment object")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/segments/{segmentId}/recalculate", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "segmentId", WireName: "segmentId", Location: "path"}, }, []string{"publicationId","segmentId", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/segments/{segmentId}/recalculate", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "segmentId", WireName: "segmentId", Location: "path"}}, []string{"publicationId", "segmentId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("segments_results_segments-expand",
@@ -710,7 +715,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/segments/{segmentId}/results", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "segmentId", WireName: "segmentId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"}, }, []string{"publicationId","segmentId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/segments/{segmentId}/results", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "segmentId", WireName: "segmentId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}}, []string{"publicationId", "segmentId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_bulk-updates-patch",
@@ -719,7 +724,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("subscriptions", mcplib.Description("An array of objects representing the subscriptions to be updated (max 1000).")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/subscriptions/bulk_actions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptions", WireName: "subscriptions", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/subscriptions/bulk_actions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptions", WireName: "subscriptions", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_bulk-updates-patch-status",
@@ -729,7 +734,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("subscription_ids", mcplib.Required(), mcplib.Description("An array of subscription IDs to be updated")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "new_status", WireName: "new_status", Location: "body"},{PublicName: "subscription_ids", WireName: "subscription_ids", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "new_status", WireName: "new_status", Location: "body"}, {PublicName: "subscription_ids", WireName: "subscription_ids", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_bulk-updates-put",
@@ -738,7 +743,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("subscriptions", mcplib.Description("An array of objects representing the subscriptions to be updated (max 1000).")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions/bulk_actions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptions", WireName: "subscriptions", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions/bulk_actions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptions", WireName: "subscriptions", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_bulk-updates-put-status",
@@ -748,7 +753,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("subscription_ids", mcplib.Required(), mcplib.Description("An array of subscription IDs to be updated")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "new_status", WireName: "new_status", Location: "body"},{PublicName: "subscription_ids", WireName: "subscription_ids", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "new_status", WireName: "new_status", Location: "body"}, {PublicName: "subscription_ids", WireName: "subscription_ids", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_create",
@@ -776,7 +781,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "automation_ids", WireName: "automation_ids", Location: "body"},{PublicName: "custom_fields", WireName: "custom_fields", Location: "body"},{PublicName: "double_opt_override", WireName: "double_opt_override", Location: "body"},{PublicName: "email", WireName: "email", Location: "body"},{PublicName: "newsletter_list_ids", WireName: "newsletter_list_ids", Location: "body"},{PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"},{PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"},{PublicName: "reactivate_existing", WireName: "reactivate_existing", Location: "body"},{PublicName: "referral_code", WireName: "referral_code", Location: "body"},{PublicName: "referring_site", WireName: "referring_site", Location: "body"},{PublicName: "send_welcome_email", WireName: "send_welcome_email", Location: "body"},{PublicName: "skip_newsletter_list_auto_subscribe", WireName: "skip_newsletter_list_auto_subscribe", Location: "body"},{PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"},{PublicName: "tier", WireName: "tier", Location: "body"},{PublicName: "utm_campaign", WireName: "utm_campaign", Location: "body"},{PublicName: "utm_content", WireName: "utm_content", Location: "body"},{PublicName: "utm_medium", WireName: "utm_medium", Location: "body"},{PublicName: "utm_source", WireName: "utm_source", Location: "body"},{PublicName: "utm_term", WireName: "utm_term", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "automation_ids", WireName: "automation_ids", Location: "body"}, {PublicName: "custom_fields", WireName: "custom_fields", Location: "body"}, {PublicName: "double_opt_override", WireName: "double_opt_override", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "newsletter_list_ids", WireName: "newsletter_list_ids", Location: "body"}, {PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"}, {PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"}, {PublicName: "reactivate_existing", WireName: "reactivate_existing", Location: "body"}, {PublicName: "referral_code", WireName: "referral_code", Location: "body"}, {PublicName: "referring_site", WireName: "referring_site", Location: "body"}, {PublicName: "send_welcome_email", WireName: "send_welcome_email", Location: "body"}, {PublicName: "skip_newsletter_list_auto_subscribe", WireName: "skip_newsletter_list_auto_subscribe", Location: "body"}, {PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"}, {PublicName: "tier", WireName: "tier", Location: "body"}, {PublicName: "utm_campaign", WireName: "utm_campaign", Location: "body"}, {PublicName: "utm_content", WireName: "utm_content", Location: "body"}, {PublicName: "utm_medium", WireName: "utm_medium", Location: "body"}, {PublicName: "utm_source", WireName: "utm_source", Location: "body"}, {PublicName: "utm_term", WireName: "utm_term", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_delete",
@@ -786,7 +791,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, }, []string{"publicationId","subscriptionId", }),
+		makeAPIHandler("DELETE", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}}, []string{"publicationId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_get-by-email",
@@ -798,7 +803,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/by_email/{email}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "email", WireName: "email", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","email", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/by_email/{email}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "email", WireName: "email", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "email"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_get-by-id",
@@ -810,7 +815,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","subscriptionId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_get-by-subscriber-id",
@@ -822,7 +827,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/by_subscriber_id/{subscriberId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriberId", WireName: "subscriberId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","subscriberId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/by_subscriber_id/{subscriberId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriberId", WireName: "subscriberId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "subscriberId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_index",
@@ -844,7 +849,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "tier", WireName: "tier", Location: "query"},{PublicName: "premium_tiers[]", WireName: "premium_tiers[]", Location: "query"},{PublicName: "premium_tier_ids[]", WireName: "premium_tier_ids[]", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "cursor", WireName: "cursor", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "email", WireName: "email", Location: "query"},{PublicName: "order_by", WireName: "order_by", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"},{PublicName: "creation_date", WireName: "creation_date", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "tier", WireName: "tier", Location: "query"}, {PublicName: "premium_tiers[]", WireName: "premium_tiers[]", Location: "query"}, {PublicName: "premium_tier_ids[]", WireName: "premium_tier_ids[]", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "email", WireName: "email", Location: "query"}, {PublicName: "order_by", WireName: "order_by", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "creation_date", WireName: "creation_date", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_patch",
@@ -860,7 +865,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("unsubscribe", mcplib.Description("A boolean value specifying whether to unsubscribe this subscription from the publication...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"},{PublicName: "custom_fields", WireName: "custom_fields", Location: "body"},{PublicName: "email", WireName: "email", Location: "body"},{PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"},{PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"},{PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"},{PublicName: "tier", WireName: "tier", Location: "body"},{PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}, }, []string{"publicationId","subscriptionId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, {PublicName: "custom_fields", WireName: "custom_fields", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"}, {PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"}, {PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"}, {PublicName: "tier", WireName: "tier", Location: "body"}, {PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}}, []string{"publicationId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_put",
@@ -876,7 +881,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("unsubscribe", mcplib.Description("A boolean value specifying whether to unsubscribe this subscription from the publication...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"},{PublicName: "custom_fields", WireName: "custom_fields", Location: "body"},{PublicName: "email", WireName: "email", Location: "body"},{PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"},{PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"},{PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"},{PublicName: "tier", WireName: "tier", Location: "body"},{PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}, }, []string{"publicationId","subscriptionId", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions/{subscriptionId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, {PublicName: "custom_fields", WireName: "custom_fields", Location: "body"}, {PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"}, {PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"}, {PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"}, {PublicName: "tier", WireName: "tier", Location: "body"}, {PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}}, []string{"publicationId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_update-by-email",
@@ -891,7 +896,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("unsubscribe", mcplib.Description("A boolean value specifying whether to unsubscribe this subscription from the publication...")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions/by_email/{email}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "email", WireName: "email", Location: "path"},{PublicName: "custom_fields", WireName: "custom_fields", Location: "body"},{PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"},{PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"},{PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"},{PublicName: "tier", WireName: "tier", Location: "body"},{PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}, }, []string{"publicationId","email", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/subscriptions/by_email/{email}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "email", WireName: "email", Location: "path"}, {PublicName: "custom_fields", WireName: "custom_fields", Location: "body"}, {PublicName: "premium_tier_ids", WireName: "premium_tier_ids", Location: "body"}, {PublicName: "premium_tiers", WireName: "premium_tiers", Location: "body"}, {PublicName: "stripe_customer_id", WireName: "stripe_customer_id", Location: "body"}, {PublicName: "tier", WireName: "tier", Location: "body"}, {PublicName: "unsubscribe", WireName: "unsubscribe", Location: "body"}}, []string{"publicationId", "email"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_jwt-token_subscriptions-get",
@@ -902,7 +907,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/{subscriptionId}/jwt_token", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, }, []string{"publicationId","subscriptionId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/subscriptions/{subscriptionId}/jwt_token", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}}, []string{"publicationId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("subscriptions_tags_subscription-create",
@@ -913,7 +918,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/subscriptions/{subscriptionId}/tags", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"},{PublicName: "tags", WireName: "tags", Location: "body"}, }, []string{"publicationId","subscriptionId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/subscriptions/{subscriptionId}/tags", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "subscriptionId", WireName: "subscriptionId", Location: "path"}, {PublicName: "tags", WireName: "tags", Location: "body"}}, []string{"publicationId", "subscriptionId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiers_create",
@@ -925,7 +930,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/tiers", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "name", WireName: "name", Location: "body"},{PublicName: "prices_attributes", WireName: "prices_attributes", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/tiers", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "prices_attributes", WireName: "prices_attributes", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiers_index",
@@ -939,7 +944,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/tiers", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"},{PublicName: "limit", WireName: "limit", Location: "query"},{PublicName: "page", WireName: "page", Location: "query"},{PublicName: "direction", WireName: "direction", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/tiers", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "page", WireName: "page", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiers_patch",
@@ -951,7 +956,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("prices_attributes", mcplib.Description("Prices attributes")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/tiers/{tierId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "tierId", WireName: "tierId", Location: "path"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "name", WireName: "name", Location: "body"},{PublicName: "prices_attributes", WireName: "prices_attributes", Location: "body"}, }, []string{"publicationId","tierId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/tiers/{tierId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "tierId", WireName: "tierId", Location: "path"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "prices_attributes", WireName: "prices_attributes", Location: "body"}}, []string{"publicationId", "tierId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiers_put",
@@ -963,7 +968,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("prices_attributes", mcplib.Description("Prices attributes")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/publications/{publicationId}/tiers/{tierId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "tierId", WireName: "tierId", Location: "path"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "name", WireName: "name", Location: "body"},{PublicName: "prices_attributes", WireName: "prices_attributes", Location: "body"}, }, []string{"publicationId","tierId", }),
+		makeAPIHandler("PUT", "/publications/{publicationId}/tiers/{tierId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "tierId", WireName: "tierId", Location: "path"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "prices_attributes", WireName: "prices_attributes", Location: "body"}}, []string{"publicationId", "tierId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tiers_show",
@@ -975,7 +980,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/tiers/{tierId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "tierId", WireName: "tierId", Location: "path"},{PublicName: "expand[]", WireName: "expand[]", Location: "query"}, }, []string{"publicationId","tierId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/tiers/{tierId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "tierId", WireName: "tierId", Location: "path"}, {PublicName: "expand[]", WireName: "expand[]", Location: "query"}}, []string{"publicationId", "tierId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("users_oauth-identify",
@@ -984,7 +989,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/users/identify", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/users/identify", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_create",
@@ -996,7 +1001,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/publications/{publicationId}/webhooks", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "event_types", WireName: "event_types", Location: "body"},{PublicName: "url", WireName: "url", Location: "body"}, }, []string{"publicationId", }),
+		makeAPIHandler("POST", "/publications/{publicationId}/webhooks", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "event_types", WireName: "event_types", Location: "body"}, {PublicName: "url", WireName: "url", Location: "body"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_delete",
@@ -1006,7 +1011,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/publications/{publicationId}/webhooks/{endpointId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "endpointId", WireName: "endpointId", Location: "path"}, }, []string{"publicationId","endpointId", }),
+		makeAPIHandler("DELETE", "/publications/{publicationId}/webhooks/{endpointId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "endpointId", WireName: "endpointId", Location: "path"}}, []string{"publicationId", "endpointId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_index",
@@ -1017,7 +1022,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/webhooks", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "limit", WireName: "limit", Location: "query"}, }, []string{"publicationId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/webhooks", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "limit", WireName: "limit", Location: "query"}}, []string{"publicationId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_show",
@@ -1028,7 +1033,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/webhooks/{endpointId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "endpointId", WireName: "endpointId", Location: "path"}, }, []string{"publicationId","endpointId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/webhooks/{endpointId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "endpointId", WireName: "endpointId", Location: "path"}}, []string{"publicationId", "endpointId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_update",
@@ -1039,7 +1044,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("event_types", mcplib.Description("The types of events the webhook will receive.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/publications/{publicationId}/webhooks/{endpointId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "endpointId", WireName: "endpointId", Location: "path"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "event_types", WireName: "event_types", Location: "body"}, }, []string{"publicationId","endpointId", }),
+		makeAPIHandler("PATCH", "/publications/{publicationId}/webhooks/{endpointId}", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "endpointId", WireName: "endpointId", Location: "path"}, {PublicName: "description", WireName: "description", Location: "body"}, {PublicName: "event_types", WireName: "event_types", Location: "body"}}, []string{"publicationId", "endpointId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_tests_webhooks",
@@ -1050,7 +1055,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/publications/{publicationId}/webhooks/{endpointId}/tests", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"},{PublicName: "endpointId", WireName: "endpointId", Location: "path"}, }, []string{"publicationId","endpointId", }),
+		makeAPIHandler("GET", "/publications/{publicationId}/webhooks/{endpointId}/tests", []mcpParamBinding{{PublicName: "publicationId", WireName: "publicationId", Location: "path"}, {PublicName: "endpointId", WireName: "endpointId", Location: "path"}}, []string{"publicationId", "endpointId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("workspaces_identify",
@@ -1059,7 +1064,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/workspaces/identify", []mcpParamBinding{ }, []string{ }),
+		makeAPIHandler("GET", "/workspaces/identify", []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("workspaces_publications-by-subscription-email",
@@ -1070,7 +1075,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/workspaces/publications/by_subscription_email/{email}", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "path"},{PublicName: "expand", WireName: "expand", Location: "query"}, }, []string{"email", }),
+		makeAPIHandler("GET", "/workspaces/publications/by_subscription_email/{email}", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "path"}, {PublicName: "expand", WireName: "expand", Location: "query"}}, []string{"email"}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -1147,7 +1152,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, escapePathParam(fmt.Sprintf("%v", v)), 1)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
@@ -1161,7 +1166,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, escapePathParam(fmt.Sprintf("%v", v)), 1)
 			}
 		}
 
@@ -1268,6 +1273,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "beehiiv-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -1407,147 +1413,147 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"type": "bearer_token",
 			"env_vars": []map[string]any{
 				{
-					"name": "BEEHIIV_BEARER_AUTH",
-					"kind": "per_call",
-					"required": true,
-					"sensitive": true,
+					"name":        "BEEHIIV_BEARER_AUTH",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
 					"description": "Set to your API credential.",
 				},
 			},
 		},
 		"resources": []map[string]any{
 			{
-				"name": "advertisement-opportunities",
+				"name":        "advertisement-opportunities",
 				"description": "Manage advertisement opportunities",
-				"endpoints": []string{"index",  },
-				"searchable": true,
+				"endpoints":   []string{"index"},
+				"searchable":  true,
 			},
 			{
-				"name": "authors",
+				"name":        "authors",
 				"description": "Manage authors",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "automations",
+				"name":        "automations",
 				"description": "Manage automations",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "bulk-subscription-updates",
+				"name":        "bulk-subscription-updates",
 				"description": "Manage bulk subscription updates",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "bulk-subscriptions",
+				"name":        "bulk-subscriptions",
 				"description": "Manage bulk subscriptions",
-				"endpoints": []string{"create",  },
+				"endpoints":   []string{"create"},
 			},
 			{
-				"name": "condition-sets",
+				"name":        "condition-sets",
 				"description": "Manage condition sets",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "custom-fields",
+				"name":        "custom-fields",
 				"description": "Manage custom fields",
-				"endpoints": []string{"create", "delete", "index", "patch", "put", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "index", "patch", "put", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "data-privacy",
+				"name":        "data-privacy",
 				"description": "Manage data privacy",
-				"endpoints": []string{"data-deletion-create", "data-deletion-index", "data-deletion-show",  },
-				"searchable": true,
+				"endpoints":   []string{"data-deletion-create", "data-deletion-index", "data-deletion-show"},
+				"searchable":  true,
 			},
 			{
-				"name": "email-blasts",
+				"name":        "email-blasts",
 				"description": "Manage email blasts",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "engagements",
+				"name":        "engagements",
 				"description": "Manage engagements",
-				"endpoints": []string{"index",  },
-				"searchable": true,
+				"endpoints":   []string{"index"},
+				"searchable":  true,
 			},
 			{
-				"name": "newsletter-lists",
+				"name":        "newsletter-lists",
 				"description": "Manage newsletter lists",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "polls",
+				"name":        "polls",
 				"description": "Manage polls",
-				"endpoints": []string{"index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "post-templates",
+				"name":        "post-templates",
 				"description": "Manage post templates",
-				"endpoints": []string{"index",  },
-				"searchable": true,
+				"endpoints":   []string{"index"},
+				"searchable":  true,
 			},
 			{
-				"name": "posts",
+				"name":        "posts",
 				"description": "Manage posts",
-				"endpoints": []string{"aggregate-stats", "create", "delete", "index", "show", "update",  },
-				"searchable": true,
+				"endpoints":   []string{"aggregate-stats", "create", "delete", "index", "show", "update"},
+				"searchable":  true,
 			},
 			{
-				"name": "publications",
+				"name":        "publications",
 				"description": "Manage publications",
-				"endpoints": []string{"index", "show",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"index", "show"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "referral-program",
+				"name":        "referral-program",
 				"description": "Manage referral program",
-				"endpoints": []string{"show",  },
-				"searchable": true,
+				"endpoints":   []string{"show"},
+				"searchable":  true,
 			},
 			{
-				"name": "segments",
+				"name":        "segments",
 				"description": "Manage segments",
-				"endpoints": []string{"create", "delete", "index", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "index", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "subscriptions",
+				"name":        "subscriptions",
 				"description": "Manage subscriptions",
-				"endpoints": []string{"bulk-updates-patch", "bulk-updates-patch-status", "bulk-updates-put", "bulk-updates-put-status", "create", "delete", "get-by-email", "get-by-id", "get-by-subscriber-id", "index", "patch", "put", "update-by-email",  },
-				"searchable": true,
+				"endpoints":   []string{"bulk-updates-patch", "bulk-updates-patch-status", "bulk-updates-put", "bulk-updates-put-status", "create", "delete", "get-by-email", "get-by-id", "get-by-subscriber-id", "index", "patch", "put", "update-by-email"},
+				"searchable":  true,
 			},
 			{
-				"name": "tiers",
+				"name":        "tiers",
 				"description": "Manage tiers",
-				"endpoints": []string{"create", "index", "patch", "put", "show",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "index", "patch", "put", "show"},
+				"searchable":  true,
 			},
 			{
-				"name": "users",
+				"name":        "users",
 				"description": "Manage users",
-				"endpoints": []string{"oauth-identify",  },
-				"syncable": true,
+				"endpoints":   []string{"oauth-identify"},
+				"syncable":    true,
 			},
 			{
-				"name": "webhooks",
+				"name":        "webhooks",
 				"description": "Manage webhooks",
-				"endpoints": []string{"create", "delete", "index", "show", "update",  },
-				"searchable": true,
+				"endpoints":   []string{"create", "delete", "index", "show", "update"},
+				"searchable":  true,
 			},
 			{
-				"name": "workspaces",
+				"name":        "workspaces",
 				"description": "Manage workspaces",
-				"endpoints": []string{"identify", "publications-by-subscription-email",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"identify", "publications-by-subscription-email"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
