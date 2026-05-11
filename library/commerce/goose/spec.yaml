@@ -1,0 +1,574 @@
+name: goose
+display_name: "Goose"
+description: "Goose.pet facility admin API — a private SaaS API for pet-care facilities (boarding, daycare, grooming)"
+cli_description: "Run your goose.pet facility from the terminal — today's roster, customer lookup, vaccine warnings, and bulk CSV exports without leaving your shell"
+version: "0.1.0"
+base_url: "https://api.goose.pet/api/v1/admin/{facility}"
+endpoint_template_vars:
+  - facility
+spec_source: sniffed
+http_transport: standard
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  env_vars:
+    - GOOSE_ACCESS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/goose-pp-cli/config.toml"
+
+required_headers:
+  - name: Origin
+    value: "https://app.goose.pet"
+    static: true
+
+resources:
+  dashboard:
+    description: "Today's roster — arrivals, departures, currently-here pets, with pet tags, room assignments, feeding instructions, and warnings"
+    endpoints:
+      invoices:
+        method: GET
+        path: "/dashboard/invoices"
+        description: "List today's bookings with arrivals, departures, in-stay, and full pet/owner detail"
+        params:
+          - name: visitDate
+            type: string
+            description: "ISO date (YYYY-MM-DD) for the visit day; defaults to today"
+          - name: invoiceStatus
+            type: array
+            description: "Filter by invoice status (CONFIRMED, CANCELLED, etc.). Repeat for multi-value."
+          - name: limit
+            type: int
+            description: "Max results (default 500)"
+          - name: includes
+            type: array
+            description: "Nested relations to expand (e.g. order.pets.locationPetProfile.vaccinations)"
+        response:
+          type: object
+          item: DashboardInvoicesResponse
+
+  bookings:
+    description: "Bookings / reservations / invoices — the core unit of a facility visit"
+    endpoints:
+      list:
+        method: GET
+        path: "/invoices"
+        description: "List bookings with filters and rich relation includes"
+        params:
+          - name: locationServiceType
+            type: string
+            description: "Filter by location-service-type ID (boarding, daycare, grooming, etc.)"
+          - name: invoiceStatus
+            type: array
+            description: "Invoice status filter, e.g. CONFIRMED, CANCELLED"
+          - name: invoiceSubStatus
+            type: array
+            description: "Sub-status filter, e.g. IN_PROGRESS, REQUESTED, PENDING_SCHEDULED"
+          - name: order.locationUserProfileId
+            flag_name: customer-id
+            type: string
+            description: "Filter to one customer's bookings"
+          - name: period.startDate
+            flag_name: start-from
+            type: string
+            description: "Period startDate filter; supports gte_/gt_/lte_/lt_/eq_ prefixes (e.g. gte_2026-05-10)"
+          - name: distinguishes
+            type: array
+            description: "Collapse rows by relation (e.g. distinguishes[]=orderId returns one row per order)"
+          - name: limit
+            type: int
+            description: "Max results"
+          - name: sortOrder
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: includes
+            type: array
+            description: "Nested relations to expand"
+        response:
+          type: array
+          item: Invoice
+
+      get:
+        method: GET
+        path: "/invoices/{invoice_id}"
+        description: "Get a single booking by invoice ID"
+        params:
+          - name: invoice_id
+            type: string
+            required: true
+            positional: true
+            description: "Invoice (booking) ID"
+          - name: includes
+            type: array
+            description: "Nested relations to expand"
+        response:
+          type: object
+          item: Invoice
+
+  customers:
+    description: "Customers — location-user-profile (customer at this facility)"
+    endpoints:
+      search:
+        method: GET
+        path: "/location-user-profiles"
+        description: "List customers with includes (note: full-text search lives on search-api.goose.pet — see `customer` novel command)"
+        params:
+          - name: includes
+            type: array
+            description: "Nested relations (e.g. locationPetProfiles, agreements, vouchers)"
+          - name: limit
+            type: int
+            description: "Max results"
+          - name: sortOrder
+            type: string
+            description: "Sort direction: asc or desc"
+        response:
+          type: array
+          item: LocationUserProfile
+
+      get:
+        method: GET
+        path: "/location-user-profiles/{customer_id}"
+        description: "Get a customer by ID with full relation graph"
+        params:
+          - name: customer_id
+            type: string
+            required: true
+            positional: true
+            description: "Customer (location-user-profile) ID"
+          - name: includes
+            type: array
+            description: "Nested relations (locationPetProfiles, vouchers, agreements, attachments, locationUserProfileMemberships, associatedContacts)"
+        response:
+          type: object
+          item: LocationUserProfile
+
+  vouchers:
+    description: "Customer vouchers — package credits and cash credits"
+    endpoints:
+      list:
+        method: GET
+        path: "/vouchers"
+        description: "List vouchers (filter by customer, type, status)"
+        params:
+          - name: locationUserProfile
+            flag_name: customer-id
+            type: string
+            description: "Customer ID"
+          - name: type
+            type: string
+            description: "Voucher type: OFFER or CASH"
+          - name: status
+            type: string
+            description: "Voucher status (e.g. ACTIVE)"
+          - name: isUsed
+            type: bool
+            description: "Filter by used/unused"
+          - name: expired
+            type: bool
+            description: "Filter by expired/not-expired"
+          - name: atLeastOneAvailable
+            type: bool
+            description: "Only return vouchers with at least one available unit"
+          - name: limit
+            type: int
+            description: "Max results"
+          - name: includes
+            type: array
+            description: "Nested relations"
+        response:
+          type: array
+          item: Voucher
+
+  notes:
+    description: "Customer / pet notes"
+    endpoints:
+      list:
+        method: GET
+        path: "/notes"
+        description: "List notes for a customer (or facility-wide)"
+        params:
+          - name: locationUserProfile
+            flag_name: customer-id
+            type: string
+            description: "Customer ID to scope notes"
+          - name: includeShared
+            type: bool
+            description: "Include shared (cross-facility) notes"
+          - name: sortOrder
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: limit
+            type: int
+            description: "Max results"
+        response:
+          type: array
+          item: Note
+
+  payment_methods:
+    description: "Stored payment methods (v1 and v2)"
+    endpoints:
+      list:
+        method: GET
+        path: "/stored-payment-methods-v2"
+        description: "List stored payment methods (v2 endpoint)"
+        params:
+          - name: locationUserProfile
+            flag_name: customer-id
+            type: string
+            required: true
+            description: "Customer ID"
+        response:
+          type: array
+          item: PaymentMethod
+
+  balances:
+    description: "Outstanding balances"
+    endpoints:
+      outstanding:
+        method: POST
+        path: "/location-user-profiles/outstanding-balance"
+        description: "Bulk lookup of outstanding balances for a set of customers"
+        body:
+          - name: locationUserProfileIds
+            type: array
+            required: true
+            description: "Customer IDs to look up balances for"
+        response:
+          type: object
+          item: OutstandingBalanceResponse
+
+  services:
+    description: "Location service types — boarding, daycare, grooming, etc."
+    endpoints:
+      list:
+        method: GET
+        path: "/location-service-types"
+        description: "List service types offered by this facility"
+        params:
+          - name: status
+            type: string
+            description: "Filter by status (ACTIVE, INACTIVE)"
+          - name: hasSharedCRM
+            type: bool
+            description: "Filter by shared-CRM flag"
+          - name: includeShared
+            type: bool
+            description: "Include shared (cross-facility) service types"
+          - name: sortOrder
+            type: string
+            description: "Sort direction: asc or desc"
+          - name: includes
+            type: array
+            description: "Nested relations (e.g. serviceType, restrictionRelations.restriction.periods, inStays)"
+        response:
+          type: array
+          item: LocationServiceType
+
+  species:
+    description: "Species + breeds catalog"
+    endpoints:
+      list:
+        method: GET
+        path: "/location-species"
+        description: "List species and breeds offered at this facility"
+        params:
+          - name: includes
+            type: array
+            description: "Nested relations (species, species.breeds)"
+        response:
+          type: array
+          item: LocationSpecies
+
+  staff:
+    description: "Staff and other facility resources (rooms, kennels, yards)"
+    endpoints:
+      list:
+        method: GET
+        path: "/resources"
+        description: "List staff / resources"
+        params:
+          - name: type
+            type: string
+            description: "Resource type (PERSON, ROOM, YARD)"
+          - name: subtype
+            type: string
+            description: "Resource subtype (e.g. GROOMING_STAFF)"
+          - name: status
+            type: string
+            description: "Resource status (ACTIVE, INACTIVE)"
+        response:
+          type: array
+          item: Resource
+
+      availability:
+        method: GET
+        path: "/resource/availability-v2"
+        description: "Get resource availability for a date range"
+        params:
+          - name: type
+            type: string
+            required: true
+            description: "Resource type"
+          - name: subtype
+            type: string
+            description: "Resource subtype"
+          - name: start
+            type: string
+            required: true
+            description: "Start date (YYYY-MM-DD)"
+          - name: end
+            type: string
+            required: true
+            description: "End date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: ResourceAvailability
+
+  reports:
+    description: "Report catalog and CSV exports"
+    endpoints:
+      list:
+        method: GET
+        path: "/report-types"
+        description: "List all report types available at this facility"
+        params:
+          - name: status
+            type: string
+            description: "Filter by report status (e.g. ACTIVE)"
+          - name: scheduleable
+            type: bool
+            description: "Filter by scheduleable flag"
+          - name: limit
+            type: int
+            description: "Max results (default 99 in web app)"
+          - name: includes
+            type: array
+            description: "Nested relations (e.g. reportServiceTypes.serviceType)"
+        response:
+          type: array
+          item: ReportType
+
+      get:
+        method: GET
+        path: "/report-types"
+        description: "Get a single report type by name slug"
+        params:
+          - name: name
+            type: string
+            required: true
+            description: "Report type slug, e.g. pet-counts-dashboard"
+          - name: includes
+            type: array
+            description: "Nested relations"
+        response:
+          type: object
+          item: ReportType
+
+      export:
+        method: GET
+        path: "/reports/{report_slug}"
+        description: "Download a single CSV/data-export report by slug (e.g. feeding-medication-export, sales-export, customer-activity-export, all-pets-export, expiring-or-missing-vaccinations-export, etc.)"
+        params:
+          - name: report_slug
+            type: string
+            required: true
+            positional: true
+            description: "Report export slug (e.g. feeding-medication-export)"
+          - name: date
+            type: string
+            description: "Date parameter for date-scoped reports (YYYY-MM-DD)"
+          - name: startDate
+            type: string
+            description: "Range start date for range-scoped reports (YYYY-MM-DD)"
+          - name: endDate
+            type: string
+            description: "Range end date for range-scoped reports (YYYY-MM-DD)"
+        response:
+          type: object
+          item: GenericReportResponse
+
+  conversations:
+    description: "Goose-native conversations (separate from embedded Intercom messaging)"
+    endpoints:
+      list:
+        method: GET
+        path: "/conversations"
+        description: "List conversation threads"
+        params:
+          - name: limit
+            type: int
+            description: "Max results"
+          - name: sortOrder
+            type: string
+            description: "Sort direction: asc or desc"
+        response:
+          type: array
+          item: Conversation
+
+  contracts:
+    description: "Service agreements / contracts"
+    endpoints:
+      list:
+        method: GET
+        path: "/contracts"
+        description: "List contracts (e.g. service agreements)"
+        params:
+          - name: type
+            type: string
+            description: "Contract type (e.g. SERVICE_AGREEMENT)"
+          - name: status
+            type: string
+            description: "Status filter (e.g. ACTIVE)"
+        response:
+          type: array
+          item: Contract
+
+extra_commands:
+  - name: auth login
+    description: "Import Goose.pet session tokens from Chrome localStorage (Cognito refresh-token capture); use --chrome to bind to the open browser"
+  - name: today
+    description: "Composite of today's arrivals/departures/here with vaccine, agreement, and balance warnings"
+  - name: customer
+    description: "One-shot customer lookup: search-api → detail with all includes + balance"
+  - name: pet
+    description: "One-shot pet lookup: FTS → pet detail with tags, vaccinations, instructions, owner, upcoming bookings"
+  - name: vaccines expiring
+    description: "Pets with expiring vaccinations; --by-visit filters to those with upcoming bookings"
+  - name: churn
+    description: "Customers who haven't booked in N days; optional --has-voucher overlay"
+  - name: reports run-all
+    description: "Parallel fan-out over all CSV exports for a given week"
+  - name: alerts daily
+    description: "Daily operational risk panel: expired vaccines, missing agreements, balance due, voucher expiry"
+  - name: report-cards
+    description: "Daily pet progress reports from pawgress-report.goose.pet"
+
+mcp:
+  transport:
+    - stdio
+
+types:
+  Invoice:
+    description: "A booking / reservation"
+    fields:
+      - name: id
+        type: string
+      - name: invoiceStatus
+        type: string
+      - name: invoiceSubStatus
+        type: string
+      - name: total
+        type: string
+      - name: subtotal
+        type: string
+      - name: tax
+        type: string
+  LocationUserProfile:
+    description: "A customer at this facility"
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+  Voucher:
+    description: "A voucher / credit"
+    fields:
+      - name: id
+        type: string
+      - name: status
+        type: string
+      - name: type
+        type: string
+  Note:
+    description: "A note"
+    fields:
+      - name: id
+        type: string
+      - name: body
+        type: string
+      - name: createdAt
+        type: string
+  PaymentMethod:
+    description: "A stored payment method"
+    fields:
+      - name: id
+        type: string
+  OutstandingBalanceResponse:
+    description: "Map of customer ID to outstanding balance amount"
+    fields:
+      - name: balances
+        type: object
+  LocationServiceType:
+    description: "A location service type"
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: displayName
+        type: string
+  LocationSpecies:
+    description: "A location species (with optional breeds via include)"
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+  Resource:
+    description: "A staff member or physical resource"
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: subtype
+        type: string
+      - name: status
+        type: string
+  ResourceAvailability:
+    description: "Resource availability response"
+    fields:
+      - name: availability
+        type: object
+  ReportType:
+    description: "A report type definition"
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: displayName
+        type: string
+  GenericReportResponse:
+    description: "Generic report export response (shape varies by report slug)"
+    fields:
+      - name: data
+        type: object
+  Conversation:
+    description: "A conversation thread"
+    fields:
+      - name: id
+        type: string
+  Contract:
+    description: "A contract / agreement"
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: name
+        type: string
+  DashboardInvoicesResponse:
+    description: "Dashboard invoices response"
+    fields:
+      - name: results
+        type: array

@@ -1,0 +1,555 @@
+{
+  "api_name": "goose",
+  "base_url": "https://api.goose.pet/api/v1/admin/{facility}",
+  "description": "Goose.pet facility admin API — a private SaaS API for pet-care facilities (boarding, daycare, grooming)",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GOOSE_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GOOSE_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Origin",
+      "value": "https://app.goose.pet"
+    }
+  ],
+  "tools": [
+    {
+      "name": "balances_outstanding",
+      "description": "Bulk lookup of outstanding balances for a set of customers. Required: locationUserProfileIds. Returns the new OutstandingBalanceResponse.",
+      "method": "POST",
+      "path": "/location-user-profiles/outstanding-balance",
+      "params": [
+        {
+          "name": "locationUserProfileIds",
+          "type": "array",
+          "location": "body",
+          "description": "Customer IDs to look up balances for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bookings_get",
+      "description": "Get a single booking by invoice ID. Required: invoice_id. Optional: includes. Returns the Invoice.",
+      "method": "GET",
+      "path": "/invoices/{invoice_id}",
+      "params": [
+        {
+          "name": "invoice_id",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice (booking) ID",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations to expand"
+        }
+      ]
+    },
+    {
+      "name": "bookings_list",
+      "description": "List bookings with filters and rich relation includes. Optional: locationServiceType, invoiceStatus, invoiceSubStatus (plus 6 more). Returns array of Invoice.",
+      "method": "GET",
+      "path": "/invoices",
+      "params": [
+        {
+          "name": "locationServiceType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by location-service-type ID (boarding, daycare, grooming, etc.)"
+        },
+        {
+          "name": "invoiceStatus",
+          "type": "array",
+          "location": "query",
+          "description": "Invoice status filter, e.g. CONFIRMED, CANCELLED"
+        },
+        {
+          "name": "invoiceSubStatus",
+          "type": "array",
+          "location": "query",
+          "description": "Sub-status filter, e.g. IN_PROGRESS, REQUESTED, PENDING_SCHEDULED"
+        },
+        {
+          "name": "customer-id",
+          "wire_name": "order.locationUserProfileId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to one customer's bookings"
+        },
+        {
+          "name": "start-from",
+          "wire_name": "period.startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Period startDate filter; supports gte_/gt_/lte_/lt_/eq_ prefixes (e.g. gte_2026-05-10)"
+        },
+        {
+          "name": "distinguishes",
+          "type": "array",
+          "location": "query",
+          "description": "Collapse rows by relation (e.g. distinguishes[]=orderId returns one row per order)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations to expand"
+        }
+      ]
+    },
+    {
+      "name": "contracts_list",
+      "description": "List contracts (e.g. service agreements). Optional: type, status. Returns array of Contract.",
+      "method": "GET",
+      "path": "/contracts",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Contract type (e.g. SERVICE_AGREEMENT)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status filter (e.g. ACTIVE)"
+        }
+      ]
+    },
+    {
+      "name": "conversations_list",
+      "description": "List conversation threads. Optional: limit, sortOrder. Returns array of Conversation.",
+      "method": "GET",
+      "path": "/conversations",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a customer by ID with full relation graph. Required: customer_id. Optional: includes. Returns the LocationUserProfile.",
+      "method": "GET",
+      "path": "/location-user-profiles/{customer_id}",
+      "params": [
+        {
+          "name": "customer_id",
+          "type": "string",
+          "location": "path",
+          "description": "Customer (location-user-profile) ID",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations (locationPetProfiles, vouchers, agreements, attachments, locationUserProfileMemberships, associatedContacts)"
+        }
+      ]
+    },
+    {
+      "name": "customers_search",
+      "description": "List customers with includes (note: full-text search lives on search-api.goose.pet — see `customer` novel command). Optional: includes, limit, sortOrder. Returns array of LocationUserProfile.",
+      "method": "GET",
+      "path": "/location-user-profiles",
+      "params": [
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations (e.g. locationPetProfiles, agreements, vouchers)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "dashboard_invoices",
+      "description": "List today's bookings with arrivals, departures, in-stay, and full pet/owner detail. Optional: visitDate, invoiceStatus, limit (plus 1 more). Returns the DashboardInvoicesResponse.",
+      "method": "GET",
+      "path": "/dashboard/invoices",
+      "params": [
+        {
+          "name": "visitDate",
+          "type": "string",
+          "location": "query",
+          "description": "ISO date (YYYY-MM-DD) for the visit day; defaults to today"
+        },
+        {
+          "name": "invoiceStatus",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by invoice status (CONFIRMED, CANCELLED, etc.). Repeat for multi-value."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results (default 500)"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations to expand (e.g. order.pets.locationPetProfile.vaccinations)"
+        }
+      ]
+    },
+    {
+      "name": "notes_list",
+      "description": "List notes for a customer (or facility-wide). Optional: customer-id, includeShared, sortOrder (plus 1 more). Returns array of Note.",
+      "method": "GET",
+      "path": "/notes",
+      "params": [
+        {
+          "name": "customer-id",
+          "wire_name": "locationUserProfile",
+          "type": "string",
+          "location": "query",
+          "description": "Customer ID to scope notes"
+        },
+        {
+          "name": "includeShared",
+          "type": "bool",
+          "location": "query",
+          "description": "Include shared (cross-facility) notes"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        }
+      ]
+    },
+    {
+      "name": "payment_methods_list",
+      "description": "List stored payment methods (v2 endpoint). Required: customer-id. Returns array of PaymentMethod.",
+      "method": "GET",
+      "path": "/stored-payment-methods-v2",
+      "params": [
+        {
+          "name": "customer-id",
+          "wire_name": "locationUserProfile",
+          "type": "string",
+          "location": "query",
+          "description": "Customer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_export",
+      "description": "Download a single CSV/data-export report by slug (e.g. feeding-medication-export, sales-export, customer-activity-export, all-pets-export, expiring-or-missing-vaccinations-export, etc.). Required: report_slug. Optional: date, startDate, endDate. Returns the GenericReportResponse.",
+      "method": "GET",
+      "path": "/reports/{report_slug}",
+      "params": [
+        {
+          "name": "report_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Report export slug (e.g. feeding-medication-export)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date parameter for date-scoped reports (YYYY-MM-DD)"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Range start date for range-scoped reports (YYYY-MM-DD)"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Range end date for range-scoped reports (YYYY-MM-DD)"
+        }
+      ]
+    },
+    {
+      "name": "reports_get",
+      "description": "Get a single report type by name slug. Required: name. Optional: includes. Returns the ReportType.",
+      "method": "GET",
+      "path": "/report-types",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Report type slug, e.g. pet-counts-dashboard",
+          "required": true
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations"
+        }
+      ]
+    },
+    {
+      "name": "reports_list",
+      "description": "List all report types available at this facility. Optional: status, scheduleable, limit (plus 1 more). Returns array of ReportType.",
+      "method": "GET",
+      "path": "/report-types",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by report status (e.g. ACTIVE)"
+        },
+        {
+          "name": "scheduleable",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by scheduleable flag"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results (default 99 in web app)"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations (e.g. reportServiceTypes.serviceType)"
+        }
+      ]
+    },
+    {
+      "name": "services_list",
+      "description": "List service types offered by this facility. Optional: status, hasSharedCRM, includeShared (plus 2 more). Returns array of LocationServiceType.",
+      "method": "GET",
+      "path": "/location-service-types",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status (ACTIVE, INACTIVE)"
+        },
+        {
+          "name": "hasSharedCRM",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by shared-CRM flag"
+        },
+        {
+          "name": "includeShared",
+          "type": "bool",
+          "location": "query",
+          "description": "Include shared (cross-facility) service types"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations (e.g. serviceType, restrictionRelations.restriction.periods, inStays)"
+        }
+      ]
+    },
+    {
+      "name": "species_list",
+      "description": "List species and breeds offered at this facility. Optional: includes. Returns array of LocationSpecies.",
+      "method": "GET",
+      "path": "/location-species",
+      "params": [
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations (species, species.breeds)"
+        }
+      ]
+    },
+    {
+      "name": "staff_availability",
+      "description": "Get resource availability for a date range. Required: type, start, end. Optional: subtype. Returns the ResourceAvailability.",
+      "method": "GET",
+      "path": "/resource/availability-v2",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Resource type",
+          "required": true
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "query",
+          "description": "Resource subtype"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End date (YYYY-MM-DD)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "staff_list",
+      "description": "List staff / resources. Optional: type, subtype, status. Returns array of Resource.",
+      "method": "GET",
+      "path": "/resources",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Resource type (PERSON, ROOM, YARD)"
+        },
+        {
+          "name": "subtype",
+          "type": "string",
+          "location": "query",
+          "description": "Resource subtype (e.g. GROOMING_STAFF)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Resource status (ACTIVE, INACTIVE)"
+        }
+      ]
+    },
+    {
+      "name": "vouchers_list",
+      "description": "List vouchers (filter by customer, type, status). Optional: customer-id, type, status (plus 5 more). Returns array of Voucher.",
+      "method": "GET",
+      "path": "/vouchers",
+      "params": [
+        {
+          "name": "customer-id",
+          "wire_name": "locationUserProfile",
+          "type": "string",
+          "location": "query",
+          "description": "Customer ID"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Voucher type: OFFER or CASH"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Voucher status (e.g. ACTIVE)"
+        },
+        {
+          "name": "isUsed",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by used/unused"
+        },
+        {
+          "name": "expired",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by expired/not-expired"
+        },
+        {
+          "name": "atLeastOneAvailable",
+          "type": "bool",
+          "location": "query",
+          "description": "Only return vouchers with at least one available unit"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "includes",
+          "type": "array",
+          "location": "query",
+          "description": "Nested relations"
+        }
+      ]
+    }
+  ]
+}

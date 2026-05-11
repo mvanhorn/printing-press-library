@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "goose-pp-mcp",
+  "display_name": "Goose",
+  "version": "4.2.2",
+  "description": "Run your goose.pet facility from the terminal — today's roster, customer lookup, vaccine warnings, and bulk CSV exports without leaving your shell",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/goose-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/goose-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOSE_ACCESS_TOKEN": "${user_config.goose_access_token}",
+        "GOOSE_FACILITY": "${user_config.goose_facility}"
+      }
+    }
+  },
+  "user_config": {
+    "goose_access_token": {
+      "type": "string",
+      "title": "GOOSE_ACCESS_TOKEN",
+      "description": "Sets GOOSE_ACCESS_TOKEN for the Goose MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "goose_facility": {
+      "type": "string",
+      "title": "GOOSE_FACILITY",
+      "description": "Sets GOOSE_FACILITY for the endpoint template variable {facility}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "goose",
+  "run_id": "20260510-205901",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false,
+    "browser_session_available": true,
+    "browser_session_note": "User is logged in to app.goose.pet in driven Chrome and JWT was observed during browser-sniff; however, Cognito access tokens are 1-hour TTL and the observed token has likely expired. Live smoke could be performed by running 'goose-pp-cli auth login' with the user's current refresh token, but this requires user interaction with a stdin paste and was not run automatically. /printing-press-polish may run live-check if a token is provided."
+  }
+}

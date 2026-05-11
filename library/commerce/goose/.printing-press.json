@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T01:39:53.716767Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "goose",
+  "display_name": "Goose",
+  "cli_name": "goose-pp-cli",
+  "owner": "corey-pensky",
+  "printer": "penskyc",
+  "printer_name": "Corey Pensky",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:0eeeb79394aeefc2f8a8ec382e30ef89464f4cc58c1665f395ad02f7bc2c200c",
+  "run_id": "20260510-205901",
+  "description": "Run your goose.pet facility from the terminal — today's roster, customer lookup, vaccine warnings, and bulk CSV exports without leaving your shell",
+  "mcp_binary": "goose-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOOSE_ACCESS_TOKEN"
+  ],
+  "endpoint_template_vars": [
+    "facility"
+  ],
+  "novel_features": [
+    {
+      "name": "Cognito-from-Chrome auth bootstrap",
+      "command": "auth login --chrome",
+      "description": "Sign in once by importing your goose.pet Cognito session from Chrome localStorage; subsequent commands auto-refresh the access token."
+    },
+    {
+      "name": "Composite daily roster with cross-warnings",
+      "command": "today",
+      "description": "Today's arrivals, departures, and currently-here pets — with vaccine-expired, agreement-missing, and balance-due flags surfaced from the booking's join graph."
+    },
+    {
+      "name": "Customer one-shot search→detail",
+      "command": "customer",
+      "description": "Search-and-resolve in one command: takes a name, phone, or email, returns the full customer record with pets, vouchers, agreements, payments, notes, balance, and recent bookings."
+    },
+    {
+      "name": "Pet one-shot lookup",
+      "command": "pet",
+      "description": "Find a pet by name and return tags, vaccinations, instructions, current room assignment, owner, and upcoming bookings in one render."
+    },
+    {
+      "name": "Vaccinations expiring × visit window",
+      "command": "vaccines expiring",
+      "description": "Pets with vaccinations expiring within N days. With --by-visit, filter to pets that also have an upcoming booking inside the window."
+    },
+    {
+      "name": "Churn list with voucher overlay",
+      "command": "churn",
+      "description": "Customers who haven't booked in N days, optionally restricted to those holding unused vouchers/credits."
+    },
+    {
+      "name": "Bulk-export week of CSV reports",
+      "command": "reports run-all",
+      "description": "Parallel fan-out over the 16 documented data-export endpoints (sales, customer-activity, agreements, feeding-medication, vaccinations, etc.) for a date range, written to ./reports/\u003cweek\u003e/\u003cslug\u003e.csv."
+    },
+    {
+      "name": "Daily-prep alerts panel",
+      "command": "alerts daily",
+      "description": "Single command surfaces operational risk for today: incoming pets with expired vaccinations, customers without an active agreement revision, checkouts with non-zero outstanding balance, and customer vouchers expiring within 7 days."
+    }
+  ]
+}

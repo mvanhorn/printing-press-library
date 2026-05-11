@@ -1,0 +1,249 @@
+{
+  "api_name": "goose",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [
+    "Mutations are intentionally out of scope for v1 (no POST/PUT/DELETE). Adding bookings, editing pet profiles, or running the embedded Explo dashboards' SQL are not supported.",
+    "Explo-backed dashboards (the ~30 visual reports) cannot be re-run by the CLI; only the 16 direct CSV-export endpoints are scriptable."
+  ],
+  "patterns": [
+    "JWT bearer (AWS Cognito) with browser-derived refresh-token flow.",
+    "JSON:API-style nested includes via ?includes[]=path.to.relation, with gte_/lte_/eq_ date filter prefixes."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T01:10:00Z",
+  "novel_features": [
+    {
+      "name": "Cognito-from-Chrome auth bootstrap",
+      "command": "auth login --chrome",
+      "description": "Sign in once by importing your goose.pet Cognito session from Chrome localStorage; subsequent commands auto-refresh the access token.",
+      "rationale": "Goose has no public auth; without this, every command requires manually pasting a fresh accessToken every hour. The Cognito refresh-token flow is documented but undiscoverable without a working CLI.",
+      "example": "goose auth login --chrome",
+      "why_it_matters": "First-run setup. Without it, the CLI is unusable beyond an hour. After it, the CLI behaves like any tokened SaaS CLI.",
+      "group": "Auth \u0026 reachability"
+    },
+    {
+      "name": "Composite daily roster with cross-warnings",
+      "command": "today",
+      "description": "Today's arrivals, departures, and currently-here pets — with vaccine-expired, agreement-missing, and balance-due flags surfaced from the booking's join graph.",
+      "rationale": "The web app spreads this across five screens (Dashboard / Bookings / Reports / each customer profile / each pet profile). One endpoint with includes returns it all; we just have to render it.",
+      "example": "goose today --json --select arrivals.pet.displayName,arrivals.warnings",
+      "why_it_matters": "The morning huddle in one call. Agents picking 'who is at the facility right now' get a single pre-joined payload instead of orchestrating four endpoints.",
+      "group": "Daily ops"
+    },
+    {
+      "name": "Customer one-shot search→detail",
+      "command": "customer",
+      "description": "Search-and-resolve in one command: takes a name, phone, or email, returns the full customer record with pets, vouchers, agreements, payments, notes, balance, and recent bookings.",
+      "rationale": "Stitches search-api.goose.pet + admin API + bulk balance endpoint into one render. Web app forces you to click each section sequentially.",
+      "example": "goose customer 'Pat Smith' --json",
+      "why_it_matters": "Off-hours support calls — answer 'what's the deal with this customer' from the terminal without four browser clicks.",
+      "group": "Lookup"
+    },
+    {
+      "name": "Pet one-shot lookup",
+      "command": "pet",
+      "description": "Find a pet by name and return tags, vaccinations, instructions, current room assignment, owner, and upcoming bookings in one render.",
+      "rationale": "Goose's pet-profile is per-facility (`locationPetProfile`); the URL requires the profile ID. Name-first lookup with rich resolution lives only here.",
+      "example": "goose pet Riley --json",
+      "why_it_matters": "Quickest answer to 'is Riley current on shots?' or 'where is Riley right now?' for front-desk and on-call.",
+      "group": "Lookup"
+    },
+    {
+      "name": "Vaccinations expiring × visit window",
+      "command": "vaccines expiring",
+      "description": "Pets with vaccinations expiring within N days. With --by-visit, filter to pets that also have an upcoming booking inside the window.",
+      "rationale": "Goose's documented Expiring-Vaccinations report exists but cannot join to the upcoming-bookings filter. Local SQL closes the gap.",
+      "example": "goose vaccines expiring --within 30d --by-visit --json",
+      "why_it_matters": "Front-desk wants the lapses that will actually arrive this week, not the full backlog.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Churn list with voucher overlay",
+      "command": "churn",
+      "description": "Customers who haven't booked in N days, optionally restricted to those holding unused vouchers/credits.",
+      "rationale": "Pure local SQL across users + invoices + vouchers; Goose's API has no last-booked-per-user aggregation endpoint.",
+      "example": "goose churn --not-booked-since 60d --has-voucher --json",
+      "why_it_matters": "Marketing re-engagement list in one command instead of Excel-stitching three CSV exports.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk-export week of CSV reports",
+      "command": "reports run-all",
+      "description": "Parallel fan-out over the 16 documented data-export endpoints (sales, customer-activity, agreements, feeding-medication, vaccinations, etc.) for a date range, written to ./reports/\u003cweek\u003e/\u003cslug\u003e.csv.",
+      "rationale": "Each CSV export is a real `/api/v1/admin/\u003cfacility\u003e/reports/\u003cslug\u003e` endpoint; web app makes you click each one sequentially.",
+      "example": "goose reports run-all --week 2026-W19 --json",
+      "why_it_matters": "Weekly analytics pull in one command. Agents that ingest sales data don't have to re-implement export orchestration.",
+      "group": "Reporting"
+    },
+    {
+      "name": "Daily-prep alerts panel",
+      "command": "alerts daily",
+      "description": "Single command surfaces operational risk for today: incoming pets with expired vaccinations, customers without an active agreement revision, checkouts with non-zero outstanding balance, and customer vouchers expiring within 7 days.",
+      "rationale": "Joins fresh `dashboard/invoices` includes with the bulk `outstanding-balance` endpoint and the local voucher store. Web app requires hand-correlation across four screens.",
+      "example": "goose alerts daily --json",
+      "why_it_matters": "The 7am pre-open check — agents or scripts can decide what needs attention before customers walk in.",
+      "group": "Daily ops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cognito-from-Chrome auth bootstrap",
+      "command": "auth login --chrome",
+      "description": "Sign in once by importing your goose.pet Cognito session from Chrome localStorage; subsequent commands auto-refresh the access token.",
+      "rationale": "Goose has no public auth; without this, every command requires manually pasting a fresh accessToken every hour. The Cognito refresh-token flow is documented but undiscoverable without a working CLI.",
+      "example": "goose auth login --chrome",
+      "why_it_matters": "First-run setup. Without it, the CLI is unusable beyond an hour. After it, the CLI behaves like any tokened SaaS CLI.",
+      "group": "Auth \u0026 reachability"
+    },
+    {
+      "name": "Composite daily roster with cross-warnings",
+      "command": "today",
+      "description": "Today's arrivals, departures, and currently-here pets — with vaccine-expired, agreement-missing, and balance-due flags surfaced from the booking's join graph.",
+      "rationale": "The web app spreads this across five screens (Dashboard / Bookings / Reports / each customer profile / each pet profile). One endpoint with includes returns it all; we just have to render it.",
+      "example": "goose today --json --select arrivals.pet.displayName,arrivals.warnings",
+      "why_it_matters": "The morning huddle in one call. Agents picking 'who is at the facility right now' get a single pre-joined payload instead of orchestrating four endpoints.",
+      "group": "Daily ops"
+    },
+    {
+      "name": "Customer one-shot search→detail",
+      "command": "customer",
+      "description": "Search-and-resolve in one command: takes a name, phone, or email, returns the full customer record with pets, vouchers, agreements, payments, notes, balance, and recent bookings.",
+      "rationale": "Stitches search-api.goose.pet + admin API + bulk balance endpoint into one render. Web app forces you to click each section sequentially.",
+      "example": "goose customer 'Pat Smith' --json",
+      "why_it_matters": "Off-hours support calls — answer 'what's the deal with this customer' from the terminal without four browser clicks.",
+      "group": "Lookup"
+    },
+    {
+      "name": "Pet one-shot lookup",
+      "command": "pet",
+      "description": "Find a pet by name and return tags, vaccinations, instructions, current room assignment, owner, and upcoming bookings in one render.",
+      "rationale": "Goose's pet-profile is per-facility (`locationPetProfile`); the URL requires the profile ID. Name-first lookup with rich resolution lives only here.",
+      "example": "goose pet Riley --json",
+      "why_it_matters": "Quickest answer to 'is Riley current on shots?' or 'where is Riley right now?' for front-desk and on-call.",
+      "group": "Lookup"
+    },
+    {
+      "name": "Vaccinations expiring × visit window",
+      "command": "vaccines expiring",
+      "description": "Pets with vaccinations expiring within N days. With --by-visit, filter to pets that also have an upcoming booking inside the window.",
+      "rationale": "Goose's documented Expiring-Vaccinations report exists but cannot join to the upcoming-bookings filter. Local SQL closes the gap.",
+      "example": "goose vaccines expiring --within 30d --by-visit --json",
+      "why_it_matters": "Front-desk wants the lapses that will actually arrive this week, not the full backlog.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Churn list with voucher overlay",
+      "command": "churn",
+      "description": "Customers who haven't booked in N days, optionally restricted to those holding unused vouchers/credits.",
+      "rationale": "Pure local SQL across users + invoices + vouchers; Goose's API has no last-booked-per-user aggregation endpoint.",
+      "example": "goose churn --not-booked-since 60d --has-voucher --json",
+      "why_it_matters": "Marketing re-engagement list in one command instead of Excel-stitching three CSV exports.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk-export week of CSV reports",
+      "command": "reports run-all",
+      "description": "Parallel fan-out over the 16 documented data-export endpoints (sales, customer-activity, agreements, feeding-medication, vaccinations, etc.) for a date range, written to ./reports/\u003cweek\u003e/\u003cslug\u003e.csv.",
+      "rationale": "Each CSV export is a real `/api/v1/admin/\u003cfacility\u003e/reports/\u003cslug\u003e` endpoint; web app makes you click each one sequentially.",
+      "example": "goose reports run-all --week 2026-W19 --json",
+      "why_it_matters": "Weekly analytics pull in one command. Agents that ingest sales data don't have to re-implement export orchestration.",
+      "group": "Reporting"
+    },
+    {
+      "name": "Daily-prep alerts panel",
+      "command": "alerts daily",
+      "description": "Single command surfaces operational risk for today: incoming pets with expired vaccinations, customers without an active agreement revision, checkouts with non-zero outstanding balance, and customer vouchers expiring within 7 days.",
+      "rationale": "Joins fresh `dashboard/invoices` includes with the bulk `outstanding-balance` endpoint and the local voucher store. Web app requires hand-correlation across four screens.",
+      "example": "goose alerts daily --json",
+      "why_it_matters": "The 7am pre-open check — agents or scripts can decide what needs attention before customers walk in.",
+      "group": "Daily ops"
+    }
+  ],
+  "narrative": {
+    "display_name": "Goose",
+    "headline": "Run your goose.pet facility from the terminal — today's roster, customer lookup, vaccine warnings, and bulk CSV exports without leaving your shell.",
+    "value_prop": "Goose has no public API and no third-party CLI. This one wraps the admin surface the web app uses: bookings, pets, customers, schedules, and the 16 data-export endpoints behind the Reports page. Sign in once via Chrome and the CLI manages Cognito refresh on its own; novel commands like `today`, `vaccines expiring --by-visit`, and `alerts daily` join across the local store for answers the web app can't give in one click.",
+    "auth_narrative": "Goose auth is AWS Cognito (User Pool us-east-2_IqPUw1L4C). The CLI handles this with `goose auth login --chrome`: it reads your existing app.goose.pet session tokens from Chrome's localStorage, persists the refresh token, and mints fresh 1-hour access tokens via Cognito InitiateAuth as needed. If you'd rather not use Chrome, paste an access token: `export GOOSE_ACCESS_TOKEN=\u003cjwt\u003e` (re-paste every hour).",
+    "quickstart": [
+      {
+        "command": "goose auth login --chrome",
+        "comment": "Import your goose.pet session from Chrome; CLI manages refresh from here on."
+      },
+      {
+        "command": "goose today --json",
+        "comment": "Morning roster — arrivals, departures, here-overnight with warnings."
+      },
+      {
+        "command": "goose customer 'Pat Smith' --json",
+        "comment": "One-shot customer lookup with pets, vouchers, balance, agreements."
+      },
+      {
+        "command": "goose vaccines expiring --within 30d --by-visit --json",
+        "comment": "Lapses that affect this month's bookings (not the full backlog)."
+      },
+      {
+        "command": "goose reports run-all --week 2026-W19",
+        "comment": "Pull all 16 weekly CSV exports in parallel."
+      },
+      {
+        "command": "goose alerts daily --json",
+        "comment": "Pre-open risk panel: expired vaccines, missing agreements, balance due, voucher expiry."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Run `goose auth login --chrome` to refresh tokens. If Chrome is closed or not logged in, sign in at app.goose.pet first."
+      },
+      {
+        "symptom": "`vaccines expiring` returns nothing even though the web app says there are some",
+        "fix": "Run `goose sync` first — the cross-entity query reads the local SQLite store."
+      },
+      {
+        "symptom": "Empty `today` output",
+        "fix": "Confirm `--date` matches today's date in your facility's timezone (Goose stores dates per location.timezone, not UTC)."
+      },
+      {
+        "symptom": "`customer` returns multiple matches",
+        "fix": "Add more of the name, or pass the ID directly: `goose customers get \u003cuserId\u003e`."
+      },
+      {
+        "symptom": "CSV export returns HTML/login page",
+        "fix": "Token expired mid-fan-out; re-run `goose auth login --chrome` and retry. The fan-out is idempotent — already-written files are skipped."
+      }
+    ],
+    "when_to_use": "Use this CLI when you operate a goose.pet facility and want scriptable access to the admin surface. Daily-ops checks (today's roster, alerts), customer/pet lookups during off-hours support, bulk weekly CSV exports for the analyst, and cross-entity questions (vaccines × bookings, churn × vouchers) that the web app can't answer in one click.",
+    "recipes": [
+      {
+        "title": "Morning huddle JSON",
+        "command": "goose today --json --select arrivals.pet.displayName,arrivals.pet.tags,arrivals.warnings,departures.pet.displayName,departures.warnings",
+        "explanation": "Project just the names + warnings for arrivals/departures into a slim payload an agent or shell script can render."
+      },
+      {
+        "title": "This-week vaccinations to call about",
+        "command": "goose vaccines expiring --within 14d --by-visit --json --select pet.displayName,owner.displayName,owner.phone,vaccine.expirationDate",
+        "explanation": "Names and phones for the call list — already filtered to pets with upcoming bookings."
+      },
+      {
+        "title": "Analyst weekly pull",
+        "command": "goose reports run-all --week 2026-W19",
+        "explanation": "Fans out all 16 CSV exports for one ISO week into ./reports/2026-W19/."
+      },
+      {
+        "title": "Churn re-engagement with credit overlay",
+        "command": "goose churn --not-booked-since 60d --has-voucher --json --select displayName,email,phone,lastBookedAt,availableVouchers",
+        "explanation": "Customers who haven't booked in 60 days but still hold unused vouchers — the highest-conversion re-engagement segment."
+      }
+    ],
+    "trigger_phrases": [
+      "what's the roster today at the facility",
+      "who is checking in today",
+      "look up customer at goose",
+      "check this pet's vaccinations",
+      "pull goose weekly reports",
+      "use goose",
+      "run goose"
+    ]
+  }
+}
