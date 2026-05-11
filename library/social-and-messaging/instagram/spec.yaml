@@ -1,0 +1,307 @@
+name: instagram
+display_name: Instagram
+version: v1
+base_url: https://www.instagram.com
+description: Instagram Web API (reverse-engineered from authenticated browser session)
+
+auth:
+  type: cookie
+  header: X-CSRFToken
+  cookie_domain: .instagram.com
+  env_vars:
+    - INSTAGRAM_SESSION_ID
+    - INSTAGRAM_CSRF_TOKEN
+    - INSTAGRAM_USER_ID
+  cookies:
+    - sessionid
+    - csrftoken
+    - ds_user_id
+    - ig_did
+    - mid
+    - rur
+  notes: "Requires Chrome cookie import via auth login --chrome. Non-headless Chrome UA required for some endpoints."
+
+global_headers:
+  X-IG-App-ID: "936619743392459"
+  User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+resources:
+  users:
+    description: User profiles and account info
+    endpoints:
+      profile:
+        method: GET
+        path: /api/v1/users/web_profile_info/
+        description: Get full user profile by username
+        params:
+          - name: username
+            in: query
+            required: true
+            description: Instagram username
+        no_auth: false
+      current_user:
+        method: GET
+        path: /api/v1/accounts/current_user/
+        description: Get the authenticated user's own account info
+        params:
+          - name: edit
+            in: query
+            required: false
+            description: Include editable fields when true
+        no_auth: false
+      search:
+        method: GET
+        path: /api/v1/web/search/topsearch/
+        description: Search users, hashtags, and places
+        params:
+          - name: query
+            flag_name: query
+            in: query
+            required: true
+            description: Search query string
+          - name: context
+            in: query
+            required: false
+            description: Search context (blended, user, hashtag, place)
+          - name: count
+            in: query
+            required: false
+            description: Number of results to return
+        no_auth: false
+
+  feed:
+    description: Home feed and user posts
+    endpoints:
+      timeline:
+        method: GET
+        path: /api/v1/feed/timeline/
+        description: Get the home feed (posts from accounts you follow)
+        params:
+          - name: is_prefetch
+            in: query
+            required: false
+            description: Whether this is a prefetch request
+        no_auth: false
+      user_posts:
+        method: GET
+        path: /api/v1/feed/user/{user_id}/
+        description: Get posts from a specific user
+        params:
+          - name: user_id
+            in: path
+            required: true
+            description: Instagram user ID
+          - name: count
+            in: query
+            required: false
+            description: Number of posts to return (default 12)
+        no_auth: false
+      saved:
+        method: GET
+        path: /api/v1/feed/saved/posts/
+        description: Get the authenticated user's saved posts
+        params:
+          - name: count
+            in: query
+            required: false
+            description: Number of saved posts to return
+        no_auth: false
+      liked:
+        method: GET
+        path: /api/v1/feed/liked/
+        description: Get media liked by the authenticated user
+        params:
+          - name: count
+            in: query
+            required: false
+            description: Number of liked posts to return
+        no_auth: false
+
+  stories:
+    description: Stories and highlights
+    endpoints:
+      tray:
+        method: GET
+        path: /api/v1/feed/reels_tray/
+        description: Get the stories tray (all unviewed stories from followed accounts)
+        no_auth: false
+      reels_media:
+        method: GET
+        path: /api/v1/feed/reels_media/
+        description: Get story reels for specific users
+        params:
+          - name: reel_ids
+            in: query
+            required: true
+            description: Comma-separated list of user IDs
+        no_auth: false
+      highlights_tray:
+        method: GET
+        path: /api/v1/highlights/{user_id}/highlights_tray/
+        description: Get highlights for a user
+        params:
+          - name: user_id
+            in: path
+            required: true
+            description: Instagram user ID
+          - name: supported_capabilities_new
+            in: query
+            required: false
+            description: JSON array of supported capabilities
+        no_auth: false
+
+  media:
+    description: Posts, reels, and media
+    endpoints:
+      info:
+        method: GET
+        path: /api/v1/media/{media_id}/info/
+        description: Get detailed info for a specific post/reel
+        params:
+          - name: media_id
+            in: path
+            required: true
+            description: Instagram media ID
+        no_auth: false
+      comments:
+        method: GET
+        path: /api/v1/media/{media_id}/comments/
+        description: Get comments on a post
+        params:
+          - name: media_id
+            in: path
+            required: true
+            description: Instagram media ID
+          - name: count
+            in: query
+            required: false
+            description: Number of comments to return
+        no_auth: false
+      likers:
+        method: GET
+        path: /api/v1/media/{media_id}/likers/
+        description: Get users who liked a post
+        params:
+          - name: media_id
+            in: path
+            required: true
+            description: Instagram media ID
+        no_auth: false
+
+  friendships:
+    description: Follow relationships and pending requests
+    endpoints:
+      followers:
+        method: GET
+        path: /api/v1/friendships/{user_id}/followers/
+        description: Get followers of a user
+        params:
+          - name: user_id
+            in: path
+            required: true
+            description: Instagram user ID
+          - name: count
+            in: query
+            required: false
+            description: Number of followers to return
+        no_auth: false
+      following:
+        method: GET
+        path: /api/v1/friendships/{user_id}/following/
+        description: Get accounts a user is following
+        params:
+          - name: user_id
+            in: path
+            required: true
+            description: Instagram user ID
+          - name: count
+            in: query
+            required: false
+            description: Number of following to return
+        no_auth: false
+      pending:
+        method: GET
+        path: /api/v1/friendships/pending/
+        description: Get pending follow requests (for private accounts)
+        no_auth: false
+
+  notifications:
+    description: Activity notifications
+    endpoints:
+      inbox:
+        method: GET
+        path: /api/v1/news/inbox/
+        description: Get the notifications inbox (likes, comments, follows, mentions)
+        no_auth: false
+      mark_seen:
+        method: POST
+        path: /api/v1/news/inbox_seen/
+        description: Mark notifications as seen
+        no_auth: false
+
+  hashtags:
+    description: Hashtag search and info
+    endpoints:
+      info:
+        method: GET
+        path: /api/v1/tags/web_info/
+        description: Get info about a hashtag including post count
+        params:
+          - name: tag_name
+            flag_name: hashtag
+            in: query
+            required: true
+            description: Hashtag name (without # prefix)
+        no_auth: false
+
+  locations:
+    description: Location search
+    endpoints:
+      search:
+        method: GET
+        path: /api/v1/location_search/
+        description: Search for locations and places
+        params:
+          - name: search_query
+            flag_name: query
+            in: query
+            required: true
+            description: Location name to search for
+        no_auth: false
+
+  explore:
+    description: Explore/discover content
+    endpoints:
+      grid:
+        method: GET
+        path: /api/v1/discover/web/explore_grid/
+        description: Get explore grid content (trending posts)
+        no_auth: false
+
+  reels:
+    description: Reels/Clips
+    endpoints:
+      user_clips:
+        method: GET
+        path: /api/v1/clips/user/
+        description: Get reels posted by a specific user
+        params:
+          - name: target_user_id
+            flag_name: user-id
+            in: query
+            required: true
+            description: Target user's Instagram ID
+          - name: page_size
+            in: query
+            required: false
+            description: Number of reels to return
+        no_auth: false
+
+  graphql:
+    description: Instagram GraphQL API (for complex queries)
+    endpoints:
+      query:
+        method: POST
+        path: /api/graphql
+        description: Execute a GraphQL query against the Instagram API
+        no_auth: false

@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "cli_name": "instagram-pp-cli",
+  "generated_at": "2026-05-11T04:00:00Z",
+  "tool_count": 23,
+  "tools": [
+    {"name": "feed_timeline", "description": "Get the home feed", "read_only": true},
+    {"name": "feed_user_posts", "description": "Get posts from a specific user", "read_only": true},
+    {"name": "feed_saved", "description": "Get saved posts", "read_only": true},
+    {"name": "feed_liked", "description": "Get liked posts", "read_only": true},
+    {"name": "users_profile", "description": "Get user profile", "read_only": true},
+    {"name": "users_current_user", "description": "Get authenticated user", "read_only": true},
+    {"name": "users_search", "description": "Search users", "read_only": true},
+    {"name": "friendships_followers", "description": "Get followers", "read_only": true},
+    {"name": "friendships_following", "description": "Get following", "read_only": true},
+    {"name": "friendships_pending", "description": "Get pending requests", "read_only": true},
+    {"name": "media_info", "description": "Get media details", "read_only": true},
+    {"name": "media_comments", "description": "Get post comments", "read_only": true},
+    {"name": "media_likers", "description": "Get post likers", "read_only": true},
+    {"name": "stories_tray", "description": "Get stories tray", "read_only": true},
+    {"name": "stories_reels_media", "description": "Get story reels", "read_only": true},
+    {"name": "stories_highlights_tray", "description": "Get highlights", "read_only": true},
+    {"name": "notifications_inbox", "description": "Get notifications", "read_only": true},
+    {"name": "notifications_mark_seen", "description": "Mark notifications seen", "read_only": false},
+    {"name": "explore_grid", "description": "Get explore grid", "read_only": true},
+    {"name": "hashtags_info", "description": "Get hashtag info", "read_only": true},
+    {"name": "locations_search", "description": "Search locations", "read_only": true},
+    {"name": "reels_user_clips", "description": "Get user reels", "read_only": true},
+    {"name": "graphql_query", "description": "Execute GraphQL query", "read_only": false}
+  ]
+}

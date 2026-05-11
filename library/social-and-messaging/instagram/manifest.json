@@ -1,0 +1,52 @@
+{
+  "manifest_version": "0.3",
+  "name": "instagram-pp-mcp",
+  "display_name": "Instagram",
+  "version": "4.2.2",
+  "description": "Instagram API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/instagram-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/instagram-pp-mcp",
+      "args": [],
+      "env": {
+        "INSTAGRAM_CSRF_TOKEN": "${user_config.instagram_csrf_token}",
+        "INSTAGRAM_SESSION_ID": "${user_config.instagram_session_id}",
+        "INSTAGRAM_USER_ID": "${user_config.instagram_user_id}"
+      }
+    }
+  },
+  "user_config": {
+    "instagram_csrf_token": {
+      "type": "string",
+      "title": "INSTAGRAM_CSRF_TOKEN",
+      "description": "Optional. Sets INSTAGRAM_CSRF_TOKEN for the Instagram MCP server.",
+      "sensitive": true
+    },
+    "instagram_session_id": {
+      "type": "string",
+      "title": "INSTAGRAM_SESSION_ID",
+      "description": "Optional. Sets INSTAGRAM_SESSION_ID for the Instagram MCP server.",
+      "sensitive": true
+    },
+    "instagram_user_id": {
+      "type": "string",
+      "title": "INSTAGRAM_USER_ID",
+      "description": "Optional. Sets INSTAGRAM_USER_ID for the Instagram MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

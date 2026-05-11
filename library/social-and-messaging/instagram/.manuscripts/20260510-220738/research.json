@@ -1,0 +1,137 @@
+{
+  "api": "instagram",
+  "run_id": "20260510-220738",
+  "spec_path": "/Users/aaronfamilylivestock/printing-press/.runstate/cli-printing-press-5a7a484d/runs/20260510-220738/research/instagram-browser-sniff-spec.yaml",
+  "alternatives": [
+    {
+      "name": "instagrapi",
+      "url": "https://github.com/adw0rd/instagrapi",
+      "language": "python",
+      "stars": 4800,
+      "features": ["profile", "media_list", "stories", "dms", "follow_unfollow", "like_comment", "insights", "highlights"],
+      "notes": "Most complete Python library. Reports 403/challenge flows from non-browser IPs in 2024-2025."
+    },
+    {
+      "name": "supreme-gg-gg/instagram-cli",
+      "url": "https://github.com/supreme-gg-gg/instagram-cli",
+      "language": "python",
+      "stars": 180,
+      "features": ["tui_feed", "post_management", "story_viewing"],
+      "notes": "TUI-first CLI. Python, requires Instagram credentials."
+    },
+    {
+      "name": "mcpware/instagram-mcp",
+      "url": "https://github.com/mcpware/instagram-mcp",
+      "language": "javascript",
+      "stars": 90,
+      "features": ["graph_api_posts", "comments", "dms", "stories", "hashtags", "reels", "carousels", "analytics"],
+      "notes": "23 Graph API tools. Requires Meta business/creator account. No personal account support."
+    },
+    {
+      "name": "instagram-private-api (dilame)",
+      "url": "https://github.com/dilame/instagram-private-api",
+      "language": "typescript",
+      "stars": 5600,
+      "features": ["feed", "user_search", "story_download", "highlights"],
+      "notes": "TypeScript. Well-starred but unmaintained since 2022. Reports frequent 403s."
+    },
+    {
+      "name": "go-instagram-cli",
+      "url": "https://github.com/go-instagram/go-instagram",
+      "language": "go",
+      "stars": 42,
+      "features": ["story_posting", "video_segmentation"],
+      "notes": "Minimal Go library. Only story posting. Not a full CLI."
+    },
+    {
+      "name": "ig-dl / ibrahimhajjaj",
+      "url": "https://github.com/ibrahimhajjaj/ig-dl",
+      "language": "python",
+      "stars": 290,
+      "features": ["media_download", "gallery_dl_wrapper", "yt_dlp_wrapper", "cdp_chrome_proxy"],
+      "notes": "Download-only. Uses CDP Chrome proxy for auth. No structured output."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "followers_diff",
+      "command": "followers diff <username>",
+      "score": 10,
+      "persona": "creator, social_media_manager",
+      "mechanism": "sqlite_snapshot_diff",
+      "description": "Detect unfollowers by diffing two follower snapshots stored in SQLite. Zero API calls after sync."
+    },
+    {
+      "name": "following_non_mutual",
+      "command": "following non-mutual",
+      "score": 10,
+      "persona": "power_user",
+      "mechanism": "sqlite_left_join",
+      "description": "LEFT JOIN following × followers WHERE followers.pk IS NULL. Lists every account you follow that doesn't follow back."
+    },
+    {
+      "name": "posts_engagement",
+      "command": "posts engagement <username> [--since 30d]",
+      "score": 10,
+      "persona": "creator, social_media_manager",
+      "mechanism": "sqlite_computed_join",
+      "description": "(likes+comments)/followers*100 AS rate, JOIN media + users. Per-post engagement rate ranked; no Instagram API surface provides this."
+    },
+    {
+      "name": "dm_search",
+      "command": "dm search <query>",
+      "score": 9,
+      "persona": "power_user",
+      "mechanism": "sqlite_fts5",
+      "description": "FTS5 full-text search on dm_messages.body. Instagram has zero DM search on any surface."
+    },
+    {
+      "name": "posts_type_compare",
+      "command": "posts type-compare <username>",
+      "score": 8,
+      "persona": "creator, social_media_manager",
+      "mechanism": "sqlite_group_by",
+      "description": "GROUP BY media_type → AVG(likes), AVG(comments). Compares carousel vs reel vs photo performance."
+    },
+    {
+      "name": "hashtag_performance",
+      "command": "hashtag performance [<username>] [--since 30d]",
+      "score": 8,
+      "persona": "creator, social_media_manager",
+      "mechanism": "sqlite_cross_join",
+      "description": "JOIN media × media_hashtags → aggregate engagement per hashtag. Reveals which tags correlate with above-average engagement."
+    },
+    {
+      "name": "comments_top_commenters",
+      "command": "comments top-commenters [<username>] [--since 30d]",
+      "score": 8,
+      "persona": "creator",
+      "mechanism": "sqlite_cross_post_aggregation",
+      "description": "COUNT(comments) per commenter across all posts. Superfan detector; multi-post aggregation impossible via API."
+    },
+    {
+      "name": "comments_strangers",
+      "command": "comments strangers <username> [--since 30d]",
+      "score": 8,
+      "persona": "marketing_analyst",
+      "mechanism": "sqlite_three_table_join",
+      "description": "3-table JOIN: comments LEFT JOIN followers ON commenter_pk WHERE followers.pk IS NULL. Identifies reach beyond current audience."
+    }
+  ],
+  "novel_features_built": [
+    "followers_diff",
+    "following_non_mutual",
+    "posts_engagement",
+    "dm_search",
+    "posts_type_compare",
+    "hashtag_performance",
+    "comments_top_commenters",
+    "comments_strangers"
+  ],
+  "narrative": {
+    "product_thesis": "A Go binary with Chrome cookie import + Surf transport gives personal Instagram users a stable, agent-native CLI with offline search, structured output, and local SQLite analytics — no Python runtime, no Meta business account required.",
+    "reachability_risk": "HIGH — private/web API; cookie auth required; HeadlessChrome UA blocked by some endpoints. Mitigated by Chrome cookie import and non-headless UA in all requests.",
+    "auth_strategy": "Session cookie import from Chrome profile via `auth login --chrome`. Required cookies: sessionid, csrftoken, ds_user_id, ig_did, mid, rur. CSRF token sent as X-CSRFToken header.",
+    "transcendence_strategy": "All 8 novel features are powered by local SQLite cross-entity queries. No single Instagram API call can return these results. The sync commands populate the store; all analytics run offline."
+  }
+}

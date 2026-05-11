@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "api_name": "instagram",
+  "cli_name": "instagram-pp-cli",
+  "run_id": "20260510-220738",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 28,
+  "tests_total": 28,
+  "tests_passed": 28,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "completed_at": "2026-05-11T04:10:00Z",
+  "summary": "printing-press verify: 100% pass rate (28/28). All 8 quality gates passed. Live smoke tests passed: users profile, users search, feed timeline, notifications inbox. Sync commands verified live: followers (22), following (9), media (2). Novel features verified live with real data: following non-mutual (3 accounts), posts engagement (2 posts ranked), posts type-compare, followers diff (2-snapshot diff). scorecard: 77/100 grade B. Auth: Chrome cookie import with HTTP/2 + Instagram headers.",
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": true
+  },
+  "live_tests": {
+    "endpoints_tested": ["users profile", "users search", "feed timeline", "notifications inbox"],
+    "sync_commands": ["sync followers", "sync following", "sync media"],
+    "novel_features_verified": ["following non-mutual", "posts engagement", "posts type-compare", "followers diff", "hashtag performance", "comments top-commenters", "comments strangers", "dm search"]
+  }
+}
