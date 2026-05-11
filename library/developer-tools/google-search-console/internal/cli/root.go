@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -185,6 +185,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWebmastersCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newLoginCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))

@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bufio"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
@@ -18,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -35,6 +36,67 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// resolveOAuthCredentials returns the OAuth client-id and client-secret to
+// use for the browser flow, walking three fallbacks before giving up:
+//
+//  1. Explicit flag values (passed in) — wins.
+//  2. Previously saved values in config.toml from an earlier successful login.
+//  3. Interactive stdin prompt as a last resort, so a fresh install doesn't
+//     require any env var or flag setup.
+//
+// Saved values mean the second login on a machine is a no-op flag-wise;
+// users just type `login` and the browser opens.
+func resolveOAuthCredentials(cfg *config.Config, clientID, clientSecret string) (string, string, error) {
+	if clientID == "" {
+		clientID = cfg.ClientID
+	}
+	if clientSecret == "" {
+		clientSecret = cfg.ClientSecret
+	}
+	reader := bufio.NewReader(os.Stdin)
+	if clientID == "" {
+		fmt.Fprintln(os.Stderr, "")
+		fmt.Fprintln(os.Stderr, "OAuth Client ID needed. Get one at:")
+		fmt.Fprintln(os.Stderr, "  https://console.cloud.google.com/apis/credentials")
+		fmt.Fprintln(os.Stderr, "Create an OAuth 2.0 Client ID of type 'Desktop app', then paste it below.")
+		fmt.Fprint(os.Stderr, "Client ID: ")
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			return "", "", fmt.Errorf("reading client ID: %w", err)
+		}
+		clientID = strings.TrimSpace(line)
+		if clientID == "" {
+			return "", "", fmt.Errorf("client ID is required")
+		}
+	}
+	if clientSecret == "" {
+		fmt.Fprint(os.Stderr, "Client Secret (press Enter to skip if your OAuth client doesn't show one): ")
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			return "", "", fmt.Errorf("reading client secret: %w", err)
+		}
+		clientSecret = strings.TrimSpace(line)
+	}
+	return clientID, clientSecret, nil
+}
+
+// runOAuthLogin executes the full installed-app OAuth flow: starts a local
+// callback listener, opens the consent URL, waits for the code, exchanges
+// it for tokens, and persists everything to config. Shared between the
+// nested `auth login` and the top-level `login` so both surfaces have
+// identical behavior.
+func runOAuthLogin(flags *rootFlags, clientID, clientSecret string, port int) error {
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return err
+	}
+	clientID, clientSecret, err = resolveOAuthCredentials(cfg, clientID, clientSecret)
+	if err != nil {
+		return err
+	}
+	return runOAuthLoginBody(flags, cfg, clientID, clientSecret, port)
+}
+
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var clientID string
 	var clientSecret string
@@ -44,145 +106,172 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		Use:   "login",
 		Short: "Authenticate via OAuth2",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if clientID == "" {
-				return fmt.Errorf("--client-id is required")
-			}
-
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return err
-			}
-
-			stateBytes := make([]byte, 16)
-			if _, err := rand.Read(stateBytes); err != nil {
-				return fmt.Errorf("generating state: %w", err)
-			}
-			state := hex.EncodeToString(stateBytes)
-
-			listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-			if err != nil {
-				return fmt.Errorf("starting callback server: %w", err)
-			}
-			defer listener.Close()
-
-			redirectURI := fmt.Sprintf("http://localhost:%d/callback", listener.Addr().(*net.TCPAddr).Port)
-
-			authURL := "https://accounts.google.com/o/oauth2/auth"
-			params := url.Values{
-				"client_id":     {clientID},
-				"redirect_uri":  {redirectURI},
-				"response_type": {"code"},
-				"state":         {state},
-				"access_type":   {"offline"},
-				"prompt":        {"consent"},
-			}
-			scopes := []string{
-				"https://www.googleapis.com/auth/webmasters",
-				"https://www.googleapis.com/auth/webmasters.readonly",
-				"https://www.googleapis.com/auth/indexing",
-			}
-			if len(scopes) > 0 {
-				params.Set("scope", strings.Join(scopes, " "))
-			}
-
-			fullURL := authURL + "?" + params.Encode()
-			fmt.Fprintf(os.Stderr, "Opening browser for authentication...\n")
-			fmt.Fprintf(os.Stderr, "If the browser doesn't open, visit:\n%s\n\n", fullURL)
-			openBrowser(fullURL)
-
-			codeCh := make(chan string, 1)
-			errCh := make(chan error, 1)
-
-			mux := http.NewServeMux()
-			mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Query().Get("state") != state {
-					errCh <- fmt.Errorf("state mismatch")
-					http.Error(w, "State mismatch", http.StatusBadRequest)
-					return
-				}
-				if errMsg := r.URL.Query().Get("error"); errMsg != "" {
-					errCh <- fmt.Errorf("auth error: %s", errMsg)
-					http.Error(w, errMsg, http.StatusBadRequest)
-					return
-				}
-				code := r.URL.Query().Get("code")
-				if code == "" {
-					errCh <- fmt.Errorf("no code in callback")
-					http.Error(w, "No code", http.StatusBadRequest)
-					return
-				}
-				w.Header().Set("Content-Type", "text/html")
-				fmt.Fprint(w, "<html><body><h2>Authentication successful!</h2><p>You can close this tab.</p></body></html>")
-				codeCh <- code
-			})
-
-			server := &http.Server{Handler: mux}
-			go server.Serve(listener)
-
-			var code string
-			select {
-			case code = <-codeCh:
-			case err := <-errCh:
-				return err
-			case <-time.After(2 * time.Minute):
-				return fmt.Errorf("authentication timed out after 2 minutes")
-			}
-
-			server.Shutdown(context.Background())
-
-			tokenURL := "https://accounts.google.com/o/oauth2/token"
-			tokenParams := url.Values{
-				"grant_type":   {"authorization_code"},
-				"code":         {code},
-				"redirect_uri": {redirectURI},
-				"client_id":    {clientID},
-			}
-			if clientSecret != "" {
-				tokenParams.Set("client_secret", clientSecret)
-			}
-
-			resp, err := http.PostForm(tokenURL, tokenParams)
-			if err != nil {
-				return fmt.Errorf("exchanging code for token: %w", err)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode >= 400 {
-				var body map[string]any
-				if err := json.NewDecoder(resp.Body).Decode(&body); err == nil {
-					return fmt.Errorf("exchanging code for token: HTTP %d: %v", resp.StatusCode, body)
-				}
-				return fmt.Errorf("exchanging code for token: HTTP %d", resp.StatusCode)
-			}
-
-			var tokenResp struct {
-				AccessToken  string `json:"access_token"`
-				RefreshToken string `json:"refresh_token"`
-				ExpiresIn    int    `json:"expires_in"`
-				TokenType    string `json:"token_type"`
-			}
-			if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-				return fmt.Errorf("parsing token response: %w", err)
-			}
-			if tokenResp.AccessToken == "" {
-				return fmt.Errorf("no access token in response")
-			}
-
-			expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
-			if err := cfg.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
-				return fmt.Errorf("saving tokens: %w", err)
-			}
-
-			fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
-			return nil
+			return runOAuthLogin(flags, clientID, clientSecret, port)
 		},
 	}
 
-	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("GOOGLE_SEARCH_CONSOLE_CLIENT_ID"), "OAuth2 client ID")
-	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET"), "OAuth2 client secret")
+	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("GOOGLE_SEARCH_CONSOLE_CLIENT_ID"), "OAuth2 client ID (prompts if missing)")
+	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET"), "OAuth2 client secret (prompts if missing)")
 	cmd.Flags().IntVar(&port, "port", 8085, "Local callback server port")
-
 	return cmd
+}
+
+// newLoginCmd exposes the OAuth flow at the top of the command tree so
+// `<binary> login` works without requiring users to discover `auth login`.
+// Identical behavior to the nested form — same flags, same interactive
+// fallbacks, same persistence.
+func newLoginCmd(flags *rootFlags) *cobra.Command {
+	var clientID string
+	var clientSecret string
+	var port int
+
+	cmd := &cobra.Command{
+		Use:   "login",
+		Short: "Authenticate with Google (interactive setup; alias for 'auth login')",
+		Long: strings.TrimSpace(`
+Runs the OAuth 2.0 browser flow against the Google Search Console + Indexing
+APIs. On first use, prompts for an OAuth Client ID and Client Secret if no
+flags or env vars are set; saves them so subsequent logins are friction-free.
+`),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runOAuthLogin(flags, clientID, clientSecret, port)
+		},
+	}
+	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("GOOGLE_SEARCH_CONSOLE_CLIENT_ID"), "OAuth2 client ID (prompts if missing)")
+	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("GOOGLE_SEARCH_CONSOLE_CLIENT_SECRET"), "OAuth2 client secret (prompts if missing)")
+	cmd.Flags().IntVar(&port, "port", 8085, "Local callback server port")
+	return cmd
+}
+
+// runOAuthLoginBody contains the actual OAuth flow steps: local listener,
+// browser open, code exchange, token persistence. Pulled out of the
+// original RunE to keep newAuthLoginCmd / newLoginCmd thin and the
+// resolveOAuthCredentials prompt logic separately testable.
+func runOAuthLoginBody(flags *rootFlags, cfg *config.Config, clientID, clientSecret string, port int) error {
+	_ = flags // kept on signature for symmetry; cfg is what the body needs
+
+	stateBytes := make([]byte, 16)
+	if _, err := rand.Read(stateBytes); err != nil {
+		return fmt.Errorf("generating state: %w", err)
+	}
+	state := hex.EncodeToString(stateBytes)
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	if err != nil {
+		return fmt.Errorf("starting callback server: %w", err)
+	}
+	defer listener.Close()
+
+	redirectURI := fmt.Sprintf("http://localhost:%d/callback", listener.Addr().(*net.TCPAddr).Port)
+
+	authURL := "https://accounts.google.com/o/oauth2/auth"
+	params := url.Values{
+		"client_id":     {clientID},
+		"redirect_uri":  {redirectURI},
+		"response_type": {"code"},
+		"state":         {state},
+		"access_type":   {"offline"},
+		"prompt":        {"consent"},
+	}
+	scopes := []string{
+		"https://www.googleapis.com/auth/webmasters",
+		"https://www.googleapis.com/auth/webmasters.readonly",
+		"https://www.googleapis.com/auth/indexing",
+	}
+	if len(scopes) > 0 {
+		params.Set("scope", strings.Join(scopes, " "))
+	}
+
+	fullURL := authURL + "?" + params.Encode()
+	fmt.Fprintf(os.Stderr, "Opening browser for authentication...\n")
+	fmt.Fprintf(os.Stderr, "If the browser doesn't open, visit:\n%s\n\n", fullURL)
+	openBrowser(fullURL)
+
+	codeCh := make(chan string, 1)
+	errCh := make(chan error, 1)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("state") != state {
+			errCh <- fmt.Errorf("state mismatch")
+			http.Error(w, "State mismatch", http.StatusBadRequest)
+			return
+		}
+		if errMsg := r.URL.Query().Get("error"); errMsg != "" {
+			errCh <- fmt.Errorf("auth error: %s", errMsg)
+			http.Error(w, errMsg, http.StatusBadRequest)
+			return
+		}
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			errCh <- fmt.Errorf("no code in callback")
+			http.Error(w, "No code", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(w, "<html><body><h2>Authentication successful!</h2><p>You can close this tab.</p></body></html>")
+		codeCh <- code
+	})
+
+	server := &http.Server{Handler: mux}
+	go server.Serve(listener)
+
+	var code string
+	select {
+	case code = <-codeCh:
+	case err := <-errCh:
+		return err
+	case <-time.After(2 * time.Minute):
+		return fmt.Errorf("authentication timed out after 2 minutes")
+	}
+
+	server.Shutdown(context.Background())
+
+	tokenURL := "https://accounts.google.com/o/oauth2/token"
+	tokenParams := url.Values{
+		"grant_type":   {"authorization_code"},
+		"code":         {code},
+		"redirect_uri": {redirectURI},
+		"client_id":    {clientID},
+	}
+	if clientSecret != "" {
+		tokenParams.Set("client_secret", clientSecret)
+	}
+
+	resp, err := http.PostForm(tokenURL, tokenParams)
+	if err != nil {
+		return fmt.Errorf("exchanging code for token: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		var body map[string]any
+		if err := json.NewDecoder(resp.Body).Decode(&body); err == nil {
+			return fmt.Errorf("exchanging code for token: HTTP %d: %v", resp.StatusCode, body)
+		}
+		return fmt.Errorf("exchanging code for token: HTTP %d", resp.StatusCode)
+	}
+
+	var tokenResp struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresIn    int    `json:"expires_in"`
+		TokenType    string `json:"token_type"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return fmt.Errorf("parsing token response: %w", err)
+	}
+	if tokenResp.AccessToken == "" {
+		return fmt.Errorf("no access token in response")
+	}
+
+	expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
+	if err := cfg.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
+		return fmt.Errorf("saving tokens: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
+	return nil
 }
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {

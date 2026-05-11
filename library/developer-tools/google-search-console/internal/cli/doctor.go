@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
@@ -86,7 +86,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "export GOOGLE_SEARCH_CONSOLE_OAUTH2C=<your-key>"
+					report["auth_hint"] = "run `google-search-console-pp-cli login` to authenticate (prompts for OAuth Client ID on first run)"
 				} else {
 					report["auth"] = "configured"
 					report["auth_source"] = cfg.AuthSource
