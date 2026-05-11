@@ -4,6 +4,8 @@
 
 gohighlevel-pp-cli mirrors all 409 HighLevel REST endpoints as typed Cobra commands and MCP tools, then layers a local SQLite store on top so cross-location triage (`roster`, `unread`, `sla-breach`), pipeline analytics (`velocity`, `stale-opps`), and bulk operations with `--dry-run` (`bulk-tag`, `dedup`, `reconcile`) become one-line shell commands instead of 50 tab-opens.
 
+Learn more at [HighLevel](https://www.gohighlevel.com/) or the [HighLevel API docs](https://highlevel.stoplight.io/).
+
 ## Install
 
 The recommended path installs both the `gohighlevel-pp-cli` binary and the `pp-gohighlevel` agent skill in one shot:
