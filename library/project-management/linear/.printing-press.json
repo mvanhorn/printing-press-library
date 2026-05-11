@@ -1,7 +1,7 @@
 {
   "schema_version": 0,
-  "generated_at": "2026-05-07T08:00:01Z",
-  "printing_press_version": "3.10.0",
+  "generated_at": "2026-05-11T15:41:00.442014Z",
+  "printing_press_version": "4.0.4",
   "api_name": "linear",
   "display_name": "Linear",
   "cli_name": "linear-pp-cli",

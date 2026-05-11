@@ -34,6 +34,10 @@ into the active cycle for the team). Groups by reason heuristic:
   linear-pp-cli slipped --team ENG --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dryRun {
+				fmt.Fprintln(os.Stderr, "[dry-run] would compute issues slipped from previous cycle into current cycle")
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("linear-pp-cli")
 			}
@@ -48,7 +52,8 @@ into the active cycle for the team). Groups by reason heuristic:
 				return err
 			}
 			if len(cycles) == 0 {
-				return fmt.Errorf("no cycles in local store; run 'linear-pp-cli sync' first")
+				fmt.Fprintln(os.Stderr, "No cycles in local store. Run 'linear-pp-cli sync' first.")
+				return nil
 			}
 
 			currentRef, err := resolveCycleArg(cycles, "current")
@@ -57,7 +62,8 @@ into the active cycle for the team). Groups by reason heuristic:
 			}
 			previousRef, err := resolveCycleArg(cycles, "previous")
 			if err != nil {
-				return fmt.Errorf("no previous cycle to diff against: %w", err)
+				fmt.Fprintln(os.Stderr, "No previous cycle to diff against (only one cycle synced).")
+				return nil
 			}
 
 			currentIssues, err := db.ListIssues(map[string]string{"cycle_id": currentRef.ID}, 1000)
