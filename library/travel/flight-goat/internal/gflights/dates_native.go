@@ -267,17 +267,20 @@ func mapSeatType(s string) (int, error) {
 }
 
 func mapMaxStops(s string) (int, error) {
-	switch strings.ToUpper(strings.TrimSpace(s)) {
+	// PATCH(codex P2): accept the legacy/documented aliases krisukox accepted
+	// (numeric 0/1/2, lowercase non_stop/one_stop/two_plus_stops) so the
+	// existing CLI help text in primary.go keeps working unchanged.
+	switch strings.ToUpper(strings.ReplaceAll(strings.TrimSpace(s), "-", "_")) {
 	case "", "ANY":
 		return maxStopsAny, nil
-	case "NON_STOP", "NONSTOP", "NON-STOP":
+	case "0", "NON_STOP", "NONSTOP":
 		return maxStopsNonStop, nil
-	case "ONE_STOP_OR_FEWER", "ONE-STOP-OR-FEWER":
+	case "1", "ONE_STOP", "ONE_STOP_OR_FEWER":
 		return maxStopsOneOrFewer, nil
-	case "TWO_OR_FEWER_STOPS", "TWO-OR-FEWER-STOPS":
+	case "2", "TWO_PLUS_STOPS", "TWO_PLUS", "TWO_OR_FEWER_STOPS":
 		return maxStopsTwoOrFewer, nil
 	default:
-		return 0, fmt.Errorf("unknown max stops %q", s)
+		return 0, fmt.Errorf("unknown --stops %q (valid: any, non_stop, one_stop, two_plus_stops)", s)
 	}
 }
 

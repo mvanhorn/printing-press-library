@@ -544,6 +544,11 @@ func formatLegDateTime(dateAny, timeAny any) string {
 	if day < 1 {
 		day = 1
 	}
-	t0 := time.Date(year, time.Month(month), day, hour, min, 0, 0, time.UTC)
-	return t0.Format(time.RFC3339)
+	// PATCH(codex P2): Google's date/time arrays are local to the airport
+	// (UTC offset varies per leg and isn't carried in the response). Use a
+	// time.Location with zero offset so the RFC3339 string ends without 'Z'
+	// — preventing downstream consumers from treating local times as UTC.
+	loc := time.FixedZone("", 0)
+	t0 := time.Date(year, time.Month(month), day, hour, min, 0, 0, loc)
+	return t0.Format("2006-01-02T15:04:05")
 }
