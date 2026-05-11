@@ -434,23 +434,41 @@ func parseOfferLeg(legRaw any) (Leg, bool) {
 	if !ok || len(leg) < 23 {
 		return Leg{}, false
 	}
+	// PATCH(greptile P1): the airline + airport NAME fields fli's parser
+	// drops live at adjacent slots Google sends in the leg array. Probed
+	// against a real GetShoppingResults response:
+	//   leg[4]      = dep airport name ("Seattle-Tacoma International Airport")
+	//   leg[5]      = arr airport name ("Newark Liberty International Airport")
+	//   leg[22][3]  = airline name      ("United")
+	// Restores parity with the prior krisukox output for Airline.Name and
+	// Airport.Name; addresses the P1 dropped-name regression on PR #440.
 	airlineCode := ""
 	flightNumber := ""
-	if al, ok := leg[22].([]any); ok && len(al) >= 2 {
-		airlineCode, _ = al[0].(string)
-		flightNumber, _ = al[1].(string)
+	airlineName := ""
+	if al, ok := leg[22].([]any); ok {
+		if len(al) >= 1 {
+			airlineCode, _ = al[0].(string)
+		}
+		if len(al) >= 2 {
+			flightNumber, _ = al[1].(string)
+		}
+		if len(al) >= 4 {
+			airlineName, _ = al[3].(string)
+		}
 	}
 	depAirport, _ := leg[3].(string)
 	arrAirport, _ := leg[6].(string)
+	depAirportName, _ := leg[4].(string)
+	arrAirportName, _ := leg[5].(string)
 	depTime := formatLegDateTime(indexAny(leg, 20), indexAny(leg, 8))
 	arrTime := formatLegDateTime(indexAny(leg, 21), indexAny(leg, 10))
 	return Leg{
-		DepartureAirport: Airport{Code: strings.ToUpper(depAirport)},
-		ArrivalAirport:   Airport{Code: strings.ToUpper(arrAirport)},
+		DepartureAirport: Airport{Code: strings.ToUpper(depAirport), Name: depAirportName},
+		ArrivalAirport:   Airport{Code: strings.ToUpper(arrAirport), Name: arrAirportName},
 		DepartureTime:    depTime,
 		ArrivalTime:      arrTime,
 		DurationMinutes:  numericInt(leg, 11),
-		Airline:          Airline{Code: airlineCode},
+		Airline:          Airline{Code: airlineCode, Name: airlineName},
 		FlightNumber:     flightNumber,
 	}, true
 }
