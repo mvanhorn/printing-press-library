@@ -320,14 +320,14 @@ actually enabling the heater.`,
 							report["heater_enabled"] = true
 							report["setpoint_set"] = false
 							report["setpoint_error"] = tempErr.Error()
-							logResult(s, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "error", Detail: tempErr.Error()})
+							logResult(s, site.MspSystemID, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "error", Detail: tempErr.Error()})
 						case tempResult != nil && tempResult.Status != "ok":
 							report["heater_enabled"] = true
 							report["setpoint_set"] = false
 							report["setpoint_error"] = tempResult.Detail
-							logResult(s, "ready-by", h.Name, params, tempResult)
+							logResult(s, site.MspSystemID, "ready-by", h.Name, params, tempResult)
 						default:
-							logResult(s, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "ok"})
+							logResult(s, site.MspSystemID, "ready-by", h.Name, params, &omnilogic.CommandResult{Status: "ok"})
 							report["heater_enabled"] = true
 							report["setpoint_set"] = true
 						}
@@ -757,18 +757,26 @@ Not a Hayward API field — only the store can compute this.`,
 func newCommandLogCmd(flags *rootFlags) *cobra.Command {
 	var sinceStr string
 	var limit int
+	var replayID int
 	cmd := &cobra.Command{
 		Use:   "command-log",
-		Short: "Local audit trail of every Set* command this CLI has issued.",
-		Long: `Every heater/pump/equipment/light/chlorinator command issued via this CLI
-is recorded with op, target, params, status, and timestamp. --replay <id>
-re-issues a prior command for quick undo/redo.
+		Short: "Local audit trail of every Set* command this CLI has issued, with --replay <id> to re-issue.",
+		Long: `Every heater/pump/equipment/light/chlorinator/spillover/superchlor/chlorinator-params
+command issued via this CLI is recorded with op, target, params, status, and timestamp.
 
-The cloud doesn't expose per-user command history; this is local-only.`,
-		Example:     "  hayward-omnilogic-pp-cli command-log --since 7d",
+--replay <id> re-issues a prior command. Combine with --dry-run to preview
+which client call would fire without actually sending. The replay is logged
+as a new command_log row with a 'replay_of: <id>' note in its detail.
+
+The cloud doesn't expose per-user command history; this audit trail is local-only.`,
+		Example: `  hayward-omnilogic-pp-cli command-log --since 7d
+  hayward-omnilogic-pp-cli command-log --replay 42 --dry-run
+  hayward-omnilogic-pp-cli command-log --replay 42`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
+			if dryRunOK(flags) && replayID == 0 {
+				// Plain dry-run with no replay target: pure read; the early
+				// dryRunOK short-circuit lets verify probes pass cleanly.
 				return nil
 			}
 			s, err := openStore()
@@ -776,6 +784,12 @@ The cloud doesn't expose per-user command history; this is local-only.`,
 				return apiErr(err)
 			}
 			defer closeStore(s)
+
+			if replayID > 0 {
+				return runReplay(cmd, flags, s, replayID)
+			}
+
+			// Standard list-history path.
 			q := `SELECT id, ts, op, target, params_json, status, detail, dry_run FROM command_log WHERE 1=1`
 			var args2 []any
 			if sinceStr != "" {
@@ -825,7 +839,312 @@ The cloud doesn't expose per-user command history; this is local-only.`,
 	}
 	cmd.Flags().StringVar(&sinceStr, "since", "", "Time window (e.g. 7d, 30d, yesterday).")
 	cmd.Flags().IntVar(&limit, "limit", 100, "Max rows to return.")
+	cmd.Flags().IntVar(&replayID, "replay", 0, "Re-issue a prior command by command_log row ID. Combine with --dry-run to preview which client call would fire.")
 	return cmd
+}
+
+// runReplay loads the command_log row at the given ID, parses its params,
+// dispatches to the matching omnilogic client method, and logs the replay
+// as a new command_log row. Returns a JSON envelope describing the dispatch
+// + result.
+func runReplay(cmd *cobra.Command, flags *rootFlags, s *store.Store, id int) error {
+	// Fetch the row to replay.
+	row := s.DB.QueryRow(
+		`SELECT op, target, params_json, status, dry_run FROM command_log WHERE id = ?`,
+		id,
+	)
+	var op, target, paramsStr, status string
+	var dryFlag int
+	if err := row.Scan(&op, &target, &paramsStr, &status, &dryFlag); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return usageErr(fmt.Errorf("command-log row %d not found", id))
+		}
+		return apiErr(err)
+	}
+	params := map[string]any{}
+	if paramsStr != "" {
+		if err := json.Unmarshal([]byte(paramsStr), &params); err != nil {
+			return apiErr(fmt.Errorf("parsing params_json for row %d: %w", id, err))
+		}
+	}
+
+	// Resolve the site to dispatch against. If the row recorded msp_system_id,
+	// use that verbatim; otherwise fall back to the single registered site.
+	siteID := intFromAny(params["msp_system_id"])
+	if siteID == 0 {
+		// Legacy row from before msp_system_id was logged; resolve from store.
+		sites, _ := s.ListSites()
+		if len(sites) == 1 {
+			siteID = sites[0].MspSystemID
+		}
+	}
+	if siteID == 0 {
+		return usageErr(fmt.Errorf("command-log row %d has no msp_system_id and no single registered site; cannot dispatch", id))
+	}
+
+	// Dry-run preview path: don't issue the call, describe what would happen.
+	if flags.dryRun {
+		preview := map[string]any{
+			"replay_of":     id,
+			"would_call":    op,
+			"target":        target,
+			"params":        params,
+			"site_msp_system_id": siteID,
+			"dispatch":      dispatchDescription(op, params),
+			"dry_run":       true,
+		}
+		return printJSONFiltered(cmd.OutOrStdout(), preview, flags)
+	}
+
+	if err := requireCreds(); err != nil {
+		return classifyOmnilogicError(err)
+	}
+	c := newOmnilogicClient(flags.timeout)
+	result, dispErr := dispatchReplay(c, siteID, op, params)
+	out := map[string]any{
+		"replay_of":          id,
+		"operation":          op,
+		"target":             target,
+		"site_msp_system_id": siteID,
+	}
+	if dispErr != nil {
+		out["status"] = "error"
+		out["error"] = dispErr.Error()
+		// Log the failure so the audit trail captures it.
+		logResult(s, siteID, op, target, withReplayNote(params, id), &omnilogic.CommandResult{
+			Status: "error", Operation: op, Target: target, Detail: dispErr.Error(),
+		})
+		_ = printJSONFiltered(cmd.OutOrStdout(), out, flags)
+		return classifyOmnilogicError(dispErr)
+	}
+	out["status"] = result.Status
+	if result.Detail != "" {
+		out["detail"] = result.Detail
+	}
+	logResult(s, siteID, op, target, withReplayNote(params, id), result)
+	return printJSONFiltered(cmd.OutOrStdout(), out, flags)
+}
+
+// withReplayNote stamps the params for a replay row so the audit trail
+// captures which original command was re-issued.
+func withReplayNote(params map[string]any, originalID int) map[string]any {
+	out := make(map[string]any, len(params)+1)
+	for k, v := range params {
+		out[k] = v
+	}
+	out["replay_of"] = originalID
+	return out
+}
+
+// dispatchReplay routes a stored command_log entry back to the right
+// omnilogic.Client method based on the op string. The params map is the
+// JSON-unmarshalled params_json from the row — every numeric value is
+// float64 because Go's encoding/json maps unknown numbers to float64.
+//
+// Supported ops mirror what the CLI's handlers persist:
+//   - SetHeaterEnable       (heater enable/disable)
+//   - SetUIHeaterCmd        (heater set-temp)
+//   - SetUIEquipmentCmd     (pump set-speed | equipment on/off VSP and non-VSP)
+//   - SetUISpilloverCmd     (spillover set)
+//   - SetUISuperCHLORCmd    (superchlor on/off)
+//   - SetStandAloneLightShow / V2 (light show)
+//   - SetCHLORParams        (chlorinator set-params)
+//
+// Returns a usage error for ops we don't recognize so the operator gets a
+// clear "this row can't be replayed" signal rather than a silent skip.
+func dispatchReplay(c *omnilogic.Client, siteID int, op string, params map[string]any) (*omnilogic.CommandResult, error) {
+	switch op {
+	case "SetHeaterEnable":
+		return c.SetHeaterEnable(
+			siteID,
+			intFromAny(params["pool_id"]),
+			intFromAny(params["heater_id"]),
+			boolFromAny(params["enable"]),
+		)
+	case "SetUIHeaterCmd":
+		return c.SetHeaterTemp(
+			siteID,
+			intFromAny(params["pool_id"]),
+			intFromAny(params["heater_id"]),
+			intFromAny(params["temp"]),
+		)
+	case "SetUIEquipmentCmd":
+		poolID := intFromAny(params["pool_id"])
+		// pump set-speed shape: has speed + pump_id
+		if _, hasSpeed := params["speed"]; hasSpeed {
+			if pumpIDAny, ok := params["pump_id"]; ok {
+				return c.SetPumpSpeed(siteID, poolID, intFromAny(pumpIDAny), intFromAny(params["speed"]))
+			}
+		}
+		// equipment on/off shape: has on + equipment_id (+ is_vsp + duration_min)
+		eqID := intFromAny(params["equipment_id"])
+		on := boolFromAny(params["on"])
+		isVSP := boolFromAny(params["is_vsp"])
+		if isVSP {
+			speed := 0
+			if on {
+				speed = omnilogic.DefaultVSPOnSpeed
+			}
+			return c.SetPumpSpeed(siteID, poolID, eqID, speed)
+		}
+		return c.SetEquipment(siteID, poolID, eqID, on, intFromAny(params["duration_min"]))
+	case "SetUISpilloverCmd":
+		return c.SetSpillover(
+			siteID,
+			intFromAny(params["pool_id"]),
+			intFromAny(params["speed"]),
+			intFromAny(params["duration_min"]),
+		)
+	case "SetUISuperCHLORCmd":
+		return c.SetSuperchlor(
+			siteID,
+			intFromAny(params["pool_id"]),
+			intFromAny(params["chlor_id"]),
+			boolFromAny(params["on"]),
+		)
+	case "SetStandAloneLightShow":
+		return c.SetLightShow(
+			siteID,
+			intFromAny(params["pool_id"]),
+			intFromAny(params["light_id"]),
+			intFromAny(params["show"]),
+		)
+	case "SetStandAloneLightShowV2":
+		return c.SetLightShowV2(
+			siteID,
+			intFromAny(params["pool_id"]),
+			intFromAny(params["light_id"]),
+			intFromAny(params["show"]),
+			intFromAny(params["speed"]),
+			intFromAny(params["brightness"]),
+		)
+	case "SetCHLORParams":
+		cp := omnilogic.ChlorParams{
+			MspSystemID: siteID,
+			PoolID:      intFromAny(params["pool_id"]),
+			ChlorID:     intFromAny(params["chlor_id"]),
+		}
+		if v, ok := params["op_mode"]; ok {
+			n := opModeFor(stringFromAny(v))
+			if n >= 0 {
+				cp.OpMode = &n
+			}
+		}
+		if v, ok := params["timed_pct"]; ok {
+			n := intFromAny(v)
+			cp.TimedPercent = &n
+		}
+		if v, ok := params["cell_type"]; ok {
+			n := cellTypeFor(stringFromAny(v))
+			if n >= 0 {
+				cp.CellType = &n
+			}
+		}
+		if v, ok := params["sc_timeout"]; ok {
+			n := intFromAny(v)
+			cp.SCTimeout = &n
+		}
+		if v, ok := params["orp_timeout"]; ok {
+			n := intFromAny(v)
+			cp.ORPTimeout = &n
+		}
+		return c.SetChlorParams(cp)
+	default:
+		return nil, fmt.Errorf("replay not supported for op %q (no dispatcher mapped)", op)
+	}
+}
+
+// dispatchDescription returns a one-line preview of what dispatchReplay
+// would do for a given op. Used by --dry-run replay so the user sees the
+// effective call before committing.
+func dispatchDescription(op string, params map[string]any) string {
+	switch op {
+	case "SetHeaterEnable":
+		return fmt.Sprintf("c.SetHeaterEnable(site, pool=%v, heater=%v, enable=%v)",
+			params["pool_id"], params["heater_id"], params["enable"])
+	case "SetUIHeaterCmd":
+		return fmt.Sprintf("c.SetHeaterTemp(site, pool=%v, heater=%v, temp=%v°F)",
+			params["pool_id"], params["heater_id"], params["temp"])
+	case "SetUIEquipmentCmd":
+		if _, ok := params["speed"]; ok {
+			return fmt.Sprintf("c.SetPumpSpeed(site, pool=%v, pump=%v, speed=%v)",
+				params["pool_id"], params["pump_id"], params["speed"])
+		}
+		if boolFromAny(params["is_vsp"]) {
+			speed := 0
+			if boolFromAny(params["on"]) {
+				speed = omnilogic.DefaultVSPOnSpeed
+			}
+			return fmt.Sprintf("c.SetPumpSpeed(site, pool=%v, pump=%v, speed=%d) [VSP on=%v]",
+				params["pool_id"], params["equipment_id"], speed, params["on"])
+		}
+		return fmt.Sprintf("c.SetEquipment(site, pool=%v, equip=%v, on=%v, dur=%vm)",
+			params["pool_id"], params["equipment_id"], params["on"], params["duration_min"])
+	case "SetUISpilloverCmd":
+		return fmt.Sprintf("c.SetSpillover(site, pool=%v, speed=%v, dur=%vm)",
+			params["pool_id"], params["speed"], params["duration_min"])
+	case "SetUISuperCHLORCmd":
+		return fmt.Sprintf("c.SetSuperchlor(site, pool=%v, chlor=%v, on=%v)",
+			params["pool_id"], params["chlor_id"], params["on"])
+	case "SetStandAloneLightShow":
+		return fmt.Sprintf("c.SetLightShow(site, pool=%v, light=%v, show=%v)",
+			params["pool_id"], params["light_id"], params["show"])
+	case "SetStandAloneLightShowV2":
+		return fmt.Sprintf("c.SetLightShowV2(site, pool=%v, light=%v, show=%v, speed=%v, brightness=%v)",
+			params["pool_id"], params["light_id"], params["show"], params["speed"], params["brightness"])
+	case "SetCHLORParams":
+		return fmt.Sprintf("c.SetChlorParams(site, pool=%v, chlor=%v, %v)",
+			params["pool_id"], params["chlor_id"], params)
+	default:
+		return fmt.Sprintf("(unsupported op %q)", op)
+	}
+}
+
+// intFromAny extracts an int from a value pulled out of params_json. JSON
+// numbers unmarshal as float64; this normalizes to int. Strings and bools
+// fall back to zero, which is the right default for missing fields.
+func intFromAny(v any) int {
+	switch x := v.(type) {
+	case float64:
+		return int(x)
+	case float32:
+		return int(x)
+	case int:
+		return x
+	case int64:
+		return int(x)
+	case string:
+		n, _ := strconv.Atoi(x)
+		return n
+	}
+	return 0
+}
+
+// boolFromAny extracts a bool from params_json with the same forgiveness.
+func boolFromAny(v any) bool {
+	switch x := v.(type) {
+	case bool:
+		return x
+	case float64:
+		return x != 0
+	case string:
+		return x == "true" || x == "True" || x == "1" || x == "yes"
+	}
+	return false
+}
+
+// stringFromAny coerces a stored value to a string for SetCHLORParams's
+// enum lookups (op_mode, cell_type).
+func stringFromAny(v any) string {
+	switch x := v.(type) {
+	case string:
+		return x
+	case float64:
+		return strconv.Itoa(int(x))
+	case bool:
+		return strconv.FormatBool(x)
+	}
+	return ""
 }
 
 // ---------- why-not-running ----------

@@ -461,14 +461,14 @@ func runHeaterEnableDisable(flags *rootFlags, siteID *int, bowFilter *string, en
 		op := "SetHeaterEnable"
 		target := fmt.Sprintf("%s (heater %d)", h.Name, heaterID)
 		if flags.dryRun {
-			logDryRun(s, op, target, map[string]any{"enable": enable, "pool_id": poolID, "heater_id": heaterID})
+			logDryRun(s, site.MspSystemID, op, target, map[string]any{"enable": enable, "pool_id": poolID, "heater_id": heaterID})
 			return printCommandPreview(cmd, op, target, map[string]any{"enable": enable})
 		}
 		result, err := c.SetHeaterEnable(site.MspSystemID, poolID, heaterID, enable)
 		if err != nil {
 			return classifyOmnilogicError(err)
 		}
-		logResult(s, op, target, map[string]any{"enable": enable, "pool_id": poolID, "heater_id": heaterID}, result)
+		logResult(s, site.MspSystemID, op, target, map[string]any{"enable": enable, "pool_id": poolID, "heater_id": heaterID}, result)
 		return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 	}
 }
@@ -521,14 +521,14 @@ func newOmniHeaterSetTempCmd(flags *rootFlags) *cobra.Command {
 			target := fmt.Sprintf("%s (heater %d)", h.Name, heaterID)
 			params := map[string]any{"temp": temp, "pool_id": poolID, "heater_id": heaterID}
 			if flags.dryRun {
-				logDryRun(s, op, target, params)
+				logDryRun(s, site.MspSystemID, op, target, params)
 				return printCommandPreview(cmd, op, target, map[string]any{"temp": temp})
 			}
 			result, err := c.SetHeaterTemp(site.MspSystemID, poolID, heaterID, temp)
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			logResult(s, op, target, params, result)
+			logResult(s, site.MspSystemID, op, target, params, result)
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
@@ -586,14 +586,14 @@ func newOmniPumpSetSpeedCmd(flags *rootFlags) *cobra.Command {
 			target := fmt.Sprintf("%s (pump %d)", displayName, eqID)
 			params := map[string]any{"speed": speed, "pool_id": poolID, "pump_id": eqID}
 			if flags.dryRun {
-				logDryRun(s, op, target, params)
+				logDryRun(s, site.MspSystemID, op, target, params)
 				return printCommandPreview(cmd, op, target, map[string]any{"speed": speed})
 			}
 			result, err := c.SetPumpSpeed(site.MspSystemID, poolID, eqID, speed)
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			logResult(s, op, target, params, result)
+			logResult(s, site.MspSystemID, op, target, params, result)
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
@@ -704,7 +704,7 @@ func runEquipmentOnOff(flags *rootFlags, siteID *int, forDur *string, bowFilter 
 			"is_vsp":       isVSP,
 		}
 		if flags.dryRun {
-			logDryRun(s, op, target, params)
+			logDryRun(s, site.MspSystemID, op, target, params)
 			return printCommandPreview(cmd, op, target, params)
 		}
 		var result *omnilogic.CommandResult
@@ -721,7 +721,7 @@ func runEquipmentOnOff(flags *rootFlags, siteID *int, forDur *string, bowFilter 
 		if callErr != nil {
 			return classifyOmnilogicError(callErr)
 		}
-		logResult(s, op, target, params, result)
+		logResult(s, site.MspSystemID, op, target, params, result)
 		return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 	}
 }
@@ -784,14 +784,14 @@ func newOmniSpilloverSetCmd(flags *rootFlags) *cobra.Command {
 			target := fmt.Sprintf("pool %d", poolID)
 			params := map[string]any{"speed": speed, "duration_min": dur, "pool_id": poolID}
 			if flags.dryRun {
-				logDryRun(s, op, target, params)
+				logDryRun(s, site.MspSystemID, op, target, params)
 				return printCommandPreview(cmd, op, target, map[string]any{"speed": speed, "duration_min": dur})
 			}
 			result, err := c.SetSpillover(site.MspSystemID, poolID, speed, dur)
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			logResult(s, op, target, params, result)
+			logResult(s, site.MspSystemID, op, target, params, result)
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
@@ -854,14 +854,14 @@ func newOmniSuperchlorToggleCmd(flags *rootFlags, on bool) *cobra.Command {
 			target := fmt.Sprintf("chlor %d", chlorID)
 			params := map[string]any{"on": on, "pool_id": poolID, "chlor_id": chlorID}
 			if flags.dryRun {
-				logDryRun(s, op, target, params)
+				logDryRun(s, site.MspSystemID, op, target, params)
 				return printCommandPreview(cmd, op, target, map[string]any{"on": on})
 			}
 			result, err := c.SetSuperchlor(site.MspSystemID, poolID, chlorID, on)
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			logResult(s, op, target, params, result)
+			logResult(s, site.MspSystemID, op, target, params, result)
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
@@ -950,7 +950,7 @@ func newOmniLightShowCmd(flags *rootFlags) *cobra.Command {
 			target := fmt.Sprintf("light %d", lightID)
 			params := map[string]any{"show": show.ID, "show_name": show.Name, "speed": speed, "brightness": brightness, "v2": isV2}
 			if flags.dryRun {
-				logDryRun(s, op, target, params)
+				logDryRun(s, site.MspSystemID, op, target, params)
 				return printCommandPreview(cmd, op, target, params)
 			}
 			var result *omnilogic.CommandResult
@@ -968,7 +968,7 @@ func newOmniLightShowCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			logResult(s, op, target, params, result)
+			logResult(s, site.MspSystemID, op, target, params, result)
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
@@ -1055,14 +1055,14 @@ func newOmniChlorinatorSetParamsCmd(flags *rootFlags) *cobra.Command {
 				"pool_id": poolID, "chlor_id": chlorID,
 			}
 			if flags.dryRun {
-				logDryRun(s, op, target, params)
+				logDryRun(s, site.MspSystemID, op, target, params)
 				return printCommandPreview(cmd, op, target, params)
 			}
 			result, err := c.SetChlorParams(cp)
 			if err != nil {
 				return classifyOmnilogicError(err)
 			}
-			logResult(s, op, target, params, result)
+			logResult(s, site.MspSystemID, op, target, params, result)
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
@@ -1110,22 +1110,36 @@ func closeStore(s *store.Store) {
 	}
 }
 
-func logDryRun(s *store.Store, op, target string, params map[string]any) {
+func logDryRun(s *store.Store, siteMspSystemID int, op, target string, params map[string]any) {
 	if s == nil {
 		return
 	}
 	_, _ = s.LogCommand(store.CommandLogEntry{
-		Op: op, Target: target, Params: params, Status: "dry-run", DryRun: true,
+		Op: op, Target: target, Params: withSiteParam(params, siteMspSystemID), Status: "dry-run", DryRun: true,
 	})
 }
 
-func logResult(s *store.Store, op, target string, params map[string]any, r *omnilogic.CommandResult) {
+func logResult(s *store.Store, siteMspSystemID int, op, target string, params map[string]any, r *omnilogic.CommandResult) {
 	if s == nil || r == nil {
 		return
 	}
 	_, _ = s.LogCommand(store.CommandLogEntry{
-		Op: op, Target: target, Params: params, Status: r.Status, Detail: r.Detail,
+		Op: op, Target: target, Params: withSiteParam(params, siteMspSystemID), Status: r.Status, Detail: r.Detail,
 	})
+}
+
+// withSiteParam injects msp_system_id into a command's params_json so the
+// command-log replay dispatcher can re-resolve the site without needing to
+// know which one was active when the original command ran. Returns a fresh
+// map when params is nil and copies-then-augments when non-nil so callers
+// don't see mutation of their map.
+func withSiteParam(params map[string]any, siteMspSystemID int) map[string]any {
+	out := make(map[string]any, len(params)+1)
+	for k, v := range params {
+		out[k] = v
+	}
+	out["msp_system_id"] = siteMspSystemID
+	return out
 }
 
 func printCommandPreview(cmd *cobra.Command, op, target string, params map[string]any) error {
