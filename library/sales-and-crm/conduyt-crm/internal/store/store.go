@@ -618,7 +618,7 @@ func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, dat
 		return err
 	}
 
-	ftsRowid := ftsRowID(id)
+	ftsRowid := ftsRowID(resourceType, id)
 	// Use explicit rowid for FTS5 compatibility with modernc.org/sqlite.
 	// Standard DELETE WHERE column=? may not work on FTS5 virtual tables.
 	if _, err = tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {
@@ -698,7 +698,7 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 	}
 	rows, err := s.db.Query(
 		`SELECT r.data FROM resources r
-		 JOIN resources_fts f ON r.id = f.id
+		 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
 		 WHERE resources_fts MATCH ?
 		 ORDER BY rank
 		 LIMIT ?`,
@@ -732,8 +732,12 @@ func extractObjectID(obj map[string]any) string {
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
-func ftsRowID(id string) int64 {
+func ftsRowID(resourceType, id string) int64 {
 	var h uint64
+	for _, c := range resourceType {
+		h = h*31 + uint64(c)
+	}
+	h = h*31 + uint64(':')
 	for _, c := range id {
 		h = h*31 + uint64(c)
 	}

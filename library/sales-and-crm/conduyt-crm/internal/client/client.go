@@ -97,12 +97,12 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	key := path
+	key := path + "\x00"
 	for _, k := range keys {
-		key += k + "=" + params[k]
+		key += k + "\x00" + params[k] + "\x00"
 	}
 	h := sha256.Sum256([]byte(key))
-	return hex.EncodeToString(h[:8])
+	return hex.EncodeToString(h[:])
 }
 
 func (c *Client) readCache(path string, params map[string]string) (json.RawMessage, bool) {
@@ -144,6 +144,10 @@ func (c *Client) PostWithHeaders(path string, body any, headers map[string]strin
 
 func (c *Client) Delete(path string) (json.RawMessage, int, error) {
 	return c.do("DELETE", path, nil, nil, nil)
+}
+
+func (c *Client) DeleteWithParams(path string, params map[string]string) (json.RawMessage, int, error) {
+	return c.do("DELETE", path, params, nil, nil)
 }
 
 func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json.RawMessage, int, error) {
@@ -242,6 +246,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			if method == "POST" || method == "PATCH" {
+				return nil, 0, lastErr
+			}
 			continue
 		}
 
@@ -278,8 +285,8 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			continue
 		}
 
-		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
+		// Server error - retry with backoff (idempotent methods only)
+		if resp.StatusCode >= 500 && attempt < maxRetries && method != "POST" && method != "PATCH" {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			time.Sleep(wait)

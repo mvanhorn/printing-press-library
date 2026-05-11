@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -102,7 +103,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, url.PathEscape(fmt.Sprintf("%v", v)), 1)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
@@ -116,7 +117,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, url.PathEscape(fmt.Sprintf("%v", v)), 1)
 			}
 		}
 

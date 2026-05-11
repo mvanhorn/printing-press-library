@@ -2775,7 +2775,7 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	case "GET":
 		data, err = c.Get(path, query)
 	case "DELETE":
-		data, _, err = c.Delete(path)
+		data, _, err = c.DeleteWithParams(path, query)
 	case "POST":
 		data, _, err = c.Post(path, params)
 	case "PUT":
