@@ -911,15 +911,24 @@ func (s *Store) UpsertEvents(data json.RawMessage) error {
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
 // Splitting this out lets UpsertBatch dispatch typed inserts per item without
 // opening a per-item transaction.
+// PATCH(greptile P0 store.go:915-923 — bind parameters in wrong order):
+// The SQL declares columns (id, events_id, data, synced_at) but the
+// generator emitted the bind args as (id, data, now, events_id), which
+// mapped the JSON blob into events_id, the timestamp string into data,
+// and the actual events_id into synced_at. Every image upsert corrupted
+// all three non-id columns and idx_images_events_id joins never matched.
+// Reordered to match column order. This bug ships in every printed CLI
+// whose spec has an Image resource — upstream tracking added under
+// .printing-press-patches.json upstream_tracking.press-upsert-images-bind-order.
 func (s *Store) upsertImagesTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO images (id, events_id, data, synced_at)
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET events_id = excluded.events_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "events_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "events_id"),
 	); err != nil {
 		return fmt.Errorf("insert into images: %w", err)
 	}

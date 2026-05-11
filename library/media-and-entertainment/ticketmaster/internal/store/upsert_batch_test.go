@@ -397,13 +397,33 @@ func TestUpsertBatch_PopulatesImagesTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// PATCH(greptile P0 store.go:915-923 follow-up): the original fixture
+	// only set `id`, which previously passed because the bind-order bug
+	// stuffed the JSON blob into events_id (a NOT NULL column), masking the
+	// real constraint. images.events_id is NOT NULL per the schema; include
+	// it so the test exercises the corrected dispatch path with a realistic
+	// row shape.
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "events_id": "evt-001"}`),
+		json.RawMessage(`{"id": "test-002", "events_id": "evt-002"}`),
+		json.RawMessage(`{"id": "test-003", "events_id": "evt-003"}`),
 	}
 	if _, _, err := s.UpsertBatch("images", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	// Defense against the original bug recurring: verify each column holds
+	// the right kind of value. Before the fix, events_id contained the JSON
+	// blob and data contained a timestamp string.
+	var gotEventsID, gotData string
+	if err := s.DB().QueryRow(`SELECT events_id, data FROM images WHERE id = ?`, "test-001").Scan(&gotEventsID, &gotData); err != nil {
+		t.Fatalf("query test-001: %v", err)
+	}
+	if gotEventsID != "evt-001" {
+		t.Fatalf("events_id column = %q, want %q (bind-order regression)", gotEventsID, "evt-001")
+	}
+	if !strings.Contains(gotData, `"id":"test-001"`) && !strings.Contains(gotData, `"id": "test-001"`) {
+		t.Fatalf("data column does not contain expected JSON; got %q (bind-order regression)", gotData[:min(len(gotData), 80)])
 	}
 
 	db := s.DB()
