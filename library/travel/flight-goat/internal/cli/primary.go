@@ -41,6 +41,14 @@ func newGfFlightsCmd(flags *rootFlags) *cobra.Command {
 	var airlines []string
 	var passengers int
 	var excludeBasic bool
+	// PATCH(upstream cli-printing-press): new filters unlocked by the
+	// native Google Flights backend (see internal/gflights/flights_native.go).
+	var emissions string
+	var checkedBags int
+	var carryOn bool
+	var layoverAirports []string
+	var maxLayoverMinutes int
+	var limitedResults bool
 
 	cmd := &cobra.Command{
 		Use:   "flights <origin> <destination> <date>",
@@ -66,18 +74,26 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 		Args: cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := gflights.SearchOptions{
-				Origin:        strings.ToUpper(args[0]),
-				Destination:   strings.ToUpper(args[1]),
-				DepartureDate: args[2],
-				ReturnDate:    returnDate,
-				TimeWindow:    timeWindow,
-				Airlines:      airlines,
-				CabinClass:    cabin,
-				MaxStops:      stops,
-				SortBy:        sortBy,
-				Passengers:    passengers,
-				ExcludeBasic:  excludeBasic,
-				Currency:      currencyCode,
+				Origin:         strings.ToUpper(args[0]),
+				Destination:    strings.ToUpper(args[1]),
+				DepartureDate:  args[2],
+				ReturnDate:     returnDate,
+				TimeWindow:     timeWindow,
+				Airlines:       airlines,
+				CabinClass:     cabin,
+				MaxStops:       stops,
+				SortBy:         sortBy,
+				Passengers:     passengers,
+				ExcludeBasic:   excludeBasic,
+				Currency:       currencyCode,
+				Emissions:      emissions,
+				LimitedResults: limitedResults,
+			}
+			if checkedBags > 0 || carryOn {
+				opts.Bags = &gflights.BagsFilter{CheckedBags: checkedBags, CarryOn: carryOn}
+			}
+			if len(layoverAirports) > 0 || maxLayoverMinutes > 0 {
+				opts.Layover = &gflights.LayoverRestrictions{Airports: layoverAirports, MaxDuration: maxLayoverMinutes}
 			}
 			if flags.dryRun {
 				fmt.Fprintf(cmd.OutOrStdout(), "gflights.Search(%s -> %s on %s)", opts.Origin, opts.Destination, opts.DepartureDate)
@@ -148,10 +164,18 @@ durations, airlines, and leg details. No API key. No auth. Just results.`,
 	cmd.Flags().StringSliceVarP(&airlines, "airlines", "a", nil, "Airline IATA codes (e.g. BA,KL,DL)")
 	cmd.Flags().StringVarP(&cabin, "class", "c", "", "Cabin class: economy, premium_economy, business, first")
 	cmd.Flags().StringVarP(&stops, "stops", "s", "", "Max stops: any, non_stop, one_stop, two_plus_stops")
-	cmd.Flags().StringVar(&sortBy, "sort", "", "Sort by: cheapest, duration, departure_time, arrival_time")
+	cmd.Flags().StringVar(&sortBy, "sort", "", "Sort by: cheapest, top_flights, best, departure_time, arrival_time, duration, emissions")
 	cmd.Flags().IntVarP(&passengers, "passengers", "p", 1, "Number of passengers")
 	cmd.Flags().BoolVar(&excludeBasic, "exclude-basic", false, "Exclude basic economy fares")
 	cmd.Flags().StringVar(&currencyCode, "currency", "", "Currency for prices (ISO 4217, e.g. GBP, EUR, USD; default USD)")
+	// PATCH(upstream cli-printing-press): new flags exposing the filters
+	// unlocked by the native Google Flights backend.
+	cmd.Flags().StringVar(&emissions, "emissions", "", "Emissions filter: ALL (default) or LESS for lower-emission itineraries only")
+	cmd.Flags().IntVarP(&checkedBags, "bags", "b", 0, "Include N checked-bag fees in the returned price (0, 1, or 2)")
+	cmd.Flags().BoolVar(&carryOn, "carry-on", false, "Include carry-on bag fee in the returned price")
+	cmd.Flags().StringSliceVarP(&layoverAirports, "layover", "l", nil, "Restrict layovers to specific airports (repeatable, e.g. -l ORD -l DFW)")
+	cmd.Flags().IntVar(&maxLayoverMinutes, "max-layover", 0, "Maximum layover duration in minutes (0 = no constraint)")
+	cmd.Flags().BoolVar(&limitedResults, "limited", false, "Return only the ~30 Google-curated results instead of the full set")
 	return cmd
 }
 

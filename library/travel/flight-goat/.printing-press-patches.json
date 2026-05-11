@@ -30,6 +30,21 @@
       "summary": "Add command-scoped ISO 4217 currency support for Google Flights price commands.",
       "reason": "Flight GOAT's Google Flights backend hard-coded USD, so international users could not request native Google Flights prices in their preferred currency.",
       "validated_outcome": "go test ./...; go build ./...; go vet ./...; govulncheck ./...; python3 .github/scripts/verify-skill/verify_skill.py --dir library/travel/flight-goat/"
+    },
+    {
+      "id": "google-flights-direct-port",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native.go",
+        "internal/gflights/gflights.go",
+        "internal/gflights/utls_client.go",
+        "internal/cli/primary.go",
+        "go.mod",
+        "go.sum"
+      ],
+      "summary": "Replace krisukox/google-flights-api with a native f.req protobuf-shaped client matching fli's Python implementation; remove the upstream dependency.",
+      "reason": "krisukox/google-flights-api only exposed Stops, Class, TripType in its Options struct and silently dropped airlines, bags, emissions, layover, carry-on, exclude-basic-economy, show-all-results, and the expanded sort options (top_flights, best, emissions). Users passing --airlines BA,KL got results that ignored the filter. Ports fli/models/google_flights/flights.py format() to Go in internal/gflights/flights_native.go, reaches feature parity with fli, and drops github.com/krisukox/google-flights-api from go.mod entirely.",
+      "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values."
     }
   ]
 }
