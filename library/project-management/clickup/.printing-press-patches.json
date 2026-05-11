@@ -57,6 +57,14 @@
       "files": [
         "internal/cli/channel_workflow.go"
       ]
+    },
+    {
+      "id": "workflow-archive-envelope-unwrap",
+      "summary": "Use `extractPageItems` in `workflow archive` so envelope-wrapped responses (e.g. `{\"teams\":[...]}`) are unpacked into per-record rows instead of being stored as a single `<resource>-singleton` blob.",
+      "reason": "Greptile P1 finding on PR #433. `workflow archive` did `json.Unmarshal(data, &items)` where items was a `[]json.RawMessage`. ClickUp's `/v2/team` returns `{\"teams\": [...]}` (object envelope), so the unmarshal failed and execution dropped to the singleton path, storing the entire envelope under key `team-singleton`. `workflow status` then showed `team: 1` regardless of how many workspaces existed; `search` couldn't find individual team records by ID. Using `extractPageItems` (already used by main `sync`) correctly unwraps the envelope via the fallback strategy 'any single array-typed key in envelope.' Verified live: 3 individual team rows land (Leadershift, AIpplied Labs, tiktoks) plus 1 user, replacing the prior single `team-singleton` blob.",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ]
     }
   ]
 }

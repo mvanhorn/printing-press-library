@@ -87,9 +87,20 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
 					}
-					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
-						// Might be a single object, not array
+					// PATCH(pp-library#433-p1): use extractPageItems instead of bare
+					// json.Unmarshal(data, &items). ClickUp's /v2/team returns
+					// `{"teams": [...]}` — an object envelope, not a bare array.
+					// The previous code's array unmarshal failed on the envelope
+					// and dropped to the singleton path, storing every team as one
+					// blob under `team-singleton`. extractPageItems' fallback
+					// "any single array-typed key in envelope" correctly unwraps
+					// `teams`, `users`, etc. so each record lands as its own row.
+					// items == nil means the response was a singular object
+					// (e.g. /v2/user returns `{"user": {...}}`); items == [] means
+					// envelope recognized but empty — both handled below.
+					items, _, _ := extractPageItems(data, "after")
+					if items == nil {
+						// Singular response shape — store as singleton
 						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
 							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
 						}
