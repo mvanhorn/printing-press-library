@@ -6,7 +6,7 @@
   "display_name": "arXiv",
   "cli_name": "arxiv-pp-cli",
   "owner": "hiten-shah",
-  "printer": "hiten-shah",
+  "printer": "hnshah",
   "printer_name": "Hiten Shah",
   "spec_url": "https://info.arxiv.org/help/api/index.html",
   "spec_path": "/Users/bobshah/printing-press/.runstate/cli-printing-press-arxiv-main-bb1f6bb3/runs/20260511-053009/arxiv-openapi.yaml",
