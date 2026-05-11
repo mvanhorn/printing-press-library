@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-10T23:26:22.673958Z",
+  "cli_dir": "/Users/gavinfarrell/printing-press/.runstate/gavinfarrell-67a992d5/runs/20260510-124720/working/instagram-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "get",
+      "file": "get.go",
+      "line": 37,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Heuristic mis-fire: command body writes media files to --out and inserts rows into the local SQLite download_history; the existing `mcp:read-only: false` annotation is the semantically correct value. Read-shaped name, write-shaped behavior."
+    }
+  ]
+}

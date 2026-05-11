@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "instagram",
+  "run_id": "20260510-124720",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 22,
+  "tests_passed": 22,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "Phase 5 quick check covered the auth-independent surface: help, dry-run, doctor, agent-context, version, schema initialization, FTS smoke against empty DB, and gated-feature error paths. Live cookie path (auth login --chrome → real IG fetch) was deliberately not exercised at user direction. The verify-skill leg of shipcheck already wrote a synthetic browser-session proof in mock mode (PRINTING_PRESS_VERIFY=1), which exercises the cookie/proof code paths without touching IG. User can run live verification independently with `auth login --chrome && doctor && user <handle> --dry-run` after promote."
+}

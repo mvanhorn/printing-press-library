@@ -1,0 +1,37 @@
+{
+  "api_name": "instagram",
+  "base_url": "https://www.instagram.com",
+  "description": "Single-binary Instagram archiver — local SQLite catalog, FTS over captions and Instagram-generated alt-text, and an MCP server in the same binary.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".instagram.com",
+    "requires_browser_session": true,
+    "browser_session_validation_path": "/api/v1/accounts/current_user/",
+    "browser_session_validation_method": "GET"
+  },
+  "required_headers": [
+    {
+      "name": "X-IG-App-ID",
+      "value": "936619743392459"
+    },
+    {
+      "name": "X-ASBD-ID",
+      "value": "198387"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.instagram.com/"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": []
+}

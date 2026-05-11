@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T23:27:37.467287Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "instagram",
+  "display_name": "Instagram",
+  "cli_name": "instagram-pp-cli",
+  "owner": "user",
+  "printer": "ThePanographer",
+  "printer_name": "ThePanographer",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d498dde456469761d3d9ffaa67440f957c6ee9f0dc991a1312198be0dea3501f",
+  "run_id": "20260510-124720",
+  "description": "Single-binary Instagram archiver — local SQLite catalog, FTS over captions and Instagram-generated alt-text, and an MCP server in the same binary.",
+  "mcp_binary": "instagram-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Local-corpus FTS search",
+      "command": "search",
+      "description": "Full-text search across every caption, hashtag, mention, location, owner handle, and IG-generated alt-text in your local archive — no API call."
+    },
+    {
+      "name": "Alt-text capture and search",
+      "command": "search",
+      "description": "Captures Instagram's auto-generated accessibility_caption (\"may contain: two people, sunglasses, outdoors\") into the local catalog and exposes it via --alt search."
+    },
+    {
+      "name": "Watchlist with shared rate budget",
+      "command": "sync",
+      "description": "Register profiles and hashtags as a watchlist, then run one sync that walks the whole list under one shared rate budget instead of looping a shell over instaloader runs."
+    },
+    {
+      "name": "Highlight-tray diff",
+      "command": "highlights diff",
+      "description": "Compares the current highlight tray and items for a profile against the prior snapshot in the local store, reporting added, removed, and renamed items."
+    },
+    {
+      "name": "What's new since last sync",
+      "command": "whatsnew",
+      "description": "Lists every shortcode added to the local catalog since the prior sync run, grouped by owner, with caption snippets."
+    },
+    {
+      "name": "Dry-run with size and rate-budget estimate",
+      "command": "user",
+      "description": "Walks the cursor without downloading, sums estimated bytes from each media_info, and reports request count plus wall-clock under the configured --rate."
+    },
+    {
+      "name": "Mirror-diff (remote vs local)",
+      "command": "diff",
+      "description": "Cursor-walks shortcodes from Instagram, set-diffs against the local download_history, and reports both new posts and posts that were deleted upstream since the last sync."
+    },
+    {
+      "name": "Carousel slide-kind filter",
+      "command": "get",
+      "description": "Filter carousel children by media kind so a sync keeps only stills (skipping reels and video children) or only videos."
+    },
+    {
+      "name": "Sync-health doctor",
+      "command": "doctor",
+      "description": "Joins sessions, rate_limit_events, and download_history to report last-sync per watchlist entry, current 429 backoff state, session validity, and cursor-stall warnings."
+    },
+    {
+      "name": "LLM-rerank theme search",
+      "command": "search",
+      "description": "Opt-in --rerank flag pipes the top FTS candidates' captions, alt-text, and first comments to whichever LLM env is set (ANTHROPIC_API_KEY, OPENAI_API_KEY, or OLLAMA_HOST) and returns the LLM's relevance ranking."
+    }
+  ]
+}

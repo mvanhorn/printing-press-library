@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/gavinfarrell/printing-press/.runstate/gavinfarrell-67a992d5/runs/20260510-124720/working/instagram-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

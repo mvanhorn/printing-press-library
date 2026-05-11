@@ -1,0 +1,372 @@
+name: instagram
+description: "Single-binary Instagram archiver — local SQLite catalog, FTS over captions and Instagram-generated alt-text, and an MCP server in the same binary."
+version: "0.1.0"
+base_url: "https://www.instagram.com"
+http_transport: standard
+health_check_path: "/api/v1/users/web_profile_info/?username=instagram"
+
+cli_description: "Single-binary Instagram archiver — local SQLite catalog, FTS over captions and Instagram-generated alt-text, and an MCP server in the same binary."
+
+required_headers:
+  - name: X-IG-App-ID
+    value: "936619743392459"
+  - name: X-ASBD-ID
+    value: "198387"
+  - name: X-Requested-With
+    value: "XMLHttpRequest"
+  - name: Referer
+    value: "https://www.instagram.com/"
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+
+auth:
+  type: cookie
+  cookie_domain: ".instagram.com"
+  cookies:
+    - sessionid
+    - csrftoken
+    - ds_user_id
+    - mid
+    - ig_did
+  requires_browser_session: true
+  browser_session_reason: "Instagram's reverse-engineered web/private API is gated behind logged-in session cookies. Anonymous access is throttled to ~1 request per 30 seconds and routinely returns 401 in 2025+. The CLI imports cookies from a logged-in browser profile (auth login --chrome / --firefox / --safari / --brave / --arc / --edge) or accepts a manually pasted sessionid (auth login --sessionid <value>). Username+password login is intentionally not shipped — it is the most reliable way to trigger a checkpoint or get an account banned (see instaloader#798, #1787, instagrapi#2287)."
+  browser_session_validation_path: "/api/v1/accounts/current_user/"
+  browser_session_validation_method: "GET"
+  verify_path: "/api/v1/accounts/current_user/"
+
+config:
+  format: toml
+  path: "~/.config/instagram-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  accounts:
+    description: "Look up Instagram profiles by username or user ID."
+    endpoints:
+      info:
+        method: GET
+        path: "/api/v1/users/web_profile_info/"
+        description: "Get a profile's web info by username (id, full_name, biography, follower_count, profile_pic_url, is_private)."
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Instagram username, with or without leading @."
+        response:
+          type: object
+          item: ProfileInfo
+        response_path: data.user
+
+      user:
+        method: GET
+        path: "/api/v1/users/{user_id}/info/"
+        description: "Get a user's full mobile-API profile by numeric user ID (richer fields than web info)."
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric Instagram user ID (e.g., 25025320 for @instagram)."
+        response:
+          type: object
+          item: UserInfo
+        response_path: user
+
+  media:
+    description: "Fetch single posts, reels, and IGTV by media ID."
+    endpoints:
+      info:
+        method: GET
+        path: "/api/v1/media/{media_id}/info/"
+        description: "Get full media JSON for a single post, reel, or IGTV by media ID, including carousel children, captions, alt-text, comments, and CDN URLs."
+        params:
+          - name: media_id
+            type: string
+            required: true
+            positional: true
+            description: "Instagram media ID (numeric, e.g., 3147251234567890123_25025320). Use 'instagram-pp-cli get <url-or-shortcode>' to resolve a shortcode to a media_id."
+        response:
+          type: object
+          item: MediaInfo
+        response_path: items.0
+
+  hashtag:
+    description: "Look up hashtag pages and download tagged media."
+    endpoints:
+      info:
+        method: GET
+        path: "/api/v1/tags/web_info/"
+        description: "Get a hashtag's web info (post count, top posts, recent posts cursor)."
+        params:
+          - name: tag_name
+            flag_name: tag
+            aliases: [tag-name]
+            type: string
+            required: true
+            positional: true
+            description: "Hashtag name without the leading # (e.g., 'sunset')."
+        response:
+          type: object
+          item: HashtagInfo
+        response_path: data
+
+  feed:
+    description: "Fetch authenticated user feeds: saved, liked, timeline, and per-user media."
+    endpoints:
+      saved:
+        method: GET
+        path: "/api/v1/feed/saved/"
+        description: "Fetch the authenticated user's saved (bookmarked) posts."
+        params:
+          - name: max_id
+            flag_name: cursor
+            aliases: [max-id]
+            type: string
+            required: false
+            description: "Pagination cursor returned from a prior page (max_id from the previous response)."
+        response:
+          type: object
+          item: FeedPage
+        pagination:
+          type: cursor
+          cursor_field: next_max_id
+          has_more_field: more_available
+
+      liked:
+        method: GET
+        path: "/api/v1/feed/liked/"
+        description: "Fetch the authenticated user's liked posts."
+        params:
+          - name: max_id
+            flag_name: cursor
+            aliases: [max-id]
+            type: string
+            required: false
+            description: "Pagination cursor returned from a prior page."
+        response:
+          type: object
+          item: FeedPage
+        pagination:
+          type: cursor
+          cursor_field: next_max_id
+          has_more_field: more_available
+
+      timeline:
+        method: GET
+        path: "/api/v1/feed/timeline/"
+        description: "Fetch the authenticated user's home feed."
+        params:
+          - name: max_id
+            flag_name: cursor
+            aliases: [max-id]
+            type: string
+            required: false
+            description: "Pagination cursor returned from a prior page."
+        response:
+          type: object
+          item: FeedPage
+        pagination:
+          type: cursor
+          cursor_field: next_max_id
+          has_more_field: more_available
+
+      user:
+        method: GET
+        path: "/api/v1/feed/user/{user_id}/"
+        description: "Fetch a profile's media feed by numeric user ID. Pagination cursor is max_id."
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric Instagram user ID."
+          - name: max_id
+            flag_name: cursor
+            aliases: [max-id]
+            type: string
+            required: false
+            description: "Pagination cursor returned from a prior page."
+        response:
+          type: object
+          item: FeedPage
+        pagination:
+          type: cursor
+          cursor_field: next_max_id
+          has_more_field: more_available
+
+      reels:
+        method: GET
+        path: "/api/v1/feed/reels_media/"
+        description: "Fetch active stories (reels media) for a list of user IDs. Stories expire 24 hours after posting."
+        params:
+          - name: reel_ids
+            flag_name: user-ids
+            aliases: [reel-ids]
+            type: string
+            required: true
+            description: "Comma-separated numeric user IDs to fetch stories for."
+        response:
+          type: object
+          item: ReelsMedia
+        response_path: reels
+
+  highlights:
+    description: "Fetch profile highlight trays and per-highlight items."
+    endpoints:
+      tray:
+        method: GET
+        path: "/api/v1/highlights/{user_id}/highlights_tray/"
+        description: "Fetch the highlight tray for a profile (cover images, titles, ordered list of highlight reels)."
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric Instagram user ID."
+        response:
+          type: object
+          item: HighlightTray
+
+      reel:
+        method: GET
+        path: "/api/v1/feed/reels_media/"
+        description: "Fetch a single highlight reel's items by highlight reel ID (prefix with 'highlight:', e.g., highlight:17855928765404872)."
+        params:
+          - name: reel_ids
+            flag_name: highlight-ids
+            aliases: [reel-ids]
+            type: string
+            required: true
+            description: "Comma-separated highlight reel IDs (each prefixed with 'highlight:')."
+        response:
+          type: object
+          item: ReelsMedia
+        response_path: reels
+
+  location:
+    description: "Fetch geotagged location pages and the posts at them."
+    endpoints:
+      sections:
+        method: POST
+        path: "/api/v1/locations/{location_id}/sections/"
+        description: "Fetch posts at a location ID (top, recent, ranked sections)."
+        params:
+          - name: location_id
+            type: string
+            required: true
+            positional: true
+            description: "Numeric Instagram location ID."
+        body:
+          - name: tab
+            type: string
+            required: false
+            default: "ranked"
+            enum: [ranked, recent]
+            description: "Which section tab to return."
+          - name: max_id
+            type: string
+            required: false
+            description: "Pagination cursor."
+        response:
+          type: object
+          item: LocationPage
+        pagination:
+          type: cursor
+          cursor_field: next_max_id
+          has_more_field: more_available
+
+types:
+  ProfileInfo:
+    fields:
+      - name: pk
+        type: string
+      - name: username
+        type: string
+      - name: full_name
+        type: string
+      - name: biography
+        type: string
+      - name: is_private
+        type: bool
+      - name: is_verified
+        type: bool
+      - name: follower_count
+        type: int
+      - name: following_count
+        type: int
+      - name: media_count
+        type: int
+      - name: profile_pic_url_hd
+        type: string
+
+  UserInfo:
+    fields:
+      - name: pk
+        type: string
+      - name: username
+        type: string
+      - name: full_name
+        type: string
+      - name: biography
+        type: string
+      - name: is_private
+        type: bool
+      - name: media_count
+        type: int
+
+  MediaInfo:
+    fields:
+      - name: id
+        type: string
+      - name: pk
+        type: string
+      - name: code
+        type: string
+      - name: taken_at
+        type: int
+      - name: caption_text
+        type: string
+      - name: media_type
+        type: int
+      - name: like_count
+        type: int
+      - name: comment_count
+        type: int
+      - name: accessibility_caption
+        type: string
+
+  HashtagInfo:
+    fields:
+      - name: name
+        type: string
+      - name: media_count
+        type: int
+
+  FeedPage:
+    fields:
+      - name: num_results
+        type: int
+      - name: more_available
+        type: bool
+      - name: next_max_id
+        type: string
+
+  ReelsMedia:
+    fields:
+      - name: id
+        type: string
+
+  HighlightTray:
+    fields:
+      - name: tray_count
+        type: int
+
+  LocationPage:
+    fields:
+      - name: more_available
+        type: bool
+      - name: next_max_id
+        type: string
