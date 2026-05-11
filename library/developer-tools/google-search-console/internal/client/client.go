@@ -166,8 +166,18 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
+//
+// When path begins with http:// or https://, it is used as the full target URL
+// and BaseURL is not prepended. This lets a single Client speak to companion
+// hosts (e.g. Google's Indexing API at indexing.googleapis.com) without
+// duplicating the auth/retry/dry-run machinery into a parallel client.
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	targetURL := c.BaseURL + path
+	var targetURL string
+	if strings.HasPrefix(path, "https://") || strings.HasPrefix(path, "http://") {
+		targetURL = path
+	} else {
+		targetURL = c.BaseURL + path
+	}
 
 	var bodyBytes []byte
 	if body != nil {

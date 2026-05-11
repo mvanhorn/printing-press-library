@@ -199,6 +199,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newStatsCmd(flags))
 	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newIndexSubmitCmd(flags))
+	rootCmd.AddCommand(newIndexStatusCmd(flags))
+	rootCmd.AddCommand(newIndexBulkSubmitCmd(flags))
 
 	// Absorbed extras (match competitors with our local-store backing).
 	rootCmd.AddCommand(newQuickwinsCmd(flags))
