@@ -95,7 +95,7 @@ Requires meetings to have been synced with --include-crm-matches and
 				results = append(results, crmGapEntry{
 					RecordingID:  m.RecordingID,
 					Title:        m.meetingTitle(),
-					Date:         m.CreatedAt[:10],
+					Date:         func() string { if len(m.CreatedAt) >= 10 { return m.CreatedAt[:10] }; return m.CreatedAt }(), // PATCH(created-at-guard): guard against empty/short CreatedAt
 					URL:          m.ShareURL,
 					CRMContacts:  contacts,
 					CRMDeals:     deals,

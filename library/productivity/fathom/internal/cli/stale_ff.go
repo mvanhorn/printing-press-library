@@ -94,7 +94,7 @@ Run 'sync --full' first to populate the store.`,
 					results = append(results, staleEntry{
 						RecordingID:  m.RecordingID,
 						Title:        m.meetingTitle(),
-						Date:         m.CreatedAt[:10],
+						Date:         func() string { if len(m.CreatedAt) >= 10 { return m.CreatedAt[:10] }; return m.CreatedAt }(), // PATCH(created-at-guard): guard against empty/short CreatedAt
 						URL:          m.ShareURL,
 						MissingItems: missing,
 					})
