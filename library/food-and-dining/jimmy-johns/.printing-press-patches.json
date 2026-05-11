@@ -7,8 +7,20 @@
     {
       "id": "cookie-auth-adapter",
       "files": ["internal/cli/auth_import_cookies.go", "internal/cli/auth.go", "internal/config/config.go"],
-      "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config; teach `auth status`, `auth logout`, and the config layer to treat that Cookie as first-class auth.",
-      "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Validates cookie name/value characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection. Adds Config.ClearAuth (used by logout, also nukes the Cookie) and Config.HasCookieAuth (used by auth status, doctor, and the cache key) so the documented flow doesn't misreport as 'Not authenticated' or share cache lines across re-imports."
+      "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config; teach `auth status`, `auth logout`, and the config layer to treat that Cookie as first-class auth. Name/value validation split into validCookieName (RFC 6265 token rules — rejects `=`) and validCookieValue (cookie-octet rules — allows `=` for base64 padding).",
+      "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Validates cookie characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection, but with separate name/value rules — values include `=` since PerimeterX cookies like `_px3`/`_pxvid` store base64 payloads with `=` padding; rejecting them defeated the entire reason for the import flow. Adds Config.ClearAuth (used by logout, also nukes the Cookie) and Config.HasCookieAuth (used by auth status, doctor, and the cache key) so the documented flow doesn't misreport as 'Not authenticated' or share cache lines across re-imports."
+    },
+    {
+      "id": "menu-unwich-tty-guard",
+      "files": ["internal/cli/menu_unwich.go"],
+      "summary": "Skip io.ReadAll on stdin when it's a TTY in `menu unwich-convert` (carry over the readerIsTerminal guard from order_plan.go).",
+      "reason": "Without the guard, `menu unwich-convert --product-id 33328641` hangs forever on a TTY waiting for Ctrl-D before the empty-input error can fire. Found by codex review."
+    },
+    {
+      "id": "reconcile-wrapped-response",
+      "files": ["internal/cli/reconcile.go"],
+      "summary": "Tolerate wrapped/paginated /stores responses (`{stores|results|data: [...]}`) in `reconcile` and surface a note when the response shape doesn't match either bare-array or known wrapper.",
+      "reason": "Previously, a wrapped envelope caused the bare-array unmarshal to fail silently — remoteIDs stayed empty and reconcile reported every locally-synced store as 'removed' with no error note, a misleading result. Found by codex review."
     },
     {
       "id": "mcp-code-orch-body-passthrough",

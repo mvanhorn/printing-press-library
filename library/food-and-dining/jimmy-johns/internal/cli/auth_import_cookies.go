@@ -14,27 +14,44 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 )
 
-// isValidCookiePairChar reports whether r is allowed in a cookie name or value
-// per RFC 6265 §4.1.1 (cookie-octet / token). Rejects CTLs, whitespace, and
-// the structural delimiters `";"`, `","`, `"="`, `" "`, `"\t"`, `"\""`, `"\\"`.
-// Forbidding `"="` in values is stricter than 6265 (which permits it inside
-// quoted cookie-value) but matches what real HTTP stacks accept without quoting.
-func isValidCookiePairChar(r rune) bool {
-	if r < 0x20 || r == 0x7f {
+// PATCH: split cookie-character validation into name vs value. Cookie names
+// follow RFC 6265 §4.1.1 token rules (no `=`, `;`, `,`, space, control chars,
+// or separator-special chars). Cookie values follow the cookie-octet range
+// `%x21, %x23-2B, %x2D-3A, %x3C-5B, %x5D-7E` — which DOES include `=` (%x3D).
+// The previous shared validator forbade `=` everywhere; that silently dropped
+// PerimeterX clearance cookies like `_px3`/`_pxvid` whose base64 payloads
+// carry `=` padding, defeating the entire reason the import flow exists.
+
+// validCookieName returns true iff s is a valid cookie name (RFC 6265 token).
+// Empty names are rejected (a name is required).
+func validCookieName(s string) bool {
+	if s == "" {
 		return false
 	}
-	switch r {
-	case ' ', '\t', '"', ',', ';', '=', '\\':
-		return false
+	for _, r := range s {
+		if r < 0x20 || r == 0x7f {
+			return false
+		}
+		switch r {
+		case ' ', '\t', '"', '(', ')', ',', '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '{', '}':
+			return false
+		}
 	}
 	return true
 }
 
-// validCookieToken returns true iff every rune of s passes isValidCookiePairChar.
-// An empty value is permitted (some session cookies legitimately have value="").
-func validCookieToken(s string) bool {
+// validCookieValue returns true iff s contains only RFC 6265 cookie-octet
+// characters. Permits `=` (used as base64 padding in many session cookies).
+// Forbids the header-structure delimiters that would smuggle additional
+// cookies or forge CRLF header injection: `;`, `,`, space, tab, `"`, `\`,
+// plus all CTLs.
+func validCookieValue(s string) bool {
 	for _, r := range s {
-		if !isValidCookiePairChar(r) {
+		if r < 0x20 || r == 0x7f {
+			return false
+		}
+		switch r {
+		case ' ', '\t', '"', ',', ';', '\\':
 			return false
 		}
 	}
@@ -101,7 +118,7 @@ steps 1 and 2. Run the export immediately after natural browsing.`,
 				if c.Name == "" {
 					continue
 				}
-				if !validCookieToken(c.Name) || !validCookieToken(c.Value) {
+				if !validCookieName(c.Name) || !validCookieValue(c.Value) {
 					fmt.Fprintf(w, "warning: skipping cookie %q with disallowed characters in name or value\n", c.Name)
 					skipped++
 					continue

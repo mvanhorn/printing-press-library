@@ -64,7 +64,13 @@ Pairs naturally with 'menu product-modifiers <productId>'.`,
 			case fromFile != "":
 				raw, err = os.ReadFile(fromFile)
 			default:
-				raw, err = io.ReadAll(cmd.InOrStdin())
+				// PATCH: skip io.ReadAll when stdin is a TTY. Otherwise
+				// `menu unwich-convert --product-id 33328641` (no pipe)
+				// hangs forever waiting for Ctrl-D instead of falling
+				// through to the empty-input error. Same fix as order_plan.go.
+				if !readerIsTerminal(cmd.InOrStdin()) {
+					raw, err = io.ReadAll(cmd.InOrStdin())
+				}
 			}
 			if err != nil {
 				return fmt.Errorf("reading modifier input: %w", err)

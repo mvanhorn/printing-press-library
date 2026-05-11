@@ -85,9 +85,17 @@ the endpoint).`,
 				return emitReconcile(cmd, flags, diff)
 			}
 
+			// PATCH: tolerate both bare arrays and common wrapped/paginated
+			// envelopes. Previously the code only handled a bare []map; a
+			// wrapped response (`{"stores":[...]}`, `{"results":[...]}`,
+			// `{"data":[...]}`) silently produced an empty remoteIDs set and
+			// reported every locally-synced store as "removed" with no error
+			// note — a completely misleading reconcile result. Try the bare
+			// shape first, fall back to the common envelopes, and surface a
+			// note if neither shape matches so the user knows the API shape
+			// wasn't what we expected.
 			remoteIDs := map[string]bool{}
-			var arr []map[string]any
-			if err := json.Unmarshal(respBody, &arr); err == nil {
+			extractIDs := func(arr []map[string]any) {
 				for _, item := range arr {
 					if id, ok := item["id"]; ok {
 						remoteIDs[fmt.Sprint(id)] = true
@@ -96,7 +104,33 @@ the endpoint).`,
 					}
 				}
 			}
+			var bare []map[string]any
+			if err := json.Unmarshal(respBody, &bare); err == nil {
+				extractIDs(bare)
+			} else {
+				var wrap struct {
+					Stores  []map[string]any `json:"stores"`
+					Results []map[string]any `json:"results"`
+					Data    []map[string]any `json:"data"`
+				}
+				if err2 := json.Unmarshal(respBody, &wrap); err2 != nil {
+					diff.Notes = append(diff.Notes,
+						fmt.Sprintf("unexpected /stores response shape (could not unmarshal as array or {stores|results|data}): %v", err))
+				}
+				switch {
+				case len(wrap.Stores) > 0:
+					extractIDs(wrap.Stores)
+				case len(wrap.Results) > 0:
+					extractIDs(wrap.Results)
+				case len(wrap.Data) > 0:
+					extractIDs(wrap.Data)
+				}
+			}
 			diff.RemoteCount = len(remoteIDs)
+			if diff.RemoteCount == 0 && len(localIDs) > 0 {
+				diff.Notes = append(diff.Notes,
+					"remote /stores returned 0 results — treating local-only IDs as 'removed' is unreliable in this state")
+			}
 
 			for id := range remoteIDs {
 				if !localIDs[id] {
