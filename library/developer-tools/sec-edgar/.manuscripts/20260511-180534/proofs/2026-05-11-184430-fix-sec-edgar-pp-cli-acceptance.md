@@ -2,7 +2,7 @@
 
 **Level chosen by user:** Full dogfood
 **Live API:** SEC EDGAR (data.sec.gov, www.sec.gov, efts.sec.gov)
-**Auth:** `SEC_EDGAR_USER_AGENT=Bob Research bob@researchagent001.com`
+**Auth:** `SEC_EDGAR_USER_AGENT=<redacted-test-user-agent>`
 
 ## Full dogfood matrix results
 

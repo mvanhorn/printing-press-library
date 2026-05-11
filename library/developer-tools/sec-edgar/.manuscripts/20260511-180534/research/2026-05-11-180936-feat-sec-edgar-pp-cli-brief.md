@@ -6,7 +6,7 @@
 - **Data profile:** Multi-billion-row archive of filings; per-company JSON for filings history (submissions), full XBRL fact graphs (companyfacts), and cross-company XBRL frames. Plus ~5M+ filings searchable as full text via EFTS, an Atom feed of the latest filings, and `Archives/edgar/data/...` raw filing trees (HTML, XML, exhibits). All free, no key.
 
 ## Reachability Risk
-- **None.** All five key endpoints returned 2xx with the user-provided UA (`Bob Research bob@researchagent001.com`):
+- **None.** All five key endpoints returned 2xx with the user-provided UA (`<redacted-test-user-agent>`):
   - `data.sec.gov/submissions/CIK0000320193.json` → 200, JSON
   - `data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json` → 200, JSON
   - `data.sec.gov/api/xbrl/frames/us-gaap/AccountsPayableCurrent/USD/CY2024Q1I.json` → 200, JSON
@@ -53,7 +53,7 @@ Every absorbed feature in this list exists in at least one competing tool and mu
 - **Architecture note:** XBRL "frames" lets us slice one concept across every filer for one period (e.g. "show me every public company's Q1 2024 AccountsPayableCurrent") — this is the cross-company aggregation pivot point that makes our local SQLite uniquely valuable.
 
 ## User Vision
-- The user provided no specific product direction beyond an instruction to use `Bob Research bob@researchagent001.com` as the mandatory SEC User-Agent for all live requests in this run. Treat that as a polite-research positioning hint — the CLI's default `SEC_EDGAR_USER_AGENT` value during dogfood/live testing will be that string.
+- The user provided no specific product direction beyond an instruction to use `<redacted-test-user-agent>` as the mandatory SEC User-Agent for all live requests in this run. Treat that as a polite-research positioning hint — the CLI's default `SEC_EDGAR_USER_AGENT` value during dogfood/live testing will be that string.
 
 ## Source Priority
 - **Single-source CLI.** No combo ordering to confirm. The primary surface is `data.sec.gov` (XBRL JSON) plus `www.sec.gov` (raw archives + Atom feed + company tickers) plus `efts.sec.gov` (full-text search). All three are official SEC hosts; treat them as a single source.
