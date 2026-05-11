@@ -37,7 +37,7 @@ func newNachteilsausgleichCmd(flags *rootFlags) *cobra.Command {
 	var years float64
 	var age int
 	var measure string
-	var iaAttempted bool
+	var noIAAttempted bool
 	var iaDeviated bool
 	var factor float64
 
@@ -95,12 +95,17 @@ Calculation: by analogy to § 10 KSchG (severance formula); statutory cap: 12 mo
 					"--salary muss größer als 0 sein",
 					"--salary must be greater than 0"))
 			}
-			if years < 0 {
+			if salary > 100_000 {
 				return fmt.Errorf(tr(flags.lang,
-					"--years darf nicht negativ sein",
-					"--years must not be negative"))
+					"--salary überschreitet 100.000 € — bitte Bruttomonatsgehalt (nicht Jahresgehalt) angeben",
+					"--salary exceeds 100,000 EUR — please enter gross monthly salary (not annual)"))
 			}
-			if !iaAttempted && !iaDeviated {
+			if years < 0 || years > 60 {
+				return fmt.Errorf(tr(flags.lang,
+					"--years muss zwischen 0 und 60 liegen",
+					"--years must be between 0 and 60"))
+			}
+			if !noIAAttempted && !iaDeviated {
 				return fmt.Errorf(tr(flags.lang,
 					"Geben Sie an, ob kein Interessenausgleich versucht wurde (--no-ia-attempted) oder vom Interessenausgleich abgewichen wurde (--ia-deviated)",
 					"Specify whether no Interessenausgleich was attempted (--no-ia-attempted) or the employer deviated from the agreed Interessenausgleich (--ia-deviated)"))
@@ -112,7 +117,7 @@ Calculation: by analogy to § 10 KSchG (severance formula); statutory cap: 12 mo
 				measure = tr(flags.lang, "[Betriebsänderung]", "[Betriebsänderung]")
 			}
 
-			r := calcNachteilsausgleich(flags.lang, salary, years, age, measure, iaAttempted, iaDeviated, factor)
+			r := calcNachteilsausgleich(flags.lang, salary, years, age, measure, noIAAttempted, iaDeviated, factor)
 
 			if flags.asJSON || flags.agent {
 				enc := json.NewEncoder(cmd.OutOrStdout())
@@ -176,7 +181,7 @@ Calculation: by analogy to § 10 KSchG (severance formula); statutory cap: 12 mo
 	cmd.Flags().StringVar(&measure, "measure", "",
 		tr(flags.lang, "Art der Betriebsänderung (z.B. 'Standortschließung', 'Verlagerung')",
 			"Type of Betriebsänderung (e.g. 'site closure', 'relocation')"))
-	cmd.Flags().BoolVar(&iaAttempted, "no-ia-attempted", false,
+	cmd.Flags().BoolVar(&noIAAttempted, "no-ia-attempted", false,
 		tr(flags.lang,
 			"Kein Interessenausgleich versucht (§ 113 Abs. 3 Alt. 1)",
 			"No Interessenausgleich was attempted (§ 113 Abs. 3 Alt. 1)"))

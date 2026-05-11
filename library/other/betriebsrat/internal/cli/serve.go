@@ -55,6 +55,23 @@ colleagues on the same WiFi).`,
 				<-cmd.Context().Done()
 				srv.Shutdown(context.Background()) //nolint:errcheck
 			}()
+			go func() {
+				ticker := time.NewTicker(time.Minute)
+				defer ticker.Stop()
+				for {
+					select {
+					case <-cmd.Context().Done():
+						return
+					case t := <-ticker.C:
+						askLimiter.Range(func(k, v any) bool {
+							if t.Sub(v.(time.Time)) > time.Minute {
+								askLimiter.Delete(k)
+							}
+							return true
+						})
+					}
+				}
+			}()
 			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 				return err
 			}

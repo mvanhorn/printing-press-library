@@ -142,8 +142,14 @@ Batch mode (--csv): CSV file with one employee per line:
 			if salary <= 0 {
 				return fmt.Errorf("--salary muss größer als 0 sein")
 			}
-			if years < 0 {
-				return fmt.Errorf("--years darf nicht negativ sein")
+			if salary > 100_000 {
+				return fmt.Errorf("--salary überschreitet 100.000 € — bitte Bruttomonatsgehalt (nicht Jahresgehalt) angeben")
+			}
+			if years < 0 || years > 60 {
+				return fmt.Errorf("--years muss zwischen 0 und 60 liegen")
+			}
+			if age < 0 || age > 100 {
+				return fmt.Errorf("--age muss zwischen 0 und 100 liegen")
 			}
 			if age == 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "Hinweis: --age nicht angegeben (Standard: 0). Altersgruppen-Zuschlag (≥55 Jahre) wird nicht berechnet.\n")
