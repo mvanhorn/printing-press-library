@@ -244,7 +244,9 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "tiktok", column: "get_transcript", decl: "INTEGER"},
 		{table: "tiktok", column: "download_media", decl: "INTEGER"},
 		{table: "tiktok", column: "product_id", decl: "TEXT"},
-		{table: "tiktok", column: "sort_by", decl: "TEXT"},
+		// PATCH(upstream cli-printing-press#986): aggregator emitted tiktok.sort_by
+		// twice (multiple endpoints declare it); duplicate removed for symmetry with
+		// the CREATE TABLE / INSERT fixes below.
 		{table: "tiktok", column: "follower_count", decl: "TEXT"},
 		{table: "tiktok", column: "creator_country", decl: "TEXT"},
 		{table: "tiktok", column: "audience_country", decl: "TEXT"},
@@ -290,7 +292,9 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "instagram", column: "audio_id", decl: "TEXT"},
 		{table: "instagram", column: "max_id", decl: "TEXT"},
 		{table: "instagram", column: "handle", decl: "TEXT"},
-		{table: "instagram", column: "user_id", decl: "TEXT"},
+		// PATCH(upstream cli-printing-press#986): instagram.user_id duplicated by the
+		// aggregator across endpoints — see the matching CREATE TABLE / INSERT fixes
+		// below; removed here for symmetry.
 		{table: "instagram", column: "cursor", decl: "TEXT"},
 		{table: "instagram", column: "query", decl: "TEXT"},
 		{table: "instagram", column: "date_posted", decl: "TEXT"},
@@ -471,7 +475,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			get_transcript INTEGER,
 			download_media INTEGER,
 			product_id TEXT,
-			sort_by TEXT,
 			follower_count TEXT,
 			creator_country TEXT,
 			audience_country TEXT,
@@ -539,7 +542,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			audio_id TEXT,
 			max_id TEXT,
 			handle TEXT,
-			user_id TEXT,
 			cursor TEXT,
 			query TEXT,
 			date_posted TEXT,
@@ -1218,9 +1220,12 @@ func (s *Store) UpsertThreads(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertTiktokTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO tiktok (id, data, synced_at, hashtag, region, cursor, trim, query, url, handle, user_id, min_time, sort_by, max_cursor, clip_id, period, page, country_code, new_on_board, industry, language, use_ai_as_fallback, comment_id, get_transcript, download_media, product_id, sort_by, follower_count, creator_country, audience_country, date_posted, publish_time)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, hashtag = excluded.hashtag, region = excluded.region, cursor = excluded.cursor, trim = excluded.trim, query = excluded.query, url = excluded.url, handle = excluded.handle, user_id = excluded.user_id, min_time = excluded.min_time, sort_by = excluded.sort_by, max_cursor = excluded.max_cursor, clip_id = excluded.clip_id, period = excluded.period, page = excluded.page, country_code = excluded.country_code, new_on_board = excluded.new_on_board, industry = excluded.industry, language = excluded.language, use_ai_as_fallback = excluded.use_ai_as_fallback, comment_id = excluded.comment_id, get_transcript = excluded.get_transcript, download_media = excluded.download_media, product_id = excluded.product_id, sort_by = excluded.sort_by, follower_count = excluded.follower_count, creator_country = excluded.creator_country, audience_country = excluded.audience_country, date_posted = excluded.date_posted, publish_time = excluded.publish_time`,
+		// PATCH(upstream cli-printing-press#986): sort_by appeared twice in column
+		// list/VALUES/SET because multiple tiktok endpoints declare the parameter;
+		// kept the first occurrence and dropped the duplicate.
+		`INSERT INTO tiktok (id, data, synced_at, hashtag, region, cursor, trim, query, url, handle, user_id, min_time, sort_by, max_cursor, clip_id, period, page, country_code, new_on_board, industry, language, use_ai_as_fallback, comment_id, get_transcript, download_media, product_id, follower_count, creator_country, audience_country, date_posted, publish_time)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, hashtag = excluded.hashtag, region = excluded.region, cursor = excluded.cursor, trim = excluded.trim, query = excluded.query, url = excluded.url, handle = excluded.handle, user_id = excluded.user_id, min_time = excluded.min_time, sort_by = excluded.sort_by, max_cursor = excluded.max_cursor, clip_id = excluded.clip_id, period = excluded.period, page = excluded.page, country_code = excluded.country_code, new_on_board = excluded.new_on_board, industry = excluded.industry, language = excluded.language, use_ai_as_fallback = excluded.use_ai_as_fallback, comment_id = excluded.comment_id, get_transcript = excluded.get_transcript, download_media = excluded.download_media, product_id = excluded.product_id, follower_count = excluded.follower_count, creator_country = excluded.creator_country, audience_country = excluded.audience_country, date_posted = excluded.date_posted, publish_time = excluded.publish_time`,
 		id,
 		string(data),
 		time.Now(),
@@ -1247,7 +1252,6 @@ func (s *Store) upsertTiktokTx(tx *sql.Tx, id string, obj map[string]any, data j
 		lookupFieldValue(obj, "get_transcript"),
 		lookupFieldValue(obj, "download_media"),
 		lookupFieldValue(obj, "product_id"),
-		lookupFieldValue(obj, "sort_by"),
 		lookupFieldValue(obj, "follower_count"),
 		lookupFieldValue(obj, "creator_country"),
 		lookupFieldValue(obj, "audience_country"),
@@ -1429,9 +1433,12 @@ func (s *Store) UpsertGoogle(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertInstagramTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO instagram (id, data, synced_at, user_id, url, region, trim, download_media, audio_id, max_id, handle, user_id, cursor, query, date_posted, page, next_max_id)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, user_id = excluded.user_id, url = excluded.url, region = excluded.region, trim = excluded.trim, download_media = excluded.download_media, audio_id = excluded.audio_id, max_id = excluded.max_id, handle = excluded.handle, user_id = excluded.user_id, cursor = excluded.cursor, query = excluded.query, date_posted = excluded.date_posted, page = excluded.page, next_max_id = excluded.next_max_id`,
+		// PATCH(upstream cli-printing-press#986): user_id appeared twice in column
+		// list/VALUES/SET because multiple instagram endpoints declare the parameter;
+		// kept the first occurrence and dropped the duplicate.
+		`INSERT INTO instagram (id, data, synced_at, user_id, url, region, trim, download_media, audio_id, max_id, handle, cursor, query, date_posted, page, next_max_id)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, user_id = excluded.user_id, url = excluded.url, region = excluded.region, trim = excluded.trim, download_media = excluded.download_media, audio_id = excluded.audio_id, max_id = excluded.max_id, handle = excluded.handle, cursor = excluded.cursor, query = excluded.query, date_posted = excluded.date_posted, page = excluded.page, next_max_id = excluded.next_max_id`,
 		id,
 		string(data),
 		time.Now(),
@@ -1443,7 +1450,6 @@ func (s *Store) upsertInstagramTx(tx *sql.Tx, id string, obj map[string]any, dat
 		lookupFieldValue(obj, "audio_id"),
 		lookupFieldValue(obj, "max_id"),
 		lookupFieldValue(obj, "handle"),
-		lookupFieldValue(obj, "user_id"),
 		lookupFieldValue(obj, "cursor"),
 		lookupFieldValue(obj, "query"),
 		lookupFieldValue(obj, "date_posted"),

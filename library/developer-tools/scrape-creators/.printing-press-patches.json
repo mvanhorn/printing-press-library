@@ -1,7 +1,22 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-10",
   "base_run_id": "20260501-171858",
   "base_printing_press_version": "3.2.1",
-  "patches": []
+  "patches": [
+    {
+      "id": "dedupe-aggregated-typed-table-columns",
+      "summary": "Deduplicate sort_by in tiktok and user_id in instagram across CREATE TABLE, backfillColumns, INSERT/ON CONFLICT, lookupFieldValue, and schema-version test asserts.",
+      "reason": "The store generator aggregates per-endpoint parameters into one typed table per platform but does not dedupe column names. Multiple tiktok endpoints declare sort_by and multiple instagram endpoints declare user_id, so the emitted CREATE TABLE failed with 'duplicate column name' on first sync init, blocking every sync-dependent command.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/schema_version_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store/ now passes (52 tests, including all TestMigrate_AddsColumnsOnUpgrade_* cases).",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/986"
+    }
+  ],
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/cli-printing-press/issues/986"
+  ]
 }
