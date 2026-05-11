@@ -197,6 +197,7 @@ func newTriageCmd(flags *rootFlags) *cobra.Command {
 	cf := commonFlags{}
 	var by string
 	var top int
+	var includeResolved bool
 	cmd := &cobra.Command{
 		Use:   "triage",
 		Short: "Non-INDEXED pages joined against last 30 days of impressions, ranked by traffic lost",
@@ -204,6 +205,11 @@ func newTriageCmd(flags *rootFlags) *cobra.Command {
 Joins the latest non-INDEXED url_inspections rows against historical
 impressions in search_analytics_rows. Ranks by impact so you fix the broken
 pages that actually drive traffic, not whatever was inspected most recently.
+
+Items previously marked via triage-resolve (always hidden) or triage-snooze
+(hidden until the snooze expires) are filtered out by default — pass
+--include-resolved to see them anyway. Use triage-unresolve to drop the
+annotation if state was set in error.
 `),
 		Example:     "  google-search-console-pp-cli triage --site sc-domain:example.com --by impact --top 20 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
@@ -221,7 +227,29 @@ pages that actually drive traffic, not whatever was inspected most recently.
 			defer s.Close()
 			windowDays := 30
 			start, end := dateRange(windowDays)
-			rows, err := s.DB().QueryContext(cmd.Context(), `
+
+			// Annotations-based filter: exclude triage items that carry a
+			// 'resolved' tag (always) or a 'snoozed' tag whose expires_at
+			// hasn't elapsed. The page_url IS the triage identifier; that's
+			// also what triage-resolve / triage-snooze write into
+			// annotations.target.
+			filterSQL := ""
+			qArgs := []any{cf.site, cf.site, start, end}
+			if !includeResolved {
+				filterSQL = `AND NOT EXISTS (
+  SELECT 1 FROM annotations a
+  WHERE a.target_type = 'triage'
+    AND a.target = latest.page_url
+    AND (
+      a.tags = 'resolved'
+      OR (a.tags = 'snoozed' AND a.expires_at IS NOT NULL AND a.expires_at > ?)
+    )
+)`
+				qArgs = append(qArgs, time.Now().UTC().Format(time.RFC3339))
+			}
+			qArgs = append(qArgs, top)
+
+			query := `
 WITH latest AS (
   SELECT page_url, coverage_state, indexing_state, last_crawl_time
   FROM url_inspections
@@ -242,8 +270,10 @@ SELECT latest.page_url, latest.coverage_state, latest.indexing_state, latest.las
        COALESCE(recent.clicks, 0) AS recent_clicks
 FROM latest LEFT JOIN recent ON recent.page = latest.page_url
 WHERE latest.coverage_state NOT IN ('INDEXED', 'SUBMITTED_AND_INDEXED', '')
-ORDER BY recent_impressions DESC LIMIT ?`,
-				cf.site, cf.site, start, end, top)
+  ` + filterSQL + `
+ORDER BY recent_impressions DESC LIMIT ?`
+
+			rows, err := s.DB().QueryContext(cmd.Context(), query, qArgs...)
 			if err != nil {
 				return apiErr(err)
 			}
@@ -254,11 +284,12 @@ ORDER BY recent_impressions DESC LIMIT ?`,
 			}
 			_ = by
 			return emit(cmd, flags, map[string]any{
-				"site":       cf.site,
-				"by":         by,
-				"window":     fmt.Sprintf("%dd", windowDays),
-				"date_range": fmt.Sprintf("%s..%s", start, end),
-				"rows":       data,
+				"site":             cf.site,
+				"by":               by,
+				"window":           fmt.Sprintf("%dd", windowDays),
+				"date_range":       fmt.Sprintf("%s..%s", start, end),
+				"include_resolved": includeResolved,
+				"rows":             data,
 			})
 		},
 	}
@@ -267,6 +298,7 @@ ORDER BY recent_impressions DESC LIMIT ?`,
 	cmd.Flags().StringVar(&cf.db, "db", "", "SQLite path (default ~/.config/google-search-console-pp-cli/store.sqlite).")
 	cmd.Flags().StringVar(&by, "by", "impact", "Ranking criterion (impact = recent impressions; reserved for future modes).")
 	cmd.Flags().IntVar(&top, "top", 50, "Maximum rows to return.")
+	cmd.Flags().BoolVar(&includeResolved, "include-resolved", false, "Include items previously marked resolved or currently snoozed.")
 	return cmd
 }
 
