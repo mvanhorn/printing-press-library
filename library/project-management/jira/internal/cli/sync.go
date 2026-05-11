@@ -1474,6 +1474,10 @@ func syncDependentResource(c interface {
 }, db *store.Store, dep dependentResourceDef, sinceTS string, full bool, maxPages int) syncResult {
 	started := time.Now()
 
+	if !humanFriendly {
+		fmt.Fprintf(os.Stdout, `{"event":"sync_start","resource":"%s"}`+"\n", dep.Name)
+	}
+
 	// Query parent table for all IDs
 	parentIDs, err := db.ListIDs(dep.ParentTable)
 	if err != nil || len(parentIDs) == 0 {
@@ -1488,6 +1492,8 @@ func syncDependentResource(c interface {
 
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "  %s: syncing for %d %s parents\n", dep.Name, len(parentIDs), dep.ParentTable)
+	} else {
+		fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","parents":%d}`+"\n", dep.Name, len(parentIDs))
 	}
 
 	var totalCount int
@@ -1633,10 +1639,17 @@ func syncDependentResource(c interface {
 
 		// Brief rate-limit pause between parents to avoid hammering the API
 		time.Sleep(100 * time.Millisecond)
+
+		// Emit progress every 50 parents in JSON mode so callers can detect a live process.
+		if !humanFriendly && (idx+1)%50 == 0 {
+			fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","processed":%d,"total":%d}`+"\n", dep.Name, idx+1, len(parentIDs))
+		}
 	}
 
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "\n")
+	} else {
+		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", dep.Name, totalCount, time.Since(started).Milliseconds())
 	}
 
 	_ = db.SaveSyncState(dep.Name, "", totalCount)
