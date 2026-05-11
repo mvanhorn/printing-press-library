@@ -801,7 +801,14 @@ The cloud doesn't expose per-user command history; this audit trail is local-onl
 		Example: `  hayward-omnilogic-pp-cli command-log --since 7d
   hayward-omnilogic-pp-cli command-log --replay 42 --dry-run
   hayward-omnilogic-pp-cli command-log --replay 42`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		// Intentionally NOT annotated mcp:read-only — the list-history path
+		// is read-only, but --replay <id> dispatches live SetHeaterEnable /
+		// SetPumpSpeed / SetEquipment / etc. calls that physically control
+		// pool equipment. Annotating the command-as-a-whole as read-only
+		// would tell MCP hosts they can invoke it without confirmation,
+		// which is unsafe for the replay path. Hosts should prompt before
+		// every invocation; the worst-case capability of the tool drives
+		// the annotation, not the common case.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) && replayID == 0 {
 				// Plain dry-run with no replay target: pure read; the early

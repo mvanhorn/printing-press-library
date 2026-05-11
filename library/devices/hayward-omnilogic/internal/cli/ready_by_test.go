@@ -98,3 +98,18 @@ func TestPickWaterTempForReadyBy(t *testing.T) {
 		})
 	}
 }
+
+// TestCommandLogNotAnnotatedReadOnly locks the safety contract on the
+// command-log command: it must NOT carry the mcp:read-only annotation
+// because --replay <id> dispatches live writes that physically control
+// pool equipment. Regression for Greptile #3216424950 — MCP hosts use
+// this annotation to decide when to prompt for permission; a false
+// "read-only" claim would let an agent re-fire heater/pump commands
+// without confirmation.
+func TestCommandLogNotAnnotatedReadOnly(t *testing.T) {
+	flags := &rootFlags{}
+	cmd := newCommandLogCmd(flags)
+	if v, ok := cmd.Annotations["mcp:read-only"]; ok {
+		t.Errorf("command-log must NOT be annotated mcp:read-only (got %q) — --replay <id> issues live writes", v)
+	}
+}
