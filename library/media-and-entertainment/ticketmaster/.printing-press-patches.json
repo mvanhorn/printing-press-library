@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "novel-events-watchlist",
+      "summary": "Add 'events watchlist save|ls|run|rm' subcommand tree backed by a new `watchlists` SQLite table.",
+      "reason": "User vision called for persistent named watchlists as the generic primitive behind curated 'my venues' workflows. The Discovery API has no concept of named filter sets; this stays local.",
+      "files": [
+        "internal/cli/events_watchlist.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "Build clean; `events watchlist save/ls/rm/run` all visible in --help; watchlists table auto-created via idempotent DDL on first run."
+    },
+    {
+      "id": "novel-events-upcoming",
+      "summary": "Add 'events upcoming' multi-venue fan-out that reads venue IDs from a file, CSV, or saved watchlist and queries the local events table.",
+      "reason": "Replaces 595 lines of hand-rolled bash (Lobster seattle-events) with one CLI command. The Discovery API has no multi-venue endpoint — without local store + fan-out, agents must loop per-venue and dedup themselves.",
+      "files": [
+        "internal/cli/events_upcoming.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--dry-run pass; --help pass; renders empty-store hint when no events synced."
+    },
+    {
+      "id": "novel-events-residency",
+      "summary": "Add 'events residency' GROUP BY name+venue collapse so a 16-night opera season shows as one row with first/last/count/id_list.",
+      "reason": "Brief Table-Stakes section lists residency collapse as a competitor gap. Mechanical SQL aggregation over the local events table; no API endpoint provides this.",
+      "files": [
+        "internal/cli/events_residency.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--dry-run pass; SQL parses (json_extract path queries verified against the events.data column schema)."
+    },
+    {
+      "id": "novel-events-tour",
+      "summary": "Add 'events tour <attraction>' view that filters local events by attractionId or name (case-insensitive substring), projects city/venue/status, and flags rows where on-sale is within --on-sale-window days.",
+      "reason": "Persona B workflow (tour-chasing fan). Joins local events × attractions; parses dates.status.code + sales.public.startDateTime — fields documented in the brief's Codebase Intelligence section.",
+      "files": [
+        "internal/cli/events_tour.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; on-sale window math computed against time.Now()."
+    },
+    {
+      "id": "novel-events-on-sale-soon",
+      "summary": "Add 'events on-sale-soon --window N' scanner that filters local events by sales.public.startDateTime falling in the next N days.",
+      "reason": "Canonical 'presale watch' gap. No API endpoint orders events by upcoming on-sale date.",
+      "files": [
+        "internal/cli/events_on_sale_soon.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; classification + DMA filter wiring verified."
+    },
+    {
+      "id": "novel-events-by-classification",
+      "summary": "Add 'events by-classification' aggregation that groups local events by segment+genre with count + examples per bucket.",
+      "reason": "Brief Workflow #5 + Table-Stakes 'cross-classification aggregation in one call' gap. Mechanical GROUP BY over events × classifications.",
+      "files": [
+        "internal/cli/events_by_classification.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; SAMPLE column uses ASCII unit separator (0x1F) as intra-cell delimiter to avoid GROUP_CONCAT comma collisions."
+    },
+    {
+      "id": "novel-events-dedup",
+      "summary": "Add 'events dedup --strategy id|name-venue-date|tour-leg' stream filter that reads a JSON array from stdin or local store and emits the deduped stream to stdout.",
+      "reason": "Composable agent-native filter for merging results from multiple queries or sources. The brief's Data Layer section calls out 'deduplicate across calls' as a primary persistence purpose.",
+      "files": [
+        "internal/cli/events_dedup.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; accepts both top-level array and Discovery `{_embedded.events: [...]}` envelope on stdin."
+    },
+    {
+      "id": "novel-events-brief",
+      "summary": "Add 'events brief --window N --dma <id>' markdown renderer that groups local events by date → venue → events with classification labels and (when available) price ranges.",
+      "reason": "Persona D (newsletter author) workflow + user-vision Obsidian/iMessage composition. Mechanical group-by + markdown formatting; no API endpoint produces formatted reports.",
+      "files": [
+        "internal/cli/events_brief.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; --watchlist flag composes with the watchlist table from the events-watchlist patch."
+    },
+    {
+      "id": "novel-events-price-bands",
+      "summary": "Add 'events price-bands --dma <id> --window N' SQL aggregation that buckets priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands grouped by classification.",
+      "reason": "Persona D pain (newsletter analytics). priceRanges.min is in the spec; mechanical bucketing — no API analog.",
+      "files": [
+        "internal/cli/events_price_bands.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; missing-price events bucketed as 'unknown' (Discovery omits priceRanges on resale/dynamic-priced events, documented in the brief's data-model quirks)."
+    }
+  ],
+  "upstream_tracking": [
+    {
+      "id": "press-spec-server-url",
+      "summary": "apis.guru's Discovery v2 spec ships a protocol-relative server URL (//www.ticketmaster.com/discovery/v2) and no security scheme. This run patches both in-place (spec edit before generation). The generator could optionally accept overrides via --base-url / --auth-scheme flags instead of forcing a spec edit, or treat protocol-relative server URLs as a soft warning rather than rejecting them.",
+      "scope": "potential generator-side polish"
+    },
+    {
+      "id": "press-novel-command-stubs",
+      "summary": "When research.json declares novel_features, the generator emits a Highlights section in --help but does not stub the corresponding Cobra commands. A future generator could emit `// PATCH-stub:` placeholders that fall through to `cmd.Help()` so a clean build always exits 0 even before hand-authored implementations land.",
+      "scope": "generator-side ergonomics"
+    }
+  ]
+}

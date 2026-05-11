@@ -1,0 +1,667 @@
+{
+  "api_name": "ticketmaster",
+  "base_url": "https://app.ticketmaster.com/discovery/v2",
+  "description": "The Ticketmaster Discovery API allows you to search for events, attractions, or venues.\n\nAuthentication: Set the `TICKETMASTER_API_KEY` environment variable to your Discovery API consumer key. The CLI sends it as the `apikey` query parameter on every request.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "in": "query",
+    "env_vars": [
+      "TICKETMASTER_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TICKETMASTER_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Ticketmaster Discovery API consumer key (32-char alphanumeric)."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "attractions_find",
+      "description": "Find attractions (artists, sports, packages, plays and so on) and filter your search by name, and much more. Optional: sort (default: relevance,desc), classificationName, classificationId (plus 7 more). Returns array of Attraction.",
+      "method": "GET",
+      "path": "/attractions",
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sorting order of the search result. Allowable Values : 'name,asc', 'name,desc', 'relevance,asc', 'relevance,desc'"
+        },
+        {
+          "name": "classificationName",
+          "type": "array",
+          "location": "query",
+          "description": "Filter attractions by classification name: name of any segment, genre, sub-genre, type, sub-type"
+        },
+        {
+          "name": "classificationId",
+          "type": "array",
+          "location": "query",
+          "description": "Filter attractions by classification id: id of any segment, genre, sub-genre, type, sub-type"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search on"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its id"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its source name"
+        },
+        {
+          "name": "includeTest",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to have entities flag as test in the response."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Page size of the response"
+        },
+        {
+          "name": "includeSpellcheck",
+          "type": "string",
+          "location": "query",
+          "description": "yes, to include spell check suggestions in the response."
+        }
+      ]
+    },
+    {
+      "name": "attractions_get",
+      "description": "Get details for a specific attraction using the unique identifier for the attraction. Required: id. Returns the Attraction.",
+      "method": "GET",
+      "path": "/attractions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the attraction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classifications_get",
+      "description": "Get details for a specific segment, genre, or sub-genre using its unique identifier. Required: id. Returns the Classification.",
+      "method": "GET",
+      "path": "/classifications/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the segment, genre, or sub-genre",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classifications_get-genre",
+      "description": "Get details for a specific genre using its unique identifier. Required: id. Returns the Genre.",
+      "method": "GET",
+      "path": "/classifications/genres/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the genre",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classifications_get-segment",
+      "description": "Get details for a specific segment using its unique identifier. Required: id. Returns the Segment.",
+      "method": "GET",
+      "path": "/classifications/segments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the segment",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classifications_get-subgenre",
+      "description": "Get details for a specific sub-genre using its unique identifier. Required: id. Returns the Level.",
+      "method": "GET",
+      "path": "/classifications/subgenres/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the subgenre",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classifications_list",
+      "description": "Find classifications and filter your search by name, and much more. Classifications help define the nature of attractions and events. Optional: sort (default: name,asc), keyword, id (plus 5 more). Returns array of Classification.",
+      "method": "GET",
+      "path": "/classifications",
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sorting order of the search result"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search on"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its id"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its source name"
+        },
+        {
+          "name": "includeTest",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to have entities flag as test in the response."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Page size of the response"
+        },
+        {
+          "name": "includeSpellcheck",
+          "type": "string",
+          "location": "query",
+          "description": "yes, to include spell check suggestions in the response."
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Get details for a specific event using the unique identifier for the event. This includes the venue and location, the attraction(s), and the Ticketmaster Website URL for purchasing tickets for the event. Required: id. Returns the Event.",
+      "method": "GET",
+      "path": "/events/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the event",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "Find events and filter your search by location, date, availability, and much more. Optional: sort (default: relevance,desc), startDateTime, endDateTime (plus 31 more). Returns array of Event.",
+      "method": "GET",
+      "path": "/events",
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sorting order of the search result. Allowable values : 'name,asc', 'name,desc', 'date,asc', 'date,desc', 'relevance,asc', 'relevance,desc', 'distance,asc', 'name,date,asc', 'name,date,desc', 'date,name,asc', 'date,name,desc','onsaleStartDate,asc', 'id,asc'"
+        },
+        {
+          "name": "startDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with a start date after this date"
+        },
+        {
+          "name": "endDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with a start date before this date"
+        },
+        {
+          "name": "onsaleStartDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with onsale start date after this date"
+        },
+        {
+          "name": "onsaleOnStartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with onsale start date on this date"
+        },
+        {
+          "name": "onsaleOnAfterStartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with onsale range within this date"
+        },
+        {
+          "name": "onsaleEndDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events with onsale end date before this date"
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by city"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by country code"
+        },
+        {
+          "name": "stateCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by state code"
+        },
+        {
+          "name": "postalCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by postal code / zipcode"
+        },
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by venue id"
+        },
+        {
+          "name": "attractionId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by attraction id"
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by segment id"
+        },
+        {
+          "name": "segmentName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by segment name"
+        },
+        {
+          "name": "classificationName",
+          "type": "array",
+          "location": "query",
+          "description": "Filter events by classification name: name of any segment, genre, sub-genre, type, sub-type"
+        },
+        {
+          "name": "classificationId",
+          "type": "array",
+          "location": "query",
+          "description": "Filter events by classification id: id of any segment, genre, sub-genre, type, sub-type"
+        },
+        {
+          "name": "marketId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by market id"
+        },
+        {
+          "name": "promoterId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by promoter id"
+        },
+        {
+          "name": "dmaId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by dma id"
+        },
+        {
+          "name": "includeTBA",
+          "type": "string",
+          "location": "query",
+          "description": "True, to include events with date to be announce (TBA)"
+        },
+        {
+          "name": "includeTBD",
+          "type": "string",
+          "location": "query",
+          "description": "True, to include event with a date to be defined (TBD)"
+        },
+        {
+          "name": "clientVisibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by clientName"
+        },
+        {
+          "name": "latlong",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a..."
+        },
+        {
+          "name": "radius",
+          "type": "string",
+          "location": "query",
+          "description": "Radius of the area in which we want to search for events."
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "location": "query",
+          "description": "Unit of the radius"
+        },
+        {
+          "name": "geoPoint",
+          "type": "string",
+          "location": "query",
+          "description": "filter events by geoHash"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search on"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its id"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its source name"
+        },
+        {
+          "name": "includeTest",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to have entities flag as test in the response."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Page size of the response"
+        },
+        {
+          "name": "includeSpellcheck",
+          "type": "string",
+          "location": "query",
+          "description": "yes, to include spell check suggestions in the response."
+        }
+      ]
+    },
+    {
+      "name": "events_images_get",
+      "description": "Get images for a specific event using the unique identifier for the event. Required: id. Returns the EventImages.",
+      "method": "GET",
+      "path": "/events/{id}/images",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the event",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suggest_list",
+      "description": "Find search suggestions and filter your suggestions by location, source, etc. Optional: keyword, source, latlong (plus 11 more).",
+      "method": "GET",
+      "path": "/suggest",
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search on"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its source name"
+        },
+        {
+          "name": "latlong",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a..."
+        },
+        {
+          "name": "radius",
+          "type": "string",
+          "location": "query",
+          "description": "Radius of the area in which we want to search for events."
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "location": "query",
+          "description": "Unit of the radius"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Size of every entity returned in the response"
+        },
+        {
+          "name": "includeFuzzy",
+          "type": "string",
+          "location": "query",
+          "description": "yes, to include fuzzy matches in the search. This has performance impact."
+        },
+        {
+          "name": "clientVisibility",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events to clientName"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter suggestions by country code"
+        },
+        {
+          "name": "includeTBA",
+          "type": "string",
+          "location": "query",
+          "description": "True, to include events with date to be announce (TBA)"
+        },
+        {
+          "name": "includeTBD",
+          "type": "string",
+          "location": "query",
+          "description": "True, to include event with a date to be defined (TBD)"
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter suggestions by segment id"
+        },
+        {
+          "name": "geoPoint",
+          "type": "string",
+          "location": "query",
+          "description": "filter events by geoHash"
+        },
+        {
+          "name": "includeSpellcheck",
+          "type": "string",
+          "location": "query",
+          "description": "yes, to include spell check suggestions in the response."
+        }
+      ]
+    },
+    {
+      "name": "venues_get",
+      "description": "Get details for a specific venue using the unique identifier for the venue. Required: id. Returns the Venue.",
+      "method": "GET",
+      "path": "/venues/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the venue",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "venues_list",
+      "description": "Find venues and filter your search by name, and much more. Optional: sort (default: relevance,desc), stateCode, countryCode (plus 11 more). Returns array of Venue.",
+      "method": "GET",
+      "path": "/venues",
+      "params": [
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sorting order of the search result. Allowable Values: 'name,asc', 'name,desc', 'relevance,asc', 'relevance,desc', 'distance,asc', 'distance,desc'"
+        },
+        {
+          "name": "stateCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter venues by state / province code"
+        },
+        {
+          "name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter venues by country code"
+        },
+        {
+          "name": "latlong",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a..."
+        },
+        {
+          "name": "radius",
+          "type": "string",
+          "location": "query",
+          "description": "Radius of the area in which we want to search for events."
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "location": "query",
+          "description": "Unit of the radius"
+        },
+        {
+          "name": "geoPoint",
+          "type": "string",
+          "location": "query",
+          "description": "filter events by geoHash"
+        },
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword to search on"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its id"
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Filter entities by its source name"
+        },
+        {
+          "name": "includeTest",
+          "type": "string",
+          "location": "query",
+          "description": "True if you want to have entities flag as test in the response."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "size",
+          "type": "string",
+          "location": "query",
+          "description": "Page size of the response"
+        },
+        {
+          "name": "includeSpellcheck",
+          "type": "string",
+          "location": "query",
+          "description": "yes, to include spell check suggestions in the response."
+        }
+      ]
+    }
+  ]
+}
