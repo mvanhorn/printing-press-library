@@ -197,6 +197,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 	// Foundation: sync the API into the local SQLite store.
 	rootCmd.AddCommand(newSyncCmd(flags))
+	rootCmd.AddCommand(newStatsCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
 
 	// Absorbed extras (match competitors with our local-store backing).
 	rootCmd.AddCommand(newQuickwinsCmd(flags))
