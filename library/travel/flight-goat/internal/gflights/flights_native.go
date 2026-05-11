@@ -171,11 +171,20 @@ func buildOffersPayload(opts SearchOptions, depDate, retDate time.Time, tripType
 
 	var bagsField any
 	if opts.Bags != nil {
+		// PATCH(greptile P2): clamp checked-bags to the documented 0..2 range.
+		// Google's response to out-of-range values is undefined; passing a
+		// negative or >2 integer silently built a malformed payload before.
+		checked := opts.Bags.CheckedBags
+		if checked < 0 {
+			checked = 0
+		} else if checked > 2 {
+			checked = 2
+		}
 		carryOnInt := 0
 		if opts.Bags.CarryOn {
 			carryOnInt = 1
 		}
-		bagsField = []any{opts.Bags.CheckedBags, carryOnInt}
+		bagsField = []any{checked, carryOnInt}
 	}
 
 	excludeBasic := 0
@@ -270,9 +279,11 @@ func buildOneSegment(opts SearchOptions, date time.Time, origin, dest string, st
 		}
 	}
 
-	var emissionsField any
-	if strings.EqualFold(opts.Emissions, "LESS") {
-		emissionsField = []any{emissionsLess}
+	// PATCH(greptile P2): validate emissions enum at build time so typos
+	// fail loudly instead of silently degrading to "ALL".
+	emissionsField, err := mapEmissions(opts.Emissions)
+	if err != nil {
+		return nil, err
 	}
 
 	return []any{
@@ -292,6 +303,17 @@ func buildOneSegment(opts SearchOptions, date time.Time, origin, dest string, st
 		emissionsField,                                  // [13]
 		3,                                               // [14] no observable effect
 	}, nil
+}
+
+func mapEmissions(s string) (any, error) {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "", "all":
+		return nil, nil
+	case "less":
+		return []any{emissionsLess}, nil
+	default:
+		return nil, fmt.Errorf("unknown --emissions %q (valid: ALL, LESS)", s)
+	}
 }
 
 func mapSortBy(s string) (int, error) {
@@ -397,10 +419,7 @@ func parseOfferRow(row any, currency string) (Flight, bool) {
 			legs = append(legs, leg)
 		}
 	}
-	price, returnedCurrency := parseOfferPrice(r)
-	if returnedCurrency != "" {
-		currency = returnedCurrency
-	}
+	price := parseOfferPrice(r)
 	return Flight{
 		DurationMinutes: duration,
 		Stops:           max0(len(legs) - 1),
@@ -436,27 +455,27 @@ func parseOfferLeg(legRaw any) (Leg, bool) {
 	}, true
 }
 
-func parseOfferPrice(row []any) (float64, string) {
+// parseOfferPrice returns the numeric price from the flight row.
+//
+// PATCH(greptile P1): the row's priceBlock[1] is Google's opaque price token
+// (e.g. "CJRIDJNH..."), not an ISO currency code. Earlier versions returned
+// it as a currency string, which then overwrote the user-requested ISO code
+// downstream. Now this returns only the price; callers preserve the ISO
+// code resolved from `--currency` / normalizeCurrency.
+func parseOfferPrice(row []any) float64 {
 	if len(row) < 2 {
-		return 0, ""
+		return 0
 	}
 	priceBlock, ok := row[1].([]any)
 	if !ok {
-		return 0, ""
+		return 0
 	}
-	var price float64
 	if len(priceBlock) > 0 {
 		if outer, ok := priceBlock[0].([]any); ok && len(outer) > 0 {
-			price = numericFloat(outer[len(outer)-1])
+			return numericFloat(outer[len(outer)-1])
 		}
 	}
-	currency := ""
-	if len(priceBlock) > 1 {
-		if cur, ok := priceBlock[1].(string); ok {
-			currency = strings.ToUpper(cur)
-		}
-	}
-	return price, currency
+	return 0
 }
 
 // --- small helpers ---
