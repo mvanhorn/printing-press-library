@@ -61,21 +61,22 @@ Run 'sync --resource events' first to populate the local store.
 			if dmaID != "" {
 				wl.DMAIDs = append(wl.DMAIDs, dmaID)
 			}
-			if classification != "" {
-				// PATCH(greptile P1 events_brief.go:65 — --classification only
-				// matched segments): the value the user passes could be a
-				// segment name ("Music", "Arts & Theatre") OR a genre name
-				// ("Rock", "Jazz"). Push into both filter lists so the OR
-				// match in queryFilteredEvents catches either taxonomy level;
-				// matches the inline behavior of `events on-sale-soon
-				// --classification`.
-				wl.Segments = append(wl.Segments, classification)
-				wl.Genres = append(wl.Genres, classification)
-			}
-
+			// PATCH(greptile P1 events_brief.go:65/70 — --classification needs
+			// OR semantics, not AND): pushing the value into both
+			// wl.Segments AND wl.Genres produced AND semantics inside
+			// queryFilteredEvents (`segment IN (?) AND genre IN (?)`), which
+			// excluded events that match only one taxonomy level — a "Rock"
+			// concert with segment="Music"/genre="Rock" failed the segment
+			// arm and was silently filtered out. Apply the classification
+			// filter inline as a post-filter on the result set so segment
+			// OR genre match is true OR semantics; matches the inline SQL
+			// pattern of `events on-sale-soon --classification`.
 			events, err := queryFilteredEvents(cmd.Context(), db.DB(), wl, window)
 			if err != nil {
 				return err
+			}
+			if classification != "" {
+				events = filterEventsByClassification(events, classification)
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), events, flags)
@@ -173,6 +174,29 @@ func renderMarkdownBrief(w io.Writer, title string, events []json.RawMessage) {
 		fmt.Fprintf(w, "- %s%s%s\n", timeBit, r.Name, tag)
 	}
 	fmt.Fprintln(w)
+}
+
+// filterEventsByClassification keeps events whose first classification's
+// segment name OR genre name equals the supplied label (case-sensitive,
+// matching the live Ticketmaster taxonomy values like "Music", "Rock",
+// "Arts & Theatre", "Comedy"). Used as a post-filter so `events brief
+// --classification` gets OR semantics across segment+genre without
+// rewriting queryFilteredEvents' shared AND-of-EXISTS shape used by
+// `events upcoming` and `events watchlist run`.
+func filterEventsByClassification(events []json.RawMessage, label string) []json.RawMessage {
+	out := make([]json.RawMessage, 0, len(events))
+	for _, e := range events {
+		var obj map[string]any
+		if err := json.Unmarshal(e, &obj); err != nil {
+			continue
+		}
+		seg := extractFirstClassification(obj, "segment")
+		gen := extractFirstClassification(obj, "genre")
+		if seg == label || gen == label {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 // extractPriceRange formats $.priceRanges[0].min/max as "$min–$max" when both

@@ -147,12 +147,12 @@
     },
     {
       "id": "greptile-pr444-brief-classification-segment-only",
-      "summary": "Fix `events brief --classification` so it matches both segment names (Music, Arts & Theatre) AND genre names (Rock, Jazz, Comedy) — previously only segments were matched, so `--classification Rock` returned 0 results silently. Push the flag value into both wl.Segments and wl.Genres before queryFilteredEvents, matching the inline behavior of `events on-sale-soon --classification`. Help text updated.",
-      "reason": "Greptile P1 finding on PR #444 (events_brief.go:65). Hand-authored novel command — not a generator-template bug; entirely in my code.",
+      "summary": "Fix `events brief --classification` so it matches segment OR genre. First attempt (dual-append into wl.Segments AND wl.Genres) was WRONG — queryFilteredEvents joins filter conditions with AND, so the dual-append produced `segment IN (?) AND genre IN (?)` which excluded events that match only one taxonomy level (a 'Rock' concert has segment='Music', genre='Rock' — segment IN ('Rock') fails and the row is dropped). Reverted to a post-filter via a new `filterEventsByClassification` helper that keeps events whose first classification's segment.name OR genre.name equals the label. Help text updated to 'segment OR genre name'. Both attempts catalogued in commit history so the failure mode is recorded.",
+      "reason": "Greptile P1 finding on PR #444 (events_brief.go:65) + P1 follow-up (events_brief.go:70). Hand-authored novel command — not a generator-template bug; entirely in my code. The first fix illustrated a common error pattern (pushing both halves of an OR into AND-joined filter slices) — the post-filter approach decouples the classification OR semantics from queryFilteredEvents' shared shape used by events upcoming and events watchlist run.",
       "files": [
         "internal/cli/events_brief.go"
       ],
-      "validated_outcome": "go test ./... PASS; help text now reads 'segment OR genre name (Music, Arts & Theatre, Sports, Rock, Jazz, Comedy, etc.)'.",
+      "validated_outcome": "go build/vet/test all PASS; help text reads 'segment OR genre name (Music, Arts & Theatre, Sports, Rock, Jazz, Comedy, etc.)'. Post-filter via filterEventsByClassification preserves the original watchlist filter dimensions in queryFilteredEvents.",
       "upstream_issue": null
     }
   ],
