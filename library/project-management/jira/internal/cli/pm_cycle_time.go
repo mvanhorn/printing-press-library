@@ -7,16 +7,18 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/project-management/jira/internal/store"
+	"jira-cloud-platform-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
 func newCycleTimeCmd(flags *rootFlags) *cobra.Command {
 	var project string
 	var issueType string
-	var lastDays int
+	var lastStr string
 	var dbPath string
 
 	cmd := &cobra.Command{
@@ -43,9 +45,14 @@ Data must be synced first: run 'sync --project KEY'.`,
 				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			lastDays, err := parseDurationDays(lastStr)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("invalid --last value %q: use a number (days) or duration like 90d, 6m, 1y", lastStr)
+			}
+
+			db, err2 := store.OpenWithContext(cmd.Context(), dbPath)
+			if err2 != nil {
+				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err2)
 			}
 			defer db.Close()
 
@@ -183,7 +190,7 @@ WHERE json_extract(data, '$.fields.resolutiondate') IS NOT NULL
 
 	cmd.Flags().StringVar(&project, "project", "", "Project key (e.g. MYPROJ)")
 	cmd.Flags().StringVar(&issueType, "type", "", "Issue type filter (e.g. Bug, Story, Task)")
-	cmd.Flags().IntVar(&lastDays, "last", 90, "Only include issues resolved in the last N days")
+	cmd.Flags().StringVar(&lastStr, "last", "90", "Issues resolved in the last N days or duration (e.g. 90, 180d, 6m, 1y)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 
 	return cmd
@@ -252,4 +259,32 @@ func parseJiraTime(s string) (time.Time, error) {
 		}
 	}
 	return time.Time{}, fmt.Errorf("cannot parse time %q", s)
+}
+
+// parseDurationDays converts a plain integer or duration string to a number of days.
+// Accepts: "90" (days), "90d", "12w", "6m" (months), "1y".
+func parseDurationDays(s string) (int, error) {
+	s = strings.TrimSpace(s)
+	if n, err := strconv.Atoi(s); err == nil {
+		return n, nil
+	}
+	if len(s) < 2 {
+		return 0, fmt.Errorf("unrecognised duration %q", s)
+	}
+	n, err := strconv.Atoi(s[:len(s)-1])
+	if err != nil {
+		return 0, fmt.Errorf("unrecognised duration %q", s)
+	}
+	switch s[len(s)-1] {
+	case 'd':
+		return n, nil
+	case 'w':
+		return n * 7, nil
+	case 'm':
+		return n * 30, nil
+	case 'y':
+		return n * 365, nil
+	default:
+		return 0, fmt.Errorf("unknown unit %q in %q; use d, w, m, or y", string(s[len(s)-1]), s)
+	}
 }
