@@ -155,6 +155,7 @@ Run 'sync --full' first to populate transcripts locally.`,
 			for _, r := range results {
 				fmt.Fprintf(cmd.OutOrStdout(), "%-20s  %d mentions across %d meetings\n", r.Term, r.TotalCount, r.MeetingCount)
 				for _, w := range r.WeeklyTrend {
+					// PATCH(topics-bar-utf8): cap by rune count, not byte length, to avoid mid-codepoint truncation on █ (3 bytes)
 					barCount := w.Count
 					if barCount > 40 {
 						barCount = 40
