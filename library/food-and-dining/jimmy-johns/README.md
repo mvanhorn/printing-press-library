@@ -113,6 +113,20 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   jimmy-johns-pp-cli menu product-modifiers 33328641 --json | jimmy-johns-pp-cli menu unwich-convert --product-id 33328641 --json
   ```
+- **`order plan`** — Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters.
+
+  _Reach for this when an agent gets a 'lunch for the team' request — it returns a ready-to-submit cart structure with rationale per line._
+
+  ```bash
+  jimmy-johns-pp-cli order plan --people 8 --dietary vegetarian --json
+  ```
+- **`menu half-and-half`** — Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.
+
+  _Reach for this when a user says 'half Vito, half Pepe' — the command outputs the actual cart and the in-store ask the user has to make._
+
+  ```bash
+  jimmy-johns-pp-cli menu half-and-half --left 33328641 --right 33328700 --json
+  ```
 
 ## Usage
 

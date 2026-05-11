@@ -16,5 +16,7 @@ func newOrderCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newOrderAddItemsCmd(flags))
 	cmd.AddCommand(newOrderCurrentCmd(flags))
 	cmd.AddCommand(newOrderUpsellCmd(flags))
+	// Hand-authored transcendence features.
+	cmd.AddCommand(newOrderPlanCmd(flags))
 	return cmd
 }

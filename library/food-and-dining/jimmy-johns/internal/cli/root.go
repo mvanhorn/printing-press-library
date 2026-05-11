@@ -87,6 +87,8 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 
 Highlights (not in the official API docs):
   • menu unwich-convert   Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.
+  • order plan   Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters.
+  • menu half-and-half   Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing.
 
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'jimmy-johns-pp-cli doctor' to verify auth and connectivity.`,

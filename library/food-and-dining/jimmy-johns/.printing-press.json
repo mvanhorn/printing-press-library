@@ -24,6 +24,16 @@
       "name": "Unwich Converter",
       "command": "menu unwich-convert",
       "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call."
+    },
+    {
+      "name": "Office Lunch Planner",
+      "command": "order plan",
+      "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters."
+    },
+    {
+      "name": "Half-and-Half Composer",
+      "command": "menu half-and-half",
+      "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing."
     }
   ]
 }

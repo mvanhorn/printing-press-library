@@ -42,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 48,
-      "registered": 48
+      "defined": 50,
+      "registered": 50
     },
     "config_consistency": {
       "consistent": true
@@ -56,8 +56,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 1,
-    "found": 1
+    "planned": 3,
+    "found": 3
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -65,12 +65,22 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 1,
+    "checked": 3,
     "exempted_via_store": 0,
     "suspicious": [
       {
         "command": "menu unwich-convert",
         "file": "menu_unwich.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "order plan",
+        "file": "order_plan.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "menu half-and-half",
+        "file": "menu_half_and_half.go",
         "reason": "hand-rolled response: no API client call, no store access"
       }
     ]
@@ -80,15 +90,15 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 40
+    "checked": 42
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 40
+    "checked": 42
   },
   "issues": [
-    "1/1 novel features look reimplemented: menu unwich-convert (menu_unwich.go) — hand-rolled response: no API client call, no store access"
+    "3/3 novel features look reimplemented: menu unwich-convert (menu_unwich.go) — hand-rolled response: no API client call, no store access; order plan (order_plan.go) — hand-rolled response: no API client call, no store access; menu half-and-half (menu_half_and_half.go) — hand-rolled response: no API client call, no store access"
   ]
 }
