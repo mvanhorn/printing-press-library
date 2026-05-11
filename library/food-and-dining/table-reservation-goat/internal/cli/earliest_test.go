@@ -201,35 +201,62 @@ func TestEarliestResponse_JSONShapeContractsMeta(t *testing.T) {
 	}
 }
 
-// TestEarliestResponse_UnresolvedEmittedWhenEmpty pins the symmetry
-// promise from PR #424's Greptile finding: when all venues resolve,
-// `unresolved` must still emit as `[]` (not absent), matching `results`.
-// Agents using `"unresolved" in response` checks should never see a
-// false-negative due to omitempty.
+// TestEarliestResponse_UnresolvedEmittedWhenEmpty pins TWO contracts
+// the meta envelope's promise to agents relies on:
+//
+//  1. JSON marshaling of a nil slice produces `"unresolved":null` (Go
+//     semantics, baseline we explicitly DON'T want).
+//  2. The package contract is: `summarizeEarliest` initializes the
+//     slice to `[]unresolvedRow{}` so the JSON contains
+//     `"unresolved":[]`. Agents calling iterate-without-nil-checks
+//     depend on this contract.
+//
+// Greptile P2 round-2 (PR #424): the prior shape of this test had a
+// misleading comment ("explicitly nil — must still serialize as `[]`")
+// alongside a weak `null || []` assertion. The reality is that a bare
+// nil slice marshals to `null`, NOT `[]` — so the assertion was
+// vacuously true and the comment claimed a guarantee the test didn't
+// enforce.
+//
+// The fix: assert each contract separately, with the right expectation.
 func TestEarliestResponse_UnresolvedEmittedWhenEmpty(t *testing.T) {
-	resp := earliestResponse{
+	// Case 1: a nil slice marshals to "null". This is Go's default
+	// behavior; we explicitly DOCUMENT that we don't rely on it.
+	respNil := earliestResponse{
 		Venues:     []string{"canlis"},
 		Party:      2,
 		Within:     1,
 		Meta:       earliestMeta{VenuesRequested: 1, Resolved: 1, Available: 1},
 		Results:    []earliestRow{{Venue: "canlis", Network: "tock", Available: true}},
-		Unresolved: nil, // explicitly nil — must still serialize as []
+		Unresolved: nil,
 		QueriedAt:  "2026-05-10T12:00:00Z",
 	}
-	raw, _ := json.Marshal(resp)
-	body := string(raw)
-	if !strings.Contains(body, `"unresolved":null`) && !strings.Contains(body, `"unresolved":[]`) {
-		t.Errorf("unresolved key must always emit when empty; got %s", body)
+	rawNil, _ := json.Marshal(respNil)
+	if !strings.Contains(string(rawNil), `"unresolved":null`) {
+		t.Errorf("baseline: nil slice should marshal to null; got %s", string(rawNil))
 	}
-	// More strictly: ensure it's `[]` not `null` so JSON consumers can
-	// iterate without nil-checks. Go marshals a nil slice as `null` by
-	// default, so the calling site (newEarliestCmd) must initialize the
-	// slice to []. Check that contract here by serializing an empty
-	// slice explicitly.
-	resp.Unresolved = []unresolvedRow{}
-	raw, _ = json.Marshal(resp)
-	body = string(raw)
-	if !strings.Contains(body, `"unresolved":[]`) {
-		t.Errorf("empty-slice unresolved should serialize as []; got %s", body)
+
+	// Case 2: an explicit empty slice marshals to `[]`. This is the
+	// contract `summarizeEarliest` enforces — it ALWAYS returns
+	// `[]unresolvedRow{}` (never nil) so JSON consumers iterate
+	// without nil-checks.
+	respEmpty := respNil
+	respEmpty.Unresolved = []unresolvedRow{}
+	rawEmpty, _ := json.Marshal(respEmpty)
+	if !strings.Contains(string(rawEmpty), `"unresolved":[]`) {
+		t.Errorf("contract: empty-slice unresolved must marshal to []; got %s", string(rawEmpty))
+	}
+	if strings.Contains(string(rawEmpty), `"unresolved":null`) {
+		t.Errorf("contract: empty-slice unresolved must NOT marshal as null; got %s", string(rawEmpty))
+	}
+
+	// Case 3: verify summarizeEarliest itself produces the `[]` shape,
+	// not nil. This pins the contract end-to-end at the call site
+	// agents actually depend on.
+	_, _, unresolved := summarizeEarliest([]string{"x"}, []earliestRow{
+		{Venue: "x", Network: "tock", Available: true},
+	})
+	if unresolved == nil {
+		t.Error("summarizeEarliest must return a non-nil unresolved slice (empty []), not nil — agents iterate without nil-checks")
 	}
 }
