@@ -376,7 +376,15 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 	if tryOT {
 		c, err := opentable.New(s)
 		if err == nil {
-			row.Network = "opentable"
+			// NOTE: `row.Network = "opentable"` is deliberately NOT set
+			// here. PR #424 round-3 Greptile finding: setting Network
+			// before slug resolution caused slug-resolve failures to be
+			// miscounted as `meta.resolved` (Network was already
+			// "opentable" when summarizeEarliest's partition ran). The
+			// assignment moves AFTER we have a confirmed valid restID
+			// so the partition correctly categorizes failures as
+			// `meta.unresolved`.
+
 			// Numeric-ID short-circuit (issue #406, failure 2): `restaurants
 			// list` emits numeric OpenTable IDs (e.g. id=3688 for "Daniel's
 			// Broiler - Bellevue") but the Autocomplete-based slug resolver
@@ -410,11 +418,19 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 				var rerr error
 				restID, restName, restSlug, rerr = c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
 				if rerr != nil {
+					// Slug-resolve failed. row.Network stays empty so
+					// summarizeEarliest partitions this row into
+					// `unresolved[]` (PR #424 round-3 fix).
 					row.Available = false
 					row.Reason = fmt.Sprintf("opentable: could not resolve %q (%v)", slug, rerr)
 					return row
 				}
 			}
+			// Slug resolution succeeded (numeric path or named path).
+			// Claim the row for OpenTable so downstream partitioning
+			// counts this venue as resolved, even if the subsequent
+			// availability fetch is blocked by Akamai.
+			row.Network = "opentable"
 			row.URL = fmt.Sprintf("%s/restaurant/profile/%d", opentable.Origin, restID)
 			// New OT gateway (May 2026) returns single-day availability per
 			// call (forwardDays=0); scan multi-day windows by looping the
