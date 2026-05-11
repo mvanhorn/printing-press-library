@@ -167,18 +167,48 @@ func lookupIn(places []Place, slug string) (Place, bool) {
 	return Place{}, false
 }
 
-// lookupByNameIn returns every Place whose display Name matches the
-// query case-insensitively. Order preserved from the input slice for
-// determinism. Empty input or zero hits returns (nil, false).
+// lookupByNameIn returns every Place that matches the query by display
+// Name OR by curated alias, case-insensitive after trim. Hyphen↔space
+// normalization makes slug-style aliases ("new-york") reachable from
+// natural-language input ("new york") and vice versa. Order preserved
+// from the input slice for determinism. Empty input or zero hits
+// returns (nil, false).
+//
+// U22 extension: alias-check was added so natural-language short forms
+// ("nyc", "sf", "la", "dc", "weho", "bk") resolve through the by-name
+// path the same way Lookup(slug)'s alias chain does. The dedup-by-slug
+// guard is defensive — curated data avoids redundant Name+alias
+// double-matches, but a future entry that happens to carry both still
+// returns once.
 func lookupByNameIn(places []Place, name string) ([]Place, bool) {
 	key := strings.ToLower(strings.TrimSpace(name))
 	if key == "" {
 		return nil, false
 	}
+	keyNormalized := strings.ReplaceAll(key, "-", " ")
+
 	var hits []Place
+	seenSlug := make(map[string]bool)
 	for _, p := range places {
+		if seenSlug[p.Slug] {
+			continue
+		}
+		// Strategy 1: exact display-Name match.
 		if strings.ToLower(p.Name) == key {
 			hits = append(hits, p)
+			seenSlug[p.Slug] = true
+			continue
+		}
+		// Strategy 2: curated-alias match, with hyphen↔space
+		// normalization on both sides so slug-style and
+		// natural-language forms interchange.
+		for _, a := range p.Aliases {
+			aKey := strings.ReplaceAll(strings.ToLower(strings.TrimSpace(a)), "-", " ")
+			if aKey == keyNormalized {
+				hits = append(hits, p)
+				seenSlug[p.Slug] = true
+				break
+			}
 		}
 	}
 	if len(hits) == 0 {

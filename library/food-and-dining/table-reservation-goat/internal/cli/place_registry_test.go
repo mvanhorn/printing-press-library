@@ -146,6 +146,151 @@ func TestStaticRegistry_LookupByName_OtherAmbiguous(t *testing.T) {
 	}
 }
 
+// TestLookupByName_AliasStrategy — U22. lookupByNameIn must consult
+// Place.Aliases (not just Name) so natural-language short forms like
+// "nyc", "sf", "la", "dc", "weho", "bk" resolve through the by-name
+// path the same way Lookup(slug)'s alias chain does. Hyphen↔space
+// normalization makes slug-style aliases reachable from
+// natural-language input and vice versa.
+func TestLookupByName_AliasStrategy(t *testing.T) {
+	r := staticPlaceRegistry{}
+	cases := []struct {
+		input    string
+		wantSlug string
+	}{
+		{"nyc", "new-york-city"},
+		{"NYC", "new-york-city"},     // case-insensitive
+		{"  nyc  ", "new-york-city"}, // whitespace tolerated
+		{"sf", "san-francisco"},
+		{"la", "los-angeles"},
+		{"dc", "washington-dc-city"},
+		{"weho", "west-hollywood"},
+		{"bk", "brooklyn"},
+		{"new york", "new-york-city"},        // NEW data alias
+		{"new-york", "new-york-city"},        // existing slug-style alias via name path
+		{"washington", "washington-dc-city"}, // NEW data alias
+		{"the-district", "washington-dc-city"},
+		{"the district", "washington-dc-city"}, // hyphen→space normalization
+	}
+	for _, tc := range cases {
+		t.Run(tc.input, func(t *testing.T) {
+			hits, ok := r.LookupByName(tc.input)
+			if !ok {
+				t.Fatalf("LookupByName(%q) !ok", tc.input)
+			}
+			found := false
+			for _, p := range hits {
+				if p.Slug == tc.wantSlug {
+					found = true
+					break
+				}
+			}
+			if !found {
+				gotSlugs := make([]string, 0, len(hits))
+				for _, p := range hits {
+					gotSlugs = append(gotSlugs, p.Slug)
+				}
+				t.Errorf("LookupByName(%q) = %v; want slug %q in hits", tc.input, gotSlugs, tc.wantSlug)
+			}
+		})
+	}
+}
+
+// TestLookupByName_ExactNamePreserved — U22 regression guard. The
+// alias strategy must NOT interfere with the existing exact-Name
+// match path. Inputs that previously resolved via Name continue to
+// resolve via Name.
+func TestLookupByName_ExactNamePreserved(t *testing.T) {
+	r := staticPlaceRegistry{}
+	cases := []struct {
+		input    string
+		wantSlug string
+	}{
+		{"Manhattan", "manhattan"},
+		{"Brooklyn", "brooklyn"},
+		{"Seattle", "seattle"},
+		{"new orleans", "new-orleans"}, // case-insensitive exact
+	}
+	for _, tc := range cases {
+		t.Run(tc.input, func(t *testing.T) {
+			hits, ok := r.LookupByName(tc.input)
+			if !ok {
+				t.Fatalf("LookupByName(%q) !ok", tc.input)
+			}
+			found := false
+			for _, p := range hits {
+				if p.Slug == tc.wantSlug {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("LookupByName(%q) missing slug %q; got %d hits", tc.input, tc.wantSlug, len(hits))
+			}
+		})
+	}
+}
+
+// TestLookupByName_StillReturnsNilForUnknown — U22. Empty input,
+// unknown tokens, and partial/prefix-shaped tokens that aren't exact
+// Names or exact Aliases must continue to return (nil, false). The
+// alias strategy is strict equality (after lowercase/trim/normalize),
+// not prefix or fuzzy matching.
+func TestLookupByName_StillReturnsNilForUnknown(t *testing.T) {
+	r := staticPlaceRegistry{}
+	cases := []string{"", "totally-fake-place", "new", "city"}
+	for _, in := range cases {
+		t.Run("empty="+in, func(t *testing.T) {
+			hits, ok := r.LookupByName(in)
+			if ok || hits != nil {
+				t.Errorf("LookupByName(%q) = (%v, %v); want (nil, false)", in, hits, ok)
+			}
+		})
+	}
+}
+
+// TestLookupByName_NoDuplicates — U22 defensive. If a Place's Name
+// matches the key AND one of its Aliases also matches (hypothetical
+// — curated data avoids this redundancy), the Place must appear
+// exactly once in the result. Built on a synthetic input slice so
+// the test stays deterministic regardless of curated-data drift.
+func TestLookupByName_NoDuplicates(t *testing.T) {
+	synthetic := []Place{
+		{
+			Slug:    "redundant-slug",
+			Name:    "TestPlace",
+			Aliases: []string{"testplace", "another-alias"}, // alias equals lowercased Name
+		},
+	}
+	hits, ok := lookupByNameIn(synthetic, "testplace")
+	if !ok {
+		t.Fatal("lookupByNameIn(testplace) !ok")
+	}
+	if len(hits) != 1 {
+		t.Errorf("len(hits) = %d; want 1 (no duplicate from Name+alias double-match)", len(hits))
+	}
+}
+
+// TestLookupByName_AmbiguousBellevueUnchanged — U22 regression guard.
+// None of the Bellevues have a single distinguishing alias that masks
+// the others, so the WA/NE/KY 3-hit ambiguity must survive the alias
+// strategy. Mirrors TestStaticRegistry_LookupByName_Bellevue but is
+// kept here as an explicit U22 pin.
+func TestLookupByName_AmbiguousBellevueUnchanged(t *testing.T) {
+	r := staticPlaceRegistry{}
+	hits, ok := r.LookupByName("bellevue")
+	if !ok {
+		t.Fatal("LookupByName(bellevue) !ok")
+	}
+	if len(hits) != 3 {
+		var slugs []string
+		for _, p := range hits {
+			slugs = append(slugs, p.Slug)
+		}
+		t.Errorf("LookupByName(bellevue) count = %d (%v); want 3 (WA/NE/KY)", len(hits), slugs)
+	}
+}
+
 // TestStaticRegistry_LookupByName_None verifies the empty + unknown
 // paths.
 func TestStaticRegistry_LookupByName_None(t *testing.T) {
@@ -934,12 +1079,12 @@ func TestReverseLookup_SantaMonicaIsSantaMonica(t *testing.T) {
 	}
 }
 
-// TestLookupByName_NewYorkVsManhattan — U17. Pin that bare `manhattan`
-// by-name returns exactly one hit (the borough entry) and bare
-// `new york` does NOT collide with the borough. lookupByNameIn does
-// strict equality after lowercasing, so the existing curated NYC entry
-// (Name "New York City") doesn't match "new york" — the test pins
-// that behavior intentionally.
+// TestLookupByName_NewYorkVsManhattan — U17 + U22. Pin that bare
+// `manhattan` by-name returns exactly one hit (the borough entry) and
+// bare `new york` resolves to NYC via the alias-aware lookup (U22
+// extends lookupByNameIn to consult Place.Aliases). The critical
+// invariant — `new york` must NOT collide with the borough — is
+// preserved: only NYC carries the "new york" alias.
 func TestLookupByName_NewYorkVsManhattan(t *testing.T) {
 	r := staticPlaceRegistry{}
 
@@ -954,18 +1099,23 @@ func TestLookupByName_NewYorkVsManhattan(t *testing.T) {
 		t.Errorf("LookupByName(manhattan)[0].Slug = %q; want %q", hits[0].Slug, "manhattan")
 	}
 
-	// "new york" doesn't equal "New York City" after lowercase, so the
-	// strict by-name lookup returns nothing — pin it so a future loose
-	// matcher doesn't accidentally claim manhattan under this query.
+	// U22: "new york" now resolves to NYC via the alias-aware lookup.
+	// The borough still must NOT appear in the hit set — only NYC
+	// carries the "new york" alias, so the result is single-hit NYC.
 	nyHits, nyOK := r.LookupByName("new york")
-	if nyOK {
-		// If a future change introduces loose matching, the rule is
-		// still: "new york" must NOT return the manhattan borough.
-		for _, p := range nyHits {
-			if p.Slug == "manhattan" {
-				t.Errorf("LookupByName(new york) returned manhattan; want NYC metro only")
-			}
+	if !nyOK {
+		t.Fatal("LookupByName(new york) !ok; want NYC via alias")
+	}
+	for _, p := range nyHits {
+		if p.Slug == "manhattan" {
+			t.Errorf("LookupByName(new york) returned manhattan; want NYC only")
 		}
+	}
+	if len(nyHits) != 1 {
+		t.Errorf("LookupByName(new york) count = %d; want 1 (NYC only)", len(nyHits))
+	}
+	if len(nyHits) > 0 && nyHits[0].Slug != "new-york-city" {
+		t.Errorf("LookupByName(new york)[0].Slug = %q; want %q", nyHits[0].Slug, "new-york-city")
 	}
 }
 

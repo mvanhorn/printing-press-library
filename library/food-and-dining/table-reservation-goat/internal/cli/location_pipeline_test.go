@@ -540,3 +540,64 @@ func TestApplyGeoFilter_NilContextIntegration(t *testing.T) {
 		t.Errorf("nil ctx should preserve all rows; got %d", len(got))
 	}
 }
+
+// TestResolveLocation_NYCAndDCAliases — U22. Natural-language short
+// forms ("nyc", "dc") and truncated names ("new york", "washington")
+// must resolve via the alias-aware LookupByName extension. Pre-U22
+// these returned location_unknown because lookupByNameIn did strict
+// exact-equal on Place.Name only. Pipeline integration covers the
+// LocKindCity and LocKindCityState paths.
+func TestResolveLocation_NYCAndDCAliases(t *testing.T) {
+	cases := []struct {
+		name         string
+		input        string
+		wantResolved string
+	}{
+		{"nyc short form", "nyc", "New York City, NY"},
+		{"new york natural-language", "new york", "New York City, NY"},
+		{"new york with state qualifier", "new york, ny", "New York City, NY"},
+		{"washington natural-language", "washington", "Washington, DC"},
+		{"dc short form", "dc", "Washington, DC"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			gc, env, err := ResolveLocation(tc.input, ResolveOptions{Source: SourceExplicitFlag})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if env != nil {
+				t.Fatalf("expected GeoContext; got envelope %+v", env)
+			}
+			if gc == nil {
+				t.Fatal("expected non-nil GeoContext")
+			}
+			if gc.Tier != ResolutionTierHigh {
+				t.Errorf("Tier = %q; want %q", gc.Tier, ResolutionTierHigh)
+			}
+			if gc.ResolvedTo != tc.wantResolved {
+				t.Errorf("ResolvedTo = %q; want %q", gc.ResolvedTo, tc.wantResolved)
+			}
+		})
+	}
+}
+
+// TestResolveLocation_NYCWithWrongState — U22. State qualifier still
+// filters out wrong-state candidates after the alias-aware city-name
+// lookup. "new york, ca" finds NYC via the new alias on the city-name
+// step, then the state filter eliminates it (NYC.State = "NY"),
+// leaving zero candidates → location_unknown envelope.
+func TestResolveLocation_NYCWithWrongState(t *testing.T) {
+	gc, env, err := ResolveLocation("new york, ca", ResolveOptions{Source: SourceExplicitFlag})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if gc != nil {
+		t.Errorf("expected envelope for state-mismatch; got GeoContext %+v", gc)
+	}
+	if env == nil {
+		t.Fatal("expected envelope")
+	}
+	if env.ErrorKind != ErrorKindLocationUnknown {
+		t.Errorf("ErrorKind = %q; want %q", env.ErrorKind, ErrorKindLocationUnknown)
+	}
+}

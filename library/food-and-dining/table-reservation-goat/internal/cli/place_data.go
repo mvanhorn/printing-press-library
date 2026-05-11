@@ -50,7 +50,10 @@ var curatedPlaces = []Place{
 		// U17: removed "manhattan" alias — it now resolves to the
 		// dedicated borough entry below (tighter 10 km radius beats the
 		// metro's 75 km via ReverseLookup's smallest-radius tiebreak).
-		Aliases:      []string{"nyc", "new-york"},
+		// U22: "new york" added so the alias-aware lookupByNameIn
+		// resolves the natural-language truncation. "ny" intentionally
+		// omitted — it would collide with the LocCityState state-code.
+		Aliases:      []string{"nyc", "new-york", "new york"},
 		ContextHints: []string{"NYC metro", "Tri-state"},
 		Tier:         PlaceTierMetroCentroid,
 	},
@@ -390,7 +393,10 @@ var curatedPlaces = []Place{
 		// (which appears earlier in the list and matches first in
 		// lookupIn's iteration). Keeping it would invite the wrong
 		// mental model.
-		Aliases: []string{"dc", "the-district"},
+		// U22: "washington" added so the alias-aware lookupByNameIn
+		// resolves the natural-language truncation through the city
+		// entry (the tighter 12 km radius, ContextHints set).
+		Aliases: []string{"dc", "the-district", "washington"},
 		ParentMetro: map[string]string{
 			"opentable": "washington-dc",
 		},
