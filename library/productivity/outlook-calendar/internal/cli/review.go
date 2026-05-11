@@ -42,11 +42,6 @@ Pair with 'sync' for an end-to-end "what changed this week" view.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			now := time.Now()
-			anchor, err := resolveSince(since, now)
-			if err != nil {
-				return usageErr(fmt.Errorf("--since %q: %w", since, err))
-			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("outlook-calendar-pp-cli")
 			}
@@ -55,6 +50,12 @@ Pair with 'sync' for an end-to-end "what changed this week" view.`,
 				return apiErr(err)
 			}
 			defer db.Close()
+
+			now := time.Now()
+			anchor, err := resolveSince(since, now, db)
+			if err != nil {
+				return usageErr(fmt.Errorf("--since %q: %w", since, err))
+			}
 
 			rows, err := db.DB().QueryContext(cmd.Context(),
 				`SELECT id, data, synced_at, is_cancelled, created_date_time, last_modified_date_time FROM events`)
@@ -164,12 +165,19 @@ Pair with 'sync' for an end-to-end "what changed this week" view.`,
 	return cmd
 }
 
-func resolveSince(s string, anchor time.Time) (time.Time, error) {
+func resolveSince(s string, anchor time.Time, db *store.Store) (time.Time, error) {
 	s = strings.TrimSpace(s)
 	switch strings.ToLower(s) {
 	case "today":
 		return time.Date(anchor.Year(), anchor.Month(), anchor.Day(), 0, 0, 0, 0, anchor.Location()), nil
 	case "last-sync":
+		if db != nil {
+			if ts := db.GetLastSyncedAt("events"); ts != "" {
+				if t := parseAnyTime(ts); !t.IsZero() {
+					return t, nil
+				}
+			}
+		}
 		return anchor.Add(-24 * time.Hour), nil
 	}
 	if days, err := parseRelativeDays(s); err == nil {

@@ -97,12 +97,23 @@ func parseGraphTime(g graphDateTime) (time.Time, error) {
 
 // loadEvents reads every non-cancelled event row from the store and unmarshals
 // the `data` JSON into graphEvent. Pass start/end to range-filter via
-// json_extract on the start.dateTime field; pass zero values to load all.
+// json_extract on start/end dateTime fields; pass zero values to load all.
+//
+// SQL bounds are coarse and rely on stored timestamps being UTC-shaped
+// (`YYYY-MM-DDTHH:MM:SS[.fraction]`), which is what Graph's calendarView
+// emits. The Go-side overlap filter below is the precise gate; SQL is the
+// memory/IO bound so we don't pull years of history just to inspect a week.
 func loadEvents(ctx context.Context, db *sql.DB, start, end time.Time) ([]graphEvent, error) {
 	q := `SELECT data FROM events WHERE COALESCE(is_cancelled, 0) = 0`
 	args := []any{}
 	if !start.IsZero() {
 		q += ` AND json_extract(data, '$.start.dateTime') IS NOT NULL`
+		q += ` AND json_extract(data, '$.end.dateTime') >= ?`
+		args = append(args, start.UTC().Format("2006-01-02T15:04:05"))
+	}
+	if !end.IsZero() {
+		q += ` AND json_extract(data, '$.start.dateTime') <= ?`
+		args = append(args, end.UTC().Format("2006-01-02T15:04:05.9999999"))
 	}
 	q += ` ORDER BY json_extract(data, '$.start.dateTime')`
 	rows, err := db.QueryContext(ctx, q, args...)

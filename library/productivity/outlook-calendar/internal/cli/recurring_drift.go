@@ -103,6 +103,25 @@ organizer-side reschedules that cause people to join calls at the wrong hour.`,
 					}
 				}
 
+				masterEnd, meErr := parseGraphTime(master.End)
+				instEnd, ieErr := parseGraphTime(inst.End)
+				if meErr == nil && ieErr == nil {
+					// Same projection trick for end-time: catches durations that were
+					// silently shortened or extended (start unchanged, end moved).
+					projected := time.Date(instEnd.Year(), instEnd.Month(), instEnd.Day(),
+						masterEnd.Hour(), masterEnd.Minute(), masterEnd.Second(), 0, instEnd.Location())
+					diff := instEnd.Sub(projected)
+					if diff < 0 {
+						diff = -diff
+					}
+					if diff > time.Minute {
+						reasons = append(reasons, "end_time_shifted")
+						if m := int(diff.Minutes()); m > deltaMins {
+							deltaMins = m
+						}
+					}
+				}
+
 				if len(reasons) == 0 {
 					continue
 				}
