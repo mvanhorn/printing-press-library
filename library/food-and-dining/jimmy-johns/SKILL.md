@@ -103,6 +103,22 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `jimmy-johns-pp-cli system` — Sign a Google Maps URL for client-side use (used internally by store finder)
 
 
+## Freshness Contract
+
+This printed CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, those paths check `sync_state` and may run a bounded refresh before reading local data. `--data-source local` never refreshes. `--data-source live` reads the API and does not mutate the local store. Set `JIMMY_JOHNS_NO_AUTO_REFRESH=1` to skip the freshness hook without changing source selection.
+
+Covered paths:
+
+- `jimmy-johns-pp-cli menu`
+- `jimmy-johns-pp-cli menu product_filters`
+- `jimmy-johns-pp-cli menu product_modifiers`
+- `jimmy-johns-pp-cli menu products`
+- `jimmy-johns-pp-cli stores`
+- `jimmy-johns-pp-cli stores get_disclaimers`
+- `jimmy-johns-pp-cli stores list`
+
+When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
+
 ### Finding the right command
 
 When you know what you want to do but not which command does it, ask the CLI directly:

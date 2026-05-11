@@ -90,13 +90,13 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 42
+    "checked": 43
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 42
+    "checked": 43
   },
   "issues": [
     "3/3 novel features look reimplemented: menu unwich-convert (menu_unwich.go) — hand-rolled response: no API client call, no store access; order plan (order_plan.go) — hand-rolled response: no API client call, no store access; menu half-and-half (menu_half_and_half.go) — hand-rolled response: no API client call, no store access"
