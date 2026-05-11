@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Cloudflare Registrar Domains Minimal API
+  version: 0.1.0
+paths:
+  /accounts/{account_id}/registrar/domain-search:
+    get:
+      summary: Search domain ideas
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+  /accounts/{account_id}/registrar/domain-check:
+    post:
+      summary: Check exact domain availability and pricing
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domains]
+              properties:
+                domains:
+                  type: array
+                  items: { type: string }
+  /accounts/{account_id}/registrar/registrations:
+    post:
+      summary: Register exact domain
+      description: Paid operation. CLI requires typed --confirm-domain gate before calling this endpoint.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domain_name]
+              properties:
+                domain_name: { type: string }

@@ -1,0 +1,9 @@
+{
+  "name": "cf-domain",
+  "category": "cloud",
+  "api": "Cloudflare Registrar",
+  "description": "Search, check, and register Cloudflare Registrar domains from a small headless CLI.",
+  "path": "library/cloud/cf-domain",
+  "printer": "dannyshmueli",
+  "printer_name": "Danny Shmueli"
+}
