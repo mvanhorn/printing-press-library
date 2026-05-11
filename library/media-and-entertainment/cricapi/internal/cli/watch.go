@@ -42,6 +42,10 @@ keeping a browser tab open.`,
 			if err != nil {
 				return err
 			}
+			// PATCH: watch must always read live scores. The HTTP client's response
+			// cache is 5 min; without this, every poll after the first returns the
+			// cached snapshot and score changes are invisible until cache expiry.
+			c.NoCache = true
 
 			seen := ""
 			polls := 0

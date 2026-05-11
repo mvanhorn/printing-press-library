@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260510-234521",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "watch-nocache",
+      "summary": "Set c.NoCache = true in the watch command after newClient(), so the 15-30s poll loop bypasses the 5-min HTTP response cache.",
+      "reason": "Without this, every poll after the first read returned the cached snapshot and live score changes were invisible until cache expiry. The sync command already uses this pattern; the watch command needs it too. Flagged by Greptile as a P1 functional defect.",
+      "files": ["internal/cli/watch.go"]
+    },
+    {
+      "id": "store-sql-injection",
+      "summary": "Quote+escape resourceType in store.ListIDs and allowlist field tokens in store.ResolveByName to block SQL injection through user-influenced resource/field names.",
+      "reason": "Both methods interpolated caller-supplied strings directly into SQL via fmt.Sprintf. Greptile flagged as P1 security. This is a generator-template issue affecting other library CLIs as well — should also be fixed upstream in cli-printing-press templates. Patching here so this PR can land cleanly while the upstream fix propagates.",
+      "files": ["internal/store/store.go"],
+      "deferred_to_upstream": ["Fix the same pattern in the generator template so future CLIs ship without the injection vector."]
+    }
+  ]
+}

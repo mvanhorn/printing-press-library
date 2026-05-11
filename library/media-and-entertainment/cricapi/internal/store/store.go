@@ -731,8 +731,12 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	// PATCH: SQL injection — `resourceType` is interpolated as a bare SQL
+	// identifier. Quote and escape it so callers (e.g. the --resources flag)
+	// can't inject arbitrary SQL. Generator-template bug — should also be
+	// fixed upstream in cli-printing-press.
+	quotedType := `"` + strings.ReplaceAll(resourceType, `"`, `""`) + `"`
+	query := fmt.Sprintf("SELECT id FROM %s", quotedType)
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table
@@ -818,6 +822,12 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// PATCH: SQL injection — `field` is interpolated into the json_extract
+		// path string. Allowlist to safe JSON field tokens (alnum + underscore)
+		// before building the path. Generator-template bug — also fix upstream.
+		if !isSafeJSONField(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
@@ -859,4 +869,19 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		}
 		return "", fmt.Errorf("ambiguous: %q matches %d %s entries (%s). Use the exact UUID instead", input, len(matches), resourceType, hint)
 	}
+}
+
+// PATCH: isSafeJSONField allows only alphanumeric ASCII + underscore — safe
+// to interpolate into a SQLite json_extract path. Used by ResolveByName to
+// block SQL injection via the matchFields parameter.
+func isSafeJSONField(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_') {
+			return false
+		}
+	}
+	return true
 }
