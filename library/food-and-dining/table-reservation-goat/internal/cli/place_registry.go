@@ -167,19 +167,22 @@ func lookupIn(places []Place, slug string) (Place, bool) {
 	return Place{}, false
 }
 
-// lookupByNameIn returns every Place that matches the query by display
-// Name OR by curated alias, case-insensitive after trim. Hyphen↔space
-// normalization makes slug-style aliases ("new-york") reachable from
-// natural-language input ("new york") and vice versa. Order preserved
-// from the input slice for determinism. Empty input or zero hits
-// returns (nil, false).
+// PATCH: lookupbyname-alias-aware — `LookupByName` originally did strict
+// exact-equal on display Name only; short forms already curated as
+// `Aliases` ("nyc", "sf", "la", "dc", "weho", "bk") never resolved
+// through the by-name path. U22 layered an alias-check on top of the
+// exact-Name match so the by-name path honors the same curated alias
+// surface `Lookup(slug)` does. Hyphen↔space normalization on both
+// sides lets slug-style aliases ("new-york") interchange with natural-
+// language input ("new york"). The dedup-by-slug guard is defensive —
+// curated data avoids redundant Name+alias double-matches but a future
+// entry that carries both still returns once. See
+// .printing-press-patches.json entry `lookupbyname-alias-aware`.
 //
-// U22 extension: alias-check was added so natural-language short forms
-// ("nyc", "sf", "la", "dc", "weho", "bk") resolve through the by-name
-// path the same way Lookup(slug)'s alias chain does. The dedup-by-slug
-// guard is defensive — curated data avoids redundant Name+alias
-// double-matches, but a future entry that happens to carry both still
-// returns once.
+// lookupByNameIn returns every Place that matches the query by display
+// Name OR by curated alias, case-insensitive after trim. Order
+// preserved from the input slice for determinism. Empty input or zero
+// hits returns (nil, false).
 func lookupByNameIn(places []Place, name string) ([]Place, bool) {
 	key := strings.ToLower(strings.TrimSpace(name))
 	if key == "" {
