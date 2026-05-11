@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/working/jimmy-johns-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}
