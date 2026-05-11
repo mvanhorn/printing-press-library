@@ -1408,6 +1408,17 @@ func mustQuerySnapshotBefore(s *store.Store, site int, before time.Time) *omnilo
 	return &cfg
 }
 
+// diffMspConfigs walks two MspConfig snapshots and emits a structured
+// change list covering every piece of the equipment tree the operator can
+// reconfigure: heaters (count + setpoint + enable), pumps (count + speed
+// range + function + name + type), lights (count + type + V2-active),
+// relays (count + function + type, both per-BoW and backyard-level), and
+// chlorinators (presence + cell type + name).
+//
+// The Long help on `schedule diff` promises to "catch silent edits made
+// by service techs or by other app users" — anything reconfigurable in
+// the MSP config qualifies. Limiting the diff to heaters left half the
+// equipment tree outside the function's documented surface.
 func diffMspConfigs(a, b *omnilogic.MspConfig) []map[string]any {
 	var changes []map[string]any
 	bowsA := bowsByID(a)
@@ -1418,46 +1429,231 @@ func diffMspConfigs(a, b *omnilogic.MspConfig) []map[string]any {
 			changes = append(changes, map[string]any{"kind": "bow-removed", "bow_system_id": id, "name": before.Name})
 			continue
 		}
-		// Compare equipment counts as a coarse signal; the deep diff is the JSON.
-		if len(before.Heaters) != len(after.Heaters) {
-			changes = append(changes, map[string]any{
-				"kind": "heater-count-changed", "bow_system_id": id,
-				"before": len(before.Heaters), "after": len(after.Heaters),
-			})
-		}
-		// Compare setpoint per heater (heater Current-Set-Point change is the
-		// most likely scheduled-change signal).
-		hbefore := heatersByID(before.Heaters)
-		hafter := heatersByID(after.Heaters)
-		for hid, hb := range hbefore {
-			ha, ok := hafter[hid]
-			if !ok {
-				continue
-			}
-			if hb.CurrentSetPoint != ha.CurrentSetPoint {
-				changes = append(changes, map[string]any{
-					"kind":          "heater-setpoint-changed",
-					"bow_system_id": id,
-					"heater":        ha.Name,
-					"before":        hb.CurrentSetPoint,
-					"after":         ha.CurrentSetPoint,
-				})
-			}
-			if hb.Enabled != ha.Enabled {
-				changes = append(changes, map[string]any{
-					"kind":          "heater-enabled-changed",
-					"bow_system_id": id,
-					"heater":        ha.Name,
-					"before":        hb.Enabled,
-					"after":         ha.Enabled,
-				})
-			}
-		}
+		changes = append(changes, diffHeaters(id, before.Heaters, after.Heaters)...)
+		changes = append(changes, diffEquipmentSet("pump", id, before.Pumps, after.Pumps)...)
+		changes = append(changes, diffEquipmentSet("light", id, before.Lights, after.Lights)...)
+		changes = append(changes, diffEquipmentSet("relay", id, before.Relays, after.Relays)...)
+		changes = append(changes, diffChlorinator(id, before.Chlorinator, after.Chlorinator)...)
 	}
 	for id, after := range bowsB {
 		if _, ok := bowsA[id]; !ok {
 			changes = append(changes, map[string]any{"kind": "bow-added", "bow_system_id": id, "name": after.Name})
 		}
+	}
+	// Backyard-level relays — landscape lights, accessory outlets, etc.
+	// Not scoped to a BoW; pass empty bow id so consumers see them as
+	// top-level changes.
+	changes = append(changes, diffEquipmentSet("backyard-relay", "", a.Relays, b.Relays)...)
+	return changes
+}
+
+// diffHeaters compares two heater slices belonging to the same BoW and
+// emits count + per-heater setpoint + enable + add/remove records.
+func diffHeaters(bowID string, before, after []omnilogic.Heater) []map[string]any {
+	var changes []map[string]any
+	if len(before) != len(after) {
+		changes = append(changes, map[string]any{
+			"kind":          "heater-count-changed",
+			"bow_system_id": bowID,
+			"before":        len(before),
+			"after":         len(after),
+		})
+	}
+	hbefore := heatersByID(before)
+	hafter := heatersByID(after)
+	for hid, hb := range hbefore {
+		ha, ok := hafter[hid]
+		if !ok {
+			changes = append(changes, map[string]any{
+				"kind":             "heater-removed",
+				"bow_system_id":    bowID,
+				"heater_system_id": hid,
+				"name":             hb.Name,
+			})
+			continue
+		}
+		if hb.CurrentSetPoint != ha.CurrentSetPoint {
+			changes = append(changes, map[string]any{
+				"kind":          "heater-setpoint-changed",
+				"bow_system_id": bowID,
+				"heater":        ha.Name,
+				"before":        hb.CurrentSetPoint,
+				"after":         ha.CurrentSetPoint,
+			})
+		}
+		if hb.Enabled != ha.Enabled {
+			changes = append(changes, map[string]any{
+				"kind":          "heater-enabled-changed",
+				"bow_system_id": bowID,
+				"heater":        ha.Name,
+				"before":        hb.Enabled,
+				"after":         ha.Enabled,
+			})
+		}
+	}
+	for hid, ha := range hafter {
+		if _, ok := hbefore[hid]; !ok {
+			changes = append(changes, map[string]any{
+				"kind":             "heater-added",
+				"bow_system_id":    bowID,
+				"heater_system_id": hid,
+				"name":             ha.Name,
+			})
+		}
+	}
+	return changes
+}
+
+// diffEquipmentSet is the generic Equipment-slice differ used for pumps,
+// lights, relays, and backyard-level relays. Emits these change kinds:
+//
+//	<kind>-count-changed       length mismatch
+//	<kind>-added               item in `after` only
+//	<kind>-removed             item in `before` only
+//	<kind>-renamed             same SystemID, different Name
+//	<kind>-type-changed        Type
+//	<kind>-function-changed    Function
+//	<kind>-speed-range-changed MinSpeed or MaxSpeed (pump-specific in practice)
+//	<kind>-v2-active-changed   V2Active (light-specific in practice)
+//
+// Empty bowID is used for the backyard-level relay set.
+func diffEquipmentSet(kind, bowID string, before, after []omnilogic.Equipment) []map[string]any {
+	var changes []map[string]any
+	if len(before) != len(after) {
+		entry := map[string]any{
+			"kind":   kind + "-count-changed",
+			"before": len(before),
+			"after":  len(after),
+		}
+		if bowID != "" {
+			entry["bow_system_id"] = bowID
+		}
+		changes = append(changes, entry)
+	}
+	bm := equipmentByID(before)
+	am := equipmentByID(after)
+	for sid, eb := range bm {
+		ea, ok := am[sid]
+		if !ok {
+			entry := map[string]any{
+				"kind":                kind + "-removed",
+				"equipment_system_id": sid,
+				"name":                eb.Name,
+			}
+			if bowID != "" {
+				entry["bow_system_id"] = bowID
+			}
+			changes = append(changes, entry)
+			continue
+		}
+		if eb.Name != ea.Name {
+			changes = append(changes, equipmentChange(kind+"-renamed", bowID, sid, ea.Name, eb.Name, ea.Name))
+		}
+		if eb.Type != ea.Type {
+			changes = append(changes, equipmentChange(kind+"-type-changed", bowID, sid, ea.Name, eb.Type, ea.Type))
+		}
+		if eb.Function != ea.Function {
+			changes = append(changes, equipmentChange(kind+"-function-changed", bowID, sid, ea.Name, eb.Function, ea.Function))
+		}
+		// Speed-range only meaningful on pumps but the field exists on
+		// the shared Equipment type. Empty-string-on-both skips naturally.
+		if (eb.MinSpeed != ea.MinSpeed || eb.MaxSpeed != ea.MaxSpeed) &&
+			(eb.MinSpeed != "" || ea.MinSpeed != "" || eb.MaxSpeed != "" || ea.MaxSpeed != "") {
+			entry := map[string]any{
+				"kind":                kind + "-speed-range-changed",
+				"equipment_system_id": sid,
+				"name":                ea.Name,
+				"before":              eb.MinSpeed + "-" + eb.MaxSpeed,
+				"after":               ea.MinSpeed + "-" + ea.MaxSpeed,
+			}
+			if bowID != "" {
+				entry["bow_system_id"] = bowID
+			}
+			changes = append(changes, entry)
+		}
+		if eb.V2Active != ea.V2Active && (eb.V2Active != "" || ea.V2Active != "") {
+			changes = append(changes, equipmentChange(kind+"-v2-active-changed", bowID, sid, ea.Name, eb.V2Active, ea.V2Active))
+		}
+	}
+	for sid, ea := range am {
+		if _, ok := bm[sid]; !ok {
+			entry := map[string]any{
+				"kind":                kind + "-added",
+				"equipment_system_id": sid,
+				"name":                ea.Name,
+			}
+			if bowID != "" {
+				entry["bow_system_id"] = bowID
+			}
+			changes = append(changes, entry)
+		}
+	}
+	return changes
+}
+
+func equipmentChange(kind, bowID, sid, name string, before, after any) map[string]any {
+	entry := map[string]any{
+		"kind":                kind,
+		"equipment_system_id": sid,
+		"name":                name,
+		"before":              before,
+		"after":               after,
+	}
+	if bowID != "" {
+		entry["bow_system_id"] = bowID
+	}
+	return entry
+}
+
+// diffChlorinator handles the per-BoW chlorinator pointer: presence
+// changes (added/removed) and CellType/Name/Type field diffs. Operating
+// mode and timed-percent live in telemetry, not MSP config — a scheduled
+// chlor mode change will surface in subsequent telemetry but is outside
+// MSP-config diff scope.
+func diffChlorinator(bowID string, before, after *omnilogic.Equipment) []map[string]any {
+	switch {
+	case before == nil && after == nil:
+		return nil
+	case before == nil && after != nil:
+		return []map[string]any{{
+			"kind":          "chlorinator-added",
+			"bow_system_id": bowID,
+			"name":          after.Name,
+			"cell_type":     after.CellType,
+		}}
+	case before != nil && after == nil:
+		return []map[string]any{{
+			"kind":          "chlorinator-removed",
+			"bow_system_id": bowID,
+			"name":          before.Name,
+		}}
+	}
+	var changes []map[string]any
+	if before.Name != after.Name {
+		changes = append(changes, map[string]any{
+			"kind":          "chlorinator-renamed",
+			"bow_system_id": bowID,
+			"before":        before.Name,
+			"after":         after.Name,
+		})
+	}
+	if before.CellType != after.CellType {
+		changes = append(changes, map[string]any{
+			"kind":          "chlorinator-cell-type-changed",
+			"bow_system_id": bowID,
+			"name":          after.Name,
+			"before":        before.CellType,
+			"after":         after.CellType,
+		})
+	}
+	if before.Type != after.Type {
+		changes = append(changes, map[string]any{
+			"kind":          "chlorinator-type-changed",
+			"bow_system_id": bowID,
+			"name":          after.Name,
+			"before":        before.Type,
+			"after":         after.Type,
+		})
 	}
 	return changes
 }
@@ -1474,6 +1670,14 @@ func heatersByID(hs []omnilogic.Heater) map[string]omnilogic.Heater {
 	m := map[string]omnilogic.Heater{}
 	for _, h := range hs {
 		m[h.SystemID] = h
+	}
+	return m
+}
+
+func equipmentByID(eqs []omnilogic.Equipment) map[string]omnilogic.Equipment {
+	m := map[string]omnilogic.Equipment{}
+	for _, e := range eqs {
+		m[e.SystemID] = e
 	}
 	return m
 }
