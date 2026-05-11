@@ -500,7 +500,11 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 							avail = append(avail, chromeAvail...)
 							continue
 						}
-						aerr = fmt.Errorf("direct path blocked by Akamai (%v); chrome fallback also failed: %v", derr, cerr)
+						// Use %w (not %v) on derr so the wrapped *BotDetectionError
+						// remains unwrappable by errors.As — downstream
+						// IsBotDetection(aerr) needs to surface row.ErrorKind even
+						// in the dual-failure case. (PR #426 round-2 Greptile P1.)
+						aerr = fmt.Errorf("direct path blocked by Akamai (%w); chrome fallback also failed: %v", derr, cerr)
 						break
 					}
 					aerr = derr
