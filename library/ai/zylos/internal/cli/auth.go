@@ -525,22 +525,18 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	}
 
 	var script string
+	var pyCmd *exec.Cmd
 	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
 		safePath := filepath.ToSlash(cookiePath)
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
-		)
+		script = `import json, sys; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://" + sys.argv[1], cookie_file=sys.argv[2])))`
+		pyCmd = exec.Command("python3", "-c", script, cleanDomain, safePath)
 	} else {
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
-		)
+		script = `import json, sys; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://" + sys.argv[1])))`
+		pyCmd = exec.Command("python3", "-c", script, cleanDomain)
 	}
 
 	var out bytes.Buffer
-	cmd := exec.Command("python3", "-c", script)
+	cmd := pyCmd
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
