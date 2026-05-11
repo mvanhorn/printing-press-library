@@ -86,6 +86,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
+					// PATCH(upstream cli-printing-press#1048): hint points at `login` not OAUTH2C env.
 					report["auth_hint"] = "run `google-search-console-pp-cli login` to authenticate (prompts for OAuth Client ID on first run)"
 				} else {
 					report["auth"] = "configured"

@@ -36,6 +36,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// PATCH(upstream cli-printing-press#1048): interactive OAuth credential prompt + config fallback.
 // resolveOAuthCredentials returns the OAuth client-id and client-secret to
 // use for the browser flow, walking three fallbacks before giving up:
 //
@@ -116,6 +117,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// PATCH(upstream cli-printing-press#1048): top-level login command.
 // newLoginCmd exposes the OAuth flow at the top of the command tree so
 // `<binary> login` works without requiring users to discover `auth login`.
 // Identical behavior to the nested form — same flags, same interactive

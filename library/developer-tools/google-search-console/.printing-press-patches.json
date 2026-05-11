@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260507-203018",
+  "base_printing_press_version": "4.0.2",
+  "patches": [
+    {
+      "id": "auth-ux-login-interactive",
+      "summary": "Top-level `login` command + interactive OAuth Client ID/Secret prompt fallback.",
+      "reason": "Generator's default auth UX requires --client-id / --client-secret flags or env vars on first invocation, with no interactive setup. New users would otherwise have to read the README to learn how to authenticate; the doctor hint pointed at a different env-var-based auth path that misled. This patch makes `<binary> login` discoverable at the root command, prompts for credentials when missing, and saves them so subsequent logins are zero-arg.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/root.go",
+        "internal/cli/doctor.go"
+      ],
+      "validated_outcome": "Fresh checkout with no env vars set: `./google-search-console-pp-cli login` prompts for Client ID with a console.cloud.google.com URL, runs OAuth, persists tokens. Second login on the same machine: zero prompts, browser opens, token refreshed.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1048"
+    }
+  ],
+  "upstream_tracking": [
+    {
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1048",
+      "status": "open",
+      "note": "Once the generator-side auth template lands the same UX, this patch can be dropped on the next regen of google-search-console."
+    }
+  ]
+}

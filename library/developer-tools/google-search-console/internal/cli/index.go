@@ -212,11 +212,11 @@ filtered file to retry only the failures.
 			}
 
 			return emit(cmd, flags, map[string]any{
-				"file":       fromFile,
-				"type":       notifyType,
-				"total":      len(urls),
-				"submitted":  submitted,
-				"results":    results,
+				"file":      fromFile,
+				"type":      notifyType,
+				"total":     len(urls),
+				"submitted": submitted,
+				"results":   results,
 			})
 		},
 	}

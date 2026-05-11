@@ -185,6 +185,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWebmastersCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
+	// PATCH(upstream cli-printing-press#1048): top-level login command.
 	rootCmd.AddCommand(newLoginCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
