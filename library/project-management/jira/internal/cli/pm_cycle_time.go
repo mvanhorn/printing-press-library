@@ -263,6 +263,7 @@ func parseJiraTime(s string) (time.Time, error) {
 
 // parseDurationDays converts a plain integer or duration string to a number of days.
 // Accepts: "90" (days), "90d", "12w", "6m" (months), "1y".
+// PATCH: novel-features
 func parseDurationDays(s string) (int, error) {
 	s = strings.TrimSpace(s)
 	if n, err := strconv.Atoi(s); err == nil {

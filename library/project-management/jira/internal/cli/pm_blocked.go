@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH: novel-features
 func newBlockedCmd(flags *rootFlags) *cobra.Command {
 	var project string
 	var assignee string

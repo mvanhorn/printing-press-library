@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-114028",
+  "base_printing_press_version": "4.3.0",
+  "patches": [
+    {
+      "id": "issue-sync-endpoint",
+      "summary": "Fix issue sync to use /rest/api/3/search/jql; add --project flag for scoped sync; make issue_changelog, issue_comment, issue_worklog opt-in.",
+      "reason": "Generator picked wrong list endpoint; JQL endpoint needs maxResults/nextPageToken; per-issue child resources generate N API calls per issue so must be explicit.",
+      "files": ["internal/cli/sync.go"]
+    },
+    {
+      "id": "http-basic-auth",
+      "summary": "Add HTTP Basic auth (JIRA_API_TOKEN + JIRA_EMAIL env vars).",
+      "reason": "Generator emitted OAuth2-only; Jira Cloud developer auth is HTTP Basic with email:token.",
+      "files": ["internal/config/config.go", "internal/cli/doctor.go"]
+    },
+    {
+      "id": "search-endpoint-410",
+      "summary": "Fix live search to use /rest/api/3/search/jql; add --project flag to local FTS search.",
+      "reason": "Old /rest/api/3/search returns 410; issue table has no FTS index so SearchIssue uses json_extract LIKE.",
+      "files": ["internal/cli/search.go", "internal/store/store.go"]
+    },
+    {
+      "id": "fts-rank-ambiguous",
+      "summary": "Qualify ORDER BY rank as ORDER BY <table>_fts.rank in all FTS queries.",
+      "reason": "dashboard table has a rank column that clashes with FTS5 rank pseudo-column.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "component-duplicate-flag",
+      "summary": "Remove duplicate bodyLeadAccountId var and lead-account-id flag in component create/update.",
+      "reason": "Generator emitted the same variable and flag twice causing a runtime panic on --help.",
+      "files": ["internal/cli/component_create.go", "internal/cli/component_update.go"]
+    },
+    {
+      "id": "novel-features",
+      "summary": "Add cycle-time, workload, blocked, stale (Jira-specific), worklog-summary; fix blocked empty-message; cycle-time --last accepts duration strings.",
+      "reason": "Hand-authored analytics not produced by generator.",
+      "files": [
+        "internal/cli/pm_cycle_time.go",
+        "internal/cli/pm_workload.go",
+        "internal/cli/pm_blocked.go",
+        "internal/cli/pm_stale.go",
+        "internal/cli/pm_worklog_summary.go",
+        "internal/cli/root.go",
+        "internal/cli/issue_worklog.go"
+      ]
+    }
+  ]
+}
