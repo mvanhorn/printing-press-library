@@ -301,15 +301,6 @@ func newInsightsReferralHealthCmd(flags *rootFlags) *cobra.Command {
 					"subscriber_sample": subErr,
 				}),
 			}
-			if pubErr != nil {
-				result["publication_warning"] = pubErr.Error()
-			}
-			if refErr != nil {
-				result["referral_program_warning"] = refErr.Error()
-			}
-			if subErr != nil {
-				result["subscriber_sample_warning"] = subErr.Error()
-			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}

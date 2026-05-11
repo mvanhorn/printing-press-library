@@ -12,6 +12,16 @@
         "internal/cli/insights.go"
       ],
       "validated_outcome": "go test ./... and verify-skill pass for the published Beehiiv CLI."
+    },
+    {
+      "id": "private-response-cache",
+      "summary": "Restricts Beehiiv response-cache directories and files to the current user.",
+      "reason": "Beehiiv API responses can contain subscriber emails and other PII, so cache files must not be world-readable on multi-user systems.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cache/cache.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
     }
   ]
 }

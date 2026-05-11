@@ -44,8 +44,15 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 
 // Set stores a value in the cache.
 func (s *Store) Set(key string, value json.RawMessage) {
-	_ = os.MkdirAll(s.Dir, 0o755)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o644)
+	// PATCH: Keep cached Beehiiv API responses private because they may contain subscriber PII.
+	if err := os.MkdirAll(s.Dir, 0o700); err != nil {
+		return
+	}
+	_ = os.Chmod(s.Dir, 0o700)
+	path := s.path(key)
+	if err := os.WriteFile(path, []byte(value), 0o600); err == nil {
+		_ = os.Chmod(path, 0o600)
+	}
 }
 
 // Clear removes all cached entries.

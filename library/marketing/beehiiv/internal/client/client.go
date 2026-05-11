@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -18,8 +20,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/config"
 )
 
 type Client struct {
@@ -31,8 +31,6 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -130,9 +128,15 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	// PATCH: Keep cached Beehiiv API responses private because they may contain subscriber PII.
+	if err := os.MkdirAll(c.cacheDir, 0o700); err != nil {
+		return
+	}
+	_ = os.Chmod(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	if err := os.WriteFile(cacheFile, []byte(data), 0o600); err == nil {
+		_ = os.Chmod(cacheFile, 0o600)
+	}
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read
@@ -450,7 +454,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {
