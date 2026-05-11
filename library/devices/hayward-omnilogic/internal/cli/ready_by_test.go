@@ -113,3 +113,40 @@ func TestCommandLogNotAnnotatedReadOnly(t *testing.T) {
 		t.Errorf("command-log must NOT be annotated mcp:read-only (got %q) — --replay <id> issues live writes", v)
 	}
 }
+
+// TestMustBeReadOnlySQL_WordBoundary covers the Greptile #3216464122 finding
+// that the original `strings.Contains(lower, banned+" ")` guard was bypassed
+// by newline-separated keywords. Every banned op must be caught regardless
+// of the trailing whitespace character (space / tab / newline / EOF).
+func TestMustBeReadOnlySQL_WordBoundary(t *testing.T) {
+	cases := []struct {
+		query string
+		want  string // empty = clean
+		label string
+	}{
+		{"select * from sites", "", "plain SELECT clean"},
+		{"with cte as (select 1) select * from cte", "", "CTE clean"},
+		{"delete from sites", "delete", "delete followed by space"},
+		{"delete\nfrom sites", "delete", "delete followed by NEWLINE (the bug)"},
+		{"delete\tfrom sites", "delete", "delete followed by TAB"},
+		{"DELETE FROM sites", "delete", "uppercase still caught after lowercasing"},
+		{"drop table x", "drop", "drop"},
+		{"insert into x values (1)", "insert", "insert"},
+		{"update x set a=1", "update", "update"},
+		{"alter table x add column y int", "alter", "alter"},
+		{"create table z (a int)", "create", "create"},
+		{"attach database '/x.db' as foo", "attach", "attach"},
+		// Word-boundary correctness: these should NOT trigger.
+		{"select created_at from sites", "", "create as substring of 'created_at' must not trigger"},
+		{"select * from updates", "", "update as substring of 'updates' must not trigger"},
+		{"select inserted_id from log", "", "insert as substring of 'inserted_id' must not trigger"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.label, func(t *testing.T) {
+			got := mustBeReadOnlySQL(strings.ToLower(tc.query))
+			if got != tc.want {
+				t.Errorf("query %q: want %q, got %q", tc.query, tc.want, got)
+			}
+		})
+	}
+}

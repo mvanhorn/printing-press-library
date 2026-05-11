@@ -170,3 +170,61 @@ func TestOpenPermissions(t *testing.T) {
 		t.Errorf("store file perms: want 0600, got %#o", mode)
 	}
 }
+
+// TestAppendTelemetry_FiltersSentinels regression test for Greptile P1
+// #3216464198: Hayward's -1 sentinel must never reach the time-series
+// store. Pre-fix, AppendTelemetry wrote -1 readings, which corrupted
+// drift baselines and chemistry log accuracy.
+func TestAppendTelemetry_FiltersSentinels(t *testing.T) {
+	s := openTempStore(t)
+	bad := -1
+	good := 78
+	badPH := -1.0
+	goodPH := 7.5
+	badORP := -1
+	goodORP := 700
+	badSalt := -1
+	goodSalt := 3000
+
+	tele := &omnilogic.Telemetry{
+		MspSystemID: 1,
+		AirTemp:     &bad, // should be filtered
+		SampledAt:   time.Now().UTC(),
+		BodiesOfWater: []omnilogic.TelemetryBOW{
+			{
+				SystemID:  "10",
+				WaterTemp: &bad, // filtered
+				PH:        &badPH, // filtered
+				ORP:       &badORP, // filtered
+				SaltPPM:   &badSalt, // filtered
+			},
+			{
+				SystemID:  "11",
+				WaterTemp: &good,
+				PH:        &goodPH,
+				ORP:       &goodORP,
+				SaltPPM:   &goodSalt,
+			},
+		},
+	}
+	count, err := s.AppendTelemetry(tele)
+	if err != nil {
+		t.Fatalf("AppendTelemetry: %v", err)
+	}
+	// Expect only the 4 good readings appended (water_temp, ph, orp, salt
+	// from BoW 11), not the 5 sentinels from air + BoW 10.
+	if count != 4 {
+		t.Errorf("expected 4 good samples appended, got %d", count)
+	}
+
+	// Confirm the -1 readings never made it into the store.
+	for _, metric := range []string{"air_temp", "water_temp", "ph", "orp", "salt_ppm"} {
+		samples, _ := s.QueryTelemetry(1, metric, "", 0)
+		for _, smp := range samples {
+			v := smp.FormatValue()
+			if v == "-1" || v == "-1.0" {
+				t.Errorf("metric %q still has a -1 sentinel in the store: %+v", metric, smp)
+			}
+		}
+	}
+}

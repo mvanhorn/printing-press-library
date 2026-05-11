@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,6 +24,37 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+// readOnlySQLBannedOps maps each banned SQL op to a compiled \bkeyword\b
+// regex. Compiled once at package init so the sql command's guard runs
+// in O(banned-op-count) without per-call regex compilation. Lowercase
+// keyword + case-insensitive caller (`lower` is the user-input already
+// lowercased) keeps the patterns simple.
+var readOnlySQLBannedOps = map[string]*regexp.Regexp{
+	"insert": regexp.MustCompile(`\binsert\b`),
+	"update": regexp.MustCompile(`\bupdate\b`),
+	"delete": regexp.MustCompile(`\bdelete\b`),
+	"drop":   regexp.MustCompile(`\bdrop\b`),
+	"alter":  regexp.MustCompile(`\balter\b`),
+	"create": regexp.MustCompile(`\bcreate\b`),
+	"attach": regexp.MustCompile(`\battach\b`),
+}
+
+// mustBeReadOnlySQL returns the name of the first banned op found in the
+// lowercase query, or "" if the query is clean. The regex word-boundary
+// match catches keywords followed by whitespace (space/tab/newline) AND
+// keywords at end-of-input, defending against the original space-suffix
+// guard that newlines bypassed.
+func mustBeReadOnlySQL(lowerQuery string) string {
+	// Stable iteration order so the error message is deterministic
+	// (regardless of Go map iteration randomization).
+	for _, op := range []string{"insert", "update", "delete", "drop", "alter", "create", "attach"} {
+		if readOnlySQLBannedOps[op].MatchString(lowerQuery) {
+			return op
+		}
+	}
+	return ""
+}
 
 // ---------- status (pool readiness composite) ----------
 
@@ -639,11 +671,26 @@ func buildDriftReport(s *store.Store, siteID int, forecast bool) driftReport {
 		sort.Slice(samples, func(i, j int) bool { return samples[i].SampledAt < samples[j].SampledAt })
 		values := make([]float64, 0, len(samples))
 		for _, s := range samples {
+			// Defense-in-depth against Hayward's -1 sentinel. AppendTelemetry
+			// filters these at write-time post-fix, but the local store may
+			// still contain legacy -1 rows from before the write-time filter
+			// landed. Treating -1 as a real reading would drag the baseline
+			// mean below zero and trigger a perpetual false-positive drift
+			// alert when the sensor comes back online. Reject non-positive
+			// values regardless of source. Greptile P1 #3216464198.
+			var v float64
+			haveValue := false
 			if s.ValueReal.Valid {
-				values = append(values, s.ValueReal.Float64)
+				v = s.ValueReal.Float64
+				haveValue = true
 			} else if s.ValueInt.Valid {
-				values = append(values, float64(s.ValueInt.Int64))
+				v = float64(s.ValueInt.Int64)
+				haveValue = true
 			}
+			if !haveValue || v <= 0 {
+				continue
+			}
+			values = append(values, v)
 		}
 		if len(values) < 2 {
 			continue
@@ -2013,10 +2060,17 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 			if !strings.HasPrefix(lower, "select") && !strings.HasPrefix(lower, "with") {
 				return usageErr(errors.New("sql command accepts SELECT / WITH queries only"))
 			}
-			for _, banned := range []string{"insert", "update", "delete", "drop", "alter", "create", "attach"} {
-				if strings.Contains(lower, banned+" ") {
-					return usageErr(fmt.Errorf("%s statements are not allowed via 'sql'", strings.ToUpper(banned)))
-				}
+			// Word-boundary check, NOT a "keyword followed by space" check —
+			// the old `strings.Contains(lower, banned+" ")` was bypassed by
+			// any non-space whitespace separator (newline, tab) or end-of-
+			// input. e.g. `DELETE\nFROM sites` lowercased to `delete\nfrom
+			// sites`, which does not contain `delete `, slipped through the
+			// guard, and would execute against the live store. Greptile P1
+			// #3216464122. The mustBeReadOnlySQL helper applies a regex
+			// `\bkeyword\b` per banned op so any whitespace OR EOF counts
+			// as a boundary.
+			if op := mustBeReadOnlySQL(lower); op != "" {
+				return usageErr(fmt.Errorf("%s statements are not allowed via 'sql'", strings.ToUpper(op)))
 			}
 			s, err := openStore()
 			if err != nil {

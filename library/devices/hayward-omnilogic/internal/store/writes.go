@@ -136,32 +136,41 @@ func (s *Store) AppendTelemetry(t *omnilogic.Telemetry) (int, error) {
 	defer tx.Rollback()
 	ts := t.SampledAt.UTC().Format(time.RFC3339)
 	count := 0
-	if t.AirTemp != nil {
+	// Hayward emits -1 (and occasionally 0) as a "sensor not reading"
+	// sentinel for chemistry probes and water-temp sensors. Writing
+	// those to the telemetry_samples store would corrupt every
+	// downstream analysis: drift baselines drag toward zero, chemistry
+	// log shows false readings, runtime calculations break. Filter at
+	// write-time so the time-series table only contains real
+	// measurements. Defense-in-depth: analysis functions also re-filter
+	// at read-time to defend against legacy rows already in the store.
+	// Greptile P1 #3216464198.
+	if t.AirTemp != nil && *t.AirTemp > 0 {
 		if err := appendSample(tx, t.MspSystemID, "", "", "air_temp", *t.AirTemp, ts); err != nil {
 			return count, err
 		}
 		count++
 	}
 	for _, bow := range t.BodiesOfWater {
-		if bow.WaterTemp != nil {
+		if bow.WaterTemp != nil && *bow.WaterTemp > 0 {
 			if err := appendSample(tx, t.MspSystemID, bow.SystemID, "", "water_temp", *bow.WaterTemp, ts); err != nil {
 				return count, err
 			}
 			count++
 		}
-		if bow.PH != nil {
+		if bow.PH != nil && *bow.PH > 0 {
 			if err := appendSampleReal(tx, t.MspSystemID, bow.SystemID, "", "ph", *bow.PH, ts); err != nil {
 				return count, err
 			}
 			count++
 		}
-		if bow.ORP != nil {
+		if bow.ORP != nil && *bow.ORP > 0 {
 			if err := appendSample(tx, t.MspSystemID, bow.SystemID, "", "orp", *bow.ORP, ts); err != nil {
 				return count, err
 			}
 			count++
 		}
-		if bow.SaltPPM != nil {
+		if bow.SaltPPM != nil && *bow.SaltPPM > 0 {
 			if err := appendSample(tx, t.MspSystemID, bow.SystemID, "", "salt_ppm", *bow.SaltPPM, ts); err != nil {
 				return count, err
 			}
