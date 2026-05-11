@@ -53,6 +53,18 @@ type earliestRow struct {
 	CachedAt string `json:"cached_at,omitempty"`
 	Stale    bool   `json:"stale,omitempty"`
 	Source   string `json:"source,omitempty"`
+
+	// LocationResolved is the U7 typed-resolution annotation populated when
+	// the caller passed --location (or legacy --metro) and ResolveLocation
+	// returned a GeoContext. Omitted on the no-constraint path so existing
+	// JSON consumers see no field-shape change.
+	LocationResolved *LocationResolvedField `json:"location_resolved,omitempty"`
+	// LocationWarning is attached alongside LocationResolved when the
+	// resolution had material ambiguity (MEDIUM tier), the caller forced
+	// past LOW with --accept-ambiguous, or a numeric-ID venue resolved
+	// outside the requested radius (numeric-ID exemption — soft-demote
+	// with warning rather than hard-reject from post-filter).
+	LocationWarning *LocationWarningField `json:"location_warning,omitempty"`
 }
 
 type earliestMeta struct {
@@ -103,9 +115,9 @@ type earliestResponse struct {
 // stay in Results but don't count toward Available.
 //
 // Partitioning here (rather than passing the raw `rows` to Results)
-// closes the duplication bug Greptile flagged on PR #424 round-2:
-// previously unresolved venues appeared in BOTH the results[] and
-// unresolved[] arrays simultaneously.
+// closes the duplication bug Greptile flagged on PR #424: previously
+// unresolved venues appeared in BOTH the results[] and unresolved[]
+// arrays simultaneously.
 //
 // PRECONDITION: callers must pass `rows` produced from `venues` so that
 // `len(rows) == len(venues)` and entries correspond positionally. The
@@ -146,11 +158,14 @@ func summarizeEarliest(venues []string, rows []earliestRow) (earliestMeta, []ear
 // network:slug prefix) and queries the right source.
 func newEarliestCmd(flags *rootFlags) *cobra.Command {
 	var (
-		party   int
-		within  string
-		date    string
-		tonight bool
-		noCache bool
+		party               int
+		within              string
+		date                string
+		tonight             bool
+		noCache             bool
+		flagLocation        string
+		flagAcceptAmbiguous bool
+		flagMetro           string
 	)
 	cmd := &cobra.Command{
 		Use:   "earliest <slug1,slug2,...>",
@@ -201,10 +216,47 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 			if withinDays == 0 {
 				withinDays = 14
 			}
+
+			// Resolve --location / --metro into a typed GeoContext (or a
+			// disambiguation envelope) before any provider call. The
+			// resolved GeoContext flows into resolveEarliestForVenue and
+			// drives the OT Autocomplete coordinate hint in place of the
+			// hardcoded NYC fallback. When neither --location nor --metro
+			// is set, gc is nil and resolveEarliestForVenue's per-venue
+			// slug-suffix inference fires as the lowest-precedence
+			// fallback (SourceExtractedFromQuery → soft-demote in post-
+			// filter).
+			gc, envelope, locationErr, acceptedAmbiguous := resolveLocationFlags(
+				cmd.ErrOrStderr(),
+				flagLocation,
+				flagMetro,
+				flagAcceptAmbiguous,
+			)
+			if locationErr != nil {
+				return locationErr
+			}
+			if envelope != nil {
+				// Disambiguation envelope replaces the result list entirely
+				// — the caller must pick a location before per-venue
+				// resolution makes sense.
+				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+			}
+
 			if dryRunOK(flags) {
 				rows := make([]earliestRow, 0, len(venues))
 				for _, v := range venues {
-					rows = append(rows, earliestRow{Venue: v, Network: "opentable", Available: false, Reason: "dry-run"})
+					row := earliestRow{Venue: v, Network: "opentable", Available: false, Reason: "dry-run"}
+					// Decorate with the resolved location context (or
+					// fall back to slug-suffix inference when gc is nil
+					// and the venue's slug carries a city suffix). This
+					// keeps the dry-run shape consistent with the live
+					// path's annotations.
+					rowGC := gc
+					if rowGC == nil {
+						rowGC = inferGeoContextFromSlug(v)
+					}
+					row = applyGeoToVenueRow(row, rowGC, acceptedAmbiguous, v)
+					rows = append(rows, row)
 				}
 				meta, results, unresolved := summarizeEarliest(venues, rows)
 				return printJSONFiltered(cmd.OutOrStdout(), earliestResponse{
@@ -236,7 +288,17 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 
 			rows := make([]earliestRow, 0, len(venues))
 			for _, v := range venues {
-				row := resolveEarliestForVenue(ctx, session, v, party, startDate, withinDays, noCache)
+				// U8: pass the resolved GeoContext into the per-venue
+				// resolver. When gc is nil (no explicit --location/--metro),
+				// fall back to slug-suffix inference per venue — that path
+				// constructs a SourceExtractedFromQuery GeoContext so the
+				// post-filter soft-demotes rather than hard-rejects.
+				rowGC := gc
+				if rowGC == nil {
+					rowGC = inferGeoContextFromSlug(v)
+				}
+				row := resolveEarliestForVenue(ctx, session, v, party, startDate, withinDays, noCache, rowGC)
+				row = applyGeoToVenueRow(row, rowGC, acceptedAmbiguous, v)
 				rows = append(rows, row)
 			}
 			// Available rows first, then alphabetical
@@ -262,7 +324,86 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&date, "date", "", "Start date YYYY-MM-DD (defaults to today)")
 	cmd.Flags().BoolVar(&tonight, "tonight", false, "Shorthand for --date <today> --within 1d. Mutually exclusive with --date.")
 	cmd.Flags().BoolVar(&noCache, "no-cache", os.Getenv("TRG_OT_NO_CACHE") == "1", "Bypass the OT availability cache and force a fresh network fetch (env: TRG_OT_NO_CACHE=1).")
+	cmd.Flags().StringVar(&flagLocation, "location", "",
+		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
+			"Anchors the OT Autocomplete fallback on the resolved centroid. When omitted, "+
+			"each venue's slug suffix is checked as a lowest-precedence fallback "+
+			"(SourceExtractedFromQuery → soft-demote on out-of-radius hits).")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
+		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
+			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().StringVar(&flagMetro, "metro", "",
+		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
+			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
 	return cmd
+}
+
+// inferGeoContextFromSlug constructs a GeoContext from the city-suffix
+// hint embedded in a venue slug (e.g., "joey-bellevue" → Bellevue WA).
+// This is the lowest-precedence fallback path on the `earliest` command:
+// when the caller passed neither --location nor --metro, but a slug
+// carries a recognizable city suffix, we synthesize a GeoContext so the
+// OT Autocomplete coordinate hint anchors on the right metro. The
+// resulting GeoContext carries Source=SourceExtractedFromQuery so the
+// downstream post-filter soft-demotes out-of-radius rows rather than
+// hard-rejecting (the slug-suffix hint is best-effort, not authoritative
+// the way --location is).
+//
+// Resolution strategy:
+//  1. inferMetroFromSlug_DEPRECATED — looks up the suffix against the
+//     metro registry by slug (covers "joey-seattle", "joey-chicago" via
+//     canonical metro slugs and aliases).
+//  2. Fallback to ResolveLocation with AcceptAmbiguous=true on the
+//     peeled suffix — covers same-name cities not registered as metros
+//     ("joey-bellevue" → LookupByName("bellevue") → top-ranked
+//     Bellevue WA via popularityPrior).
+//
+// Returns nil when neither path finds a match — the per-venue path then
+// falls back to resolveOTSlugGeoAware's legacy NYC anchor.
+func inferGeoContextFromSlug(venue string) *GeoContext {
+	_, slug := parseNetworkSlug(venue)
+	if slug == "" {
+		return nil
+	}
+
+	// Strategy 1: metro-slug suffix match (e.g., "joey-seattle").
+	metro, _, ok := inferMetroFromSlug_DEPRECATED(slug, getRegistry())
+	if ok {
+		radius := metro.RadiusKm
+		if radius <= 0 {
+			radius = defaultMetroRadiusKm
+		}
+		return &GeoContext{
+			Origin:     slug,
+			ResolvedTo: formatPlaceName(metro),
+			Centroid:   [2]float64{metro.Lat, metro.Lng},
+			RadiusKm:   radius,
+			Confidence: 0.5,
+			Source:     SourceExtractedFromQuery,
+		}
+	}
+
+	// Strategy 2: peel hyphen-separated tokens from the end and try
+	// LookupByName via ResolveLocation. AcceptAmbiguous=true forces a
+	// pick on multi-candidate names (e.g., three Bellevues) so the
+	// slug-suffix hint always lands on a usable GeoContext rather than
+	// the envelope path — the slug suffix is a hint, not a question.
+	tokens := strings.Split(slug, "-")
+	for suffixLen := 3; suffixLen >= 1; suffixLen-- {
+		if suffixLen > len(tokens) {
+			continue
+		}
+		suffix := strings.Join(tokens[len(tokens)-suffixLen:], " ")
+		gc, _, err := ResolveLocation(suffix, ResolveOptions{
+			Source:          SourceExtractedFromQuery,
+			AcceptAmbiguous: true,
+		})
+		if err != nil || gc == nil {
+			continue
+		}
+		return gc
+	}
+	return nil
 }
 
 // parseDays accepts "14d", "14", "7d" and returns days as int. "" returns 0.
@@ -295,6 +436,95 @@ func splitCSV(s string) []string {
 	return out
 }
 
+// isNumericIDInput reports whether the venue argument is a pure numeric
+// OpenTable ID (with or without the `opentable:` prefix). Tock has no
+// numeric-ID convention, so a `tock:<digits>` input still counts as
+// "not numeric" from this helper's perspective — Tock's numeric inputs
+// take the typed-error path inside resolveEarliestForVenue, not the
+// numeric-ID exemption path.
+//
+// Used by availability_check / multi-day to decide whether to hard-
+// reject (slug input) vs soft-demote with LocationWarning (numeric-ID
+// input) when a venue resolves outside the requested radius. Numeric
+// IDs are unambiguous: the agent already knew exactly which venue it
+// wanted, so the post-filter shouldn't second-guess it — instead we
+// surface the geographic mismatch via a warning and let the caller
+// decide.
+func isNumericIDInput(venue string) bool {
+	network, slug := parseNetworkSlug(venue)
+	if network == "tock" {
+		return false
+	}
+	if slug == "" {
+		return false
+	}
+	for _, r := range slug {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// applyGeoToVenueRow attaches LocationResolved / LocationWarning to a
+// resolved row according to the typed pipeline contract:
+//
+//   - gc == nil — no decoration; the caller didn't pass --location.
+//   - numeric-ID input + gc non-nil — always decorate with
+//     LocationResolved. If the row carries lat/lng and falls outside
+//     the radius, attach a LocationWarning ("venue is outside your
+//     stated location"). Never drop the row (numeric-ID exemption).
+//   - non-numeric input + gc non-nil — decorate with LocationResolved.
+//     Hard-reject for slug inputs is already enforced inside
+//     resolveOTSlugGeoAware (it returns an error when no candidate
+//     lands in-radius); a resolved row at this layer has already
+//     passed the in-radius check, so no extra warning is needed.
+//
+// The acceptedAmbiguous flag flows from the caller's --accept-ambiguous
+// flag (and the --metro legacy implicit) into the tier inference so
+// the MEDIUM-vs-LOW-with-bypass decoration matches the resolution
+// shape.
+func applyGeoToVenueRow(row earliestRow, gc *GeoContext, acceptedAmbiguous bool, venue string) earliestRow {
+	if gc == nil {
+		return row
+	}
+	resolved, warning := DecorateWithLocationContext(gc, inferTierFromGeoContext(gc, acceptedAmbiguous), acceptedAmbiguous)
+	row.LocationResolved = resolved
+	row.LocationWarning = warning
+
+	// Numeric-ID exemption: soft-demote with a warning when the venue
+	// resolved outside the stated radius. Slug inputs already had their
+	// hard-reject enforced inside resolveOTSlugGeoAware, so this branch
+	// only fires for numeric IDs that bypassed Autocomplete entirely.
+	if !isNumericIDInput(venue) {
+		return row
+	}
+	if row.Latitude == 0 && row.Longitude == 0 {
+		// No lat/lng on the row — can't make a geo judgement. Keep
+		// LocationResolved (caller stated the location explicitly) but
+		// skip the warning rather than fire on missing data.
+		return row
+	}
+	dist := haversineKm(gc.Centroid[0], gc.Centroid[1], row.Latitude, row.Longitude)
+	radius := gc.RadiusKm
+	if radius <= 0 {
+		radius = defaultMetroRadiusKm
+	}
+	if dist <= radius {
+		return row
+	}
+	// Outside radius. Attach (or overwrite) the warning so consumers see
+	// the geographic mismatch without losing the resolved row.
+	row.LocationWarning = &LocationWarningField{
+		Picked:     venue,
+		Alternates: nil,
+		Reason: fmt.Sprintf(
+			"venue is outside your stated location (%.1fkm from %s; radius %.0fkm)",
+			dist, gc.ResolvedTo, radius),
+	}
+	return row
+}
+
 func parseNetworkSlug(input string) (network, slug string) {
 	if i := strings.Index(input, ":"); i > 0 {
 		net := strings.ToLower(input[:i])
@@ -305,7 +535,23 @@ func parseNetworkSlug(input string) (network, slug string) {
 	return "", input
 }
 
-func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string, party int, date string, within int, noCache bool) earliestRow {
+// resolveEarliestForVenue resolves a venue across both networks and
+// returns its earliest open slot in the requested window.
+//
+// The optional gc parameter routes the OT Autocomplete fallback inside
+// resolveOTSlugGeoAware: when gc is non-nil, gc.Centroid drives the
+// coordinate hint in place of the hardcoded NYC fallback. When gc is
+// nil, the NYC fallback is preserved (back-compat for callers that
+// haven't yet wired through the typed location pipeline). The gc
+// argument does not affect the numeric-ID short-circuit path — that
+// path bypasses Autocomplete entirely and routes directly by ID.
+//
+// Numeric-ID exemption from the post-filter hard-reject is the caller's
+// responsibility (availability_check / multi-day / future earliest):
+// numeric IDs are an unambiguous addressing scheme, so an out-of-radius
+// venue resolved via a numeric ID is a soft-demote (attach
+// LocationWarning) rather than a hard-reject. See isNumericIDInput.
+func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string, party int, date string, within int, noCache bool, gc *GeoContext) earliestRow {
 	network, slug := parseNetworkSlug(venue)
 	row := earliestRow{Venue: venue}
 
@@ -439,13 +685,29 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 					rerr      error
 					metroUsed Metro
 				)
+				// Pick the Autocomplete coordinate hint from the typed
+				// GeoContext when the caller passed --location; otherwise
+				// fall back to the legacy NYC anchor (40.7128, -74.0060)
+				// so callers that haven't wired the typed pipeline yet
+				// preserve their current behavior. The radius likewise
+				// flows from gc when present so callers can widen/narrow
+				// the slug-suffix resolver's in-radius window.
+				anchorLat, anchorLng := 40.7128, -74.0060
+				anchorRadius := defaultMetroRadiusKm
+				if gc != nil {
+					anchorLat, anchorLng = gc.Centroid[0], gc.Centroid[1]
+					if gc.RadiusKm > 0 {
+						anchorRadius = gc.RadiusKm
+					}
+				}
 				restID, restName, restSlug, metroUsed, rerr = resolveOTSlugGeoAware(
-					ctx, c, slug, 40.7128, -74.0060, defaultMetroRadiusKm,
+					ctx, c, slug, anchorLat, anchorLng, anchorRadius,
 				)
 				if rerr != nil {
 					// Slug-resolve failed. row.Network stays empty so
 					// summarizeEarliest partitions this row into
-					// `unresolved[]` (PR #424 round-3 fix).
+					// `unresolved[]` (PR #424 round-3 fix). The row
+					// carries the reason so agents can see why.
 					row.Available = false
 					row.Reason = fmt.Sprintf("opentable: could not resolve %q (%v)", slug, rerr)
 					// If the slug-resolve itself failed because Autocomplete

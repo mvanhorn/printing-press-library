@@ -84,18 +84,29 @@ func haversineKm(lat1, lng1, lat2, lng2 float64) float64 {
 	return earthRadiusKm * c
 }
 
-// inferMetroFromSlug tries to detect a city-suffix in a user-supplied
-// slug. Issue #406 failure 1: agents compose slugs like `joey-bellevue`,
-// `13-coins-bellevue` to disambiguate by city — without this inference
-// the suffix is dropped on the floor and the resolver returns wrong-
-// city matches.
+// inferMetroFromSlug_DEPRECATED tries to detect a city-suffix in a
+// user-supplied slug. Issue #406 failure 1: agents compose slugs like
+// `joey-bellevue`, `13-coins-bellevue` to disambiguate by city —
+// without this inference the suffix is dropped on the floor and the
+// resolver returns wrong-city matches.
 //
 // Strategy: walk the slug from end to start, peeling off hyphen-
 // separated tokens. For each suffix of 1-3 tokens, try the registry.
 // Returns the matched Metro + the prefix (slug-minus-suffix) so
 // callers can use the prefix as the actual search term. Returns
 // ok=false when no suffix maps to a known metro.
-func inferMetroFromSlug(slug string, reg MetroRegistry) (m Metro, prefix string, ok bool) {
+//
+// Renamed in U5 (location-native-redesign): the free-form
+// `--location` parser (`ParseLocation` + `ResolveLocation`) supersedes
+// the hyphenated-slug-suffix pathway for human/agent-typed input. The
+// slug-suffix logic is still used by `resolveOTSlugGeoAware` to peel
+// city hints off venue slugs like `joey-bellevue` — that's a distinct
+// concern (slug-suffix parsing) from the new free-form parser.
+// Migration to a unified `ResolveLocation`-based path lives in U7/U8;
+// until then, this helper keeps the slug-suffix venue resolution
+// behavior intact. The `_DEPRECATED` suffix flags it for that future
+// migration.
+func inferMetroFromSlug_DEPRECATED(slug string, reg MetroRegistry) (m Metro, prefix string, ok bool) {
 	tokens := strings.Split(slug, "-")
 	// Try longer suffixes first so "new-york-city" wins over the
 	// substring "city" / "york".
@@ -143,7 +154,7 @@ func resolveOTSlugGeoAware(
 		radiusKm = defaultMetroRadiusKm
 	}
 	reg := getRegistry()
-	metro, prefix, found := inferMetroFromSlug(slug, reg)
+	metro, prefix, found := inferMetroFromSlug_DEPRECATED(slug, reg)
 	if !found {
 		// No city suffix — fall back to the existing resolver path.
 		id, name, urlSlug, fallbackErr := c.RestaurantIDFromQuery(ctx, slug, defaultLat, defaultLng)
@@ -235,14 +246,28 @@ func resolveOTSlugGeoAware(
 }
 
 // applyGeoFilter mutates a slice of goatResult according to the
-// configured mode + centroid. Returns the post-filter slice (which
-// may be shorter under hard-reject, same length under soft-demote).
-// Also annotates each row with the computed distance in km so agents
-// can see why a row was kept/dropped.
-func applyGeoFilter(results []goatResult, centroid Metro, radiusKm float64, mode metroFilterMode) []goatResult {
-	if mode == metroFilterOff || (centroid.Lat == 0 && centroid.Lng == 0) {
+// configured mode and the typed GeoContext. Returns the post-filter
+// slice (which may be shorter under hard-reject, same length under
+// soft-demote). Also annotates each row with the computed distance
+// in km so agents can see why a row was kept/dropped.
+//
+// Signature migrated in U5 from `(centroid Metro, radiusKm float64,
+// mode metroFilterMode)` to `(ctx *GeoContext, mode metroFilterMode)`
+// so the typed location pipeline (ResolveLocation -> GeoContext) flows
+// through the post-filter without an ad-hoc Metro reconstruction at
+// each call site. A nil ctx means "no location constraint requested";
+// the function returns results unchanged to support R13 (no-filter
+// when the caller didn't pass --location).
+func applyGeoFilter(results []goatResult, ctx *GeoContext, mode metroFilterMode) []goatResult {
+	if ctx == nil || mode == metroFilterOff {
 		return results
 	}
+	lat := ctx.Centroid[0]
+	lng := ctx.Centroid[1]
+	if lat == 0 && lng == 0 {
+		return results
+	}
+	radiusKm := ctx.RadiusKm
 	if radiusKm <= 0 {
 		radiusKm = defaultMetroRadiusKm
 	}
@@ -255,7 +280,7 @@ func applyGeoFilter(results []goatResult, centroid Metro, radiusKm float64, mode
 			out = append(out, r)
 			continue
 		}
-		dist := haversineKm(centroid.Lat, centroid.Lng, r.Latitude, r.Longitude)
+		dist := haversineKm(lat, lng, r.Latitude, r.Longitude)
 		r.MetroCentroidDistanceKm = dist
 		if dist <= radiusKm {
 			out = append(out, r)

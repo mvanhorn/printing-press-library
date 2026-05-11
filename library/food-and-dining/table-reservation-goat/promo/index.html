@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #000;
+        font-family: "Inter", -apple-system, "SF Pro Text", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+      }
+
+      /* ==== SCENE 1: TELEGRAM CHAT ==== */
+      #chat-scene {
+        position: absolute;
+        inset: 0;
+        background: #0e0e10;
+      }
+
+      #doodle {
+        position: absolute;
+        inset: 0;
+        opacity: 0.42;
+        background-color: #0e0e10;
+        background-image:
+          radial-gradient(circle at 14% 18%, #3a2a55 0 7px, transparent 8px),
+          radial-gradient(circle at 38% 8%,  #3a2a55 0 5px, transparent 6px),
+          radial-gradient(circle at 62% 22%, #3a2a55 0 6px, transparent 7px),
+          radial-gradient(circle at 88% 14%, #3a2a55 0 8px, transparent 9px),
+          radial-gradient(circle at 6% 42%,  #3a2a55 0 6px, transparent 7px),
+          radial-gradient(circle at 28% 56%, #3a2a55 0 9px, transparent 10px),
+          radial-gradient(circle at 54% 64%, #3a2a55 0 5px, transparent 6px),
+          radial-gradient(circle at 78% 48%, #3a2a55 0 7px, transparent 8px),
+          radial-gradient(circle at 94% 70%, #3a2a55 0 6px, transparent 7px),
+          radial-gradient(circle at 16% 82%, #3a2a55 0 8px, transparent 9px),
+          radial-gradient(circle at 44% 92%, #3a2a55 0 5px, transparent 6px),
+          radial-gradient(circle at 70% 86%, #3a2a55 0 7px, transparent 8px),
+          radial-gradient(circle at 92% 96%, #3a2a55 0 6px, transparent 7px);
+        background-size: 540px 540px;
+        background-repeat: repeat;
+      }
+
+      /* Status bar */
+      #status-bar {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 80px;
+        padding: 0 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 10;
+        color: #fff;
+        font-size: 32px;
+        font-weight: 600;
+      }
+      #status-bar .time {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      #status-bar .icons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .moon {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: inset -7px -2px 0 0 #0e0e10;
+        margin-top: 2px;
+      }
+      .signal-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 22px;
+      }
+      .signal-bars span {
+        width: 5px;
+        background: #fff;
+        border-radius: 1px;
+      }
+      .signal-bars span:nth-child(1) { height: 8px; }
+      .signal-bars span:nth-child(2) { height: 12px; }
+      .signal-bars span:nth-child(3) { height: 16px; }
+      .signal-bars span:nth-child(4) { height: 20px; }
+      .wifi {
+        width: 28px;
+        height: 22px;
+        clip-path: polygon(0 70%, 50% 0, 100% 70%, 50% 100%);
+        background: #fff;
+      }
+      .battery {
+        width: 44px;
+        height: 22px;
+        border: 2px solid #fff;
+        border-radius: 5px;
+        position: relative;
+        padding: 2px;
+      }
+      .battery::after {
+        content: "";
+        position: absolute;
+        right: -5px;
+        top: 7px;
+        width: 3px;
+        height: 8px;
+        background: #fff;
+        border-radius: 0 2px 2px 0;
+      }
+      .battery .fill {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border-radius: 2px;
+      }
+
+      /* Header */
+      #header {
+        position: absolute;
+        top: 80px; left: 0; right: 0;
+        height: 130px;
+        padding: 0 36px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(28, 28, 30, 0.86);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-bottom: 1px solid #2c2c2e;
+        z-index: 9;
+      }
+      .back-arrow {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #4ea2ff;
+        font-size: 56px;
+        font-weight: 300;
+        line-height: 1;
+      }
+      .header-title {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        flex: 1;
+      }
+      .header-title .name {
+        font-size: 44px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.3px;
+      }
+      .header-title .sub {
+        font-size: 26px;
+        color: #8e8e93;
+        font-weight: 400;
+      }
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #5a3b8a, #2c1f4a);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 0 2px rgba(138, 86, 255, 0.35);
+      }
+      .avatar::after {
+        content: "🐐";
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        line-height: 1;
+      }
+
+      /* Input bar */
+      #input-bar {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 130px;
+        padding: 18px 30px 36px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: rgba(20, 20, 23, 0.94);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-top: 1px solid #1f1f22;
+        z-index: 9;
+      }
+      .menu-pill {
+        height: 64px;
+        padding: 0 28px;
+        background: linear-gradient(180deg, #4a7eff, #3a6cea);
+        color: #fff;
+        font-size: 30px;
+        font-weight: 600;
+        border-radius: 32px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .menu-pill .lines {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .menu-pill .lines span {
+        width: 22px;
+        height: 3px;
+        background: #fff;
+        border-radius: 2px;
+      }
+      .input-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6a6a72;
+        font-size: 38px;
+      }
+      .message-field {
+        flex: 1;
+        height: 64px;
+        background: transparent;
+        color: #9090a0;
+        font-size: 30px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        padding: 0 4px;
+      }
+
+      /* Chat container — flex column from BOTTOM, masked at top */
+      #chat {
+        position: absolute;
+        top: 210px;
+        left: 0; right: 0;
+        bottom: 130px;
+        padding: 30px 28px 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 14px;
+        overflow: hidden;
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0px,
+          rgba(0, 0, 0, 0.0) 0px,
+          rgba(0, 0, 0, 0.45) 60px,
+          #000 160px,
+          #000 100%
+        );
+                mask-image: linear-gradient(
+          to bottom,
+          transparent 0px,
+          rgba(0, 0, 0, 0.0) 0px,
+          rgba(0, 0, 0, 0.45) 60px,
+          #000 160px,
+          #000 100%
+        );
+      }
+
+      .row {
+        display: flex;
+        width: 100%;
+      }
+      .row.user { justify-content: flex-end; }
+      .row.bot  { justify-content: flex-start; }
+
+      .bubble {
+        max-width: 820px;
+        padding: 26px 32px;
+        border-radius: 36px;
+        color: #fff;
+        font-size: 38px;
+        line-height: 1.32;
+        position: relative;
+        word-wrap: break-word;
+      }
+      .bubble.user {
+        background: linear-gradient(180deg, #8a56ff 0%, #4a7bff 100%);
+        border-bottom-right-radius: 14px;
+        box-shadow: 0 4px 22px rgba(74, 123, 255, 0.18);
+      }
+      .bubble.bot {
+        background: #262629;
+        border-bottom-left-radius: 14px;
+      }
+      .bubble .time {
+        display: block;
+        margin-top: 10px;
+        text-align: right;
+        font-size: 26px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.95);
+        letter-spacing: 0.2px;
+      }
+
+      /* Typing indicator */
+      .typing {
+        background: #262629;
+        border-radius: 32px;
+        border-bottom-left-radius: 12px;
+        padding: 22px 32px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .typing .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #c4c4cf;
+      }
+
+      /* Venue list (3 venues) */
+      .venue-header {
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+      .venue-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .venue {
+        display: grid;
+        grid-template-columns: 56px 1fr auto;
+        align-items: center;
+        gap: 20px;
+        font-size: 36px;
+      }
+      .venue .icon {
+        font-size: 40px;
+        text-align: center;
+        line-height: 1;
+      }
+      .venue .name {
+        font-weight: 600;
+        font-size: 38px;
+      }
+      .venue .meta {
+        display: block;
+        margin-top: 2px;
+        font-size: 28px;
+        color: rgba(255, 255, 255, 0.62);
+        font-weight: 400;
+      }
+      .venue .badge {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        padding: 6px 14px;
+        border-radius: 14px;
+        text-transform: uppercase;
+      }
+      .badge.tock { background: rgba(232, 197, 71, 0.18); color: #f0d166; border: 1px solid rgba(232, 197, 71, 0.45); }
+      .badge.ot   { background: rgba(218, 55, 67, 0.18); color: #ff6e7a; border: 1px solid rgba(218, 55, 67, 0.45); }
+
+      /* Slot list (4 times) */
+      .slots {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 4px;
+      }
+      .slot {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 18px;
+        padding: 14px 22px;
+      }
+      .slot .when {
+        font-size: 36px;
+        font-weight: 700;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+      }
+      .slot .attr {
+        font-size: 26px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .slot.featured {
+        background: rgba(138, 86, 255, 0.18);
+        border-color: rgba(138, 86, 255, 0.55);
+        box-shadow: 0 0 24px rgba(138, 86, 255, 0.25);
+      }
+      .slot.featured .attr {
+        color: #d8c8ff;
+      }
+
+      /* Booked confirmation */
+      .booked {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .booked .head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-weight: 600;
+        font-size: 40px;
+      }
+      .check {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: #1f7a36;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        font-weight: 800;
+        color: #ffffff;
+        box-shadow: 0 0 14px rgba(52, 199, 89, 0.45);
+      }
+      .booked .card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 22px;
+        padding: 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .booked .card .venue-name {
+        font-size: 38px;
+        font-weight: 700;
+      }
+      .booked .card .when {
+        font-size: 30px;
+        color: rgba(255, 255, 255, 0.82);
+      }
+      .booked .card .conf {
+        margin-top: 8px;
+        font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+        font-size: 26px;
+        color: #a8c8ff;
+        letter-spacing: 0.6px;
+      }
+
+      /* ==== SCENE 2: BRAND CLOSE ==== */
+      #brand-scene {
+        position: absolute;
+        inset: 0;
+        background: #0a0a0c;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+        padding: 80px;
+        z-index: 20;
+      }
+      #brand-scene::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 50% 42%, rgba(138, 86, 255, 0.45) 0%, rgba(138, 86, 255, 0.12) 28%, transparent 60%);
+        pointer-events: none;
+      }
+      .brand-eyebrow {
+        position: relative;
+        font-size: 30px;
+        font-weight: 600;
+        letter-spacing: 6px;
+        text-transform: uppercase;
+        color: #a8a8b3;
+      }
+      .brand-wordmark {
+        position: relative;
+        font-size: 168px;
+        font-weight: 800;
+        letter-spacing: -4px;
+        line-height: 1.0;
+        color: #fff;
+        text-align: center;
+      }
+      .brand-wordmark .em {
+        background: linear-gradient(180deg, #c8a8ff 0%, #8a56ff 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .brand-tagline {
+        position: relative;
+        font-size: 40px;
+        font-weight: 500;
+        color: #cfcfd9;
+        text-align: center;
+        max-width: 880px;
+        line-height: 1.35;
+        margin-top: 6px;
+      }
+      .install-pill {
+        position: relative;
+        margin-top: 24px;
+        padding: 30px 40px;
+        background: #15151a;
+        border: 1px solid #2c2c34;
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 940px;
+        box-shadow: 0 0 80px rgba(138, 86, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+      .install-pill .cmd-row {
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+        font-size: 32px;
+        font-weight: 500;
+        line-height: 1.45;
+        white-space: nowrap;
+      }
+      .install-pill .prompt {
+        color: #8a56ff;
+        width: 24px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .install-pill .prompt-blank {
+        width: 24px;
+        flex-shrink: 0;
+      }
+      .install-pill .cmd { color: #e8e8ff; }
+      .install-pill .pkg { color: #ffd089; }
+      .install-pill .arg { color: #a8c8ff; }
+      .install-pill .cont { color: #6a6a72; }
+
+      .pp-attr {
+        position: relative;
+        margin-top: 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-size: 30px;
+        font-weight: 500;
+        color: #a8a8b3;
+        text-align: center;
+      }
+      .pp-attr .lab { color: #8a8a93; }
+      .pp-attr .pp { color: #ffb347; font-weight: 700; letter-spacing: 0.5px; }
+      .pp-attr .icon { font-size: 30px; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="25"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- AUDIO -->
+      <audio
+        id="audio"
+        class="clip"
+        data-start="0"
+        data-duration="25"
+        data-track-index="0"
+        data-volume="0.85"
+        src="music.mp3"
+      ></audio>
+
+      <!-- SCENE 1: CHAT (0-17s) -->
+      <div
+        id="chat-scene"
+        class="clip"
+        data-start="0"
+        data-duration="17.5"
+        data-track-index="1"
+      >
+        <div id="doodle"></div>
+
+        <div id="status-bar">
+          <div class="time">
+            <span>7:51</span>
+            <div class="moon"></div>
+          </div>
+          <div class="icons">
+            <div class="signal-bars"><span></span><span></span><span></span><span></span></div>
+            <div class="wifi"></div>
+            <div class="battery"><div class="fill"></div></div>
+          </div>
+        </div>
+
+        <div id="header">
+          <div class="back-arrow">‹</div>
+          <div class="header-title">
+            <div class="name">PP Table GOAT</div>
+            <div class="sub">bot</div>
+          </div>
+          <div class="avatar"></div>
+        </div>
+
+        <div id="chat" data-layout-allow-overflow>
+          <!-- 1: User asks -->
+          <div class="row user" id="row-1">
+            <div class="bubble user">
+              Need a 2-top in Seattle this Saturday. Tasting menu, around 7pm. Anything actually open?
+              <span class="time">7:51 AM</span>
+            </div>
+          </div>
+
+          <!-- 2: Bot typing -->
+          <div class="row bot" id="row-typing-1">
+            <div class="typing">
+              <div class="dot d1"></div>
+              <div class="dot d2"></div>
+              <div class="dot d3"></div>
+            </div>
+          </div>
+
+          <!-- 3: Bot — checking -->
+          <div class="row bot" id="row-2">
+            <div class="bubble bot">
+              Checking <strong>OpenTable</strong> + <strong>Tock</strong>…
+            </div>
+          </div>
+
+          <!-- 4: Bot — venue list -->
+          <div class="row bot" id="row-3">
+            <div class="bubble bot">
+              <div class="venue-header">Found 3 across both networks:</div>
+              <div class="venue-list">
+                <div class="venue" id="venue-1">
+                  <div class="icon">🌿</div>
+                  <div>
+                    <div class="name">Altura</div>
+                    <div class="meta">Sat · 7:00 PM</div>
+                  </div>
+                  <div class="badge tock">Tock</div>
+                </div>
+                <div class="venue" id="venue-2">
+                  <div class="icon">🍝</div>
+                  <div>
+                    <div class="name">Spinasse</div>
+                    <div class="meta">Sat · 7:30 PM</div>
+                  </div>
+                  <div class="badge ot">OpenTable</div>
+                </div>
+                <div class="venue" id="venue-3">
+                  <div class="icon">🥂</div>
+                  <div>
+                    <div class="name">Canlis</div>
+                    <div class="meta">Sat · 8:15 PM</div>
+                  </div>
+                  <div class="badge tock">Tock</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5: User picks venue -->
+          <div class="row user" id="row-4">
+            <div class="bubble user">
+              Canlis.
+              <span class="time">7:51 AM</span>
+            </div>
+          </div>
+
+          <!-- 6: Bot — available times for Canlis -->
+          <div class="row bot" id="row-5">
+            <div class="bubble bot">
+              <div class="venue-header"><strong>Canlis</strong> · Sat May 16 — 4 open slots:</div>
+              <div class="slots">
+                <div class="slot" id="slot-1">
+                  <div class="when">6:00 PM</div>
+                  <div class="attr">Patio · 2</div>
+                </div>
+                <div class="slot" id="slot-2">
+                  <div class="when">6:45 PM</div>
+                  <div class="attr">Bar · 2</div>
+                </div>
+                <div class="slot featured" id="slot-3">
+                  <div class="when">8:15 PM</div>
+                  <div class="attr">Tasting · 2</div>
+                </div>
+                <div class="slot" id="slot-4">
+                  <div class="when">9:30 PM</div>
+                  <div class="attr">Bar · 2</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7: User picks time -->
+          <div class="row user" id="row-6">
+            <div class="bubble user">
+              8:15.
+              <span class="time">7:51 AM</span>
+            </div>
+          </div>
+
+          <!-- 8: Bot typing again -->
+          <div class="row bot" id="row-typing-2">
+            <div class="typing">
+              <div class="dot d1"></div>
+              <div class="dot d2"></div>
+              <div class="dot d3"></div>
+            </div>
+          </div>
+
+          <!-- 9: Booked -->
+          <div class="row bot" id="row-7">
+            <div class="bubble bot">
+              <div class="booked">
+                <div class="head">
+                  <span class="check">✓</span>
+                  <span>Booked.</span>
+                </div>
+                <div class="card">
+                  <div class="venue-name">Canlis</div>
+                  <div class="when">Sat May 16 · 8:15 PM · Party of 2</div>
+                  <div class="conf">CONFIRMATION · CN-294817</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="input-bar">
+          <div class="menu-pill">
+            <div class="lines"><span></span><span></span><span></span></div>
+            <span>Menu</span>
+          </div>
+          <div class="input-icon">📎</div>
+          <div class="message-field">Message</div>
+          <div class="input-icon">🎙</div>
+        </div>
+      </div>
+
+      <!-- SCENE 2: BRAND CLOSE (16.5-25s) -->
+      <div
+        id="brand-scene"
+        class="clip"
+        data-start="16.5"
+        data-duration="8.5"
+        data-track-index="2"
+      >
+        <div class="brand-eyebrow" id="b-eye">Table Reservation</div>
+        <div class="brand-wordmark" id="b-mark">
+          GOAT<span class="em">.</span>
+        </div>
+        <div class="brand-tagline" id="b-tag">
+          One agent. Both networks. The table you actually wanted.
+        </div>
+        <div class="install-pill" id="b-pill">
+          <div class="cmd-row">
+            <span class="prompt">$</span>
+            <span class="cmd"><span>npx</span> <span class="arg">-y</span> <span class="pkg">@mvanhorn/printing-press</span> <span class="cont">\</span></span>
+          </div>
+          <div class="cmd-row">
+            <span class="prompt-blank"></span>
+            <span class="cmd"><span>install</span> <span class="pkg">table-reservation-goat</span></span>
+          </div>
+        </div>
+        <div class="pp-attr" id="b-pp">
+          <span class="icon">🖨️</span>
+          <span class="lab">Built with</span>
+          <span class="pp">PRINTING PRESS</span>
+          <span class="lab">— the CLI factory.</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ----- INITIAL STATES -----
+      // Hide every chat row from layout AND visually until cued
+      const allRows = ["#row-1", "#row-typing-1", "#row-2", "#row-3", "#row-4", "#row-5", "#row-6", "#row-typing-2", "#row-7"];
+      gsap.set(allRows, { display: "none", autoAlpha: 0, y: 14 });
+
+      // Inner items
+      gsap.set(["#venue-1", "#venue-2", "#venue-3", "#slot-1", "#slot-2", "#slot-3", "#slot-4"], { autoAlpha: 0, x: -10 });
+
+      // Brand scene initial state
+      gsap.set("#brand-scene", { autoAlpha: 0 });
+      gsap.set(["#b-eye", "#b-mark", "#b-tag", "#b-pill", "#b-pp"], { autoAlpha: 0, y: 24 });
+
+      // ----- TIMING -----
+      // ~17s of chat + 8.5s brand = 25s total. Generous reading time per beat.
+      const T = {
+        userQ:        0.65,
+        typing1:      2.15,
+        botCheck:     3.05,
+        botList:      4.05,
+        venueA:       4.45,
+        venueB:       4.75,
+        venueC:       5.05,
+        userPick:     6.85,
+        typing2:      7.95,
+        botSlots:     8.85,
+        slotA:        9.20,
+        slotB:        9.45,
+        slotC:        9.75,
+        slotD:       10.00,
+        userTime:    11.85,
+        typing3:     12.95,
+        booked:      13.90,
+        brandIn:     16.50,
+      };
+
+      // Approximate row heights (px) for pre-shift layout smoothing.
+      // Includes the 14px gap so the chat container shifts smoothly.
+      const ROW_H = {
+        "#row-1":         265,   // user Q (multi-line)
+        "#row-typing-1":  100,
+        "#row-2":         115,   // "Checking…"
+        "#row-3":         475,   // venue list (3 venues)
+        "#row-4":         115,   // "Canlis."
+        "#row-5":         580,   // slots list (header + 4 slots)
+        "#row-6":         115,   // "8:15."
+        "#row-typing-2":  100,   // also re-used for typing-3
+        "#row-7":         365,   // booked card
+      };
+
+      // ----- HELPERS -----
+      // showRow: pre-shifts the chat container so existing bubbles glide up
+      // smoothly as the new row enters the layout. Eliminates the snap.
+      function showRow(sel, t, dur = 0.60, ease = "expo.out") {
+        const h = (ROW_H[sel] || 0) + 14; // include flex gap
+        // 1. Pre-shift chat down by the new row's height (existing bubbles look unchanged)
+        tl.set("#chat", { y: h }, t);
+        // 2. Reveal the new row in layout
+        tl.set(sel, { display: "flex" }, t);
+        // 3. Ease chat back to its natural position — existing rows glide up
+        tl.to("#chat", { y: 0, duration: dur, ease: ease }, t);
+        // 4. Fade in the new row in unison
+        tl.to(sel, { autoAlpha: 1, y: 0, duration: dur * 0.85, ease: "power1.out" }, t);
+      }
+      function hideRow(sel, t, dur = 0.28) {
+        tl.to(sel, { autoAlpha: 0, duration: dur, ease: "sine.in" }, t);
+        tl.set(sel, { display: "none" }, t + dur);
+      }
+
+      // ----- CHAT TIMELINE (smooth defaults, generous pacing) -----
+      showRow("#row-1", T.userQ);
+
+      showRow("#row-typing-1", T.typing1, 0.45, "power2.out");
+      hideRow("#row-typing-1", T.botCheck - 0.30, 0.25);
+
+      showRow("#row-2", T.botCheck);
+
+      showRow("#row-3", T.botList);
+      tl.to("#venue-1", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power2.out" }, T.venueA);
+      tl.to("#venue-2", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power2.out" }, T.venueB);
+      tl.to("#venue-3", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power2.out" }, T.venueC);
+
+      showRow("#row-4", T.userPick);
+
+      showRow("#row-typing-2", T.typing2, 0.45, "power2.out");
+      hideRow("#row-typing-2", T.botSlots - 0.30, 0.25);
+
+      showRow("#row-5", T.botSlots);
+      tl.to("#slot-1", { autoAlpha: 1, x: 0, duration: 0.40, ease: "power2.out" }, T.slotA);
+      tl.to("#slot-2", { autoAlpha: 1, x: 0, duration: 0.40, ease: "power2.out" }, T.slotB);
+      tl.to("#slot-3", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power2.out" }, T.slotC);
+      // Featured 8:15 PM glow — pulses 3x to draw the eye
+      tl.fromTo("#slot-3",
+        { boxShadow: "0 0 0px rgba(138, 86, 255, 0.0)" },
+        { boxShadow: "0 0 44px rgba(138, 86, 255, 0.7)", duration: 0.55, ease: "sine.inOut", yoyo: true, repeat: 5 },
+        T.slotC + 0.15
+      );
+      tl.to("#slot-4", { autoAlpha: 1, x: 0, duration: 0.40, ease: "power2.out" }, T.slotD);
+
+      // User picks 8:15 — tap-pop on the bubble
+      showRow("#row-6", T.userTime);
+      tl.fromTo(
+        "#row-6 .bubble",
+        { scale: 0.84 },
+        { scale: 1, duration: 0.50, ease: "back.out(1.9)" },
+        T.userTime
+      );
+
+      // Re-use typing indicator for the third typing beat
+      tl.set("#row-typing-2", { display: "flex", autoAlpha: 0, y: 14 }, T.typing3);
+      tl.to("#row-typing-2", { autoAlpha: 1, y: 0, duration: 0.45, ease: "power2.out" }, T.typing3);
+      hideRow("#row-typing-2", T.booked - 0.30, 0.25);
+
+      // ===== BOOKED CARD — smooth slide entrance =====
+      showRow("#row-7", T.booked, 0.70, "expo.out");
+
+      // ===== BIGGER BOOKED CELEBRATION =====
+      // 1. Check icon scales in with a strong rotation+bounce — feels triumphant
+      tl.fromTo(
+        "#row-7 .check",
+        { scale: 0, rotation: -45 },
+        { scale: 1, rotation: 0, duration: 0.60, ease: "back.out(2.6)" },
+        T.booked + 0.30
+      );
+      // 2. Big green glow burst on check — 3 pulses, decreasing intensity
+      tl.fromTo(
+        "#row-7 .check",
+        { boxShadow: "0 0 0px rgba(52, 199, 89, 0.0)" },
+        { boxShadow: "0 0 70px rgba(52, 199, 89, 1.0)", duration: 0.55, ease: "sine.out", yoyo: true, repeat: 3 },
+        T.booked + 0.30
+      );
+      // 3. Booked-bubble subtle scale punch — emphasizes the moment
+      tl.fromTo(
+        "#row-7 .bubble",
+        { scale: 0.97 },
+        { scale: 1, duration: 0.55, ease: "back.out(1.5)" },
+        T.booked + 0.10
+      );
+      // 4. Booked card border purple glow pulse
+      tl.fromTo(
+        "#row-7 .card",
+        { boxShadow: "0 0 0px rgba(138, 86, 255, 0.0)" },
+        { boxShadow: "0 0 56px rgba(138, 86, 255, 0.50)", duration: 0.85, ease: "sine.inOut", yoyo: true, repeat: 1 },
+        T.booked + 0.45
+      );
+      // 5. Confirmation number reveals with a slight delay (like the system "files" it)
+      tl.from(
+        "#row-7 .conf",
+        { autoAlpha: 0, x: -10, duration: 0.50, ease: "power2.out" },
+        T.booked + 0.75
+      );
+
+      // ===== Typing dot pulses (deterministic, finite repeats) =====
+      function pulseDots(rowSel, startT, endT, baseDelay = 0) {
+        const window = endT - startT;
+        const cycle = 0.7;
+        const reps = Math.max(1, Math.ceil(window / cycle));
+        ["d1", "d2", "d3"].forEach((d, i) => {
+          tl.to(
+            `${rowSel} .${d}`,
+            { opacity: 0.35, duration: 0.35, ease: "sine.inOut", yoyo: true, repeat: reps * 2 - 1 },
+            startT + baseDelay + i * 0.12
+          );
+        });
+      }
+      pulseDots("#row-typing-1", T.typing1, T.botCheck);
+      pulseDots("#row-typing-2", T.typing2, T.botSlots);
+      pulseDots("#row-typing-2", T.typing3, T.booked);
+
+      // ===== Chat-to-brand transition (refined) =====
+      // Chat dims + scales down + blurs — like the phone is being put down
+      tl.to(
+        "#chat-scene",
+        {
+          autoAlpha: 0.10,
+          scale: 0.96,
+          filter: "blur(10px)",
+          duration: 0.85,
+          ease: "power3.inOut",
+          transformOrigin: "50% 60%",
+        },
+        T.brandIn - 0.20
+      );
+
+      // ===== BIGGER BRAND CLOSE =====
+      // Scene fade-up
+      tl.to("#brand-scene", { autoAlpha: 1, duration: 0.55, ease: "power2.out" }, T.brandIn);
+
+      // Eyebrow
+      tl.to("#b-eye",  { autoAlpha: 1, y: 0, duration: 0.50, ease: "power3.out" }, T.brandIn + 0.20);
+
+      // Wordmark — letter-spacing collapses dramatically with mass
+      tl.fromTo(
+        "#b-mark",
+        { autoAlpha: 0, y: 50, letterSpacing: "20px", scale: 0.92 },
+        { autoAlpha: 1, y: 0, letterSpacing: "-4px", scale: 1, duration: 0.85, ease: "expo.out" },
+        T.brandIn + 0.30
+      );
+      // Period drops in with a hard bounce + glow halo
+      tl.fromTo(
+        "#b-mark .em",
+        { scale: 0, opacity: 0, y: -40 },
+        { scale: 1, opacity: 1, y: 0, duration: 0.55, ease: "back.out(3.2)" },
+        T.brandIn + 0.85
+      );
+      tl.fromTo(
+        "#b-mark .em",
+        { textShadow: "0 0 0px rgba(138, 86, 255, 0.0)" },
+        { textShadow: "0 0 60px rgba(138, 86, 255, 0.95)", duration: 0.55, ease: "sine.out", yoyo: true, repeat: 1 },
+        T.brandIn + 0.95
+      );
+
+      // Tagline
+      tl.to("#b-tag",  { autoAlpha: 1, y: 0, duration: 0.55, ease: "power3.out" }, T.brandIn + 1.10);
+
+      // Install pill — slide up + soft glow pulse
+      tl.to("#b-pill", { autoAlpha: 1, y: 0, duration: 0.55, ease: "back.out(1.4)" }, T.brandIn + 1.55);
+      tl.fromTo(
+        "#b-pill",
+        { boxShadow: "0 0 0px rgba(138, 86, 255, 0.0), inset 0 1px 0 rgba(255, 255, 255, 0.04)" },
+        { boxShadow: "0 0 90px rgba(138, 86, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08)", duration: 0.9, ease: "sine.inOut", yoyo: true, repeat: 1 },
+        T.brandIn + 1.75
+      );
+
+      // PP attribution
+      tl.to("#b-pp",   { autoAlpha: 1, y: 0, duration: 0.50, ease: "power2.out" }, T.brandIn + 2.05);
+      // Subtle PRINTING PRESS shine — re-emphasize the upsell
+      tl.fromTo(
+        "#b-pp .pp",
+        { textShadow: "0 0 0px rgba(255, 179, 71, 0.0)" },
+        { textShadow: "0 0 24px rgba(255, 179, 71, 0.85)", duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 1 },
+        T.brandIn + 2.30
+      );
+
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -101,66 +101,93 @@ table-reservation-goat-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Geographic Lookups (Agent Playbook)
+## Location Handling (Agent Playbook)
 
-The reservation networks index restaurants by metro. `--metro <slug>` is the
-fastest way to constrain a search. Two things to know before composing a query:
+Every read command (`restaurants list`, `availability check`, `availability multi-day`, `earliest`, `goat`, `watch`) accepts a free-form `--location` flag that parses bare city, city+state, metro qualifier, or coordinates.
 
-**1. Discover the available metros first.** The CLI hydrates the live Tock
-metro list (~248 metros worldwide) and merges it with a US-focused static
-fallback. To see everything available:
+**Accepted `--location` shapes:**
 
 ```bash
-table-reservation-goat-pp-cli goat --list-metros --agent
+--location bellevue              # bare city (ambiguous — see below)
+--location 'bellevue, wa'        # city + state (unambiguous)
+--location 'seattle metro'       # metro qualifier
+--location '47.6101,-122.2015'   # coordinates (lat,lng)
 ```
 
-Returns `{metros: [{slug, name, lat, lng}], city_hints: {...}, total: N}`. The
-`city_hints` field maps secondary cities (Bellevue, Oakland, Cambridge,
-Brooklyn, etc.) onto the parent metro they're indexed under — useful when a
-user asks about a city that isn't a standalone metro.
+The resolver returns one of three response shapes depending on confidence:
 
-**2. Use the city-hint when the user names a secondary city.** Example flow
-for "find me a Bellevue WA reservation":
+- **HIGH** confidence (one match, or specific input): response includes `location_resolved` field with the canonical name, centroid, reason, and any alternates considered. Results are filtered to that region.
+- **MEDIUM** confidence (multiple candidates but one dominates): response includes both `location_resolved` and `location_warning`. The warning lists the alternates so the agent can sanity-check against conversation context.
+- **LOW** confidence (genuinely ambiguous, e.g., bare "bellevue" matches WA/NE/KY): the command refuses to return results. Instead it emits a typed `needs_clarification` envelope with ranked candidates, each carrying `state`, `context_hints`, `tock_business_count`, and `score_if_picked`. The agent disambiguates and re-runs.
+
+### Three agent rules (load-bearing contract)
+
+**1. Always check `location_resolved.confidence` in successful responses.**
+When the field is present, the CLI made a pick. If `confidence < 0.85`, sanity-check against your conversation context. If the pick disagrees with context (e.g., you picked Portland OR but the user clearly meant Maine), re-run with a more specific `--location`.
+
+**2. On `needs_clarification: true`, do NOT retry blindly.**
+First, look back in the conversation for geographic clues (state mentions, nearby cities, prior locations, time-zone hints). If you find any, re-run with that location. If you don't, use the `agent_guidance.fallback_clarification` text (or your own phrasing) to ask the user. Concrete shape:
+
+```json
+{
+  "needs_clarification": true,
+  "error_kind": "location_ambiguous",
+  "what_was_asked": "bellevue",
+  "candidates": [
+    {"name": "Bellevue, WA", "state": "WA",
+     "context_hints": ["Seattle metro", "Eastside"],
+     "tock_business_count": 28, "score_if_picked": 0.78,
+     "centroid": [47.6101, -122.2015]},
+    {"name": "Bellevue, NE", "state": "NE",
+     "context_hints": ["Omaha metro"],
+     "tock_business_count": 0, "score_if_picked": 0.18,
+     "centroid": [41.1370, -95.9145]},
+    {"name": "Bellevue, KY", "state": "KY",
+     "context_hints": ["Cincinnati metro"],
+     "tock_business_count": 0, "score_if_picked": 0.04,
+     "centroid": [39.1067, -84.4744]}
+  ],
+  "agent_guidance": {
+    "preferred_recovery": "Check conversation context for geographic clues. If the user mentioned a state or nearby city, re-run with that.",
+    "rerun_pattern": "<command> --location '<chosen-name>'"
+  }
+}
+```
+
+**3. Never silently accept low-confidence resolution.**
+When `location_warning` is present on a successful response, surface the pick to the user in your reply (e.g., "I'm searching in Bellevue, WA — let me know if you meant a different one"). The warning is the CLI's signal that *you* should hand the user a hand-off point.
+
+### `--accept-ambiguous` is a batch-only escape hatch
+
+Every read command exposes `--accept-ambiguous` (default false). When true, low-confidence resolution returns a forced pick (top candidate by popularity prior) with `location_warning` flagging the bypass. **Interactive agents should NOT use this flag** — it defeats the disambiguation contract. It exists for batch jobs and test fixtures where any-pick-is-fine.
+
+### `--metro` is a deprecated alias
+
+`--metro <slug>` continues to work for back-compat. It maps to `--location <slug>` with `--accept-ambiguous` implicitly set, so legacy callers always receive results-shaped responses (never the new envelope). A one-line stderr deprecation warning fires the first time it's used per process. New code should use `--location`.
+
+### Slug suffixes still work in `earliest` and `watch`
+
+When you compose a venue slug with a city suffix (`joey-bellevue`, `13-coins-bellevue`) and don't pass `--location`, the CLI detects the city hint, anchors the Autocomplete search at the inferred metro's centroid, and tags the resulting `location_resolved.source` as `extracted_from_query` (signaling soft-demote post-filter). Explicit `--location` always wins over slug-suffix inference.
+
+### `location resolve` is a primitive
+
+When you need to verify a location is well-formed before running a search, use:
 
 ```bash
-# Bellevue isn't its own metro on either network — it's lumped into Seattle.
-table-reservation-goat-pp-cli goat 'steakhouse' --metro seattle --metro-radius-km 20 --party 6 --agent
+table-reservation-goat-pp-cli location resolve 'bellevue, wa' --agent
 ```
 
-`--metro-radius-km 20` (vs the 50km default) constrains the Autocomplete-result
-filter to Bellevue-area venues only, dropping Seattle proper. The CLI will
-return per-row `metro_centroid_distance_km` so you can verify each result is
-actually in the requested geo.
+Emits the typed `GeoContext` JSON (HIGH/MEDIUM) or the disambiguation envelope (LOW). Useful for up-front verification before fanning out reads.
 
-If `--metro <slug>` is rejected as unknown, the error message names the parent
-metro and suggests the right radius:
+### Numeric IDs bypass location resolution
 
-```
-unknown metro "bellevue" — neither OpenTable nor Tock breaks this out as its
-own metro. Bellevue is lumped under metro "seattle" (centroid 47.6062,
--122.3321). Try `--metro seattle --metro-radius-km 20` to constrain results
-to Bellevue-area venues, or pass `--latitude 47.6062 --longitude -122.3321`
-directly with a tight `--metro-radius-km`.
-```
-
-**3. Slug suffixes work too.** If you compose a venue slug with a city suffix
-(`joey-bellevue`, `13-coins-bellevue`), the CLI peels the suffix as a metro
-hint and anchors the Autocomplete search at the metro centroid. Wrong-city
-matches (the issue #406 "Joey's Bold Flavors" / Tampa class of failures) are
-geo-filtered out before they reach the response.
-
-**4. When you have a known numeric ID, use it.** `restaurants list` returns
-OpenTable numeric IDs (`id: "3688"` for Daniel's Broiler - Bellevue). Pass
-those directly to `availability check` / `availability multi-day` / `earliest`
-to bypass the slug resolver entirely:
+When you have an OpenTable numeric ID (from `restaurants list --json`), pass it directly to `availability check` / `availability multi-day` / `earliest`. The numeric-ID short-circuit skips the slug resolver entirely:
 
 ```bash
 table-reservation-goat-pp-cli availability check 3688 --party 6 --date 2026-12-25 --agent
 ```
 
-Numeric IDs route through a separate code path that doesn't touch the
-Autocomplete-based resolver, so they're the most reliable input shape when
-the agent already has the ID in hand.
+If you also pass `--location` with a numeric ID and the venue is outside the stated radius, the response will include a `location_warning` (not a hard-reject) — the numeric ID is treated as authoritative; the warning is informational.
 
 ## Error Recovery for Agents
 

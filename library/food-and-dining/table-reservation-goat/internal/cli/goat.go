@@ -44,11 +44,21 @@ type goatResult struct {
 }
 
 type goatResponse struct {
-	Query     string       `json:"query"`
-	Results   []goatResult `json:"results"`
-	Errors    []string     `json:"errors,omitempty"`
-	Sources   []string     `json:"sources_queried"`
-	QueriedAt string       `json:"queried_at"`
+	Query   string       `json:"query"`
+	Results []goatResult `json:"results"`
+	Errors  []string     `json:"errors,omitempty"`
+	Sources []string     `json:"sources_queried"`
+	// LocationResolved is the U5 typed-resolution annotation populated when
+	// the caller passed --location (or legacy --metro) and ResolveLocation
+	// returned a GeoContext. Omitted on the no-constraint path so existing
+	// JSON consumers see no field-shape change.
+	LocationResolved *LocationResolvedField `json:"location_resolved,omitempty"`
+	// LocationWarning is attached alongside LocationResolved when the
+	// resolution had material ambiguity (MEDIUM tier) or the caller
+	// forced past LOW with --accept-ambiguous. Omitted when the resolve
+	// landed on HIGH or when no location was passed.
+	LocationWarning *LocationWarningField `json:"location_warning,omitempty"`
+	QueriedAt       string                `json:"queried_at"`
 }
 
 // newGoatCmd is the headline transcendence command: a single query that hits
@@ -57,15 +67,17 @@ type goatResponse struct {
 // single command an agent should reach for when asked to find a table.
 func newGoatCmd(flags *rootFlags) *cobra.Command {
 	var (
-		latitude      float64
-		longitude     float64
-		metro         string
-		network       string
-		limit         int
-		party         int
-		when          string
-		metroRadiusKm float64
-		listMetros    bool
+		latitude            float64
+		longitude           float64
+		metro               string
+		network             string
+		limit               int
+		party               int
+		when                string
+		metroRadiusKm       float64
+		listMetros          bool
+		flagLocation        string
+		flagAcceptAmbiguous bool
 	)
 	cmd := &cobra.Command{
 		Use:     "goat <query>",
@@ -117,38 +129,61 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			}
 			query := strings.Join(args, " ")
 
-			// `--metro <slug>` resolves to lat/lng for autocomplete unless
-			// explicit lat/lng is provided. Without this, queries without
-			// geo defaulted to NYC midtown (40.7589, -73.9851) — so
-			// `goat 'tasting menu' --metro seattle` previously returned
-			// New York results.
-			var metroCentroid Metro
+			// U8: route --location / --metro through the typed
+			// ResolveLocation pipeline. The legacy `--metro` flag continues
+			// to work as a deprecated alias that implies
+			// --accept-ambiguous so back-compat callers never trip the
+			// envelope path. When neither flag is set but --latitude /
+			// --longitude are passed, the lat/lng pair drives hard-reject
+			// as before.
+			gc, envelope, locationErr, acceptedAmbiguous := resolveLocationFlags(
+				cmd.ErrOrStderr(),
+				flagLocation,
+				metro,
+				flagAcceptAmbiguous,
+			)
+			if locationErr != nil {
+				return locationErr
+			}
+			if envelope != nil {
+				// Disambiguation envelope replaces the result list entirely
+				// — the caller must pick a location before the per-network
+				// search makes sense.
+				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+			}
+
 			filterMode := metroFilterOff
-			if metro != "" {
-				m, ok := getRegistry().Lookup(metro)
-				if !ok {
-					return fmt.Errorf("%s", formatUnknownMetroError(metro))
-				}
+			if gc != nil {
+				// Hard-reject results outside the resolved radius. The
+				// explicit-flag intent is authoritative. Use the resolved
+				// centroid as the autocomplete anchor unless the caller
+				// also passed an explicit --latitude/--longitude override.
 				if latitude == 0 && longitude == 0 {
-					latitude, longitude = m.Lat, m.Lng
+					latitude = gc.Centroid[0]
+					longitude = gc.Centroid[1]
 				}
-				metroCentroid = m
+				if metroRadiusKm <= 0 || metroRadiusKm == defaultMetroRadiusKm {
+					if gc.RadiusKm > 0 {
+						metroRadiusKm = gc.RadiusKm
+					}
+				}
 				filterMode = metroFilterHardReject
 			} else if latitude != 0 || longitude != 0 {
-				// Explicit lat/lng without --metro: hard-reject mode using
-				// the provided centroid as the anchor.
-				metroCentroid = Metro{Lat: latitude, Lng: longitude}
+				// Explicit lat/lng without --location/--metro: hard-reject
+				// mode using the provided centroid as the anchor.
 				filterMode = metroFilterHardReject
 			}
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), goatResponse{
+				resp := goatResponse{
 					Query: query,
 					Results: []goatResult{
 						{Network: "opentable", Name: "(dry-run sample)", MatchScore: 1.0},
 					},
 					Sources:   []string{"opentable", "tock"},
 					QueriedAt: time.Now().UTC().Format(time.RFC3339),
-				}, flags)
+				}
+				resp.LocationResolved, resp.LocationWarning = decorateForList(gc, acceptedAmbiguous)
+				return printJSONFiltered(cmd.OutOrStdout(), resp, flags)
 			}
 			session, err := auth.Load()
 			if err != nil {
@@ -171,6 +206,12 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			if net == "" || net == "tock" {
 				sources = append(sources, "tock")
 				cityName := metroCityName(metro)
+				if cityName == "" && gc != nil {
+					// U8: derive the Tock city name from the resolved
+					// GeoContext when --location supplied the constraint
+					// instead of --metro.
+					cityName = gc.ForTock().City
+				}
 				if cityName == "" {
 					cityName = "New York City"
 				}
@@ -183,9 +224,23 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 					results = append(results, tockRes...)
 				}
 			}
-			// Geo filter: drop or demote results outside the metro
-			// centroid based on filterMode (#406 failure 1).
-			results = applyGeoFilter(results, metroCentroid, metroRadiusKm, filterMode)
+			// Geo filter: drop or demote results outside the resolved
+			// centroid based on filterMode (#406 failure 1). U8 routes
+			// this through the typed GeoContext from ResolveLocation; the
+			// explicit --latitude/--longitude path still builds an ad-hoc
+			// GeoContext so the post-filter shape is uniform.
+			filterCtx := gc
+			if filterCtx == nil && filterMode != metroFilterOff {
+				radius := metroRadiusKm
+				if radius <= 0 {
+					radius = defaultMetroRadiusKm
+				}
+				filterCtx = &GeoContext{
+					Centroid: [2]float64{latitude, longitude},
+					RadiusKm: radius,
+				}
+			}
+			results = applyGeoFilter(results, filterCtx, filterMode)
 
 			// Rank: match score descending. Ties broken by name for determinism.
 			sort.SliceStable(results, func(i, j int) bool {
@@ -204,12 +259,21 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 				Sources:   sources,
 				QueriedAt: time.Now().UTC().Format(time.RFC3339),
 			}
+			out.LocationResolved, out.LocationWarning = decorateForList(gc, acceptedAmbiguous)
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}
-	cmd.Flags().Float64Var(&latitude, "latitude", 0, "Geo-narrowed search latitude (defaults to NYC unless --metro is set)")
-	cmd.Flags().Float64Var(&longitude, "longitude", 0, "Geo-narrowed search longitude (defaults to NYC unless --metro is set)")
-	cmd.Flags().StringVar(&metro, "metro", "", "Metro slug (seattle, chicago, new-york, san-francisco, los-angeles, ...) — sets lat/lng for autocomplete")
+	cmd.Flags().Float64Var(&latitude, "latitude", 0, "Geo-narrowed search latitude (defaults to NYC unless --location/--metro is set)")
+	cmd.Flags().Float64Var(&longitude, "longitude", 0, "Geo-narrowed search longitude (defaults to NYC unless --location/--metro is set)")
+	cmd.Flags().StringVar(&flagLocation, "location", "",
+		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
+			"Resolves to a typed GeoContext and hard-rejects out-of-region results.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
+		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
+			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().StringVar(&metro, "metro", "",
+		"Metro slug (seattle, chicago, new-york, ...). DEPRECATED — use --location <city>. "+
+			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
 	cmd.Flags().StringVar(&network, "network", "", "Restrict to one network (opentable, tock); default queries both")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max merged results to return")
 	cmd.Flags().IntVar(&party, "party", 2, "Party size (informational; OT autocomplete does not filter on this)")

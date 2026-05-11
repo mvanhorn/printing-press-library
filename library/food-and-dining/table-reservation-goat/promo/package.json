@@ -1,0 +1,11 @@
+{
+  "name": "1080",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.5.6 preview",
+    "check": "npx --yes hyperframes@0.5.6 lint && npx --yes hyperframes@0.5.6 validate && npx --yes hyperframes@0.5.6 inspect",
+    "render": "npx --yes hyperframes@0.5.6 render",
+    "publish": "npx --yes hyperframes@0.5.6 publish"
+  }
+}

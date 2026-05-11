@@ -42,7 +42,14 @@ type metroCacheFile struct {
 	Metros        []Metro   `json:"metros"`
 }
 
-const metroCacheSchemaVersion = 1
+// metroCacheSchemaVersion bumps every time the on-disk Place shape
+// changes incompatibly. v2 = the Metro→Place rename: ProviderCoverage,
+// ParentMetro, RadiusKm, Tier all became part of the cached payload.
+// Loading a v1 cache as v2 would yield mixed-shape entries (no
+// RadiusKm, so ReverseLookup would skip every dynamic Place), so we
+// invalidate on schema mismatch and let the next CLI invocation
+// rebuild from the live Tock SSR.
+const metroCacheSchemaVersion = 2
 
 // metroCachePath returns the on-disk cache location, creating the
 // parent directory on demand. Returns ok=false (instead of an error)
@@ -112,19 +119,36 @@ func saveMetroCache(metros []Metro) {
 }
 
 // projectTockMetros converts the source-layer Tock shape into the
-// CLI's leaner Metro registry shape. Drops aliases since Tock has no
-// alias concept — agents typing `--metro nyc` get matched via the
-// static fallback's alias chain, and the dynamic `new-york-city`
-// entry (or whatever Tock canonicalizes to) takes over the centroid.
-func projectTockMetros(in []tock.MetroArea) []Metro {
-	out := make([]Metro, 0, len(in))
+// CLI's Place registry shape. Drops aliases since Tock has no alias
+// concept — agents typing `--metro nyc` get matched via the curated
+// fallback's alias chain, and the dynamic `new-york-city` entry (or
+// whatever Tock canonicalizes to) takes over the centroid.
+//
+// Tock's metroArea entries are metro-tier (Tock lists Bellevue WA,
+// Brooklyn, etc. as their own "metros" — its hierarchy is flat), so
+// RadiusKm defaults to the metro band (75 km) and Tier to
+// PlaceTierMetroCentroid. ProviderCoverage["tock"] captures the live
+// BusinessCount so downstream callers can prefer Tock metros with
+// active inventory. ParentMetro["tock"] points at the entry's own
+// slug — Tock self-routes a query for Bellevue WA to the "bellevue"
+// metro, so the provider-routing answer for the place IS the place
+// itself.
+func projectTockMetros(in []tock.MetroArea) []Place {
+	out := make([]Place, 0, len(in))
 	for _, m := range in {
-		out = append(out, Metro{
-			Slug: m.Slug,
-			Name: m.Name,
-			Lat:  m.Lat,
-			Lng:  m.Lng,
-		})
+		p := Place{
+			Slug:        m.Slug,
+			Name:        m.Name,
+			Lat:         m.Lat,
+			Lng:         m.Lng,
+			RadiusKm:    75,
+			Tier:        PlaceTierMetroCentroid,
+			ParentMetro: map[string]string{"tock": m.Slug},
+		}
+		if m.BusinessCount > 0 {
+			p.ProviderCoverage = map[string]int{"tock": m.BusinessCount}
+		}
+		out = append(out, p)
 	}
 	return out
 }

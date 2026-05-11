@@ -62,6 +62,45 @@
       ],
       "validated_outcome": "Build passes; goroutine-pair unit logic: A acquires lock, computes sleep=2s, stamps lastRequest = now+2s, releases. B acquires lock, sees lastRequest = (now)+2s in the future, computes sleep = delay+2s = 4s, stamps lastRequest = now+4s. Result: A sleeps 2s, B sleeps 4s — proper serialization.",
       "upstream_issue": "Should be filed against https://github.com/mvanhorn/cli-printing-press generator template at internal/generator/templates/cliutil/ratelimit.go.tmpl"
+    },
+    {
+      "id": "location-native-redesign",
+      "summary": "Typed GeoContext flowing through every read command, ambiguity-aware tier decision, structured disambiguation envelope, provider-specific projection methods, radius-based post-filter. Replaces silent wrong-region resolution with an explicit confidence-tier contract the chat agent participates in.",
+      "reason": "Issue #406 follow-up: prior PRs (#423-#426) fixed named symptoms but real-world Mother's Day testing (2026-05-10) revealed deeper architectural gaps — `_ = flagMetro` discard in restaurants_list.go, hardcoded NYC fallback in availability_check, hardcoded NYC at watch.go:367, and slug-suffix inference that only matched hyphenated input. The redesign makes location a first-class typed concept: ParseLocation parses free-form input (bare city / city+state / coords / metro qualifier), PlaceRegistry holds curated US Places (Bellevue WA/NE/KY, Portland OR/ME, Springfield x4, Columbia x3), confidence.decideTier is ambiguity-aware (specificity + candidate-count + margin drives tier, not absolute popularity), DisambiguationEnvelope is the LOW-tier response, DecorateWithLocationContext attaches location_resolved/location_warning to the response shape (separate from applyGeoFilter which only filters), and ResolveLocation ties it together. Wired into restaurants list / availability check / availability multi-day / earliest / goat / watch with --location and --accept-ambiguous flags. --metro kept as deprecated alias implying --accept-ambiguous (preserves legacy JSON shape contract; never returns envelope). New `location resolve` top-level command exposes the resolver as an MCP primitive. Plan + 2 rounds of multi-persona doc review at docs/plans/2026-05-10-001-feat-location-native-redesign-plan.md.",
+      "files": [
+        "internal/cli/geo_context.go",
+        "internal/cli/geo_context_test.go",
+        "internal/cli/location_parser.go",
+        "internal/cli/location_parser_test.go",
+        "internal/cli/place_registry.go",
+        "internal/cli/place_registry_test.go",
+        "internal/cli/place_data.go",
+        "internal/cli/confidence.go",
+        "internal/cli/confidence_test.go",
+        "internal/cli/location_pipeline.go",
+        "internal/cli/location_pipeline_test.go",
+        "internal/cli/location.go",
+        "internal/cli/location_test.go",
+        "internal/cli/geo_filter.go",
+        "internal/cli/geo_filter_test.go",
+        "internal/cli/metro_hydration.go",
+        "internal/cli/restaurants_list.go",
+        "internal/cli/restaurants_list_test.go",
+        "internal/cli/availability_check.go",
+        "internal/cli/availability_check_test.go",
+        "internal/cli/availability_multi_day.go",
+        "internal/cli/earliest.go",
+        "internal/cli/earliest_test.go",
+        "internal/cli/goat.go",
+        "internal/cli/goat_test.go",
+        "internal/cli/watch.go",
+        "internal/cli/watch_test.go",
+        "internal/cli/root.go",
+        "internal/source/opentable/client.go",
+        "internal/source/tock/search.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "Test-first per unit (U1-U9); 11 implementation units total (15 in initial plan, reduced to 11 after round-1 doc-review scope reduction). go build, go vet, go test ./..., govulncheck all green. R14 fixtures F1-F7 pass (bug-report reproductions plus added Portland/Springfield/Columbia ambiguity coverage). NOT YET PUBLISHED to mvanhorn/printing-press-library; user requested local review before PR."
     }
   ]
 }

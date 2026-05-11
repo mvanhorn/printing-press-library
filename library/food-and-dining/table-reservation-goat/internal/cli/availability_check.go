@@ -3,6 +3,14 @@
 package cli
 
 // PATCH: scaffold-endpoint-redirects — see .printing-press-patches.json for the change-set rationale.
+// PATCH: location-native-redesign — U7 wires `availability check` through
+// the typed ResolveLocation pipeline. The --location flag supersedes the
+// untyped (and previously absent on this command) location hint; --metro
+// is added as a deprecated legacy alias to match `restaurants list`'s
+// R12 backward-compat contract. The numeric-ID short-circuit is exempt
+// from the post-filter hard-reject: an agent that passes a numeric OT
+// ID knew exactly which venue it wanted, so out-of-radius numeric IDs
+// get a soft-demote (LocationWarning) rather than a drop.
 
 import (
 	"fmt"
@@ -21,6 +29,9 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 	var flagForwardMinutes int
 	var flagForwardDays int
 	var flagAttribute string
+	var flagLocation string
+	var flagAcceptAmbiguous bool
+	var flagMetro string
 
 	cmd := &cobra.Command{
 		Use:   "check <restaurant>",
@@ -34,8 +45,15 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 			"    `restaurants list --json` (the `id` field) and bypass the\n" +
 			"    name-based slug resolver entirely, so they're the most\n" +
 			"    reliable input shape for agents composing `list → check`.\n" +
-			"    Tock has no numeric-ID convention; use the domain-name slug.",
+			"    Tock has no numeric-ID convention; use the domain-name slug.\n\n" +
+			"Use `--location <city>` to anchor the OT Autocomplete fallback on " +
+			"a specific metro centroid (e.g., `--location 'seattle'` for a " +
+			"`canlis` query). Without `--location`, the resolver anchors on " +
+			"NYC. Numeric-ID inputs are exempt from the radius hard-reject — " +
+			"out-of-radius numeric IDs return with a `location_warning` " +
+			"rather than being dropped.",
 		Example: "  table-reservation-goat-pp-cli availability check 'tock:alinea' --party 2 --date 2026-06-15 --json\n" +
+			"  table-reservation-goat-pp-cli availability check 'canlis' --location 'seattle' --party 4 --agent\n" +
 			"  table-reservation-goat-pp-cli availability check 3688 --party 6 --date 2026-12-25 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -54,21 +72,44 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 			if startDate == "" {
 				startDate = time.Now().Format("2006-01-02")
 			}
+			withinDays := flagForwardDays
+			if withinDays == 0 {
+				withinDays = 1
+			}
+
+			// Resolve --location / --metro into a typed GeoContext (or a
+			// disambiguation envelope) before any provider call. The
+			// resolved GeoContext flows into resolveEarliestForVenue and
+			// drives the OT Autocomplete coordinate hint in place of the
+			// hardcoded NYC fallback.
+			gc, envelope, locationErr, acceptedAmbiguous := resolveLocationFlags(
+				cmd.ErrOrStderr(),
+				flagLocation,
+				flagMetro,
+				flagAcceptAmbiguous,
+			)
+			if locationErr != nil {
+				return locationErr
+			}
+			if envelope != nil {
+				// Disambiguation envelope replaces the result row entirely.
+				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+			}
+
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), earliestRow{
+				row := earliestRow{
 					Venue: venue, Network: "opentable",
 					Available: false, Reason: "dry-run",
-				}, flags)
+				}
+				row = applyGeoToVenueRow(row, gc, acceptedAmbiguous, venue)
+				return printJSONFiltered(cmd.OutOrStdout(), row, flags)
 			}
 			session, err := auth.Load()
 			if err != nil {
 				return err
 			}
-			withinDays := flagForwardDays
-			if withinDays == 0 {
-				withinDays = 1
-			}
-			row := resolveEarliestForVenue(cmd.Context(), session, venue, party, startDate, withinDays, false)
+			row := resolveEarliestForVenue(cmd.Context(), session, venue, party, startDate, withinDays, false, gc)
+			row = applyGeoToVenueRow(row, gc, acceptedAmbiguous, venue)
 			return printJSONFiltered(cmd.OutOrStdout(), row, flags)
 		},
 	}
@@ -78,6 +119,17 @@ func newAvailabilityCheckCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagForwardMinutes, "forward-minutes", 150, "Search +/- N minutes around requested time")
 	cmd.Flags().IntVar(&flagForwardDays, "forward-days", 1, "Also search forward N days from start date")
 	cmd.Flags().StringVar(&flagAttribute, "attribute", "", "Filter by slot attribute (patio, bar, highTop, standard, experience)")
+	cmd.Flags().StringVar(&flagLocation, "location", "",
+		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
+			"Anchors the OT Autocomplete fallback on the resolved centroid; numeric-ID "+
+			"inputs are exempt from the radius hard-reject and instead receive a "+
+			"location_warning when out-of-radius.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
+		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
+			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().StringVar(&flagMetro, "metro", "",
+		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
+			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
 	_ = flagTime
 	_ = flagForwardMinutes
 	_ = flagAttribute

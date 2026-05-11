@@ -3,86 +3,85 @@
 
 package types
 
-
 type Experience struct {
-	Id string `json:"id"`
-	Network string `json:"network"`
-	RestaurantId string `json:"restaurant_id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
-	Description string `json:"description"`
-	Slug string `json:"slug"`
-	PricePerPersonCents int `json:"price_per_person_cents"`
-	PartySizeMin int `json:"party_size_min"`
-	PartySizeMax int `json:"party_size_max"`
-	SeatingArea string `json:"seating_area"`
+	Id                  string `json:"id"`
+	Network             string `json:"network"`
+	RestaurantId        string `json:"restaurant_id"`
+	Name                string `json:"name"`
+	Type                string `json:"type"`
+	Description         string `json:"description"`
+	Slug                string `json:"slug"`
+	PricePerPersonCents int    `json:"price_per_person_cents"`
+	PartySizeMin        int    `json:"party_size_min"`
+	PartySizeMax        int    `json:"party_size_max"`
+	SeatingArea         string `json:"seating_area"`
 }
 
 type Profile struct {
-	OpentableEmail string `json:"opentable_email"`
+	OpentableEmail     string `json:"opentable_email"`
 	OpentableFirstName string `json:"opentable_first_name"`
-	OpentableLastName string `json:"opentable_last_name"`
-	TockEmail string `json:"tock_email"`
-	TockFirstName string `json:"tock_first_name"`
-	TockLastName string `json:"tock_last_name"`
-	OpentableLoggedIn bool `json:"opentable_logged_in"`
-	TockLoggedIn bool `json:"tock_logged_in"`
+	OpentableLastName  string `json:"opentable_last_name"`
+	TockEmail          string `json:"tock_email"`
+	TockFirstName      string `json:"tock_first_name"`
+	TockLastName       string `json:"tock_last_name"`
+	OpentableLoggedIn  bool   `json:"opentable_logged_in"`
+	TockLoggedIn       bool   `json:"tock_logged_in"`
 }
 
 type Reservation struct {
-	Id string `json:"id"`
-	Network string `json:"network"`
-	RestaurantId string `json:"restaurant_id"`
-	RestaurantName string `json:"restaurant_name"`
-	State string `json:"state"`
-	ReservationAt string `json:"reservation_at"`
-	PartySize int `json:"party_size"`
+	Id               string `json:"id"`
+	Network          string `json:"network"`
+	RestaurantId     string `json:"restaurant_id"`
+	RestaurantName   string `json:"restaurant_name"`
+	State            string `json:"state"`
+	ReservationAt    string `json:"reservation_at"`
+	PartySize        int    `json:"party_size"`
 	ConfirmationCode string `json:"confirmation_code"`
-	TotalPriceCents int `json:"total_price_cents"`
-	Notes string `json:"notes"`
-	CreatedAt string `json:"created_at"`
+	TotalPriceCents  int    `json:"total_price_cents"`
+	Notes            string `json:"notes"`
+	CreatedAt        string `json:"created_at"`
 }
 
 type Restaurant struct {
-	Id string `json:"id"`
-	Network string `json:"network"`
-	Slug string `json:"slug"`
-	Name string `json:"name"`
-	Cuisine string `json:"cuisine"`
-	PriceBand int `json:"price_band"`
-	DiningStyle string `json:"dining_style"`
-	DressCode string `json:"dress_code"`
-	Address string `json:"address"`
-	City string `json:"city"`
-	State string `json:"state"`
-	Country string `json:"country"`
-	Latitude float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-	Phone string `json:"phone"`
-	Website string `json:"website"`
-	Timezone string `json:"timezone"`
-	HoursOfOperation string `json:"hours_of_operation"`
-	Rating float64 `json:"rating"`
-	ReviewCount int `json:"review_count"`
-	MaxAdvanceDays int `json:"max_advance_days"`
-	Accolades string `json:"accolades"`
-	Photos string `json:"photos"`
+	Id               string  `json:"id"`
+	Network          string  `json:"network"`
+	Slug             string  `json:"slug"`
+	Name             string  `json:"name"`
+	Cuisine          string  `json:"cuisine"`
+	PriceBand        int     `json:"price_band"`
+	DiningStyle      string  `json:"dining_style"`
+	DressCode        string  `json:"dress_code"`
+	Address          string  `json:"address"`
+	City             string  `json:"city"`
+	State            string  `json:"state"`
+	Country          string  `json:"country"`
+	Latitude         float64 `json:"latitude"`
+	Longitude        float64 `json:"longitude"`
+	Phone            string  `json:"phone"`
+	Website          string  `json:"website"`
+	Timezone         string  `json:"timezone"`
+	HoursOfOperation string  `json:"hours_of_operation"`
+	Rating           float64 `json:"rating"`
+	ReviewCount      int     `json:"review_count"`
+	MaxAdvanceDays   int     `json:"max_advance_days"`
+	Accolades        string  `json:"accolades"`
+	Photos           string  `json:"photos"`
 }
 
 type Slot struct {
 	RestaurantId string `json:"restaurant_id"`
-	Network string `json:"network"`
-	SlotAt string `json:"slot_at"`
-	PartySize int `json:"party_size"`
-	Attributes string `json:"attributes"`
-	SlotToken string `json:"slot_token"`
+	Network      string `json:"network"`
+	SlotAt       string `json:"slot_at"`
+	PartySize    int    `json:"party_size"`
+	Attributes   string `json:"attributes"`
+	SlotToken    string `json:"slot_token"`
 	ExperienceId string `json:"experience_id"`
-	PriceCents int `json:"price_cents"`
+	PriceCents   int    `json:"price_cents"`
 }
 
 type SlotDay struct {
-	Date string `json:"date"`
-	HasAvailability bool `json:"has_availability"`
-	EarliestSlot string `json:"earliest_slot"`
-	SlotCount int `json:"slot_count"`
+	Date            string `json:"date"`
+	HasAvailability bool   `json:"has_availability"`
+	EarliestSlot    string `json:"earliest_slot"`
+	SlotCount       int    `json:"slot_count"`
 }

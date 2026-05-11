@@ -197,6 +197,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newDriftCmd(flags))
 	rootCmd.AddCommand(newBookCmd(flags))
 	rootCmd.AddCommand(newCancelCmd(flags))
+	rootCmd.AddCommand(newLocationCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd

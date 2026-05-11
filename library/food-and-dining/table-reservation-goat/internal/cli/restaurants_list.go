@@ -7,9 +7,17 @@
 package cli
 
 // PATCH: scaffold-endpoint-redirects — see .printing-press-patches.json for the change-set rationale.
+// PATCH: location-native-redesign — U6 wires `restaurants list` to the typed
+// ResolveLocation pipeline. The previous `_ = flagMetro` discard at the
+// bottom of the func was issue #406 repro 1: --metro was parsed and then
+// dropped on the floor before reaching the query. U6 replaces that with a
+// proper resolve-and-filter loop plus a new --location/--accept-ambiguous
+// pair that supersedes --metro going forward.
 
 import (
+	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -17,10 +25,27 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 )
 
+// metroDeprecationOnce gates the once-per-process stderr warning emitted
+// when a caller uses --metro instead of --location. Using sync.Once keeps
+// the warning idempotent without a hand-rolled mutex+bool pair. Tests
+// reset it via resetMetroDeprecationWarning() so each scenario can pin
+// the first-call behavior.
+var metroDeprecationOnce sync.Once
+
+// resetMetroDeprecationWarning re-arms the metroDeprecationOnce gate so
+// tests can pin the first-call stderr emission independently per case.
+// Production code never calls this — it exists purely for test
+// isolation, similar to the test-only resets in metro_hydration_test.go.
+func resetMetroDeprecationWarning() {
+	metroDeprecationOnce = sync.Once{}
+}
+
 func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 	var flagLatitude float64
 	var flagLongitude float64
+	var flagLocation string
+	var flagAcceptAmbiguous bool
 	var flagMetro string
 	var flagNeighborhood string
 	var flagCuisine string
@@ -39,13 +64,47 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  table-reservation-goat-pp-cli restaurants list --query 'omakase' --party 2 --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Resolve --location / --metro into a typed GeoContext (or a
+			// disambiguation envelope) before any provider call so the
+			// pre-filter (lat/lng injected into goatQueryOpenTable /
+			// goatQueryTock) and the post-filter (applyGeoFilter) share a
+			// single source of truth.
+			gc, envelope, locationErr, acceptedAmbiguous := resolveLocationFlags(
+				cmd.ErrOrStderr(),
+				flagLocation,
+				flagMetro,
+				flagAcceptAmbiguous,
+			)
+			if locationErr != nil {
+				return locationErr
+			}
+			if envelope != nil {
+				// Disambiguation envelope replaces the result list entirely.
+				// printJSONFiltered marshals through the same --select /
+				// --compact / --quiet pipeline so agents get a uniform shape.
+				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+			}
+
+			lat, lng := flagLatitude, flagLongitude
+			if gc != nil {
+				// Pre-filter: project the GeoContext into provider input.
+				// The ForOpenTable() projection carries lat/lng only today;
+				// Tock takes city+slug+lat/lng but goatQueryTock derives
+				// city from the metro arg, so feed the gc centroid via
+				// lat/lng for both legs.
+				ot := gc.ForOpenTable()
+				lat, lng = ot.Lat, ot.Lng
+			}
+
 			if dryRunOK(flags) {
-				return printJSONFiltered(cmd.OutOrStdout(), goatResponse{
+				resp := goatResponse{
 					Query:     flagQuery,
 					Results:   []goatResult{{Network: "opentable", Name: "(dry-run sample)", MatchScore: 1.0}},
 					Sources:   []string{"opentable", "tock"},
 					QueriedAt: time.Now().UTC().Format(time.RFC3339),
-				}, flags)
+				}
+				resp.LocationResolved, resp.LocationWarning = decorateForList(gc, acceptedAmbiguous)
+				return printJSONFiltered(cmd.OutOrStdout(), resp, flags)
 			}
 			session, err := auth.Load()
 			if err != nil {
@@ -57,7 +116,6 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 			errors := []string{}
 			sources := []string{}
 			query := flagQuery
-			lat, lng := flagLatitude, flagLongitude
 			if net == "" || net == "opentable" {
 				sources = append(sources, "opentable")
 				if r, err := goatQueryOpenTable(ctx, session, query, lat, lng); err != nil {
@@ -78,22 +136,49 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 					results = append(results, r...)
 				}
 			}
+
+			// Post-filter: when a GeoContext is set, hard-reject results
+			// outside the radius (the explicit-flag intent is authoritative).
+			// nil gc -> applyGeoFilter is a no-op.
+			if gc != nil {
+				results = applyGeoFilter(results, gc, metroFilterHardReject)
+				// Rank: match score desc, name asc for determinism — matches
+				// goat's post-filter ordering so cross-command results sort
+				// the same way.
+				sort.SliceStable(results, func(i, j int) bool {
+					if results[i].MatchScore != results[j].MatchScore {
+						return results[i].MatchScore > results[j].MatchScore
+					}
+					return results[i].Name < results[j].Name
+				})
+			}
+
 			if flagLimit > 0 && len(results) > flagLimit {
 				results = results[:flagLimit]
 			}
-			return printJSONFiltered(cmd.OutOrStdout(), goatResponse{
+			resp := goatResponse{
 				Query:     query,
 				Results:   results,
 				Errors:    errors,
 				Sources:   sources,
 				QueriedAt: time.Now().UTC().Format(time.RFC3339),
-			}, flags)
+			}
+			resp.LocationResolved, resp.LocationWarning = decorateForList(gc, acceptedAmbiguous)
+			return printJSONFiltered(cmd.OutOrStdout(), resp, flags)
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Free-text query (matches name, cuisine, neighborhood)")
 	cmd.Flags().Float64Var(&flagLatitude, "latitude", 0, "Latitude for geo search")
 	cmd.Flags().Float64Var(&flagLongitude, "longitude", 0, "Longitude for geo search")
-	cmd.Flags().StringVar(&flagMetro, "metro", "", "Metro slug (e.g., chicago, seattle)")
+	cmd.Flags().StringVar(&flagLocation, "location", "",
+		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
+			"Resolves to a typed GeoContext and hard-rejects out-of-region results.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
+		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
+			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().StringVar(&flagMetro, "metro", "",
+		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
+			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
 	cmd.Flags().StringVar(&flagNeighborhood, "neighborhood", "", "Neighborhood slug")
 	cmd.Flags().StringVar(&flagCuisine, "cuisine", "", "Cuisine filter")
 	cmd.Flags().IntVar(&flagPriceBand, "max-price", 0, "Maximum price band 1-4")
@@ -101,11 +186,23 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagPartySize, "party", 2, "Party size for availability filter")
 	cmd.Flags().StringVar(&flagNetwork, "network", "", "Restrict to one network (opentable, tock)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "Max restaurants to return")
-	_ = flagMetro
 	_ = flagNeighborhood
 	_ = flagCuisine
 	_ = flagPriceBand
 	_ = flagAccolade
 	_ = flagPartySize
 	return cmd
+}
+
+// decorateForList wraps DecorateWithLocationContext with the tier
+// inference needed for the wiring path. ResolveLocation doesn't return
+// the tier directly (the tier is an internal step inside the pipeline),
+// so the caller infers it from the shape of the returned GeoContext
+// via inferTierFromGeoContext (in confidence.go).
+func decorateForList(gc *GeoContext, acceptedAmbiguous bool) (*LocationResolvedField, *LocationWarningField) {
+	if gc == nil {
+		return nil, nil
+	}
+	tier := inferTierFromGeoContext(gc, acceptedAmbiguous)
+	return DecorateWithLocationContext(gc, tier, acceptedAmbiguous)
 }

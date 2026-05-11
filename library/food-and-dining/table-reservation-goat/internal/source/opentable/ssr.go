@@ -17,11 +17,11 @@ import (
 
 // initialStateAnchor matches both forms OT can serve:
 //
-//   1. JSON-embedded:  `"__INITIAL_STATE__":{...}` — what the static SSR HTML
-//      actually contains. The data lives inline within a larger JSON document
-//      that JS hydrates at runtime.
-//   2. JS-assignment:  `window.__INITIAL_STATE__ = {...}` or
-//      `__INITIAL_STATE__ = {...}` — the post-hydration runtime form.
+//  1. JSON-embedded:  `"__INITIAL_STATE__":{...}` — what the static SSR HTML
+//     actually contains. The data lives inline within a larger JSON document
+//     that JS hydrates at runtime.
+//  2. JS-assignment:  `window.__INITIAL_STATE__ = {...}` or
+//     `__INITIAL_STATE__ = {...}` — the post-hydration runtime form.
 //
 // goja's evaluator handles both because the literal that follows the anchor
 // is the object we want; the assignment LHS is irrelevant.
@@ -136,13 +136,13 @@ func extractInitialState(body []byte) ([]byte, error) {
 // SearchOptions captures the consumer search query parameters that
 // /s?... accepts.
 type SearchOptions struct {
-	Query        string  // free text term
-	Latitude     float64 // geo center
-	Longitude    float64
-	MetroID      int    // optional metro hint
-	Covers       int    // party size (defaults to 2)
-	DateTime     string // YYYY-MM-DDTHH:MM:SS (defaults to today 19:00)
-	Limit        int
+	Query     string  // free text term
+	Latitude  float64 // geo center
+	Longitude float64
+	MetroID   int    // optional metro hint
+	Covers    int    // party size (defaults to 2)
+	DateTime  string // YYYY-MM-DDTHH:MM:SS (defaults to today 19:00)
+	Limit     int
 }
 
 // SearchRestaurants runs OT's /s search page and returns the restaurants

@@ -383,6 +383,18 @@ func (c *Client) AutocompleteHash() string {
 	return c.autocompleteH
 }
 
+// LocationInput is the location signal an OT client call accepts.
+// Lat/Lng anchor Autocomplete and SearchRestaurants ranking. v1 does
+// not populate MetroID — the slug→OT-MetroID mapping is deferred
+// because no enumeration endpoint surfaces it cheaply. Callers
+// construct this via cli.GeoContext.ForOpenTable().
+//
+// PATCH: location-native-redesign — typed projection of GeoContext.
+type LocationInput struct {
+	Lat float64
+	Lng float64
+}
+
 // AutocompleteResult is one entry in the Autocomplete response.
 type AutocompleteResult struct {
 	ID               string  `json:"id"`

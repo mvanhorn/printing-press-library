@@ -54,6 +54,18 @@ type watchRow struct {
 	LastPolledAt *time.Time `json:"last_polled_at,omitempty"`
 	LastMatchAt  *time.Time `json:"last_match_at,omitempty"`
 	MatchCount   int        `json:"match_count"`
+	// LocationResolved is the U8 typed-resolution annotation populated
+	// when the caller passed --location (or legacy --metro) to
+	// `watch add`. The resolution happens at subscription start so the
+	// caller sees the resolved metro immediately; pollOneWatch falls
+	// back to slug-suffix inference at tick time for already-persisted
+	// watches.
+	LocationResolved *LocationResolvedField `json:"location_resolved,omitempty"`
+	// LocationWarning fires at subscription start under MEDIUM tier or
+	// forced-LOW. The watch is created in either case (warn-and-continue,
+	// not refuse), so the row persists with the resolved venue and the
+	// caller can decide whether to cancel.
+	LocationWarning *LocationWarningField `json:"location_warning,omitempty"`
 }
 
 func newWatchCmd(flags *rootFlags) *cobra.Command {
@@ -74,9 +86,12 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 	var (
-		party  int
-		window string
-		notify string
+		party               int
+		window              string
+		notify              string
+		flagLocation        string
+		flagAcceptAmbiguous bool
+		flagMetro           string
 	)
 	cmd := &cobra.Command{
 		Use:     "add <venue>",
@@ -90,10 +105,42 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			if venue == "" || strings.Contains(venue, "__printing_press_invalid__") {
 				return fmt.Errorf("invalid venue: %q (provide a slug like 'alinea' or 'tock:alinea')", args[0])
 			}
+
+			// U8: resolve --location / --metro at subscription start.
+			// On envelope, surface to the caller before persisting — they
+			// need to disambiguate before the watch is meaningful. On
+			// resolution success, decorate the response so the caller
+			// sees the resolved metro inline (warn-and-continue: MEDIUM
+			// tier or forced-LOW writes a location_warning alongside,
+			// but the watch still persists).
+			gc, envelope, locationErr, acceptedAmbiguous := resolveLocationFlags(
+				cmd.ErrOrStderr(),
+				flagLocation,
+				flagMetro,
+				flagAcceptAmbiguous,
+			)
+			if locationErr != nil {
+				return locationErr
+			}
+			if envelope != nil {
+				return printJSONFiltered(cmd.OutOrStdout(), envelope, flags)
+			}
+			resolved, warning := decorateForList(gc, acceptedAmbiguous)
+			// Print the location_warning to stderr at subscription start
+			// so cron-driven follow-ups see it without re-parsing JSON.
+			// Warn-and-continue: never block subscription on ambiguity.
+			if warning != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"location_warning: forced pick %q over alternates %v at subscription start — continuing watch\n",
+					warning.Picked, warning.Alternates)
+			}
+
 			if dryRunOK(flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), watchRow{
 					ID: "watch_dryrun", Venue: args[0], PartySize: party, State: "active",
-					CreatedAt: time.Now().UTC(),
+					CreatedAt:        time.Now().UTC(),
+					LocationResolved: resolved,
+					LocationWarning:  warning,
 				}, flags)
 			}
 			db, err := openWatchStore(flags)
@@ -110,6 +157,8 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 				ID: id, Venue: args[0], Network: network, Slug: slug,
 				PartySize: party, WindowSpec: window, Notify: notify,
 				State: "active", CreatedAt: time.Now().UTC(),
+				LocationResolved: resolved,
+				LocationWarning:  warning,
 			}
 			_, err = db.ExecContext(cmd.Context(),
 				`INSERT INTO watches (id, venue, network, slug, party_size, window_spec, notify, state)
@@ -126,6 +175,17 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&party, "party", 2, "Party size")
 	cmd.Flags().StringVar(&window, "window", "", "Time window (e.g., 'sat 7-9pm')")
 	cmd.Flags().StringVar(&notify, "notify", "local", "Notification channel: local, slack, webhook (slack/webhook need extra config)")
+	cmd.Flags().StringVar(&flagLocation, "location", "",
+		"Free-form location: 'bellevue, wa', 'seattle', '47.6,-122.3', or 'seattle metro'. "+
+			"Anchors the OT Autocomplete fallback at tick time and decorates the row "+
+			"with location_resolved. Warn-and-continue under ambiguity — the watch is "+
+			"created with a location_warning rather than refused.")
+	cmd.Flags().BoolVar(&flagAcceptAmbiguous, "accept-ambiguous", false,
+		"When --location is ambiguous (e.g., 'bellevue' matches multiple states), "+
+			"force-pick the top candidate instead of returning a disambiguation envelope.")
+	cmd.Flags().StringVar(&flagMetro, "metro", "",
+		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
+			"Legacy callers get --accept-ambiguous implied to preserve back-compat shape.")
 	return cmd
 }
 
@@ -362,9 +422,18 @@ func pollOneWatch(ctx context.Context, s *auth.Session, id, venue, network, slug
 		if err == nil {
 			// OT's Autocomplete returns INTERNAL_SERVER_ERROR with lat=0/lng=0
 			// (the upstream `personalizer-autocomplete/v4` requires a coordinate
-			// to anchor on). Default to NYC — same approach earliest.go uses.
-			// The matcher still finds the venue regardless of metro.
-			restID, restName, _, rerr := c.RestaurantIDFromQuery(ctx, slug, 40.7128, -74.0060)
+			// to anchor on). U8: prefer the slug-suffix inference over the
+			// hardcoded NYC fallback so a watch on `joey-bellevue` anchors on
+			// Bellevue rather than resolving to "Joey's Bold Flavors" (Tampa,
+			// FL) the way the legacy NYC anchor did. The slug-suffix is a
+			// lowest-precedence fallback — when no city suffix is detected,
+			// the legacy NYC anchor preserves back-compat behavior.
+			anchorLat, anchorLng := 40.7128, -74.0060
+			if gc := inferGeoContextFromSlug(slug); gc != nil {
+				anchorLat = gc.Centroid[0]
+				anchorLng = gc.Centroid[1]
+			}
+			restID, restName, _, rerr := c.RestaurantIDFromQuery(ctx, slug, anchorLat, anchorLng)
 			if rerr == nil && restID != 0 {
 				todayT := time.Now()
 				// Loop one call per day. The new OT GraphQL gateway hardcodes

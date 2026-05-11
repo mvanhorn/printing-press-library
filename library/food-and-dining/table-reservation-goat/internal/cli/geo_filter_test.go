@@ -49,10 +49,12 @@ func TestHaversineKm(t *testing.T) {
 	}
 }
 
-// TestInferMetroFromSlug_ExactMatch covers the typical case from #406:
-// agent composes `joey-bellevue` and we need to peel the `bellevue`
-// suffix as the metro hint.
-func TestInferMetroFromSlug_ExactMatch(t *testing.T) {
+// TestInferMetroFromSlug_DEPRECATED_ExactMatch covers the typical
+// case from #406: agent composes `joey-bellevue` and we need to peel
+// the `bellevue` suffix as the metro hint. Renamed in U5; the helper
+// is slated for replacement once U7/U8 routes slug-suffix venues
+// through ResolveLocation.
+func TestInferMetroFromSlug_DEPRECATED_ExactMatch(t *testing.T) {
 	// Seed registry with bellevue dynamically (not in static fallback).
 	defer setDynamicMetros(nil, 0)
 	setDynamicMetros([]Metro{
@@ -75,7 +77,7 @@ func TestInferMetroFromSlug_ExactMatch(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.input, func(t *testing.T) {
-			m, prefix, ok := inferMetroFromSlug(tc.input, reg)
+			m, prefix, ok := inferMetroFromSlug_DEPRECATED(tc.input, reg)
 			if !ok {
 				t.Fatalf("expected match for %q; got !ok", tc.input)
 			}
@@ -89,10 +91,11 @@ func TestInferMetroFromSlug_ExactMatch(t *testing.T) {
 	}
 }
 
-// TestInferMetroFromSlug_NoMatch verifies we don't false-positive on
-// slugs that happen to end in a token resembling a city. Agents using
-// `wild-ginger` (no city suffix) should NOT trigger inference.
-func TestInferMetroFromSlug_NoMatch(t *testing.T) {
+// TestInferMetroFromSlug_DEPRECATED_NoMatch verifies we don't
+// false-positive on slugs that happen to end in a token resembling a
+// city. Agents using `wild-ginger` (no city suffix) should NOT trigger
+// inference.
+func TestInferMetroFromSlug_DEPRECATED_NoMatch(t *testing.T) {
 	reg := getRegistry()
 	cases := []string{
 		"wild-ginger", // bare venue name, no city suffix
@@ -101,9 +104,9 @@ func TestInferMetroFromSlug_NoMatch(t *testing.T) {
 	}
 	for _, in := range cases {
 		t.Run(in, func(t *testing.T) {
-			_, prefix, ok := inferMetroFromSlug(in, reg)
+			_, prefix, ok := inferMetroFromSlug_DEPRECATED(in, reg)
 			if ok {
-				t.Errorf("inferMetroFromSlug(%q) returned ok=true unexpectedly", in)
+				t.Errorf("inferMetroFromSlug_DEPRECATED(%q) returned ok=true unexpectedly", in)
 			}
 			if prefix != in {
 				t.Errorf("prefix on no-match should be input %q; got %q", in, prefix)
@@ -112,12 +115,23 @@ func TestInferMetroFromSlug_NoMatch(t *testing.T) {
 	}
 }
 
+// bellevueCtx is the shared GeoContext used across the post-filter
+// tests. Pinned to Bellevue WA so the assertions match the original
+// #406 fixture exactly.
+func bellevueCtx() *GeoContext {
+	return &GeoContext{
+		Origin:     "bellevue",
+		ResolvedTo: "Bellevue, WA",
+		Centroid:   [2]float64{47.6101, -122.2015},
+		RadiusKm:   50.0,
+	}
+}
+
 // TestApplyGeoFilter_HardReject verifies hard-reject mode drops
 // results beyond the radius. The user's `joey-bellevue` case from
 // #406 maps to: query for Bellevue venues, get a Tampa result back,
 // drop it.
 func TestApplyGeoFilter_HardReject(t *testing.T) {
-	bellevue := Metro{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015}
 	results := []goatResult{
 		// Real Bellevue venue
 		{Name: "Daniel's Broiler - Bellevue", Latitude: 47.6181, Longitude: -122.2007, MatchScore: 0.95},
@@ -128,7 +142,7 @@ func TestApplyGeoFilter_HardReject(t *testing.T) {
 		// NYC — another wrong-city
 		{Name: "Wildair", Latitude: 40.7128, Longitude: -74.0060, MatchScore: 0.65},
 	}
-	got := applyGeoFilter(results, bellevue, 50.0, metroFilterHardReject)
+	got := applyGeoFilter(results, bellevueCtx(), metroFilterHardReject)
 	if len(got) != 2 {
 		t.Fatalf("got %d in-radius results; want 2", len(got))
 	}
@@ -156,12 +170,11 @@ func TestApplyGeoFilter_HardReject(t *testing.T) {
 // know for sure the user meant Bellevue, so we keep the results
 // visible but make the geo mismatch loud in the score.
 func TestApplyGeoFilter_SoftDemote(t *testing.T) {
-	bellevue := Metro{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015}
 	results := []goatResult{
 		{Name: "JOEY Bellevue", Latitude: 47.6149, Longitude: -122.1959, MatchScore: 0.95},
 		{Name: "Joey's Bold Flavors (Tampa)", Latitude: 27.9506, Longitude: -82.4572, MatchScore: 0.65},
 	}
-	got := applyGeoFilter(results, bellevue, 50.0, metroFilterSoftDemote)
+	got := applyGeoFilter(results, bellevueCtx(), metroFilterSoftDemote)
 	if len(got) != 2 {
 		t.Fatalf("got %d results; want 2 (no drops in soft-demote)", len(got))
 	}
@@ -177,11 +190,10 @@ func TestApplyGeoFilter_SoftDemote(t *testing.T) {
 // lat/lng aren't dropped — we can't make a geo judgement on missing
 // data. Common for newly-listed Tock venues.
 func TestApplyGeoFilter_PreservesNoLatLngRows(t *testing.T) {
-	bellevue := Metro{Slug: "bellevue", Name: "Bellevue", Lat: 47.6101, Lng: -122.2015}
 	results := []goatResult{
 		{Name: "Venue with no geo", Latitude: 0, Longitude: 0, MatchScore: 0.95},
 	}
-	got := applyGeoFilter(results, bellevue, 50.0, metroFilterHardReject)
+	got := applyGeoFilter(results, bellevueCtx(), metroFilterHardReject)
 	if len(got) != 1 {
 		t.Errorf("no-geo row dropped; got %d rows", len(got))
 	}
@@ -194,11 +206,28 @@ func TestApplyGeoFilter_OffMode(t *testing.T) {
 		{Name: "X", Latitude: 1, Longitude: 1, MatchScore: 0.95},
 		{Name: "Y", Latitude: 50, Longitude: 50, MatchScore: 0.4},
 	}
-	got := applyGeoFilter(results, Metro{}, 50.0, metroFilterOff)
+	got := applyGeoFilter(results, bellevueCtx(), metroFilterOff)
 	if len(got) != 2 {
 		t.Errorf("off mode should preserve all rows; got %d", len(got))
 	}
 	if got[0].MetroCentroidDistanceKm != 0 || got[1].MetroCentroidDistanceKm != 0 {
 		t.Error("off mode should NOT annotate distance")
+	}
+}
+
+// TestApplyGeoFilter_NilContext verifies the U5 nil-ctx invariant:
+// passing a nil *GeoContext yields a true pass-through, the same
+// shape callers get when --location is not set (R13).
+func TestApplyGeoFilter_NilContext(t *testing.T) {
+	results := []goatResult{
+		{Name: "X", Latitude: 1, Longitude: 1, MatchScore: 0.95},
+		{Name: "Y", Latitude: 50, Longitude: 50, MatchScore: 0.4},
+	}
+	got := applyGeoFilter(results, nil, metroFilterHardReject)
+	if len(got) != 2 {
+		t.Errorf("nil ctx should preserve all rows; got %d", len(got))
+	}
+	if got[0].MetroCentroidDistanceKm != 0 || got[1].MetroCentroidDistanceKm != 0 {
+		t.Error("nil ctx should NOT annotate distance")
 	}
 }

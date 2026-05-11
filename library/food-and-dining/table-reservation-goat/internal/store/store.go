@@ -806,6 +806,7 @@ func sqliteFieldValue(v any) any {
 func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
+
 // upsertAvailabilityTx writes the typed-table portion of a availability upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -867,6 +868,7 @@ func (s *Store) UpsertAvailability(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertExperiencesTx writes the typed-table portion of a experiences upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -926,6 +928,7 @@ func (s *Store) UpsertExperiences(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertMeTx writes the typed-table portion of a me upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -983,6 +986,7 @@ func (s *Store) UpsertMe(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertReservationsTx writes the typed-table portion of a reservations upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1042,6 +1046,7 @@ func (s *Store) UpsertReservations(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertRestaurantsTx writes the typed-table portion of a restaurants upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1113,6 +1118,7 @@ func (s *Store) UpsertRestaurants(data json.RawMessage) error {
 
 	return tx.Commit()
 }
+
 // upsertWishlistTx writes the typed-table portion of a wishlist upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1194,8 +1200,7 @@ func (s *Store) UpsertWishlist(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -1305,6 +1310,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	}
 	return stored, extractFailures, nil
 }
+
 // SearchExperiences searches the experiences_fts index with optional filters.
 func (s *Store) SearchExperiences(query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {

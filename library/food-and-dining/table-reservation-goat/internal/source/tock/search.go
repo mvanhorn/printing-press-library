@@ -29,6 +29,20 @@ import (
 	"strings"
 )
 
+// LocationInput is the location signal a Tock SearchCity call needs.
+// City is the display name (drives ?city= query param), Slug is the
+// path slug (drives /search/<slug> path segment), Lat/Lng anchor the
+// ranking. All four are required for the SSR fetch to land on the
+// right page. Callers construct this via cli.GeoContext.ForTock().
+//
+// PATCH: location-native-redesign — typed projection of GeoContext.
+type LocationInput struct {
+	City string
+	Slug string
+	Lat  float64
+	Lng  float64
+}
+
 // SearchParams holds the geo-search inputs for SearchCity. City is the
 // display name (e.g., "Seattle", "New York") — the city-slug path segment
 // is derived by lowercasing and replacing spaces with dashes.
