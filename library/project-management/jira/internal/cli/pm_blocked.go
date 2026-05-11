@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/project-management/jira/internal/store"
+	"jira-cloud-platform-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -167,8 +167,7 @@ WHERE json_extract(data, '$.fields.status.statusCategory.key') != 'done'
 			}
 
 			if len(results) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No blocked issues found in local store.")
-				fmt.Fprintln(cmd.OutOrStdout(), "Run 'jira-cloud-platform-pp-cli sync --project KEY' first.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No blocked issues found.")
 				return nil
 			}
 

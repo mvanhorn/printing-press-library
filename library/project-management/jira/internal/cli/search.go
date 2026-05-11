@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/project-management/jira/internal/store"
+	"jira-cloud-platform-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -81,6 +81,7 @@ func extractSearchResults(data json.RawMessage) []json.RawMessage {
 
 func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
+	var project string
 	var limit int
 	var dbPath string
 
@@ -160,7 +161,7 @@ In local mode: searches locally synced data only.`,
 			case "filter":
 				results, err = db.SearchFilter(query, limit)
 			case "issue": // PATCH: search-endpoint-410
-				results, err = db.SearchIssue(query, limit)
+				results, err = db.SearchIssue(query, project, limit)
 			case "issuesecurityschemes":
 				results, err = db.SearchIssuesecurityschemes(query, limit)
 			case "issuetype":
@@ -265,7 +266,7 @@ In local mode: searches locally synced data only.`,
 					}
 				}
 				{ // PATCH: search-endpoint-410
-					partial, searchErr := db.SearchIssue(query, limit)
+					partial, searchErr := db.SearchIssue(query, project, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search issue failed: %w", searchErr)
 					}
@@ -517,6 +518,7 @@ In local mode: searches locally synced data only.`,
 	}
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
+	cmd.Flags().StringVar(&project, "project", "", "Filter issue results by project key (e.g. TRAC)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-cloud-platform-pp-cli/data.db)")
 

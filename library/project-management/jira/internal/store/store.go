@@ -13251,19 +13251,33 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 }
 
 // PATCH: search-endpoint-410 — issue table has no FTS index; use json_extract LIKE queries.
-func (s *Store) SearchIssue(query string, limit int) ([]json.RawMessage, error) {
+// project is optional; empty string means all projects.
+func (s *Store) SearchIssue(query, project string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
 	like := "%" + query + "%"
-	rows, err := s.db.Query(
-		`SELECT data FROM issue
+	var (
+		q    string
+		args []any
+	)
+	if project != "" {
+		q = `SELECT data FROM issue
+		 WHERE (json_extract(data, '$.fields.summary') LIKE ?
+		    OR json_extract(data, '$.key') LIKE ?
+		    OR json_extract(data, '$.fields.description') LIKE ?)
+		   AND json_extract(data, '$.fields.project.key') = ?
+		 LIMIT ?`
+		args = []any{like, like, like, project, limit}
+	} else {
+		q = `SELECT data FROM issue
 		 WHERE json_extract(data, '$.fields.summary') LIKE ?
 		    OR json_extract(data, '$.key') LIKE ?
 		    OR json_extract(data, '$.fields.description') LIKE ?
-		 LIMIT ?`,
-		like, like, like, limit,
-	)
+		 LIMIT ?`
+		args = []any{like, like, like, limit}
+	}
+	rows, err := s.db.Query(q, args...)
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/project-management/jira/internal/store"
+	"jira-cloud-platform-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -1457,8 +1457,8 @@ func syncDependentResources(c interface {
 		if len(allow) > 0 && !allow[dep.ParentTable] && !allow[dep.Name] {
 			continue
 		}
-		// PATCH: issue-sync-endpoint — issue_worklog is opt-in (one API call per issue)
-		if dep.Name == "issue_worklog" && !allow["issue_worklog"] {
+		// PATCH: issue-sync-endpoint — per-issue child resources are opt-in (one API call per issue each)
+		if (dep.Name == "issue_worklog" || dep.Name == "issue_changelog" || dep.Name == "issue_comment") && !allow[dep.Name] {
 			continue
 		}
 		res := syncDependentResource(c, db, dep, sinceTS, full, maxPages)
