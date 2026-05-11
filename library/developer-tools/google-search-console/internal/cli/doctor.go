@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
@@ -202,6 +204,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			report["version"] = version
+			report["cache"] = collectCacheReport()
 
 			if flags.asJSON {
 				if err := printJSONFiltered(cmd.OutOrStdout(), report, flags); err != nil {
@@ -305,4 +308,39 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 		return fmt.Errorf("doctor: unknown --fail-on value %q (valid: stale, error)", failOn)
 	}
 	return nil
+}
+
+// collectCacheReport summarizes the on-disk SQLite store for the doctor
+// surface: path, byte size, mtime age, and a status ("ok" | "stale" |
+// "missing" | "error"). Used by agents to decide whether to run `sync`
+// before issuing transcendence queries. Stays read-only — no migrations
+// or schema writes happen here.
+func collectCacheReport() map[string]any {
+	report := map[string]any{}
+	path := store.DefaultPath()
+	report["db_path"] = path
+	fi, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			report["status"] = "missing"
+			report["hint"] = "run `google-search-console-pp-cli sync --site sc-domain:example.com` to hydrate"
+			return report
+		}
+		report["status"] = "error"
+		report["error"] = err.Error()
+		return report
+	}
+	report["db_bytes"] = fi.Size()
+	age := time.Since(fi.ModTime())
+	report["age_seconds"] = int(age.Seconds())
+	// 24h is generous for GSC: the API itself only finalizes through
+	// today-3, so stale-after-1-day catches operators who forgot to sync
+	// without nagging on hourly polling.
+	const staleAfter = 24 * time.Hour
+	if age > staleAfter {
+		report["status"] = "stale"
+	} else {
+		report["status"] = "ok"
+	}
+	return report
 }

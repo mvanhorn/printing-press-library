@@ -15,6 +15,16 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// StoreSchemaVersion is the schema version this binary expects on the
+// SQLite store. Persisted via SQLite's PRAGMA user_version and checked on
+// every Open so a binary upgrade against an incompatible on-disk schema
+// fails loudly rather than corrupting reads.
+//
+// Bump this constant whenever schemaStatements gains or alters a table in
+// a way that older binaries cannot read; users will get a clear error
+// directing them to reset the store.
+const StoreSchemaVersion = 1
+
 // Store wraps a *sql.DB plus the resolved path for diagnostics.
 type Store struct {
 	db   *sql.DB
@@ -56,7 +66,32 @@ func Open(ctx context.Context, path string) (*Store, error) {
 		_ = s.Close()
 		return nil, err
 	}
+	if err := s.checkSchemaVersion(ctx); err != nil {
+		_ = s.Close()
+		return nil, err
+	}
 	return s, nil
+}
+
+// checkSchemaVersion reads SQLite's user_version pragma and compares it to
+// the binary's StoreSchemaVersion. Fresh databases (user_version=0) are
+// stamped with the current version; mismatched versions fail with a
+// recovery hint rather than letting reads return wrong shapes.
+func (s *Store) checkSchemaVersion(ctx context.Context) error {
+	var v int
+	if err := s.db.QueryRowContext(ctx, "PRAGMA user_version").Scan(&v); err != nil {
+		return fmt.Errorf("reading user_version: %w", err)
+	}
+	if v == 0 {
+		if _, err := s.db.ExecContext(ctx, fmt.Sprintf("PRAGMA user_version = %d", StoreSchemaVersion)); err != nil {
+			return fmt.Errorf("setting user_version: %w", err)
+		}
+		return nil
+	}
+	if v != StoreSchemaVersion {
+		return fmt.Errorf("store schema v%d on disk but binary expects v%d; remove %s and re-sync", v, StoreSchemaVersion, s.Path)
+	}
+	return nil
 }
 
 // DB returns the underlying *sql.DB for direct queries.
