@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -336,9 +337,23 @@ def candidate_patch_marker_files(cli_dir: Path) -> Iterable[Path]:
             yield path
 
 
+# Matches the inline marker convention documented in each printed CLI's
+# AGENTS.md:
+#
+#     // PATCH: <one-line summary>
+#     // PATCH(upstream cli-printing-press#<n>): ...
+#
+# Intentionally excludes bare HTTP method literals like "PATCH" that appear in
+# generated client/handler code (case "PATCH":, makeAPIHandler("PATCH", ...),
+# {"pp:method": "PATCH"}, etc.), which are not hand-authored customizations and
+# would otherwise false-positive on any printed CLI for an API that exposes
+# HTTP PATCH endpoints.
+_PATCH_MARKER_RE = re.compile(r"//\s*PATCH(?:\s*[:(]|\s*$)", re.MULTILINE)
+
+
 def has_patch_marker(path: Path) -> bool:
     try:
-        return "PATCH" in path.read_text(errors="ignore")
+        return bool(_PATCH_MARKER_RE.search(path.read_text(errors="ignore")))
     except OSError:
         return False
 
