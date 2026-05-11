@@ -22,6 +22,17 @@
         "internal/cache/cache.go"
       ],
       "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "fresh-jwt-token-reads",
+      "summary": "Bypasses response and offline caches for short-lived subscriber JWT token reads.",
+      "reason": "Beehiiv subscriber auto-login JWTs are short lived and stale cached tokens can produce unusable login URLs.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/subscriptions_jwt-token_subscriptions-get.go",
+        "internal/cli/import.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
     }
   ]
 }

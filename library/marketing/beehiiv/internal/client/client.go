@@ -71,14 +71,22 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 }
 
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	return c.getWithHeaders(path, params, headers, true)
+}
+
+func (c *Client) GetFreshWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+	return c.getWithHeaders(path, params, headers, false)
+}
+
+func (c *Client) getWithHeaders(path string, params map[string]string, headers map[string]string, useCache bool) (json.RawMessage, error) {
 	// Check cache for GET requests
-	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if useCache && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do("GET", path, params, nil, headers)
-	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if err == nil && useCache && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
 	return result, err

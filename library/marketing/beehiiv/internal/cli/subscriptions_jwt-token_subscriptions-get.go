@@ -14,10 +14,10 @@ import (
 func newSubscriptionsJwtTokenSubscriptionsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "subscriptions-get <publicationId> <subscriptionId>",
-		Aliases: []string{"get"},
-		Short: "Generate a JWT token that can be used to automatically log in subscribers via URL. This token is short lived and...",
-		Example: "  beehiiv-pp-cli subscriptions jwt-token subscriptions-get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Use:         "subscriptions-get <publicationId> <subscriptionId>",
+		Aliases:     []string{"get"},
+		Short:       "Generate a JWT token that can be used to automatically log in subscribers via URL. This token is short lived and...",
+		Example:     "  beehiiv-pp-cli subscriptions jwt-token subscriptions-get 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "jwt-token.subscriptions-get", "pp:method": "GET", "pp:path": "/publications/{publicationId}/subscriptions/{subscriptionId}/jwt_token", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -35,10 +35,13 @@ func newSubscriptionsJwtTokenSubscriptionsGetCmd(flags *rootFlags) *cobra.Comman
 			}
 			path = replacePathParam(path, "subscriptionId", args[1])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "jwt-token", false, path, params, nil)
+			// PATCH: Subscriber auto-login JWTs are short lived and must never be served
+			// from the response cache or offline store.
+			data, err := c.GetFreshWithHeaders(path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage

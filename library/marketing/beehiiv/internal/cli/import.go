@@ -17,7 +17,6 @@ import (
 func newImportCmd(flags *rootFlags) *cobra.Command {
 	var inputFile string
 	var dryRun bool
-	var batchSize int
 
 	cmd := &cobra.Command{
 		Use:   "import <resource>",
@@ -103,7 +102,6 @@ but do not stop the import.`,
 	cmd.Flags().StringVarP(&inputFile, "input", "i", "", "Input JSONL file path (use - for stdin)")
 	_ = cmd.MarkFlagRequired("input")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview import without sending requests")
-	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
 
 	return cmd
 }
