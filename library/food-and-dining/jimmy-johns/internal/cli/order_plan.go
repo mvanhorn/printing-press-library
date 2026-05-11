@@ -133,8 +133,11 @@ func loadPlanCatalog(stdin io.Reader, fromFile string) ([]planMenuItem, error) {
 		if err != nil {
 			return nil, fmt.Errorf("reading %s: %w", fromFile, err)
 		}
-	} else if stdin != nil {
-		// Don't block forever on a TTY — peek for data.
+	} else if stdin != nil && !readerIsTerminal(stdin) {
+		// PATCH: only consume stdin when it's a pipe or file. Reading from a TTY
+		// would block forever on os.Stdin (io.ReadAll waits for EOF, which never
+		// arrives without Ctrl-D), making `order plan --people 6 --json` hang
+		// silently when invoked interactively.
 		raw, _ = io.ReadAll(stdin)
 	}
 	if len(raw) == 0 {
@@ -157,6 +160,24 @@ func loadPlanCatalog(stdin io.Reader, fromFile string) ([]planMenuItem, error) {
 		}
 	}
 	return catalog, nil
+}
+
+// readerIsTerminal reports whether r is an *os.File backed by a character device
+// (a TTY). Used to skip io.ReadAll on interactive stdin, which would otherwise
+// block until Ctrl-D. Anything that isn't a real *os.File (bytes.Buffer in
+// tests, a pipe wrapper, a network conn) is treated as non-terminal so the
+// caller still drains it. Distinct from helpers.go's `isTerminal(io.Writer)`
+// because cobra's InOrStdin/OutOrStdout split readers and writers.
+func readerIsTerminal(r io.Reader) bool {
+	f, ok := r.(*os.File)
+	if !ok {
+		return false
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		return false
+	}
+	return fi.Mode()&os.ModeCharDevice != 0
 }
 
 // composePlan builds a sized cart from the catalog. Pure function — easy to test.

@@ -52,10 +52,22 @@ returns zeros and an explanatory note.`,
 
 			result := trendsResult{WindowDays: windowDays, WeeklyBreakdown: map[string]int{}}
 
+			// PATCH: apply --window-days as a SQL filter on COALESCE(json_extract(data,'$.placedAt'), updated_at).
+			// Previously the flag was only echoed in result.WindowDays; the queries returned every synced order
+			// regardless of window, so `--window-days 30` and `--window-days 3650` produced identical output.
+			// The filter is parameterized as `now - <N> days`; clamp at 1 day to avoid an empty/negative window.
+			if windowDays < 1 {
+				windowDays = 1
+				result.WindowDays = 1
+				result.Notes = append(result.Notes, "window-days clamped to 1 (minimum)")
+			}
+			windowFilter := `(COALESCE(json_extract(data,'$.placedAt'), updated_at) >= datetime('now', ?))`
+			windowArg := fmt.Sprintf("-%d days", windowDays)
+
 			// We use the resources table since orders may not have a dedicated table.
 			// resources table has resource_type column; orders rows would be tagged "orders".
 			err = db.DB().QueryRowContext(cmd.Context(),
-				`SELECT COUNT(*) FROM resources WHERE resource_type = 'orders'`).Scan(&result.OrdersFound)
+				`SELECT COUNT(*) FROM resources WHERE resource_type = 'orders' AND `+windowFilter, windowArg).Scan(&result.OrdersFound)
 			if err != nil {
 				result.Notes = append(result.Notes, fmt.Sprintf("orders count failed: %v", err))
 			}
@@ -64,8 +76,8 @@ returns zeros and an explanatory note.`,
 				`SELECT strftime('%Y-W%W', COALESCE(json_extract(data,'$.placedAt'), updated_at)) AS week,
 				        COUNT(*)
 				 FROM resources
-				 WHERE resource_type = 'orders'
-				 GROUP BY week ORDER BY week`)
+				 WHERE resource_type = 'orders' AND `+windowFilter+`
+				 GROUP BY week ORDER BY week`, windowArg)
 			if err == nil {
 				defer rows.Close()
 				weekCount := 0
