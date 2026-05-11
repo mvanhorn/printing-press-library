@@ -1,0 +1,51 @@
+version: 2
+project_name: fathom-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: fathom-pp-cli
+    main: ./cmd/fathom-pp-cli
+    binary: fathom-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/fathom/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: fathom-pp-mcp
+    main: ./cmd/fathom-pp-mcp
+    binary: fathom-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: fathom-pp-cli
+    repository:
+      owner: nikica-jokic
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Sync your Fathom meetings once, then search, analyze, and act on them forever — offline, at scale, without burning..."
+    install: |
+      bin.install "fathom-pp-cli"
+      bin.install "fathom-pp-mcp"

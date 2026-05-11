@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "fathom-pp-mcp",
+  "display_name": "Fathom",
+  "version": "4.0.6",
+  "description": "Fathom API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/fathom-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/fathom-pp-mcp",
+      "args": [],
+      "env": {
+        "FATHOM_PP_CLI_API_KEY": "${user_config.fathom_pp_cli_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "fathom_pp_cli_api_key": {
+      "type": "string",
+      "title": "FATHOM_PP_CLI_API_KEY",
+      "description": "Sets FATHOM_PP_CLI_API_KEY for the Fathom MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
