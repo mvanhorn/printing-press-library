@@ -1,0 +1,30 @@
+{
+  "manifest_version": "0.3",
+  "name": "ibkr-pp-mcp",
+  "display_name": "IBKR",
+  "version": "4.2.2",
+  "description": "Interactive Brokers REST API CLI \u2014 full Client Portal API surface with agent-friendly output, offline sync, and MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ibkr-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ibkr-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "run_id": "20260511T165004Z-32ca5571",
+  "printer": "printing-press@4.2.2",
+  "printer_name": "printing-press"
+}

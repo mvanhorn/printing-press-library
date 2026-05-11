@@ -1,0 +1,1154 @@
+{
+  "schema_version": "1.0",
+  "api_name": "ibkr",
+  "tools": [
+    {
+      "name": "analytics",
+      "description": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "group-by": {
+            "description": "Field to group by",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Max groups to show (default: 25)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "type": {
+            "description": "Resource type to analyze",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "inputSchema": {
+        "properties": {},
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "export",
+      "description": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "format": {
+            "description": "Output format: jsonl or json (default: jsonl)",
+            "type": "string"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum records to export (0 = unlimited) (default: 0)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache for fresh data (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "output": {
+            "description": "Output file path (default: stdout)",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ibkr_execute",
+      "description": "Execute one ibkr API endpoint by its endpoint_id (from ibkr_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically.",
+      "inputSchema": {
+        "properties": {
+          "endpoint_id": {
+            "description": "Endpoint identifier returned by ibkr_search (e.g., \"users.list\").",
+            "type": "string"
+          },
+          "params": {
+            "description": "Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.",
+            "properties": {},
+            "type": "object"
+          }
+        },
+        "required": [
+          "endpoint_id"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "ibkr_search",
+      "description": "Search the ibkr API for endpoints matching a natural-language query. Returns a ranked list of {endpoint_id, method, path, summary} entries. Call this first to find the endpoint to execute.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "description": "Max endpoints to return (default 10).",
+            "type": "number"
+          },
+          "query": {
+            "description": "Natural-language description of what you want to do.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "import",
+      "description": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "batch-size": {
+            "description": "Records per batch (future: batch API support) (default: 1)",
+            "type": "number"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Preview import without sending requests (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "input": {
+            "description": "Input JSONL file path (use - for stdin)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "input"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "jobs_get",
+      "description": "Show the latest state row for a job",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "jobs_list",
+      "description": "List recent async jobs",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "all": {
+            "description": "Show every state transition rather than the latest row per job (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "limit": {
+            "description": "Maximum rows to list (0 for unlimited) (default: 50)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "jobs_prune",
+      "description": "Remove job rows older than --older-than",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "older-than": {
+            "description": "Prune rows whose latest update is older than this duration (default: 168h0m0s)",
+            "type": "string"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "inputSchema": {
+        "properties": {
+          "limit": {
+            "description": "Max results (default 25)",
+            "type": "number"
+          },
+          "query": {
+            "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "inputSchema": {
+        "properties": {
+          "query": {
+            "description": "SQL query (SELECT or WITH...SELECT). Tables match resource names.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "name": "sync",
+      "description": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes & warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "concurrency": {
+            "description": "Number of parallel sync workers (default: 4)",
+            "type": "number"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path (default: ~/.local/share/ibkr-pp-cli/data.db)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "full": {
+            "description": "Full resync (ignore previous checkpoint) (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "latest-only": {
+            "description": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins). (default: false)",
+            "type": "boolean"
+          },
+          "max-pages": {
+            "description": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default: 100)",
+            "type": "number"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "resources": {
+            "description": "Comma-separated resource types to sync",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "since": {
+            "description": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)",
+            "type": "string"
+          },
+          "strict": {
+            "description": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero). (default: false)",
+            "type": "boolean"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "tail",
+      "description": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "args": {
+            "description": "Additional positional arguments or raw CLI flags to append to the command.",
+            "type": "string"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "follow": {
+            "description": "Keep running (set --follow=false for single poll) (default: true)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "interval": {
+            "description": "Poll interval (default: 10s)",
+            "type": "string"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "resource": {
+            "description": "Resource type to tail",
+            "type": "string"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "workflow_archive",
+      "description": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path (default: ~/.local/share/ibkr-pp-cli/data.db)",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "full": {
+            "description": "Full re-archive (ignore previous sync state) (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    },
+    {
+      "name": "workflow_status",
+      "description": "Show local archive status and sync state for all resources",
+      "inputSchema": {
+        "properties": {
+          "agent": {
+            "description": "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes) (default: false)",
+            "type": "boolean"
+          },
+          "compact": {
+            "description": "Return only key fields (id, name, status, timestamps) for minimal token usage (default: false)",
+            "type": "boolean"
+          },
+          "config": {
+            "description": "Config file path",
+            "type": "string"
+          },
+          "csv": {
+            "description": "Output as CSV (table and array responses) (default: false)",
+            "type": "boolean"
+          },
+          "data-source": {
+            "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)",
+            "type": "string"
+          },
+          "db": {
+            "description": "Database path",
+            "type": "string"
+          },
+          "deliver": {
+            "description": "Route output to a sink: stdout (default), file:<path>, webhook:<url>",
+            "type": "string"
+          },
+          "dry-run": {
+            "description": "Show request without sending (default: false)",
+            "type": "boolean"
+          },
+          "human-friendly": {
+            "description": "Enable colored output and rich formatting (default: false)",
+            "type": "boolean"
+          },
+          "idempotent": {
+            "description": "Treat already-existing create results as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "ignore-missing": {
+            "description": "Treat missing delete targets as a successful no-op (default: false)",
+            "type": "boolean"
+          },
+          "json": {
+            "description": "Output as JSON (default: false)",
+            "type": "boolean"
+          },
+          "no-cache": {
+            "description": "Bypass response cache (default: false)",
+            "type": "boolean"
+          },
+          "no-color": {
+            "description": "Disable colored output (default: false)",
+            "type": "boolean"
+          },
+          "no-input": {
+            "description": "Disable all interactive prompts (for CI/agents) (default: false)",
+            "type": "boolean"
+          },
+          "plain": {
+            "description": "Output as plain tab-separated text (default: false)",
+            "type": "boolean"
+          },
+          "profile": {
+            "description": "Apply values from a saved profile (see 'ibkr-pp-cli profile list')",
+            "type": "string"
+          },
+          "quiet": {
+            "description": "Bare output, one value per line (default: false)",
+            "type": "boolean"
+          },
+          "rate-limit": {
+            "description": "Max requests per second (0 to disable) (default: 0)",
+            "type": "number"
+          },
+          "select": {
+            "description": "Comma-separated fields to include in output (e.g. --select id,name,status)",
+            "type": "string"
+          },
+          "timeout": {
+            "description": "Request timeout (default: 30s)",
+            "type": "string"
+          },
+          "yes": {
+            "description": "Skip confirmation prompts (for agents and scripts) (default: false)",
+            "type": "boolean"
+          }
+        },
+        "required": [],
+        "type": "object"
+      }
+    }
+  ]
+}

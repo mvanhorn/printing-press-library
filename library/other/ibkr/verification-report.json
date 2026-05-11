@@ -1,0 +1,269 @@
+{
+  "verify": {
+    "mode": "mock",
+    "total": 31,
+    "passed": 31,
+    "failed": 0,
+    "critical": 0,
+    "pass_rate": 100,
+    "data_pipeline": true,
+    "data_pipeline_detail": "PASS: sync completed (table validation skipped — sql command unavailable)",
+    "freshness": {
+      "enabled": false,
+      "verdict": "SKIP",
+      "detail": "cache freshness helper not emitted"
+    },
+    "verdict": "PASS",
+    "results": [
+      {
+        "command": "acesws",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "agent-context",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "analytics",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "api",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "contract",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      },
+      {
+        "command": "doctor",
+        "kind": "local",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "export",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "fa",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "feedback",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "forecast",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "fyi",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "gw",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "import",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "iserver",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "jobs",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "logout",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "oauth",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "oauth2",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "pa",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "portfolio",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "portfolio2",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "profile",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "search",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sso",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "sync",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tail",
+        "kind": "data-layer",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "tickle",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "trsrv",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "which",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "workflow",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": true,
+        "score": 3
+      },
+      {
+        "command": "ws",
+        "kind": "read",
+        "help": true,
+        "dry_run": true,
+        "execute": false,
+        "score": 2
+      }
+    ],
+    "binary": "/Users/prakhargurunani/printing-press/.runstate/library-333e9b1a/runs/20260511T165004Z-32ca5571/working/ibkr-pp-cli/ibkr-pp-cli"
+  }
+}
