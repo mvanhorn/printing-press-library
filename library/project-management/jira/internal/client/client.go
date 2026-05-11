@@ -247,7 +247,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set(k, v)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "jira-cloud-platform-pp-cli/1001.0.0-SNAPSHOT-d8478457c5fa155500daa93bc82897bab1ac835b")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/project-management/jira/1001.0.0-SNAPSHOT-d8478457c5fa155500daa93bc82897bab1ac835b")
 		}
 
 		resp, err := c.HTTPClient.Do(req)

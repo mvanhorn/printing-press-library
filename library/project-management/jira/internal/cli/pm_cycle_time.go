@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"jira-cloud-platform-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/project-management/jira/internal/store"
 	"github.com/spf13/cobra"
 )
 
