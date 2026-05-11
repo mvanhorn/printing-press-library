@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "yc-companies-pp-mcp",
+  "display_name": "Yc Companies",
+  "version": "4.3.0",
+  "description": "Every YC-backed company in a local database, with watch lists, deltas, and cross-batch stats no scraper has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/yc-companies-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/yc-companies-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

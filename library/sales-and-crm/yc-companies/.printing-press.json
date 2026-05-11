@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T15:21:04.979859Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "yc-companies",
+  "display_name": "Yc Companies",
+  "cli_name": "yc-companies-pp-cli",
+  "owner": "nickpuru",
+  "printer": "nickpuru",
+  "printer_name": "nickpuru",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:fee0ae24276c9c679ca19c90cf6894aa8a1666a0e6b685b75c7929eed368e44d",
+  "run_id": "20260511-103413",
+  "description": "Every YC-backed company in a local database, with watch lists, deltas, and cross-batch stats no scraper has.",
+  "mcp_binary": "yc-companies-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Watch list management",
+      "command": "watch add",
+      "description": "Track a personal set of YC companies and see what changes between syncs."
+    },
+    {
+      "name": "Watch diff",
+      "command": "watch diff",
+      "description": "Show team_size, status, and hiring changes on your watched companies since a prior snapshot."
+    },
+    {
+      "name": "New companies since date",
+      "command": "companies new",
+      "description": "Companies that appeared in the directory after a date or since the last sync."
+    },
+    {
+      "name": "Cross-index change feed",
+      "command": "companies changes",
+      "description": "Diff status, team_size, or isHiring across the whole index between two snapshots, optionally scoped to specific slugs or target values."
+    },
+    {
+      "name": "Peer discovery by tags",
+      "command": "companies similar",
+      "description": "Given a YC slug, rank peers by tag overlap, industry match, and batch proximity."
+    },
+    {
+      "name": "Cross-batch and cross-industry aggregates",
+      "command": "stats by-batch",
+      "description": "GROUP BY over the local companies table — count, average team size, % hiring, % top, % acquired per cell."
+    },
+    {
+      "name": "Batch summary card",
+      "command": "batches show",
+      "description": "One-shot batch view: company count, top industries, top tags, % hiring, % top company, % acquired, median team size."
+    }
+  ]
+}

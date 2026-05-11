@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/nickpuru/printing-press/.runstate/cli-081cc8a9/runs/20260511-103413/working/yc-companies-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "api_name": "yc-companies",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "yc-oss/api",
+      "url": "https://github.com/yc-oss/api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Nneji123/ycombinator-scraper",
+      "url": "https://github.com/Nneji123/ycombinator-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "corralm/yc-scraper",
+      "url": "https://github.com/corralm/yc-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "akshaybhalotia/yc_company_scraper",
+      "url": "https://github.com/akshaybhalotia/yc_company_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dirkjbreeuwer/yc-scraper",
+      "url": "https://github.com/dirkjbreeuwer/yc-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "goofygary/yc-startup-scraper",
+      "url": "https://github.com/goofygary/yc-startup-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T10:36:00Z",
+  "novel_features": [
+    {
+      "name": "Watch list management",
+      "command": "watch add",
+      "description": "Track a personal set of YC companies and see what changes between syncs.",
+      "rationale": "Local SQLite watch table — no online source exposes per-user portfolio state.",
+      "example": "yc-companies-pp-cli watch add stripe airbnb doordash",
+      "why_it_matters": "Reach for this when an agent needs to compare a list of YC companies across syncs without re-uploading the slug list each time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch diff",
+      "command": "watch diff",
+      "description": "Show team_size, status, and hiring changes on your watched companies since a prior snapshot.",
+      "rationale": "Joins two companies_history snapshots filtered to watched slugs. No API exposes historical state.",
+      "example": "yc-companies-pp-cli watch diff --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this when an agent is asked 'what changed on these YC companies recently' and needs structured delta rows, not a fresh full list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "New companies since date",
+      "command": "companies new",
+      "description": "Companies that appeared in the directory after a date or since the last sync.",
+      "rationale": "Anti-join across snapshots. Static endpoints never expose deltas.",
+      "example": "yc-companies-pp-cli companies new --since 2026-04-01 --json --select slug,name,batch,one_liner",
+      "why_it_matters": "Reach for this for 'what's new in YC' questions — the only correct answer requires snapshot history.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-index change feed",
+      "command": "companies changes",
+      "description": "Diff status, team_size, or isHiring across the whole index between two snapshots, optionally scoped to specific slugs or target values.",
+      "rationale": "Snapshot-table field diff — subsumes hiring-flipped-true and status-flip detection.",
+      "example": "yc-companies-pp-cli companies changes --field isHiring --to true --since 2026-04-01 --json",
+      "why_it_matters": "Reach for this for any 'who flipped X' question — newly hiring, newly acquired, jumped team size.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Peer discovery by tags",
+      "command": "companies similar",
+      "description": "Given a YC slug, rank peers by tag overlap, industry match, and batch proximity.",
+      "rationale": "Local Jaccard on tag set + scoring loop. No scraper does similarity; no static endpoint exposes pairwise computation.",
+      "example": "yc-companies-pp-cli companies similar stripe --limit 10 --json --select slug,name,score,shared_tags",
+      "why_it_matters": "Reach for this when an agent needs competitors or peers for a specific YC company without an LLM-judged similarity call.",
+      "group": "Cross-row local computation"
+    },
+    {
+      "name": "Cross-batch and cross-industry aggregates",
+      "command": "stats by-batch",
+      "description": "GROUP BY over the local companies table — count, average team size, % hiring, % top, % acquired per cell.",
+      "rationale": "Local SQLite aggregation; static endpoints are single-axis and cannot compute pivots.",
+      "example": "yc-companies-pp-cli stats by-batch --industry fintech --json",
+      "why_it_matters": "Reach for this for any 'how has X changed across batches' question — counts, growth, hiring share, team-size trends.",
+      "group": "Cross-row local computation"
+    },
+    {
+      "name": "Batch summary card",
+      "command": "batches show",
+      "description": "One-shot batch view: company count, top industries, top tags, % hiring, % top company, % acquired, median team size.",
+      "rationale": "Local single-batch projection; one card vs many lines of a raw list.",
+      "example": "yc-companies-pp-cli batches show w25 --json",
+      "why_it_matters": "Reach for this when an agent or analyst needs a quick read on the shape of a single batch.",
+      "group": "Cross-row local computation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Watch list management",
+      "command": "watch add",
+      "description": "Track a personal set of YC companies and see what changes between syncs.",
+      "rationale": "Local SQLite watch table — no online source exposes per-user portfolio state.",
+      "example": "yc-companies-pp-cli watch add stripe airbnb doordash",
+      "why_it_matters": "Reach for this when an agent needs to compare a list of YC companies across syncs without re-uploading the slug list each time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch diff",
+      "command": "watch diff",
+      "description": "Show team_size, status, and hiring changes on your watched companies since a prior snapshot.",
+      "rationale": "Joins two companies_history snapshots filtered to watched slugs. No API exposes historical state.",
+      "example": "yc-companies-pp-cli watch diff --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this when an agent is asked 'what changed on these YC companies recently' and needs structured delta rows, not a fresh full list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "New companies since date",
+      "command": "companies new",
+      "description": "Companies that appeared in the directory after a date or since the last sync.",
+      "rationale": "Anti-join across snapshots. Static endpoints never expose deltas.",
+      "example": "yc-companies-pp-cli companies new --since 2026-04-01 --json --select slug,name,batch,one_liner",
+      "why_it_matters": "Reach for this for 'what's new in YC' questions — the only correct answer requires snapshot history.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-index change feed",
+      "command": "companies changes",
+      "description": "Diff status, team_size, or isHiring across the whole index between two snapshots, optionally scoped to specific slugs or target values.",
+      "rationale": "Snapshot-table field diff — subsumes hiring-flipped-true and status-flip detection.",
+      "example": "yc-companies-pp-cli companies changes --field isHiring --to true --since 2026-04-01 --json",
+      "why_it_matters": "Reach for this for any 'who flipped X' question — newly hiring, newly acquired, jumped team size.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Peer discovery by tags",
+      "command": "companies similar",
+      "description": "Given a YC slug, rank peers by tag overlap, industry match, and batch proximity.",
+      "rationale": "Local Jaccard on tag set + scoring loop. No scraper does similarity; no static endpoint exposes pairwise computation.",
+      "example": "yc-companies-pp-cli companies similar stripe --limit 10 --json --select slug,name,score,shared_tags",
+      "why_it_matters": "Reach for this when an agent needs competitors or peers for a specific YC company without an LLM-judged similarity call.",
+      "group": "Cross-row local computation"
+    },
+    {
+      "name": "Cross-batch and cross-industry aggregates",
+      "command": "stats by-batch",
+      "description": "GROUP BY over the local companies table — count, average team size, % hiring, % top, % acquired per cell.",
+      "rationale": "Local SQLite aggregation; static endpoints are single-axis and cannot compute pivots.",
+      "example": "yc-companies-pp-cli stats by-batch --industry fintech --json",
+      "why_it_matters": "Reach for this for any 'how has X changed across batches' question — counts, growth, hiring share, team-size trends.",
+      "group": "Cross-row local computation"
+    },
+    {
+      "name": "Batch summary card",
+      "command": "batches show",
+      "description": "One-shot batch view: company count, top industries, top tags, % hiring, % top company, % acquired, median team size.",
+      "rationale": "Local single-batch projection; one card vs many lines of a raw list.",
+      "example": "yc-companies-pp-cli batches show w25 --json",
+      "why_it_matters": "Reach for this when an agent or analyst needs a quick read on the shape of a single batch.",
+      "group": "Cross-row local computation"
+    }
+  ],
+  "narrative": {
+    "display_name": "Y Combinator",
+    "headline": "Every YC-backed company in a local database, with watch lists, deltas, and cross-batch stats no scraper has.",
+    "value_prop": "Sync the full Y Combinator company directory into a local SQLite store, then filter across batch, industry, tag, status, region, and team size in one query. Watch a portfolio and see what changed between syncs. Compute cross-batch aggregates the live site cannot show.",
+    "quickstart": [
+      {
+        "command": "yc-companies-pp-cli sync",
+        "comment": "Pull the latest YC directory (5,889 companies, ~5 MB) into local SQLite."
+      },
+      {
+        "command": "yc-companies-pp-cli companies list --batch w25 --industry fintech --json",
+        "comment": "Multi-axis filters work offline; pipe to jq."
+      },
+      {
+        "command": "yc-companies-pp-cli watch add stripe airbnb doordash",
+        "comment": "Track a list of slugs locally."
+      },
+      {
+        "command": "yc-companies-pp-cli watch diff --since 2026-04-01 --agent",
+        "comment": "Surface team_size / status / hiring deltas between snapshots."
+      },
+      {
+        "command": "yc-companies-pp-cli companies similar stripe --limit 10 --json --select slug,name,score",
+        "comment": "Peer discovery via tag overlap."
+      },
+      {
+        "command": "yc-companies-pp-cli stats by-batch --industry ai --json",
+        "comment": "Cross-batch industry pivot — count, avg team size, % hiring."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`No companies found` after fresh install",
+        "fix": "Run `yc-companies-pp-cli sync` first — every read command reads from the local SQLite store."
+      },
+      {
+        "symptom": "`watch diff` returns empty",
+        "fix": "Watch diff needs at least two snapshots. Run `yc-companies-pp-cli sync` a second time after some upstream data changes; or use `--since \u003colder-date\u003e`."
+      },
+      {
+        "symptom": "Slug not found in `companies get \u003cslug\u003e`",
+        "fix": "Use `yc-companies-pp-cli companies search '\u003cname\u003e'` first — slugs are kebab-case derivatives, not human names."
+      },
+      {
+        "symptom": "Old data",
+        "fix": "Run `yc-companies-pp-cli doctor` to compare local meta.last_updated against upstream; `yc-companies-pp-cli sync` to refresh."
+      }
+    ],
+    "when_to_use": "Pick this CLI when an agent or analyst needs to filter, search, or compute aggregates across the Y Combinator portfolio without round-tripping through a browser or rewriting the same pandas script. The local SQLite cache makes every cross-axis filter sub-second; the snapshot table makes 'what changed' questions answerable; the tag-Jaccard similar command finds peers without an LLM-judged comparison.",
+    "recipes": [
+      {
+        "title": "AI companies hiring in SF this batch",
+        "command": "yc-companies-pp-cli companies list --batch w25 --tag ai --hiring --region 'United States' --json --select slug,name,one_liner,team_size,website",
+        "explanation": "Multi-axis filter with a focused projection — the YC site can't compose these dimensions in one URL."
+      },
+      {
+        "title": "What's new since last Monday",
+        "command": "yc-companies-pp-cli companies new --since 2026-04-29 --json --select slug,name,batch,one_liner,launched_at",
+        "explanation": "Anti-join across snapshots returns rows present now and absent on the given date."
+      },
+      {
+        "title": "Companies that started hiring this month",
+        "command": "yc-companies-pp-cli companies changes --field isHiring --to true --since 2026-04-01 --json --select slug,name,batch,team_size",
+        "explanation": "Hiring-flip detection across snapshots — the recruiter ritual collapsed to one command."
+      },
+      {
+        "title": "Peers of Stripe by tag overlap",
+        "command": "yc-companies-pp-cli companies similar stripe --limit 10 --json --select slug,name,score,shared_tags,batch",
+        "explanation": "Local Jaccard ranking — no LLM, deterministic, sub-second."
+      },
+      {
+        "title": "Fintech growth across batches",
+        "command": "yc-companies-pp-cli stats by-batch --industry fintech --json",
+        "explanation": "Cross-batch pivot — count, avg team_size, % hiring, % top per batch."
+      }
+    ],
+    "trigger_phrases": [
+      "find YC companies",
+      "search YC startups",
+      "what changed in YC",
+      "YC peers of",
+      "stats across YC batches",
+      "use yc-companies",
+      "run yc-companies"
+    ]
+  }
+}

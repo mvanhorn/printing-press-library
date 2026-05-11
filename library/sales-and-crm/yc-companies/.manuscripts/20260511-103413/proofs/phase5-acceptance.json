@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "yc-companies",
+  "run_id": "20260511-103413",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 4,
+  "auth_context": {
+    "type": "none"
+  }
+}

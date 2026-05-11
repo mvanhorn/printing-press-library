@@ -1,0 +1,51 @@
+{
+  "timestamp": "2026-05-11T15:27:18.54029Z",
+  "cli_dir": "/tmp/printing-press/publish/yc-companies-AvtzdT/package/library/sales-and-crm/yc-companies",
+  "findings": [
+    {
+      "kind": "phone-us",
+      "file": "internal/yclocal/yclocal_test.go",
+      "line": 151,
+      "column": 147,
+      "matched_span": "1247000000",
+      "status": "accepted",
+      "note": "Unix epoch timestamp used as last_updated column in a test fixture row.",
+      "category": "other",
+      "evidence_context": "Last column of seedCompanies row for stripe — the integer is the `last_updated` Unix epoch timestamp (1247000000 = Jul 2009, matching Stripe's S2009 batch). Not a phone number."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/yclocal/yclocal_test.go",
+      "line": 152,
+      "column": 138,
+      "matched_span": "1230000000",
+      "status": "accepted",
+      "note": "Unix epoch timestamp used as last_updated column in a test fixture row.",
+      "category": "other",
+      "evidence_context": "Last column of seedCompanies row for airbnb — the integer is the `last_updated` Unix epoch timestamp (1230000000 = Dec 2008, matching Airbnb's W2009 batch). Not a phone number."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/yclocal/yclocal_test.go",
+      "line": 193,
+      "column": 109,
+      "matched_span": "1247000000",
+      "status": "accepted",
+      "note": "Unix epoch timestamp used as last_updated column in a test fixture row.",
+      "category": "other",
+      "evidence_context": "Snapshot-diff test fixture; same 1247000000 epoch timestamp on a stripe seed row used to set up the initial snapshot state."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/yclocal/yclocal_test.go",
+      "line": 207,
+      "column": 106,
+      "matched_span": "1730000000",
+      "status": "accepted",
+      "note": "Unix epoch timestamp used as last_updated column in a test fixture row.",
+      "category": "other",
+      "evidence_context": "Snapshot-diff test fixture; 1730000000 epoch timestamp (Oct 2024) on a newco seed row to assert a fresh insert appears in the second snapshot."
+    }
+  ],
+  "findings_count_before": 0
+}

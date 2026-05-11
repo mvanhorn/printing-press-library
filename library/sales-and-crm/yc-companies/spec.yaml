@@ -1,0 +1,215 @@
+name: yc-companies
+description: "Search, filter, and analyze the Y Combinator startup directory from a local cache."
+version: "0.1.0"
+base_url: "https://yc-oss.github.io/api"
+http_transport: standard
+health_check_path: "/meta.json"
+cli_description: "Every YC-backed company in a local database, with watch lists, deltas, and cross-batch stats no scraper has."
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/yc-companies-pp-cli/config.toml"
+
+resources:
+  companies:
+    description: "List, fetch, filter, and search Y Combinator companies."
+    endpoints:
+      list:
+        method: GET
+        path: "/companies/all.json"
+        description: "Fetch the full directory (5,889+ companies)."
+        response:
+          type: array
+          item: Company
+      top:
+        method: GET
+        path: "/companies/top.json"
+        description: "Fetch top-ranked YC companies."
+        response:
+          type: array
+          item: Company
+      hiring:
+        method: GET
+        path: "/companies/hiring.json"
+        description: "Fetch companies currently hiring."
+        response:
+          type: array
+          item: Company
+      nonprofit:
+        method: GET
+        path: "/companies/nonprofit.json"
+        description: "Fetch nonprofit YC companies."
+        response:
+          type: array
+          item: Company
+      women_founded:
+        method: GET
+        path: "/companies/women-founded.json"
+        description: "Fetch women-founded YC companies."
+        response:
+          type: array
+          item: Company
+      black_founded:
+        method: GET
+        path: "/companies/black-founded.json"
+        description: "Fetch Black-founded YC companies."
+        response:
+          type: array
+          item: Company
+      hispanic_latino_founded:
+        method: GET
+        path: "/companies/hispanic-latino-founded.json"
+        description: "Fetch Hispanic/Latino-founded YC companies."
+        response:
+          type: array
+          item: Company
+      get_in_batch:
+        method: GET
+        path: "/batches/{batch_slug}/{slug}.json"
+        description: "Fetch a single company by batch slug and company slug."
+        params:
+          - name: batch_slug
+            type: string
+            required: true
+            positional: true
+            description: "Batch slug (e.g. winter-2025)."
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Company slug (e.g. stripe)."
+        response:
+          type: object
+          item: Company
+
+  batches:
+    description: "Browse YC batches."
+    endpoints:
+      get:
+        method: GET
+        path: "/batches/{batch_slug}.json"
+        description: "Fetch every company in a YC batch."
+        params:
+          - name: batch_slug
+            type: string
+            required: true
+            positional: true
+            description: "Batch slug (e.g. winter-2025, summer-2024)."
+        response:
+          type: array
+          item: Company
+
+  industries:
+    description: "Browse YC industry verticals."
+    endpoints:
+      get:
+        method: GET
+        path: "/industries/{industry_slug}.json"
+        description: "Fetch every company in an industry."
+        params:
+          - name: industry_slug
+            type: string
+            required: true
+            positional: true
+            description: "Industry slug (e.g. fintech, healthcare, b2b)."
+        response:
+          type: array
+          item: Company
+
+  tags:
+    description: "Browse YC tags."
+    endpoints:
+      get:
+        method: GET
+        path: "/tags/{tag_slug}.json"
+        description: "Fetch every company with a given tag."
+        params:
+          - name: tag_slug
+            type: string
+            required: true
+            positional: true
+            description: "Tag slug (e.g. ai, saas, robotics)."
+        response:
+          type: array
+          item: Company
+
+  meta:
+    description: "Directory metadata."
+    endpoints:
+      get:
+        method: GET
+        path: "/meta.json"
+        description: "Counts and last-updated timestamp for the directory."
+        response:
+          type: object
+          item: Meta
+
+types:
+  Company:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: former_names
+        type: string
+      - name: small_logo_thumb_url
+        type: string
+      - name: website
+        type: string
+      - name: all_locations
+        type: string
+      - name: long_description
+        type: string
+      - name: one_liner
+        type: string
+      - name: team_size
+        type: int
+      - name: industry
+        type: string
+      - name: subindustry
+        type: string
+      - name: launched_at
+        type: int
+      - name: tags
+        type: string
+      - name: tags_highlighted
+        type: string
+      - name: top_company
+        type: bool
+      - name: isHiring
+        type: bool
+      - name: nonprofit
+        type: bool
+      - name: batch
+        type: string
+      - name: status
+        type: string
+      - name: industries
+        type: string
+      - name: regions
+        type: string
+      - name: stage
+        type: string
+      - name: app_video_public
+        type: bool
+      - name: demo_day_video_public
+        type: bool
+      - name: question_answers
+        type: bool
+      - name: url
+        type: string
+      - name: api
+        type: string
+
+  Meta:
+    fields:
+      - name: last_updated
+        type: string
+      - name: readme
+        type: string

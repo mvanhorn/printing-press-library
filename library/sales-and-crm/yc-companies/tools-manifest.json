@@ -1,0 +1,148 @@
+{
+  "api_name": "yc-companies",
+  "base_url": "https://yc-oss.github.io/api",
+  "description": "Search, filter, and analyze the Y Combinator startup directory from a local cache.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "batches_get",
+      "description": "Fetch every company in a YC batch. Required: batch_slug. Returns array of Company.",
+      "method": "GET",
+      "path": "/batches/{batch_slug}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "batch_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Batch slug (e.g. winter-2025, summer-2024).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_black_founded",
+      "description": "Fetch Black-founded YC companies. Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/black-founded.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "companies_get_in_batch",
+      "description": "Fetch a single company by batch slug and company slug. Required: batch_slug, slug. Returns the Company.",
+      "method": "GET",
+      "path": "/batches/{batch_slug}/{slug}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "batch_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Batch slug (e.g. winter-2025).",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Company slug (e.g. stripe).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_hiring",
+      "description": "Fetch companies currently hiring. Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/hiring.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "companies_hispanic_latino_founded",
+      "description": "Fetch Hispanic/Latino-founded YC companies. Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/hispanic-latino-founded.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "companies_list",
+      "description": "Fetch the full directory (5,889+ companies). Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/all.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "companies_nonprofit",
+      "description": "Fetch nonprofit YC companies. Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/nonprofit.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "companies_top",
+      "description": "Fetch top-ranked YC companies. Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/top.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "companies_women_founded",
+      "description": "Fetch women-founded YC companies. Returns array of Company.",
+      "method": "GET",
+      "path": "/companies/women-founded.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "industries_get",
+      "description": "Fetch every company in an industry. Required: industry_slug. Returns array of Company.",
+      "method": "GET",
+      "path": "/industries/{industry_slug}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "industry_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Industry slug (e.g. fintech, healthcare, b2b).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "meta_get",
+      "description": "Counts and last-updated timestamp for the directory. Returns the Meta.",
+      "method": "GET",
+      "path": "/meta.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tags_get",
+      "description": "Fetch every company with a given tag. Required: tag_slug. Returns array of Company.",
+      "method": "GET",
+      "path": "/tags/{tag_slug}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tag_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Tag slug (e.g. ai, saas, robotics).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
