@@ -17,6 +17,16 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/google-search-console/internal/store"
 )
 
+// defaultSyncResources lists the resources the sync command pulls into the
+// local store. Surfaced in sync output so callers can see what was touched
+// without re-reading source. Per-resource progress is tracked through the
+// store's sync_runs table (see RecordSyncRun); there's no separate
+// sync_state column — the latest run for a (site, resource) pair is the
+// resume point.
+func defaultSyncResources() []string {
+	return []string{"search_analytics", "sites", "sitemaps"}
+}
+
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var (
 		siteURL    string
@@ -119,6 +129,7 @@ Examples:
 			out := map[string]any{
 				"started_at": started,
 				"db_path":    s.Path,
+				"resources":  defaultSyncResources(),
 				"sites":      summary,
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
@@ -215,67 +226,86 @@ func fetchSiteSnapshot(c apiClient) ([]store.SiteRow, error) {
 // `searchAppearance` is mutually exclusive with other dimensions in a
 // single query, so it is handled by the `appearance` command on a separate
 // sync path.
+//
+// Path pattern: POST /webmasters/v3/sites/{site}/searchAnalytics/query
+// Cursor model: GSC paginates by integer offset (its API field name is
+// `startRow`); we advance by pageSize until a short page signals end of
+// data or the 250k hard ceiling fires.
 func pullSearchAnalytics(c apiClient, site, start, end, searchType string) ([]store.AnalyticsRow, error) {
 	const pageSize = 25000
 	dimensions := []string{"date", "query", "page", "country", "device"}
 	all := []store.AnalyticsRow{}
-	startRow := 0
+	cursor := 0
 	for {
-		body := map[string]any{
-			"startDate":  start,
-			"endDate":    end,
-			"dimensions": dimensions,
-			"rowLimit":   pageSize,
-			"startRow":   startRow,
-			"searchType": searchType,
-			"dataState":  "final",
-		}
-		path := "/webmasters/v3/sites/" + url.PathEscape(site) + "/searchAnalytics/query"
-		raw, _, err := c.Post(path, body)
+		rows, err := fetchAnalyticsPage(c, site, start, end, searchType, dimensions, cursor, pageSize)
 		if err != nil {
 			return all, err
 		}
-		var resp struct {
-			Rows []struct {
-				Keys        []string `json:"keys"`
-				Clicks      float64  `json:"clicks"`
-				Impressions float64  `json:"impressions"`
-				CTR         float64  `json:"ctr"`
-				Position    float64  `json:"position"`
-			} `json:"rows"`
-		}
-		if err := json.Unmarshal(raw, &resp); err != nil {
-			return all, fmt.Errorf("parsing analytics: %w", err)
-		}
-		for _, r := range resp.Rows {
-			ar := store.AnalyticsRow{
-				SiteURL: site, SearchType: searchType,
-				Clicks: r.Clicks, Impressions: r.Impressions, CTR: r.CTR, Position: r.Position,
-			}
-			for i, key := range r.Keys {
-				switch dimensions[i] {
-				case "date":
-					ar.Date = key
-				case "query":
-					ar.Query = key
-				case "page":
-					ar.Page = key
-				case "country":
-					ar.Country = key
-				case "device":
-					ar.Device = key
-				}
-			}
-			all = append(all, ar)
-		}
-		if len(resp.Rows) < pageSize {
+		all = append(all, rows...)
+		if len(rows) < pageSize {
 			return all, nil
 		}
-		startRow += pageSize
-		if startRow >= 250000 {
+		cursor += pageSize
+		if cursor >= 250000 {
 			return all, nil // hard ceiling: 10 pages × 25k rows
 		}
 	}
+}
+
+// fetchAnalyticsPage POSTs one page of the 5-dimension search-analytics
+// query and converts the response rows into store.AnalyticsRow records.
+// The wire-level offset field is `startRow` (GSC's naming); the caller
+// holds it as `cursor`.
+func fetchAnalyticsPage(c apiClient, site, start, end, searchType string, dimensions []string, startRow, pageSize int) ([]store.AnalyticsRow, error) {
+	body := map[string]any{
+		"startDate":  start,
+		"endDate":    end,
+		"dimensions": dimensions,
+		"rowLimit":   pageSize,
+		"startRow":   startRow,
+		"searchType": searchType,
+		"dataState":  "final",
+	}
+	path := "/webmasters/v3/sites/" + url.PathEscape(site) + "/searchAnalytics/query"
+	raw, _, err := c.Post(path, body)
+	if err != nil {
+		return nil, err
+	}
+	var resp struct {
+		Rows []struct {
+			Keys        []string `json:"keys"`
+			Clicks      float64  `json:"clicks"`
+			Impressions float64  `json:"impressions"`
+			CTR         float64  `json:"ctr"`
+			Position    float64  `json:"position"`
+		} `json:"rows"`
+	}
+	if err := json.Unmarshal(raw, &resp); err != nil {
+		return nil, fmt.Errorf("parsing analytics: %w", err)
+	}
+	out := make([]store.AnalyticsRow, 0, len(resp.Rows))
+	for _, r := range resp.Rows {
+		ar := store.AnalyticsRow{
+			SiteURL: site, SearchType: searchType,
+			Clicks: r.Clicks, Impressions: r.Impressions, CTR: r.CTR, Position: r.Position,
+		}
+		for i, key := range r.Keys {
+			switch dimensions[i] {
+			case "date":
+				ar.Date = key
+			case "query":
+				ar.Query = key
+			case "page":
+				ar.Page = key
+			case "country":
+				ar.Country = key
+			case "device":
+				ar.Device = key
+			}
+		}
+		out = append(out, ar)
+	}
+	return out, nil
 }
 
 func pullSitemaps(c apiClient, site string) ([]store.SitemapRow, error) {
