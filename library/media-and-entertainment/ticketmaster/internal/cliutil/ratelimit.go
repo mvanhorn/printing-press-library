@@ -40,6 +40,19 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	}
 }
 
+// MaxRate hard-caps the upward ramp so a long success streak before the first
+// 429 cannot push the limiter past a sane outbound ceiling. Picked to be lower
+// than every common upstream's documented per-second budget; combined with the
+// per-API ceiling discovery (OnRateLimit lowers `ceiling` to 90% of the rate
+// that produced the 429), this is a defense-in-depth cap, not the primary
+// adaptation signal.
+// PATCH(greptile P2 ratelimit.go:59-74 — unbounded ramp before first 429)
+const MaxRate = 10.0
+
+// PATCH(greptile P2 ratelimit.go:43-57 — TOCTOU race across two critical
+// sections): hold the lock across the entire read-decide-update sequence so
+// two concurrent callers cannot read the same stale lastRequest, compute the
+// same remaining delay, and burst simultaneously.
 func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return
@@ -47,13 +60,12 @@ func (l *AdaptiveLimiter) Wait() {
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
 	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
-	}
-	l.mu.Lock()
+	remaining := delay - elapsed
 	l.lastRequest = time.Now()
 	l.mu.Unlock()
+	if remaining > 0 {
+		time.Sleep(remaining)
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {
@@ -67,6 +79,12 @@ func (l *AdaptiveLimiter) OnSuccess() {
 		newRate := l.rate * 1.25
 		if l.ceiling > 0 && newRate > l.ceiling*0.9 {
 			newRate = l.ceiling * 0.9
+		}
+		// PATCH(greptile P2 ratelimit.go:59-74): hard upper bound regardless
+		// of whether a 429 has ever been observed; protects against runaway
+		// ramp on quiet upstreams.
+		if newRate > MaxRate {
+			newRate = MaxRate
 		}
 		l.rate = newRate
 		l.successes = 0

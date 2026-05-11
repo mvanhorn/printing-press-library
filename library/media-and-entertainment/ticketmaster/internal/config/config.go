@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
@@ -79,6 +78,9 @@ func Load(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
+// PATCH(greptile P2 config.go:82-94 — dead `if c.TicketmasterApiKey == ""`):
+// the empty-token case is already guarded one line above via `if token == ""`,
+// so the second check on the same field can never fire.
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
@@ -87,24 +89,13 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.TicketmasterApiKey == "" {
-		return ""
-	}
 	return token
 }
 
-func applyAuthFormat(format string, replacements map[string]string) string {
-	if format == "" {
-		return ""
-	}
-	for key, value := range replacements {
-		format = strings.ReplaceAll(format, "{"+key+"}", value)
-	}
-	if strings.Contains(format, "{") {
-		return ""
-	}
-	return format
-}
+// PATCH(greptile P2 config.go:96-107 — dead `applyAuthFormat`): the helper
+// and its `var _ = strings.ReplaceAll` keep-import sentinel were emitted by
+// the generator's auth template but never wired into the printed CLI's call
+// graph. Removed both; `strings` is still used by SaveCredential's import.
 
 func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
 	c.ClientID = clientID
@@ -149,5 +140,3 @@ func (c *Config) save() error {
 	return os.WriteFile(c.Path, data, 0o600)
 }
 
-// Ensure strings import is used
-var _ = strings.ReplaceAll

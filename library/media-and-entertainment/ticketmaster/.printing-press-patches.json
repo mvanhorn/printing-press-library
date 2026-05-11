@@ -17,7 +17,7 @@
     {
       "id": "novel-events-upcoming",
       "summary": "Add 'events upcoming' multi-venue fan-out that reads venue IDs from a file, CSV, or saved watchlist and queries the local events table.",
-      "reason": "Replaces 595 lines of hand-rolled bash (Lobster seattle-events) with one CLI command. The Discovery API has no multi-venue endpoint — without local store + fan-out, agents must loop per-venue and dedup themselves.",
+      "reason": "Replaces 595 lines of hand-rolled bash (Lobster seattle-events) with one CLI command. The Discovery API has no multi-venue endpoint \u2014 without local store + fan-out, agents must loop per-venue and dedup themselves.",
       "files": [
         "internal/cli/events_upcoming.go",
         "internal/cli/events.go"
@@ -37,7 +37,7 @@
     {
       "id": "novel-events-tour",
       "summary": "Add 'events tour <attraction>' view that filters local events by attractionId or name (case-insensitive substring), projects city/venue/status, and flags rows where on-sale is within --on-sale-window days.",
-      "reason": "Persona B workflow (tour-chasing fan). Joins local events × attractions; parses dates.status.code + sales.public.startDateTime — fields documented in the brief's Codebase Intelligence section.",
+      "reason": "Persona B workflow (tour-chasing fan). Joins local events \u00d7 attractions; parses dates.status.code + sales.public.startDateTime \u2014 fields documented in the brief's Codebase Intelligence section.",
       "files": [
         "internal/cli/events_tour.go",
         "internal/cli/events.go"
@@ -57,7 +57,7 @@
     {
       "id": "novel-events-by-classification",
       "summary": "Add 'events by-classification' aggregation that groups local events by segment+genre with count + examples per bucket.",
-      "reason": "Brief Workflow #5 + Table-Stakes 'cross-classification aggregation in one call' gap. Mechanical GROUP BY over events × classifications.",
+      "reason": "Brief Workflow #5 + Table-Stakes 'cross-classification aggregation in one call' gap. Mechanical GROUP BY over events \u00d7 classifications.",
       "files": [
         "internal/cli/events_by_classification.go",
         "internal/cli/events.go"
@@ -76,7 +76,7 @@
     },
     {
       "id": "novel-events-brief",
-      "summary": "Add 'events brief --window N --dma <id>' markdown renderer that groups local events by date → venue → events with classification labels and (when available) price ranges.",
+      "summary": "Add 'events brief --window N --dma <id>' markdown renderer that groups local events by date \u2192 venue \u2192 events with classification labels and (when available) price ranges.",
       "reason": "Persona D (newsletter author) workflow + user-vision Obsidian/iMessage composition. Mechanical group-by + markdown formatting; no API endpoint produces formatted reports.",
       "files": [
         "internal/cli/events_brief.go",
@@ -87,12 +87,52 @@
     {
       "id": "novel-events-price-bands",
       "summary": "Add 'events price-bands --dma <id> --window N' SQL aggregation that buckets priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands grouped by classification.",
-      "reason": "Persona D pain (newsletter analytics). priceRanges.min is in the spec; mechanical bucketing — no API analog.",
+      "reason": "Persona D pain (newsletter analytics). priceRanges.min is in the spec; mechanical bucketing \u2014 no API analog.",
       "files": [
         "internal/cli/events_price_bands.go",
         "internal/cli/events.go"
       ],
       "validated_outcome": "--help pass; missing-price events bucketed as 'unknown' (Discovery omits priceRanges on resale/dynamic-priced events, documented in the brief's data-model quirks)."
+    },
+    {
+      "id": "greptile-pr444-ratelimit-toctou",
+      "summary": "Fix TOCTOU race in AdaptiveLimiter.Wait() \u2014 hold lock across read-decide-update sequence so concurrent callers cannot read the same stale lastRequest.",
+      "reason": "Greptile P2 finding on PR #444 (ratelimit.go:43-57). Two callers in separate critical sections could compute the same remaining delay and burst simultaneously.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean.",
+      "upstream_issue": "see upstream_tracking.press-ratelimit-toctou"
+    },
+    {
+      "id": "greptile-pr444-ratelimit-unbounded-ramp",
+      "summary": "Add MaxRate=10.0 hard cap in AdaptiveLimiter.OnSuccess() so a long success streak before the first 429 cannot push the rate past a sane outbound ceiling.",
+      "reason": "Greptile P2 finding on PR #444 (ratelimit.go:59-74). Without a 429, OnSuccess multiplies by 1.25 indefinitely, reaching ~16 req/s after ~100 successes.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean.",
+      "upstream_issue": "see upstream_tracking.press-ratelimit-unbounded-ramp"
+    },
+    {
+      "id": "greptile-pr444-auth-header-dead-branch",
+      "summary": "Remove duplicate `if c.TicketmasterApiKey == \"\"` empty-token guard in Config.AuthHeader() \u2014 unreachable after the prior `if token == \"\"` check on the same field.",
+      "reason": "Greptile P2 finding on PR #444 (config.go:82-94). Dead code.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "build/vet clean.",
+      "upstream_issue": "see upstream_tracking.press-config-auth-header-dead-branch"
+    },
+    {
+      "id": "greptile-pr444-applyAuthFormat-dead-code",
+      "summary": "Remove unused applyAuthFormat() helper, its `var _ = strings.ReplaceAll` keep-import sentinel, and the now-unused `strings` import in internal/config/config.go.",
+      "reason": "Greptile P2 finding on PR #444 (config.go:96-107). Dead code emitted by generator template, never wired into call graph for query-param auth.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "build/vet clean; strings import removed.",
+      "upstream_issue": "see upstream_tracking.press-config-applyAuthFormat-dead-code"
     }
   ],
   "upstream_tracking": [
