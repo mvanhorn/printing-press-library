@@ -155,9 +155,13 @@ Run 'sync --full' first to populate transcripts locally.`,
 			for _, r := range results {
 				fmt.Fprintf(cmd.OutOrStdout(), "%-20s  %d mentions across %d meetings\n", r.Term, r.TotalCount, r.MeetingCount)
 				for _, w := range r.WeeklyTrend {
-					bar := strings.Repeat("█", w.Count)
-					if len(bar) > 40 {
-						bar = bar[:40] + "…"
+					barCount := w.Count
+					if barCount > 40 {
+						barCount = 40
+					}
+					bar := strings.Repeat("█", barCount)
+					if w.Count > 40 {
+						bar += "…"
 					}
 					fmt.Fprintf(cmd.OutOrStdout(), "  %s  %s (%d)\n", w.Week, bar, w.Count)
 				}

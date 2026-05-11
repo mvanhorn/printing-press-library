@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"sort"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/fathom/internal/store"
 	"github.com/spf13/cobra"
@@ -77,13 +77,18 @@ Run 'sync --full' first to populate the local store.`,
 				Meetings []string `json:"meetings"`
 			}
 
+			// PATCH(coverage-gap-weeks): enumerate every week in range, not just recorded ones
 			var allWeeks []weekEntry
-			for w, titles := range weekRecorded {
-				allWeeks = append(allWeeks, weekEntry{Week: w, Recorded: true, Meetings: titles})
+			now := time.Now()
+			for i := weeks - 1; i >= 0; i-- {
+				d := now.AddDate(0, 0, -i*7)
+				w := isoWeek(d)
+				if titles, ok := weekRecorded[w]; ok {
+					allWeeks = append(allWeeks, weekEntry{Week: w, Recorded: true, Meetings: titles})
+				} else {
+					allWeeks = append(allWeeks, weekEntry{Week: w, Recorded: false, Meetings: nil})
+				}
 			}
-			sort.Slice(allWeeks, func(i, j int) bool {
-				return allWeeks[i].Week < allWeeks[j].Week
-			})
 
 			recorded := len(weekRecorded)
 			total := weeks
@@ -122,6 +127,10 @@ Run 'sync --full' first to populate the local store.`,
 			for _, w := range allWeeks {
 				status := "✓"
 				label := strings.Join(w.Meetings, "; ")
+				if !w.Recorded {
+					status = "✗"
+					label = "(no recording)"
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "  %s  %s  %s\n", w.Week, status, label)
 			}
 			return nil

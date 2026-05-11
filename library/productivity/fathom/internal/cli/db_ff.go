@@ -131,8 +131,9 @@ SQLite format copies the raw database file.`,
 						return fmt.Errorf("scanning %s: %w", rt, err)
 					}
 					// Write as JSONL envelope: {"resource_type":"meetings","data":{...}}
+					rtJSON, _ := json.Marshal(rt) // PATCH(db-resource-type-escape): use json.Marshal for proper escaping
 					line, err := json.Marshal(map[string]json.RawMessage{
-						"resource_type": json.RawMessage(`"` + rt + `"`),
+						"resource_type": json.RawMessage(rtJSON),
 						"data":          json.RawMessage(raw),
 					})
 					if err != nil {

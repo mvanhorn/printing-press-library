@@ -52,6 +52,24 @@
       "validated_outcome": "go build ./... passes cleanly after the fix."
     },
     {
+      "id": "topics-bar-utf8",
+      "summary": "Fixed bar chart truncation in topics_ff.go to not cut mid-codepoint on the 3-byte █ character.",
+      "reason": "bar[:40] sliced at byte 40, which lands inside the 14th █ codepoint (3 bytes each), producing invalid UTF-8 for any term appearing ≥14 times. Fixed by capping the repeat count at 40 runes instead of slicing bytes.",
+      "files": ["internal/cli/topics_ff.go"]
+    },
+    {
+      "id": "coverage-gap-weeks",
+      "summary": "Fixed coverage_ff.go to enumerate all weeks in range (not just recorded ones) and render gap weeks with ✗ status.",
+      "reason": "Only weeks present in weekRecorded were added to allWeeks, so gap weeks were silently omitted from both JSON and human output — defeating the command's primary purpose. Now iterates all weeks in range and marks gaps with Recorded:false.",
+      "files": ["internal/cli/coverage_ff.go"]
+    },
+    {
+      "id": "db-resource-type-escape",
+      "summary": "Fixed db_ff.go JSONL envelope to use json.Marshal(rt) instead of raw string concatenation for resource_type.",
+      "reason": "Raw concatenation of rt into a JSON string literal produces malformed JSON if rt contains backslashes or quotes (e.g. from a restored JSONL with unusual resource type names).",
+      "files": ["internal/cli/db_ff.go"]
+    },
+    {
       "id": "novel-commands",
       "summary": "Added 9 novel commands not available in any Fathom MCP server: commitments, topics, brief, velocity, workload, account, stale, crm-gaps, coverage.",
       "reason": "Fathom API has no aggregation endpoints. All novel commands read from the local SQLite store populated by sync.",
