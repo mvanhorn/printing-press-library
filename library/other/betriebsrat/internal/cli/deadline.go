@@ -4,6 +4,7 @@ import (
 	"github.com/googlarz/betriebsrat/internal/betrvg"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -53,16 +54,21 @@ Key deadlines (BetrVG):
 			situation := strings.Join(args, " ")
 			words := tokenize(situation)
 
+			// Sort rules longest-situation-first so specific rules (e.g. "außerordentliche
+			// kündigung") beat shorter overlapping ones (e.g. "ordentliche kündigung").
+			rules := sortedBySpecificity(betrvg.Deadlines())
+
 			var matched *betrvg.DeadlineRule
-			// Full-phrase pass: prevents "ordentliche kündigung" from matching "außerordentliche kündigung".
-			for _, rule := range betrvg.Deadlines() {
-				if betrvg.ContainsFold(rule.Situation, situation) || betrvg.ContainsFold(situation, rule.Situation) {
+			// Phrase pass: situation contains the rule phrase (longest match wins).
+			for _, rule := range rules {
+				if betrvg.ContainsFold(situation, rule.Situation) {
 					r := rule
 					matched = &r
 					break
 				}
 			}
 			// Word-level fallback for single-word queries like "Kündigung".
+			// Use original rule order (ordentliche first = safer default).
 			if matched == nil {
 				for _, rule := range betrvg.Deadlines() {
 					for _, w := range words {
@@ -168,4 +174,13 @@ END:VCALENDAR
 
 	fmt.Fprint(cmd.OutOrStdout(), ics)
 	return nil
+}
+
+func sortedBySpecificity(rules []betrvg.DeadlineRule) []betrvg.DeadlineRule {
+	out := make([]betrvg.DeadlineRule, len(rules))
+	copy(out, rules)
+	sort.SliceStable(out, func(i, j int) bool {
+		return len(out[i].Situation) > len(out[j].Situation)
+	})
+	return out
 }
