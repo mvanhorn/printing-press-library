@@ -63,7 +63,8 @@ Pairs naturally with 'menu product-modifiers <productId>'.`,
 			switch {
 			case fromFile != "":
 				raw, err = os.ReadFile(fromFile)
-			default:
+		default:
+			if !readerIsTerminal(cmd.InOrStdin()) {
 				raw, err = io.ReadAll(cmd.InOrStdin())
 			}
 			if err != nil {
