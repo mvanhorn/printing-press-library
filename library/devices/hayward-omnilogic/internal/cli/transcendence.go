@@ -670,6 +670,7 @@ func buildDriftReport(s *store.Store, siteID int, forecast bool) driftReport {
 		// QueryTelemetry returns desc by sampled_at; reverse for chronological.
 		sort.Slice(samples, func(i, j int) bool { return samples[i].SampledAt < samples[j].SampledAt })
 		values := make([]float64, 0, len(samples))
+		times := make([]string, 0, len(samples))
 		for _, s := range samples {
 			// Defense-in-depth against Hayward's -1 sentinel. AppendTelemetry
 			// filters these at write-time post-fix, but the local store may
@@ -691,6 +692,14 @@ func buildDriftReport(s *store.Store, siteID int, forecast bool) driftReport {
 				continue
 			}
 			values = append(values, v)
+			// Track timestamps in lockstep with `values` so projectExit's
+			// firstTs/lastTs match the values it sees. Pulling timestamps
+			// from `samples` directly would misalign when the first or last
+			// raw sample is a filtered -1 sentinel — projectExit would then
+			// divide a real reading delta by a span that includes time when
+			// the sensor was offline, producing a falsely fast exit forecast.
+			// Greptile P1 #3216533851.
+			times = append(times, s.SampledAt)
 		}
 		if len(values) < 2 {
 			continue
@@ -719,7 +728,7 @@ func buildDriftReport(s *store.Store, siteID int, forecast bool) driftReport {
 			Trend: trend, Drifting: drifting, Samples: len(values),
 		}
 		if drifting && forecast {
-			mr.ForecastNote = projectExit(values, m.safeLow, m.safeHigh, samples[0].SampledAt, samples[len(samples)-1].SampledAt)
+			mr.ForecastNote = projectExit(values, m.safeLow, m.safeHigh, times[0], times[len(times)-1])
 		}
 		r.Metrics = append(r.Metrics, mr)
 	}
