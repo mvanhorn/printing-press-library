@@ -168,7 +168,13 @@ Every read command exposes `--batch-accept-ambiguous` (default false). When true
 
 ### `--metro` is a deprecated alias
 
-`--metro <slug>` continues to work for back-compat. It maps to `--location <slug>` with `--batch-accept-ambiguous` implicitly set, so legacy callers always receive results-shaped responses (never the new envelope). A one-line stderr deprecation warning fires the first time it's used per process. New code should use `--location`.
+`--metro <slug>` continues to work for back-compat, but the implicit `--batch-accept-ambiguous` is **canonical-only** — it is set automatically only when the value resolves to a single, unambiguous metro via the registry (slug lookup, alias chain, or a single `LookupByName` hit). Three cases:
+
+- **Canonical slug** (`seattle`, `nyc`, `chicago`, `sf`, `san-francisco`, etc.) — single registry hit. The resolver silent-picks with the legacy result-shape preserved (no envelope). This is the back-compat path.
+- **Ambiguous value** (e.g., `--metro bellevue` matches WA/NE/KY by display name) — `--batch-accept-ambiguous` is **not** implied. The resolver returns the same `needs_clarification` envelope `--location bellevue` would. **Legacy callers must handle the envelope path** — treat the response exactly like a `--location` envelope and disambiguate (Codex P1-D fix; silently picking the wrong city is worse than asking).
+- **Unknown slug** — returns a `location_unknown` envelope, same as `--location <unknown>`.
+
+A one-line stderr deprecation warning (`warning: --metro is deprecated; use --location <city>.`) fires once-per-process on first use regardless of the canonical-vs-ambiguous outcome. New code should use `--location`.
 
 ### Slug suffixes still work in `earliest` and `watch`
 

@@ -179,6 +179,8 @@ func newAvailabilityMultiDayCmd(flags *rootFlags) *cobra.Command {
 			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&flagMetro, "metro", "",
 		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
+			"Implicit --batch-accept-ambiguous is canonical-only: a single-hit registry lookup "+
+			"preserves the legacy result shape; ambiguous or unknown values return the standard "+
+			"disambiguation envelope just like --location would.")
 	return cmd
 }

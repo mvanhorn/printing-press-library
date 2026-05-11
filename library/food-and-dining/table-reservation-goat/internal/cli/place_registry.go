@@ -257,10 +257,27 @@ func (c chainedPlaceRegistry) ReverseLookup(lat, lng float64) (Place, bool) {
 	return reverseLookupIn(c.merged, lat, lng)
 }
 
+// mergeMatchKind discriminates the two enrichment paths so the caller
+// knows whether to also preserve the dynamic slug as an alias. Slug-
+// exact matches never need an alias (it would be a self-reference);
+// name+coords matches do, so suffix-peel callers like
+// inferMetroFromSlug_DEPRECATED can still resolve the dynamic slug to
+// the merged canonical row.
+type mergeMatchKind int
+
+const (
+	mergeMatchNone mergeMatchKind = iota
+	mergeMatchSlug
+	mergeMatchNameCoords
+)
+
 // mergeRegistry produces a NEW slice combining curated static entries
 // with dynamic ones. The static slice is treated as read-only — copies
 // are made before any field assignment so callers' source slices stay
-// intact (the curated `place_data.go` var must never be mutated).
+// intact (the curated `place_data.go` var must never be mutated). The
+// shallow `copy(out, static)` carries map and slice references through,
+// so before any write the destination's ProviderCoverage, ParentMetro,
+// and Aliases are deep-copied via cloneForEnrich (Codex U18 P2 fix).
 //
 // Merge rules per dynamic entry D:
 //
@@ -270,10 +287,12 @@ func (c chainedPlaceRegistry) ReverseLookup(lat, lng float64) (Place, bool) {
 //     Aliases, ContextHints) are preserved.
 //
 //  2. Else if a curated entry has the same Name (case-insensitive) AND
-//     haversineKm ≤ 5.0 from D's centroid, enrich as in rule 1. This
-//     catches dynamic Tock projections where the slug shape differs
-//     (e.g. "bellevue" vs curated "bellevue-wa") but the place is
-//     unambiguously the same point.
+//     haversineKm ≤ 5.0 from D's centroid, enrich as in rule 1 AND
+//     append D.Slug to the merged entry's Aliases (Codex U18 P1 fix)
+//     so `Lookup(dynamicSlug)` keeps returning the merged place. Without
+//     this, slug-suffix peelers like inferMetroFromSlug_DEPRECATED stop
+//     resolving venue slugs like `joey-bellevue` once Tock hydration
+//     absorbs the bare `bellevue` row into curated `bellevue-wa`.
 //
 //  3. Else D is truly new — append it as-is.
 //
@@ -284,41 +303,91 @@ func mergeRegistry(static []Place, dynamic []Place) []Place {
 	out := make([]Place, len(static))
 	copy(out, static)
 	for _, d := range dynamic {
-		idx := findMergeMatch(out, d)
-		if idx >= 0 {
-			enrichInPlace(&out[idx], d)
+		idx, kind := findMergeMatch(out, d)
+		if kind == mergeMatchNone {
+			out = append(out, d)
 			continue
 		}
-		out = append(out, d)
+		cloneForEnrich(&out[idx])
+		enrichInPlace(&out[idx], d)
+		if kind == mergeMatchNameCoords {
+			addAliasIfMissing(&out[idx], d.Slug)
+		}
 	}
 	return out
 }
 
 // findMergeMatch implements the slug-first, name+coords-second match
-// rules. Returns the index in `places` of the matched entry, or -1.
-// Slug match short-circuits — a dynamic entry whose slug already
-// matches a curated row does NOT fall through to name+coords matching
-// against a different row.
-func findMergeMatch(places []Place, d Place) int {
+// rules. Returns the index in `places` of the matched entry plus the
+// match kind, or (-1, mergeMatchNone). Slug match short-circuits — a
+// dynamic entry whose slug already matches a curated row does NOT fall
+// through to name+coords matching against a different row.
+func findMergeMatch(places []Place, d Place) (int, mergeMatchKind) {
 	if d.Slug != "" {
 		for i, p := range places {
 			if p.Slug == d.Slug {
-				return i
+				return i, mergeMatchSlug
 			}
 		}
 	}
 	if d.Name == "" {
-		return -1
+		return -1, mergeMatchNone
 	}
 	for i, p := range places {
 		if !strings.EqualFold(p.Name, d.Name) {
 			continue
 		}
 		if haversineKm(p.Lat, p.Lng, d.Lat, d.Lng) <= 5.0 {
-			return i
+			return i, mergeMatchNameCoords
 		}
 	}
-	return -1
+	return -1, mergeMatchNone
+}
+
+// cloneForEnrich replaces dst's ProviderCoverage, ParentMetro, and
+// Aliases with fresh copies of the originals so subsequent writes don't
+// leak back into the static source slice. The shallow `copy(out, static)`
+// in mergeRegistry copies the Place values but their map/slice fields
+// remain shared with the static source until this clone runs. Nil
+// source maps stay nil here — enrichInPlace's lazy init still owns the
+// "do we need an empty map" decision, so curated-only rows keep their
+// nil-valued ProviderCoverage and the JSON shape is unchanged.
+func cloneForEnrich(dst *Place) {
+	if dst.ProviderCoverage != nil {
+		fresh := make(map[string]int, len(dst.ProviderCoverage))
+		for k, v := range dst.ProviderCoverage {
+			fresh[k] = v
+		}
+		dst.ProviderCoverage = fresh
+	}
+	if dst.ParentMetro != nil {
+		fresh := make(map[string]string, len(dst.ParentMetro))
+		for k, v := range dst.ParentMetro {
+			fresh[k] = v
+		}
+		dst.ParentMetro = fresh
+	}
+	if dst.Aliases != nil {
+		fresh := make([]string, len(dst.Aliases))
+		copy(fresh, dst.Aliases)
+		dst.Aliases = fresh
+	}
+}
+
+// addAliasIfMissing appends alias to dst.Aliases iff it's non-empty,
+// not equal to dst.Slug (no self-reference), and not already present.
+// Caller must have already invoked cloneForEnrich so the append targets
+// the merged copy, not the static source slice.
+func addAliasIfMissing(dst *Place, alias string) {
+	if alias == "" || alias == dst.Slug {
+		return
+	}
+	for _, a := range dst.Aliases {
+		if a == alias {
+			return
+		}
+	}
+	dst.Aliases = append(dst.Aliases, alias)
 }
 
 // enrichInPlace copies the live provider-routing fields from dynamic

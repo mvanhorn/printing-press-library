@@ -404,6 +404,177 @@ func TestWatchSchema_MigrationAddsColumn(t *testing.T) {
 	migDB2.Close()
 }
 
+// runWatchList drives `watch list` against the local SQLite store
+// pointed at by HOME/XDG_CACHE_HOME. Returns captured stdout/stderr
+// plus the Execute error. Pairs with seedWatchRow to set up rows.
+func runWatchList(t *testing.T) (stdout, stderr string, err error) {
+	t.Helper()
+	flags := &rootFlags{}
+	cmd := newWatchListCmd(flags)
+	var outBuf, errBuf bytes.Buffer
+	cmd.SetOut(&outBuf)
+	cmd.SetErr(&errBuf)
+	cmd.SetArgs(nil)
+	cmd.SetContext(context.Background())
+	cmd.SilenceErrors = true
+	cmd.SilenceUsage = true
+	err = cmd.Execute()
+	return outBuf.String(), errBuf.String(), err
+}
+
+// seedWatchRow inserts a watches row with the given GeoContext (or
+// no location_context when gc is nil). Ensures the schema first via
+// openWatchStore so the location_context column exists.
+func seedWatchRow(t *testing.T, id, venue, network, slug string, gc *GeoContext) {
+	t.Helper()
+	flags := &rootFlags{}
+	db, err := openWatchStore(flags)
+	if err != nil {
+		t.Fatalf("openWatchStore: %v", err)
+	}
+	defer db.Close()
+	var locationCtx sql.NullString
+	if gc != nil {
+		raw, mErr := json.Marshal(gc)
+		if mErr != nil {
+			t.Fatalf("marshal gc: %v", mErr)
+		}
+		locationCtx = sql.NullString{String: string(raw), Valid: true}
+	}
+	if _, err := db.Exec(
+		`INSERT INTO watches (id, venue, network, slug, party_size, state, location_context)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		id, venue, network, slug, 2, "active", locationCtx,
+	); err != nil {
+		t.Fatalf("seed watch row: %v", err)
+	}
+}
+
+// findWatchRow returns the watchRow with the given ID from a list
+// payload, or fails t when missing.
+func findWatchRow(t *testing.T, rows []watchRow, id string) watchRow {
+	t.Helper()
+	for _, r := range rows {
+		if r.ID == id {
+			return r
+		}
+	}
+	t.Fatalf("watchRow with ID %q not in list (got %d rows)", id, len(rows))
+	return watchRow{}
+}
+
+// TestWatchList_RehydratesLowTierGeoContext pins the U19 fix: a watch
+// persisted with a forced-pick low-tier GeoContext (e.g., bare
+// "bellevue" + --batch-accept-ambiguous) must round-trip through
+// `watch list` with location_resolved populated. Pre-U19 the listing
+// path called decorateForList(gc, acceptedAmbiguous=false), which
+// returned (nil, nil) for TierLow because that signature is the
+// envelope path; the persisted decision was silently dropped.
+//
+// On rehydration, location_warning stays nil — it was a one-shot
+// stderr notice at subscription time, not a persisted contract.
+func TestWatchList_RehydratesLowTierGeoContext(t *testing.T) {
+	withTempCacheDir(t)
+	gc := &GeoContext{
+		Origin:     "bellevue",
+		ResolvedTo: "Bellevue, WA",
+		Centroid:   [2]float64{47.6101, -122.2015},
+		RadiusKm:   15,
+		Score:      0.42,
+		Tier:       ResolutionTierLow,
+		Source:     SourceExplicitFlag,
+		Alternates: []Candidate{
+			{Name: "Bellevue, NE", State: "NE"},
+			{Name: "Bellevue, KY", State: "KY"},
+		},
+	}
+	seedWatchRow(t, "wat_low0000000000", "tock:joey", "tock", "joey", gc)
+
+	stdout, stderr, err := runWatchList(t)
+	if err != nil {
+		t.Fatalf("watch list: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
+	}
+	var rows []watchRow
+	if jerr := json.Unmarshal([]byte(stdout), &rows); jerr != nil {
+		t.Fatalf("unmarshal list: %v\nstdout: %s", jerr, stdout)
+	}
+	r := findWatchRow(t, rows, "wat_low0000000000")
+	if r.LocationResolved == nil {
+		t.Fatalf("LocationResolved is nil; low-tier rehydration must surface the persisted decision\nstdout: %s", stdout)
+	}
+	if r.LocationResolved.ResolvedTo != "Bellevue, WA" {
+		t.Errorf("ResolvedTo = %q; want %q", r.LocationResolved.ResolvedTo, "Bellevue, WA")
+	}
+	if r.LocationResolved.Tier != ResolutionTierLow {
+		t.Errorf("Tier = %q; want %q", r.LocationResolved.Tier, ResolutionTierLow)
+	}
+	if r.LocationWarning != nil {
+		t.Errorf("LocationWarning = %+v; want nil (one-shot at watch-add time, not persisted)", r.LocationWarning)
+	}
+}
+
+// TestWatchList_RehydratesHighTierGeoContext regression-guards the
+// high-tier path: an explicit `--location 'bellevue, wa'` persists a
+// HIGH-tier GeoContext, and `watch list` must surface it as
+// location_resolved with Tier=high and no warning.
+func TestWatchList_RehydratesHighTierGeoContext(t *testing.T) {
+	withTempCacheDir(t)
+	gc := &GeoContext{
+		Origin:     "bellevue, wa",
+		ResolvedTo: "Bellevue, WA",
+		Centroid:   [2]float64{47.6101, -122.2015},
+		RadiusKm:   15,
+		Score:      0.9,
+		Tier:       ResolutionTierHigh,
+		Source:     SourceExplicitFlag,
+	}
+	seedWatchRow(t, "wat_high000000000", "tock:joey", "tock", "joey", gc)
+
+	stdout, stderr, err := runWatchList(t)
+	if err != nil {
+		t.Fatalf("watch list: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
+	}
+	var rows []watchRow
+	if jerr := json.Unmarshal([]byte(stdout), &rows); jerr != nil {
+		t.Fatalf("unmarshal list: %v\nstdout: %s", jerr, stdout)
+	}
+	r := findWatchRow(t, rows, "wat_high000000000")
+	if r.LocationResolved == nil {
+		t.Fatalf("LocationResolved is nil; high-tier rehydration must surface the persisted decision\nstdout: %s", stdout)
+	}
+	if r.LocationResolved.Tier != ResolutionTierHigh {
+		t.Errorf("Tier = %q; want %q", r.LocationResolved.Tier, ResolutionTierHigh)
+	}
+	if r.LocationWarning != nil {
+		t.Errorf("LocationWarning = %+v; want nil for HIGH tier", r.LocationWarning)
+	}
+}
+
+// TestWatchList_NoLocationContextLeavesFieldsNil regression-guards the
+// pre-U8 no-decoration shape: rows with NULL location_context surface
+// with neither location_resolved nor location_warning. Avoids
+// regressing the pre-migration / no-flag back-compat shape.
+func TestWatchList_NoLocationContextLeavesFieldsNil(t *testing.T) {
+	withTempCacheDir(t)
+	seedWatchRow(t, "wat_null000000000", "tock:alinea", "tock", "alinea", nil)
+
+	stdout, stderr, err := runWatchList(t)
+	if err != nil {
+		t.Fatalf("watch list: %v\nstdout: %s\nstderr: %s", err, stdout, stderr)
+	}
+	var rows []watchRow
+	if jerr := json.Unmarshal([]byte(stdout), &rows); jerr != nil {
+		t.Fatalf("unmarshal list: %v\nstdout: %s", jerr, stdout)
+	}
+	r := findWatchRow(t, rows, "wat_null000000000")
+	if r.LocationResolved != nil {
+		t.Errorf("LocationResolved = %+v; want nil for NULL location_context", r.LocationResolved)
+	}
+	if r.LocationWarning != nil {
+		t.Errorf("LocationWarning = %+v; want nil for NULL location_context", r.LocationWarning)
+	}
+}
+
 // columnExists is a test helper that probes sqlite's PRAGMA table_info
 // to check whether a column exists. Mirrors the production migration
 // probe but uses the test's open *sql.DB handle.

@@ -274,7 +274,9 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&metro, "metro", "",
 		"Metro slug (seattle, chicago, new-york, ...). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
+			"Implicit --batch-accept-ambiguous is canonical-only: a single-hit registry lookup "+
+			"preserves the legacy result shape; ambiguous or unknown values return the standard "+
+			"disambiguation envelope just like --location would.")
 	cmd.Flags().StringVar(&network, "network", "", "Restrict to one network (opentable, tock); default queries both")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max merged results to return")
 	cmd.Flags().IntVar(&party, "party", 2, "Party size (informational; OT autocomplete does not filter on this)")

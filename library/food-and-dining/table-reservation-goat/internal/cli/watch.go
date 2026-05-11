@@ -243,7 +243,9 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			"agents must NOT set this — it defeats the disambiguation contract.")
 	cmd.Flags().StringVar(&flagMetro, "metro", "",
 		"Metro slug (e.g., chicago, seattle). DEPRECATED — use --location <city>. "+
-			"Legacy callers get --batch-accept-ambiguous implied to preserve back-compat shape.")
+			"Implicit --batch-accept-ambiguous is canonical-only: a single-hit registry lookup "+
+			"preserves the legacy result shape; ambiguous or unknown values return the standard "+
+			"disambiguation envelope just like --location would.")
 	return cmd
 }
 
@@ -308,10 +310,22 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 				// not surface LocationWarning here because the warn-bypass
 				// state was a one-shot at subscription time, not a
 				// persisted contract.
+				//
+				// U19: pass acceptedAmbiguous=true on the rehydration
+				// path so a persisted LOW-tier GeoContext (forced pick
+				// at watch-add time via --batch-accept-ambiguous) still
+				// surfaces location_resolved. The decision was already
+				// made at subscription time; listing is showing what
+				// was decided, not re-deciding. Without this, the LOW
+				// branch in DecorateWithLocationContext returns (nil,
+				// nil) because the (LOW, !bypass) shape is the
+				// envelope path — which doesn't apply once the watch
+				// is persisted. The warning is dropped explicitly here
+				// (same one-shot reasoning as above).
 				if locationCtx.Valid && locationCtx.String != "" {
 					var gc GeoContext
 					if jerr := json.Unmarshal([]byte(locationCtx.String), &gc); jerr == nil {
-						resolved, _ := decorateForList(&gc, false)
+						resolved, _ := decorateForList(&gc, true)
 						r.LocationResolved = resolved
 					}
 				}

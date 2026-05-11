@@ -1050,3 +1050,272 @@ func TestProjectTockMetros_Coverage(t *testing.T) {
 		t.Errorf("emerging ParentMetro[tock] = %q; want %q", emerging.ParentMetro["tock"], "emerging")
 	}
 }
+
+// TestMergeRegistry_PreservesDynamicSlugAsAlias — U18 P1 fix. When a
+// dynamic entry matches a curated entry via name+coords (not slug),
+// the dynamic slug must be preserved as an alias on the merged entry
+// so `Lookup(dynamicSlug)` keeps returning the merged place. Before
+// the fix this lookup regressed to false, which broke
+// inferMetroFromSlug_DEPRECATED's suffix-peel logic on venue slugs
+// like `joey-bellevue`.
+func TestMergeRegistry_PreservesDynamicSlugAsAlias(t *testing.T) {
+	static := []Place{
+		{
+			Slug:         "bellevue-wa",
+			Name:         "Bellevue",
+			State:        "WA",
+			Lat:          47.6101,
+			Lng:          -122.2015,
+			RadiusKm:     25,
+			Population:   151854,
+			ContextHints: []string{"Seattle metro", "Eastside", "tech hub"},
+			Tier:         PlaceTierCity,
+			// No Aliases preset — fix must populate one.
+		},
+	}
+	dynamic := []Place{
+		{
+			Slug:             "bellevue",
+			Name:             "Bellevue",
+			Lat:              47.6105, // within 5 km of curated centroid
+			Lng:              -122.2020,
+			RadiusKm:         75,
+			ProviderCoverage: map[string]int{"tock": 42},
+			ParentMetro:      map[string]string{"tock": "bellevue"},
+		},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 1 {
+		t.Fatalf("merged len = %d; want 1 (name+coords match must not add a row)", len(merged))
+	}
+
+	// Canonical slug still resolves.
+	canonical, ok := lookupIn(merged, "bellevue-wa")
+	if !ok {
+		t.Fatal("bellevue-wa missing after merge")
+	}
+	if canonical.Slug != "bellevue-wa" {
+		t.Errorf("canonical slug drifted: got %q", canonical.Slug)
+	}
+
+	// Dynamic slug now resolves to the SAME merged place via alias.
+	viaAlias, ok := lookupIn(merged, "bellevue")
+	if !ok {
+		t.Fatal("Lookup(bellevue) returned false; dynamic slug must be preserved as alias")
+	}
+	if viaAlias.Slug != "bellevue-wa" {
+		t.Errorf("alias lookup returned slug %q; want %q (alias must point at canonical row)", viaAlias.Slug, "bellevue-wa")
+	}
+
+	// Aliases on the merged entry include "bellevue".
+	if !slices.Contains(canonical.Aliases, "bellevue") {
+		t.Errorf("Aliases = %v; want it to contain %q", canonical.Aliases, "bellevue")
+	}
+}
+
+// TestMergeRegistry_IdempotentAliasAppend — U18 P1 fix. Running merge
+// twice with the same dynamic entry must not duplicate the alias.
+func TestMergeRegistry_IdempotentAliasAppend(t *testing.T) {
+	static := []Place{
+		{
+			Slug:     "bellevue-wa",
+			Name:     "Bellevue",
+			State:    "WA",
+			Lat:      47.6101,
+			Lng:      -122.2015,
+			RadiusKm: 25,
+			Tier:     PlaceTierCity,
+		},
+	}
+	dynamic := []Place{
+		{
+			Slug:             "bellevue",
+			Name:             "Bellevue",
+			Lat:              47.6101,
+			Lng:              -122.2015,
+			RadiusKm:         75,
+			ProviderCoverage: map[string]int{"tock": 42},
+			ParentMetro:      map[string]string{"tock": "bellevue"},
+		},
+	}
+	first := mergeRegistry(static, dynamic)
+	// Feed the first merge back in as the new static, simulating a
+	// second hydration cycle.
+	second := mergeRegistry(first, dynamic)
+
+	if len(second) != 1 {
+		t.Fatalf("second merged len = %d; want 1", len(second))
+	}
+	got, ok := lookupIn(second, "bellevue-wa")
+	if !ok {
+		t.Fatal("bellevue-wa missing after second merge")
+	}
+	count := 0
+	for _, a := range got.Aliases {
+		if a == "bellevue" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Errorf("alias %q appears %d times; want 1 (idempotent append)", "bellevue", count)
+	}
+}
+
+// TestMergeRegistry_SlugMatchSkipsAliasAppend — U18 P1 fix. When the
+// dynamic slug exactly equals the curated slug, no alias is appended
+// (a self-reference alias would be noise).
+func TestMergeRegistry_SlugMatchSkipsAliasAppend(t *testing.T) {
+	static := []Place{
+		{
+			Slug:     "bellevue-wa",
+			Name:     "Bellevue",
+			State:    "WA",
+			Lat:      47.6101,
+			Lng:      -122.2015,
+			RadiusKm: 25,
+			Tier:     PlaceTierCity,
+		},
+	}
+	dynamic := []Place{
+		{
+			Slug:             "bellevue-wa", // exact match
+			Name:             "Bellevue, WA",
+			Lat:              47.6101,
+			Lng:              -122.2015,
+			RadiusKm:         75,
+			ProviderCoverage: map[string]int{"tock": 42},
+			ParentMetro:      map[string]string{"tock": "bellevue"},
+		},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 1 {
+		t.Fatalf("merged len = %d; want 1", len(merged))
+	}
+	got := merged[0]
+	for _, a := range got.Aliases {
+		if a == "bellevue-wa" {
+			t.Errorf("Aliases contain self-reference %q; slug-exact match must not append an alias", a)
+		}
+	}
+}
+
+// TestMergeRegistry_NoStaticMapMutation — U18 P2 fix. mergeRegistry's
+// shallow `copy(out, static)` carries map references through. Without
+// deep-copying the maps before enrichment, writes leak back into the
+// static source slice. This test pins that the curated entry's
+// ProviderCoverage and ParentMetro stay untouched after merge.
+func TestMergeRegistry_NoStaticMapMutation(t *testing.T) {
+	staticParentMetro := map[string]string{"opentable": "seattle"}
+	static := []Place{
+		{
+			Slug:         "bellevue-wa",
+			Name:         "Bellevue",
+			State:        "WA",
+			Lat:          47.6101,
+			Lng:          -122.2015,
+			RadiusKm:     25,
+			Population:   151854,
+			ParentMetro:  staticParentMetro, // pre-populated curated routing
+			ContextHints: []string{"Seattle metro", "Eastside", "tech hub"},
+			Tier:         PlaceTierCity,
+		},
+	}
+	// Capture the pointers/identities BEFORE merge.
+	beforeParent := static[0].ParentMetro
+	beforeCoverage := static[0].ProviderCoverage // nil
+
+	dynamic := []Place{
+		{
+			Slug:             "bellevue",
+			Name:             "Bellevue",
+			Lat:              47.6101,
+			Lng:              -122.2015,
+			RadiusKm:         75,
+			ProviderCoverage: map[string]int{"tock": 42},
+			ParentMetro:      map[string]string{"tock": "bellevue"},
+		},
+	}
+	merged := mergeRegistry(static, dynamic)
+	if len(merged) != 1 {
+		t.Fatalf("merged len = %d; want 1", len(merged))
+	}
+
+	// Static slice's ProviderCoverage must remain nil (or at least lack
+	// the "tock" key written by enrichment).
+	if _, hasTock := static[0].ProviderCoverage["tock"]; hasTock {
+		t.Errorf("static[0].ProviderCoverage was mutated; got %v", static[0].ProviderCoverage)
+	}
+	if beforeCoverage == nil && static[0].ProviderCoverage != nil {
+		t.Errorf("static[0].ProviderCoverage went from nil to %v; static slice must not be mutated", static[0].ProviderCoverage)
+	}
+
+	// Static slice's ParentMetro must still ONLY carry "opentable" — the
+	// "tock" key must NOT have been written into the shared map.
+	if _, hasTock := static[0].ParentMetro["tock"]; hasTock {
+		t.Errorf("static[0].ParentMetro was mutated; got %v", static[0].ParentMetro)
+	}
+	if static[0].ParentMetro["opentable"] != "seattle" {
+		t.Errorf("static[0].ParentMetro[opentable] = %q; want curated value preserved", static[0].ParentMetro["opentable"])
+	}
+	// Identity: the captured pointer should still equal the source.
+	if &beforeParent == nil || len(beforeParent) != 1 {
+		t.Errorf("staticParentMetro backing was disturbed: %v", beforeParent)
+	}
+	if _, hasTock := beforeParent["tock"]; hasTock {
+		t.Errorf("beforeParent (captured static ref) was mutated to %v", beforeParent)
+	}
+
+	// Static slice's Aliases must not have grown either (the alias-
+	// append from P1 must happen on the merged copy, not the source).
+	if len(static[0].Aliases) != 0 {
+		t.Errorf("static[0].Aliases was mutated to %v; want empty", static[0].Aliases)
+	}
+
+	// The merged registry's bellevue-wa SHOULD carry the enriched fields.
+	got := merged[0]
+	if got.ProviderCoverage["tock"] != 42 {
+		t.Errorf("merged[0].ProviderCoverage[tock] = %d; want 42", got.ProviderCoverage["tock"])
+	}
+	if got.ParentMetro["tock"] != "bellevue" {
+		t.Errorf("merged[0].ParentMetro[tock] = %q; want %q", got.ParentMetro["tock"], "bellevue")
+	}
+	if got.ParentMetro["opentable"] != "seattle" {
+		t.Errorf("merged[0].ParentMetro[opentable] = %q; want %q preserved from curated", got.ParentMetro["opentable"], "seattle")
+	}
+}
+
+// TestSuffixPeelStillWorks_AfterHydration — U18 P1 regression pin.
+// Before the fix, hydrating a dynamic `bellevue` entry into curated
+// `bellevue-wa` dropped the `bellevue` slug, which made
+// inferMetroFromSlug_DEPRECATED("joey-bellevue", ...) return ok=false
+// (no suffix peeled). With the alias preserved, the lookup walks the
+// alias and the suffix peel succeeds.
+func TestSuffixPeelStillWorks_AfterHydration(t *testing.T) {
+	defer setDynamicMetros(nil, 0)
+
+	dynamic := []Place{
+		{
+			Slug:             "bellevue",
+			Name:             "Bellevue",
+			Lat:              47.6101,
+			Lng:              -122.2015,
+			RadiusKm:         75,
+			ProviderCoverage: map[string]int{"tock": 42},
+			ParentMetro:      map[string]string{"tock": "bellevue"},
+		},
+	}
+	setDynamicMetros(dynamic, 1)
+
+	reg := getRegistry()
+	metro, prefix, ok := inferMetroFromSlug_DEPRECATED("joey-bellevue", reg)
+	if !ok {
+		t.Fatal("inferMetroFromSlug_DEPRECATED(joey-bellevue) ok=false; the dynamic bellevue alias must let the suffix-peel succeed")
+	}
+	if prefix != "joey" {
+		t.Errorf("prefix = %q; want %q", prefix, "joey")
+	}
+	// Suffix peel resolves to Bellevue WA via the alias.
+	if metro.Slug != "bellevue-wa" {
+		t.Errorf("metro.Slug = %q; want %q (peel resolves via alias to canonical WA entry)", metro.Slug, "bellevue-wa")
+	}
+}
