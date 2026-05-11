@@ -254,15 +254,10 @@ actually enabling the heater.`,
 				return classifyOmnilogicError(err)
 			}
 			rate := estimateHeatRate(s, site.MspSystemID)
-			currentTemp := 0
-			for _, bow := range tele.BodiesOfWater {
-				if bow.WaterTemp != nil {
-					currentTemp = *bow.WaterTemp
-					break
-				}
-			}
-			if currentTemp == 0 {
-				return errors.New("could not read current water temperature")
+			caps, _ := loadEffectiveCapabilities(s, site.MspSystemID)
+			currentTemp, tempErr := pickWaterTempForReadyBy(tele, caps)
+			if tempErr != nil {
+				return tempErr
 			}
 			delta := targetTemp - currentTemp
 			if delta <= 0 {
@@ -360,6 +355,40 @@ func parseArrivalTime(s string) (time.Time, error) {
 		}
 	}
 	return time.Time{}, fmt.Errorf("could not parse arrival time %q (try HH:MM)", s)
+}
+
+// pickWaterTempForReadyBy returns a usable water-temperature reading from
+// a telemetry snapshot or an actionable error explaining what to do. Hayward
+// emits -1 (and occasionally 0) as a "sensor not reading" sentinel — common
+// pre-season state and the normal state for installs whose temp sensor only
+// reads while the pump runs (capabilities temp_needs_flow=true). Treating a
+// sentinel as a real reading would let ready-by compute a wildly negative
+// delta, place startAt days in the past, and silently fire the heater on
+// bogus data. We reject non-positive readings explicitly with a hint that
+// adapts to the operator's capability config.
+func pickWaterTempForReadyBy(tele *omnilogic.Telemetry, caps store.SiteCapabilities) (int, error) {
+	var current int
+	gotReading := false
+	if tele != nil {
+		for _, bow := range tele.BodiesOfWater {
+			if bow.WaterTemp != nil {
+				current = *bow.WaterTemp
+				gotReading = true
+				break
+			}
+		}
+	}
+	if gotReading && current > 0 {
+		return current, nil
+	}
+	hint := "run 'sync' once the pool is active and the water-temp sensor can read"
+	if caps.TempNeedsFlow {
+		hint = "this site has temp_needs_flow=true in capabilities; start the filter pump first (`equipment on 'Filter Pump' --bow Pool`), wait ~30s for the sensor to stabilize, then re-run ready-by"
+	}
+	if !gotReading {
+		return 0, fmt.Errorf("no water temperature reading available — %s", hint)
+	}
+	return 0, fmt.Errorf("water temperature is %d°F (Hayward sentinel for 'sensor not reading') — %s", current, hint)
 }
 
 func estimateHeatRate(s *store.Store, siteID int) float64 {
