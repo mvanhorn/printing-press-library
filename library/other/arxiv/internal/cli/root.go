@@ -20,24 +20,24 @@ import (
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	idempotent   bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	profileName  string
-	deliverSpec  string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	idempotent    bool
+	yes           bool
+	agent         bool
+	selectFields  string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	dataSource    string
 	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
@@ -82,11 +82,11 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "arxiv-pp-cli",
 		Short: "Manage arxiv resources via the arxiv API",
-		Long: `Arxiv CLI
+		Long: `arXiv CLI
 
 Highlights (not in the official API docs):
   • query   Search arXiv with documented query expressions and agent-friendly output controls.
-  • query   Fetch recent papers by category using submitted-date sorting and bounded result counts.
+  • query   Fetch latest AI/research papers by category using submitted-date sorting and bounded result counts.
   • query   Fetch exact papers by arXiv ID or versioned arXiv ID.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.

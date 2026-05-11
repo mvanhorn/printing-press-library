@@ -1,4 +1,4 @@
-# Arxiv CLI
+# arXiv CLI
 
 Public Atom API for searching and fetching arXiv e-print metadata.
 
@@ -77,7 +77,7 @@ These capabilities aren't available in any other tool for this API.
 ### Research discovery
 
 - **`query`** — Search arXiv with documented query expressions and agent-friendly output controls.
-- **`query`** — Fetch recent papers by category using submitted-date sorting and bounded result counts.
+- **`query`** — Fetch latest AI/research papers by category using submitted-date sorting and bounded result counts.
 - **`query`** — Fetch exact papers by arXiv ID or versioned arXiv ID.
 
 ## Usage
@@ -90,7 +90,7 @@ Run `arxiv-pp-cli --help` for the full command reference and flag list.
 
 Manage query
 
-- **`arxiv-pp-cli query papers`** - Search arXiv papers or fetch specific arXiv IDs. Returns an Atom XML feed containing matching paper entries.
+- **`arxiv-pp-cli query`** - Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.
 
 
 ## Output Formats

@@ -1,6 +1,6 @@
 ---
 name: pp-arxiv
-description: "Printing Press CLI for Arxiv. Public Atom API for searching and fetching arXiv e-print metadata."
+description: "Printing Press CLI for arXiv. Public Atom API for searching and fetching arXiv e-print metadata."
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -12,7 +12,7 @@ metadata:
         - arxiv-pp-cli
 ---
 
-# Arxiv — Printing Press CLI
+# arXiv — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -44,14 +44,14 @@ These capabilities aren't available in any other tool for this API.
 ### Research discovery
 
 - **`query`** — Search arXiv with documented query expressions and agent-friendly output controls.
-- **`query`** — Fetch recent papers by category using submitted-date sorting and bounded result counts.
+- **`query`** — Fetch latest AI/research papers by category using submitted-date sorting and bounded result counts.
 - **`query`** — Fetch exact papers by arXiv ID or versioned arXiv ID.
 
 ## Command Reference
 
 **query** — Manage query
 
-- `arxiv-pp-cli query` — Search arXiv papers or fetch specific arXiv IDs. Returns an Atom XML feed containing matching paper entries.
+- `arxiv-pp-cli query` — Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.
 
 
 ### Finding the right command

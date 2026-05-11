@@ -96,3 +96,13 @@ func TestWhichIndex_ExistsAndIsWellFormed(t *testing.T) {
 		}
 	}
 }
+
+func TestWhichIndexMatchesLatestAIPapersDogfoodQuery(t *testing.T) {
+	got := rankWhich(whichIndex, "find latest AI papers", 3)
+	if len(got) == 0 {
+		t.Fatal("expected dogfood query to match arXiv query command")
+	}
+	if got[0].Entry.Command != "query" {
+		t.Fatalf("expected query command, got %+v", got[0])
+	}
+}

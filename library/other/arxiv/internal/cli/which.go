@@ -28,7 +28,7 @@ type whichEntry struct {
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
 	{Command: "query", Description: "Search arXiv with documented query expressions and agent-friendly output controls.", Group: "Research discovery", WhyItMatters: ""},
-	{Command: "query", Description: "Fetch recent papers by category using submitted-date sorting and bounded result counts.", Group: "Research discovery", WhyItMatters: ""},
+	{Command: "query", Description: "Fetch latest AI/research papers by category using submitted-date sorting and bounded result counts.", Group: "Research discovery", WhyItMatters: ""},
 	{Command: "query", Description: "Fetch exact papers by arXiv ID or versioned arXiv ID.", Group: "Research discovery", WhyItMatters: ""},
 }
 
@@ -114,6 +114,14 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	// Substring match on the description.
 	if strings.Contains(desc, query) {
 		score += 2
+	}
+	// Token match on the description. This catches natural-language queries
+	// whose word order does not exactly match the curated description, e.g.
+	// "find latest AI papers" for "Fetch latest AI/research papers...".
+	for _, qt := range qTokens {
+		if strings.Contains(desc, qt) {
+			score += 1
+		}
 	}
 	// Group tag match.
 	if group != "" {

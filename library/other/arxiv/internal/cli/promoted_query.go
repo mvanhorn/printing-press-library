@@ -22,8 +22,8 @@ func newQueryPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "query",
-		Short:       "Search arXiv papers or fetch specific arXiv IDs. Returns an Atom XML feed containing matching paper entries.",
-		Long:        "Shortcut for 'query papers'. Search arXiv papers or fetch specific arXiv IDs. Returns an Atom XML feed containing matching paper entries.",
+		Short:       "Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.",
+		Long:        "Shortcut for 'query papers'. Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.",
 		Example:     "  arxiv-pp-cli query",
 		Annotations: map[string]string{"pp:endpoint": "query.papers", "pp:method": "GET", "pp:path": "/api/query", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
