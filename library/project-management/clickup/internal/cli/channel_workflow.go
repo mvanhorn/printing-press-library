@@ -76,7 +76,13 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				count := 0
 				for {
-					data, fetchErr := c.Get("/"+resource, params)
+					// PATCH(pp-library#433-p1): use /v2/<resource> not /<resource>.
+					// Base URL is https://api.clickup.com/api so /<resource> resolves
+					// to /api/team or /api/user, neither of which exists. ClickUp v2
+					// requires the /v2/ prefix on every resource path. Both `team`
+					// and `user` are v2 endpoints; v3 resources don't flow through
+					// this workflow command.
+					data, fetchErr := c.Get("/v2/"+resource, params)
 					if fetchErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break

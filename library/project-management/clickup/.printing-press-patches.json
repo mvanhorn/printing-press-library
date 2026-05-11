@@ -40,6 +40,23 @@
         "internal/cli/sync.go"
       ],
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-since-param-per-resource"
+    },
+    {
+      "id": "pagination-per-resource",
+      "summary": "Fix sync pagination so v2 endpoints use integer ?page=N and v3 endpoints use cursor pagination, instead of one cursor-shaped default that silently truncates v2 lists with >100 records.",
+      "reason": "Greptile P1 finding on PR #433. ClickUp v2 (e.g. /v2/list/{id}/task) uses ?page=0,1,2 pagination starting at 0 and never returns a cursor field. The original `determinePaginationDefaults()` returned `cursorParam: cursor` universally; the loop's break condition `nextCursor == ''` always fired after the first v2 page (no cursor ever returned), so any list with more than 100 tasks was silently truncated. Per-resource pagination strategy synthesizes nextCursor from page-counter math when style is `page`, leaving cursor-style behavior unchanged for v3 doc/chat. Verified end-to-end via --dry-run: task sends `?page=0&limit=100`, channel sends `?limit=100&with_message_since=...` (no page).",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-pagination-per-resource"
+    },
+    {
+      "id": "workflow-archive-v2-paths",
+      "summary": "Fix `workflow archive` command so it calls `/v2/team` and `/v2/user` instead of `/team` and `/user` (which 404 against the configured base URL).",
+      "reason": "Greptile P1 finding on PR #433. `newWorkflowArchiveCmd` constructed paths as `/`+resource where resource was `team` or `user`. Combined with base URL `https://api.clickup.com/api`, this resolved to `/api/team` and `/api/user` — neither of which exists. Every call returned a 404, making the `workflow archive` command non-functional. Both team and user are v2 endpoints; v3 resources don't flow through this command.",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ]
     }
   ]
 }

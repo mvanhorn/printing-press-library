@@ -309,7 +309,7 @@ func syncResource(c interface {
 	// v2 endpoint received `with_message_since` (a v3-chat-only param) which
 	// ClickUp ignored, causing `--since 7d` to do a full sync.
 	sinceParam, sinceFormat := determineSinceParam(resource)
-	pageSize := determinePaginationDefaults()
+	pageSize := determinePaginationDefaults(resource)
 
 	var progressCount int64
 	// extractFailureTotal accumulates per-item primary-key extraction
@@ -343,15 +343,29 @@ func syncResource(c interface {
 		pagesFetched := 0
 		lastNextCursor := ""
 
+		// PATCH(pp-library#433-p1): seed page-style pagination at startPage
+		// when no resume cursor exists. Stored cursor (when resuming) is
+		// already a page number string from the prior run.
+		if pageSize.style == "page" && cursor == "" {
+			cursor = strconv.Itoa(pageSize.startPage)
+		}
+
 		for {
 			params := map[string]string{}
 
 			// Set page size
 			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
 
-			// Set cursor for resume
-			if cursor != "" {
-				params[pageSize.cursorParam] = cursor
+			// PATCH(pp-library#433-p1): set the right pagination param based on
+			// the resource's strategy. v2 endpoints use ?page=N; v3 endpoints
+			// use ?cursor=<token>. Sending the wrong key was a silent no-op.
+			switch pageSize.style {
+			case "page":
+				params[pageSize.pageParam] = cursor
+			case "cursor":
+				if cursor != "" {
+					params[pageSize.cursorParam] = cursor
+				}
 			}
 
 			// PATCH(pp-library#433-p1): only send since-param when the resource
@@ -386,6 +400,22 @@ func syncResource(c interface {
 			// Try to extract items from the response.
 			// Strategy: try array first, then common wrapper keys.
 			items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
+
+			// PATCH(pp-library#433-p1): for page-style pagination, synthesize
+			// nextCursor and hasMore from page-counter math instead of relying
+			// on cursor-shaped response fields ClickUp v2 doesn't return.
+			// Got a full page (== limit items) → there's likely another page;
+			// got a partial page → this was the last one.
+			if pageSize.style == "page" {
+				if len(items) >= pageSize.limit {
+					curPage, _ := strconv.Atoi(cursor)
+					nextCursor = strconv.Itoa(curPage + 1)
+					hasMore = true
+				} else {
+					nextCursor = ""
+					hasMore = false
+				}
+			}
 
 			if items == nil {
 				// Singular response shape (e.g. /v2/user returns one object,
@@ -543,19 +573,59 @@ func syncResource(c interface {
 }
 
 // paginationDefaults holds the resolved pagination parameter names and page size.
+//
+// PATCH(pp-library#433-p1): added `style`, `pageParam`, and `startPage` so
+// the inner sync loop can switch between cursor pagination (v3 doc/chat) and
+// integer page-number pagination (v2 task/space/folder/list/etc.). The
+// default cursor-only shape silently truncated every v2 list with >100 items
+// because `nextCursor == ""` always fires after the first v2 page (v2 never
+// returns a cursor field).
 type paginationDefaults struct {
-	cursorParam string
+	style       string // "cursor" or "page"
+	cursorParam string // used when style == "cursor"
+	pageParam   string // used when style == "page"
 	limitParam  string
 	limit       int
+	startPage   int // used when style == "page" (0 for ClickUp v2)
 }
 
-// determinePaginationDefaults returns the pagination parameter names to use.
-// Values are detected from the API spec by the profiler at generation time.
-func determinePaginationDefaults() paginationDefaults {
-	return paginationDefaults{
-		cursorParam: "cursor",
-		limitParam:  "limit",
-		limit:       100,
+// PATCH(pp-library#433-p1): per-resource pagination strategy.
+// ClickUp v2 endpoints use integer ?page=N pagination starting at 0 and
+// never return a cursor field in the response. v3 endpoints (doc/chat) use
+// cursor pagination. Returning a single cursor-shaped default for both
+// silently truncated every v2 list with >100 items: extractPageItems'
+// nextCursor was always "" for v2, so the loop's `nextCursor == ""` break
+// fired after the first page regardless of how many records actually existed.
+//
+// determinePaginationDefaults returns the pagination strategy to use for
+// the given resource.
+func determinePaginationDefaults(resource string) paginationDefaults {
+	switch resource {
+	case "team", "user", "space", "folder", "list", "task":
+		// ClickUp v2: integer page-number pagination starting at 0.
+		return paginationDefaults{
+			style:      "page",
+			pageParam:  "page",
+			limitParam: "limit",
+			limit:      100,
+			startPage:  0,
+		}
+	case "doc", "channel":
+		// ClickUp v3: cursor pagination.
+		return paginationDefaults{
+			style:       "cursor",
+			cursorParam: "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	default:
+		// Unknown resource — fall back to cursor (the prior default).
+		return paginationDefaults{
+			style:       "cursor",
+			cursorParam: "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
 	}
 }
 
