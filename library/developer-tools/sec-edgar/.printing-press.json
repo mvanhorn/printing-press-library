@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T23:37:26.880593936Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "sec-edgar",
+  "display_name": "SEC EDGAR",
+  "cli_name": "sec-edgar-pp-cli",
+  "owner": "chris-drit",
+  "printer": "ChrisDrit",
+  "printer_name": "Chris Drit",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6a5dea9ea2bd3d1fb9ce9719fbf30a178e11b6917518db144c385c5340e16677",
+  "run_id": "20260511-180534",
+  "category": "developer-tools",
+  "description": "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline.",
+  "mcp_binary": "sec-edgar-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SEC_EDGAR_USER_AGENT"
+  ],
+  "auth_key_url": "https://www.sec.gov/os/accessing-edgar-data",
+  "auth_title": "SEC EDGAR User-Agent",
+  "auth_description": "The SEC requires a User-Agent header with a name and contact email on every request to data.sec.gov and www.sec.gov. There is no API key. Set SEC_EDGAR_USER_AGENT='Your Name your@email.com' and the CLI will send it on every call.",
+  "novel_features": [
+    {
+      "name": "Coverage-list 8-K item pivot",
+      "command": "watchlist items",
+      "description": "Across a saved watchlist of CIKs, surface 8-Ks filed in the window grouped by Item code (2.05 restructuring, 5.02 exec change, 4.02 non-reliance)."
+    },
+    {
+      "name": "Insider cluster detector",
+      "command": "insider-cluster",
+      "description": "Flag issuers where 3+ distinct insiders filed Form 4 with the same transaction code (open-market buy or sale) within a rolling N-day window."
+    },
+    {
+      "name": "Live filing watch with filters",
+      "command": "watch",
+      "description": "Stream the SEC Atom getcurrent feed with multi-dimensional filtering: form type, 8-K item, CIK watchlist, and keyword regex. Emits one NDJSON line per match."
+    },
+    {
+      "name": "XBRL peer-group bench",
+      "command": "industry-bench",
+      "description": "Take an XBRL concept for one reporting period, group by SIC code, and emit percentile statistics (p10/p50/p90) across every public-company filer in that SIC."
+    },
+    {
+      "name": "Cross-section concept across companies",
+      "command": "cross-section",
+      "description": "Pivot a single XBRL concept across an explicit company list and the last N reporting periods. Output as a wide pivot table (one row per company, one column per period)."
+    },
+    {
+      "name": "Restatement / non-reliance scanner",
+      "command": "restatements",
+      "description": "Surface 8-K Item 4.02 (non-reliance on prior financials) plus all 10-K/A and 10-Q/A amendments filed in the window — the textbook accounting-irregularity signal."
+    },
+    {
+      "name": "Late filer scanner",
+      "command": "late-filers",
+      "description": "Find issuers that filed an NT 10-K, NT 10-Q, or NT 20-F in the window — the SEC's 'I'm going to miss my reporting deadline' notification."
+    },
+    {
+      "name": "13F holdings delta",
+      "command": "holdings delta",
+      "description": "Diff an institutional investor's 13F holdings across two consecutive quarters. Categorize each issuer as ADD / EXIT / INCREASE / DECREASE with share-count delta."
+    }
+  ]
+}
