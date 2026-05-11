@@ -303,9 +303,12 @@ func syncResource(c interface {
 		return resource + ":" + parentID
 	}
 
-	// Determine the since param value once for the resource (applies to
-	// every target). Resume timestamps are per-target.
-	sinceParam := determineSinceParam()
+	// PATCH(pp-library#433-p1): per-resource since-param mapping. Resources
+	// without since-param support get sinceParam == "" and the param is
+	// skipped entirely below — preventing the prior silent no-op where every
+	// v2 endpoint received `with_message_since` (a v3-chat-only param) which
+	// ClickUp ignored, causing `--since 7d` to do a full sync.
+	sinceParam, sinceFormat := determineSinceParam(resource)
 	pageSize := determinePaginationDefaults()
 
 	var progressCount int64
@@ -351,9 +354,18 @@ func syncResource(c interface {
 				params[pageSize.cursorParam] = cursor
 			}
 
-			// Set since filter
-			if effectiveSince != "" {
-				params[sinceParam] = effectiveSince
+			// PATCH(pp-library#433-p1): only send since-param when the resource
+			// actually accepts one, and convert the RFC3339 timestamp to the
+			// resource-specific value format (Unix ms for v2 task,
+			// Unix seconds for v3 chat). Skipping the param entirely for
+			// unsupported resources is the correct behavior — ClickUp v2
+			// ignores unknown params silently, so sending the wrong key
+			// previously meant `--since` did nothing for tasks/spaces/folders/
+			// lists with no error or warning.
+			if effectiveSince != "" && sinceParam != "" {
+				if v := formatSinceValue(effectiveSince, sinceFormat); v != "" {
+					params[sinceParam] = v
+				}
 			}
 
 			data, err := c.Get(target.Path, params)
@@ -547,9 +559,44 @@ func determinePaginationDefaults() paginationDefaults {
 	}
 }
 
-// determineSinceParam returns the query parameter name for incremental sync filtering.
-func determineSinceParam() string {
-	return "with_message_since"
+// PATCH(pp-library#433-p1): per-resource since-parameter mapping. ClickUp has
+// no universal "since" parameter across v2 and v3. v2 task uses
+// `date_updated_gt` with Unix-millisecond values; v3 chat channels use
+// `with_message_since` with Unix-epoch-second values. Other resources have no
+// documented since support — return empty so the param is skipped entirely
+// instead of silently no-op'ing on every v2 endpoint (which previously
+// caused `--since 7d` to do a full sync of tasks/spaces/folders/lists with
+// no error or warning).
+//
+// determineSinceParam returns the query-parameter name and value-format hint
+// for the given resource. Empty paramName means "no since-filter support" —
+// the caller must not append the param.
+func determineSinceParam(resource string) (paramName, valueFormat string) {
+	switch resource {
+	case "task":
+		return "date_updated_gt", "unix_ms"
+	case "channel":
+		return "with_message_since", "unix_seconds"
+	default:
+		return "", ""
+	}
+}
+
+// formatSinceValue converts an RFC3339 timestamp into the value format the
+// resource's since-param expects. Returns empty string on unparseable input.
+func formatSinceValue(rfc3339, valueFormat string) string {
+	t, err := time.Parse(time.RFC3339, rfc3339)
+	if err != nil {
+		return ""
+	}
+	switch valueFormat {
+	case "unix_ms":
+		return strconv.FormatInt(t.UnixMilli(), 10)
+	case "unix_seconds":
+		return strconv.FormatInt(t.Unix(), 10)
+	default:
+		return ""
+	}
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.
