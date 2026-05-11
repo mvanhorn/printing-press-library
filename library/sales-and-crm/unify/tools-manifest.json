@@ -1,0 +1,564 @@
+{
+  "api_name": "unify-data",
+  "base_url": "https://api.unifygtm.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "UNIFY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "UNIFY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "data_create-object",
+      "description": "Create object. Required: api_name, description, display_name, provider. Returns the new DataCreateObjectResponse.",
+      "method": "POST",
+      "path": "/data/v1/objects",
+      "params": [
+        {
+          "name": "api_name",
+          "type": "string",
+          "location": "body",
+          "description": "This is the unique identifier for the object at the API level. It is unique within Unify and cannot be changed.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "This is a description of the object. It is not required but will be shown in the UI to help understand the purpose of the object. Typically, this should be a short sentence or two explaining the object.",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "This is the user-facing object name shown within Unify. It is not required to be unique within Unify and can be changed at any time.",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "The provider of an object represents who created and manages the object in Unify. This is used to differentiate between standard objects provided by Unify and custom objects created by a plugin or user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_create-object-attribute",
+      "description": "Create object attribute. Required: object_name. Returns the new DataCreateObjectAttributeResponse.",
+      "method": "POST",
+      "path": "/data/v1/objects/{object_name}/attributes",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_create-object-attribute-option",
+      "description": "Create object attribute option. Required: object_name, attribute_name, api_name, display_name. Returns the new DataCreateObjectAttributeOptionResponse.",
+      "method": "POST",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}/options",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        },
+        {
+          "name": "api_name",
+          "type": "string",
+          "location": "body",
+          "description": "This is the unique identifier for the attribute option at the API level. It is unique within the attribute and cannot be changed.",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "This is the user-facing attribute option name that will be shown within Unify. It is unique within the object and can be changed at any time.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_create-object-record",
+      "description": "Create object record. Required: object_name, data. Optional: validation_mode. Returns the new DataCreateObjectRecordResponse.",
+      "method": "POST",
+      "path": "/data/v1/objects/{object_name}/records",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "validation_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Validation mode"
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values for the new record. All required attributes on the object must be included.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_delete-object",
+      "description": "Delete object. Required: object_name. Returns the DataDeleteObjectResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/data/v1/objects/{object_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_delete-object-attribute",
+      "description": "Delete object attribute. Required: object_name, attribute_name. Returns the DataDeleteObjectAttributeResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_delete-object-attribute-option",
+      "description": "Delete object attribute option. Required: object_name, attribute_name, option_name. Returns the DataDeleteObjectAttributeOptionResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}/options/{option_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        },
+        {
+          "name": "option_name",
+          "type": "string",
+          "location": "path",
+          "description": "Option name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_delete-object-record",
+      "description": "Delete object record. Required: object_name, record_id. Returns the DataDeleteObjectRecordResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/data/v1/objects/{object_name}/records/{record_id}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "record_id",
+          "type": "string",
+          "location": "path",
+          "description": "Record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_find-unique-object-record",
+      "description": "Find unique object record. Required: object_name, match. Returns the new DataFindUniqueObjectRecordResponse.",
+      "method": "POST",
+      "path": "/data/v1/objects/{object_name}/records/find-unique",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "match",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to match against to find an existing record. At least one unique attribute must be included to ensure that at most one record is matched. Additional unique or non-unique attributes may also be included to refine the matching criteria.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_get-object",
+      "description": "Get object. Required: object_name. Returns the DataGetObjectResponse.",
+      "method": "GET",
+      "path": "/data/v1/objects/{object_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_get-object-attribute",
+      "description": "Get object attribute. Required: object_name, attribute_name. Returns the DataGetObjectAttributeResponse.",
+      "method": "GET",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_get-object-attribute-option",
+      "description": "Get object attribute option. Required: object_name, attribute_name, option_name. Returns the DataGetObjectAttributeOptionResponse.",
+      "method": "GET",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}/options/{option_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        },
+        {
+          "name": "option_name",
+          "type": "string",
+          "location": "path",
+          "description": "Option name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_get-object-record",
+      "description": "Get object record. Required: object_name, record_id. Returns the DataGetObjectRecordResponse.",
+      "method": "GET",
+      "path": "/data/v1/objects/{object_name}/records/{record_id}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "record_id",
+          "type": "string",
+          "location": "path",
+          "description": "Record id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_list-object-attribute-options",
+      "description": "List object attribute options. Required: object_name, attribute_name. Returns array of UobjectsUattributeOption.",
+      "method": "GET",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}/options",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_list-object-attributes",
+      "description": "List object attributes. Required: object_name. Returns array of UobjectsUattribute.",
+      "method": "GET",
+      "path": "/data/v1/objects/{object_name}/attributes",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_list-objects",
+      "description": "List objects. Returns array of UobjectsUobject.",
+      "method": "GET",
+      "path": "/data/v1/objects",
+      "params": []
+    },
+    {
+      "name": "data_update-object",
+      "description": "Update object. Required: object_name, description, display_name. Returns the updated DataUpdateObjectResponse.",
+      "method": "PATCH",
+      "path": "/data/v1/objects/{object_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "This is a description of the object. It is not required but will be shown in the UI to help understand the purpose of the object. Typically, this should be a short sentence or two explaining the object.",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "This is the user-facing object name shown within Unify. It is not required to be unique within Unify and can be changed at any time.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_update-object-attribute",
+      "description": "Update object attribute. Required: object_name, attribute_name. Returns the updated DataUpdateObjectAttributeResponse.",
+      "method": "PATCH",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_update-object-attribute-option",
+      "description": "Update object attribute option. Required: object_name, attribute_name, option_name, display_name. Returns the updated DataUpdateObjectAttributeOptionResponse.",
+      "method": "PATCH",
+      "path": "/data/v1/objects/{object_name}/attributes/{attribute_name}/options/{option_name}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "attribute_name",
+          "type": "string",
+          "location": "path",
+          "description": "Attribute name",
+          "required": true
+        },
+        {
+          "name": "option_name",
+          "type": "string",
+          "location": "path",
+          "description": "Option name",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "This is the user-facing attribute option name that will be shown within Unify. It is unique within the object and can be changed at any time.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_update-object-record",
+      "description": "Update object record. Required: object_name, record_id, data. Optional: validation_mode. Returns the updated DataUpdateObjectRecordResponse.",
+      "method": "PATCH",
+      "path": "/data/v1/objects/{object_name}/records/{record_id}",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "record_id",
+          "type": "string",
+          "location": "path",
+          "description": "Record id",
+          "required": true
+        },
+        {
+          "name": "validation_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Validation mode"
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to update in the record.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_upsert-object-record",
+      "description": "Upsert object record. Required: object_name, match. Optional: validation_mode, create, create_or_update (plus 3 more). Returns the new DataUpsertObjectRecordResponse.",
+      "method": "POST",
+      "path": "/data/v1/objects/{object_name}/records/upsert",
+      "params": [
+        {
+          "name": "object_name",
+          "type": "string",
+          "location": "path",
+          "description": "Object name",
+          "required": true
+        },
+        {
+          "name": "validation_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Validation mode"
+        },
+        {
+          "name": "create",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to use when creating a new record if no match is found."
+        },
+        {
+          "name": "create_or_update",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to apply during both creation and update operations."
+        },
+        {
+          "name": "create_or_update_if_empty",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to apply during both creation and update-if-empty operations."
+        },
+        {
+          "name": "match",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to match against to find an existing record. At least one unique attribute must be included to ensure that at most one record is matched. Additional unique or non-unique attributes may also be included to refine the matching criteria.",
+          "required": true
+        },
+        {
+          "name": "update",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to use when updating an existing record if a match is found."
+        },
+        {
+          "name": "update_if_empty",
+          "type": "object",
+          "location": "body",
+          "description": "The attribute values to update when a matching record is found and the existing attribute value on the record is `null`."
+        }
+      ]
+    }
+  ]
+}

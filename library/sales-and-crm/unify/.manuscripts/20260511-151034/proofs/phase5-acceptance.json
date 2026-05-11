@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "unify",
+  "run_id": "20260511-151034",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 102,
+  "tests_passed": 102,
+  "tests_skipped": 91,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

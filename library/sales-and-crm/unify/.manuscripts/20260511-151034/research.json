@@ -1,0 +1,301 @@
+{
+  "api_name": "unify",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "sdk-python",
+      "url": "https://github.com/unifygtm/sdk-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 21,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sdk-typescript",
+      "url": "https://github.com/unifygtm/sdk-typescript",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 21,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "intent-js-client",
+      "url": "https://github.com/unifygtm/intent-js-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T20:18:00Z",
+  "novel_features": [
+    {
+      "name": "Local FTS5 search across all record types",
+      "command": "search",
+      "description": "Full-text search across every synced object's records in one command. Returns typed hits across company, person, opportunity, and every mirrored Salesforce object.",
+      "rationale": "The Unify Data API has no LIST or SEARCH endpoint for records. Search only exists if you build it from a local mirror.",
+      "example": "unify-pp-cli search 'gladly' --agent",
+      "why_it_matters": "When you need to answer 'is this domain in our workspace anywhere?' across Unify and Salesforce-mirrored objects, this is the one command. No N find-unique calls.",
+      "group": "Local read layer over a write-only API"
+    },
+    {
+      "name": "Read-only SQL over the local mirror",
+      "command": "sql",
+      "description": "Run read-only SQL queries with joins across per-object record tables. Cross Unify standard objects with Salesforce-mirrored ones in a single query.",
+      "rationale": "The API has no query/filter surface for records. SQL is the missing read layer.",
+      "example": "unify-pp-cli sql \"SELECT json_extract(attrs,'$.name') as name, json_extract(attrs,'$.employee_count') as employees FROM record_company WHERE json_extract(attrs,'$.industry')='Retail' AND CAST(json_extract(attrs,'$.employee_count') AS INTEGER) \u003e= 200\" --agent",
+      "why_it_matters": "Answers operational questions the API can't: industry/segment slices, employee thresholds, joined opportunity/owner views. The query mode an agent reaches for instead of writing scratch Python.",
+      "group": "Local read layer over a write-only API"
+    },
+    {
+      "name": "Coverage report between two object tables",
+      "command": "coverage",
+      "description": "Set-difference report between two record tables on a shared key with optional bucketing by attribute and matched-but-stale rows.",
+      "rationale": "Coverage is a join + set-diff problem; the API exposes neither operation. Only computable locally.",
+      "example": "unify-pp-cli coverage --left salesforce_account --right company --key domain --by industry --agent",
+      "why_it_matters": "Tells you which Salesforce accounts are missing from Unify (and vice versa), bucketed by industry/owner — the central artifact of an account-coverage review.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Score-divergence audit",
+      "command": "audit-scores",
+      "description": "Flag records where two numeric attributes diverge beyond a threshold. Powers scoring sanity checks across Unify-internal and Salesforce-mirrored score fields.",
+      "rationale": "Pure local SQL; the API doesn't expose comparisons across attributes.",
+      "example": "unify-pp-cli audit-scores --object company --field unify_score --field salesforce_lead_score --threshold 50 --agent",
+      "why_it_matters": "Catches the 'false-scoring auto-deduct-50pts' class of bugs before they ship into a campaign.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Schema snapshot + diff",
+      "command": "schema diff",
+      "description": "Snapshot objects, attributes, and attribute options; diff two snapshots to find adds, removes, and type changes.",
+      "rationale": "Unify has no server-side schema-change audit log.",
+      "example": "unify-pp-cli schema diff --since 1d --agent",
+      "why_it_matters": "When the SF-aligned admin adds new fields, you can prove what changed between any two points in time and act on the delta.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Batch domain vetting",
+      "command": "vet",
+      "description": "Read a CSV column of match values, run find-unique in parallel for each, and enrich each row with exists/has_opportunity/owner/last_activity_at.",
+      "rationale": "find-unique is per-key only; batch vetting is exactly the workflow the no-list constraint makes impossible without orchestration.",
+      "example": "unify-pp-cli vet --csv /tmp/prospects.csv --object company --match-col domain --agent",
+      "why_it_matters": "Pre-launch vet for an outbound sequence drops from N alt-tabs to one command. Bulk pre-flight without bothering an engineer.",
+      "group": "AE / outbound workflows"
+    },
+    {
+      "name": "CSV upsert plan preview",
+      "command": "import-csv",
+      "description": "Predict what an upsert from CSV will do (create / update / no-op counts per row) by combining the local mirror with find-unique fallbacks.",
+      "rationale": "Upsert has 6 merge modes; a dry-run plan from the API alone can't tell you which existing records will change.",
+      "example": "unify-pp-cli import-csv --object company --file /tmp/accounts.csv --match-on domain --plan",
+      "why_it_matters": "Stops you from running a 2k-row upsert blind. Reports per-row outcome with a writable plan you can pipe back into upsert.",
+      "group": "AE / outbound workflows"
+    },
+    {
+      "name": "Local reference trace",
+      "command": "trace",
+      "description": "Walk reference attributes (opportunities, people, owner) from a starting record without N+1 API calls.",
+      "rationale": "Reference cardinality is in the schema; the API forces per-record GETs to follow refs. Local mirror traversal is the optimization.",
+      "example": "unify-pp-cli trace company 73fcb798-9ccd-4138-8f6a-9a801123783c --agent",
+      "why_it_matters": "One-shot 'show me everything connected to this company' for spot-checks and pre-call prep.",
+      "group": "Local read layer over a write-only API"
+    },
+    {
+      "name": "Watchlist-driven sync",
+      "command": "watch",
+      "description": "Persist match-keys for records you care about; sync refreshes them via parallel find-unique on every run.",
+      "rationale": "No list endpoint exists, so sync needs an explicit ID list. The watchlist is the cold-start solution.",
+      "example": "unify-pp-cli watch add company --match domain=gladly.com",
+      "why_it_matters": "Without a watchlist, sync has nothing to enumerate. With it, your daily refresh hits the records you actually use.",
+      "group": "Local read layer over a write-only API"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local FTS5 search across all record types",
+      "command": "search",
+      "description": "Full-text search across every synced object's records in one command. Returns typed hits across company, person, opportunity, and every mirrored Salesforce object.",
+      "rationale": "The Unify Data API has no LIST or SEARCH endpoint for records. Search only exists if you build it from a local mirror.",
+      "example": "unify-pp-cli search 'gladly' --agent",
+      "why_it_matters": "When you need to answer 'is this domain in our workspace anywhere?' across Unify and Salesforce-mirrored objects, this is the one command. No N find-unique calls.",
+      "group": "Local read layer over a write-only API"
+    },
+    {
+      "name": "Read-only SQL over the local mirror",
+      "command": "sql",
+      "description": "Run read-only SQL queries with joins across per-object record tables. Cross Unify standard objects with Salesforce-mirrored ones in a single query.",
+      "rationale": "The API has no query/filter surface for records. SQL is the missing read layer.",
+      "example": "unify-pp-cli sql \"SELECT json_extract(attrs,'$.name') as name, json_extract(attrs,'$.employee_count') as employees FROM record_company WHERE json_extract(attrs,'$.industry')='Retail' AND CAST(json_extract(attrs,'$.employee_count') AS INTEGER) \u003e= 200\" --agent",
+      "why_it_matters": "Answers operational questions the API can't: industry/segment slices, employee thresholds, joined opportunity/owner views. The query mode an agent reaches for instead of writing scratch Python.",
+      "group": "Local read layer over a write-only API"
+    },
+    {
+      "name": "Coverage report between two object tables",
+      "command": "coverage",
+      "description": "Set-difference report between two record tables on a shared key with optional bucketing by attribute and matched-but-stale rows.",
+      "rationale": "Coverage is a join + set-diff problem; the API exposes neither operation. Only computable locally.",
+      "example": "unify-pp-cli coverage --left salesforce_account --right company --key domain --by industry --agent",
+      "why_it_matters": "Tells you which Salesforce accounts are missing from Unify (and vice versa), bucketed by industry/owner — the central artifact of an account-coverage review.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Score-divergence audit",
+      "command": "audit-scores",
+      "description": "Flag records where two numeric attributes diverge beyond a threshold. Powers scoring sanity checks across Unify-internal and Salesforce-mirrored score fields.",
+      "rationale": "Pure local SQL; the API doesn't expose comparisons across attributes.",
+      "example": "unify-pp-cli audit-scores --object company --field unify_score --field salesforce_lead_score --threshold 50 --agent",
+      "why_it_matters": "Catches the 'false-scoring auto-deduct-50pts' class of bugs before they ship into a campaign.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Schema snapshot + diff",
+      "command": "schema diff",
+      "description": "Snapshot objects, attributes, and attribute options; diff two snapshots to find adds, removes, and type changes.",
+      "rationale": "Unify has no server-side schema-change audit log.",
+      "example": "unify-pp-cli schema diff --since 1d --agent",
+      "why_it_matters": "When the SF-aligned admin adds new fields, you can prove what changed between any two points in time and act on the delta.",
+      "group": "Operational audits"
+    },
+    {
+      "name": "Batch domain vetting",
+      "command": "vet",
+      "description": "Read a CSV column of match values, run find-unique in parallel for each, and enrich each row with exists/has_opportunity/owner/last_activity_at.",
+      "rationale": "find-unique is per-key only; batch vetting is exactly the workflow the no-list constraint makes impossible without orchestration.",
+      "example": "unify-pp-cli vet --csv /tmp/prospects.csv --object company --match-col domain --agent",
+      "why_it_matters": "Pre-launch vet for an outbound sequence drops from N alt-tabs to one command. Bulk pre-flight without bothering an engineer.",
+      "group": "AE / outbound workflows"
+    },
+    {
+      "name": "CSV upsert plan preview",
+      "command": "import-csv",
+      "description": "Predict what an upsert from CSV will do (create / update / no-op counts per row) by combining the local mirror with find-unique fallbacks.",
+      "rationale": "Upsert has 6 merge modes; a dry-run plan from the API alone can't tell you which existing records will change.",
+      "example": "unify-pp-cli import-csv --object company --file /tmp/accounts.csv --match-on domain --plan",
+      "why_it_matters": "Stops you from running a 2k-row upsert blind. Reports per-row outcome with a writable plan you can pipe back into upsert.",
+      "group": "AE / outbound workflows"
+    },
+    {
+      "name": "Local reference trace",
+      "command": "trace",
+      "description": "Walk reference attributes (opportunities, people, owner) from a starting record without N+1 API calls.",
+      "rationale": "Reference cardinality is in the schema; the API forces per-record GETs to follow refs. Local mirror traversal is the optimization.",
+      "example": "unify-pp-cli trace company 73fcb798-9ccd-4138-8f6a-9a801123783c --agent",
+      "why_it_matters": "One-shot 'show me everything connected to this company' for spot-checks and pre-call prep.",
+      "group": "Local read layer over a write-only API"
+    },
+    {
+      "name": "Watchlist-driven sync",
+      "command": "watch",
+      "description": "Persist match-keys for records you care about; sync refreshes them via parallel find-unique on every run.",
+      "rationale": "No list endpoint exists, so sync needs an explicit ID list. The watchlist is the cold-start solution.",
+      "example": "unify-pp-cli watch add company --match domain=gladly.com",
+      "why_it_matters": "Without a watchlist, sync has nothing to enumerate. With it, your daily refresh hits the records you actually use.",
+      "group": "Local read layer over a write-only API"
+    }
+  ],
+  "narrative": {
+    "display_name": "Unify",
+    "headline": "The read layer Unify's API doesn't ship. Local search, SQL, and coverage reports over a CRM that has no list-records endpoint.",
+    "value_prop": "Unify's Data API gives you upsert, find-unique, and write — but no way to list, search, or query records. This CLI ships the missing read layer: local SQLite mirror with FTS5 search, read-only SQL across Unify and Salesforce-mirrored objects, schema snapshot/diff, coverage and score-divergence audits, batch CSV vetting, and dry-run-by-default upserts.",
+    "auth_narrative": "Set UNIFY_API_KEY (generated at Settings → Developers in the Unify dashboard) to a Data API key. The CLI uses the same X-Api-Key header as the official Python and TypeScript SDKs.",
+    "quickstart": [
+      {
+        "command": "unify-pp-cli doctor",
+        "comment": "Confirm auth + API reachability"
+      },
+      {
+        "command": "unify-pp-cli data list-objects --agent",
+        "comment": "Inventory every object in your workspace (Unify standard + Salesforce-mirrored)"
+      },
+      {
+        "command": "unify-pp-cli watch add company --match domain=gladly.com",
+        "comment": "Tell sync which records to track — records have no list endpoint, so this is the cursor"
+      },
+      {
+        "command": "unify-pp-cli sync",
+        "comment": "Mirror schema + watched records into the local SQLite store"
+      },
+      {
+        "command": "unify-pp-cli search 'gladly' --agent",
+        "comment": "FTS5 across every synced record type — the read layer the API doesn't ship"
+      },
+      {
+        "command": "unify-pp-cli sql \"SELECT id, json_extract(attrs,'$.name') as name FROM record_company WHERE json_extract(attrs,'$.industry')='Retail' LIMIT 10\" --agent",
+        "comment": "Joinable SQL over the local mirror — answers the questions the API can't"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 status='unauthorized'",
+        "fix": "Re-issue your key at Settings → Developers in Unify and re-export UNIFY_API_KEY; the CLI sends X-Api-Key on every call."
+      },
+      {
+        "symptom": "search/sql returns 0 rows but the record exists in Unify",
+        "fix": "The record isn't in the local mirror yet. Run unify-pp-cli watch add \u003cobject\u003e --match \u003ckey\u003e=\u003cvalue\u003e, then unify-pp-cli sync."
+      },
+      {
+        "symptom": "find-unique returns 404 unexpectedly",
+        "fix": "Confirm the attribute you're matching on is a unique attribute (find-unique requires it). Run unify-pp-cli attrs list \u003cobject\u003e to inspect."
+      },
+      {
+        "symptom": "upsert says it would create when you expected an update",
+        "fix": "Pass --plan first: it shows per-row creates vs updates vs no-ops without writing. Adjust --match-on or merge mode and re-run."
+      },
+      {
+        "symptom": "schema diff shows nothing",
+        "fix": "You need at least two snapshots. Run unify-pp-cli schema snapshot today and again later, then diff between them."
+      }
+    ],
+    "when_to_use": "Use this CLI any time you need to read, search, or audit Unify Data API records — the official API and SDKs can write and find-unique but cannot list, search, or join. Reach for it for account-coverage reviews against Salesforce, scoring audits, schema-change tracking, batch domain vetting before outbound sequencing, and dry-run-by-default CSV upserts. Not the right tool for live event streaming or the Intent API (browser pixel) — only the Data API surface.",
+    "recipes": [
+      {
+        "title": "Pre-launch vet a sequence target list",
+        "command": "unify-pp-cli vet --csv /tmp/prospects.csv --object company --match-col domain --agent",
+        "explanation": "For each domain, parallel find-unique + local enrichment; outputs one row per input with exists/has_opportunity/owner."
+      },
+      {
+        "title": "Find every retail company with \u003e=200 employees and a recent opportunity",
+        "command": "unify-pp-cli sql \"SELECT json_extract(c.attrs,'$.name') as name, json_extract(c.attrs,'$.domain') as domain FROM record_company c JOIN record_opportunity o ON json_extract(o.attrs,'$.company_id') = c.id WHERE json_extract(c.attrs,'$.industry')='Retail' AND o.created_at \u003e date('now','-30 days')\" --agent --select rows",
+        "explanation": "The query Nate writes scratch Python for today — one SQL, narrowed JSON output for the agent."
+      },
+      {
+        "title": "Account coverage against Salesforce, bucketed by industry",
+        "command": "unify-pp-cli coverage --left salesforce_account --right company --key domain --by industry --agent",
+        "explanation": "Set-diff per industry bucket: which SF accounts are missing in Unify, which Unify companies have no SF counterpart, which are stale."
+      },
+      {
+        "title": "What schema fields did Emily add this week?",
+        "command": "unify-pp-cli schema diff --since 1d --agent",
+        "explanation": "Snapshot today, then diff against last Friday's snapshot. Output the per-object adds/removes/type-changes only — the noisy fields you don't care about are filtered."
+      },
+      {
+        "title": "Dry-run a 2k-row CSV upsert before writing",
+        "command": "unify-pp-cli import-csv --object company --file /tmp/accounts.csv --match-on domain --plan",
+        "explanation": "Predicts per-row creates vs updates vs no-ops by combining the local mirror with find-unique fallbacks. Run it twice; only the second --execute writes."
+      }
+    ],
+    "trigger_phrases": [
+      "look up a company in Unify",
+      "vet these domains in Unify",
+      "what changed in our Unify schema",
+      "Unify coverage vs Salesforce",
+      "audit Unify scoring fields",
+      "search Unify records",
+      "use unify",
+      "run unify"
+    ]
+  }
+}
