@@ -18,5 +18,12 @@
   "mcp_public_tool_count": 8,
   "mcp_ready": "partial",
   "api_version": "0.1.0",
-  "auth_type": "cookie"
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Unwich Converter",
+      "command": "menu unwich-convert",
+      "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call."
+    }
+  ]
 }

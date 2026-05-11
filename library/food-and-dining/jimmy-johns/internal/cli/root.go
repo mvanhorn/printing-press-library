@@ -85,6 +85,9 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Short: `Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.`,
 		Long: `Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.
 
+Highlights (not in the official API docs):
+  • menu unwich-convert   Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.
+
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'jimmy-johns-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,

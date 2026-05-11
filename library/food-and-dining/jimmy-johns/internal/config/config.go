@@ -112,6 +112,11 @@ func (c *Config) ClearTokens() error {
 	return c.save()
 }
 
+// SaveHeaders persists the Headers map (used by hand-authored cookie-auth flow).
+func (c *Config) SaveHeaders() error {
+	return c.save()
+}
+
 func (c *Config) save() error {
 	dir := filepath.Dir(c.Path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {

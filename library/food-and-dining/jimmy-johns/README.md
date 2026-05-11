@@ -62,20 +62,30 @@ See [Install](#install) above.
 
 ### 2. Authenticate
 
-This CLI uses your browser session for authentication. Log in to jimmyjohns.com in Chrome, then:
+This CLI uses your browser session for authentication. **Jimmy John's runs PerimeterX bot protection** that aggressively fingerprints automation; the canonical way in is to capture a fresh session from a real Chrome browser, then import the cookies.
+
+**Recommended (works against PerimeterX):**
+
+```bash
+# 1. Open Chrome, navigate to jimmyjohns.com, solve any PerimeterX challenge,
+#    and browse naturally — find a store, view the menu, sign in if you want
+#    rewards/order endpoints. Do NOT let any automation touch this session.
+# 2. Export cookies from that exact Chrome session:
+browser-use -b real --profile "Default" cookies export ~/jj-cookies.json
+
+# 3. Import into the CLI:
+jimmy-johns-pp-cli auth import-cookies --from-file ~/jj-cookies.json
+```
+
+**Legacy path (often fails — Chrome locks its cookie DB while running):**
 
 ```bash
 jimmy-johns-pp-cli auth login --chrome
 ```
 
-Requires a cookie extraction tool. Install one:
+Requires `pycookiecheat`, `cookies`, or `cookie-scoop-cli` on PATH. Chrome must NOT be running for these tools to read the encrypted cookie DB.
 
-```bash
-pip install pycookiecheat          # Python (recommended)
-brew install barnardb/cookies/cookies  # Homebrew
-```
-
-When your session expires, run `auth login --chrome` again.
+When your session expires, repeat the recommended flow above. See **Known Gaps** below for the PerimeterX caveat.
 
 ### 3. Verify Setup
 
@@ -90,6 +100,19 @@ This checks your configuration and credentials.
 ```bash
 jimmy-johns-pp-cli stores list
 ```
+
+## Unique Features
+
+These capabilities aren't available in any other tool for this API.
+
+### Local cart composition
+- **`menu unwich-convert`** — Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.
+
+  _Reach for this when an agent is building a JJ cart for a user with a no-bread preference — it gives you the exact modifier delta with no API round-trip._
+
+  ```bash
+  jimmy-johns-pp-cli menu product-modifiers 33328641 --json | jimmy-johns-pp-cli menu unwich-convert --product-id 33328641 --json
+  ```
 
 ## Usage
 
@@ -261,16 +284,30 @@ Config file: `~/.config/jimmy-johns-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
+## Known Gaps
+
+This CLI is `ship-with-gaps`. The structural surface is complete (16 endpoints typed, MCP server bundled, dry-run works for every command), but the live API has real limitations:
+
+- **PerimeterX bot protection.** Jimmy John's runs a `browser_required`-class anti-automation stack. Even with valid session cookies + Surf's Chrome TLS impersonation, requests can return HTTP 403 if PerimeterX has flagged the session. The reliable workaround is the **fresh session** capture documented in [Authenticate](#2-authenticate) — do NOT touch the source Chrome window with automation between login and cookie export. Sessions that get fingerprinted as bots stay flagged for ~1 hour.
+- **No transcendence features yet.** Planned but not yet built: `unwich-mode` (auto-convert a cart to lettuce wraps), `office-lunch --people N` (sized cart suggestion for groups), `freaky-fast` (per-store delivery ETA predictor based on local order history). All are pure local computations on synced data; they'd ship in the next iteration.
+- **Cookie auth is hand-wired.** `auth import-cookies` was added by hand because the spec's `auth.type: cookie` doesn't map cleanly onto the press's v4.x templates. Future press versions may emit this natively.
+
 ## Troubleshooting
+
 **Authentication errors (exit code 4)**
 - Run `jimmy-johns-pp-cli doctor` to check credentials
+- Re-import a fresh cookie export from your real Chrome session (see [Authenticate](#2-authenticate)); the cookie may have expired
+
+**HTTP 403 from `stores list` / `menu products` / etc.**
+- PerimeterX flagged the session. Capture a fresh cookie set from a Chrome window that has NEVER been driven by automation, then re-run `auth import-cookies`.
+
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
 ## HTTP Transport
 
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+This CLI uses Surf with Chrome TLS impersonation for the underlying HTTP transport. It does not keep a resident browser process — discovery is one-shot at auth time. See [Known Gaps](#known-gaps) for the PerimeterX caveat.
 
 ---
 

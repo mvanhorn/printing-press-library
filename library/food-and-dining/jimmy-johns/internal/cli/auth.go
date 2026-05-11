@@ -30,6 +30,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthLoginCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
+	cmd.AddCommand(newAuthImportCookiesCmd(flags))
 
 	return cmd
 }

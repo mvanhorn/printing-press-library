@@ -16,5 +16,7 @@ func newMenuCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newMenuProductFiltersCmd(flags))
 	cmd.AddCommand(newMenuProductModifiersCmd(flags))
 	cmd.AddCommand(newMenuProductsCmd(flags))
+	// Hand-authored transcendence features (preserved across regen via filename).
+	cmd.AddCommand(newMenuUnwichConvertCmd(flags))
 	return cmd
 }

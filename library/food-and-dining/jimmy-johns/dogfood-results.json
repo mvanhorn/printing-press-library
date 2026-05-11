@@ -1,7 +1,7 @@
 {
   "dir": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/working/jimmy-johns-pp-cli",
-  "spec_path": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/working/jimmy-johns-pp-cli/spec.yaml",
-  "verdict": "PASS",
+  "spec_path": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/research/jimmy-johns-spec.yaml",
+  "verdict": "WARN",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -42,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 46,
-      "registered": 46
+      "defined": 48,
+      "registered": 48
     },
     "config_consistency": {
       "consistent": true
@@ -56,9 +56,8 @@
     }
   },
   "novel_features_check": {
-    "planned": 0,
-    "found": 0,
-    "skipped": true
+    "planned": 1,
+    "found": 1
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -66,22 +65,30 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 0,
+    "checked": 1,
     "exempted_via_store": 0,
-    "skipped": true
+    "suspicious": [
+      {
+        "command": "menu unwich-convert",
+        "file": "menu_unwich.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 38
+    "checked": 40
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 38
+    "checked": 40
   },
-  "issues": null
+  "issues": [
+    "1/1 novel features look reimplemented: menu unwich-convert (menu_unwich.go) — hand-rolled response: no API client call, no store access"
+  ]
 }

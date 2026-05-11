@@ -35,6 +35,19 @@ Backed by Jimmy John's proprietary API at www.jimmyjohns.com/api and
 authenticated via cookies imported from a logged-in Chrome session
 (PerimeterX clearance + JJ session cookies).
 
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+
+### Local cart composition
+- **`menu unwich-convert`** — Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call.
+
+  _Reach for this when an agent is building a JJ cart for a user with a no-bread preference — it gives you the exact modifier delta with no API round-trip._
+
+  ```bash
+  jimmy-johns-pp-cli menu product-modifiers 33328641 --json | jimmy-johns-pp-cli menu unwich-convert --product-id 33328641 --json
+  ```
+
 ## HTTP Transport
 
 This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
