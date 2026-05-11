@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/client"
-	"jimmy-johns-pp-cli/internal/config"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 	"github.com/spf13/cobra"
 )
 

@@ -112,6 +112,33 @@ func (c *Config) ClearTokens() error {
 	return c.save()
 }
 
+// PATCH: ClearAuth nukes every auth-bearing field on the config, including the
+// Headers["Cookie"] entry written by the hand-authored cookie-auth flow.
+// `auth logout` previously only called ClearTokens, which silently left an
+// imported Cookie active and subsequent requests kept authenticating as the
+// same session.
+func (c *Config) ClearAuth() error {
+	c.AccessToken = ""
+	c.RefreshToken = ""
+	c.TokenExpiry = time.Time{}
+	c.AuthHeaderVal = ""
+	if c.Headers != nil {
+		delete(c.Headers, "Cookie")
+	}
+	return c.save()
+}
+
+// PATCH: HasCookieAuth returns the persisted Cookie header (the hand-authored
+// `auth import-cookies` flow) or "" if none is set. Used by `auth status` /
+// `doctor` / the cache key so cookie-authed sessions are recognized as
+// authenticated and don't share cache lines across re-imports.
+func (c *Config) HasCookieAuth() string {
+	if c.Headers == nil {
+		return ""
+	}
+	return c.Headers["Cookie"]
+}
+
 // SaveHeaders persists the Headers map (used by hand-authored cookie-auth flow).
 func (c *Config) SaveHeaders() error {
 	return c.save()

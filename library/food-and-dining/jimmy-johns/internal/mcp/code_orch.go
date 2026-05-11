@@ -336,17 +336,18 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	case "DELETE":
 		data, _, err = c.Delete(path)
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
+		// PATCH: pass the params object directly. Client.Post/Put/Patch take
+		// `body any` and call json.Marshal themselves; the previous
+		// json.Marshal(params) -> []byte chain caused a double encode so the
+		// API received a base64 JSON string instead of the object payload
+		// described by the endpoint (account.login, order.add_items, etc.).
 		switch ep.Method {
 		case "POST":
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(path, params)
 		case "PUT":
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(path, params)
 		case "PATCH":
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(path, params)
 		default:
 			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 		}

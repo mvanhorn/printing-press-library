@@ -17,7 +17,7 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 	"github.com/spf13/cobra"
 )
 
@@ -162,19 +162,34 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			w := cmd.OutOrStdout()
+			// PATCH: recognize the imported-Cookie auth flow as authenticated.
+			// AuthHeader() returns "" for cookie auth (the value lives in
+			// cfg.Headers["Cookie"] instead of AccessToken/AuthHeaderVal), so
+			// previously `auth status` reported "Not authenticated" even after
+			// a successful `auth import-cookies` — the primary documented
+			// auth path.
 			header := cfg.AuthHeader()
-			if header == "" {
+			cookie := cfg.HasCookieAuth()
+			if header == "" && cookie == "" {
 				fmt.Fprintln(w, red("Not authenticated"))
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Log in from your browser session:")
 				fmt.Fprintf(w, "  jimmy-johns-pp-cli auth login --chrome\n")
+				fmt.Fprintf(w, "  jimmy-johns-pp-cli auth import-cookies --from-file <cookies.json>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
 			fmt.Fprintln(w, green("Authenticated"))
-			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
+			source := cfg.AuthSource
+			if source == "" && cookie != "" {
+				source = "cookie-import"
+			}
+			fmt.Fprintf(w, "  Source: %s\n", source)
 			fmt.Fprintf(w, "  Domain: jimmyjohns.com\n")
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
+			if cookie != "" {
+				fmt.Fprintf(w, "  Cookie: %d bytes\n", len(cookie))
+			}
 			return nil
 		},
 	}
@@ -191,8 +206,11 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			if err := cfg.ClearTokens(); err != nil {
-				return configErr(fmt.Errorf("clearing tokens: %w", err))
+			// PATCH: clear cookie-auth alongside tokens. Previously logout only
+			// called ClearTokens, so an imported Cookie header survived logout
+			// and subsequent requests kept authenticating as the same session.
+			if err := cfg.ClearAuth(); err != nil {
+				return configErr(fmt.Errorf("clearing credentials: %w", err))
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
 			return nil

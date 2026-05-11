@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 )
 
 // isValidCookiePairChar reports whether r is allowed in a cookie name or value

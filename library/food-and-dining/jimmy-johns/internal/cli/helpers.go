@@ -16,8 +16,8 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

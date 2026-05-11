@@ -6,9 +6,27 @@
   "patches": [
     {
       "id": "cookie-auth-adapter",
-      "files": ["internal/cli/auth_import_cookies.go"],
-      "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config.",
-      "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Also validates cookie name/value characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection if the export contains malformed values."
+      "files": ["internal/cli/auth_import_cookies.go", "internal/cli/auth.go", "internal/config/config.go"],
+      "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config; teach `auth status`, `auth logout`, and the config layer to treat that Cookie as first-class auth.",
+      "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Validates cookie name/value characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection. Adds Config.ClearAuth (used by logout, also nukes the Cookie) and Config.HasCookieAuth (used by auth status, doctor, and the cache key) so the documented flow doesn't misreport as 'Not authenticated' or share cache lines across re-imports."
+    },
+    {
+      "id": "mcp-code-orch-body-passthrough",
+      "files": ["internal/mcp/code_orch.go"],
+      "summary": "Pass MCP execute params directly to Client.Post/Put/Patch instead of marshaling once into []byte and letting the client marshal again.",
+      "reason": "Client.{Post,Put,Patch} take `body any` and call json.Marshal internally; the previous json.Marshal(params) -> []byte chain caused a double encode, so POST/PUT/PATCH endpoints (account.login, order.add_items, etc.) received a base64 JSON string instead of the object payload they expected. Found by codex review."
+    },
+    {
+      "id": "client-cache-key-cookie",
+      "files": ["internal/client/client.go"],
+      "summary": "Hash cfg.Headers[\"Cookie\"] into the response cache key alongside AuthHeader() bearer tokens.",
+      "reason": "AuthHeader() returns \"\" for the documented import-cookies flow, so two distinct sessions that share a config path produced an identical cache key — meaning authenticated GET responses (account, rewards, order) could leak across sessions for the cache TTL. Found by codex review."
+    },
+    {
+      "id": "module-path-published",
+      "files": ["go.mod", "cmd/jimmy-johns-pp-cli/main.go", "cmd/jimmy-johns-pp-mcp/main.go", "internal/mcp/tools.go", "internal/cli/auth.go", "internal/cli/sync.go"],
+      "summary": "Rewrite the Go module path to github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns and update all internal imports.",
+      "reason": "The npm installer resolves install targets from the published module path (`go install <module>/cmd/<binary>@latest`). A bare `module jimmy-johns-pp-cli` declaration left `npx ... install jimmy-johns` running `go install jimmy-johns-pp-cli/cmd/jimmy-johns-pp-cli@latest`, which Go rejects as a malformed/undownloadable path. Found by codex review."
     },
     {
       "id": "novel-unwich-convert",

@@ -13,8 +13,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/client"
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 	"github.com/spf13/cobra"
 )
 

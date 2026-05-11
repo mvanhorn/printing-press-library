@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"jimmy-johns-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cli"
 )
 
 func main() {

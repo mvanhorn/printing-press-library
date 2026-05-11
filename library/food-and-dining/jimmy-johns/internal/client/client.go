@@ -20,8 +20,8 @@ import (
 	"time"
 	"github.com/enetx/surf"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 )
 
 type Client struct {
@@ -113,9 +113,19 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
 		key += "|auth_source=" + c.Config.AuthSource
+		// PATCH: include both bearer and cookie auth material in the cache
+		// key. AuthHeader() returns "" for the documented import-cookies
+		// flow, so the previous key was identical across re-imports — meaning
+		// authenticated GET responses (account/rewards/order) could leak
+		// across distinct sessions for the cache TTL. Hash both inputs so
+		// the cache scopes per session.
 		if authHeader := c.Config.AuthHeader(); authHeader != "" {
-			authHash := sha256.Sum256([]byte(c.Config.AuthHeader()))
+			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])
+		}
+		if cookie := c.Config.HasCookieAuth(); cookie != "" {
+			cookieHash := sha256.Sum256([]byte(cookie))
+			key += "|cookie=" + hex.EncodeToString(cookieHash[:8])
 		}
 		if c.Config.Path != "" {
 			key += "|config_path=" + c.Config.Path
