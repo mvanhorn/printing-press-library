@@ -215,6 +215,18 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 				startDate = time.Now().Format("2006-01-02")
 			}
 			ctx := cmd.Context()
+
+			// Hydrate the metro registry from Tock's metroArea SSR so
+			// slug-suffix inference inside resolveOTSlugGeoAware can
+			// resolve the full 248-metro dynamic list (vs the 20-entry
+			// static fallback). Cached 24h on disk; first call ~200ms,
+			// subsequent calls <1ms. Silent on failure — falls back to
+			// static. (PR #425 round-2 Greptile finding: this call
+			// existed on the goat path but was missing here, so
+			// `earliest 'joey-bellevue'` couldn't infer the bellevue
+			// suffix on a fresh install.)
+			hydrateMetrosFromTock(ctx, session)
+
 			rows := make([]earliestRow, 0, len(venues))
 			for _, v := range venues {
 				row := resolveEarliestForVenue(ctx, session, v, party, startDate, withinDays, noCache)

@@ -219,12 +219,16 @@ func resolveOTSlugGeoAware(
 	}
 
 	// Pick the closest. Stable: name tiebreak.
+	// PR #425 round-2 Greptile P2: rename loop variable from `c` to
+	// `cand` so it doesn't shadow the outer `c *opentable.Client`
+	// parameter. The shadow was non-functional (different types) but
+	// reading the code is easier with distinct names.
 	best := inRadius[0]
-	for _, c := range inRadius[1:] {
-		if c.distKm < best.distKm {
-			best = c
-		} else if c.distKm == best.distKm && c.name < best.name {
-			best = c
+	for _, cand := range inRadius[1:] {
+		if cand.distKm < best.distKm {
+			best = cand
+		} else if cand.distKm == best.distKm && cand.name < best.name {
+			best = cand
 		}
 	}
 	return best.id, best.name, best.slug, metro, nil

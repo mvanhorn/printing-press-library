@@ -31,8 +31,10 @@ package cli
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 // Metro is a single metro-area entry: canonical slug, display name, and
@@ -217,14 +219,29 @@ func metroCityName(slug string) string {
 }
 
 // knownMetros returns the set of canonical slugs the registry currently
-// covers, sorted for stable error-message output.
+// covers, sorted alphabetically for stable error-message output.
 func knownMetros() []string {
 	all := getRegistry().All()
 	slugs := make([]string, 0, len(all))
 	for _, m := range all {
 		slugs = append(slugs, m.Slug)
 	}
+	sort.Strings(slugs)
 	return slugs
+}
+
+// titleCase uppercases the first rune of s. Replaces strings.Title
+// (deprecated in Go 1.18) for the city-hint UX where we want
+// "bellevue" → "Bellevue" in error messages. Doesn't try to handle
+// hyphens or multi-word names — those aren't in the cityHints map
+// keys today and city display names come from the registry directly.
+func titleCase(s string) string {
+	if s == "" {
+		return ""
+	}
+	runes := []rune(s)
+	runes[0] = unicode.ToUpper(runes[0])
+	return string(runes)
 }
 
 // suggestMetros returns up to maxN slugs that share a token with `query`
@@ -355,12 +372,13 @@ func cityHintFor(slug string) string {
 func formatUnknownMetroError(input string) string {
 	if parent := cityHintFor(input); parent != "" {
 		if m, ok := getRegistry().Lookup(parent); ok {
+			cityName := titleCase(input)
 			return fmt.Sprintf(
 				"unknown metro %q — neither OpenTable nor Tock breaks this out as its own metro. "+
 					"%s is lumped under metro %q (centroid %.4f, %.4f). "+
 					"Try `--metro %s --metro-radius-km 20` to constrain results to %s-area venues, "+
 					"or pass `--latitude %.4f --longitude %.4f` directly with a tight `--metro-radius-km`.",
-				input, strings.Title(input), m.Slug, m.Lat, m.Lng, m.Slug, strings.Title(input), m.Lat, m.Lng,
+				input, cityName, m.Slug, m.Lat, m.Lng, m.Slug, cityName, m.Lat, m.Lng,
 			)
 		}
 	}

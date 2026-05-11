@@ -99,9 +99,14 @@ func newGoatCmd(flags *rootFlags) *cobra.Command {
 			// target city (like Bellevue WA) is a standalone metro or
 			// rolled into a parent.
 			if listMetros {
+				// Single registry snapshot so Total and Metros agree even
+				// if a concurrent hydration upgrade fires between calls
+				// (PR #425 round-2 Greptile P2: prior shape called
+				// getRegistry().All() twice and could TOCTOU-race).
+				allMetros := getRegistry().All()
 				return printJSONFiltered(cmd.OutOrStdout(), metroListResponse{
-					Metros:    getRegistry().All(),
-					Total:     len(getRegistry().All()),
+					Metros:    allMetros,
+					Total:     len(allMetros),
 					CityHints: cityHints,
 					QueriedAt: time.Now().UTC().Format(time.RFC3339),
 				}, flags)

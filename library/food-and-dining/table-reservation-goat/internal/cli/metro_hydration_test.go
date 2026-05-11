@@ -70,7 +70,7 @@ func TestSaveLoadMetroCache_RoundTrip(t *testing.T) {
 // stale cache entries. Past-TTL files are silently dropped — caller
 // falls back to fetch.
 func TestLoadMetroCache_RejectsStale(t *testing.T) {
-	tmp := withTempCacheDir(t)
+	withTempCacheDir(t)
 
 	cf := metroCacheFile{
 		SchemaVersion: metroCacheSchemaVersion,
@@ -78,11 +78,17 @@ func TestLoadMetroCache_RejectsStale(t *testing.T) {
 		Metros:        []Metro{{Slug: "seattle", Name: "Seattle", Lat: 47.6, Lng: -122.3}},
 	}
 	data, _ := json.Marshal(cf)
-	dir := filepath.Join(tmp, "Library", "Caches", "table-reservation-goat-pp-cli")
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	// PR #425 round-2 Greptile finding: don't hardcode `Library/Caches`
+	// (macOS-only). Ask metroCachePath() for the canonical location so
+	// the test passes on Linux too (where os.UserCacheDir returns
+	// $XDG_CACHE_HOME directly, no Library/Caches prefix).
+	path, ok := metroCachePath()
+	if !ok {
+		t.Fatal("metroCachePath() returned !ok in test fixture")
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(dir, "tock-metros.json")
 	if err := os.WriteFile(path, data, 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +102,7 @@ func TestLoadMetroCache_RejectsStale(t *testing.T) {
 // invalidation — bumping metroCacheSchemaVersion silently invalidates
 // pre-existing caches without users having to wipe them manually.
 func TestLoadMetroCache_RejectsSchemaMismatch(t *testing.T) {
-	tmp := withTempCacheDir(t)
+	withTempCacheDir(t)
 
 	cf := metroCacheFile{
 		SchemaVersion: 9999, // future schema
@@ -104,9 +110,13 @@ func TestLoadMetroCache_RejectsSchemaMismatch(t *testing.T) {
 		Metros:        []Metro{{Slug: "seattle", Name: "Seattle", Lat: 47.6, Lng: -122.3}},
 	}
 	data, _ := json.Marshal(cf)
-	dir := filepath.Join(tmp, "Library", "Caches", "table-reservation-goat-pp-cli")
-	_ = os.MkdirAll(dir, 0o700)
-	_ = os.WriteFile(filepath.Join(dir, "tock-metros.json"), data, 0o600)
+	// Same as above: ask metroCachePath() for the cross-platform path.
+	path, ok := metroCachePath()
+	if !ok {
+		t.Fatal("metroCachePath() returned !ok in test fixture")
+	}
+	_ = os.MkdirAll(filepath.Dir(path), 0o700)
+	_ = os.WriteFile(path, data, 0o600)
 
 	if got := loadMetroCache(); got != nil {
 		t.Errorf("schema-mismatched cache should return nil; got %v", got)
