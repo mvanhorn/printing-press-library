@@ -176,6 +176,112 @@ var schemaStatements = []string{
 		notes TEXT NOT NULL DEFAULT '',
 		PRIMARY KEY (started_at, site_url, kind)
 	)`,
+
+	// Annotations: agent-owned notebook. Backs annotate / triage-state /
+	// any future watch-rule features. target_type discriminates the entity
+	// (page | query | site | triage). expires_at is nullable; populated for
+	// snoozes so list queries can transparently filter out expired entries.
+	`CREATE TABLE IF NOT EXISTS annotations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		target_type TEXT NOT NULL,
+		target TEXT NOT NULL,
+		note TEXT NOT NULL DEFAULT '',
+		tags TEXT NOT NULL DEFAULT '',
+		expires_at TEXT,
+		created_at TEXT NOT NULL,
+		updated_at TEXT NOT NULL
+	)`,
+	`CREATE INDEX IF NOT EXISTS idx_annotations_target ON annotations(target_type, target)`,
+	`CREATE INDEX IF NOT EXISTS idx_annotations_tags ON annotations(tags)`,
+}
+
+// Annotation is the in-memory shape of an agent-owned note attached to a
+// page, query, site, or triage item. tags is the raw stored string —
+// callers split on comma when filtering.
+type Annotation struct {
+	ID         int64
+	TargetType string
+	Target     string
+	Note       string
+	Tags       string
+	ExpiresAt  string
+	CreatedAt  string
+	UpdatedAt  string
+}
+
+// AddAnnotation inserts a new annotation and returns its assigned id.
+// Existing annotations on the same (target_type, target) are not merged
+// — callers wanting upsert semantics should ListAnnotations + Remove
+// before insert. expires defaults to empty (never expires).
+func (s *Store) AddAnnotation(ctx context.Context, targetType, target, note, tags, expires string) (int64, error) {
+	now := time.Now().UTC().Format(time.RFC3339)
+	var expiresArg any
+	if expires != "" {
+		expiresArg = expires
+	}
+	res, err := s.db.ExecContext(ctx, `
+		INSERT INTO annotations(target_type, target, note, tags, expires_at, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		targetType, target, note, tags, expiresArg, now, now)
+	if err != nil {
+		return 0, fmt.Errorf("inserting annotation: %w", err)
+	}
+	return res.LastInsertId()
+}
+
+// ListAnnotations returns annotations filtered by target_type (empty =
+// any), target prefix-or-exact (empty = any), and tag substring (empty
+// = any). Expired entries are excluded unless includeExpired is true.
+func (s *Store) ListAnnotations(ctx context.Context, targetType, target, tagFilter string, includeExpired bool) ([]Annotation, error) {
+	q := `SELECT id, target_type, target, note, tags,
+	             COALESCE(expires_at, ''), created_at, updated_at
+	      FROM annotations WHERE 1=1`
+	args := []any{}
+	if targetType != "" {
+		q += " AND target_type = ?"
+		args = append(args, targetType)
+	}
+	if target != "" {
+		q += " AND target = ?"
+		args = append(args, target)
+	}
+	if tagFilter != "" {
+		q += " AND tags LIKE ?"
+		args = append(args, "%"+tagFilter+"%")
+	}
+	if !includeExpired {
+		q += " AND (expires_at IS NULL OR expires_at = '' OR expires_at > ?)"
+		args = append(args, time.Now().UTC().Format(time.RFC3339))
+	}
+	q += " ORDER BY id DESC"
+	rows, err := s.db.QueryContext(ctx, q, args...)
+	if err != nil {
+		return nil, fmt.Errorf("querying annotations: %w", err)
+	}
+	defer rows.Close()
+	out := []Annotation{}
+	for rows.Next() {
+		var a Annotation
+		if err := rows.Scan(&a.ID, &a.TargetType, &a.Target, &a.Note, &a.Tags,
+			&a.ExpiresAt, &a.CreatedAt, &a.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("scanning annotation: %w", err)
+		}
+		out = append(out, a)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterating annotations: %w", err)
+	}
+	return out, nil
+}
+
+// RemoveAnnotation deletes by id. Returns the number of rows affected
+// (0 when the id doesn't exist).
+func (s *Store) RemoveAnnotation(ctx context.Context, id int64) (int64, error) {
+	res, err := s.db.ExecContext(ctx, `DELETE FROM annotations WHERE id = ?`, id)
+	if err != nil {
+		return 0, fmt.Errorf("removing annotation: %w", err)
+	}
+	return res.RowsAffected()
 }
 
 // AnalyticsRow is the in-memory row shape for batch insert.

@@ -203,6 +203,14 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newIndexStatusCmd(flags))
 	rootCmd.AddCommand(newIndexBulkSubmitCmd(flags))
 
+	// Agent state — annotations + triage-state mutations (local store only).
+	rootCmd.AddCommand(newAnnotateCmd(flags))
+	rootCmd.AddCommand(newAnnotationsCmd(flags))
+	rootCmd.AddCommand(newAnnotationRemoveCmd(flags))
+	rootCmd.AddCommand(newTriageResolveCmd(flags))
+	rootCmd.AddCommand(newTriageSnoozeCmd(flags))
+	rootCmd.AddCommand(newTriageUnresolveCmd(flags))
+
 	// Absorbed extras (match competitors with our local-store backing).
 	rootCmd.AddCommand(newQuickwinsCmd(flags))
 	rootCmd.AddCommand(newCompareCmd(flags))
