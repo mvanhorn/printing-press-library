@@ -1,0 +1,51 @@
+version: 2
+project_name: telegram-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: telegram-pp-cli
+    main: ./cmd/telegram-pp-cli
+    binary: telegram-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/telegram/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: telegram-pp-mcp
+    main: ./cmd/telegram-pp-mcp
+    binary: telegram-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: telegram-pp-cli
+    repository:
+      owner: yung-bing
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Telegram Bot API method, plus idempotent sends, replace-last status messages, and a local store that knows..."
+    install: |
+      bin.install "telegram-pp-cli"
+      bin.install "telegram-pp-mcp"

@@ -1,0 +1,311 @@
+{
+  "api_name": "telegram",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "rahiel/telegram-send",
+      "url": "https://github.com/rahiel/telegram-send",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fabianonline/telegram.sh",
+      "url": "https://github.com/fabianonline/telegram.sh",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-telegram/bot",
+      "url": "https://github.com/go-telegram/bot",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-telegram-bot-api/telegram-bot-api",
+      "url": "https://github.com/go-telegram-bot-api/telegram-bot-api",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "guangxiangdebizi/telegram-mcp",
+      "url": "https://github.com/guangxiangdebizi/telegram-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 27,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "harnyk/mcp-telegram-notifier",
+      "url": "https://github.com/harnyk/mcp-telegram-notifier",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "siavashdelkhosh81/telegram-bot-mcp-server",
+      "url": "https://github.com/siavashdelkhosh81/telegram-bot-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "danships/telegram-bot-mgmt-cli",
+      "url": "https://github.com/danships/telegram-bot-mgmt-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T08:45:00Z",
+  "novel_features": [
+    {
+      "name": "Idempotent send",
+      "command": "send",
+      "description": "Skip the API call when a previous send with the same idempotency key already succeeded for this bot and chat — returns the original message_id instead of re-sending.",
+      "rationale": "Requires a local store keyed on (bot_id, chat_id, idempotency_key); no Telegram CLI persists send identity, so cron retries always double-send.",
+      "example": "telegram-pp-cli send --chat 1234567 --idempotency-key deploy-2026-05-11 --text 'deploy ok' --json",
+      "why_it_matters": "Reach for this whenever a cron job or agent retry might fire the same alert twice — it deduplicates without round-tripping the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Replace-last status",
+      "command": "send",
+      "description": "Edit the most recent message this bot sent to a chat in place — ideal for long-running job status that updates as steps complete.",
+      "rationale": "Reads the latest outbound row from the local messages table then calls editMessageText; falls back to send-new on 400. No competitor tracks 'last sent' per chat.",
+      "example": "telegram-pp-cli send --chat 1234567 --replace-last --text 'Step 3/5 complete' --html",
+      "why_it_matters": "Use when you would otherwise spam a chat with N status pings — one logical message that mutates over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sent-message history",
+      "command": "messages list",
+      "description": "Browse the bot's outbound and inbound history filtered by chat, time window, sender, or media type — entirely from the local store, no API call.",
+      "rationale": "Every send and sync populates a local messages table; no Telegram CLI keeps any local history.",
+      "example": "telegram-pp-cli messages list --chat 1234567 --since 1d --mine --json",
+      "why_it_matters": "Reach for this when an operator asks 'what did the bot say yesterday' — the answer is offline and audit-grade.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Activity audit",
+      "command": "audit",
+      "description": "Roll-up of outbound activity — messages by chat, by media type, error rate, last-send timestamp — one shot, no API call.",
+      "rationale": "Pure SQL aggregation over the local messages table; the data exists nowhere else.",
+      "example": "telegram-pp-cli audit --since today --json",
+      "why_it_matters": "Use as the weekly 'did the bot actually deliver' check or as the first step when diagnosing a delivery complaint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "HTML preflight and safe-escape",
+      "command": "send",
+      "description": "Validate or auto-escape HTML before sending — catches Telegram's 'can't parse entities' 400 before it leaves the box.",
+      "rationale": "Local lint against Telegram's allowed-tag whitelist with byte offsets, plus an escape pass for user-provided text. Competitors pass parse_mode through and fail only at the API.",
+      "example": "telegram-pp-cli send --chat 1234567 --html --html-escape --text \"$RAW_USER_INPUT\"",
+      "why_it_matters": "Reach for --html-escape when posting untrusted text, and `format html-lint` when debugging a 400 from a draft post.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Channel publish with manifest",
+      "command": "publish",
+      "description": "Send a long-form post as one logical artifact — auto-split into chunks, recorded under a caller-chosen slug — then edit it later as a single unit.",
+      "rationale": "Tracks (slug → [message_ids]) so a later `publish edit` re-finds and re-edits only the changed chunks. No tool maintains this mapping.",
+      "example": "telegram-pp-cli publish send --channel @mychan --body release-notes.md --record-as v1.2 --html",
+      "why_it_matters": "Use for any multi-part broadcast that may be revised — release notes, status pages, weekly digests.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Chat resolver",
+      "command": "chats resolve",
+      "description": "Resolve an @username to a stable numeric chat_id with local caching — transparently falls back to the API when the cache misses.",
+      "rationale": "Local-store lookup; telegram-send uses a static config of named recipients, the opposite design — ours stays current when groups are upgraded to supergroups.",
+      "example": "telegram-pp-cli chats resolve @mychan --json",
+      "why_it_matters": "Use before send when you have a handle but need a numeric id (e.g., webhook payloads, persisted job state).",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Idempotent send",
+      "command": "send",
+      "description": "Skip the API call when a previous send with the same idempotency key already succeeded for this bot and chat — returns the original message_id instead of re-sending.",
+      "rationale": "Requires a local store keyed on (bot_id, chat_id, idempotency_key); no Telegram CLI persists send identity, so cron retries always double-send.",
+      "example": "telegram-pp-cli send --chat 1234567 --idempotency-key deploy-2026-05-11 --text 'deploy ok' --json",
+      "why_it_matters": "Reach for this whenever a cron job or agent retry might fire the same alert twice — it deduplicates without round-tripping the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Replace-last status",
+      "command": "send",
+      "description": "Edit the most recent message this bot sent to a chat in place — ideal for long-running job status that updates as steps complete.",
+      "rationale": "Reads the latest outbound row from the local messages table then calls editMessageText; falls back to send-new on 400. No competitor tracks 'last sent' per chat.",
+      "example": "telegram-pp-cli send --chat 1234567 --replace-last --text 'Step 3/5 complete' --html",
+      "why_it_matters": "Use when you would otherwise spam a chat with N status pings — one logical message that mutates over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sent-message history",
+      "command": "messages list",
+      "description": "Browse the bot's outbound and inbound history filtered by chat, time window, sender, or media type — entirely from the local store, no API call.",
+      "rationale": "Every send and sync populates a local messages table; no Telegram CLI keeps any local history.",
+      "example": "telegram-pp-cli messages list --chat 1234567 --since 1d --mine --json",
+      "why_it_matters": "Reach for this when an operator asks 'what did the bot say yesterday' — the answer is offline and audit-grade.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Activity audit",
+      "command": "audit",
+      "description": "Roll-up of outbound activity — messages by chat, by media type, error rate, last-send timestamp — one shot, no API call.",
+      "rationale": "Pure SQL aggregation over the local messages table; the data exists nowhere else.",
+      "example": "telegram-pp-cli audit --since today --json",
+      "why_it_matters": "Use as the weekly 'did the bot actually deliver' check or as the first step when diagnosing a delivery complaint.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "HTML preflight and safe-escape",
+      "command": "send",
+      "description": "Validate or auto-escape HTML before sending — catches Telegram's 'can't parse entities' 400 before it leaves the box.",
+      "rationale": "Local lint against Telegram's allowed-tag whitelist with byte offsets, plus an escape pass for user-provided text. Competitors pass parse_mode through and fail only at the API.",
+      "example": "telegram-pp-cli send --chat 1234567 --html --html-escape --text \"$RAW_USER_INPUT\"",
+      "why_it_matters": "Reach for --html-escape when posting untrusted text, and `format html-lint` when debugging a 400 from a draft post.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Channel publish with manifest",
+      "command": "publish",
+      "description": "Send a long-form post as one logical artifact — auto-split into chunks, recorded under a caller-chosen slug — then edit it later as a single unit.",
+      "rationale": "Tracks (slug → [message_ids]) so a later `publish edit` re-finds and re-edits only the changed chunks. No tool maintains this mapping.",
+      "example": "telegram-pp-cli publish send --channel @mychan --body release-notes.md --record-as v1.2 --html",
+      "why_it_matters": "Use for any multi-part broadcast that may be revised — release notes, status pages, weekly digests.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Chat resolver",
+      "command": "chats resolve",
+      "description": "Resolve an @username to a stable numeric chat_id with local caching — transparently falls back to the API when the cache misses.",
+      "rationale": "Local-store lookup; telegram-send uses a static config of named recipients, the opposite design — ours stays current when groups are upgraded to supergroups.",
+      "example": "telegram-pp-cli chats resolve @mychan --json",
+      "why_it_matters": "Use before send when you have a handle but need a numeric id (e.g., webhook payloads, persisted job state).",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Telegram Bot",
+    "headline": "Every Telegram Bot API method, plus idempotent sends, replace-last status messages, and a local store that knows what your bot said yesterday.",
+    "value_prop": "telegram-pp-cli wraps the full Bot API (sendMessage, sendPhoto, edit/delete/forward, webhooks, chat admin, stickers) with the agent-native floor every Printing Press CLI gets — typed exit codes, --json, --dry-run, doctor — and adds a local SQLite store that powers send dedup, status-message threading, and audit roll-ups no other Telegram CLI offers. Designed for scripts and agents that need to send text and HTML messages to channels and DMs without re-implementing retry semantics every time.",
+    "auth_narrative": "Set TELEGRAM_BOT_TOKEN in your environment. The token is appended directly into every API URL (`https://api.telegram.org/bot\u003cTOKEN\u003e/\u003cmethod\u003e`); no OAuth, no refresh. `doctor` confirms the token by calling getMe and prints the bot identity so you can verify you're posting from the right bot before going live.",
+    "quickstart": [
+      {
+        "command": "telegram-pp-cli doctor",
+        "comment": "Verify TELEGRAM_BOT_TOKEN is valid and print the bot identity. Run this once after setting the env var."
+      },
+      {
+        "command": "telegram-pp-cli send --chat @mychan --text 'hello world' --html",
+        "comment": "Send the smallest possible message to a channel. Exit 0 + JSON message_id confirms delivery."
+      },
+      {
+        "command": "telegram-pp-cli send --chat 1234567 --idempotency-key release-v1.2 --text 'release shipped' --json",
+        "comment": "Send a DM that is safe to retry from cron — same key, same outcome, no double-send."
+      },
+      {
+        "command": "telegram-pp-cli send --chat 1234567 --replace-last --text 'Step 3/5: build complete' --html",
+        "comment": "Update the previous status message in place instead of sending a new one."
+      },
+      {
+        "command": "telegram-pp-cli messages list --chat 1234567 --since 1d --mine --json",
+        "comment": "List everything this bot has said to this chat in the last day, read directly from the local store. Run 'telegram-pp-cli sync' first if you also want inbound messages."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Exit 3 / 'unauthorized' from any send command",
+        "fix": "TELEGRAM_BOT_TOKEN is unset or invalid. Run `telegram-pp-cli doctor` to confirm the token reaches getMe; re-create the bot via @BotFather if the token was revoked."
+      },
+      {
+        "symptom": "Exit 4 with 'can't parse entities' on an HTML send",
+        "fix": "Run `telegram-pp-cli format html-lint --text \"$BODY\"` to find the offending offset, or re-send with `--html-escape` to auto-escape user-provided text."
+      },
+      {
+        "symptom": "Exit 7 / rate-limited (429) on bulk send",
+        "fix": "Telegram allows 30 msg/sec globally and 1 msg/sec per chat. Throttle the caller, or replay failed sends from the local store using `messages list --since 1m  --json` (custom SQL via `sql 'SELECT \\u2026'`) and re-send with backoff."
+      },
+      {
+        "symptom": "send --replace-last returns 'message to edit not found' as a warning",
+        "fix": "Telegram does not allow editing messages older than 48 hours. The CLI automatically falls back to sendMessage in this case \\u2014 the new message_id is in the JSON output."
+      }
+    ],
+    "when_to_use": "Reach for telegram-pp-cli when a script, cron job, or agent runtime needs to send Telegram messages reliably \\u2014 especially when retries might fire twice (idempotency-key), when a status message should update in place (--replace-last), or when an operator needs to audit what was sent (messages list, audit). It is the right choice when you want a single Go binary that exposes the full Bot API plus a local store, instead of a Python interpreter dependency.",
+    "recipes": [
+      {
+        "title": "Cron-safe alert",
+        "command": "telegram-pp-cli send --chat 1234567 --idempotency-key \"daily-summary-$(date +%F)\" --text 'Backup complete.' --json",
+        "explanation": "Bind the idempotency key to a date so a re-run of the same cron invocation is silently deduplicated."
+      },
+      {
+        "title": "Long-running job status",
+        "command": "telegram-pp-cli send --chat 1234567 --replace-last --text 'Step 3/5 done' --html",
+        "explanation": "Edit the previous status in place; first call falls through to send-new because there is no prior message."
+      },
+      {
+        "title": "Audit what the bot did today",
+        "command": "telegram-pp-cli audit --since today --json --select totals,by_chat,errors",
+        "explanation": "One-shot aggregation across the local store \\u2014 useful for daily ops checks and incident reviews."
+      },
+      {
+        "title": "Quiet alerting at night",
+        "command": "telegram-pp-cli send --chat 1234567 --text 'Heartbeat OK' --silent --disable-web-page-preview",
+        "explanation": "Send without push notification or link preview \\u2014 ideal for periodic health pings that shouldn't wake anyone."
+      },
+      {
+        "title": "Resolve a handle before send",
+        "command": "telegram-pp-cli chats resolve @mychan --json --select chat_id,type,title",
+        "explanation": "Persist the resolved numeric chat_id in your script's state so later sends don't need the @handle. Cached locally."
+      }
+    ],
+    "trigger_phrases": [
+      "send telegram message",
+      "post to telegram channel",
+      "alert me on telegram",
+      "telegram bot status update",
+      "edit my last telegram message",
+      "use telegram",
+      "run telegram"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-11T09:38:37.060025Z",
+  "cli_dir": "/Users/krisjoe/printing-press/.runstate/printing-press-45c01bb3/runs/20260511-013927/working/telegram-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-11T09:38:37.060026Z"
+  }
+}

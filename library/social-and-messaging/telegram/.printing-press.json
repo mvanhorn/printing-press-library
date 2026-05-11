@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T09:40:12.731146Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "telegram",
+  "display_name": "Telegram Bot",
+  "cli_name": "telegram-pp-cli",
+  "owner": "yung-bing",
+  "printer": "1nationlivinthelegend",
+  "printer_name": "Yung Bing",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ce0a170925b8c5a1cd89e835fd6a953ddc97b950b186ac20e2f8008423c77ea6",
+  "run_id": "20260511-013927",
+  "catalog_entry": "telegram",
+  "category": "social-and-messaging",
+  "description": "Telegram Bot API for building bots - send messages, manage chats, webhooks, stickers",
+  "mcp_binary": "telegram-pp-mcp",
+  "mcp_tool_count": 74,
+  "mcp_ready": "full",
+  "api_version": "5.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TELEGRAM_BOT_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Idempotent send",
+      "command": "send",
+      "description": "Skip the API call when a previous send with the same idempotency key already succeeded for this bot and chat \u2014 returns the original message_id instead of re-sending."
+    },
+    {
+      "name": "Replace-last status",
+      "command": "send",
+      "description": "Edit the most recent message this bot sent to a chat in place \u2014 ideal for long-running job status that updates as steps complete."
+    },
+    {
+      "name": "Sent-message history",
+      "command": "messages list",
+      "description": "Browse the bot's outbound and inbound history filtered by chat, time window, sender, or media type \u2014 entirely from the local store, no API call."
+    },
+    {
+      "name": "Activity audit",
+      "command": "audit",
+      "description": "Roll-up of outbound activity \u2014 messages by chat, by media type, error rate, last-send timestamp \u2014 one shot, no API call."
+    },
+    {
+      "name": "HTML preflight and safe-escape",
+      "command": "send",
+      "description": "Validate or auto-escape HTML before sending \u2014 catches Telegram's 'can't parse entities' 400 before it leaves the box."
+    },
+    {
+      "name": "Channel publish with manifest",
+      "command": "publish",
+      "description": "Send a long-form post as one logical artifact \u2014 auto-split into chunks, recorded under a caller-chosen slug \u2014 then edit it later as a single unit."
+    },
+    {
+      "name": "Chat resolver",
+      "command": "chats resolve",
+      "description": "Resolve an @username to a stable numeric chat_id with local caching \u2014 transparently falls back to the API when the cache misses."
+    }
+  ]
+}

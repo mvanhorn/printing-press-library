@@ -1,0 +1,2918 @@
+{
+  "api_name": "telegram",
+  "base_url": "https://api.telegram.org/bot123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11",
+  "description": "Telegram Bot API. Authenticate with the bot token from @BotFather, exposed as TELEGRAM_BOT_TOKEN. The token is sent as part of the URL path: https://api.telegram.org/bot\u003cTELEGRAM_BOT_TOKEN\u003e/\u003cmethod\u003e. All methods accept POST with JSON bodies.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Telegram-Bot-Token",
+    "in": "header",
+    "env_vars": [
+      "TELEGRAM_BOT_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TELEGRAM_BOT_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "add-sticker-to-set_create",
+      "description": "Use this method to add a new sticker to a set created by the bot. You **must** use exactly one of the fields *png_sticker* or *tgs_sticker*. Animated stickers can be added to animated sticker sets and only to them. Animated sticker sets can have up to 50 stickers. Static sticker sets can have up to 120 stickers. Returns *True* on success. Required: emojis, name, user_id. Optional: mask_position, png_sticker, tgs_sticker.",
+      "method": "POST",
+      "path": "/addStickerToSet",
+      "params": [
+        {
+          "name": "emojis",
+          "type": "string",
+          "location": "body",
+          "description": "One or more emoji corresponding to the sticker",
+          "required": true
+        },
+        {
+          "name": "mask_position",
+          "type": "object",
+          "location": "body",
+          "description": "This object describes the position on faces where a mask should be placed by default."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Sticker set name",
+          "required": true
+        },
+        {
+          "name": "png_sticker",
+          "type": "string",
+          "location": "body",
+          "description": "**PNG** image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px. Pass a *file_id* as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)"
+        },
+        {
+          "name": "tgs_sticker",
+          "type": "string",
+          "location": "body",
+          "description": "This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User identifier of sticker set owner",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "answer-callback-query_create",
+      "description": "Use this method to send answers to callback queries sent from [inline keyboards](/bots#inline-keyboards-and-on-the-fly-updating). The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, *True* is returned. Alternatively, the user can be redirected to the specified Game URL. For this option to work, you must first create a game for your bot via [@Botfather](https://t.me/botfather) and accept the terms. Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter. Required: callback_query_id. Optional: cache_time (default: 0), show_alert (default: false), text (plus 1 more). Returns the new AnswerCallbackQueryCreateResponse.",
+      "method": "POST",
+      "path": "/answerCallbackQuery",
+      "params": [
+        {
+          "name": "cache_time",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum amount of time in seconds that the result of the callback query may be cached client-side. Telegram apps will support caching starting in version 3.14. Defaults to 0."
+        },
+        {
+          "name": "callback_query_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the query to be answered",
+          "required": true
+        },
+        {
+          "name": "show_alert",
+          "type": "bool",
+          "location": "body",
+          "description": "If *true*, an alert will be shown by the client instead of a notification at the top of the chat screen. Defaults to *false*."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text of the notification. If not specified, nothing will be shown to the user, 0-200 characters"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL that will be opened by the user's client. If you have created a [Game](https://core.telegram.org/bots/api/#game) and accepted the conditions via [@Botfather](https://t.me/botfather), specify the URL that opens your game — note that this will only work if the query comes from a [*callback_game*](https://core.telegram.org/bots/api/#inlinekeyboardbutton) button. Otherwise, you may use links like `t.me/your_bot?start=XXXX` that open your bot with a parameter."
+        }
+      ]
+    },
+    {
+      "name": "answer-inline-query_create",
+      "description": "Use this method to send answers to an inline query. On success, *True* is returned. No more than **50** results per query are allowed. Required: inline_query_id, results. Optional: cache_time (default: 300), is_personal, next_offset (plus 2 more). Returns the new AnswerInlineQueryCreateResponse.",
+      "method": "POST",
+      "path": "/answerInlineQuery",
+      "params": [
+        {
+          "name": "cache_time",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum amount of time in seconds that the result of the inline query may be cached on the server. Defaults to 300."
+        },
+        {
+          "name": "inline_query_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the answered query",
+          "required": true
+        },
+        {
+          "name": "is_personal",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if results may be cached on the server side only for the user that sent the query. By default, results may be returned to any user who sends the same query"
+        },
+        {
+          "name": "next_offset",
+          "type": "string",
+          "location": "body",
+          "description": "Pass the offset that a client should send in the next query with the same text to receive more results. Pass an empty string if there are no more results or if you don't support pagination. Offset length can't exceed 64 bytes."
+        },
+        {
+          "name": "results",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized array of results for the inline query",
+          "required": true
+        },
+        {
+          "name": "switch_pm_parameter",
+          "type": "string",
+          "location": "body",
+          "description": "[Deep-linking](/bots#deep-linking) parameter for the /start message sent to the bot when user presses the switch button. 1-64 characters, only `A-Z`, `a-z`, `0-9`, `_` and `-` are allowed. *Example:* An inline bot that sends YouTube videos can ask the user to connect the bot to their YouTube account to adapt search results accordingly. To do this, it displays a 'Connect your YouTube account' button above the results, or even before showing any. The user presses the button, switches to a private chat with the bot and, in doing so, passes a start parameter that instructs the bot to return an oauth link. Once done, the bot can offer a [*switch_inline*](https://core.telegram.org/bots/api/#inlinekeyboardmarkup) button so that the user can easily return to the chat where they wanted to use the bot's inline capabilities."
+        },
+        {
+          "name": "switch_pm_text",
+          "type": "string",
+          "location": "body",
+          "description": "If passed, clients will display a button with specified text that switches the user to a private chat with the bot and sends the bot a start message with the parameter *switch_pm_parameter*"
+        }
+      ]
+    },
+    {
+      "name": "answer-pre-checkout-query_create",
+      "description": "Once the user has confirmed their payment and shipping details, the Bot API sends the final confirmation in the form of an [Update](https://core.telegram.org/bots/api/#update) with the field *pre_checkout_query*. Use this method to respond to such pre-checkout queries. On success, True is returned. **Note:** The Bot API must receive an answer within 10 seconds after the pre-checkout query was sent. Required: ok, pre_checkout_query_id. Optional: error_message. Returns the new AnswerPreCheckoutQueryCreateResponse.",
+      "method": "POST",
+      "path": "/answerPreCheckoutQuery",
+      "params": [
+        {
+          "name": "error_message",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *ok* is *False*. Error message in human readable form that explains the reason for failure to proceed with the checkout (e.g. 'Sorry, somebody just bought the last of our amazing black T-shirts while you were busy filling out your payment details. Please choose a different color or garment!'). Telegram will display this message to the user."
+        },
+        {
+          "name": "ok",
+          "type": "bool",
+          "location": "body",
+          "description": "Specify *True* if everything is alright (goods are available, etc.) and the bot is ready to proceed with the order. Use *False* if there are any problems.",
+          "required": true
+        },
+        {
+          "name": "pre_checkout_query_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the query to be answered",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "answer-shipping-query_create",
+      "description": "If you sent an invoice requesting a shipping address and the parameter *is_flexible* was specified, the Bot API will send an [Update](https://core.telegram.org/bots/api/#update) with a *shipping_query* field to the bot. Use this method to reply to shipping queries. On success, True is returned. Required: ok, shipping_query_id. Optional: error_message, shipping_options. Returns the new AnswerShippingQueryCreateResponse.",
+      "method": "POST",
+      "path": "/answerShippingQuery",
+      "params": [
+        {
+          "name": "error_message",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *ok* is False. Error message in human readable form that explains why it is impossible to complete the order (e.g. 'Sorry, delivery to your desired address is unavailable'). Telegram will display this message to the user."
+        },
+        {
+          "name": "ok",
+          "type": "bool",
+          "location": "body",
+          "description": "Specify True if delivery to the specified address is possible and False if there are any problems (for example, if delivery to the specified address is not possible)",
+          "required": true
+        },
+        {
+          "name": "shipping_options",
+          "type": "array",
+          "location": "body",
+          "description": "Required if *ok* is True. A JSON-serialized array of available shipping options."
+        },
+        {
+          "name": "shipping_query_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the query to be answered",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "close_create",
+      "description": "Use this method to close the bot instance before moving it from one local server to another. You need to delete the webhook before calling this method to ensure that the bot isn't launched again after server restart. The method will return error 429 in the first 10 minutes after the bot is launched. Returns *True* on success. Requires no parameters.",
+      "method": "POST",
+      "path": "/close",
+      "params": []
+    },
+    {
+      "name": "copy-message_create",
+      "description": "Use this method to copy messages of any kind. The method is analogous to the method [forwardMessages](https://core.telegram.org/bots/api/#forwardmessages), but the copied message doesn't have a link to the original message. Returns the [MessageId](https://core.telegram.org/bots/api/#messageid) of the sent message on success. Required: chat_id, from_chat_id, message_id. Optional: allow_sending_without_reply, caption, caption_entities (plus 4 more).",
+      "method": "POST",
+      "path": "/copyMessage",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "New caption for media, 0-1024 characters after entities parsing. If not specified, the original caption is kept"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the new caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "from_chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`)",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Message identifier in the chat specified in *from_chat_id*",
+          "required": true
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the new caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        }
+      ]
+    },
+    {
+      "name": "create-new-sticker-set_create",
+      "description": "Use this method to create a new sticker set owned by a user. The bot will be able to edit the sticker set thus created. You **must** use exactly one of the fields *png_sticker* or *tgs_sticker*. Returns *True* on success. Required: emojis, name, title, user_id. Optional: contains_masks, mask_position, png_sticker (plus 1 more).",
+      "method": "POST",
+      "path": "/createNewStickerSet",
+      "params": [
+        {
+          "name": "contains_masks",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if a set of mask stickers should be created"
+        },
+        {
+          "name": "emojis",
+          "type": "string",
+          "location": "body",
+          "description": "One or more emoji corresponding to the sticker",
+          "required": true
+        },
+        {
+          "name": "mask_position",
+          "type": "object",
+          "location": "body",
+          "description": "This object describes the position on faces where a mask should be placed by default."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Short name of sticker set, to be used in `t.me/addstickers/` URLs (e.g., *animals*). Can contain only english letters, digits and underscores. Must begin with a letter, can't contain consecutive underscores and must end in *“_by_\u003cbot username\u003e”*. *\u003cbot_username\u003e* is case insensitive. 1-64 characters.",
+          "required": true
+        },
+        {
+          "name": "png_sticker",
+          "type": "string",
+          "location": "body",
+          "description": "**PNG** image with the sticker, must be up to 512 kilobytes in size, dimensions must not exceed 512px, and either width or height must be exactly 512px. Pass a *file_id* as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)"
+        },
+        {
+          "name": "tgs_sticker",
+          "type": "string",
+          "location": "body",
+          "description": "This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Sticker set title, 1-64 characters",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User identifier of created sticker set owner",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-chat-photo_create",
+      "description": "Use this method to delete a chat photo. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns *True* on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/deleteChatPhoto",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-chat-sticker-set_create",
+      "description": "Use this method to delete a group sticker set from a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api/#getchat) requests to check if the bot can use this method. Returns *True* on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/deleteChatStickerSet",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-message_create",
+      "description": "Use this method to delete a message, including service messages, with the following limitations: - A message can only be deleted if it was sent less than 48 hours ago. - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago. - Bots can delete outgoing messages in private chats, groups, and supergroups. - Bots can delete incoming messages in private chats. - Bots granted *can_post_messages* permissions can delete outgoing messages in channels. - If the bot is an administrator of a group, it can delete any message there. - If the bot has *can_delete_messages* permission in a supergroup or a channel, it can delete any message there. Returns *True* on success. Required: chat_id, message_id.",
+      "method": "POST",
+      "path": "/deleteMessage",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Identifier of the message to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-sticker-from-set_create",
+      "description": "Use this method to delete a sticker from a set created by the bot. Returns *True* on success. Required: sticker.",
+      "method": "POST",
+      "path": "/deleteStickerFromSet",
+      "params": [
+        {
+          "name": "sticker",
+          "type": "string",
+          "location": "body",
+          "description": "File identifier of the sticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delete-webhook_create",
+      "description": "Use this method to remove webhook integration if you decide to switch back to [getUpdates](https://core.telegram.org/bots/api/#getupdates). Returns *True* on success. Optional: drop_pending_updates.",
+      "method": "POST",
+      "path": "/deleteWebhook",
+      "params": [
+        {
+          "name": "drop_pending_updates",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True* to drop all pending updates"
+        }
+      ]
+    },
+    {
+      "name": "edit-message-caption_create",
+      "description": "Use this method to edit captions of messages. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api/#message) is returned, otherwise *True* is returned. Optional: caption, caption_entities, chat_id (plus 4 more). Returns the new EditMessageCaptionCreateResponse.",
+      "method": "POST",
+      "path": "/editMessageCaption",
+      "params": [
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "New caption of the message, 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified."
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the message to edit"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the message caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        }
+      ]
+    },
+    {
+      "name": "edit-message-live-location_create",
+      "description": "Use this method to edit live location messages. A location can be edited until its *live_period* expires or editing is explicitly disabled by a call to [stopMessageLiveLocation](https://core.telegram.org/bots/api/#stopmessagelivelocation). On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api/#message) is returned, otherwise *True* is returned. Required: latitude, longitude. Optional: chat_id, heading, horizontal_accuracy (plus 4 more). Returns the new EditMessageLiveLocationCreateResponse.",
+      "method": "POST",
+      "path": "/editMessageLiveLocation",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified."
+        },
+        {
+          "name": "heading",
+          "type": "int",
+          "location": "body",
+          "description": "Direction in which the user is moving, in degrees. Must be between 1 and 360 if specified."
+        },
+        {
+          "name": "horizontal_accuracy",
+          "type": "float",
+          "location": "body",
+          "description": "The radius of uncertainty for the location, measured in meters; 0-1500"
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude of new location",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude of new location",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the message to edit"
+        },
+        {
+          "name": "proximity_alert_radius",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified."
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        }
+      ]
+    },
+    {
+      "name": "edit-message-media_create",
+      "description": "Use this method to edit animation, audio, document, photo, or video messages. If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise. When an inline message is edited, a new file can't be uploaded. Use a previously uploaded file via its file_id or specify a URL. On success, if the edited message was sent by the bot, the edited [Message](https://core.telegram.org/bots/api/#message) is returned, otherwise *True* is returned. Required: media. Optional: chat_id, inline_message_id, message_id (plus 1 more). Returns the new EditMessageMediaCreateResponse.",
+      "method": "POST",
+      "path": "/editMessageMedia",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified."
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "media",
+          "type": "string",
+          "location": "body",
+          "description": "This object represents the content of a media message to be sent. It should be one of",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the message to edit"
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        }
+      ]
+    },
+    {
+      "name": "edit-message-reply-markup_create",
+      "description": "Use this method to edit only the reply markup of messages. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api/#message) is returned, otherwise *True* is returned. Optional: chat_id, inline_message_id, message_id (plus 1 more). Returns the new EditMessageReplyMarkupCreateResponse.",
+      "method": "POST",
+      "path": "/editMessageReplyMarkup",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified."
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the message to edit"
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        }
+      ]
+    },
+    {
+      "name": "edit-message-text_create",
+      "description": "Use this method to edit text and [game](https://core.telegram.org/bots/api/#games) messages. On success, if the edited message is not an inline message, the edited [Message](https://core.telegram.org/bots/api/#message) is returned, otherwise *True* is returned. Required: text. Optional: chat_id, disable_web_page_preview, entities (plus 4 more). Returns the new EditMessageTextCreateResponse.",
+      "method": "POST",
+      "path": "/editMessageText",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified."
+        },
+        {
+          "name": "disable_web_page_preview",
+          "type": "bool",
+          "location": "body",
+          "description": "Disables link previews for links in this message"
+        },
+        {
+          "name": "entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in message text, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the message to edit"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "New text of the message, 1-4096 characters after entities parsing",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "export-chat-invite-link_create",
+      "description": "Use this method to generate a new invite link for a chat; any previously generated link is revoked. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns the new invite link as *String* on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/exportChatInviteLink",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "forward-message_create",
+      "description": "Use this method to forward messages of any kind. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, from_chat_id, message_id. Optional: disable_notification. Returns the new ForwardMessageCreateResponse.",
+      "method": "POST",
+      "path": "/forwardMessage",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "from_chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the chat where the original message was sent (or channel username in the format `@channelusername`)",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Message identifier in the chat specified in *from_chat_id*",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-chat_create",
+      "description": "Use this method to get up to date information about the chat (current name of the user for one-on-one conversations, current username of a user, group or channel, etc.). Returns a [Chat](https://core.telegram.org/bots/api/#chat) object on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/getChat",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup or channel (in...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-chat-administrators_create",
+      "description": "Use this method to get a list of administrators in a chat. On success, returns an Array of [ChatMember](https://core.telegram.org/bots/api/#chatmember) objects that contains information about all chat administrators except other bots. If the chat is a group or a supergroup and no administrators were appointed, only the creator will be returned. Required: chat_id.",
+      "method": "POST",
+      "path": "/getChatAdministrators",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup or channel (in...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-chat-member_create",
+      "description": "Use this method to get information about a member of a chat. Returns a [ChatMember](https://core.telegram.org/bots/api/#chatmember) object on success. Required: chat_id, user_id.",
+      "method": "POST",
+      "path": "/getChatMember",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup or channel (in...",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-chat-members-count_create",
+      "description": "Use this method to get the number of members in a chat. Returns *Int* on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/getChatMembersCount",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup or channel (in...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-file_create",
+      "description": "Use this method to get basic info about a file and prepare it for downloading. For the moment, bots can download files of up to 20MB in size. On success, a [File](https://core.telegram.org/bots/api/#file) object is returned. The file can then be downloaded via the link `https://api.telegram.org/file/bot\u003ctoken\u003e/\u003cfile_path\u003e`, where `\u003cfile_path\u003e` is taken from the response. It is guaranteed that the link will be valid for at least 1 hour. When the link expires, a new one can be requested by calling [getFile](https://core.telegram.org/bots/api/#getfile) again. Required: file_id. Returns the new GetFileCreateResponse.",
+      "method": "POST",
+      "path": "/getFile",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "string",
+          "location": "body",
+          "description": "File identifier to get info about",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-game-high-scores_create",
+      "description": "Use this method to get data for high score tables. Will return the score of the specified user and several of their neighbors in a game. On success, returns an *Array* of [GameHighScore](https://core.telegram.org/bots/api/#gamehighscore) objects. This method will currently return scores for the target user, plus two of their closest neighbors on each side. Will also return the top three users if the user and his neighbors are not among them. Please note that this behavior is subject to change. Required: user_id. Optional: chat_id, inline_message_id, message_id.",
+      "method": "POST",
+      "path": "/getGameHighScores",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Unique identifier for the target chat"
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the sent message"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Target user id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-me_create",
+      "description": "A simple method for testing your bot's auth token. Requires no parameters. Returns basic information about the bot in form of a [User](https://core.telegram.org/bots/api/#user) object.",
+      "method": "POST",
+      "path": "/getMe",
+      "params": []
+    },
+    {
+      "name": "get-my-commands_create",
+      "description": "Use this method to get the current list of the bot's commands. Requires no parameters. Returns Array of [BotCommand](https://core.telegram.org/bots/api/#botcommand) on success.",
+      "method": "POST",
+      "path": "/getMyCommands",
+      "params": []
+    },
+    {
+      "name": "get-sticker-set_create",
+      "description": "Use this method to get a sticker set. On success, a [StickerSet](https://core.telegram.org/bots/api/#stickerset) object is returned. Required: name. Returns the new GetStickerSetCreateResponse.",
+      "method": "POST",
+      "path": "/getStickerSet",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the sticker set",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-updates_create",
+      "description": "Use this method to receive incoming updates using long polling ([wiki](https://en.wikipedia.org/wiki/Push_technology#Long_polling)). An Array of [Update](https://core.telegram.org/bots/api/#update) objects is returned. Optional: allowed_updates, limit (default: 100), offset (plus 1 more). Returns the new GetUpdatesCreateResponse.",
+      "method": "POST",
+      "path": "/getUpdates",
+      "params": [
+        {
+          "name": "allowed_updates",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized list of the update types you want your bot to receive. For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types. See [Update](https://core.telegram.org/bots/api/#update) for a complete list of available update types. Specify an empty list to receive all updates regardless of type (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the getUpdates, so unwanted updates may be received for a short period of time."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limits the number of updates to be retrieved. Values between 1-100 are accepted. Defaults to 100."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as [getUpdates](https://core.telegram.org/bots/api/#getupdates) is called with an *offset* higher than its *update_id*. The negative offset can be specified to retrieve updates starting from *-offset* update from the end of the updates queue. All previous updates will forgotten."
+        },
+        {
+          "name": "timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling. Should be positive, short polling should be used for testing purposes only."
+        }
+      ]
+    },
+    {
+      "name": "get-user-profile-photos_create",
+      "description": "Use this method to get a list of profile pictures for a user. Returns a [UserProfilePhotos](https://core.telegram.org/bots/api/#userprofilephotos) object. Required: user_id. Optional: limit (default: 100), offset.",
+      "method": "POST",
+      "path": "/getUserProfilePhotos",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Limits the number of photos to be retrieved. Values between 1-100 are accepted. Defaults to 100."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Sequential number of the first photo to be returned. By default, all photos are returned."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-webhook-info_create",
+      "description": "Use this method to get current webhook status. Requires no parameters. On success, returns a [WebhookInfo](https://core.telegram.org/bots/api/#webhookinfo) object. If the bot is using [getUpdates](https://core.telegram.org/bots/api/#getupdates), will return an object with the *url* field empty.",
+      "method": "POST",
+      "path": "/getWebhookInfo",
+      "params": []
+    },
+    {
+      "name": "kick-chat-member_create",
+      "description": "Use this method to kick a user from a group, a supergroup or a channel. In the case of supergroups and channels, the user will not be able to return to the group on their own using invite links, etc., unless [unbanned](https://core.telegram.org/bots/api/#unbanchatmember) first. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns *True* on success. Required: chat_id, user_id. Optional: until_date.",
+      "method": "POST",
+      "path": "/kickChatMember",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target group or username of the target supergroup or channel (in the format `@channelusername`)",
+          "required": true
+        },
+        {
+          "name": "until_date",
+          "type": "int",
+          "location": "body",
+          "description": "Date when the user will be unbanned, unix time. If user is banned for more than 366 days or less than 30 seconds from the current time they are considered to be banned forever"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "leave-chat_create",
+      "description": "Use this method for your bot to leave a group, supergroup or channel. Returns *True* on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/leaveChat",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup or channel (in...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "log-out_create",
+      "description": "Use this method to log out from the cloud Bot API server before launching the bot locally. You **must** log out the bot before running it locally, otherwise there is no guarantee that the bot will receive updates. After a successful call, you can immediately log in on a local server, but will not be able to log in back to the cloud Bot API server for 10 minutes. Returns *True* on success. Requires no parameters.",
+      "method": "POST",
+      "path": "/logOut",
+      "params": []
+    },
+    {
+      "name": "pin-chat-message_create",
+      "description": "Use this method to add a message to the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns *True* on success. Required: chat_id, message_id. Optional: disable_notification.",
+      "method": "POST",
+      "path": "/pinChatMessage",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if it is not necessary to send a notification to all chat members about the new pinned message. Notifications are always disabled in channels and private chats."
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Identifier of a message to pin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "promote-chat-member_create",
+      "description": "Use this method to promote or demote a user in a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Pass *False* for all boolean parameters to demote a user. Returns *True* on success. Required: chat_id, user_id. Optional: can_change_info, can_delete_messages, can_edit_messages (plus 6 more).",
+      "method": "POST",
+      "path": "/promoteChatMember",
+      "params": [
+        {
+          "name": "can_change_info",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can change chat title, photo and other settings"
+        },
+        {
+          "name": "can_delete_messages",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can delete messages of other users"
+        },
+        {
+          "name": "can_edit_messages",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can edit messages of other users and can pin messages, channels only"
+        },
+        {
+          "name": "can_invite_users",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can invite new users to the chat"
+        },
+        {
+          "name": "can_pin_messages",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can pin messages, supergroups only"
+        },
+        {
+          "name": "can_post_messages",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can create channel posts, channels only"
+        },
+        {
+          "name": "can_promote_members",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can add new administrators with a subset of their own privileges or demote administrators that he has promoted, directly or indirectly (promoted by administrators that were appointed by him)"
+        },
+        {
+          "name": "can_restrict_members",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the administrator can restrict, ban or unban chat members"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "is_anonymous",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the administrator's presence in the chat is hidden"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "restrict-chat-member_create",
+      "description": "Use this method to restrict a user in a supergroup. The bot must be an administrator in the supergroup for this to work and must have the appropriate admin rights. Pass *True* for all permissions to lift restrictions from a user. Returns *True* on success. Required: chat_id, permissions, user_id. Optional: until_date.",
+      "method": "POST",
+      "path": "/restrictChatMember",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format...",
+          "required": true
+        },
+        {
+          "name": "permissions",
+          "type": "object",
+          "location": "body",
+          "description": "Describes actions that a non-administrator user is allowed to take in a chat.",
+          "required": true
+        },
+        {
+          "name": "until_date",
+          "type": "int",
+          "location": "body",
+          "description": "Date when restrictions will be lifted for the user, unix time. If user is restricted for more than 366 days or less than 30 seconds from the current time, they are considered to be restricted forever"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-animation_create",
+      "description": "Use this method to send animation files (GIF or H.264/MPEG-4 AVC video without sound). On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Bots can currently send animation files of up to 50 MB in size, this limit may be changed in the future. Required: animation, chat_id. Optional: allow_sending_without_reply, caption, caption_entities (plus 8 more). Returns the new SendAnimationCreateResponse.",
+      "method": "POST",
+      "path": "/sendAnimation",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "animation",
+          "type": "string",
+          "location": "body",
+          "description": "Animation to send. Pass a file_id as String to send an animation that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an animation from the Internet, or upload a new animation using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "Animation caption (may also be used when resending animation by *file_id*), 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of sent animation in seconds"
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "body",
+          "description": "Animation height"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the animation caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "thumb",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported..."
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "body",
+          "description": "Animation width"
+        }
+      ]
+    },
+    {
+      "name": "send-audio_create",
+      "description": "Use this method to send audio files, if you want Telegram clients to display them in the music player. Your audio must be in the .MP3 or .M4A format. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Bots can currently send audio files of up to 50 MB in size, this limit may be changed in the future. For sending voice messages, use the [sendVoice](https://core.telegram.org/bots/api/#sendvoice) method instead. Required: audio, chat_id. Optional: allow_sending_without_reply, caption, caption_entities (plus 8 more). Returns the new SendAudioCreateResponse.",
+      "method": "POST",
+      "path": "/sendAudio",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "audio",
+          "type": "string",
+          "location": "body",
+          "description": "Audio file to send. Pass a file_id as String to send an audio file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get an audio file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "Audio caption, 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of the audio in seconds"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the audio caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "performer",
+          "type": "string",
+          "location": "body",
+          "description": "Performer"
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "thumb",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported..."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Track name"
+        }
+      ]
+    },
+    {
+      "name": "send-chat-action_create",
+      "description": "Use this method when you need to tell the user that something is happening on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot, Telegram clients clear its typing status). Returns *True* on success. Example: The [ImageBot](https://t.me/imagebot) needs some time to process a request and upload the image. Instead of sending a text message along the lines of “Retrieving image, please wait…”, the bot may use [sendChatAction](https://core.telegram.org/bots/api/#sendchataction) with *action* = *upload_photo*. The user will see a “sending photo” status for the bot. We only recommend using this method when a response from the bot will take a **noticeable** amount of time to arrive. Required: action, chat_id.",
+      "method": "POST",
+      "path": "/sendChatAction",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Type of action to broadcast. Choose one, depending on what the user is about to receive: *typing* for [text messages](https://core.telegram.org/bots/api/#sendmessage), *upload_photo* for [photos](https://core.telegram.org/bots/api/#sendphoto), *record_video* or *upload_video* for [videos](https://core.telegram.org/bots/api/#sendvideo), *record_voice* or *upload_voice* for [voice notes](https://core.telegram.org/bots/api/#sendvoice), *upload_document* for [general files](https://core.telegram.org/bots/api/#senddocument), *find_location* for [location data](https://core.telegram.org/bots/api/#sendlocation), *record_video_note* or *upload_video_note* for [video notes](https://core.telegram.org/bots/api/#sendvideonote).",
+          "required": true
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-contact_create",
+      "description": "Use this method to send phone contacts. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, first_name, phone_number. Optional: allow_sending_without_reply, disable_notification, last_name (plus 3 more). Returns the new SendContactCreateResponse.",
+      "method": "POST",
+      "path": "/sendContact",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "Contact's first name",
+          "required": true
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Contact's last name"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "location": "body",
+          "description": "Contact's phone number",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options. A JSON-serialized object for an [inline keyboard](https://core.telegram.org/bots#inline-keyboards-and-on-the-fly-updating), [custom reply keyboard](https://core.telegram.org/bots#keyboards), instructions to remove keyboard or to force a reply from the user."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "vcard",
+          "type": "string",
+          "location": "body",
+          "description": "Additional data about the contact in the form of a [vCard](https://en.wikipedia.org/wiki/VCard), 0-2048 bytes"
+        }
+      ]
+    },
+    {
+      "name": "send-dice_create",
+      "description": "Use this method to send an animated emoji that will display a random value. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id. Optional: allow_sending_without_reply, disable_notification, emoji (default: 🎲) (plus 2 more). Returns the new SendDiceCreateResponse.",
+      "method": "POST",
+      "path": "/sendDice",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "Emoji on which the dice throw animation is based. Currently, must be one of “\u003cimg alt='🎲' src='//telegram.org/img/emoji/40/F09F8EB2.png' height='20' width='20' /\u003e”, “\u003cimg alt='🎯' src='//telegram.org/img/emoji/40/F09F8EAF.png' height='20' width='20' /\u003e”, “\u003cimg alt='🏀' src='//telegram.org/img/emoji/40/F09F8F80.png' height='20' width='20' /\u003e”, “\u003cimg alt='⚽' src='//telegram.org/img/emoji/40/E29ABD.png' height='20' width='20' /\u003e”, or “\u003cimg alt='🎰' src='//telegram.org/img/emoji/40/F09F8EB0.png' height='20' width='20' /\u003e”. Dice can have values 1-6 for “\u003cimg alt='🎲' src='//telegram.org/img/emoji/40/F09F8EB2.png' height='20' width='20' /\u003e” and “\u003cimg alt='🎯' src='//telegram.org/img/emoji/40/F09F8EAF.png' height='20' width='20' /\u003e”, values 1-5 for “\u003cimg alt='🏀' src='//telegram.org/img/emoji/40/F09F8F80.png' height='20' width='20' /\u003e” and “\u003cimg alt='⚽' src='//telegram.org/img/emoji/40/E29ABD.png' height='20' width='20' /\u003e”, and values 1-64 for “\u003cimg alt='🎰' src='//telegram.org/img/emoji/40/F09F8EB0.png' height='20' width='20' /\u003e”. Defaults to “\u003cimg alt='🎲' src='//telegram.org/img/emoji/40/F09F8EB2.png' height='20' width='20' /\u003e”"
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        }
+      ]
+    },
+    {
+      "name": "send-document_create",
+      "description": "Use this method to send general files. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future. Required: chat_id, document. Optional: allow_sending_without_reply, caption, caption_entities (plus 6 more). Returns the new SendDocumentCreateResponse.",
+      "method": "POST",
+      "path": "/sendDocument",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "Document caption (may also be used when resending documents by *file_id*), 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_content_type_detection",
+          "type": "bool",
+          "location": "body",
+          "description": "Disables automatic server-side content type detection for files uploaded using multipart/form-data"
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "document",
+          "type": "string",
+          "location": "body",
+          "description": "File to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the document caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "thumb",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported..."
+        }
+      ]
+    },
+    {
+      "name": "send-game_create",
+      "description": "Use this method to send a game. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, game_short_name. Optional: allow_sending_without_reply, disable_notification, reply_markup (plus 1 more). Returns the new SendGameCreateResponse.",
+      "method": "POST",
+      "path": "/sendGame",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier for the target chat",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "game_short_name",
+          "type": "string",
+          "location": "body",
+          "description": "Short name of the game, serves as the unique identifier for the game. Set up your games via [Botfather](https://t.me/botfather).",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        }
+      ]
+    },
+    {
+      "name": "send-invoice_create",
+      "description": "Use this method to send invoices. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, currency, description, payload, prices, provider_token, start_parameter, title. Optional: allow_sending_without_reply, disable_notification, is_flexible (plus 13 more). Returns the new SendInvoiceCreateResponse.",
+      "method": "POST",
+      "path": "/sendInvoice",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier for the target private chat",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "Three-letter ISO 4217 currency code, see [more on currencies](/bots/payments#supported-currencies)",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Product description, 1-255 characters",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "is_flexible",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the final price depends on the shipping method"
+        },
+        {
+          "name": "need_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if you require the user's email address to complete the order"
+        },
+        {
+          "name": "need_name",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if you require the user's full name to complete the order"
+        },
+        {
+          "name": "need_phone_number",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if you require the user's phone number to complete the order"
+        },
+        {
+          "name": "need_shipping_address",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if you require the user's shipping address to complete the order"
+        },
+        {
+          "name": "payload",
+          "type": "string",
+          "location": "body",
+          "description": "Bot-defined invoice payload, 1-128 bytes. This will not be displayed to the user, use for your internal processes.",
+          "required": true
+        },
+        {
+          "name": "photo_height",
+          "type": "int",
+          "location": "body",
+          "description": "Photo height"
+        },
+        {
+          "name": "photo_size",
+          "type": "int",
+          "location": "body",
+          "description": "Photo size"
+        },
+        {
+          "name": "photo_url",
+          "type": "string",
+          "location": "body",
+          "description": "URL of the product photo for the invoice. Can be a photo of the goods or a marketing image for a service. People like it better when they see what they are paying for."
+        },
+        {
+          "name": "photo_width",
+          "type": "int",
+          "location": "body",
+          "description": "Photo width"
+        },
+        {
+          "name": "prices",
+          "type": "array",
+          "location": "body",
+          "description": "Price breakdown, a JSON-serialized list of components (e.g. product price, tax, discount, delivery cost, delivery tax, bonus, etc.)",
+          "required": true
+        },
+        {
+          "name": "provider_data",
+          "type": "string",
+          "location": "body",
+          "description": "A JSON-serialized data about the invoice, which will be shared with the payment provider. A detailed description of required fields should be provided by the payment provider."
+        },
+        {
+          "name": "provider_token",
+          "type": "string",
+          "location": "body",
+          "description": "Payments provider token, obtained via [Botfather](https://t.me/botfather)",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "send_email_to_provider",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if user's email address should be sent to provider"
+        },
+        {
+          "name": "send_phone_number_to_provider",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if user's phone number should be sent to provider"
+        },
+        {
+          "name": "start_parameter",
+          "type": "string",
+          "location": "body",
+          "description": "Unique deep-linking parameter that can be used to generate this invoice when used as a start parameter",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Product name, 1-32 characters",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-location_create",
+      "description": "Use this method to send point on the map. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, latitude, longitude. Optional: allow_sending_without_reply, disable_notification, heading (plus 5 more). Returns the new SendLocationCreateResponse.",
+      "method": "POST",
+      "path": "/sendLocation",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "heading",
+          "type": "int",
+          "location": "body",
+          "description": "For live locations, a direction in which the user is moving, in degrees. Must be between 1 and 360 if specified."
+        },
+        {
+          "name": "horizontal_accuracy",
+          "type": "float",
+          "location": "body",
+          "description": "The radius of uncertainty for the location, measured in meters; 0-1500"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude of the location",
+          "required": true
+        },
+        {
+          "name": "live_period",
+          "type": "int",
+          "location": "body",
+          "description": "Period in seconds for which the location will be updated (see [Live Locations](https://telegram.org/blog/live-locations), should be between 60 and 86400."
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude of the location",
+          "required": true
+        },
+        {
+          "name": "proximity_alert_radius",
+          "type": "int",
+          "location": "body",
+          "description": "For live locations, a maximum distance for proximity alerts about approaching another chat member, in meters. Must be between 1 and 100000 if specified."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        }
+      ]
+    },
+    {
+      "name": "send-media-group_create",
+      "description": "Use this method to send a group of photos, videos, documents or audios as an album. Documents and audio files can be only grouped in an album with messages of the same type. On success, an array of [Messages](https://core.telegram.org/bots/api/#message) that were sent is returned. Required: chat_id, media. Optional: allow_sending_without_reply, disable_notification, reply_to_message_id. Returns the new SendMediaGroupCreateResponse.",
+      "method": "POST",
+      "path": "/sendMediaGroup",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends messages [silently](https://telegram.org/blog/channels-2-0#silent-messages). Users will receive a notification with no sound."
+        },
+        {
+          "name": "media",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized array describing messages to be sent, must include 2-10 items",
+          "required": true
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the messages are a reply, ID of the original message"
+        }
+      ]
+    },
+    {
+      "name": "send-message_create",
+      "description": "Use this method to send text messages. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, text. Optional: allow_sending_without_reply, disable_notification, disable_web_page_preview (plus 4 more). Returns the new SendMessageCreateResponse.",
+      "method": "POST",
+      "path": "/sendMessage",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "disable_web_page_preview",
+          "type": "bool",
+          "location": "body",
+          "description": "Disables link previews for links in this message"
+        },
+        {
+          "name": "entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in message text, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the message text. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text of the message to be sent, 1-4096 characters after entities parsing",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-photo_create",
+      "description": "Use this method to send photos. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, photo. Optional: allow_sending_without_reply, caption, caption_entities (plus 4 more). Returns the new SendPhotoCreateResponse.",
+      "method": "POST",
+      "path": "/sendPhoto",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "Photo caption (may also be used when resending photos by *file_id*), 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the photo caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "photo",
+          "type": "string",
+          "location": "body",
+          "description": "Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a photo from the Internet, or upload a new photo using multipart/form-data. The photo must be at most 10 MB in size. The photo's width and height must not exceed 10000 in total. Width and height ratio must be at most 20. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        }
+      ]
+    },
+    {
+      "name": "send-poll_create",
+      "description": "Use this method to send a native poll. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, options, question. Optional: allow_sending_without_reply, allows_multiple_answers, close_date (plus 11 more). Returns the new SendPollCreateResponse.",
+      "method": "POST",
+      "path": "/sendPoll",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "allows_multiple_answers",
+          "type": "bool",
+          "location": "body",
+          "description": "True, if the poll allows multiple answers, ignored for polls in quiz mode, defaults to *False*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "close_date",
+          "type": "int",
+          "location": "body",
+          "description": "Point in time (Unix timestamp) when the poll will be automatically closed. Must be at least 5 and no more than 600 seconds in the future. Can't be used together with *open_period*."
+        },
+        {
+          "name": "correct_option_id",
+          "type": "int",
+          "location": "body",
+          "description": "0-based identifier of the correct answer option, required for polls in quiz mode"
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "explanation",
+          "type": "string",
+          "location": "body",
+          "description": "Text that is shown when a user chooses an incorrect answer or taps on the lamp icon in a quiz-style poll, 0-200 characters with at most 2 line feeds after entities parsing"
+        },
+        {
+          "name": "explanation_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the poll explanation, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "explanation_parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the explanation. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "is_anonymous",
+          "type": "bool",
+          "location": "body",
+          "description": "True, if the poll needs to be anonymous, defaults to *True*"
+        },
+        {
+          "name": "is_closed",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the poll needs to be immediately closed. This can be useful for poll preview."
+        },
+        {
+          "name": "open_period",
+          "type": "int",
+          "location": "body",
+          "description": "Amount of time in seconds the poll will be active after creation, 5-600. Can't be used together with *close_date*."
+        },
+        {
+          "name": "options",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized list of answer options, 2-10 strings 1-100 characters each",
+          "required": true
+        },
+        {
+          "name": "question",
+          "type": "string",
+          "location": "body",
+          "description": "Poll question, 1-300 characters",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Poll type, “quiz” or “regular”, defaults to “regular”"
+        }
+      ]
+    },
+    {
+      "name": "send-sticker_create",
+      "description": "Use this method to send static .WEBP or [animated](https://telegram.org/blog/animated-stickers) .TGS stickers. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, sticker. Optional: allow_sending_without_reply, disable_notification, reply_markup (plus 1 more). Returns the new SendStickerCreateResponse.",
+      "method": "POST",
+      "path": "/sendSticker",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "sticker",
+          "type": "string",
+          "location": "body",
+          "description": "Sticker to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a .WEBP file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-venue_create",
+      "description": "Use this method to send information about a venue. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: address, chat_id, latitude, longitude, title. Optional: allow_sending_without_reply, disable_notification, foursquare_id (plus 5 more). Returns the new SendVenueCreateResponse.",
+      "method": "POST",
+      "path": "/sendVenue",
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "Address of the venue",
+          "required": true
+        },
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "foursquare_id",
+          "type": "string",
+          "location": "body",
+          "description": "Foursquare identifier of the venue"
+        },
+        {
+          "name": "foursquare_type",
+          "type": "string",
+          "location": "body",
+          "description": "Foursquare type of the venue, if known. (For example, “arts_entertainment/default”, “arts_entertainment/aquarium” or “food/icecream”.)"
+        },
+        {
+          "name": "google_place_id",
+          "type": "string",
+          "location": "body",
+          "description": "Google Places identifier of the venue"
+        },
+        {
+          "name": "google_place_type",
+          "type": "string",
+          "location": "body",
+          "description": "Google Places type of the venue. (See [supported types](https://developers.google.com/places/web-service/supported_types).)"
+        },
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "body",
+          "description": "Latitude of the venue",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "body",
+          "description": "Longitude of the venue",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the venue",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-video_create",
+      "description": "Use this method to send video files, Telegram clients support mp4 videos (other formats may be sent as [Document](https://core.telegram.org/bots/api/#document)). On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Bots can currently send video files of up to 50 MB in size, this limit may be changed in the future. Required: chat_id, video. Optional: allow_sending_without_reply, caption, caption_entities (plus 9 more). Returns the new SendVideoCreateResponse.",
+      "method": "POST",
+      "path": "/sendVideo",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "Video caption (may also be used when resending videos by *file_id*), 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of sent video in seconds"
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "body",
+          "description": "Video height"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the video caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "supports_streaming",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the uploaded video is suitable for streaming"
+        },
+        {
+          "name": "thumb",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported..."
+        },
+        {
+          "name": "video",
+          "type": "string",
+          "location": "body",
+          "description": "Video to send. Pass a file_id as String to send a video that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a video from the Internet, or upload a new video using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "body",
+          "description": "Video width"
+        }
+      ]
+    },
+    {
+      "name": "send-video-note_create",
+      "description": "As of [v.4.0](https://telegram.org/blog/video-messages-and-telescope), Telegram clients support rounded square mp4 videos of up to 1 minute long. Use this method to send video messages. On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Required: chat_id, video_note. Optional: allow_sending_without_reply, disable_notification, duration (plus 4 more). Returns the new SendVideoNoteCreateResponse.",
+      "method": "POST",
+      "path": "/sendVideoNote",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of sent video in seconds"
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "body",
+          "description": "Video width and height, i.e. diameter of the video message"
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "thumb",
+          "type": "string",
+          "location": "body",
+          "description": "Thumbnail of the file sent; can be ignored if thumbnail generation for the file is supported..."
+        },
+        {
+          "name": "video_note",
+          "type": "string",
+          "location": "body",
+          "description": "Video note to send. Pass a file_id as String to send a video note that exists on the Telegram servers (recommended) or upload a new video using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files). Sending video notes by a URL is currently unsupported",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "send-voice_create",
+      "description": "Use this method to send audio files, if you want Telegram clients to display the file as a playable voice message. For this to work, your audio must be in an .OGG file encoded with OPUS (other formats may be sent as [Audio](https://core.telegram.org/bots/api/#audio) or [Document](https://core.telegram.org/bots/api/#document)). On success, the sent [Message](https://core.telegram.org/bots/api/#message) is returned. Bots can currently send voice messages of up to 50 MB in size, this limit may be changed in the future. Required: chat_id, voice. Optional: allow_sending_without_reply, caption, caption_entities (plus 5 more). Returns the new SendVoiceCreateResponse.",
+      "method": "POST",
+      "path": "/sendVoice",
+      "params": [
+        {
+          "name": "allow_sending_without_reply",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True*, if the message should be sent even if the specified replied-to message is not found"
+        },
+        {
+          "name": "caption",
+          "type": "string",
+          "location": "body",
+          "description": "Voice message caption, 0-1024 characters after entities parsing"
+        },
+        {
+          "name": "caption_entities",
+          "type": "array",
+          "location": "body",
+          "description": "List of special entities that appear in the caption, which can be specified instead of *parse_mode*"
+        },
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "disable_notification",
+          "type": "bool",
+          "location": "body",
+          "description": "Sends the message [silently](https://telegram."
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Duration of the voice message in seconds"
+        },
+        {
+          "name": "parse_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode for parsing entities in the voice message caption. See [formatting options](https://core.telegram.org/bots/api/#formatting-options) for more details."
+        },
+        {
+          "name": "reply_markup",
+          "type": "string",
+          "location": "body",
+          "description": "Additional interface options."
+        },
+        {
+          "name": "reply_to_message_id",
+          "type": "int",
+          "location": "body",
+          "description": "If the message is a reply, ID of the original message"
+        },
+        {
+          "name": "voice",
+          "type": "string",
+          "location": "body",
+          "description": "Audio file to send. Pass a file_id as String to send a file that exists on the Telegram servers (recommended), pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-chat-administrator-custom-title_create",
+      "description": "Use this method to set a custom title for an administrator in a supergroup promoted by the bot. Returns *True* on success. Required: chat_id, custom_title, user_id.",
+      "method": "POST",
+      "path": "/setChatAdministratorCustomTitle",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format...",
+          "required": true
+        },
+        {
+          "name": "custom_title",
+          "type": "string",
+          "location": "body",
+          "description": "New custom title for the administrator; 0-16 characters, emoji are not allowed",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-chat-description_create",
+      "description": "Use this method to change the description of a group, a supergroup or a channel. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns *True* on success. Required: chat_id. Optional: description.",
+      "method": "POST",
+      "path": "/setChatDescription",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New chat description, 0-255 characters"
+        }
+      ]
+    },
+    {
+      "name": "set-chat-permissions_create",
+      "description": "Use this method to set default chat permissions for all members. The bot must be an administrator in the group or a supergroup for this to work and must have the *can_restrict_members* admin rights. Returns *True* on success. Required: chat_id, permissions.",
+      "method": "POST",
+      "path": "/setChatPermissions",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format...",
+          "required": true
+        },
+        {
+          "name": "permissions",
+          "type": "object",
+          "location": "body",
+          "description": "Describes actions that a non-administrator user is allowed to take in a chat.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-chat-photo_create",
+      "description": "Use this method to set a new profile photo for the chat. Photos can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns *True* on success. Required: chat_id, photo.",
+      "method": "POST",
+      "path": "/setChatPhoto",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "photo",
+          "type": "string",
+          "location": "body",
+          "description": "This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-chat-sticker-set_create",
+      "description": "Use this method to set a new group sticker set for a supergroup. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Use the field *can_set_sticker_set* optionally returned in [getChat](https://core.telegram.org/bots/api/#getchat) requests to check if the bot can use this method. Returns *True* on success. Required: chat_id, sticker_set_name.",
+      "method": "POST",
+      "path": "/setChatStickerSet",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target supergroup (in the format...",
+          "required": true
+        },
+        {
+          "name": "sticker_set_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the sticker set to be set as the group sticker set",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-chat-title_create",
+      "description": "Use this method to change the title of a chat. Titles can't be changed for private chats. The bot must be an administrator in the chat for this to work and must have the appropriate admin rights. Returns *True* on success. Required: chat_id, title.",
+      "method": "POST",
+      "path": "/setChatTitle",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "New chat title, 1-255 characters",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-game-score_create",
+      "description": "Use this method to set the score of the specified user in a game. On success, if the message was sent by the bot, returns the edited [Message](https://core.telegram.org/bots/api/#message), otherwise returns *True*. Returns an error, if the new score is not greater than the user's current score in the chat and *force* is *False*. Required: score, user_id. Optional: chat_id, disable_edit_message, force (plus 2 more).",
+      "method": "POST",
+      "path": "/setGameScore",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Unique identifier for the target chat"
+        },
+        {
+          "name": "disable_edit_message",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the game message should not be automatically edited to include the current scoreboard"
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass True, if the high score is allowed to decrease. This can be useful when fixing mistakes or banning cheaters"
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the sent message"
+        },
+        {
+          "name": "score",
+          "type": "int",
+          "location": "body",
+          "description": "New score, must be non-negative",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-my-commands_create",
+      "description": "Use this method to change the list of the bot's commands. Returns *True* on success. Required: commands.",
+      "method": "POST",
+      "path": "/setMyCommands",
+      "params": [
+        {
+          "name": "commands",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized list of bot commands to be set as the list of the bot's commands. At most 100 commands can be specified.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-passport-data-errors_create",
+      "description": "Informs a user that some of the Telegram Passport elements they provided contains errors. The user will not be able to re-submit their Passport to you until the errors are fixed (the contents of the field for which you returned the error must change). Returns *True* on success. Use this if the data submitted by the user doesn't satisfy the standards your service requires for any reason. For example, if a birthday date seems invalid, a submitted document is blurry, a scan shows evidence of tampering, etc. Supply some details in the error message to make sure the user knows how to correct the issues. Required: errors, user_id.",
+      "method": "POST",
+      "path": "/setPassportDataErrors",
+      "params": [
+        {
+          "name": "errors",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized array describing the errors",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-sticker-position-in-set_create",
+      "description": "Use this method to move a sticker in a set created by the bot to a specific position. Returns *True* on success. Required: position, sticker.",
+      "method": "POST",
+      "path": "/setStickerPositionInSet",
+      "params": [
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "New sticker position in the set, zero-based",
+          "required": true
+        },
+        {
+          "name": "sticker",
+          "type": "string",
+          "location": "body",
+          "description": "File identifier of the sticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-sticker-set-thumb_create",
+      "description": "Use this method to set the thumbnail of a sticker set. Animated thumbnails can be set for animated sticker sets only. Returns *True* on success. Required: name, user_id. Optional: thumb.",
+      "method": "POST",
+      "path": "/setStickerSetThumb",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Sticker set name",
+          "required": true
+        },
+        {
+          "name": "thumb",
+          "type": "string",
+          "location": "body",
+          "description": "A **PNG** image with the thumbnail, must be up to 128 kilobytes in size and have width and height exactly 100px, or a **TGS** animation with the thumbnail up to 32 kilobytes in size; see [](https://core.telegram.org/animated_stickers#technical-requirements)[https://core.telegram.org/animated_stickers#technical-requirements](https://core.telegram.org/animated_stickers#technical-requirements) for animated sticker technical requirements. Pass a *file_id* as a String to send a file that already exists on the Telegram servers, pass an HTTP URL as a String for Telegram to get a file from the Internet, or upload a new one using multipart/form-data. [More info on Sending Files »](https://core.telegram.org/bots/api/#sending-files). Animated sticker set thumbnail can't be uploaded via HTTP URL."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User identifier of the sticker set owner",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-webhook_create",
+      "description": "Use this method to specify a url and receive incoming updates via an outgoing webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified url, containing a JSON-serialized [Update](https://core.telegram.org/bots/api/#update). In case of an unsuccessful request, we will give up after a reasonable amount of attempts. Returns *True* on success. If you'd like to make sure that the Webhook request comes from Telegram, we recommend using a secret path in the URL, e.g. `https://www.example.com/\u003ctoken\u003e`. Since nobody else knows your bot's token, you can be pretty sure it's us. Required: url. Optional: allowed_updates, certificate, drop_pending_updates (plus 2 more).",
+      "method": "POST",
+      "path": "/setWebhook",
+      "params": [
+        {
+          "name": "allowed_updates",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON-serialized list of the update types you want your bot to receive. For example, specify [“message”, “edited_channel_post”, “callback_query”] to only receive updates of these types. See [Update](https://core.telegram.org/bots/api/#update) for a complete list of available update types. Specify an empty list to receive all updates regardless of type (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the setWebhook, so unwanted updates may be received for a short period of time."
+        },
+        {
+          "name": "certificate",
+          "type": "string",
+          "location": "body",
+          "description": "This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser."
+        },
+        {
+          "name": "drop_pending_updates",
+          "type": "bool",
+          "location": "body",
+          "description": "Pass *True* to drop all pending updates"
+        },
+        {
+          "name": "ip_address",
+          "type": "string",
+          "location": "body",
+          "description": "The fixed IP address which will be used to send webhook requests instead of the IP address resolved through DNS"
+        },
+        {
+          "name": "max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery, 1-100. Defaults to *40*. Use lower values to limit the load on your bot's server, and higher values to increase your bot's throughput."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS url to send updates to. Use an empty string to remove webhook integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stop-message-live-location_create",
+      "description": "Use this method to stop updating a live location message before *live_period* expires. On success, if the message was sent by the bot, the sent [Message](https://core.telegram.org/bots/api/#message) is returned, otherwise *True* is returned. Optional: chat_id, inline_message_id, message_id (plus 1 more). Returns the new StopMessageLiveLocationCreateResponse.",
+      "method": "POST",
+      "path": "/stopMessageLiveLocation",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified."
+        },
+        {
+          "name": "inline_message_id",
+          "type": "string",
+          "location": "body",
+          "description": "Required if *chat_id* and *message_id* are not specified. Identifier of the inline message"
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Required if *inline_message_id* is not specified. Identifier of the message with live location to stop"
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        }
+      ]
+    },
+    {
+      "name": "stop-poll_create",
+      "description": "Use this method to stop a poll which was sent by the bot. On success, the stopped [Poll](https://core.telegram.org/bots/api/#poll) with the final results is returned. Required: chat_id, message_id. Optional: reply_markup. Returns the new StopPollCreateResponse.",
+      "method": "POST",
+      "path": "/stopPoll",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Identifier of the original message with the poll",
+          "required": true
+        },
+        {
+          "name": "reply_markup",
+          "type": "object",
+          "location": "body",
+          "description": "This object represents an [inline keyboard](https://core."
+        }
+      ]
+    },
+    {
+      "name": "unban-chat-member_create",
+      "description": "Use this method to unban a previously kicked user in a supergroup or channel. The user will **not** return to the group or channel automatically, but will be able to join via link, etc. The bot must be an administrator for this to work. By default, this method guarantees that after the call the user is not a member of the chat, but will be able to join it. So if the user is a member of the chat they will also be **removed** from the chat. If you don't want this, use the parameter *only_if_banned*. Returns *True* on success. Required: chat_id, user_id. Optional: only_if_banned.",
+      "method": "POST",
+      "path": "/unbanChatMember",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target group or username of the target supergroup or channel (in the format `@username`)",
+          "required": true
+        },
+        {
+          "name": "only_if_banned",
+          "type": "bool",
+          "location": "body",
+          "description": "Do nothing if the user is not banned"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Unique identifier of the target user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "unpin-all-chat-messages_create",
+      "description": "Use this method to clear the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns *True* on success. Required: chat_id.",
+      "method": "POST",
+      "path": "/unpinAllChatMessages",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "unpin-chat-message_create",
+      "description": "Use this method to remove a message from the list of pinned messages in a chat. If the chat is not a private chat, the bot must be an administrator in the chat for this to work and must have the 'can_pin_messages' admin right in a supergroup or 'can_edit_messages' admin right in a channel. Returns *True* on success. Required: chat_id. Optional: message_id.",
+      "method": "POST",
+      "path": "/unpinChatMessage",
+      "params": [
+        {
+          "name": "chat_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the target chat or username of the target channel (in the format...",
+          "required": true
+        },
+        {
+          "name": "message_id",
+          "type": "int",
+          "location": "body",
+          "description": "Identifier of a message to unpin. If not specified, the most recent pinned message (by sending date) will be unpinned."
+        }
+      ]
+    },
+    {
+      "name": "upload-sticker-file_create",
+      "description": "Use this method to upload a .PNG file with a sticker for later use in *createNewStickerSet* and *addStickerToSet* methods (can be used multiple times). Returns the uploaded [File](https://core.telegram.org/bots/api/#file) on success. Required: png_sticker, user_id.",
+      "method": "POST",
+      "path": "/uploadStickerFile",
+      "params": [
+        {
+          "name": "png_sticker",
+          "type": "string",
+          "location": "body",
+          "description": "This object represents the contents of a file to be uploaded. Must be posted using multipart/form-data in the usual way that files are uploaded via the browser.",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User identifier of sticker file owner",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
