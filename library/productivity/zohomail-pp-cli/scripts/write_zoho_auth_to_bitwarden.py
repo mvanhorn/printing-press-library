@@ -4,10 +4,8 @@ from __future__ import annotations
 import base64
 import json
 import os
-import re
 import subprocess
 import sys
-from pathlib import Path
 
 ITEM_NAME = "Zoho Mail OAuth"
 URI = "https://api-console.zoho.com"
@@ -15,15 +13,7 @@ FIELDS = ["ZOHO_CLIENT_ID", "ZOHO_CLIENT_SECRET", "ZOHO_REFRESH_TOKEN"]
 
 
 def latest_value(key: str) -> str:
-    if os.environ.get(key):
-        return os.environ[key]
-    history = Path.home() / ".zsh_history"
-    if history.exists():
-        text = history.read_text(errors="ignore")
-        values = re.findall(rf"(?:export\s+)?{re.escape(key)}=['\"]?([^'\"\s;]+)", text)
-        if values:
-            return values[-1]
-    return ""
+    return os.environ.get(key, "")
 
 
 def run(args: list[str], session: str | None = None, input_text: str | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:

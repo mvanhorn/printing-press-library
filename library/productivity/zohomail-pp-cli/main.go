@@ -978,20 +978,26 @@ func listenForRedirect(redirect string) (net.Listener, string, error) {
 
 func callbackHandler(wantState string, codeCh chan<- string, errCh chan<- error) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		trySend := func(err error) {
+			select {
+			case errCh <- err:
+			default:
+			}
+		}
 		if r.URL.Query().Get("state") != wantState {
 			http.Error(w, "state mismatch", http.StatusBadRequest)
-			errCh <- errors.New("OAuth state mismatch")
+			trySend(errors.New("OAuth state mismatch"))
 			return
 		}
 		if e := r.URL.Query().Get("error"); e != "" {
 			http.Error(w, e, http.StatusBadRequest)
-			errCh <- fmt.Errorf("OAuth error: %s", e)
+			trySend(fmt.Errorf("OAuth error: %s", e))
 			return
 		}
 		code := r.URL.Query().Get("code")
 		if code == "" {
 			http.Error(w, "missing code", http.StatusBadRequest)
-			errCh <- errors.New("OAuth callback missing code")
+			trySend(errors.New("OAuth callback missing code"))
 			return
 		}
 		fmt.Fprintln(w, "zohomail-pp-cli login complete. You can close this tab.")
