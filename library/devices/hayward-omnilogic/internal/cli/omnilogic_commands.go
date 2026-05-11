@@ -288,26 +288,102 @@ func newOmniChemistryGetCmd(flags *rootFlags) *cobra.Command {
 			if s != nil {
 				_, _ = s.AppendTelemetry(t)
 			}
-			var out []omnilogic.Chemistry
-			for _, bow := range t.BodiesOfWater {
-				ch := omnilogic.Chemistry{
-					MspSystemID: site.MspSystemID,
-					BowName:     bow.Name,
-					PH:          bow.PH,
-					ORP:         bow.ORP,
-					SaltPPM:     bow.SaltPPM,
-					WaterTemp:   bow.WaterTemp,
-					AirTemp:     t.AirTemp,
-					SampledAt:   t.SampledAt,
-				}
-				ch.Verdict, ch.Reasons = omnilogic.ChemistryVerdict(bow.PH, bow.ORP, bow.SaltPPM)
-				out = append(out, ch)
+			caps, configured := loadEffectiveCapabilities(s, site.MspSystemID)
+			out := buildChemistryReports(site.MspSystemID, t, caps)
+			// Emit setup hint to stderr when telemetry is "suspicious" and
+			// no capability row is configured. Stderr keeps the JSON output
+			// clean for downstream pipes while still surfacing the setup
+			// guidance to humans and to agents that read stderr.
+			if hint := chemistrySetupHint(t, configured); hint != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "setup_hint: %s\n", hint)
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}
 	cmd.Flags().IntVar(&siteID, "msp-system-id", 0, "Site MspSystemID. Omit to use the only registered site.")
 	return cmd
+}
+
+// buildChemistryReports projects a telemetry snapshot into capability-aware
+// Chemistry records. Sensors marked unequipped in caps are omitted from
+// the per-BoW row (and excluded from the verdict computation). The temp
+// state captures the pump-flow-gating quirk for installs that have it.
+func buildChemistryReports(siteID int, t *omnilogic.Telemetry, caps store.SiteCapabilities) []omnilogic.Chemistry {
+	out := make([]omnilogic.Chemistry, 0, len(t.BodiesOfWater))
+	for _, bow := range t.BodiesOfWater {
+		ch := omnilogic.Chemistry{
+			MspSystemID: siteID,
+			BowName:     bow.Name,
+			AirTemp:     t.AirTemp,
+			SampledAt:   t.SampledAt,
+		}
+		// pH
+		if caps.HasPHSensor {
+			ch.PH = bow.PH
+		} else {
+			ch.NotEquipped = append(ch.NotEquipped, "ph")
+		}
+		// ORP
+		if caps.HasORPSensor {
+			ch.ORP = bow.ORP
+		} else {
+			ch.NotEquipped = append(ch.NotEquipped, "orp")
+		}
+		// Salt
+		if caps.HasSaltSensor {
+			ch.SaltPPM = bow.SaltPPM
+		} else {
+			ch.NotEquipped = append(ch.NotEquipped, "salt")
+		}
+		// Water temperature: respect the pump-flow-gating quirk.
+		ch.WaterTemp, ch.TempState = projectWaterTemp(bow, caps)
+		// Verdict ignores omitted sensors.
+		ch.Verdict, ch.Reasons = omnilogic.ChemistryVerdict(ch.PH, ch.ORP, ch.SaltPPM)
+		// When every chemistry sensor is unequipped, downgrade "unknown"
+		// (which means "no data") to "not_equipped" (which means "this site
+		// doesn't measure chemistry; verdict cannot speak to it").
+		if !caps.HasPHSensor && !caps.HasORPSensor && !caps.HasSaltSensor {
+			ch.Verdict = "not_equipped"
+		}
+		out = append(out, ch)
+	}
+	return out
+}
+
+// projectWaterTemp returns the water-temp reading and a state label that
+// captures whether a -1 reading is the expected silence-while-pump-idle
+// state or a real sensor offline event.
+func projectWaterTemp(bow omnilogic.TelemetryBOW, caps store.SiteCapabilities) (*int, string) {
+	if bow.WaterTemp == nil {
+		return nil, ""
+	}
+	val := *bow.WaterTemp
+	if val != -1 {
+		return bow.WaterTemp, "ok"
+	}
+	// Sensor reported -1. If the install reports temp only with flow, check pumps.
+	if caps.TempNeedsFlow {
+		pumpsRunning := false
+		for _, p := range bow.Pumps {
+			if p.Speed != nil && *p.Speed > 0 {
+				pumpsRunning = true
+				break
+			}
+			if p.IsOn != nil && *p.IsOn {
+				pumpsRunning = true
+				break
+			}
+		}
+		if !pumpsRunning {
+			// Expected silence — strip the -1 so it doesn't read as a real reading.
+			return nil, "n/a-pump-off"
+		}
+		// Pump is running but temp is still -1: real offline.
+		return nil, "offline"
+	}
+	// No flow-gating configured; pass the -1 through with no state hint
+	// (the consumer can decide whether to treat -1 as offline).
+	return bow.WaterTemp, "offline"
 }
 
 // ---------- heater ----------

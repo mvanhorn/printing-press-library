@@ -14,7 +14,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-const schemaVersion = 1
+const schemaVersion = 2
 
 type Store struct {
 	DB   *sql.DB
@@ -165,6 +165,15 @@ var migrations = []string{
 	`CREATE TABLE IF NOT EXISTS auth_meta (
 		key TEXT PRIMARY KEY,
 		value TEXT NOT NULL
+	)`,
+	`CREATE TABLE IF NOT EXISTS site_capabilities (
+		site_msp_system_id INTEGER PRIMARY KEY,
+		has_ph_sensor      INTEGER NOT NULL DEFAULT 1,
+		has_orp_sensor     INTEGER NOT NULL DEFAULT 1,
+		has_salt_sensor    INTEGER NOT NULL DEFAULT 1,
+		temp_needs_flow    INTEGER NOT NULL DEFAULT 0,
+		configured_at      TEXT NOT NULL,
+		notes              TEXT
 	)`,
 	`CREATE VIRTUAL TABLE IF NOT EXISTS equipment_fts USING fts5(
 		name, kind, type, function, content='equipment', content_rowid='rowid'

@@ -14,6 +14,43 @@ metadata:
 
 # Hayward OmniLogic — Printing Press CLI
 
+> ## ⚠ Known limitation: Set/write commands do not work yet
+>
+> Hayward's `.ashx` handler currently rejects this CLI's `SetUIEquipmentCmd`-family payloads with `"Input string was not in a correct format"` (a generic .NET parse error that doesn't name the offending field). The write surface is under investigation against a packet capture from the OmniLogic mobile app.
+>
+> **Commands that DO NOT work right now:**
+> `pump set-speed`, `equipment on`, `equipment off`, `heater enable`, `heater disable`, `heater set-temp`, `spillover set`, `superchlor on`, `superchlor off`, `light show`, `chlorinator set-params`, the heater-enable step inside `ready-by`.
+>
+> **Commands that work correctly against the live API:**
+> `sites list`, `config get`, `alarms list`, `telemetry get`, `chemistry get`, `status`, `sweep`, `sync`, `search`, `sql`, `command-log`, `runtime`, `schedule diff`, `chemistry log`, `chemistry drift`, `auth login/logout/status`, `doctor`, `capabilities get/set/clear`.
+>
+> **Agents: do not attempt write commands until this banner is removed.** They will fail with `status_code=6` and the user will need to use the OmniLogic mobile app to actually control equipment.
+
+## Pool sensor capabilities — configure once per site
+
+Not every OmniLogic install has every sensor. Common variants:
+
+- No pH or ORP probe (most basic salt-pool installs)
+- No salt cell (chlorine-tab or liquid-chlorine pools)
+- Water-temp sensor that only reads while the pump is running (a quirk of certain pump/sensor pairings)
+
+When sensors are absent, Hayward's API returns `-1` or null for those fields. **Without telling the CLI which sensors actually exist, `status` will report `"caution"` for a perfectly healthy pool** simply because chemistry comes back as `unknown`. The `chemistry get`, `telemetry get`, and `status` commands include a `setup_hint` field in the JSON output when this is detected.
+
+**Configure once per site:**
+
+```bash
+# Example: pool without pH/ORP probes, no salt cell, temp sensor needs pump flow
+hayward-omnilogic-pp-cli capabilities set \
+  --has-ph false --has-orp false --has-salt false --temp-needs-flow true
+
+# Inspect:
+hayward-omnilogic-pp-cli capabilities get --json
+```
+
+Stored in the local SQLite store per `MspSystemID`. After configuration: `status` correctly excludes the missing sensors from its verdict, `chemistry get` returns `not_equipped` instead of `unknown` for sensors that don't exist, and `water_temp = -1` while the pump is idle is reported as `"n/a (pump off)"` instead of "sensor offline".
+
+**Agents seeing `setup_hint` in CLI output should surface the suggested `capabilities set` command to the user as a one-time setup step before relying on chemistry/temp verdicts.**
+
 ## Prerequisites: Install the CLI
 
 This skill drives the `hayward-omnilogic-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:

@@ -202,6 +202,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newSearchCmd(flags))
 	rootCmd.AddCommand(newSQLCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newCapabilitiesCmd(flags))
 	// Framework commands.
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))

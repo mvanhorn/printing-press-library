@@ -102,7 +102,11 @@ This command compounds 3 cloud calls + 1 store lookup into a single JSON documen
 				_ = s.UpsertAlarms(site.MspSystemID, alarms)
 			}
 
-			report := buildStatusReport(site, tele, alarms, cfg)
+			caps, configured := loadEffectiveCapabilities(s, site.MspSystemID)
+			report := buildStatusReport(site, tele, alarms, cfg, caps)
+			if hint := chemistrySetupHint(tele, configured); hint != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "setup_hint: %s\n", hint)
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), report, flags)
 		},
 	}
@@ -110,7 +114,7 @@ This command compounds 3 cloud calls + 1 store lookup into a single JSON documen
 	return cmd
 }
 
-func buildStatusReport(site omnilogic.Site, tele *omnilogic.Telemetry, alarms []omnilogic.Alarm, cfg *omnilogic.MspConfig) statusReport {
+func buildStatusReport(site omnilogic.Site, tele *omnilogic.Telemetry, alarms []omnilogic.Alarm, cfg *omnilogic.MspConfig, caps store.SiteCapabilities) statusReport {
 	r := statusReport{
 		MspSystemID:  site.MspSystemID,
 		BackyardName: site.BackyardName,
@@ -119,27 +123,31 @@ func buildStatusReport(site omnilogic.Site, tele *omnilogic.Telemetry, alarms []
 	}
 	worst := "ok"
 	for _, bow := range tele.BodiesOfWater {
-		ch := omnilogic.Chemistry{
-			BowName: bow.Name, PH: bow.PH, ORP: bow.ORP, SaltPPM: bow.SaltPPM,
-			WaterTemp: bow.WaterTemp, AirTemp: tele.AirTemp, SampledAt: tele.SampledAt,
-		}
-		ch.Verdict, ch.Reasons = omnilogic.ChemistryVerdict(bow.PH, bow.ORP, bow.SaltPPM)
-		// Pull a friendlier name from the MSP config if possible.
-		if cfg != nil {
+		// Build the capability-aware chemistry record so missing sensors don't
+		// false-positive into the verdict. Re-uses the same projection used by
+		// `chemistry get` for consistency.
+		ch := buildChemistryForBow(site.MspSystemID, bow, tele, caps)
+		// Pull a friendlier name from the MSP config when telemetry returns blank.
+		if ch.BowName == "" && cfg != nil {
 			for _, mbow := range cfg.BodiesOfWater {
 				if mbow.SystemID == bow.SystemID && mbow.Name != "" {
 					ch.BowName = mbow.Name
 				}
 			}
 		}
-		body := statusBodyReport{Name: ch.BowName, WaterTemp: bow.WaterTemp, Chemistry: ch}
+		body := statusBodyReport{Name: ch.BowName, WaterTemp: ch.WaterTemp, Chemistry: ch}
 		for _, p := range bow.Pumps {
 			body.Pumps = append(body.Pumps, statusEquipmentReport{Name: p.Name, IsOn: p.IsOn, Speed: p.Speed})
 		}
 		for _, h := range bow.Heaters {
 			body.Heaters = append(body.Heaters, statusEquipmentReport{Name: h.Name, Enabled: h.Enabled})
 		}
-		if ch.Verdict != "ok" {
+		// Only fold chemistry into the verdict when we have an actionable
+		// (non-ok, non-unknown, non-not-equipped) reading. "unknown" without
+		// capabilities configured isn't a real warning — it's a setup gap;
+		// the setup_hint covers that separately.
+		switch ch.Verdict {
+		case "low", "high", "mixed":
 			worst = bumpStatusVerdict(worst, "caution")
 			r.Reasons = append(r.Reasons, ch.Reasons...)
 		}
@@ -155,6 +163,39 @@ func buildStatusReport(site omnilogic.Site, tele *omnilogic.Telemetry, alarms []
 	}
 	r.Verdict = worst
 	return r
+}
+
+// buildChemistryForBow is the per-BoW slice of buildChemistryReports so
+// the status command can reuse the same capability projection without
+// re-walking every BoW.
+func buildChemistryForBow(siteID int, bow omnilogic.TelemetryBOW, t *omnilogic.Telemetry, caps store.SiteCapabilities) omnilogic.Chemistry {
+	ch := omnilogic.Chemistry{
+		MspSystemID: siteID,
+		BowName:     bow.Name,
+		AirTemp:     t.AirTemp,
+		SampledAt:   t.SampledAt,
+	}
+	if caps.HasPHSensor {
+		ch.PH = bow.PH
+	} else {
+		ch.NotEquipped = append(ch.NotEquipped, "ph")
+	}
+	if caps.HasORPSensor {
+		ch.ORP = bow.ORP
+	} else {
+		ch.NotEquipped = append(ch.NotEquipped, "orp")
+	}
+	if caps.HasSaltSensor {
+		ch.SaltPPM = bow.SaltPPM
+	} else {
+		ch.NotEquipped = append(ch.NotEquipped, "salt")
+	}
+	ch.WaterTemp, ch.TempState = projectWaterTemp(bow, caps)
+	ch.Verdict, ch.Reasons = omnilogic.ChemistryVerdict(ch.PH, ch.ORP, ch.SaltPPM)
+	if !caps.HasPHSensor && !caps.HasORPSensor && !caps.HasSaltSensor {
+		ch.Verdict = "not_equipped"
+	}
+	return ch
 }
 
 func bumpStatusVerdict(cur, candidate string) string {

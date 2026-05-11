@@ -121,7 +121,17 @@ type Chemistry struct {
 	AirTemp     *int      `json:"air_temp,omitempty"`
 	Verdict     string    `json:"verdict"`
 	Reasons     []string  `json:"reasons,omitempty"`
-	SampledAt   time.Time `json:"sampled_at"`
+	// NotEquipped names the sensors this site doesn't have (per capabilities
+	// config). When populated, those readings are omitted from PH/ORP/SaltPPM
+	// even if Hayward returned a -1, and the verdict logic ignores them.
+	NotEquipped []string `json:"not_equipped,omitempty"`
+	// TempState captures the water-temperature reading's context for
+	// installs where the sensor only reads while the pump is running.
+	// "ok" = sensor is reporting; "n/a-pump-off" = sensor expected to be
+	// silent because the pump is idle; "offline" = pump is running but
+	// sensor still returned -1 (real alarm).
+	TempState string    `json:"temp_state,omitempty"`
+	SampledAt time.Time `json:"sampled_at"`
 }
 
 type CommandResult struct {
