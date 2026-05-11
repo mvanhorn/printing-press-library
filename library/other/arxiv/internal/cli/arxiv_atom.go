@@ -7,12 +7,12 @@ import (
 )
 
 type arxivAtomFeed struct {
-	XMLName      xml.Name         `xml:"feed"`
+	XMLName      xml.Name         `xml:"feed" json:"-"`
 	Title        string           `xml:"title" json:"title,omitempty"`
 	Updated      string           `xml:"updated" json:"updated,omitempty"`
-	TotalResults int              `xml:"http://a9.com/-/spec/opensearch/1.1/ totalResults" json:"total_results,omitempty"`
-	StartIndex   int              `xml:"http://a9.com/-/spec/opensearch/1.1/ startIndex" json:"start_index,omitempty"`
-	ItemsPerPage int              `xml:"http://a9.com/-/spec/opensearch/1.1/ itemsPerPage" json:"items_per_page,omitempty"`
+	TotalResults int              `xml:"http://a9.com/-/spec/opensearch/1.1/ totalResults" json:"total_results"`
+	StartIndex   int              `xml:"http://a9.com/-/spec/opensearch/1.1/ startIndex" json:"start_index"`
+	ItemsPerPage int              `xml:"http://a9.com/-/spec/opensearch/1.1/ itemsPerPage" json:"items_per_page"`
 	Entries      []arxivAtomEntry `xml:"entry" json:"entries"`
 }
 
@@ -67,6 +67,9 @@ func parseArxivAtomJSON(data json.RawMessage) (json.RawMessage, error) {
 	var feed arxivAtomFeed
 	if err := xml.Unmarshal([]byte(raw), &feed); err != nil {
 		return data, err
+	}
+	if feed.Entries == nil {
+		feed.Entries = []arxivAtomEntry{}
 	}
 	for i := range feed.Entries {
 		feed.Entries[i].Title = strings.Join(strings.Fields(feed.Entries[i].Title), " ")

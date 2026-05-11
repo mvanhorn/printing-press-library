@@ -51,7 +51,8 @@ These capabilities aren't available in any other tool for this API.
 
 **query** — Manage query
 
-- `arxiv-pp-cli query` — Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.
+- `arxiv-pp-cli query --search-query 'cat:cs.AI' --max-results 5` — Search arXiv papers or fetch recent papers by category.
+- `arxiv-pp-cli query --id-list 1706.03762 --max-results 1` — Fetch exact papers by arXiv ID or versioned arXiv ID.
 
 
 ### Finding the right command
@@ -78,10 +79,10 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  arxiv-pp-cli query --agent --select id,name,status
+  arxiv-pp-cli query --search-query 'cat:cs.AI' --max-results 5 --agent --select entries.id,entries.title
   ```
 - **Previewable** — `--dry-run` shows the request without sending
-- **Offline-friendly** — sync/search commands can use the local SQLite store when available
+- **Live-first** — arXiv search is most useful against the live API. Generic sync/local-store commands are present from the Printing Press scaffold, but this CLI should be treated as live-query-first because arXiv `/api/query` requires caller-supplied search or ID parameters.
 - **Non-interactive** — never prompts, every input is a flag
 - **Read-only** — do not use this CLI for create, update, delete, publish, comment, upvote, invite, order, send, or other mutating requests
 
@@ -130,7 +131,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 arxiv-pp-cli profile save briefing --json
-arxiv-pp-cli --profile briefing query
+arxiv-pp-cli --profile briefing query --search-query 'cat:cs.AI' --max-results 5
 arxiv-pp-cli profile list --json
 arxiv-pp-cli profile show briefing
 arxiv-pp-cli profile delete briefing --yes

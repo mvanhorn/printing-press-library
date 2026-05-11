@@ -67,7 +67,7 @@ This checks your configuration.
 ### 3. Try Your First Command
 
 ```bash
-arxiv-pp-cli query
+arxiv-pp-cli query --search-query 'cat:cs.AI' --max-results 5 --sort-by submittedDate --sort-order descending
 ```
 
 ## Unique Features
@@ -90,26 +90,27 @@ Run `arxiv-pp-cli --help` for the full command reference and flag list.
 
 Manage query
 
-- **`arxiv-pp-cli query`** - Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.
+- **`arxiv-pp-cli query --search-query 'cat:cs.AI' --max-results 5`** - Search arXiv papers or fetch recent papers by category.
+- **`arxiv-pp-cli query --id-list 1706.03762 --max-results 1`** - Fetch exact papers by arXiv ID or versioned arXiv ID.
 
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-arxiv-pp-cli query
+arxiv-pp-cli query --search-query 'cat:cs.AI' --max-results 5 --sort-by submittedDate --sort-order descending
 
 # JSON for scripting and agents
-arxiv-pp-cli query --json
+arxiv-pp-cli query --id-list 1706.03762 --json
 
 # Filter to specific fields
-arxiv-pp-cli query --json --select id,name,status
+arxiv-pp-cli query --id-list 1706.03762 --json --select entries.id,entries.title
 
 # Dry run — show the request without sending
-arxiv-pp-cli query --dry-run
+arxiv-pp-cli query --search-query 'cat:cs.CL' --max-results 1 --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-arxiv-pp-cli query --agent
+arxiv-pp-cli query --search-query 'all:electron' --max-results 3 --agent
 ```
 
 ## Agent Usage
@@ -118,10 +119,10 @@ This CLI is designed for AI agent consumption:
 
 - **Non-interactive** - never prompts, every input is a flag
 - **Pipeable** - `--json` output to stdout, errors to stderr
-- **Filterable** - `--select id,name` returns only fields you need
+- **Filterable** - `--select entries.id,entries.title` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Live-first** - arXiv search is most useful against the live API; generic sync/local-store commands are present from the scaffold but `/api/query` requires caller-supplied search or ID parameters
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.

@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -24,9 +25,12 @@ func newQueryPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "query",
 		Short:       "Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.",
 		Long:        "Shortcut for 'query papers'. Search arXiv papers or fetch specific arXiv IDs. Returns JSON-friendly paper metadata parsed from arXiv Atom feeds.",
-		Example:     "  arxiv-pp-cli query",
+		Example:     "  arxiv-pp-cli query --search-query 'cat:cs.AI' --max-results 5 --sort-by submittedDate --sort-order descending\n  arxiv-pp-cli query --id-list 1706.03762 --max-results 1",
 		Annotations: map[string]string{"pp:endpoint": "query.papers", "pp:method": "GET", "pp:path": "/api/query", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if strings.TrimSpace(flagSearchQuery) == "" && strings.TrimSpace(flagIdList) == "" {
+				return usageErr(fmt.Errorf("either --search-query or --id-list is required for arXiv query"))
+			}
 			if cmd.Flags().Changed("sort-by") {
 				allowedSortBy := []string{"relevance", "lastUpdatedDate", "submittedDate"}
 				validSortBy := false

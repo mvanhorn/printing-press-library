@@ -55,3 +55,29 @@ func TestParseArxivAtomWrappedResults(t *testing.T) {
 		t.Fatalf("unexpected parsed feed: %s", string(got))
 	}
 }
+
+func TestParseArxivAtomZeroResults(t *testing.T) {
+	raw := `<?xml version='1.0'?><feed xmlns="http://www.w3.org/2005/Atom" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"><opensearch:totalResults>0</opensearch:totalResults><opensearch:startIndex>0</opensearch:startIndex><opensearch:itemsPerPage>1</opensearch:itemsPerPage></feed>`
+	b, _ := json.Marshal(raw)
+	got, err := parseArxivAtomJSON(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed struct {
+		XMLName      any        `json:"XMLName"`
+		TotalResults int        `json:"total_results"`
+		Entries      []struct{} `json:"entries"`
+	}
+	if err := json.Unmarshal(got, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	if parsed.XMLName != nil {
+		t.Fatalf("XMLName leaked into JSON: %s", string(got))
+	}
+	if parsed.TotalResults != 0 {
+		t.Fatalf("expected total_results 0, got %d", parsed.TotalResults)
+	}
+	if parsed.Entries == nil || len(parsed.Entries) != 0 {
+		t.Fatalf("expected empty entries array, got %#v from %s", parsed.Entries, string(got))
+	}
+}
