@@ -1,0 +1,4 @@
+# Compiled binaries — should never be committed.
+skool
+skool-pp-cli
+skool-pp-mcp
