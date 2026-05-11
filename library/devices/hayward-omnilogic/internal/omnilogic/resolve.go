@@ -172,6 +172,31 @@ func ResolveEquipmentInBoW(cfg *MspConfig, name, kindFilter, bowFilter string) (
 	}
 }
 
+// IsVSPPump reports whether the equipment at equipmentID is a variable-speed
+// pump. Hayward overloads SetUIEquipmentCmd's IsOn parameter: it expects
+// dataType="int" 0-100 for VSPs and dataType="bool" True/False for everything
+// else. Callers wiring `equipment on/off` need to know which dialect to send.
+//
+// Detection signal: the equipment's MSP-config type contains
+// FMT_VARIABLE_SPEED or PMP_VARIABLE_SPEED (Hayward's enum prefix for VSPs).
+// Falls back to false (treat as standard equipment) when the type can't be
+// resolved.
+func IsVSPPump(cfg *MspConfig, equipmentID int) bool {
+	if cfg == nil {
+		return false
+	}
+	target := equipmentID
+	for _, bow := range cfg.BodiesOfWater {
+		for _, p := range bow.Pumps {
+			if atoiSafe(p.SystemID) == target {
+				upper := strings.ToUpper(p.Type)
+				return strings.Contains(upper, "VARIABLE_SPEED")
+			}
+		}
+	}
+	return false
+}
+
 // ResolveChlor finds the (single) chlorinator on a BoW. Pool-level call so
 // returns poolID + chlorID.
 func ResolveChlor(cfg *MspConfig, bowName string) (poolID, chlorID int, err error) {

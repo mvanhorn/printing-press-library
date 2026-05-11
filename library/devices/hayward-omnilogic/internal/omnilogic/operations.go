@@ -102,23 +102,25 @@ func (c *Client) SetHeaterTemp(mspSystemID, poolID, heaterID, tempF int) (*Comma
 	return c.runSetOpOrdered("SetUIHeaterCmd", ordered, mspSystemID, fmt.Sprintf("heater %d", heaterID))
 }
 
-// SetPumpSpeed sets a VSP pump's running speed. Speed=0 stops the pump.
-// Hayward's .NET SetUIEquipmentCmd handler is parameter-order sensitive
-// AND specific about which params it accepts. Field order matches the
-// handler's own "you should input following parameters" list verbatim:
-// PoolID, EquipmentID, IsOn, IsCountDownTimer, StartTimeHours,
-// StartTimeMinutes, EndTimeHours, EndTimeMinutes, DaysActive, Recurring.
-// Speed is sent after the timer block; the handler interprets IsOn=true +
-// Speed=N as "set this VSP to N%" and IsOn=false as "stop the pump".
-// MspSystemID and Version travel separately (header and Version param).
+// SetPumpSpeed sets a VSP pump's running speed (0-100%). Speed=0 stops the pump.
+//
+// Hayward overloads the IsOn parameter on SetUIEquipmentCmd: when sent with
+// dataType="int" and a value 0-100, it sets the VSP's running speed; when
+// sent with dataType="bool" (True/False) it's a simple on/off toggle for
+// non-variable equipment. There is NO separate "Speed" param — verified
+// against the canonical Python wrapper (djtimca/omnilogic-api 0.6.1) via
+// live packet capture against the real .ashx endpoint. Sending Speed as a
+// separate param triggers "Input string was not in a correct format".
+//
+// Field order matches the Python wrapper's dict insertion order verbatim,
+// because Hayward's .NET handler is also order-sensitive.
 func (c *Client) SetPumpSpeed(mspSystemID, poolID, pumpID, speed int) (*CommandResult, error) {
 	ordered := []orderedParam{
 		{"MspSystemID", "int", mspSystemID},
 		{"Version", "string", "0"},
 		{"PoolID", "int", poolID},
 		{"EquipmentID", "int", pumpID},
-		{"IsOn", "bool", speed > 0},
-		{"Speed", "int", speed},
+		{"IsOn", "int", speed},
 		{"IsCountDownTimer", "bool", false},
 		{"StartTimeHours", "int", 0},
 		{"StartTimeMinutes", "int", 0},
@@ -130,10 +132,13 @@ func (c *Client) SetPumpSpeed(mspSystemID, poolID, pumpID, speed int) (*CommandR
 	return c.runSetOpOrdered("SetUIEquipmentCmd", ordered, mspSystemID, fmt.Sprintf("pump %d", pumpID))
 }
 
-// SetEquipment turns an equipment item on/off, optionally for a bounded
-// duration. durationMinutes=0 means run indefinitely; >0 schedules a
-// countdown timer that auto-turns-off after the window. Order matches
-// Hayward's "you should input following parameters" expected list.
+// SetEquipment turns a non-variable-speed equipment item on/off, optionally
+// for a bounded duration. For VSP pumps, callers must use SetPumpSpeed
+// instead — Hayward overloads the IsOn parameter and an IsOn=bool against
+// a VSP pump returns "Input string was not in a correct format".
+//
+// durationMinutes=0 means run indefinitely; >0 schedules a countdown timer.
+// Order matches Hayward's "you should input following parameters" list.
 func (c *Client) SetEquipment(mspSystemID, poolID, equipmentID int, isOn bool, durationMinutes int) (*CommandResult, error) {
 	ordered := []orderedParam{
 		{"MspSystemID", "int", mspSystemID},
@@ -151,6 +156,13 @@ func (c *Client) SetEquipment(mspSystemID, poolID, equipmentID int, isOn bool, d
 	}
 	return c.runSetOpOrdered("SetUIEquipmentCmd", ordered, mspSystemID, fmt.Sprintf("equipment %d", equipmentID))
 }
+
+// DefaultVSPOnSpeed is the speed used when `equipment on` is invoked against
+// a VSP pump without an explicit --speed. 100% (max) is the safe pick: it
+// matches "this pump should be running" intent without making the agent
+// guess at a calibration value. Users can call `pump set-speed --speed N`
+// for a specific RPM/%.
+const DefaultVSPOnSpeed = 100
 
 // SetSpillover sets the spillover speed.
 func (c *Client) SetSpillover(mspSystemID, poolID, speed, durationMinutes int) (*CommandResult, error) {

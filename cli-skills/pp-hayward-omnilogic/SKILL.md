@@ -14,17 +14,27 @@ metadata:
 
 # Hayward OmniLogic — Printing Press CLI
 
-> ## ⚠ Known limitation: Set/write commands do not work yet
+> ## Write-command status
 >
-> Hayward's `.ashx` handler currently rejects this CLI's `SetUIEquipmentCmd`-family payloads with `"Input string was not in a correct format"` (a generic .NET parse error that doesn't name the offending field). The write surface is under investigation against a packet capture from the OmniLogic mobile app.
+> The Hayward `.ashx` handler overloads the `IsOn` parameter on `SetUIEquipmentCmd`: it expects `dataType="int"` 0-100 for variable-speed pumps, `dataType="bool"` `True`/`False` for everything else. This was reverse-engineered via a side-by-side packet capture against the canonical Python wrapper (`djtimca/omnilogic-api` 0.6.1).
 >
-> **Commands that DO NOT work right now:**
-> `pump set-speed`, `equipment on`, `equipment off`, `heater enable`, `heater disable`, `heater set-temp`, `spillover set`, `superchlor on`, `superchlor off`, `light show`, `chlorinator set-params`, the heater-enable step inside `ready-by`.
+> **Verified working against the live API** (turn the pump on at 50%, observe `filterSpeed: 50` in telemetry, turn it off, observe `filterSpeed: 0`):
+> - `pump set-speed <name> --bow Pool --speed N` — VSP control 0-100. Speed=0 stops the pump.
+> - `equipment on <name> --bow Pool` — for VSPs, routes through `SetPumpSpeed(speed=100)`. For non-VSP equipment (relays, valves, single-speed accessory pumps) sends `IsOn=bool`.
+> - `equipment off <name> --bow Pool` — same routing; speed=0 for VSPs, `IsOn=False` for non-VSPs.
 >
-> **Commands that work correctly against the live API:**
+> **Probably working but not yet verified end-to-end** (the operations use different XML shapes that didn't hit the IsOn overload trap, so they should work, but treat with care until exercised):
+> - `heater enable`, `heater disable`, `heater set-temp` (different op: `SetHeaterEnable` / `SetUIHeaterCmd`, uses `Enabled` and `Temp` params)
+> - `spillover set` (`SetUISpilloverCmd`, uses `Speed` param)
+> - `superchlor on`, `superchlor off` (`SetUISuperCHLORCmd`, uses `IsOn=bool` which is the non-overloaded form)
+> - `light show` (`SetStandAloneLightShow`, uses `Show` param)
+> - `chlorinator set-params` (`SetCHLORParams`, uses ordered fixed-format builder)
+> - `ready-by` (chains `SetHeaterEnable` + `SetUIHeaterCmd`; depends on the heater operations above)
+>
+> **Always working** (read-only commands, exhaustively tested against the live API):
 > `sites list`, `config get`, `alarms list`, `telemetry get`, `chemistry get`, `status`, `sweep`, `sync`, `search`, `sql`, `command-log`, `runtime`, `schedule diff`, `chemistry log`, `chemistry drift`, `auth login/logout/status`, `doctor`, `capabilities get/set/clear`.
 >
-> **Agents: do not attempt write commands until this banner is removed.** They will fail with `status_code=6` and the user will need to use the OmniLogic mobile app to actually control equipment.
+> Cloud propagation lag is 10-15 seconds — after a successful write, `telemetry get` may show the prior state until the cloud catches up. The CLI's command response (`{"status":"ok"}`) returns as soon as Hayward accepts the request.
 
 ## Pool sensor capabilities — configure once per site
 

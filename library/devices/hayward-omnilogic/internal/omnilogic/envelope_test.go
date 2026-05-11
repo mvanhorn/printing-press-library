@@ -244,3 +244,79 @@ func TestBuildRequest_SortedOrder(t *testing.T) {
 		}
 	}
 }
+
+// TestIsVSPPump verifies the type-prefix detection used by `equipment on/off`
+// to route VSP pumps through the IsOn=int path instead of IsOn=bool.
+// Hayward overloads IsOn on SetUIEquipmentCmd: int for VSPs, bool for
+// everything else. Getting this wrong returns "Input string was not in a
+// correct format" from the .NET handler.
+func TestIsVSPPump(t *testing.T) {
+	cfg := &MspConfig{
+		BodiesOfWater: []BodyOfWater{
+			{
+				SystemID: "1",
+				Name:     "Pool",
+				Pumps: []Equipment{
+					{SystemID: "3", Name: "Filter Pump", Type: "FMT_VARIABLE_SPEED_PUMP"},
+					{SystemID: "6", Name: "Pressure", Type: "PMP_SINGLE_SPEED"},
+					{SystemID: "7", Name: "Water Ft", Type: "PMP_SINGLE_SPEED"},
+				},
+			},
+		},
+	}
+	tests := []struct {
+		equipID int
+		want    bool
+		label   string
+	}{
+		{3, true, "FMT_VARIABLE_SPEED_PUMP → VSP"},
+		{6, false, "PMP_SINGLE_SPEED → not VSP"},
+		{7, false, "PMP_SINGLE_SPEED → not VSP"},
+		{999, false, "unknown equipment ID → false (don't false-positive)"},
+	}
+	for _, tc := range tests {
+		got := IsVSPPump(cfg, tc.equipID)
+		if got != tc.want {
+			t.Errorf("%s: want %v, got %v", tc.label, tc.want, got)
+		}
+	}
+
+	// nil cfg defensive check
+	if IsVSPPump(nil, 3) {
+		t.Errorf("nil cfg should return false (no MSP config = can't classify)")
+	}
+}
+
+// TestSetPumpSpeed_IsOnAsInt locks the canonical envelope shape for VSP
+// pump speed: IsOn must be dataType="int" with the speed value, NOT a
+// separate Speed param with IsOn=bool. Verified against the live Hayward
+// API by side-by-side capture with djtimca/omnilogic-api 0.6.1.
+func TestSetPumpSpeed_IsOnAsInt(t *testing.T) {
+	ordered := []orderedParam{
+		{"MspSystemID", "int", 12345},
+		{"Version", "string", "0"},
+		{"PoolID", "int", 1},
+		{"EquipmentID", "int", 3},
+		{"IsOn", "int", 50},
+		{"IsCountDownTimer", "bool", false},
+		{"StartTimeHours", "int", 0},
+		{"StartTimeMinutes", "int", 0},
+		{"EndTimeHours", "int", 0},
+		{"EndTimeMinutes", "int", 0},
+		{"DaysActive", "int", 0},
+		{"Recurring", "bool", false},
+	}
+	xml, err := buildOrderedRequest("SetUIEquipmentCmd", ordered)
+	if err != nil {
+		t.Fatalf("buildOrderedRequest: %v", err)
+	}
+	// The IsOn-as-int signal is what Hayward parses to set a VSP's speed.
+	if !strings.Contains(xml, `name="IsOn" dataType="int">50<`) {
+		t.Errorf("expected IsOn as int=50, got: %s", xml)
+	}
+	// There must NOT be a separate Speed param — sending Speed alongside
+	// IsOn=bool was the original bug that returned the .NET parse error.
+	if strings.Contains(xml, `name="Speed"`) {
+		t.Errorf("Speed param must not appear in VSP envelope; IsOn is overloaded: %s", xml)
+	}
+}

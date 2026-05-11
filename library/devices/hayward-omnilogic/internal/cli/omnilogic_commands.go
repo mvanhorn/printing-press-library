@@ -676,16 +676,40 @@ func runEquipmentOnOff(flags *rootFlags, siteID *int, forDur *string, bowFilter 
 		if err != nil {
 			return usageErr(err)
 		}
+		// Hayward overloads SetUIEquipmentCmd's IsOn parameter: int 0-100
+		// for VSP pumps, bool True/False for everything else. Sending a
+		// bool against a VSP returns "Input string was not in a correct
+		// format". Detect the VSP case and route through SetPumpSpeed,
+		// using DefaultVSPOnSpeed for "on" (max). Power users wanting a
+		// specific RPM/% should call `pump set-speed` directly.
 		op := "SetUIEquipmentCmd"
 		target := fmt.Sprintf("%s (%s %d)", display, kind, eqID)
-		params := map[string]any{"on": on, "duration_min": dur, "pool_id": poolID, "equipment_id": eqID, "bow": bf}
+		isVSP := omnilogic.IsVSPPump(cfg, eqID)
+		params := map[string]any{
+			"on":           on,
+			"duration_min": dur,
+			"pool_id":      poolID,
+			"equipment_id": eqID,
+			"bow":          bf,
+			"is_vsp":       isVSP,
+		}
 		if flags.dryRun {
 			logDryRun(s, op, target, params)
-			return printCommandPreview(cmd, op, target, map[string]any{"on": on, "duration_min": dur, "pool_id": poolID, "equipment_id": eqID})
+			return printCommandPreview(cmd, op, target, params)
 		}
-		result, err := c.SetEquipment(site.MspSystemID, poolID, eqID, on, dur)
-		if err != nil {
-			return classifyOmnilogicError(err)
+		var result *omnilogic.CommandResult
+		var callErr error
+		if isVSP {
+			speed := 0
+			if on {
+				speed = omnilogic.DefaultVSPOnSpeed
+			}
+			result, callErr = c.SetPumpSpeed(site.MspSystemID, poolID, eqID, speed)
+		} else {
+			result, callErr = c.SetEquipment(site.MspSystemID, poolID, eqID, on, dur)
+		}
+		if callErr != nil {
+			return classifyOmnilogicError(callErr)
 		}
 		logResult(s, op, target, params, result)
 		return printJSONFiltered(cmd.OutOrStdout(), result, flags)
