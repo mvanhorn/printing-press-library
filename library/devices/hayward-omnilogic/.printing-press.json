@@ -6,7 +6,7 @@
   "display_name": "Hayward OmniLogic",
   "cli_name": "hayward-omnilogic-pp-cli",
   "owner": "rzehner",
-  "printer": "rzehner",
+  "printer": "rob-coco",
   "printer_name": "Rob Zehner",
   "spec_path": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/research/hayward-omnilogic-spec.yaml",
   "spec_format": "internal",
