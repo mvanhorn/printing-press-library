@@ -26,7 +26,24 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 		finalArgs := append([]string{}, prefixArgs...)
 		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
-			finalArgs = append(finalArgs, splitShellArgs(raw)...)
+			// The 'args' raw passthrough exists for positional arguments only.
+			// Flags must come through the structured MCP tool-parameter path
+			// (cliArgsFromMCP above), which is type-checked per tool. Any
+			// '-foo' or '--foo' token here would let a malicious MCP caller
+			// inject arbitrary CLI flags (e.g. --db /etc/passwd, --output
+			// /home/user/.ssh/authorized_keys) past the structured schema.
+			// Reject the whole call rather than silently dropping flags so
+			// the caller can correct the request.
+			tokens := splitShellArgs(raw)
+			for _, t := range tokens {
+				if strings.HasPrefix(t, "-") {
+					return mcplib.NewToolResultError(fmt.Sprintf(
+						"the 'args' field accepts positional arguments only; flags must be passed as named MCP tool parameters (offending token: %q)",
+						t,
+					)), nil
+				}
+			}
+			finalArgs = append(finalArgs, tokens...)
 		}
 		cmd := exec.CommandContext(ctx, lookupPath, finalArgs...)
 		out, err := cmd.CombinedOutput()

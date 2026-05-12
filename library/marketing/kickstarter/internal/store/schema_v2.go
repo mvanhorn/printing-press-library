@@ -20,66 +20,23 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
-// EnsureV2Schema creates the hand-written tables that back the novel
-// transcendence commands. Idempotent. Run once on every Open.
+// EnsureV2Schema is preserved as a no-op stub for backward compatibility
+// with callers in internal/cli that invoke it on every command entry. The
+// v2 DDL it previously executed has been folded into the main migrations
+// slice in store.go (alongside the v1 tables) so PRAGMA user_version
+// stamps to StoreSchemaVersion = 2 atomically inside the BEGIN IMMEDIATE
+// migration transaction. The schema-version gate at the top of migrate()
+// then correctly refuses older binaries (v1) from opening a v2 database,
+// closing the bypass flagged in security review.
 //
-// Returns an error only when the underlying SQLite ExecContext rejects a
-// statement — never on "already exists" outcomes, which the IF NOT EXISTS
-// clause makes silent.
+// New code should rely on store.OpenWithContext (which runs migrate()) to
+// have all v1+v2 tables ready. This stub remains so existing callers
+// compile without changes; it intentionally does nothing.
 func (s *Store) EnsureV2Schema(ctx context.Context) error {
-	stmts := []string{
-		`CREATE TABLE IF NOT EXISTS vertical_match (
-			project_id INTEGER NOT NULL,
-			vertical TEXT NOT NULL,
-			score REAL NOT NULL,
-			scored_at INTEGER NOT NULL,
-			PRIMARY KEY (project_id, vertical)
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_vertical_match_vertical ON vertical_match(vertical)`,
-		`CREATE TABLE IF NOT EXISTS project_snapshots (
-			project_id INTEGER NOT NULL,
-			snapshot_at INTEGER NOT NULL,
-			pledged REAL NOT NULL,
-			backers_count INTEGER NOT NULL,
-			state TEXT NOT NULL,
-			PRIMARY KEY (project_id, snapshot_at)
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_project_snapshots_proj ON project_snapshots(project_id)`,
-		`CREATE TABLE IF NOT EXISTS sync_runs (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			resource TEXT NOT NULL,
-			finished_at INTEGER NOT NULL,
-			records_synced INTEGER NOT NULL DEFAULT 0
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_sync_runs_resource ON sync_runs(resource, finished_at)`,
-		`CREATE TABLE IF NOT EXISTS magazine_articles (
-			slug TEXT PRIMARY KEY,
-			title TEXT,
-			body TEXT,
-			author TEXT,
-			published_at INTEGER,
-			tags TEXT,
-			url TEXT,
-			synced_at INTEGER
-		)`,
-		// FTS5 mirror for fast title/body/tags search. We use a contentless
-		// FTS5 table here (no content= linkage) so the table can stand on
-		// its own without triggers — the caller-owned UpsertMagazineArticle
-		// path explicitly maintains parity between magazine_articles and
-		// magazine_fts.
-		`CREATE VIRTUAL TABLE IF NOT EXISTS magazine_fts USING fts5(
-			slug, title, body, tags, tokenize='porter unicode61'
-		)`,
-	}
-	for _, stmt := range stmts {
-		if _, err := s.db.ExecContext(ctx, stmt); err != nil {
-			return fmt.Errorf("v2 schema: %w", err)
-		}
-	}
+	_ = ctx
 	return nil
 }
 

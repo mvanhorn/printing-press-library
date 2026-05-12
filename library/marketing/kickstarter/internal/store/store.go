@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -23,6 +24,13 @@ import (
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
+// validSQLIdentifier matches conservative SQL/SQLite table/column names:
+// letter or underscore followed by letters, digits, underscores. No
+// hyphens, dots, spaces, or quotes. Used to gate string interpolation
+// in places where a parameterized query cannot bind an identifier
+// (table/column names).
+var validSQLIdentifier = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
@@ -34,7 +42,7 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 1
+const StoreSchemaVersion = 2
 
 type Store struct {
 	db *sql.DB
@@ -255,6 +263,52 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 			id, resource_type, content, tokenize='porter unicode61'
+		)`,
+		// Schema v2 — hand-written tables that back the novel transcendence
+		// commands (vertical-match, funding-rank, sync --diff watermarks,
+		// magazine search). Folded into the main migrations slice so
+		// user_version stamps to 2 atomically and the gate at the top of
+		// migrate() refuses older binaries against a v2 database. Behavior
+		// is identical to the prior EnsureV2Schema path (same DDL strings,
+		// same CREATE ... IF NOT EXISTS idempotency).
+		`CREATE TABLE IF NOT EXISTS vertical_match (
+			project_id INTEGER NOT NULL,
+			vertical TEXT NOT NULL,
+			score REAL NOT NULL,
+			scored_at INTEGER NOT NULL,
+			PRIMARY KEY (project_id, vertical)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_vertical_match_vertical ON vertical_match(vertical)`,
+		`CREATE TABLE IF NOT EXISTS project_snapshots (
+			project_id INTEGER NOT NULL,
+			snapshot_at INTEGER NOT NULL,
+			pledged REAL NOT NULL,
+			backers_count INTEGER NOT NULL,
+			state TEXT NOT NULL,
+			PRIMARY KEY (project_id, snapshot_at)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_project_snapshots_proj ON project_snapshots(project_id)`,
+		`CREATE TABLE IF NOT EXISTS sync_runs (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			resource TEXT NOT NULL,
+			finished_at INTEGER NOT NULL,
+			records_synced INTEGER NOT NULL DEFAULT 0
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_sync_runs_resource ON sync_runs(resource, finished_at)`,
+		`CREATE TABLE IF NOT EXISTS magazine_articles (
+			slug TEXT PRIMARY KEY,
+			title TEXT,
+			body TEXT,
+			author TEXT,
+			published_at INTEGER,
+			tags TEXT,
+			url TEXT,
+			synced_at INTEGER
+		)`,
+		// Contentless FTS5 mirror — UpsertMagazineArticle maintains parity
+		// with magazine_articles via explicit DELETE+INSERT (no triggers).
+		`CREATE VIRTUAL TABLE IF NOT EXISTS magazine_fts USING fts5(
+			slug, title, body, tags, tokenize='porter unicode61'
 		)`,
 	}
 
@@ -535,12 +589,13 @@ func extractObjectID(obj map[string]any) string {
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
+// FNV-1a 64-bit has substantially better collision properties than the prior
+// h*31 polynomial rolling hash on short identifier-shaped inputs (review
+// finding P2: weak hash → FTS rowid collisions across distinct IDs).
 func ftsRowID(id string) int64 {
-	var h uint64
-	for _, c := range id {
-		h = h*31 + uint64(c)
-	}
-	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(id))
+	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF) // ensure positive
 }
 
 // LookupFieldValue resolves a field value from a JSON object map, trying
@@ -730,9 +785,18 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	// Try domain table first (tables are named after the resource type).
+	// Gate the string-interpolated table name behind validSQLIdentifier so
+	// a hostile resourceType (with quotes, semicolons, etc.) cannot inject
+	// SQL — the parameterized fallback handles the generic case safely.
+	var rows *sql.Rows
+	var err error
+	if validSQLIdentifier.MatchString(resourceType) {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	} else {
+		err = fmt.Errorf("invalid resource type")
+	}
 	if err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
@@ -817,6 +881,13 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// Skip fields that aren't safe to interpolate into the JSON path.
+		// json_extract's '$.<field>' path can't be parameter-bound, so we
+		// gate the field name through the same identifier check used for
+		// table names in ListIDs.
+		if !validSQLIdentifier.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
