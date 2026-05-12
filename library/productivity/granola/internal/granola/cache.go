@@ -9,22 +9,66 @@ package granola
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola/safestorage"
 )
 
-// DefaultCachePath returns the macOS-default cache path, honoring the
-// GRANOLA_CACHE_PATH override used by tests.
+// supportDir returns the Granola support directory, honoring
+// GRANOLA_SUPPORT_DIR for tests. PATCH(encrypted-cache): shared between
+// the plaintext and encrypted path resolvers so tests can point both at
+// the same tmp directory with a single env var.
+func supportDir() string {
+	if v := os.Getenv("GRANOLA_SUPPORT_DIR"); v != "" {
+		return v
+	}
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "Library", "Application Support", "Granola")
+}
+
+// DefaultCachePath returns the macOS-default plaintext cache path,
+// honoring the GRANOLA_CACHE_PATH override used by tests. The plaintext
+// path is what callers default to when no override is set; LoadCache
+// internally prefers the encrypted sibling (`cache-v6.json.enc`) when
+// it exists. See DefaultEncryptedCachePath.
 func DefaultCachePath() string {
 	if v := os.Getenv("GRANOLA_CACHE_PATH"); v != "" {
 		return v
 	}
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "Library", "Application Support", "Granola", "cache-v6.json")
+	return filepath.Join(supportDir(), "cache-v6.json")
+}
+
+// PATCH(encrypted-cache): Granola desktop began writing cache-v6.json.enc
+// alongside the plaintext cache around May 2026 and stopped updating the
+// plaintext copy. This helper returns the .enc path so LoadCache can
+// prefer it. See safestorage/testdata/scheme.md for the empirical
+// encryption scheme.
+func DefaultEncryptedCachePath() string {
+	return filepath.Join(supportDir(), "cache-v6.json.enc")
+}
+
+// ResolveCachePath picks the cache file LoadCache will read. Order:
+//
+//  1. GRANOLA_CACHE_PATH (explicit test/user override, treated as plaintext)
+//  2. cache-v6.json.enc next to the default support dir, when present
+//  3. plaintext cache-v6.json (legacy fallback for pre-encryption Granola)
+//
+// Returns the resolved path and whether decryption is needed.
+func ResolveCachePath() (path string, encrypted bool) {
+	if v := os.Getenv("GRANOLA_CACHE_PATH"); v != "" {
+		return v, false
+	}
+	enc := DefaultEncryptedCachePath()
+	if _, err := os.Stat(enc); err == nil {
+		return enc, true
+	}
+	return DefaultCachePath(), false
 }
 
 // Document is a Granola meeting note. The notes field is left as
@@ -264,12 +308,30 @@ type Cache struct {
 // machine the press runs on uses v6; older versions are kept so a stale
 // cache from a paused machine still loads.
 func LoadCache(path string) (*Cache, error) {
+	var encrypted bool
 	if path == "" {
-		path = DefaultCachePath()
+		path, encrypted = ResolveCachePath()
 	}
+
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("reading cache %s: %w", path, err)
+	}
+
+	// PATCH(encrypted-cache): when the resolver picked the .enc sibling,
+	// decrypt through the safestorage package before parsing. D2 in the
+	// plan: a decrypt failure is fatal rather than silently falling back
+	// to the stale plaintext (which would mask the real problem).
+	if encrypted {
+		plain, err := safestorage.Decrypt(raw)
+		if err != nil {
+			if errors.Is(err, safestorage.ErrKeyUnavailable) {
+				return nil, fmt.Errorf("reading encrypted cache %s: Keychain access unavailable (sign into Granola desktop or run `granola-pp-cli sync` to authorize Keychain access): %w", path, err)
+			}
+			return nil, fmt.Errorf("reading encrypted cache %s: %w", path, err)
+		}
+		defer safestorage.ZeroBytes(plain)
+		raw = plain
 	}
 
 	// Phase 1: top-level container — either {"cache": {...}} (v4+) or
