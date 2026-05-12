@@ -1,0 +1,65 @@
+{
+  "api_name": "tavily",
+  "base_url": "https://api.tavily.com",
+  "description": "Search the web, extract content, crawl sites, and run deep research from the terminal.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "env_vars": [
+      "TAVILY_API_KEY"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "crawl_crawl",
+      "description": "Systematically crawl a website using BFS, extracting content from each page.",
+      "method": "POST",
+      "path": "/crawl",
+      "params": ["url", "max_depth", "max_breadth", "limit", "instructions", "chunks_per_source", "extract_depth", "format", "select_paths", "exclude_paths", "select_domains", "exclude_domains", "allow_external", "include_images", "include_favicon", "timeout", "include_usage"]
+    },
+    {
+      "name": "extract_extract",
+      "description": "Extract full markdown or text content from 1 to 20 URLs.",
+      "method": "POST",
+      "path": "/extract",
+      "params": ["urls", "query", "chunks_per_source", "extract_depth", "include_images", "include_favicon", "format", "timeout", "include_usage"]
+    },
+    {
+      "name": "map_map",
+      "description": "Discover all URLs in a website structure without fetching page content.",
+      "method": "POST",
+      "path": "/map",
+      "params": ["url", "max_depth", "max_breadth", "instructions", "select_paths", "exclude_paths", "select_domains", "exclude_domains", "allow_external", "timeout"]
+    },
+    {
+      "name": "research_get",
+      "description": "Get research task status and results by request ID.",
+      "method": "GET",
+      "path": "/research/{request_id}",
+      "params": ["request_id"]
+    },
+    {
+      "name": "research_run",
+      "description": "Submit an async deep research task that synthesizes web sources into a cited report.",
+      "method": "POST",
+      "path": "/research",
+      "params": ["input", "model", "stream", "citation_format"]
+    },
+    {
+      "name": "usage_get",
+      "description": "Get credit usage broken down by endpoint plus account plan details.",
+      "method": "GET",
+      "path": "/usage",
+      "params": []
+    },
+    {
+      "name": "web_search",
+      "description": "Search the web with semantic ranking, AI answers, and time/domain filtering.",
+      "method": "POST",
+      "path": "/search",
+      "params": ["query", "search_depth", "topic", "time_range", "start_date", "end_date", "max_results", "include_answer", "include_raw_content", "include_images", "include_image_descriptions", "include_favicon", "include_domains", "exclude_domains", "country", "chunks_per_source", "exact_match", "include_usage"]
+    }
+  ]
+}

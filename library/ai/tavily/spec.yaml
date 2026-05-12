@@ -1,0 +1,311 @@
+name: tavily
+display_name: Tavily
+description: "AI-powered web search and data extraction for agents and LLM pipelines."
+cli_description: "Search the web, extract content, crawl sites, and run deep research from the terminal."
+version: "0.1.0"
+spec_source: official
+website_url: "https://docs.tavily.com"
+category: ai-tools
+base_url: "https://api.tavily.com"
+
+auth:
+  type: bearer_token
+  header: Authorization
+  in: header
+  env_vars:
+    - TAVILY_API_KEY
+  key_url: "https://app.tavily.com"
+
+config:
+  format: json
+  path: "~/.tavily-pp-cli/config.json"
+
+resources:
+  web:
+    description: Real-time web search with AI-generated answers and ranked results
+    endpoints:
+      search:
+        method: POST
+        path: /search
+        description: Search the web with semantic ranking, AI answers, and time/domain filtering
+        body:
+          - name: query
+            type: string
+            required: true
+            description: Search query string
+          - name: search_depth
+            type: string
+            description: "Search depth: basic (1 cr), fast (1 cr), ultra-fast (1 cr), advanced (2 cr)"
+            enum: ["basic", "fast", "ultra-fast", "advanced"]
+          - name: topic
+            type: string
+            description: "Topic filter: general, news, finance"
+            enum: ["general", "news", "finance"]
+          - name: time_range
+            type: string
+            description: "Relative time filter: day, week, month, year"
+            enum: ["day", "week", "month", "year"]
+          - name: start_date
+            type: string
+            description: "Start date filter (YYYY-MM-DD)"
+          - name: end_date
+            type: string
+            description: "End date filter (YYYY-MM-DD)"
+          - name: max_results
+            type: integer
+            description: "Max results to return (1-20, default 5)"
+          - name: include_answer
+            type: string
+            description: "Include AI-generated answer: false, basic, advanced"
+            enum: ["false", "basic", "advanced"]
+          - name: include_raw_content
+            type: string
+            description: "Include full page content: false, markdown, text"
+            enum: ["false", "markdown", "text"]
+          - name: include_images
+            type: boolean
+            description: Include image URLs in results
+          - name: include_image_descriptions
+            type: boolean
+            description: Include AI-generated image descriptions
+          - name: include_favicon
+            type: boolean
+            description: Include favicon URLs for each result
+          - name: include_domains
+            type: array
+            description: Restrict results to these domains (max 300)
+          - name: exclude_domains
+            type: array
+            description: Exclude these domains from results (max 150)
+          - name: country
+            type: string
+            description: Boost results from this country (full country name)
+          - name: chunks_per_source
+            type: integer
+            description: "Content chunks per source (1-3, requires fast or advanced depth)"
+          - name: exact_match
+            type: boolean
+            description: Only return results containing exact query phrase
+          - name: include_usage
+            type: boolean
+            description: Include credit usage stats in response
+
+  extract:
+    description: Full-page content extraction from URLs
+    endpoints:
+      extract:
+        method: POST
+        path: /extract
+        description: Extract full markdown or text content from 1 to 20 URLs
+        body:
+          - name: urls
+            type: array
+            required: true
+            description: URLs to extract content from (1-20)
+          - name: query
+            type: string
+            description: Query for relevance-based chunk reranking
+          - name: chunks_per_source
+            type: integer
+            description: "Chunks per source (1-5, requires query)"
+          - name: extract_depth
+            type: string
+            description: "Extraction depth: basic (1 cr/5 URLs), advanced (2 cr/5 URLs, JS rendering)"
+            enum: ["basic", "advanced"]
+          - name: include_images
+            type: boolean
+            description: Include image URLs from extracted pages
+          - name: include_favicon
+            type: boolean
+            description: Include favicon URL
+          - name: format
+            type: string
+            description: "Output format: markdown, text"
+            enum: ["markdown", "text"]
+          - name: timeout
+            type: number
+            description: Request timeout in seconds (1.0-60.0)
+          - name: include_usage
+            type: boolean
+            description: Include credit usage stats in response
+
+  crawl:
+    description: BFS website traversal with content extraction
+    endpoints:
+      crawl:
+        method: POST
+        path: /crawl
+        description: Systematically crawl a website using BFS, extracting content from each page
+        body:
+          - name: url
+            type: string
+            required: true
+            description: Root URL to start crawling from
+          - name: max_depth
+            type: integer
+            description: "BFS max depth (1-5, default 1)"
+          - name: max_breadth
+            type: integer
+            description: "Max URLs per depth level (1-500, default 20)"
+          - name: limit
+            type: integer
+            description: "Total page limit (default 50)"
+          - name: instructions
+            type: string
+            description: Natural language guidance for which pages to include
+          - name: chunks_per_source
+            type: integer
+            description: "Chunks per source (1-5, default 3)"
+          - name: extract_depth
+            type: string
+            description: "Extraction depth: basic, advanced"
+            enum: ["basic", "advanced"]
+          - name: format
+            type: string
+            description: "Output format: markdown, text"
+            enum: ["markdown", "text"]
+          - name: select_paths
+            type: array
+            description: Regex patterns for URL path inclusion
+          - name: exclude_paths
+            type: array
+            description: Regex patterns for URL path exclusion
+          - name: select_domains
+            type: array
+            description: Regex patterns for domain inclusion
+          - name: exclude_domains
+            type: array
+            description: Regex patterns for domain exclusion
+          - name: allow_external
+            type: boolean
+            description: Allow following links to external domains
+          - name: include_images
+            type: boolean
+            description: Include images in extracted pages
+          - name: include_favicon
+            type: boolean
+            description: Include favicon URLs
+          - name: timeout
+            type: integer
+            description: Request timeout in seconds (10-150, default 150)
+          - name: include_usage
+            type: boolean
+            description: Include credit usage stats in response
+
+  map:
+    description: Website URL structure discovery without content extraction
+    endpoints:
+      map:
+        method: POST
+        path: /map
+        description: Discover all URLs in a website structure without fetching page content
+        body:
+          - name: url
+            type: string
+            required: true
+            description: Root URL to map
+          - name: max_depth
+            type: integer
+            description: "BFS max depth (1-5, default 1)"
+          - name: max_breadth
+            type: integer
+            description: "Max URLs per depth level (1-500, default 20)"
+          - name: limit
+            type: integer
+            description: "Total URL limit (default 50)"
+          - name: instructions
+            type: string
+            description: Natural language guidance for URL selection
+          - name: select_paths
+            type: array
+            description: Regex patterns for URL path inclusion
+          - name: exclude_paths
+            type: array
+            description: Regex patterns for URL path exclusion
+          - name: select_domains
+            type: array
+            description: Regex patterns for domain inclusion
+          - name: exclude_domains
+            type: array
+            description: Regex patterns for domain exclusion
+          - name: allow_external
+            type: boolean
+            description: Allow external link discovery
+          - name: timeout
+            type: integer
+            description: Request timeout in seconds (10-150)
+          - name: include_usage
+            type: boolean
+            description: Include credit usage stats in response
+
+  research:
+    description: Async deep research with AI synthesis and citations
+    endpoints:
+      run:
+        method: POST
+        path: /research
+        description: Submit an async deep research task that synthesizes web sources into a cited report
+        body:
+          - name: input
+            type: string
+            required: true
+            description: Research question or topic to investigate
+          - name: model
+            type: string
+            description: "Research model: mini (fast), pro (thorough), auto (default)"
+            enum: ["mini", "pro", "auto"]
+          - name: stream
+            type: boolean
+            description: Stream research progress via SSE
+          - name: citation_format
+            type: string
+            description: "Citation format: numbered, mla, apa, chicago"
+            enum: ["numbered", "mla", "apa", "chicago"]
+      get:
+        method: GET
+        path: /research/{request_id}
+        description: Get research task status and results by request ID
+        params:
+          - name: request_id
+            in: path
+            type: string
+            required: true
+            description: Research task request ID from the run command
+
+  usage:
+    description: Credit usage and account plan information
+    endpoints:
+      get:
+        method: GET
+        path: /usage
+        description: Get credit usage broken down by endpoint plus account plan details
+
+extra_commands:
+  - name: qna
+    description: "Get a direct answer to a question (search with include_answer=advanced)"
+  - name: context
+    description: "Build a ready-to-paste LLM context string from search results"
+  - name: local search
+    description: "Full-text search over locally cached content without any API credits"
+  - name: corpus build
+    description: "Build a RAG corpus via fan-out search+extract+crawl with URL deduplication"
+  - name: corpus gaps
+    description: "Find URLs in cached search results that have not been extracted yet"
+  - name: drift detect
+    description: "Compare current search results against a stored baseline for a query"
+  - name: budget watch
+    description: "Monitor credit burn rate against a daily limit with terminal alerts"
+  - name: cost report
+    description: "Credit spend breakdown by endpoint and time window"
+  - name: batch plan
+    description: "Pre-flight a query list against the cache, estimate cost, and run net-new within budget"
+  - name: replay
+    description: "Replay all API calls from a named agent session using cached results"
+  - name: freshness check
+    description: "Find cached pages older than a threshold and output a re-fetch list"
+  - name: crawl resume
+    description: "Resume an interrupted crawl from its last SQLite checkpoint"
+  - name: research track
+    description: "Background-poll a research task and persist result in SQLite"
+  - name: sources rank
+    description: "Rank domains by average relevance score across all stored searches"

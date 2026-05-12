@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-115845",
+  "base_printing_press_version": "4.5.0",
+  "patches": [
+    {
+      "id": "sqlite-store",
+      "summary": "Added SQLite-backed local store (internal/store/store.go) using modernc.org/sqlite for offline novel features.",
+      "reason": "The generated file cache (internal/cache/cache.go) is read-only and too simple for the 14 novel commands that need FTS5, session tracking, credit accounting, and cross-command data sharing.",
+      "files": ["internal/store/store.go", "go.mod", "go.sum"]
+    },
+    {
+      "id": "web-store-persistence",
+      "summary": "Patched promoted_web.go to persist each live search call to the local SQLite store after API success.",
+      "reason": "Novel offline features (local-search, drift-detect, corpus gaps, sources-rank, budget-watch, replay) all depend on having prior search results stored locally. Without this hook, the store stays empty.",
+      "files": ["internal/cli/promoted_web.go"],
+      "validated_outcome": "After 'web' calls, store.FTSSearch() finds matches; local-search returns results; corpus gaps reports unextracted URLs."
+    },
+    {
+      "id": "extract-store-persistence",
+      "summary": "Patched promoted_extract.go to persist each live extract call to the local SQLite store after API success.",
+      "reason": "freshness-check and corpus gaps need the extraction history to compute stale/missing URLs.",
+      "files": ["internal/cli/promoted_extract.go"]
+    },
+    {
+      "id": "freshness-check-duration",
+      "summary": "Changed freshness-check --older-than from DurationVar (rejects '7d') to StringVar with custom parseFreshnessDuration helper.",
+      "reason": "Go's time.ParseDuration does not support the 'd' (days) suffix. Users naturally write '7d', '30d' etc. The generated DurationVar flag silently rejected these with a confusing parse error.",
+      "files": ["internal/cli/novel_freshness.go"],
+      "validated_outcome": "freshness-check --older-than 7d outputs 'No pages older than 168h0m0s found in cache.' instead of flag parse error.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD"
+    },
+    {
+      "id": "novel-commands",
+      "summary": "Added 14 novel transcendence commands wired in root.go: qna, context, local-search, corpus (build+gaps), drift-detect, budget-watch, cost-report, batch-plan, replay, freshness-check, crawl-resume, research-track, sources-rank.",
+      "reason": "These commands leverage the SQLite store to provide capabilities unavailable in any other Tavily client: offline FTS, credit budget management, RAG corpus building, session-based agent replay, and cache freshness management.",
+      "files": [
+        "internal/cli/novel_qna.go",
+        "internal/cli/novel_context.go",
+        "internal/cli/novel_local_search.go",
+        "internal/cli/novel_corpus.go",
+        "internal/cli/novel_drift.go",
+        "internal/cli/novel_budget.go",
+        "internal/cli/novel_batch.go",
+        "internal/cli/novel_replay.go",
+        "internal/cli/novel_freshness.go",
+        "internal/cli/novel_crawl_resume.go",
+        "internal/cli/novel_research_track.go",
+        "internal/cli/novel_sources_rank.go",
+        "internal/cli/root.go"
+      ]
+    }
+  ]
+}
