@@ -107,7 +107,11 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	}
 	sort.Strings(paramKeys)
 	for _, k := range paramKeys {
-		key += k + "=" + params[k]
+		// Use & as a delimiter so {a=b, cd=ef} and {ab=cd, e=f} (which
+		// collapse to the same concatenation without a separator) hash
+		// to distinct keys. BLS param shapes don't currently collide,
+		// but the separator removes the class of risk entirely.
+		key += "&" + k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])

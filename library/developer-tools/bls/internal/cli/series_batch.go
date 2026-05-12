@@ -75,13 +75,13 @@ func newSeriesBatchCmd(flags *rootFlags) *cobra.Command {
 						body["seriesid"] = ids
 					}
 				}
-				// Inject the BLS registration key into the body so registered-tier
-				// flags (calculations, annualaverage, catalog, aspects) are honored.
-				if key := strings.TrimSpace(os.Getenv("BLS_API_KEY")); key != "" {
-					if _, ok := body["registrationkey"]; !ok {
-						body["registrationkey"] = key
-					}
-				}
+				// Inject the BLS registration key into the body so
+				// registered-tier flags (calculations, annualaverage,
+				// catalog, aspects) are honored. Routes through the
+				// shared helper so config-file auth (set via
+				// `bls-pp-cli auth set-token`) is consulted in addition
+				// to BLS_API_KEY.
+				body = injectRegistrationKey(body)
 				if bodyStartyear != "" {
 					body["startyear"] = bodyStartyear
 				}

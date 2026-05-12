@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/blsdata"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/store"
 )
 
@@ -187,7 +188,14 @@ func cacheObservations(ctx context.Context, db *sql.DB, seriesID string, observa
 	}
 	defer func() { _ = stmt.Close() }()
 	for _, o := range observations {
-		_, _ = stmt.ExecContext(ctx, seriesID, o.Year, o.Period, o.PeriodName, o.Value, o.Footnotes)
+		if _, err := stmt.ExecContext(ctx, seriesID, o.Year, o.Period, o.PeriodName, o.Value, o.Footnotes); err != nil {
+			// Log to stderr but keep going — a single bad row should not
+			// abort the whole cache write. Downstream `series extremum`
+			// depends on cache completeness, so a silent drop here is
+			// what tripped the original review: surface the failure
+			// instead of swallowing it.
+			fmt.Fprintf(os.Stderr, "warning: cacheObservations: series=%s year=%d period=%s: %v\n", seriesID, o.Year, o.Period, err)
+		}
 	}
 	return tx.Commit()
 }
@@ -202,16 +210,24 @@ type ObservationRow struct {
 	Footnotes  string
 }
 
-// injectRegistrationKey adds the BLS registration key from the loaded
-// config to a POST body. BLS's quirk: when posting to /timeseries/data/
-// the API only honors the registration key when it's in the JSON body —
-// the query-string placement (the default for api_key + in:query auth)
-// gets accepted by the gateway but BLS treats the request as
-// unauthenticated, capping it to the 10-year/3-series unauth tier and
-// silently dropping the annualaverage/calculations/catalog/aspects flags.
-// Adding the key here in addition to the query placement means
-// registered-tier features work end-to-end without changing the generic
-// client. Safe no-op when the user has no key.
+// injectRegistrationKey adds the BLS registration key to a POST body.
+// BLS's quirk: when posting to /timeseries/data/ the API only honors
+// the registration key when it's in the JSON body — the query-string
+// placement (the default for api_key + in:query auth) gets accepted by
+// the gateway but BLS treats the request as unauthenticated, capping
+// it to the 10-year/3-series unauth tier and silently dropping the
+// annualaverage/calculations/catalog/aspects flags. Adding the key
+// here in addition to the query placement means registered-tier
+// features work end-to-end without changing the generic client. Safe
+// no-op when the user has no key.
+//
+// Lookup order matches the rest of the CLI's auth resolution: the
+// BLS_API_KEY env var wins (it's the runtime override path), then the
+// persisted config populated by `bls-pp-cli auth set-token` is
+// consulted. Without the config fallback, users who authenticated via
+// the auth subcommand would silently get the unauthenticated tier on
+// every POST command (snapshot macro, series batch, inflation adjust,
+// series compare-sa) even though doctor reports them as configured.
 func injectRegistrationKey(body map[string]any) map[string]any {
 	if body == nil {
 		body = map[string]any{}
@@ -219,8 +235,14 @@ func injectRegistrationKey(body map[string]any) map[string]any {
 	if _, exists := body["registrationkey"]; exists {
 		return body
 	}
-	if k := strings.TrimSpace(os.Getenv("BLS_API_KEY")); k != "" {
-		body["registrationkey"] = k
+	key := strings.TrimSpace(os.Getenv("BLS_API_KEY"))
+	if key == "" {
+		if cfg, err := config.Load(""); err == nil {
+			key = strings.TrimSpace(cfg.BlsApiKey)
+		}
+	}
+	if key != "" {
+		body["registrationkey"] = key
 	}
 	return body
 }
