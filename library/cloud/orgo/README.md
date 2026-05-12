@@ -182,6 +182,38 @@ Organize computers into named workspaces
 - **`orgo-pp-cli workspaces list`** - Returns all workspaces for the authenticated user.
 
 
+## VM-Direct Routing (latency optimization)
+
+Computer-use commands (`bash`, `click`, `type`, `key`, `scroll`, `drag`, `exec`, `screenshot`) can bypass the central API and talk directly to the per-VM agent. Measured win on a sample machine: **~0.55s → ~0.16s per call (~70%)**, because the central API's proxy hop and (for screenshots) Supabase upload are skipped.
+
+```bash
+# One-call resolver: a single central GET /computers/<id> fetches the VM's
+# instance URL and vnc_password, then every subsequent call in the same
+# invocation goes direct to the VM.
+orgo-pp-cli computers bash execute <id> --vm-from <id> --command 'hostname'
+
+# Explicit: useful for agents born inside the VM with the values injected.
+# Token is the computer's vnc_password (from `computers get`).
+orgo-pp-cli computers screenshot get <id> \
+    --vm-url http://1.2.3.4:36100 \
+    --vm-token <vnc_password>
+
+# Env-injected variant (no flags needed):
+export ORGO_VM_URL=http://1.2.3.4:36100
+export ORGO_VM_TOKEN=<vnc_password>
+orgo-pp-cli computers click mouse <id> --x 640 --y 360
+```
+
+**Which commands bypass:** `bash`, `click`, `type`, `key`, `scroll`, `drag`, `exec`, `screenshot`. Everything else (workspace/computer management, files, fleet ops, audit, etc.) continues to use the central API — those endpoints don't exist on the per-VM agent. Non-bypassable commands run normally when `--vm-*` is set, so a mixed workload works without juggling flags.
+
+**Response shape note for `screenshot get`:** central API returns `{image: <signed-Supabase-URL>, metadata: {...}}`; VM-direct returns `{image: <base64-PNG>, format, encoding, width, height}`. Both deliver a complete screenshot — they encode it differently. Inspect the `encoding` field (`"base64"` for VM-direct) or check whether `image` starts with `https://` vs `iVBOR...`.
+
+**Caveats:**
+- The response cache is bypassed for VM-direct calls (no point caching local-network responses with sub-200ms latency).
+- The VM agent's auth keyspace is per-VM (`vnc_password`) — your `ORGO_API_KEY` is **not** valid against the per-VM agent.
+- `--vm-from <id>` still costs one central API call (the resolver). Skip it by passing `--vm-url`/`--vm-token` explicitly when you already have them.
+
+
 ## Output Formats
 
 ```bash

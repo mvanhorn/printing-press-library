@@ -30,6 +30,53 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+
+	// VM-direct routing. When VMURL is set, computer-use endpoints under
+	// /computers/{id}/{bash,click,type,key,scroll,drag,exec,screenshot} are
+	// rewritten to <VMURL>/<endpoint> and authenticated with VMToken (the
+	// per-VM vnc_password) instead of the central API key. All other paths
+	// (workspaces, computers metadata, files, etc.) continue to use BaseURL
+	// + the central auth header. See vmRoute() for the routing decision.
+	VMURL   string
+	VMToken string
+}
+
+// vmBypassSuffixes is the closed set of computer-use endpoints the per-VM
+// agent at <VMURL> exposes. Discovered by probing a live VM at /screenshot,
+// /bash, /exec, /click, /type, /key, /scroll, /drag. Everything else stays
+// on the central API. Update this set if the VM agent grows new endpoints.
+var vmBypassSuffixes = map[string]bool{
+	"/bash":       true,
+	"/click":      true,
+	"/drag":       true,
+	"/exec":       true,
+	"/key":        true,
+	"/screenshot": true,
+	"/scroll":     true,
+	"/type":       true,
+}
+
+// vmRoute returns the rewritten URL for a VM-direct call, or ("", false) when
+// the path isn't bypass-eligible or VMURL is unset. Eligibility: VMURL set AND
+// path matches /computers/<id>/<suffix> AND suffix is in vmBypassSuffixes.
+func (c *Client) vmRoute(path string) (string, bool) {
+	if c.VMURL == "" {
+		return "", false
+	}
+	const prefix = "/computers/"
+	if !strings.HasPrefix(path, prefix) {
+		return "", false
+	}
+	rest := path[len(prefix):]
+	slash := strings.IndexByte(rest, '/')
+	if slash == -1 {
+		return "", false
+	}
+	suffix := rest[slash:]
+	if !vmBypassSuffixes[suffix] {
+		return "", false
+	}
+	return strings.TrimRight(c.VMURL, "/") + suffix, true
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -71,14 +118,19 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 }
 
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
-	// Check cache for GET requests
-	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	// VM-direct calls bypass the response cache entirely: the cache lives on
+	// the operator's host, the VM agent is on a different network, and the
+	// audience for these calls is hot-path computer-use loops where staleness
+	// would be wrong. The cache is for central-API metadata.
+	_, isVMDirect := c.vmRoute(path)
+	cacheOK := !c.NoCache && !c.DryRun && c.cacheDir != "" && !isVMDirect
+	if cacheOK {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do("GET", path, params, nil, headers)
-	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
+	if err == nil && cacheOK {
 		c.writeCache(path, params, result)
 	}
 	return result, err
@@ -207,6 +259,19 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	authHeader, err := c.authHeader()
 	if err != nil {
 		return nil, 0, err
+	}
+
+	// VM-direct routing. When --vm-url is set and the path is bypass-eligible,
+	// override the target URL and swap the auth header to the per-VM bearer
+	// (vnc_password). The central API key is *not* sent on VM-direct calls —
+	// the VM's auth keyspace is distinct and the central key would 401.
+	if vmURL, ok := c.vmRoute(path); ok {
+		targetURL = vmURL
+		if c.VMToken != "" {
+			authHeader = "Bearer " + c.VMToken
+		} else {
+			authHeader = ""
+		}
 	}
 
 	// Build the request for dry-run display or actual execution

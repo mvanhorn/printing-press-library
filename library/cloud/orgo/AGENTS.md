@@ -33,6 +33,21 @@ orgo-pp-cli <command> --dry-run --agent
 
 Use `--yes --no-input` only after the target, arguments, and side effects are clear.
 
+For hot-path computer-use loops (bash/click/type/key/scroll/drag/exec/screenshot), reach for the `--vm-*` flags to bypass the central API and cut per-call latency by ~70% on a sample machine:
+
+```bash
+# One-call resolver — recommended default for short sessions.
+orgo-pp-cli computers bash execute <id> --vm-from <id> --command 'echo hi'
+
+# Explicit (skip the resolver) — recommended for long loops or in-VM agents.
+orgo-pp-cli computers screenshot get <id> --vm-url <url> --vm-token <vnc_password>
+
+# Env-injected:
+ORGO_VM_URL=<url> ORGO_VM_TOKEN=<vnc_password> orgo-pp-cli computers click mouse <id> --x 640 --y 360
+```
+
+Non-bypassable commands (workspaces, fleet, etc.) flow through the central API unchanged when `--vm-*` is set, so mixed workloads don't need flag juggling. See `README.md` "VM-Direct Routing" for the response-shape caveat on `screenshot get` (base64 inline vs signed URL).
+
 For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 
 ## Local Customizations

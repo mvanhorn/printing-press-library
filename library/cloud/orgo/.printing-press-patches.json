@@ -59,6 +59,19 @@
       "upstream_issue": "TO-FILE: cli-printing-press README examples should reflect actual generated flag names"
     },
     {
+      "id": "vm-direct-routing",
+      "summary": "Add --vm-from / --vm-url / --vm-token flags that route computer-use endpoints (bash/click/type/key/scroll/drag/exec/screenshot) directly to the per-VM agent, bypassing the central API.",
+      "reason": "The per-VM agent at <computer-url>:<api-port> exposes the same 8 computer-use endpoints the central API proxies — using vnc_password as bearer auth (verified live against an Orgo VM). Routing direct cuts measured per-call latency from ~0.55s to ~0.16s on bash, and avoids the central API's Supabase upload step for screenshots. Non-bypassable commands (workspaces, fleet, audit, etc.) keep using the central API transparently. Orgo-specific feature (the per-VM agent is part of Orgo's architecture); unlikely to generalize as a Printing Press template without an analog on every API.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/root.go",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "validated_outcome": "All 8 candidate endpoints verified VM-direct against a live VM (bash/click/type/key/scroll/drag/exec/screenshot). Non-bypassable command (`computers get`) with --vm-url set still goes to central API. Latency: 3-run avg 0.55s central -> 0.16s VM-direct. Cross-VM auth scoping verified — VM1 token rejected on VM2 with HTTP 401.",
+      "upstream_issue": ""
+    },
+    {
       "id": "cache-key-auth-fingerprint",
       "summary": "Response cache key now includes a hash of the configured auth header and sorts params before hashing, so different API keys can't share cache buckets and map iteration order can't perturb the key.",
       "reason": "Generic PP bug. The cache key was sha256(path + map-iterated params) and ignored credentials entirely. Effect: a `--data-source live` (or default) call with an invalid key served the cached response from a previous valid-key call, leaking data and masking 401s as exit 0. Also: map iteration order is non-deterministic in Go, so identical requests with multiple params could land on different cache files run-to-run, defeating the cache.",

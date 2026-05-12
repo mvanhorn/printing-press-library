@@ -42,6 +42,15 @@ type rootFlags struct {
 	dataSource    string
 	freshnessMeta any
 
+	// VM-direct routing flags. When vmFrom is set, newClient() resolves the
+	// computer's instance URL and vnc_password via a one-time central-API
+	// `computers get` call and caches them in vmURL/vmToken for the session.
+	// When vmURL/vmToken are set explicitly, no central call is made — useful
+	// for agents born inside the VM with the values injected at boot.
+	vmFrom  string
+	vmURL   string
+	vmToken string
+
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
 	deliverBuf  *bytes.Buffer
@@ -125,6 +134,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'orgo-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	rootCmd.PersistentFlags().StringVar(&flags.vmFrom, "vm-from", "", "Route computer-use endpoints (bash/click/type/key/scroll/drag/exec/screenshot) directly to the named computer's VM agent; resolves URL + token via a one-time `computers get` call.")
+	rootCmd.PersistentFlags().StringVar(&flags.vmURL, "vm-url", "", "Per-VM agent URL (e.g. http://1.2.3.4:36100). When set with --vm-token, bypasses --vm-from's central API lookup.")
+	rootCmd.PersistentFlags().StringVar(&flags.vmToken, "vm-token", "", "Per-VM bearer token (the computer's vnc_password). Required with --vm-url; falls back to $ORGO_VM_TOKEN.")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -226,7 +238,64 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+
+	// VM-direct routing. Resolution order:
+	//   1. --vm-url + --vm-token explicit (skip central API entirely)
+	//   2. $ORGO_VM_URL + $ORGO_VM_TOKEN env (for in-VM agents)
+	//   3. --vm-from <computer-id> (one-time central GET to resolve url + vnc_password)
+	vmURL := f.vmURL
+	vmToken := f.vmToken
+	if vmURL == "" {
+		vmURL = os.Getenv("ORGO_VM_URL")
+	}
+	if vmToken == "" {
+		vmToken = os.Getenv("ORGO_VM_TOKEN")
+	}
+	switch {
+	case vmURL != "":
+		if vmToken == "" {
+			return nil, usageErr(fmt.Errorf("--vm-url requires --vm-token (or $ORGO_VM_TOKEN)"))
+		}
+		c.VMURL = vmURL
+		c.VMToken = vmToken
+	case f.vmFrom != "":
+		resolvedURL, resolvedToken, rerr := resolveVMTarget(c, f.vmFrom)
+		if rerr != nil {
+			return nil, fmt.Errorf("--vm-from %s: %w", f.vmFrom, rerr)
+		}
+		c.VMURL = resolvedURL
+		c.VMToken = resolvedToken
+		// Cache back into rootFlags so subsequent newClient() calls in the
+		// same invocation skip the central lookup. Most commands call
+		// newClient() once, but commands like 'audit'/'replay' do multiple.
+		f.vmURL = resolvedURL
+		f.vmToken = resolvedToken
+	}
 	return c, nil
+}
+
+// resolveVMTarget performs a one-time central-API GET /computers/<id> to
+// extract the computer's instance URL and vnc_password. Used by --vm-from
+// to avoid making the user paste both manually.
+func resolveVMTarget(c *client.Client, computerID string) (string, string, error) {
+	data, err := c.Get("/computers/"+computerID, nil)
+	if err != nil {
+		return "", "", err
+	}
+	var d struct {
+		URL         string `json:"url"`
+		VNCPassword string `json:"vnc_password"`
+	}
+	if err := json.Unmarshal(data, &d); err != nil {
+		return "", "", fmt.Errorf("parsing computers/%s response: %w", computerID, err)
+	}
+	if d.URL == "" {
+		return "", "", fmt.Errorf("computer %s has no `url` field; not started?", computerID)
+	}
+	if d.VNCPassword == "" {
+		return "", "", fmt.Errorf("computer %s has no `vnc_password` field; cannot authenticate to VM agent", computerID)
+	}
+	return d.URL, d.VNCPassword, nil
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
