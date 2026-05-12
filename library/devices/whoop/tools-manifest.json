@@ -1,0 +1,272 @@
+{
+  "api_name": "whoop",
+  "base_url": "https://api.prod.whoop.com/developer",
+  "description": "Official WHOOP Developer Platform v2 API. Provides programmatic access to a user's\ncycles, sleep, recovery, workouts, and profile data. Authentication is OAuth 2.0\nwith PKCE; this spec also accepts a static bearer token via the WHOOP_ACCESS_TOKEN\nenvironment variable for non-interactive contexts (CI, agents).\n\nPagination: every list endpoint enforces `limit \u003c= 25` (default `10`). Use the\n`nextToken` query parameter with the `next_token` value from the previous response.\nSort order is `start` descending. Time filters: `start`, `end` (ISO-8601 UTC).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "WHOOP_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WHOOP_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activity_get-sleep",
+      "description": "Get a single sleep by UUID. Required: sleepId. Returns the Sleep.",
+      "method": "GET",
+      "path": "/v2/activity/sleep/{sleepId}",
+      "params": [
+        {
+          "name": "sleepId",
+          "type": "string",
+          "location": "path",
+          "description": "Sleep id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activity_get-workout",
+      "description": "Get a single workout by UUID. Required: workoutId. Returns the Workout.",
+      "method": "GET",
+      "path": "/v2/activity/workout/{workoutId}",
+      "params": [
+        {
+          "name": "workoutId",
+          "type": "string",
+          "location": "path",
+          "description": "Workout id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activity_list-sleeps",
+      "description": "List sleep activities. Optional: limit (default: 10), start, end (plus 1 more). Returns the ActivityListSleepsResponse.",
+      "method": "GET",
+      "path": "/v2/activity/sleep",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (server max 25; default 10)."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC start of time window (defaults to 24h ago)."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC end of time window (defaults to now)."
+        },
+        {
+          "name": "nextToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from prior response's `next_token`."
+        }
+      ]
+    },
+    {
+      "name": "activity_list-workouts",
+      "description": "List workouts. Optional: limit (default: 10), start, end (plus 1 more). Returns the ActivityListWorkoutsResponse.",
+      "method": "GET",
+      "path": "/v2/activity/workout",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (server max 25; default 10)."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC start of time window (defaults to 24h ago)."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC end of time window (defaults to now)."
+        },
+        {
+          "name": "nextToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from prior response's `next_token`."
+        }
+      ]
+    },
+    {
+      "name": "activity-mapping_get",
+      "description": "Translate a v1 sleep/workout id to a v2 UUID. Required: v1Id, type. Returns the ActivityMappingGetResponse.",
+      "method": "GET",
+      "path": "/v1/activity-mapping/{v1Id}",
+      "params": [
+        {
+          "name": "v1Id",
+          "type": "int",
+          "location": "path",
+          "description": "V1 id",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Resource type being translated.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cycle_get",
+      "description": "Get a single cycle by id. Required: cycleId. Returns the Cycle.",
+      "method": "GET",
+      "path": "/v2/cycle/{cycleId}",
+      "params": [
+        {
+          "name": "cycleId",
+          "type": "int",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cycle_list",
+      "description": "Returns the user's cycles (a WHOOP day) ordered by start time descending. Optional: limit (default: 10), start, end (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/cycle",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (server max 25; default 10)."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC start of time window (defaults to 24h ago)."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC end of time window (defaults to now)."
+        },
+        {
+          "name": "nextToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from prior response's `next_token`."
+        }
+      ]
+    },
+    {
+      "name": "cycle_recovery_get-for-cycle",
+      "description": "Get the recovery associated with a cycle. Required: cycleId. Returns the Recovery.",
+      "method": "GET",
+      "path": "/v2/cycle/{cycleId}/recovery",
+      "params": [
+        {
+          "name": "cycleId",
+          "type": "int",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cycle_sleep_get-for-cycle",
+      "description": "Get the sleep associated with a cycle. Required: cycleId. Returns the Sleep.",
+      "method": "GET",
+      "path": "/v2/cycle/{cycleId}/sleep",
+      "params": [
+        {
+          "name": "cycleId",
+          "type": "int",
+          "location": "path",
+          "description": "Cycle id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recovery_list-recoveries",
+      "description": "List recovery records. Optional: limit (default: 10), start, end (plus 1 more). Returns the RecoveryListRecoveriesResponse.",
+      "method": "GET",
+      "path": "/v2/recovery",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (server max 25; default 10)."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC start of time window (defaults to 24h ago)."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "ISO-8601 UTC end of time window (defaults to now)."
+        },
+        {
+          "name": "nextToken",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from prior response's `next_token`."
+        }
+      ]
+    },
+    {
+      "name": "user_get-body-measurement",
+      "description": "Get the authenticated user's body measurements from WHOOP. No parameters. Returns the BodyMeasurement object with height_meter (float), weight_kilogram (float), and max_heart_rate (integer). Used by analytics commands that need physiological context; prefer 'whoami' if you also need profile info in one call.",
+      "method": "GET",
+      "path": "/v1/user/measurement/body",
+      "params": []
+    },
+    {
+      "name": "user_get-profile",
+      "description": "Get the authenticated user's basic WHOOP profile. No parameters. Returns the UserProfile object with user_id (int64), email, first_name, and last_name. Use this to confirm the active account or look up the user_id needed for cross-referencing other records; prefer 'whoami' if you also need body measurements in one call.",
+      "method": "GET",
+      "path": "/v1/user/profile/basic",
+      "params": []
+    },
+    {
+      "name": "user_revoke-oauth-access",
+      "description": "Revoke the user's OAuth access (delete token grants). Destructive.",
+      "method": "DELETE",
+      "path": "/v1/user/access",
+      "params": []
+    }
+  ]
+}

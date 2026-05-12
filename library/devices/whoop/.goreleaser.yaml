@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: whoop-pp-cli
     repository:
-      owner: gregvanhorn
+      owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Printing Press CLI for Whoop."
+    description: "Official WHOOP Developer Platform v2 API. Provides programmatic access to a user's cycles, sleep, recovery,..."
     install: |
       bin.install "whoop-pp-cli"
       bin.install "whoop-pp-mcp"

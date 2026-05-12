@@ -1,0 +1,1416 @@
+{
+  "dir": "/Users/ykurilov/printing-press/.runstate/ykurilov-ca61f808/runs/20260511-213301/working/whoop-pp-cli",
+  "binary": "/Users/ykurilov/printing-press/.runstate/ykurilov-ca61f808/runs/20260511-213301/working/whoop-pp-cli/whoop-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 87,
+  "passed": 84,
+  "failed": 3,
+  "skipped": 58,
+  "commands": [
+    "activity get-sleep",
+    "activity get-workout",
+    "activity list-sleeps",
+    "activity list-workouts",
+    "activity-mapping",
+    "analytics",
+    "analyze correlate",
+    "analyze efficiency",
+    "analyze overtraining",
+    "analyze sleep-debt",
+    "analyze why-today",
+    "api",
+    "cycle get",
+    "cycle list",
+    "cycle recovery get-for-cycle",
+    "cycle sleep get-for-cycle",
+    "doctor",
+    "feedback list",
+    "import",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "recovery",
+    "search",
+    "sql",
+    "sync",
+    "tail",
+    "user get-body-measurement",
+    "user get-profile",
+    "user revoke-oauth-access",
+    "which",
+    "whoami",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "activity get-sleep",
+      "kind": "help",
+      "args": [
+        "activity",
+        "get-sleep",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single sleep by UUID\n\nUsage:\n  whoop-pp-cli activity get-sleep \u003csleepId\u003e [flags]\n\nAliases:\n  get-sleep, get\n\nExamples:\n  whoop-pp-cli activity get-sleep 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get-sleep\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "activity get-sleep",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"sleepid\""
+    },
+    {
+      "command": "activity get-sleep",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"sleepid\""
+    },
+    {
+      "command": "activity get-sleep",
+      "kind": "error_path",
+      "args": [
+        "activity",
+        "get-sleep",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/activity/sleep/__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/activity/sleep/__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "activity get-workout",
+      "kind": "help",
+      "args": [
+        "activity",
+        "get-workout",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single workout by UUID\n\nUsage:\n  whoop-pp-cli activity get-workout \u003cworkoutId\u003e [flags]\n\nExamples:\n  whoop-pp-cli activity get-workout 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get-workout\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "activity get-workout",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"workoutid\""
+    },
+    {
+      "command": "activity get-workout",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"workoutid\""
+    },
+    {
+      "command": "activity get-workout",
+      "kind": "error_path",
+      "args": [
+        "activity",
+        "get-workout",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/activity/workout/__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/activity/workout/__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "activity list-sleeps",
+      "kind": "help",
+      "args": [
+        "activity",
+        "list-sleeps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List sleep activities\n\nUsage:\n  whoop-pp-cli activity list-sleeps [flags]\n\nAliases:\n  list-sleeps, list\n\nExamples:\n  whoop-pp-cli activity list-sleeps\n\nFlags:\n      --all                     Fetch all pages\n      --end string              ISO-8601 UTC end of time window (defaults to now).\n  -h, --help                    help for list-sleeps\n      --limit int               Page size (server max 25; default 10). (default 10)\n      --next-token next_token   Cursor from prior response's next_token.\n      --start string            ISO-8601 UTC start of time window (defaults to 24h ago).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "activity list-sleeps",
+      "kind": "happy_path",
+      "args": [
+        "activity",
+        "list-sleeps"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"id\": \"89dfce01-b2cb-4ba9-8612-6eeba6e14eec\",\n        \"cycle_id\": 1491664936,\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T23:38:16.949Z\",\n        \"updated_at\": \"2026-05-11T23:38:16.949Z\",\n        \"start\": \"2026-05-11T15:43:18.620Z\",\n        \"end\": \"2026-05-11T23:35:13.960Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"nap\": false,\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"stage_summary\": {\n            \"total_in_bed_time_milli\": 28315340,\n            \"total_awake_time_milli\": 1359000,\n            \"total_no_data_time_milli\": 0,\n            \"total_light_sleep_time_milli\": 16209950,\n            \"total_slow_wave_sleep_time_milli\": 3994110,\n            \"total_rem_sleep_time_milli\": 6752280,\n            \"sleep_cycle_count\": 4,\n            \"disturbance_count\": 8\n          },\n          \"sleep_needed\": {\n            \"baseline_milli\": 26892147,\n            \"need_from_sleep_debt_milli\": 7310739,\n            \"need_from_recent_strain_milli\": 729679,\n            \"need_from_recent_nap_milli\": 0\n          },\n          \"respiratory_rate\": 13.994141,\n          \"sleep_performance_percentage\": 80.0,\n          \"sleep_consistency_percentage\": 66.0,\n          \"sleep_efficiency_percentage\": 95.73808\n        }\n      },\n      {\n        \"id\": \"6b23b7da-a9ee-43d3-9269-2ff1d3af6db6\",\n        \"cycle_id\": 1489330680,\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T22:01:18.734Z\",\n        \"updated_at\": \"2026-05-10T22:01:18.734Z\",\n        \"start\": \"2026-05-10T15:59:47.480Z\",\n        \"end\": \"2026-05-10T21:35:59.370Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"nap\": false,\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"stage_summary\": {\n            \"total_in_bed_time_milli\": 20171890,\n            \"total_awake_time_milli\": 810110,\n            \"total_no_data_time_milli\": 0,\n            \"total_light_sleep_time_milli\": 12365480,\n            \"total_slow_wave_sleep_time_milli\": 3904130,\n            \"total_rem_sleep_time_milli\": 3092170,\n            \"sleep_cycle_count\": 3,\n            \"disturbance_count\": 10\n          },\n          \"sleep_needed\": {\n            \"baseline_milli\": 26892200,\n            \"need_from_sleep_debt_milli\": 4995122,\n            \"need_from_recent_strain_milli\": 2095936,\n            \"need_from_recent_nap_milli\": 0\n          },\n          \"respiratory_rate\": 14.208984,\n          \"sleep_performance_percentage\": 67.0,\n          \"sleep_consistency_percentage\": 57.0,\n          \"sleep_efficiency_percentage\": 95.98396\n        }\n      },\n      {\n        \"id\": \"98b7dd47-2e02-42c1-8a7b-6d53a6fb71c6\",\n        \"cycle_id\": 1487138603,\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T22:29:45.832Z\",\n        \"updated_at\": \"2026-05-09T22:29:45.832Z\",\n        \"start\": \"2026-05-09T15:09:46.150Z\",\n        \"end\": \"2026-05-09T21:31:38.200Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"nap\": false,\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"stage_summary\": {\n            \"total_in_bed_time_milli\": 22912050,\n            \"total_awake_time_milli\": 630050,\n            \"total_no_data_time_milli\": 0,\n            \"total_light_sleep_time_milli\": 12701660,\n            \"total_slow_wave_sleep_time_milli\": 4356110,\n            \"total_rem_sleep_time_milli\": 5224230,\n            \"sleep_cycle_count\": 3,\n            \"disturbance_count\": 10\n          },\n          \"sleep_needed\": {\n            \"baseline_milli\": 26892252,\n            \"need_from_sleep_debt_milli\": 5092450,\n            \"need_from_recent_strain_milli\": 287541,\n            \"need_from_recent_nap_milli\": 0\n          },\n          \"respiratory_rate\": 14.6484375,\n          \"sleep_performance_percentage\": 74.0,\n          \"sleep_consistency_percentage\": 45.0,\n          \"sleep_efficiency_percentage\": 97.25014\n        }\n      },\n      {\n        \"id\": \"e1aed3b6-5aa2-4b18-98d9-8a30e54d3e90\",\n        \"cycle_id\": 1485057506,\n        \"v1_id\": null,\n        \"user_id\": 3503…[truncated]"
+    },
+    {
+      "command": "activity list-sleeps",
+      "kind": "json_fidelity",
+      "args": [
+        "activity",
+        "list-sleeps",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"id\": \"89dfce01-b2cb-4ba9-8612-6eeba6e14eec\",\n        \"cycle_id\": 1491664936,\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T23:38:16.949Z\",\n        \"updated_at\": \"2026-05-11T23:38:16.949Z\",\n        \"start\": \"2026-05-11T15:43:18.620Z\",\n        \"end\": \"2026-05-11T23:35:13.960Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"nap\": false,\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"stage_summary\": {\n            \"total_in_bed_time_milli\": 28315340,\n            \"total_awake_time_milli\": 1359000,\n            \"total_no_data_time_milli\": 0,\n            \"total_light_sleep_time_milli\": 16209950,\n            \"total_slow_wave_sleep_time_milli\": 3994110,\n            \"total_rem_sleep_time_milli\": 6752280,\n            \"sleep_cycle_count\": 4,\n            \"disturbance_count\": 8\n          },\n          \"sleep_needed\": {\n            \"baseline_milli\": 26892147,\n            \"need_from_sleep_debt_milli\": 7310739,\n            \"need_from_recent_strain_milli\": 729679,\n            \"need_from_recent_nap_milli\": 0\n          },\n          \"respiratory_rate\": 13.994141,\n          \"sleep_performance_percentage\": 80.0,\n          \"sleep_consistency_percentage\": 66.0,\n          \"sleep_efficiency_percentage\": 95.73808\n        }\n      },\n      {\n        \"id\": \"6b23b7da-a9ee-43d3-9269-2ff1d3af6db6\",\n        \"cycle_id\": 1489330680,\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T22:01:18.734Z\",\n        \"updated_at\": \"2026-05-10T22:01:18.734Z\",\n        \"start\": \"2026-05-10T15:59:47.480Z\",\n        \"end\": \"2026-05-10T21:35:59.370Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"nap\": false,\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"stage_summary\": {\n            \"total_in_bed_time_milli\": 20171890,\n            \"total_awake_time_milli\": 810110,\n            \"total_no_data_time_milli\": 0,\n            \"total_light_sleep_time_milli\": 12365480,\n            \"total_slow_wave_sleep_time_milli\": 3904130,\n            \"total_rem_sleep_time_milli\": 3092170,\n            \"sleep_cycle_count\": 3,\n            \"disturbance_count\": 10\n          },\n          \"sleep_needed\": {\n            \"baseline_milli\": 26892200,\n            \"need_from_sleep_debt_milli\": 4995122,\n            \"need_from_recent_strain_milli\": 2095936,\n            \"need_from_recent_nap_milli\": 0\n          },\n          \"respiratory_rate\": 14.208984,\n          \"sleep_performance_percentage\": 67.0,\n          \"sleep_consistency_percentage\": 57.0,\n          \"sleep_efficiency_percentage\": 95.98396\n        }\n      },\n      {\n        \"id\": \"98b7dd47-2e02-42c1-8a7b-6d53a6fb71c6\",\n        \"cycle_id\": 1487138603,\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T22:29:45.832Z\",\n        \"updated_at\": \"2026-05-09T22:29:45.832Z\",\n        \"start\": \"2026-05-09T15:09:46.150Z\",\n        \"end\": \"2026-05-09T21:31:38.200Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"nap\": false,\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"stage_summary\": {\n            \"total_in_bed_time_milli\": 22912050,\n            \"total_awake_time_milli\": 630050,\n            \"total_no_data_time_milli\": 0,\n            \"total_light_sleep_time_milli\": 12701660,\n            \"total_slow_wave_sleep_time_milli\": 4356110,\n            \"total_rem_sleep_time_milli\": 5224230,\n            \"sleep_cycle_count\": 3,\n            \"disturbance_count\": 10\n          },\n          \"sleep_needed\": {\n            \"baseline_milli\": 26892252,\n            \"need_from_sleep_debt_milli\": 5092450,\n            \"need_from_recent_strain_milli\": 287541,\n            \"need_from_recent_nap_milli\": 0\n          },\n          \"respiratory_rate\": 14.6484375,\n          \"sleep_performance_percentage\": 74.0,\n          \"sleep_consistency_percentage\": 45.0,\n          \"sleep_efficiency_percentage\": 97.25014\n        }\n      },\n      {\n        \"id\": \"e1aed3b6-5aa2-4b18-98d9-8a30e54d3e90\",\n        \"cycle_id\": 1485057506,\n        \"v1_id\": null,\n        \"user_id\": 3503…[truncated]"
+    },
+    {
+      "command": "activity list-sleeps",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "activity list-workouts",
+      "kind": "help",
+      "args": [
+        "activity",
+        "list-workouts",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List workouts\n\nUsage:\n  whoop-pp-cli activity list-workouts [flags]\n\nExamples:\n  whoop-pp-cli activity list-workouts\n\nFlags:\n      --all                     Fetch all pages\n      --end string              ISO-8601 UTC end of time window (defaults to now).\n  -h, --help                    help for list-workouts\n      --limit int               Page size (server max 25; default 10). (default 10)\n      --next-token next_token   Cursor from prior response's next_token.\n      --start string            ISO-8601 UTC start of time window (defaults to 24h ago).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "activity list-workouts",
+      "kind": "happy_path",
+      "args": [
+        "activity",
+        "list-workouts"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"id\": \"87a7f154-a866-4b47-a9e0-ff6881b46b48\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T05:21:40.093Z\",\n        \"updated_at\": \"2026-05-11T05:21:44.562Z\",\n        \"start\": \"2026-05-11T04:33:00.520Z\",\n        \"end\": \"2026-05-11T05:05:59.530Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 8.729189,\n          \"average_heart_rate\": 113,\n          \"max_heart_rate\": 199,\n          \"kilojoule\": 938.32825,\n          \"percent_recorded\": 0.99999493,\n          \"distance_meter\": null,\n          \"altitude_gain_meter\": null,\n          \"altitude_change_meter\": null,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 694000,\n            \"zone_one_milli\": 774010,\n            \"zone_two_milli\": 159000,\n            \"zone_three_milli\": 74000,\n            \"zone_four_milli\": 149000,\n            \"zone_five_milli\": 129000\n          }\n        },\n        \"sport_id\": 22\n      },\n      {\n        \"id\": \"866555c2-d0e3-48c7-a763-151c076b3104\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T04:23:20.569Z\",\n        \"updated_at\": \"2026-05-10T04:23:50.079Z\",\n        \"start\": \"2026-05-10T02:07:48.612Z\",\n        \"end\": \"2026-05-10T04:23:16.896Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 14.565526,\n          \"average_heart_rate\": 115,\n          \"max_heart_rate\": 188,\n          \"kilojoule\": 3690.0242,\n          \"percent_recorded\": 0.9999651,\n          \"distance_meter\": 1264.8738,\n          \"altitude_gain_meter\": 163.59119,\n          \"altitude_change_meter\": 9.50467,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 3574000,\n            \"zone_one_milli\": 1829000,\n            \"zone_two_milli\": 1027000,\n            \"zone_three_milli\": 1052010,\n            \"zone_four_milli\": 393000,\n            \"zone_five_milli\": 253000\n          }\n        },\n        \"sport_id\": 22\n      },\n      {\n        \"id\": \"1841b1d7-31ba-47d9-8972-d6775c7659d3\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-08T05:43:07.887Z\",\n        \"updated_at\": \"2026-05-08T05:43:27.468Z\",\n        \"start\": \"2026-05-08T03:34:53.056Z\",\n        \"end\": \"2026-05-08T05:43:04.505Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 8.19266,\n          \"average_heart_rate\": 98,\n          \"max_heart_rate\": 147,\n          \"kilojoule\": 1786.3772,\n          \"percent_recorded\": 0.99994165,\n          \"distance_meter\": 925.879,\n          \"altitude_gain_meter\": 113.54144,\n          \"altitude_change_meter\": 0.092679,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 4915010,\n            \"zone_one_milli\": 2295000,\n            \"zone_two_milli\": 477000,\n            \"zone_three_milli\": 4000,\n            \"zone_four_milli\": 0,\n            \"zone_five_milli\": 0\n          }\n        },\n        \"sport_id\": 22\n      },\n      {\n        \"id\": \"d7265146-1e16-4191-b428-93b32f35222d\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-07T04:51:21.409Z\",\n        \"updated_at\": \"2026-05-07T04:51:39.553Z\",\n        \"start\": \"2026-05-07T03:17:48.197Z\",\n        \"end\": \"2026-05-07T04:51:17.813Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 12.798125,\n          \"average_heart_rate\": 110,\n          \"max_heart_rate\": 192,\n          \"kilojoule\": 2326.7034,\n          \"percent_recorded\": 1.0,\n          \"distance_meter\": 3971.1045,\n          \"altitude_gain_meter\": 172.86359,\n          \"altitude_change_meter\": 28.463116,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 3035010,\n            \"zone_one_milli\": 857000,\n            \"zone_two_milli\": 483000,\n            \"zone_three_milli\": 786000,\n            \"zone_…[truncated]"
+    },
+    {
+      "command": "activity list-workouts",
+      "kind": "json_fidelity",
+      "args": [
+        "activity",
+        "list-workouts",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"id\": \"87a7f154-a866-4b47-a9e0-ff6881b46b48\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T05:21:40.093Z\",\n        \"updated_at\": \"2026-05-11T05:21:44.562Z\",\n        \"start\": \"2026-05-11T04:33:00.520Z\",\n        \"end\": \"2026-05-11T05:05:59.530Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 8.729189,\n          \"average_heart_rate\": 113,\n          \"max_heart_rate\": 199,\n          \"kilojoule\": 938.32825,\n          \"percent_recorded\": 0.99999493,\n          \"distance_meter\": null,\n          \"altitude_gain_meter\": null,\n          \"altitude_change_meter\": null,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 694000,\n            \"zone_one_milli\": 774010,\n            \"zone_two_milli\": 159000,\n            \"zone_three_milli\": 74000,\n            \"zone_four_milli\": 149000,\n            \"zone_five_milli\": 129000\n          }\n        },\n        \"sport_id\": 22\n      },\n      {\n        \"id\": \"866555c2-d0e3-48c7-a763-151c076b3104\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T04:23:20.569Z\",\n        \"updated_at\": \"2026-05-10T04:23:50.079Z\",\n        \"start\": \"2026-05-10T02:07:48.612Z\",\n        \"end\": \"2026-05-10T04:23:16.896Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 14.565526,\n          \"average_heart_rate\": 115,\n          \"max_heart_rate\": 188,\n          \"kilojoule\": 3690.0242,\n          \"percent_recorded\": 0.9999651,\n          \"distance_meter\": 1264.8738,\n          \"altitude_gain_meter\": 163.59119,\n          \"altitude_change_meter\": 9.50467,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 3574000,\n            \"zone_one_milli\": 1829000,\n            \"zone_two_milli\": 1027000,\n            \"zone_three_milli\": 1052010,\n            \"zone_four_milli\": 393000,\n            \"zone_five_milli\": 253000\n          }\n        },\n        \"sport_id\": 22\n      },\n      {\n        \"id\": \"1841b1d7-31ba-47d9-8972-d6775c7659d3\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-08T05:43:07.887Z\",\n        \"updated_at\": \"2026-05-08T05:43:27.468Z\",\n        \"start\": \"2026-05-08T03:34:53.056Z\",\n        \"end\": \"2026-05-08T05:43:04.505Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 8.19266,\n          \"average_heart_rate\": 98,\n          \"max_heart_rate\": 147,\n          \"kilojoule\": 1786.3772,\n          \"percent_recorded\": 0.99994165,\n          \"distance_meter\": 925.879,\n          \"altitude_gain_meter\": 113.54144,\n          \"altitude_change_meter\": 0.092679,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 4915010,\n            \"zone_one_milli\": 2295000,\n            \"zone_two_milli\": 477000,\n            \"zone_three_milli\": 4000,\n            \"zone_four_milli\": 0,\n            \"zone_five_milli\": 0\n          }\n        },\n        \"sport_id\": 22\n      },\n      {\n        \"id\": \"d7265146-1e16-4191-b428-93b32f35222d\",\n        \"v1_id\": null,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-07T04:51:21.409Z\",\n        \"updated_at\": \"2026-05-07T04:51:39.553Z\",\n        \"start\": \"2026-05-07T03:17:48.197Z\",\n        \"end\": \"2026-05-07T04:51:17.813Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"sport_name\": \"golf\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 12.798125,\n          \"average_heart_rate\": 110,\n          \"max_heart_rate\": 192,\n          \"kilojoule\": 2326.7034,\n          \"percent_recorded\": 1.0,\n          \"distance_meter\": 3971.1045,\n          \"altitude_gain_meter\": 172.86359,\n          \"altitude_change_meter\": 28.463116,\n          \"zone_durations\": {\n            \"zone_zero_milli\": 3035010,\n            \"zone_one_milli\": 857000,\n            \"zone_two_milli\": 483000,\n            \"zone_three_milli\": 786000,\n            \"zone_…[truncated]"
+    },
+    {
+      "command": "activity list-workouts",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "activity-mapping",
+      "kind": "help",
+      "args": [
+        "activity-mapping",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'activity-mapping get'. Translate a v1 sleep/workout id to a v2 UUID\n\nUsage:\n  whoop-pp-cli activity-mapping \u003cv1Id\u003e [flags]\n\nExamples:\n  whoop-pp-cli activity-mapping 42 --type example-value\n\nFlags:\n  -h, --help          help for activity-mapping\n      --type string   Resource type being translated. (one of: sleep, workout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "activity-mapping",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [activity-mapping] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "activity-mapping",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [activity-mapping] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "activity-mapping",
+      "kind": "error_path",
+      "args": [
+        "activity-mapping",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: required flag \"type\" not set\nrequired flag \"type\" not set\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  whoop-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  whoop-pp-cli analytics --type messages\n\n  # Group by a field\n  whoop-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  whoop-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analyze correlate",
+      "kind": "help",
+      "args": [
+        "analyze",
+        "correlate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Computes Pearson's r between two metrics paired by day. Metric names\nare whitelisted to prevent typos that would silently degrade analysis:\n\n  recovery_score, hrv_rmssd_milli, resting_heart_rate, spo2_percentage,\n  skin_temp_celsius, strain, kilojoule, average_heart_rate,\n  max_heart_rate, sleep_performance_percentage, sleep_consistency_percentage,\n  sleep_efficiency_percentage, sleep_debt_milli\n\nUsage:\n  whoop-pp-cli analyze correlate \u003cmetric-a\u003e \u003cmetric-b\u003e [flags]\n\nExamples:\n  whoop-pp-cli analyze correlate sleep_consistency_percentage recovery_score --window 90d\n  whoop-pp-cli analyze correlate strain hrv_rmssd_milli --window 30d --json\n\nFlags:\n  -h, --help            help for correlate\n      --window string   Window over which to correlate (default \"90d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analyze correlate",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [analyze correlate] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "analyze correlate",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [analyze correlate] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "analyze correlate",
+      "kind": "error_path",
+      "args": [
+        "analyze",
+        "correlate",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: accepts 2 arg(s), received 1\naccepts 2 arg(s), received 1\n"
+    },
+    {
+      "command": "analyze efficiency",
+      "kind": "help",
+      "args": [
+        "analyze",
+        "efficiency",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Joins each cycle's strain to the next-day recovery score and bins by\nstrain bucket: 0-5 (\"light\"), 5-10 (\"moderate\"), 10-15 (\"strenuous\"),\n15-21 (\"all-out\"). Output: mean recovery per bucket, count, and the\ndelta vs. the prior equivalent window.\n\nUsage:\n  whoop-pp-cli analyze efficiency [flags]\n\nExamples:\n  whoop-pp-cli analyze efficiency --window 90d --json\n\nFlags:\n  -h, --help            help for efficiency\n      --window string   Rolling window for comparison (e.g. 30d, 90d) (default \"90d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analyze efficiency",
+      "kind": "happy_path",
+      "args": [
+        "analyze",
+        "efficiency",
+        "--window",
+        "90d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"buckets\": [\n    {\n      \"bucket\": \"light_0_5\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    },\n    {\n      \"bucket\": \"moderate_5_10\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    },\n    {\n      \"bucket\": \"strenuous_10_15\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    },\n    {\n      \"bucket\": \"all_out_15_21\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    }\n  ],\n  \"window\": \"90d\"\n}\n"
+    },
+    {
+      "command": "analyze efficiency",
+      "kind": "json_fidelity",
+      "args": [
+        "analyze",
+        "efficiency",
+        "--window",
+        "90d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"buckets\": [\n    {\n      \"bucket\": \"light_0_5\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    },\n    {\n      \"bucket\": \"moderate_5_10\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    },\n    {\n      \"bucket\": \"strenuous_10_15\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    },\n    {\n      \"bucket\": \"all_out_15_21\",\n      \"recent_mean_recovery\": 0,\n      \"recent_count\": 0,\n      \"prior_mean_recovery\": 0,\n      \"prior_count\": 0,\n      \"delta_pp\": 0,\n      \"interpretation\": \"stable\"\n    }\n  ],\n  \"window\": \"90d\"\n}\n"
+    },
+    {
+      "command": "analyze efficiency",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analyze overtraining",
+      "kind": "help",
+      "args": [
+        "analyze",
+        "overtraining",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Computes rolling mean and stdev of cycle strain over the window\nand flags any day where strain \u003e mean + (threshold * stdev). For each\nflagged day, looks up the next-day recovery delta vs. baseline so the\noutput shows whether the high load actually cost recovery.\n\nUsage:\n  whoop-pp-cli analyze overtraining [flags]\n\nExamples:\n  whoop-pp-cli analyze overtraining --threshold 1.0 --json\n\nFlags:\n  -h, --help              help for overtraining\n      --threshold float   Sigma threshold above 90d strain mean (default 1)\n      --window string     Rolling window for the baseline (default \"90d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analyze overtraining",
+      "kind": "happy_path",
+      "args": [
+        "analyze",
+        "overtraining",
+        "--threshold",
+        "1.0",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"baseline_recovery_mean\": 0,\n  \"baseline_strain_mean\": 10.35,\n  \"baseline_strain_std\": 3.8,\n  \"flagged_count\": 11,\n  \"flagged_days\": [\n    {\n      \"date\": \"2026-05-09\",\n      \"strain\": 14.72,\n      \"sigma_above_mean\": 1.15,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-04-08\",\n      \"strain\": 14.46,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-30\",\n      \"strain\": 14.47,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-23\",\n      \"strain\": 14.61,\n      \"sigma_above_mean\": 1.12,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-21\",\n      \"strain\": 14.44,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-13\",\n      \"strain\": 15.08,\n      \"sigma_above_mean\": 1.24,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-12\",\n      \"strain\": 16.12,\n      \"sigma_above_mean\": 1.52,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-11\",\n      \"strain\": 14.44,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-09\",\n      \"strain\": 14.52,\n      \"sigma_above_mean\": 1.1,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-07\",\n      \"strain\": 14.77,\n      \"sigma_above_mean\": 1.16,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-02-20\",\n      \"strain\": 18.95,\n      \"sigma_above_mean\": 2.26,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    }\n  ],\n  \"threshold_sigma\": 1,\n  \"total_scored_cycles\": 80,\n  \"window\": \"90d\"\n}\n"
+    },
+    {
+      "command": "analyze overtraining",
+      "kind": "json_fidelity",
+      "args": [
+        "analyze",
+        "overtraining",
+        "--threshold",
+        "1.0",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"baseline_recovery_mean\": 0,\n  \"baseline_strain_mean\": 10.35,\n  \"baseline_strain_std\": 3.8,\n  \"flagged_count\": 11,\n  \"flagged_days\": [\n    {\n      \"date\": \"2026-05-09\",\n      \"strain\": 14.72,\n      \"sigma_above_mean\": 1.15,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-04-08\",\n      \"strain\": 14.46,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-30\",\n      \"strain\": 14.47,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-23\",\n      \"strain\": 14.61,\n      \"sigma_above_mean\": 1.12,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-21\",\n      \"strain\": 14.44,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-13\",\n      \"strain\": 15.08,\n      \"sigma_above_mean\": 1.24,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-12\",\n      \"strain\": 16.12,\n      \"sigma_above_mean\": 1.52,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-11\",\n      \"strain\": 14.44,\n      \"sigma_above_mean\": 1.08,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-09\",\n      \"strain\": 14.52,\n      \"sigma_above_mean\": 1.1,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-03-07\",\n      \"strain\": 14.77,\n      \"sigma_above_mean\": 1.16,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    },\n    {\n      \"date\": \"2026-02-20\",\n      \"strain\": 18.95,\n      \"sigma_above_mean\": 2.26,\n      \"recovery_for_cycle\": 0,\n      \"recovery_delta_vs_window_mean\": 0\n    }\n  ],\n  \"threshold_sigma\": 1,\n  \"total_scored_cycles\": 80,\n  \"window\": \"90d\"\n}\n"
+    },
+    {
+      "command": "analyze overtraining",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analyze sleep-debt",
+      "kind": "help",
+      "args": [
+        "analyze",
+        "sleep-debt",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sums need_from_sleep_debt_milli across all non-nap sleeps in the\nwindow and buckets weekly. Output: per-week debt accrued (hours), running\ncumulative debt, and a 4-week trend slope.\n\nUsage:\n  whoop-pp-cli analyze sleep-debt [flags]\n\nExamples:\n  whoop-pp-cli analyze sleep-debt --since 30d --json\n\nFlags:\n  -h, --help           help for sleep-debt\n      --since string   Lookback window (e.g. 30d, 90d) (default \"30d\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analyze sleep-debt",
+      "kind": "happy_path",
+      "args": [
+        "analyze",
+        "sleep-debt",
+        "--since",
+        "30d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"interpretation\": \"debt is decreasing — recent recovery is paying down the deficit\",\n  \"trend_slope_hr_per_week\": -2.75,\n  \"weekly\": [\n    {\n      \"week\": \"2026-W15\",\n      \"debt_accrued_hours\": 1.07,\n      \"cumulative_debt_hours\": 1.07\n    },\n    {\n      \"week\": \"2026-W16\",\n      \"debt_accrued_hours\": 8.09,\n      \"cumulative_debt_hours\": 9.16\n    },\n    {\n      \"week\": \"2026-W17\",\n      \"debt_accrued_hours\": 11.41,\n      \"cumulative_debt_hours\": 20.57\n    },\n    {\n      \"week\": \"2026-W18\",\n      \"debt_accrued_hours\": 7.51,\n      \"cumulative_debt_hours\": 28.08\n    },\n    {\n      \"week\": \"2026-W19\",\n      \"debt_accrued_hours\": 8.15,\n      \"cumulative_debt_hours\": 36.24\n    },\n    {\n      \"week\": \"2026-W20\",\n      \"debt_accrued_hours\": 2.03,\n      \"cumulative_debt_hours\": 38.27\n    }\n  ],\n  \"window\": \"30d\"\n}\n"
+    },
+    {
+      "command": "analyze sleep-debt",
+      "kind": "json_fidelity",
+      "args": [
+        "analyze",
+        "sleep-debt",
+        "--since",
+        "30d",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"interpretation\": \"debt is decreasing — recent recovery is paying down the deficit\",\n  \"trend_slope_hr_per_week\": -2.75,\n  \"weekly\": [\n    {\n      \"week\": \"2026-W15\",\n      \"debt_accrued_hours\": 1.07,\n      \"cumulative_debt_hours\": 1.07\n    },\n    {\n      \"week\": \"2026-W16\",\n      \"debt_accrued_hours\": 8.09,\n      \"cumulative_debt_hours\": 9.16\n    },\n    {\n      \"week\": \"2026-W17\",\n      \"debt_accrued_hours\": 11.41,\n      \"cumulative_debt_hours\": 20.57\n    },\n    {\n      \"week\": \"2026-W18\",\n      \"debt_accrued_hours\": 7.51,\n      \"cumulative_debt_hours\": 28.08\n    },\n    {\n      \"week\": \"2026-W19\",\n      \"debt_accrued_hours\": 8.15,\n      \"cumulative_debt_hours\": 36.24\n    },\n    {\n      \"week\": \"2026-W20\",\n      \"debt_accrued_hours\": 2.03,\n      \"cumulative_debt_hours\": 38.27\n    }\n  ],\n  \"window\": \"30d\"\n}\n"
+    },
+    {
+      "command": "analyze sleep-debt",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analyze why-today",
+      "kind": "help",
+      "args": [
+        "analyze",
+        "why-today",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compares today's recovery, HRV, RHR, sleep consistency, and prior-day\nstrain to a rolling 14-day baseline. Returns a ranked list of contributing\ndeltas (absolute z-score) so a human (or an agent) can see which signals\nmoved the needle today.\n\nUsage:\n  whoop-pp-cli analyze why-today [flags]\n\nExamples:\n  whoop-pp-cli analyze why-today --json\n  whoop-pp-cli analyze why-today --date 2026-05-10\n\nFlags:\n      --baseline-days int   Days of baseline history to compute z-scores against (default 14)\n      --date string         Target date YYYY-MM-DD (default: today UTC)\n  -h, --help                help for why-today\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analyze why-today",
+      "kind": "happy_path",
+      "args": [
+        "analyze",
+        "why-today",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 1,
+      "reason": "exit 1",
+      "output_sample": "Error: no recovery records in last 15 days. Run 'whoop-pp-cli sync --since 15d' first\nno recovery records in last 15 days. Run 'whoop-pp-cli sync --since 15d' first\n"
+    },
+    {
+      "command": "analyze why-today",
+      "kind": "json_fidelity",
+      "args": [
+        "analyze",
+        "why-today",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 1,
+      "reason": "exit 1",
+      "output_sample": "Error: no recovery records in last 15 days. Run 'whoop-pp-cli sync --since 15d' first\nno recovery records in last 15 days. Run 'whoop-pp-cli sync --since 15d' first\n"
+    },
+    {
+      "command": "analyze why-today",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  whoop-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  whoop-pp-cli api\n\n  # Show methods for a specific interface\n  whoop-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'whoop-pp-cli api' to list all interfaces\ninterface \"__printing_press_invalid__\" not found. Run 'whoop-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "cycle get",
+      "kind": "help",
+      "args": [
+        "cycle",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single cycle by id\n\nUsage:\n  whoop-pp-cli cycle get \u003ccycleId\u003e [flags]\n\nExamples:\n  whoop-pp-cli cycle get 42\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cycle get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "cycle get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "cycle get",
+      "kind": "error_path",
+      "args": [
+        "cycle",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/cycle/__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/cycle/__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cycle list",
+      "kind": "help",
+      "args": [
+        "cycle",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns the user's cycles (a WHOOP day) ordered by start time descending.\n\nUsage:\n  whoop-pp-cli cycle list [flags]\n\nExamples:\n  whoop-pp-cli cycle list\n\nFlags:\n      --all                     Fetch all pages\n      --end string              ISO-8601 UTC end of time window (defaults to now).\n  -h, --help                    help for list\n      --limit int               Page size (server max 25; default 10). (default 10)\n      --next-token next_token   Cursor from prior response's next_token.\n      --start string            ISO-8601 UTC start of time window (defaults to 24h ago).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cycle list",
+      "kind": "happy_path",
+      "args": [
+        "cycle",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"id\": 1491664936,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T23:37:37.735Z\",\n        \"updated_at\": \"2026-05-11T23:38:17.030Z\",\n        \"start\": \"2026-05-11T15:43:18.620Z\",\n        \"end\": null,\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 0.06771333,\n          \"kilojoule\": 2632.5073,\n          \"average_heart_rate\": 49,\n          \"max_heart_rate\": 86\n        }\n      },\n      {\n        \"id\": 1489330680,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T22:01:11.483Z\",\n        \"updated_at\": \"2026-05-11T23:37:42.830Z\",\n        \"start\": \"2026-05-10T15:59:47.480Z\",\n        \"end\": \"2026-05-11T15:43:18.620Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 10.000858,\n          \"kilojoule\": 9091.647,\n          \"average_heart_rate\": 64,\n          \"max_heart_rate\": 199\n        }\n      },\n      {\n        \"id\": 1487138603,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T22:29:41.077Z\",\n        \"updated_at\": \"2026-05-10T22:01:16.617Z\",\n        \"start\": \"2026-05-09T15:09:46.150Z\",\n        \"end\": \"2026-05-10T15:59:47.480Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 14.71698,\n          \"kilojoule\": 11290.571,\n          \"average_heart_rate\": 68,\n          \"max_heart_rate\": 188\n        }\n      },\n      {\n        \"id\": 1485057506,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T01:04:12.580Z\",\n        \"updated_at\": \"2026-05-09T22:29:46.193Z\",\n        \"start\": \"2026-05-08T18:11:14.730Z\",\n        \"end\": \"2026-05-09T15:09:46.150Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 6.4656053,\n          \"kilojoule\": 7605.189,\n          \"average_heart_rate\": 64,\n          \"max_heart_rate\": 133\n        }\n      },\n      {\n        \"id\": 1482858568,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-08T01:20:21.827Z\",\n        \"updated_at\": \"2026-05-09T01:04:17.691Z\",\n        \"start\": \"2026-05-07T17:34:15.920Z\",\n        \"end\": \"2026-05-08T18:11:14.730Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 9.83686,\n          \"kilojoule\": 9802.119,\n          \"average_heart_rate\": 69,\n          \"max_heart_rate\": 147\n        }\n      },\n      {\n        \"id\": 1480638226,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-07T01:32:05.766Z\",\n        \"updated_at\": \"2026-05-08T01:20:26.932Z\",\n        \"start\": \"2026-05-06T15:48:00.000Z\",\n        \"end\": \"2026-05-07T17:34:15.920Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 13.274552,\n          \"kilojoule\": 10739.014,\n          \"average_heart_rate\": 68,\n          \"max_heart_rate\": 192\n        }\n      },\n      {\n        \"id\": 1478408235,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-06T01:27:27.061Z\",\n        \"updated_at\": \"2026-05-07T01:48:48.852Z\",\n        \"start\": \"2026-05-05T19:09:43.900Z\",\n        \"end\": \"2026-05-06T15:48:00.000Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 10.950764,\n          \"kilojoule\": 8851.008,\n          \"average_heart_rate\": 67,\n          \"max_heart_rate\": 164\n        }\n      },\n      {\n        \"id\": 1476125172,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-05T00:23:58.090Z\",\n        \"updated_at\": \"2026-05-06T01:27:32.165Z\",\n        \"start\": \"2026-05-04T15:57:12.270Z\",\n        \"end\": \"2026-05-05T19:09:43.900Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 11.180113,\n          \"kilojoule\": 10939.557,\n          \"average_heart_rate\": 66,\n          \"max_heart_rate\": 165\n        }\n      },\n      {\n        \"id\": 1473913012,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-04T01:05:04.488Z\",\n    …[truncated]"
+    },
+    {
+      "command": "cycle list",
+      "kind": "json_fidelity",
+      "args": [
+        "cycle",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"id\": 1491664936,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T23:37:37.735Z\",\n        \"updated_at\": \"2026-05-11T23:38:17.030Z\",\n        \"start\": \"2026-05-11T15:43:18.620Z\",\n        \"end\": null,\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 0.06771333,\n          \"kilojoule\": 2632.5073,\n          \"average_heart_rate\": 49,\n          \"max_heart_rate\": 86\n        }\n      },\n      {\n        \"id\": 1489330680,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T22:01:11.483Z\",\n        \"updated_at\": \"2026-05-11T23:37:42.830Z\",\n        \"start\": \"2026-05-10T15:59:47.480Z\",\n        \"end\": \"2026-05-11T15:43:18.620Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 10.000858,\n          \"kilojoule\": 9091.647,\n          \"average_heart_rate\": 64,\n          \"max_heart_rate\": 199\n        }\n      },\n      {\n        \"id\": 1487138603,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T22:29:41.077Z\",\n        \"updated_at\": \"2026-05-10T22:01:16.617Z\",\n        \"start\": \"2026-05-09T15:09:46.150Z\",\n        \"end\": \"2026-05-10T15:59:47.480Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 14.71698,\n          \"kilojoule\": 11290.571,\n          \"average_heart_rate\": 68,\n          \"max_heart_rate\": 188\n        }\n      },\n      {\n        \"id\": 1485057506,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T01:04:12.580Z\",\n        \"updated_at\": \"2026-05-09T22:29:46.193Z\",\n        \"start\": \"2026-05-08T18:11:14.730Z\",\n        \"end\": \"2026-05-09T15:09:46.150Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 6.4656053,\n          \"kilojoule\": 7605.189,\n          \"average_heart_rate\": 64,\n          \"max_heart_rate\": 133\n        }\n      },\n      {\n        \"id\": 1482858568,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-08T01:20:21.827Z\",\n        \"updated_at\": \"2026-05-09T01:04:17.691Z\",\n        \"start\": \"2026-05-07T17:34:15.920Z\",\n        \"end\": \"2026-05-08T18:11:14.730Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 9.83686,\n          \"kilojoule\": 9802.119,\n          \"average_heart_rate\": 69,\n          \"max_heart_rate\": 147\n        }\n      },\n      {\n        \"id\": 1480638226,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-07T01:32:05.766Z\",\n        \"updated_at\": \"2026-05-08T01:20:26.932Z\",\n        \"start\": \"2026-05-06T15:48:00.000Z\",\n        \"end\": \"2026-05-07T17:34:15.920Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 13.274552,\n          \"kilojoule\": 10739.014,\n          \"average_heart_rate\": 68,\n          \"max_heart_rate\": 192\n        }\n      },\n      {\n        \"id\": 1478408235,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-06T01:27:27.061Z\",\n        \"updated_at\": \"2026-05-07T01:48:48.852Z\",\n        \"start\": \"2026-05-05T19:09:43.900Z\",\n        \"end\": \"2026-05-06T15:48:00.000Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 10.950764,\n          \"kilojoule\": 8851.008,\n          \"average_heart_rate\": 67,\n          \"max_heart_rate\": 164\n        }\n      },\n      {\n        \"id\": 1476125172,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-05T00:23:58.090Z\",\n        \"updated_at\": \"2026-05-06T01:27:32.165Z\",\n        \"start\": \"2026-05-04T15:57:12.270Z\",\n        \"end\": \"2026-05-05T19:09:43.900Z\",\n        \"timezone_offset\": \"+08:00\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"strain\": 11.180113,\n          \"kilojoule\": 10939.557,\n          \"average_heart_rate\": 66,\n          \"max_heart_rate\": 165\n        }\n      },\n      {\n        \"id\": 1473913012,\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-04T01:05:04.488Z\",\n    …[truncated]"
+    },
+    {
+      "command": "cycle list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "cycle recovery get-for-cycle",
+      "kind": "help",
+      "args": [
+        "cycle",
+        "recovery",
+        "get-for-cycle",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the recovery associated with a cycle\n\nUsage:\n  whoop-pp-cli cycle recovery get-for-cycle \u003ccycleId\u003e [flags]\n\nAliases:\n  get-for-cycle, get\n\nExamples:\n  whoop-pp-cli cycle recovery get-for-cycle 42\n\nFlags:\n  -h, --help   help for get-for-cycle\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cycle recovery get-for-cycle",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cycleid\""
+    },
+    {
+      "command": "cycle recovery get-for-cycle",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cycleid\""
+    },
+    {
+      "command": "cycle recovery get-for-cycle",
+      "kind": "error_path",
+      "args": [
+        "cycle",
+        "recovery",
+        "get-for-cycle",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/cycle/__printing_press_invalid__/recovery returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/cycle/__printing_press_invalid__/recovery returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "cycle sleep get-for-cycle",
+      "kind": "help",
+      "args": [
+        "cycle",
+        "sleep",
+        "get-for-cycle",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get the sleep associated with a cycle\n\nUsage:\n  whoop-pp-cli cycle sleep get-for-cycle \u003ccycleId\u003e [flags]\n\nAliases:\n  get-for-cycle, get\n\nExamples:\n  whoop-pp-cli cycle sleep get-for-cycle 42\n\nFlags:\n  -h, --help   help for get-for-cycle\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cycle sleep get-for-cycle",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cycleid\""
+    },
+    {
+      "command": "cycle sleep get-for-cycle",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"cycleid\""
+    },
+    {
+      "command": "cycle sleep get-for-cycle",
+      "kind": "error_path",
+      "args": [
+        "cycle",
+        "sleep",
+        "get-for-cycle",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /v2/cycle/__printing_press_invalid__/sleep returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\nGET /v2/cycle/__printing_press_invalid__/sleep returned HTTP 404: HTTP 404 Not Found\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  whoop-pp-cli doctor [flags]\n\nExamples:\n  whoop-pp-cli doctor\n  whoop-pp-cli doctor --json\n  whoop-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK credentials available from oauth2\n  OK API: reachable (HTTP 404 at /)\n  WARN Credentials: present (not verified — set auth.verify_path in spec for an API acceptance check)\n  config_path: /Users/ykurilov/.config/whoop-pp-cli/config.toml\n  base_url: https://api.prod.whoop.com/developer\n  auth_source: oauth2\n  version: 1.0.0\n  WARN Cache: stale\n    db_path: /Users/ykurilov/.local/share/whoop-pp-cli/data.db\n    schema_version: 1\n    db_bytes: 1454080\n    stale_after: 6h0m0s\n    oldest_age: 10h30m0s\n    resources:\n      - activity: 86 rows, 9h33m0s\n      - activity-workout: 25 rows, 9h33m0s\n      - cycle: 80 rows, 9h33m0s\n      - recovery: 0 rows, 9h33m0s\n      - sleep: 0 rows, 10h30m0s\n      - workout: 0 rows, 10h30m0s\n    hint: Some resources are older than stale_after; run 'whoop-pp-cli sync' to refresh.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"oauth2\",\n  \"base_url\": \"https://api.prod.whoop.com/developer\",\n  \"cache\": {\n    \"db_bytes\": 1454080,\n    \"db_path\": \"/Users/ykurilov/.local/share/whoop-pp-cli/data.db\",\n    \"hint\": \"Some resources are older than stale_after; run 'whoop-pp-cli sync' to refresh.\",\n    \"oldest_age\": \"10h30m0s\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-05-11T14:07:32Z\",\n        \"rows\": 86,\n        \"staleness\": \"9h33m0s\",\n        \"type\": \"activity\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-11T14:07:33Z\",\n        \"rows\": 25,\n        \"staleness\": \"9h33m0s\",\n        \"type\": \"activity-workout\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-11T14:07:31Z\",\n        \"rows\": 80,\n        \"staleness\": \"9h33m0s\",\n        \"type\": \"cycle\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-11T14:07:32Z\",\n        \"rows\": 0,\n        \"staleness\": \"9h33m0s\",\n        \"type\": \"recovery\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-11T13:10:22Z\",\n        \"rows\": 0,\n        \"staleness\": \"10h30m0s\",\n        \"type\": \"sleep\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-11T13:10:22Z\",\n        \"rows\": 0,\n        \"staleness\": \"10h30m0s\",\n        \"type\": \"workout\"\n      }\n    ],\n    \"schema_version\": 1,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"stale\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/Users/ykurilov/.config/whoop-pp-cli/config.toml\",\n  \"credentials\": \"present (not verified — set auth.verify_path in spec for an API acceptance check)\",\n  \"env_vars\": \"OK credentials available from oauth2\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  whoop-pp-cli feedback list [flags]\n\nExamples:\n  whoop-pp-cli feedback list\n  whoop-pp-cli feedback list --limit 5\n  whoop-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:14:41.57481Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:14:41.5831Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:23:05.978138Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:23:05.985519Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:57:22.703653Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:57:22.71531Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:00:02.606171Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:00:02.617382Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:02:25.657861Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:02:25.669406Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:07:29.657675Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:07:29.668108Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:14:41.57481Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:14:41.5831Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:23:05.978138Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:23:05.985519Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:57:22.703653Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T13:57:22.71531Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:00:02.606171Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:00:02.617382Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:02:25.657861Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:02:25.669406Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:07:29.657675Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"whoop-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-11T14:07:29.668108Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  whoop-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  whoop-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  whoop-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | whoop-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: required flag(s) \"input\" not set\nrequired flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  whoop-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  whoop-pp-cli profile delete my-defaults --yes\n  whoop-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  whoop-pp-cli profile list [flags]\n\nExamples:\n  whoop-pp-cli profile list\n  whoop-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  whoop-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  whoop-pp-cli profile save my-defaults --json --compact\n  whoop-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  whoop-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  whoop-pp-cli profile show my-defaults\n  whoop-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  whoop-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  whoop-pp-cli profile use my-defaults\n  whoop-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "recovery",
+      "kind": "help",
+      "args": [
+        "recovery",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'recovery list-recoveries'. List recovery records\n\nUsage:\n  whoop-pp-cli recovery [flags]\n\nExamples:\n  whoop-pp-cli recovery\n\nFlags:\n      --all                     Fetch all pages\n      --end string              ISO-8601 UTC end of time window (defaults to now).\n  -h, --help                    help for recovery\n      --limit int               Page size (server max 25; default 10). (default 10)\n      --next-token next_token   Cursor from prior response's next_token.\n      --start string            ISO-8601 UTC start of time window (defaults to 24h ago).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recovery",
+      "kind": "happy_path",
+      "args": [
+        "recovery"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"cycle_id\": 1491664936,\n        \"sleep_id\": \"89dfce01-b2cb-4ba9-8612-6eeba6e14eec\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T23:38:16.949Z\",\n        \"updated_at\": \"2026-05-11T23:38:16.949Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 36.0,\n          \"resting_heart_rate\": 49.0,\n          \"hrv_rmssd_milli\": 38.063507,\n          \"spo2_percentage\": 95.46429,\n          \"skin_temp_celsius\": 34.640667\n        }\n      },\n      {\n        \"cycle_id\": 1489330680,\n        \"sleep_id\": \"6b23b7da-a9ee-43d3-9269-2ff1d3af6db6\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T22:01:18.734Z\",\n        \"updated_at\": \"2026-05-10T22:01:18.734Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 37.0,\n          \"resting_heart_rate\": 47.0,\n          \"hrv_rmssd_milli\": 42.587074,\n          \"spo2_percentage\": 95.35,\n          \"skin_temp_celsius\": 34.628334\n        }\n      },\n      {\n        \"cycle_id\": 1487138603,\n        \"sleep_id\": \"98b7dd47-2e02-42c1-8a7b-6d53a6fb71c6\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T22:29:45.832Z\",\n        \"updated_at\": \"2026-05-09T22:29:45.832Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 76.0,\n          \"resting_heart_rate\": 51.0,\n          \"hrv_rmssd_milli\": 54.207027,\n          \"spo2_percentage\": 96.117645,\n          \"skin_temp_celsius\": 35.002\n        }\n      },\n      {\n        \"cycle_id\": 1485057506,\n        \"sleep_id\": \"e1aed3b6-5aa2-4b18-98d9-8a30e54d3e90\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T01:09:30.683Z\",\n        \"updated_at\": \"2026-05-09T01:09:30.683Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 87.0,\n          \"resting_heart_rate\": 52.0,\n          \"hrv_rmssd_milli\": 60.270985,\n          \"spo2_percentage\": 94.3,\n          \"skin_temp_celsius\": 34.624336\n        }\n      },\n      {\n        \"cycle_id\": 1482858568,\n        \"sleep_id\": \"14dd4ccb-0aa6-472b-bf01-f805411020ca\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-08T01:20:26.807Z\",\n        \"updated_at\": \"2026-05-08T01:20:26.807Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 79.0,\n          \"resting_heart_rate\": 52.0,\n          \"hrv_rmssd_milli\": 56.98342,\n          \"spo2_percentage\": 95.23077,\n          \"skin_temp_celsius\": null\n        }\n      },\n      {\n        \"cycle_id\": 1480638226,\n        \"sleep_id\": \"780ec5b2-008b-4531-a26b-1f3855bf23b1\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-07T01:48:48.583Z\",\n        \"updated_at\": \"2026-05-07T01:48:48.583Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 25.0,\n          \"resting_heart_rate\": 50.0,\n          \"hrv_rmssd_milli\": 53.60663,\n          \"spo2_percentage\": 95.75,\n          \"skin_temp_celsius\": 33.746666\n        }\n      },\n      {\n        \"cycle_id\": 1478408235,\n        \"sleep_id\": \"bef5f7a3-7791-4006-8f93-68ae8f81e434\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-06T01:27:31.642Z\",\n        \"updated_at\": \"2026-05-06T01:27:31.642Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 93.0,\n          \"resting_heart_rate\": 49.0,\n          \"hrv_rmssd_milli\": 64.469955,\n          \"spo2_percentage\": 96.1,\n          \"skin_temp_celsius\": 34.084835\n        }\n      },\n      {\n        \"cycle_id\": 1476125172,\n        \"sleep_id\": \"54c713a5-cac9-4772-8a2c-73f2921940c1\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-05T00:24:03.536Z\",\n        \"updated_at\": \"2026-05-05T00:24:03.536Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\"…[truncated]"
+    },
+    {
+      "command": "recovery",
+      "kind": "json_fidelity",
+      "args": [
+        "recovery",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"records\": [\n      {\n        \"cycle_id\": 1491664936,\n        \"sleep_id\": \"89dfce01-b2cb-4ba9-8612-6eeba6e14eec\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-11T23:38:16.949Z\",\n        \"updated_at\": \"2026-05-11T23:38:16.949Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 36.0,\n          \"resting_heart_rate\": 49.0,\n          \"hrv_rmssd_milli\": 38.063507,\n          \"spo2_percentage\": 95.46429,\n          \"skin_temp_celsius\": 34.640667\n        }\n      },\n      {\n        \"cycle_id\": 1489330680,\n        \"sleep_id\": \"6b23b7da-a9ee-43d3-9269-2ff1d3af6db6\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-10T22:01:18.734Z\",\n        \"updated_at\": \"2026-05-10T22:01:18.734Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 37.0,\n          \"resting_heart_rate\": 47.0,\n          \"hrv_rmssd_milli\": 42.587074,\n          \"spo2_percentage\": 95.35,\n          \"skin_temp_celsius\": 34.628334\n        }\n      },\n      {\n        \"cycle_id\": 1487138603,\n        \"sleep_id\": \"98b7dd47-2e02-42c1-8a7b-6d53a6fb71c6\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T22:29:45.832Z\",\n        \"updated_at\": \"2026-05-09T22:29:45.832Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 76.0,\n          \"resting_heart_rate\": 51.0,\n          \"hrv_rmssd_milli\": 54.207027,\n          \"spo2_percentage\": 96.117645,\n          \"skin_temp_celsius\": 35.002\n        }\n      },\n      {\n        \"cycle_id\": 1485057506,\n        \"sleep_id\": \"e1aed3b6-5aa2-4b18-98d9-8a30e54d3e90\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-09T01:09:30.683Z\",\n        \"updated_at\": \"2026-05-09T01:09:30.683Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 87.0,\n          \"resting_heart_rate\": 52.0,\n          \"hrv_rmssd_milli\": 60.270985,\n          \"spo2_percentage\": 94.3,\n          \"skin_temp_celsius\": 34.624336\n        }\n      },\n      {\n        \"cycle_id\": 1482858568,\n        \"sleep_id\": \"14dd4ccb-0aa6-472b-bf01-f805411020ca\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-08T01:20:26.807Z\",\n        \"updated_at\": \"2026-05-08T01:20:26.807Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 79.0,\n          \"resting_heart_rate\": 52.0,\n          \"hrv_rmssd_milli\": 56.98342,\n          \"spo2_percentage\": 95.23077,\n          \"skin_temp_celsius\": null\n        }\n      },\n      {\n        \"cycle_id\": 1480638226,\n        \"sleep_id\": \"780ec5b2-008b-4531-a26b-1f3855bf23b1\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-07T01:48:48.583Z\",\n        \"updated_at\": \"2026-05-07T01:48:48.583Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 25.0,\n          \"resting_heart_rate\": 50.0,\n          \"hrv_rmssd_milli\": 53.60663,\n          \"spo2_percentage\": 95.75,\n          \"skin_temp_celsius\": 33.746666\n        }\n      },\n      {\n        \"cycle_id\": 1478408235,\n        \"sleep_id\": \"bef5f7a3-7791-4006-8f93-68ae8f81e434\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-06T01:27:31.642Z\",\n        \"updated_at\": \"2026-05-06T01:27:31.642Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\": 93.0,\n          \"resting_heart_rate\": 49.0,\n          \"hrv_rmssd_milli\": 64.469955,\n          \"spo2_percentage\": 96.1,\n          \"skin_temp_celsius\": 34.084835\n        }\n      },\n      {\n        \"cycle_id\": 1476125172,\n        \"sleep_id\": \"54c713a5-cac9-4772-8a2c-73f2921940c1\",\n        \"user_id\": 35035075,\n        \"created_at\": \"2026-05-05T00:24:03.536Z\",\n        \"updated_at\": \"2026-05-05T00:24:03.536Z\",\n        \"score_state\": \"SCORED\",\n        \"score\": {\n          \"user_calibrating\": false,\n          \"recovery_score\"…[truncated]"
+    },
+    {
+      "command": "recovery",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  whoop-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  whoop-pp-cli search \"error timeout\"\n\n  # Force local search only\n  whoop-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  whoop-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  whoop-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/whoop-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+    },
+    {
+      "command": "sql",
+      "kind": "help",
+      "args": [
+        "sql",
+        "--help"
+      ],
+      "status": "fail",
+      "reason": "missing Examples section",
+      "output_sample": "Run an arbitrary SELECT against your local WHOOP database. Non-SELECT\nstatements (INSERT/UPDATE/DELETE/DROP/ALTER/REPLACE/PRAGMA write/\nATTACH/DETACH/REINDEX/VACUUM/CREATE/CREATE TRIGGER) are rejected before\nthe query reaches SQLite.\n\nUseful tables:\n  resources  (id, resource_type, data JSON, synced_at, updated_at)\n  cycle      (id, start, \"end\", score_state, strain via json_extract)\n  activity   (id, start, \"end\", sport_id, sport_name — workouts + sleeps)\n  sleep, cycle_recovery — typed dependent tables\n\nExample:\n  whoop-pp-cli sql \"SELECT date(start) AS day, AVG(json_extract(data,'$.score.strain')) AS s\n                    FROM cycle\n                    WHERE start \u003e date('now','-30 days')\n                    GROUP BY day ORDER BY day\"\n\nUsage:\n  whoop-pp-cli sql \u003cquery\u003e [flags]\n\nFlags:\n  -h, --help   help for sql\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sql",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "sql",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "sql",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  whoop-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  whoop-pp-cli sync\n\n  # Sync specific resources only\n  whoop-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  whoop-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  whoop-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  whoop-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  whoop-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int     Number of parallel sync workers (default 4)\n      --db string           Database path (default: ~/.local/share/whoop-pp-cli/data.db)\n      --full                Full resync (ignore previous checkpoint)\n  -h, --help                help for sync\n      --latest-only         Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int       Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --resources strings   Comma-separated resource types to sync\n      --since string        Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict              Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"activity\"}\n{\"event\":\"sync_start\",\"resource\":\"activity-workout\"}\n{\"event\":\"sync_start\",\"resource\":\"cycle\"}\n{\"event\":\"sync_start\",\"resource\":\"recovery\"}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":25}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":25,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":50}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":25}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":75}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":25,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":50}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":81}\n{\"event\":\"sync_complete\",\"resource\":\"cycle\",\"total\":81,\"duration_ms\":1037}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":25,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":75}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":5,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_complete\",\"resource\":\"recovery\",\"total\":0,\"duration_ms\":1423}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":87}\n{\"event\":\"sync_complete\",\"resource\":\"activity\",\"total\":87,\"duration_ms\":1527}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":25}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":50}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":51}\n{\"event\":\"sync_complete\",\"resource\":\"activity-workout\",\"total\":51,\"duration_ms\":6852}\n{\"event\":\"sync_summary\",\"total_records\":219,\"resources\":4,\"success\":4,\"warned\":0,\"errored\":0,\"duration_ms\":6852}\nwarning: 25/25 recovery items skipped (no extractable ID field found)\nwarning: 25/25 recovery items skipped (no extractable ID field found)\nwarning: 25/25 recovery items skipped (no extractable ID field found)\nwarning: 5/5 recovery items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"activity\"}\n{\"event\":\"sync_start\",\"resource\":\"activity-workout\"}\n{\"event\":\"sync_start\",\"resource\":\"cycle\"}\n{\"event\":\"sync_start\",\"resource\":\"recovery\"}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":25}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":25,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":50}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":25}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":75}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":25,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":50}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":25,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":75}\n{\"event\":\"sync_anomaly\",\"resource\":\"recovery\",\"consumed\":5,\"stored\":0,\"reason\":\"all_items_failed_id_extraction\"}\n{\"event\":\"sync_progress\",\"resource\":\"recovery\",\"fetched\":0}\n{\"event\":\"sync_complete\",\"resource\":\"recovery\",\"total\":0,\"duration_ms\":1411}\n{\"event\":\"sync_progress\",\"resource\":\"activity\",\"fetched\":87}\n{\"event\":\"sync_complete\",\"resource\":\"activity\",\"total\":87,\"duration_ms\":1515}\n{\"event\":\"sync_progress\",\"resource\":\"cycle\",\"fetched\":81}\n{\"event\":\"sync_complete\",\"resource\":\"cycle\",\"total\":81,\"duration_ms\":2498}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":25}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":50}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":75}\n{\"event\":\"sync_progress\",\"resource\":\"activity-workout\",\"fetched\":76}\n{\"event\":\"sync_complete\",\"resource\":\"activity-workout\",\"total\":76,\"duration_ms\":8342}\n{\"event\":\"sync_summary\",\"total_records\":244,\"resources\":4,\"success\":4,\"warned\":0,\"errored\":0,\"duration_ms\":8342}\nwarning: 25/25 recovery items skipped (no extractable ID field found)\nwarning: 25/25 recovery items skipped (no extractable ID field found)\nwarning: 25/25 recovery items skipped (no extractable ID field found)\nwarning: 5/5 recovery items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  whoop-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  whoop-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  whoop-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  whoop-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "Tailing __printing_press_invalid__ every 10s (Ctrl+C to stop)\nwarning: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 404: HTTP 404 Not Found\n"
+    },
+    {
+      "command": "user get-body-measurement",
+      "kind": "help",
+      "args": [
+        "user",
+        "get-body-measurement",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get user body measurement\n\nUsage:\n  whoop-pp-cli user get-body-measurement [flags]\n\nAliases:\n  get-body-measurement, list\n\nExamples:\n  whoop-pp-cli user get-body-measurement\n\nFlags:\n  -h, --help   help for get-body-measurement\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "user get-body-measurement",
+      "kind": "happy_path",
+      "args": [
+        "user",
+        "get-body-measurement"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"height_meter\": 1.8199999,\n    \"weight_kilogram\": 90.0,\n    \"max_heart_rate\": 187\n  }\n}\n"
+    },
+    {
+      "command": "user get-body-measurement",
+      "kind": "json_fidelity",
+      "args": [
+        "user",
+        "get-body-measurement",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"height_meter\": 1.8199999,\n    \"weight_kilogram\": 90.0,\n    \"max_heart_rate\": 187\n  }\n}\n"
+    },
+    {
+      "command": "user get-body-measurement",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "user get-profile",
+      "kind": "help",
+      "args": [
+        "user",
+        "get-profile",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get user profile (basic)\n\nUsage:\n  whoop-pp-cli user get-profile [flags]\n\nExamples:\n  whoop-pp-cli user get-profile\n\nFlags:\n  -h, --help   help for get-profile\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "user get-profile",
+      "kind": "happy_path",
+      "args": [
+        "user",
+        "get-profile"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"user_id\": 35035075,\n    \"email\": \"ykurilov@gmail.com\",\n    \"first_name\": \"Yury\",\n    \"last_name\": \"Kurilov\"\n  }\n}\n"
+    },
+    {
+      "command": "user get-profile",
+      "kind": "json_fidelity",
+      "args": [
+        "user",
+        "get-profile",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"user_id\": 35035075,\n    \"email\": \"ykurilov@gmail.com\",\n    \"first_name\": \"Yury\",\n    \"last_name\": \"Kurilov\"\n  }\n}\n"
+    },
+    {
+      "command": "user get-profile",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "user revoke-oauth-access",
+      "kind": "help",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "user revoke-oauth-access",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "user revoke-oauth-access",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "user revoke-oauth-access",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  whoop-pp-cli which [query] [flags]\n\nExamples:\n  whoop-pp-cli which \"stale tickets\"\n  whoop-pp-cli which \"bottleneck\"\n  whoop-pp-cli which --limit 1 \"send message\"\n  whoop-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "help",
+      "args": [
+        "whoami",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches /v1/user/profile/basic and /v1/user/measurement/body in\nsequence and returns a flattened JSON envelope. Useful for skill startup\n(\"hi, I'm whoami-ing you to verify your token works\") and as a single tool\nin the MCP surface for agents that want one identity call.\n\nUsage:\n  whoop-pp-cli whoami [flags]\n\nExamples:\n  whoop-pp-cli whoami --json\n\nFlags:\n  -h, --help   help for whoami\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "happy_path",
+      "args": [
+        "whoami",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"body_measurement\": {\n    \"height_meter\": 1.8199999,\n    \"max_heart_rate\": 187,\n    \"weight_kilogram\": 90\n  },\n  \"profile\": {\n    \"email\": \"ykurilov@gmail.com\",\n    \"first_name\": \"Yury\",\n    \"last_name\": \"Kurilov\",\n    \"user_id\": 35035075\n  }\n}\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "json_fidelity",
+      "args": [
+        "whoami",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"body_measurement\": {\n    \"height_meter\": 1.8199999,\n    \"max_heart_rate\": 187,\n    \"weight_kilogram\": 90\n  },\n  \"profile\": {\n    \"email\": \"ykurilov@gmail.com\",\n    \"first_name\": \"Yury\",\n    \"last_name\": \"Kurilov\",\n    \"user_id\": 35035075\n  }\n}\n"
+    },
+    {
+      "command": "whoami",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  whoop-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  whoop-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  whoop-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/whoop-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 4 resources to /Users/ykurilov/.local/share/whoop-pp-cli/data.db\nSyncing activity...\n  warning: activity: GET /activity returned HTTP 404: HTTP 404 Not Found\n  activity: 0 items\nSyncing activity-workout...\n  warning: activity-workout: GET /activity-workout returned HTTP 404: HTTP 404 Not Found\n  activity-workout: 0 items\nSyncing cycle...\n  warning: cycle: GET /cycle returned HTTP 404: HTTP 404 Not Found\n  cycle: 0 items\nSyncing recovery...\n  warning: recovery: GET /recovery returned HTTP 404: HTTP 404 Not Found\n  recovery: 0 items\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 4,\n  \"store_path\": \"/Users/ykurilov/.local/share/whoop-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-11T23:40:53Z\",\n  \"total_items\": 0\n}\nSyncing activity...\n  warning: activity: GET /activity returned HTTP 404: HTTP 404 Not Found\n  activity: 0 items\nSyncing activity-workout...\n  warning: activity-workout: GET /activity-workout returned HTTP 404: HTTP 404 Not Found\n  activity-workout: 0 items\nSyncing cycle...\n  warning: cycle: GET /cycle returned HTTP 404: HTTP 404 Not Found\n  cycle: 0 items\nSyncing recovery...\n  warning: recovery: GET /recovery returned HTTP 404: HTTP 404 Not Found\n  recovery: 0 items\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  whoop-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  whoop-pp-cli workflow status\n\n  # Show status as JSON\n  whoop-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'whoop-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  cycle                          81 items\n  recovery                       27 items\n  activity                       87 items\n  activity-workout               77 items\n\n  Total: 272 items\n  Store: /Users/ykurilov/.local/share/whoop-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"activity\": 87,\n  \"activity-workout\": 77,\n  \"cycle\": 81,\n  \"recovery\": 27\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-11T23:39:56.08527Z"
+}
+Error: live dogfood failed: 3/87 tests failed
+live dogfood failed: 3/87 tests failed

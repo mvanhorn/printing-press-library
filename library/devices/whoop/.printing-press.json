@@ -1,70 +1,60 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-09T13:17:54.67773Z",
-  "printing_press_version": "4.1.0",
+  "generated_at": "2026-05-12T01:30:34.271279Z",
+  "printing_press_version": "4.2.2",
   "api_name": "whoop",
   "display_name": "Whoop",
   "cli_name": "whoop-pp-cli",
-  "owner": "gregvanhorn",
-  "printer": "gregvanhorn",
-  "printer_name": "Greg Van Horn",
-  "spec_url": "https://api.prod.whoop.com/developer/doc/openapi.json",
-  "spec_path": "/Users/gvh41/printing-press/.runstate/printing-press-813eda61/runs/20260509-091026/research/whoop-openapi.json",
+  "owner": "user",
+  "printer": "ykurilov",
+  "printer_name": "Yury Kurilov",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:5fb4a52113ea6a299067950de804ab2c487b59b34bb54ab60ea0233cf560c081",
-  "run_id": "20260509-091026",
+  "spec_checksum": "sha256:467e8c15317585d66b47eacf15b169f400bfa8b965518a564cecc6b517e48512",
+  "run_id": "20260511-213301",
   "mcp_binary": "whoop-pp-mcp",
-  "mcp_tool_count": 19,
+  "mcp_tool_count": 13,
   "mcp_ready": "full",
+  "api_version": "2.0.0",
   "auth_type": "bearer_token",
   "auth_env_vars": [
-    "WHOOP_OAUTH"
+    "WHOOP_OAUTH2"
   ],
   "novel_features": [
     {
-      "name": "Multi-week trend rollup",
-      "command": "trend",
-      "description": "Aggregate strain, recovery, or sleep across multiple ISO weeks with mean/min/max."
+      "name": "Recovery-vs-strain efficiency curve",
+      "command": "analyze efficiency",
+      "description": "Buckets cycles by strain (0-5, 5-10, 10-15, 15-21) and shows mean recovery per bucket vs. the prior equivalent window."
     },
     {
-      "name": "Coach digest",
-      "command": "digest",
-      "description": "Markdown or JSON shareable summary of the last N days for sharing with a coach or LLM."
+      "name": "Sleep debt cumulative tracker",
+      "command": "analyze sleep-debt",
+      "description": "Cumulative sum of need_from_sleep_debt_milli weekly, with trend slope and human-friendly interpretation."
     },
     {
-      "name": "Workout misclassification flagger",
-      "command": "classify",
-      "description": "Flag workouts whose HR shape looks inconsistent with their declared sport_id."
+      "name": "Overtraining detector",
+      "command": "analyze overtraining",
+      "description": "Flags days where strain exceeds N sigma above the 90-day mean and shows the recovery delta vs. window mean."
     },
     {
-      "name": "Cross-metric correlation",
-      "command": "correlate",
-      "description": "Pearson correlation between two daily metrics over a window."
+      "name": "Pairwise metric correlation",
+      "command": "analyze correlate",
+      "description": "Pearson correlation between any two whitelisted WHOOP metrics over a chosen window."
     },
     {
-      "name": "Sleep debt + recovery prediction",
-      "command": "sleep-debt",
-      "description": "Rolling 14-day sleep debt accumulation and a heuristic recovery prediction for tomorrow."
+      "name": "Why-was-today-bad attribution",
+      "command": "analyze why-today",
+      "description": "Ranks today's recovery, HRV, RHR, sleep consistency, and prior-day strain by abs(z-score) vs. personal 14-day baseline."
     },
     {
-      "name": "Strain budget recommender",
-      "command": "strain-budget",
-      "description": "Recommend today's strain ceiling given a weekly target and current recovery score."
+      "name": "Raw SQL escape hatch",
+      "command": "sql",
+      "description": "Execute read-only SELECT/WITH queries (or read-only PRAGMAs like table_info, table_list, foreign_key_list for schema introspection) against the local SQLite store. Accept the query as a positional arg or via --query."
     },
     {
-      "name": "Week-over-week diff",
-      "command": "diff",
-      "description": "Compare two ISO weeks side-by-side: strain, recovery, sleep deltas with percent change."
-    },
-    {
-      "name": "Webhook listener with shell hook",
-      "command": "watch",
-      "description": "HMAC-validated local HTTP server for Whoop webhooks that runs a configurable shell command per event."
-    },
-    {
-      "name": "Journal cross-reference",
-      "command": "journal",
-      "description": "Cross-reference Whoop Journal answers against next-day recovery deltas."
+      "name": "FTS5 cross-resource search",
+      "command": "search",
+      "description": "FTS5 full-text search across all synced resources (cycle, sleep, recovery, workouts)."
     }
-  ]
+  ],
+  "category": "devices"
 }

@@ -1,7 +1,7 @@
 ---
 name: pp-whoop
-description: "Printing Press CLI for Whoop."
-author: "Greg Van Horn"
+description: "Printing Press CLI for WHOOP. Official WHOOP Developer Platform v2 API. Provides programmatic access to a user's cycles, sleep, recovery,... Trigger phrases: `my sleep score`, `strain today`, `weekly recovery trend`, `whoop analytics`, `use whoop`, `whoop sleep debt`, `whoop overtraining`, `correlate my whoop`, `why was my recovery`."
+author: "user"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -12,7 +12,7 @@ metadata:
         - whoop-pp-cli
 ---
 
-# Whoop — Printing Press CLI
+# WHOOP — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -25,48 +25,62 @@ This skill drives the `whoop-pp-cli` binary. **You must verify the CLI is instal
 2. Verify: `whoop-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/devices/whoop/cmd/whoop-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
+WHOOP gives you a number every morning. whoop-pp-cli gives you the *why*. It syncs your full WHOOP history into a local SQLite database, runs cross-resource joins (sleep ⋈ recovery ⋈ workouts ⋈ cycles), and surfaces trends, correlations, and overtraining alerts no live API call can compute. Everything is agent-native: JSON output, --select field filtering, --agent mode for Claude Code, plus an MCP server for Claude Desktop.
 
+## When to Use This CLI
+
+Use whoop-pp-cli when you want to ask questions about your own WHOOP data that the WHOOP mobile app cannot answer — multi-week trends, correlations between metrics, custom SQL queries, overtraining detection, or sleep-debt tracking. Especially good with Claude Code: install the pp-whoop skill and ask in natural language ("how was my recovery this week vs last", "correlate my sleep consistency with morning recovery over 90 days", "flag overtraining"). Skip it if you just want today's score — the WHOOP app is fine for that.
+
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+- **`analyze efficiency`** — Buckets cycles by strain (0-5, 5-10, 10-15, 15-21) and shows mean recovery per bucket vs. the prior equivalent window.
+- **`analyze sleep-debt`** — Cumulative sum of need_from_sleep_debt_milli weekly, with trend slope and human-friendly interpretation.
+- **`analyze overtraining`** — Flags days where strain exceeds N sigma above the 90-day mean and shows the recovery delta vs. window mean.
+- **`analyze correlate`** — Pearson correlation between any two whitelisted WHOOP metrics over a chosen window.
+- **`analyze why-today`** — Ranks today's recovery, HRV, RHR, sleep consistency, and prior-day strain by abs(z-score) vs. personal 14-day baseline.
+- **`sql`** — Execute read-only SELECT/WITH queries (or read-only PRAGMAs like table_info, table_list, foreign_key_list for schema introspection) against the local SQLite store. Accept the query as a positional arg or via --query.
+- **`search`** — FTS5 full-text search across all synced resources (cycle, sleep, recovery, workouts).
+
+## HTTP Transport
+
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
 ## Command Reference
 
 **activity** — Manage activity
 
-- `whoop-pp-cli activity get-sleep-by-id` — Get the sleep for the specified ID
-- `whoop-pp-cli activity get-sleep-collection` — Get all sleeps for a user, paginated. Results are sorted by start time in descending order.
-- `whoop-pp-cli activity get-workout-by-id` — Get the workout for the specified ID
-- `whoop-pp-cli activity get-workout-collection` — Get all workouts for a user, paginated. Results are sorted by start time in descending order.
+- `whoop-pp-cli activity get-sleep` — Get a single sleep by UUID
+- `whoop-pp-cli activity get-workout` — Get a single workout by UUID
+- `whoop-pp-cli activity list-sleeps` — List sleep activities
+- `whoop-pp-cli activity list-workouts` — List workouts
 
-**activity-mapping** — Manage activity mapping
+**activity-mapping** — V1 -> V2 identifier mapping helper.
 
-- `whoop-pp-cli activity-mapping <activityV1Id>` — Lookup the V2 UUID for a given V1 activity ID
+- `whoop-pp-cli activity-mapping <v1Id>` — Translate a v1 sleep/workout id to a v2 UUID
 
-**cycle** — Manage cycle
+**cycle** — Physiological cycles (a WHOOP "day").
 
-- `whoop-pp-cli cycle get-by-id` — Get the cycle for the specified ID
-- `whoop-pp-cli cycle get-collection` — Get all physiological cycles for a user, paginated. Results are sorted by start time in descending order.
+- `whoop-pp-cli cycle get` — Get a single cycle by id
+- `whoop-pp-cli cycle list` — Returns the user's cycles (a WHOOP day) ordered by start time descending.
 
-**partner** — Endpoints for trusted WHOOP partner operations
+**recovery** — Recovery scores for each cycle.
 
-- `whoop-pp-cli partner add-test-data` — Generates test user and lab requisition data for partner integration testing. This endpoint is only available in...
-- `whoop-pp-cli partner get-lab-requisition-by-id` — Retrieves a lab requisition with its associated service requests by its unique identifier. The requesting partner...
-- `whoop-pp-cli partner get-service-request-by-id` — Retrieves a service request by its unique identifier. The requesting partner must be an owner of the service request.
-- `whoop-pp-cli partner request-token` — Exchanges partner client credentials for an access token.
-- `whoop-pp-cli partner update-service-request-status` — Updates the business status of a service request task. The requesting partner must be an owner of the service request.
-- `whoop-pp-cli partner upload-diagnostic-report-results` — Creates a diagnostic report with results for a service request. The requesting partner must be an owner of the...
+- `whoop-pp-cli recovery` — List recovery records
 
-**recovery** — Manage recovery
+**user** — User profile and body measurements.
 
-- `whoop-pp-cli recovery` — Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.
-
-**user** — Endpoints for retrieving user profile and measurement data.
-
-- `whoop-pp-cli user get-body-measurement` — Retrieves the body measurements (height, weight, max heart rate) for the authenticated user.
-- `whoop-pp-cli user get-profile-basic` — Retrieves the basic profile information (name, email) for the authenticated user.
-- `whoop-pp-cli user revoke-oauth-access` — Revoke the access token granted by the user. If the associated OAuth client is configured to receive webhooks, it...
+- `whoop-pp-cli user get-body-measurement` — Get user body measurement
+- `whoop-pp-cli user get-profile` — Get user profile (basic)
+- `whoop-pp-cli user revoke-oauth-access` — Revoke the user's OAuth access (delete token grants)
 
 
 ### Finding the right command
@@ -79,15 +93,42 @@ whoop-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Auth Setup
+## Recipes
 
-Store your access token:
+
+### Daily morning check
 
 ```bash
-whoop-pp-cli auth set-token YOUR_TOKEN_HERE
+
 ```
 
-Or set `WHOOP_OAUTH` as an environment variable.
+### Sleep debt across the last month
+
+```bash
+
+```
+
+### Correlate sleep consistency with recovery
+
+```bash
+
+```
+
+### Detect overtraining trend
+
+```bash
+
+```
+
+### Agent-mode query for Claude Code
+
+```bash
+
+```
+
+## Auth Setup
+
+WHOOP uses OAuth 2.0 with PKCE — there is no static API key. You register an app at developer.whoop.com, get a Client ID and Client Secret, then run `whoop-pp-cli auth login`. The CLI opens your browser, you approve the requested scopes (sleep, recovery, workout, cycles, profile, body measurement, plus offline so we can refresh), and WHOOP redirects back to http://localhost:8085/callback where the CLI is listening. Tokens are stored under ~/.config/whoop-pp-cli/tokens.json and auto-refreshed 60 seconds before expiry. For non-interactive contexts (CI, serverless), you can skip the flow and just set WHOOP_ACCESS_TOKEN (or WHOOP_OAUTH for back-compat with the prior 1.0 release).
 
 Run `whoop-pp-cli doctor` to verify setup.
 
@@ -99,7 +140,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  whoop-pp-cli activity-mapping mock-value --agent --select id,name,status
+  whoop-pp-cli activity-mapping mock-value --type example-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -151,7 +192,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 whoop-pp-cli profile save briefing --json
-whoop-pp-cli --profile briefing activity-mapping mock-value
+whoop-pp-cli --profile briefing activity-mapping mock-value --type example-value
 whoop-pp-cli profile list --json
 whoop-pp-cli profile show briefing
 whoop-pp-cli profile delete briefing --yes

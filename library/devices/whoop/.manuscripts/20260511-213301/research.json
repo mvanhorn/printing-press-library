@@ -1,0 +1,175 @@
+{
+  "api_name": "",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Recovery-vs-strain efficiency curve",
+      "command": "analyze efficiency",
+      "description": "Buckets cycles by strain (0-5, 5-10, 10-15, 15-21) and shows mean recovery per bucket vs. the prior equivalent window.",
+      "rationale": "No live API call can join workouts/cycles to next-day recovery and bucket the result. Requires backfilled SQLite history."
+    },
+    {
+      "name": "Sleep debt cumulative tracker",
+      "command": "analyze sleep-debt",
+      "description": "Cumulative sum of need_from_sleep_debt_milli weekly, with trend slope and human-friendly interpretation.",
+      "rationale": "Requires full per-sleep history; the live API only returns single records."
+    },
+    {
+      "name": "Overtraining detector",
+      "command": "analyze overtraining",
+      "description": "Flags days where strain exceeds N sigma above the 90-day mean and shows the recovery delta vs. window mean.",
+      "rationale": "Cross-resource (cycle.strain joined with recovery.recovery_score) over a rolling baseline window."
+    },
+    {
+      "name": "Pairwise metric correlation",
+      "command": "analyze correlate",
+      "description": "Pearson correlation between any two whitelisted WHOOP metrics over a chosen window.",
+      "rationale": "No live endpoint exposes this; needs day-paired samples from local store."
+    },
+    {
+      "name": "Why-was-today-bad attribution",
+      "command": "analyze why-today",
+      "description": "Ranks today's recovery, HRV, RHR, sleep consistency, and prior-day strain by abs(z-score) vs. personal 14-day baseline.",
+      "rationale": "Z-scores require historical baseline computed locally."
+    },
+    {
+      "name": "Raw SQL escape hatch",
+      "command": "sql",
+      "description": "Execute read-only SELECT/WITH queries (or read-only PRAGMAs like table_info, table_list, foreign_key_list for schema introspection) against the local SQLite store. Accept the query as a positional arg or via --query.",
+      "rationale": "Power-user/agent escape hatch — no live API equivalent."
+    },
+    {
+      "name": "FTS5 cross-resource search",
+      "command": "search",
+      "description": "FTS5 full-text search across all synced resources (cycle, sleep, recovery, workouts).",
+      "rationale": "WHOOP API has no global search; this is locally computed."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Recovery-vs-strain efficiency curve",
+      "command": "analyze efficiency",
+      "description": "Buckets cycles by strain (0-5, 5-10, 10-15, 15-21) and shows mean recovery per bucket vs. the prior equivalent window.",
+      "rationale": "No live API call can join workouts/cycles to next-day recovery and bucket the result. Requires backfilled SQLite history."
+    },
+    {
+      "name": "Sleep debt cumulative tracker",
+      "command": "analyze sleep-debt",
+      "description": "Cumulative sum of need_from_sleep_debt_milli weekly, with trend slope and human-friendly interpretation.",
+      "rationale": "Requires full per-sleep history; the live API only returns single records."
+    },
+    {
+      "name": "Overtraining detector",
+      "command": "analyze overtraining",
+      "description": "Flags days where strain exceeds N sigma above the 90-day mean and shows the recovery delta vs. window mean.",
+      "rationale": "Cross-resource (cycle.strain joined with recovery.recovery_score) over a rolling baseline window."
+    },
+    {
+      "name": "Pairwise metric correlation",
+      "command": "analyze correlate",
+      "description": "Pearson correlation between any two whitelisted WHOOP metrics over a chosen window.",
+      "rationale": "No live endpoint exposes this; needs day-paired samples from local store."
+    },
+    {
+      "name": "Why-was-today-bad attribution",
+      "command": "analyze why-today",
+      "description": "Ranks today's recovery, HRV, RHR, sleep consistency, and prior-day strain by abs(z-score) vs. personal 14-day baseline.",
+      "rationale": "Z-scores require historical baseline computed locally."
+    },
+    {
+      "name": "Raw SQL escape hatch",
+      "command": "sql",
+      "description": "Execute read-only SELECT/WITH queries (or read-only PRAGMAs like table_info, table_list, foreign_key_list for schema introspection) against the local SQLite store. Accept the query as a positional arg or via --query.",
+      "rationale": "Power-user/agent escape hatch — no live API equivalent."
+    },
+    {
+      "name": "FTS5 cross-resource search",
+      "command": "search",
+      "description": "FTS5 full-text search across all synced resources (cycle, sleep, recovery, workouts).",
+      "rationale": "WHOOP API has no global search; this is locally computed."
+    }
+  ],
+  "narrative": {
+    "display_name": "WHOOP",
+    "value_prop": "WHOOP gives you a number every morning. whoop-pp-cli gives you the *why*. It syncs your full WHOOP history into a local SQLite database, runs cross-resource joins (sleep ⋈ recovery ⋈ workouts ⋈ cycles), and surfaces trends, correlations, and overtraining alerts no live API call can compute. Everything is agent-native: JSON output, --select field filtering, --agent mode for Claude Code, plus an MCP server for Claude Desktop.",
+    "auth_narrative": "WHOOP uses OAuth 2.0 with PKCE — there is no static API key. You register an app at developer.whoop.com, get a Client ID and Client Secret, then run `whoop-pp-cli auth login`. The CLI opens your browser, you approve the requested scopes (sleep, recovery, workout, cycles, profile, body measurement, plus offline so we can refresh), and WHOOP redirects back to http://localhost:8085/callback where the CLI is listening. Tokens are stored under ~/.config/whoop-pp-cli/tokens.json and auto-refreshed 60 seconds before expiry. For non-interactive contexts (CI, serverless), you can skip the flow and just set WHOOP_ACCESS_TOKEN (or WHOOP_OAUTH for back-compat with the prior 1.0 release).",
+    "quickstart": [
+      {
+        "command": "whoop-pp-cli version"
+      },
+      {
+        "command": "whoop-pp-cli auth status --json"
+      },
+      {
+        "command": "whoop-pp-cli whoami --json"
+      },
+      {
+        "command": "whoop-pp-cli cycle list --limit 1 --json"
+      },
+      {
+        "command": "whoop-pp-cli doctor --json"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 400 on every sync request",
+        "fix": "Fixed in this version: client auto-clamps limit to 25 and paginates via next_token. If you see this on 1.x, upgrade to 2.x."
+      },
+      {
+        "symptom": "`redirect_uri does not match` during auth login",
+        "fix": "Add http://localhost:8085/callback to your app's Redirect URIs at developer.whoop.com. Or use `auth login --port \u003cn\u003e` and register http://localhost:\u003cn\u003e/callback instead."
+      },
+      {
+        "symptom": "401 Unauthorized after some hours",
+        "fix": "Re-run `whoop-pp-cli auth login` — by default the CLI requests `offline` and the refresh token is saved. The CLI auto-refreshes 60s before expiry. If you must use a static bearer, set `WHOOP_ACCESS_TOKEN` and refresh it manually."
+      },
+      {
+        "symptom": "Pagination feels slow on long backfills",
+        "fix": "`sync --concurrency 4 --rate-limit 5/s` parallelizes per-resource fetches. Or `sync --since 30d` for incremental updates after the first backfill."
+      },
+      {
+        "symptom": "Recovery missing for some cycles",
+        "fix": "Filter with `--scored-only` on list commands, or check `score_state` in your queries. WHOOP backfills these later; re-sync."
+      }
+    ],
+    "when_to_use": "Use whoop-pp-cli when you want to ask questions about your own WHOOP data that the WHOOP mobile app cannot answer — multi-week trends, correlations between metrics, custom SQL queries, overtraining detection, or sleep-debt tracking. Especially good with Claude Code: install the pp-whoop skill and ask in natural language (\"how was my recovery this week vs last\", \"correlate my sleep consistency with morning recovery over 90 days\", \"flag overtraining\"). Skip it if you just want today's score — the WHOOP app is fine for that.",
+    "recipes": [
+      {
+        "title": "Latest cycle (live)",
+        "command": "whoop-pp-cli cycle list --limit 1 --json"
+      },
+      {
+        "title": "Sleep this week (live)",
+        "command": "whoop-pp-cli activity list-sleeps --limit 7 --json"
+      },
+      {
+        "title": "Recovery summary (live)",
+        "command": "whoop-pp-cli recovery list --limit 5 --json"
+      },
+      {
+        "title": "Identity check",
+        "command": "whoop-pp-cli whoami --json"
+      },
+      {
+        "title": "Diagnostic",
+        "command": "whoop-pp-cli doctor --json"
+      }
+    ],
+    "trigger_phrases": [
+      "my sleep score",
+      "strain today",
+      "weekly recovery trend",
+      "whoop analytics",
+      "use whoop",
+      "whoop sleep debt",
+      "whoop overtraining",
+      "correlate my whoop",
+      "why was my recovery"
+    ]
+  }
+}

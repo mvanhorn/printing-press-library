@@ -1,0 +1,1296 @@
+openapi: 3.0.0
+servers:
+  - url: "https://api.prod.whoop.com"
+  - url: "https://api-7.whoop.com"
+  - url: "https://api.dev.whoop.com"
+info:
+  version: 2.0.1
+  title: Unofficial Whoop API
+  description: >-
+    This is an unofficial and unsupported API for Whoop that's been discovered and documented. This is a BREAKING CHANGE from 1.x - Cycles,  Workouts, Recoveries, all use different field names, and formats, using activity-service/v1 and vow-service/v1 instead of other endpoints.  As such, older services have been removed from documentation to avoid confusion, even if they still workl.   It's not entirely complete, but it already has some useful functionality as it continues to evolve.  The first thing you're going to need is your OAuth token, which you can obtain by sending the /oath/token authentication request described in this document.
+
+paths:
+  /users/{userId}:
+    get:
+      summary: Get User Profile (api-7 only)
+      description: >-
+        Get User Profile by ID. NOTE: This only works on api-7
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: "userId"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+            default: 238633
+          in: "path"
+        - name: "include"
+          required: false
+          in: "query"
+          style: "form"
+          explode: true
+          schema: 
+            type: "array"
+            items:
+              type: "string"
+              enum:
+                - profile
+                - teams
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      tags:
+        - users
+  /activities-service/v1/cycles/aggregate/range/{userId}:
+    get:
+      summary: Get aggregate data for a user over a specific aggregate range. This works on api-7 and api.prod
+      security: 
+        - bearerAuth: []
+      tags:
+        - metrics
+      parameters: 
+        - name: "userId"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+            default: 238633
+          in: "path"
+        - name: "startTime"
+          schema:
+            type: "string"
+            format: "date-time"
+            example: "2021-12-25T01:30:00.000Z"
+          in: "query"
+        - name: "endTime"
+          schema:
+            type: "string"
+            format: "date-time"
+            example: "2021-12-26T02:30:00.000Z"
+          in: "query"
+        - name: "limit"
+          schema:
+            type: "number"
+            example: 23
+          in: "query"
+        - name: "apiVersion"
+          schema:
+            type: "number"
+            example: 7
+            nullable: false
+          in: "query"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/V1AggregateResults"
+
+  /users/{userId}/metrics/{metric}:
+    get:
+      summary: Get metric for a date range (Only heart_rate has been proven to work so far)
+      description: >-
+        Gets  data in granularity of every 6, 60, or 600 seconds for a given date/time range. This is a slow request, so you should keep the date range tight. So far only heart_rate is known to work
+      security: 
+        - bearerAuth: []
+      tags:
+        - metrics
+      parameters: 
+        - name: "sort"
+          schema:
+            type: "string"
+          example: "t"
+          in: "query"
+        - name: "step"
+          schema:
+            type: "integer"
+            format: "int32"
+            example: "6|60|600"
+            default: 60
+            enum:
+              - 6
+              - 60
+              - 600
+          in: "query"
+        - name: "userId"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+            default: 238633
+          in: "path"
+        - name: "metric"
+          required: true
+          schema:
+            type: "string"
+            default: "heart_rate"
+            enum: 
+              - heart_rate
+          in: "path"
+        - name: "start"
+          schema:
+            type: "string"
+            format: "date-time"
+            example: "2021-12-21T01:30:00.000Z"
+          in: "query"
+        - name: "end"
+          schema:
+            type: "string"
+            format: "date-time"
+            example: "2021-12-22T02:30:00.000Z"
+          in: "query"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/HeartRateDataSet"
+          
+  /oauth/token:
+    post:
+      summary: Get or Refresh OAuth Token
+      description: >-
+        Obtain OAuth token based on password grant type,and make it refreshable by getting a refresh token as well, or refresh the token by supplying a refresh_token.
+          example payloads, are, for password auth:
+           <pre>
+           { 
+             "username": "email@addr", 
+             "password": "pass", 
+             "grant_type": "password", 
+             "issueRefresh": true
+          }
+           </pre> or, to refresh
+           <pre>
+            {
+              "refresh_token": "your_refresh_token", 
+              "grant_type": "refresh_token"
+            }
+           </pre>
+        
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/PasswordAuthRequest'
+                - $ref: '#/components/schemas/RefreshTokenRequest'
+            examples:
+              Password:
+                value:
+                  username: "email@addr"
+                  password: "myPassword"
+                  grant_type: "password"
+                  issueRefresh: true
+              Refresh:
+                value:
+                  refresh_token: "myRefreshToken"
+                  grant_type: "refresh_token"
+      responses:
+        '200':
+          description: OAuth Token Object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+      tags:
+        - auth
+  /activities-service/v1/sports:
+    get:
+      security: 
+        - bearerAuth: []
+      summary: "list of activities types"
+      description: "Gets the entire list of supported activity types on the whoop platform"
+      tags:
+        - reference data
+      responses:
+        '200':
+          description: "Array of activity types"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: '#/components/schemas/V1ActivityType'
+  /activities-service/v1/workouts/{workoutId}:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - details
+      summary: "Gets details  for a workout"
+      parameters:
+        - name: workoutId
+          schema:
+            type: "integer"
+            format: "int32"
+          required: true
+          example: 357487075
+          description: "this is the same as the activity ID"
+          in: "path"
+        - name: userId
+          schema:
+            type: "integer"
+            format: "int32"
+          required: true
+          example: 238633
+          in: "query"
+      responses:
+        '200':
+          description: "Response from survey user replied to"
+          content:
+            'application/json':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/V1Workout"
+  
+  /activities-service/v0/workouts/{workoutId}/survey/response:
+    get:
+      security:
+        - bearerAuth: []
+      tags:
+        - user interface
+        - surveys
+      summary: "Gets survey responses for a workout"
+      parameters:
+        - name: workoutId
+          schema:
+            type: "integer"
+            format: "int32"
+          required: true
+          example: 357487075
+          description: "this is the same as the activity ID"
+          in: "path"
+        - name: userId
+          schema:
+            type: "integer"
+            format: "int32"
+          required: true
+          example: 238633
+          in: "query"
+      responses:
+        '200':
+          description: "Response from survey user replied to"
+          content:
+            'application/json':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/V0SurveyResponse"
+        
+  /vow-service/v1/vows/activity/{activityId}:
+    get:
+      security: 
+        - bearerAuth: []
+      tags:
+        - user interface
+      summary: "Get the little text blurb that's displayed on the app"
+      description: "Get a text statement for the given data set/type"
+      parameters:
+        - name: "viewId"
+          schema:
+            type: "integer"
+            format: "int32"
+          example: 238633
+          in: "query"
+          description: "seems to also be a user ID"
+        - name: "activityId"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+          in: "path"
+          example: 350838061
+          description: "Activity being 'voiced' over"
+      responses:
+        '200':
+          description: Voice of Whoop
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/V1VoiceOfWhoop'
+                  - $ref: "#/components/schemas/V1VoiceOfWhoopCycle"
+                           
+  /vow-service/v1/vows/{vowMode}/{duration}/cycle/{cycleId}:
+    get:
+      security:
+        - bearerAuth: []
+      summary: "Get the little text blurb that's displayed on the app"
+      description: "Get a text statement for the given data set/type"
+      parameters:
+        - name: "vowMode"
+          schema:
+            type: "string"
+            default: "overview"
+            enum:
+              - overview
+              - recovery
+              - strain
+              - sleep
+              - hrv
+              - rhr
+          in: "path"
+          required: true
+          description: "There may be more metrics, but these work. Note some don't work for every duration option"
+        - name: "duration"
+          schema:
+            type: "string"
+            enum:
+              - 1d
+              - 7d
+            default: 7d  
+          in: "path"
+          required: true
+          description: "1d for single day, 7d for a week"
+        - name: "cycleId"
+          schema:
+            type: "integer"
+            format: "int32"
+          in: "path"
+          required: true
+          example: 178323132
+          description: "Cycle being 'voiced' over"
+      responses:
+        '200':
+          description: Voice of Whoop
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/V1VoiceOfWhoop'
+                  - $ref: "#/components/schemas/V1VoiceOfWhoopCycle"
+      tags:
+        - user interface
+  /activities-service/v1/sleep-events:
+    get:
+      summary: Get individual events/activities during a sleep
+      security: 
+        - bearerAuth: []
+      tags:
+        - details
+        - metrics
+      parameters: 
+        - name: "activityId"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+            default: 357425838
+          in: "query"
+        - name: "apiVersion"
+          schema:
+            type: "number"
+            example: 7
+            nullable: false
+          in: "query"
+      responses:
+        '200':
+          description: "Array of sleep events taking place during a sleep"
+          content:
+            'application/json':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/V1SleepEvent"
+  /users/{userId}/sleeps/{sleepId}:
+    get:
+      security:
+        - bearerAuth: []
+      description: "Get individual sleep details"
+      parameters:
+        - name: "sleepId"
+          schema:
+            type: "integer"
+            format: "int32"
+          in: "path"
+          required: true
+          example: 93802122
+        - name: "userId"
+          schema:
+            type: "integer"
+            format: "int32"
+          in: "path"
+          required: true
+          example: 238633
+      tags:
+        - details
+      responses:
+        '200':
+          description: "Sleep details"
+          content:
+            application/json:
+              schema:
+                type: "object"
+
+  /activities-service/v1/performance-assessment/{period}:
+    get:
+      security:
+        - bearerAuth: []
+      description: "Get Weekly Performance Summary for the current user (api.prod only)"
+      parameters:
+        - name: "period"
+          schema:
+            type: "string"
+            enum:
+              - week
+              - month
+          in: "path"
+          required: true
+          description: "Performance Assessment For the current period"
+      tags:
+        - reports
+      responses:
+        '200':
+          description: "List of available performance assessments for a given period type"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/V1ReportList"
+                
+  /activities-service/v1/performance-assessment/url/{reportId}:
+    get:
+      security:
+        - bearerAuth: []
+      description: "Get performance assessment URL for a given report (api.prod only)"
+      parameters:
+        - name: "reportId"
+          schema:
+            type: "integer"
+            format: "int32"
+          example: "17718961"
+          in: "path"
+          required: true
+      tags:
+        - reports
+      responses:
+        '200':
+          description: "URL of a specific performance assessment"
+          content:
+            application/json:
+              schema:
+                type: "string"  
+  
+  /membership:
+    get:
+      security:
+        - bearerAuth: []
+      description: "Gets membership status"
+      tags:
+        - membership
+      responses:
+        '200':
+          description: "Membership description object"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhoopMembership'
+components:
+  schemas: 
+    PasswordAuthRequest:
+      properties:
+        username:
+          description: "Your email address"
+          type: "string"
+          example: "email@address.com"
+        password:
+          type: "string"
+          example: "your_password"
+        grant_type:
+          type: "string"
+          default: "password"
+          example: "password"
+        issueRefresh:
+          type: "boolean"
+          example: true
+          default: true
+          
+    RefreshTokenRequest:
+      properties:
+        grant_type:
+          type: "string"
+          default: "refresh_token"
+          example: "refresh_token"
+        refresh_token:
+          type: "string"
+          example: "your-refresh-token"
+    AuthResult:
+      properties:
+        access_token:
+          type: "string"
+        refresh_token:
+          type: "string"
+        expires_in:
+          type: "integer"
+          format: "int32"
+        membership_status:
+          type: "string"
+          example: "active"
+        needsProfileCompletion:
+          type: "string"
+          example: "0"
+        token_type:
+          type: "string"
+          example: "Bearer"
+        user:
+          $ref: "#/components/schemas/User"
+    
+    User:
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        avatarUrl:
+          type: "string"
+        createdAt:
+          type: "string"
+          format: "date-time"
+        updatedAt:
+          type: "string"
+          format: "date-time"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        city:
+          type: "string"
+        country:
+          type: "string"
+          example: "IL"
+          description: "ISO 2 letter country code"
+        adminDivision:
+          type: "string"
+        fullName:
+          type: "string"
+        teams:
+          type: "array"
+        preferences:
+          type: "object"
+        email: 
+          type: "string"
+        concealed:
+          type: "boolean"
+        membershipStatus:
+          type: "string"
+        username: 
+          type: "string"
+        privacyProfile:
+          type: "object"
+        profile:
+          $ref: "#/components/schemas/Profile"
+    Profile:
+      properties:
+        userId:
+          type: "integer"
+          format: "int32"
+        bioDataId:
+          type: "integer"
+          format: "int32"
+        height:
+          type: "number"
+          format: "float"
+          description: "height in meters"
+        weight:
+          type: "number"
+          format: "float"
+          description: "weight in kg"
+        birthday: 
+          type: "string"
+          format: "date-time"
+        gender:
+          type: "string"
+        unitSystem:
+          type: "string"
+          example: "imperial"
+        fitnessLevel:
+          type: "string"
+        createdAt:
+          type: "string"
+          format: "date-time"
+        updatedAt:
+          type: "string"
+          format: "date-time"
+        timezoneOffset:
+          type: "string"
+          example: "+0300"
+        id:
+          type: "integer"
+          format: "int32"
+        maxHeartRate:
+          type: "integer"
+          format: "int32"
+        minHeartRate:
+          type: "integer"
+          format: "int32"
+        avgHeartRate:
+          type: "number"
+          format: "float"
+        kilojoules:
+          type: "number"
+          format: "float"
+        canUploadData:
+          type: "boolean"
+          default: true
+          example: true
+    MetricDataSet:
+      properties:
+        name:
+          example: "heart_rate"
+          type: "string"
+        start:
+          type: "integer"
+          format: "int64"
+    HeartRateDataSet:
+      allOf:
+        - $ref: "#/components/schemas/MetricDataSet"
+        - type: "object"
+          properties: 
+            values:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  data: 
+                    type: "integer"
+                    format: "int32"
+                    description: "heart rate"
+                  time:
+                    type: "integer"
+                    format: "int64"
+                    description: "timestamp in millis"
+    V1ResultSet:
+      properties:
+        total_count:
+          type: "integer"
+          format: "int32"
+        offset:
+          type: "integer"
+          format: "int32"
+        records:
+          type: "array"
+    V1AggregateResults:
+      allOf:
+        - $ref: "#/components/schemas/V1ResultSet"
+      properties:
+        records:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/V1AggregateResult"
+    V1ReportList:
+      allOf:
+        - $ref: "#/components/schemas/V1ResultSet"
+      properties:
+        records:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/V1Report"
+    V1AggregateResult:
+      properties:
+        cycle:
+          $ref: "#/components/schemas/V1Cycle"
+        sleeps:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/V1Sleep"
+        recovery:
+          $ref: "#/components/schemas/V1Recovery"
+        workouts:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/V1Workout"
+    V1Report:
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+          example: 15571241
+        user_id:
+          type: "integer"
+          format: "int32"
+          example: 238633
+        report_type:
+          type: "string"
+          enum:
+            - WEEK
+            - MONTH
+        report_during:
+          type: "string"
+          example: "['2021-10-18','2021-10-25')"
+          description: "date stamp time span format commonly used by whoop"
+        view_datetime:
+          type: "string"
+          format: "date-time"
+        created_at:
+          type: "string"
+          format: "date-time"        
+        updated_at:
+          type: "string"
+          format: "date-time"        
+    V1Cycle:
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        created_at:
+          type: "string"
+          format: "date-time"
+        updated_at:
+          type: "string"
+          format: "date-time"
+        scaled_strain:
+          type: "number"
+          format: "double"
+        during:
+          type: "string"
+        user_id:
+          type: "integer"
+          format: "int32"
+          example: 238633
+        sleep_need:
+          type: "number"
+          description: "This is null so unsure what this is"
+        predicted_end:
+          type: "string"
+          format: "date-time"
+        timezone_offset:
+          type: "string"
+          example: "+0300"
+        intensity_score:
+          type: "number"
+          description: "This is null so unsure what this is"
+        data_state:
+          type: "string"
+          example: "complete"
+        day_strain:
+          type: "number"
+          format: "double"
+        day_kilojoules:
+          type: "number"
+          format: "double"
+        day_avg_heart_rate:
+          type: "integer"
+          format: "int32"
+        day_max_heart_rate:
+          type: "integer"
+          format: "int32"
+
+    V1Recovery:
+      properties:
+        during:
+          type: "string"
+          example: "['2020-07-31T19:41:49.519Z','2020-08-01T03:40:29.407Z')"
+        id:
+          type: "integer"
+          format: "int32"
+        date:
+          type: "string"
+          format: "date-time"
+          example: "2022-01-11T02:56:19.143+0000"
+        calibrating:
+          type: "boolean"
+          example: false
+        created_at:
+          type: "string"
+          format: "date-time"
+        updated_at:
+          type: "string"
+          format: "date-time"
+        user_id:
+          type: "integer"
+          format: "int32"
+          example: 238633
+        sleep_id:
+          type: "integer"
+          format: "int32"
+          example: 97706508
+        survey_response_id:
+          type: "integer"
+          format: "int32"
+        cycle_id:
+          type: "integer"
+          format: "int32"
+          example: 41564054
+        responded:
+          type: "boolean"
+        recovery_score:
+          type: "integer"
+          format: "int32"
+        resting_heart_rate:
+          type: "integer"
+          format: "int32"
+        hrv_rmssd:  
+          type: "number"
+          format: "float"
+          example: 0.057343356
+        state:
+          type: "string"
+          example: "complete"
+        prob_covid:
+          type: "number"
+          format: "double"
+          description: "0.11581755429506302"
+        hr_baseline:
+          type: "integer"
+          format: "int32"
+        skin_temp_celsius:
+          type: "number"
+          format: "float" 
+          example: 32.4
+        spo2:
+          type: "number"
+          format: "float"
+          example: 93.25
+        algo_version:
+          type: "string"
+          example: "4.0.0"
+        rhr_component:
+          type: "number"
+          format: "float"
+          example: 0.5811901
+        hrv_component:
+          type: "number"
+          format: "float"
+          example: 0.30885226
+        history_size:
+          type: "integer"
+          format: "int32"
+          example: 7
+        from_sws:
+          type: boolean
+          example: true
+        recovery_rate:
+          type: "number"
+          format: "float"
+        is_normal:
+          type: boolean
+    V1Sleep:
+      properties:
+        cycle_id:
+          type: "integer"
+          format: "int32"
+        created_at:
+          type: "string"
+          format: "date-time"
+        updated_at:
+          type: "string"
+          format: "date-time"
+        activity_id:
+          type: "integer"
+          format: "int32"
+        during:
+          type: "string"
+          example: "['2020-07-31T19:41:49.519Z','2020-08-01T03:40:29.407Z')"
+        score: 
+          type: "integer"
+          format: "int32"
+        quality_duration:
+          type: "integer"
+          format: "int32"
+        latency:
+          type: "integer"
+          format: "int32"
+        max_heart_rate:
+          type: "integer"
+          format: "int32"
+        average_heart_rate:
+          type: "integer"
+          format: "int32"
+        debt_pre:
+          type: "integer"
+          format: "int32"
+        debt_post:
+          type: "integer"
+          format: "int32"
+        need_from_strain:
+          type: "integer"
+          format: "int32"
+        sleep_need:
+          type: "integer"
+          format: "int32"
+        habitual_sleep_need:
+          type: "integer"
+          format: "int32"
+        disturbances:
+          type: "integer"
+          format: "int32"
+          example: 3
+        time_in_bed:
+          type: "integer"
+          format: "int32"
+        light_sleep_duration:
+          type: "integer"
+          format: "int32"
+        slow_wave_sleep_duration:
+          type: "integer"
+          format: "int32"          
+        rem_sleep_duration:
+          type: "integer"
+          format: "int32"  
+        cycles_count:
+          type: "integer"
+          format: "int32"
+          example: 6
+        wake_duration:
+          type: "integer"
+          format: "int32"  
+        arousal_time:
+          type: "integer"
+          format: "int32"  
+        no_data_duration:
+          type: "integer"
+          format: "int32"
+        in_sleep_efficiency:
+          type: "number"
+          format: "float"
+        credit_from_naps:
+          type: "integer"
+          format: "int32"
+        hr_baseline:
+          type: "integer"
+          format: "int32"
+        respiratory_rate:
+          type: "number"
+          format: "float"
+        sleep_consistency:
+          type: "integer"
+          format: "int32"
+        algo_version:
+          type: "string"
+          example: "4.2.0"
+        projected_score:
+          type: "integer"
+          format: "int32"
+        projected_sleep:
+          type: "integer"
+          format: "int32"        
+        optimal_sleep_times:
+          type: "string"
+          description: "A timespan in 'whoop date range format'"   
+          example: "['2020-12-20T20:30:00.000Z','2020-12-21T05:15:00.000Z')"
+        kilojoules:
+          type: "number"
+          description: "currently showing as null"
+        user_id:
+          type: "integer"
+          format: "int32"
+        timezone_offset:
+          type: "string"
+          example: "+300"
+        percent_recorded:
+          type: "number"
+        auto_detected:
+          type: "boolean"
+        state:
+          type: "string"
+          example: "complete"
+        responded:
+          type: "boolean"
+          description: "responded to survey"
+        team_act_id:
+          type: "integer"
+          format: "int32"
+        source:
+          type: "string"
+          example: "auto+user"
+        is_normal:
+          type: "boolean"
+        is_significant:
+          type: "boolean"
+        is_nap:
+          type: "boolean"
+      
+    V1Workout:
+      properties: 
+        cycle_id:
+          type: "integer"
+          format: "int32"
+        created_at:
+          type: "string"
+          format: "date-time"
+        updated_at:
+          type: "string"
+          format: "date-time"
+        sport_id:
+          type: "integer"
+          format: "int32"
+          example: 1
+        activity_id:
+          type: "integer"
+          format: "int32"
+          example: 156030936
+        gps_enabled:
+          type: boolean
+        intensity_score:
+          type: "number"
+          format: "float"
+        max_heart_rate:
+          type: "integer"
+          format: "int32"
+          example: 152
+        average_heart_rate:
+          type: "integer"
+          format: "int32"
+          example: 140
+        distance:
+          type: "number"
+        performance:
+          description: "this is null in response, so cannot document"
+        energy:
+          description: "this is null in response, so cannot document"
+        rpe:
+          description: "this is null in response, so cannot document"
+        raw_intensity_score:
+          type: "number"
+          format: "double"
+          example: 0.005378655454516813
+        altitude_gain:
+          description: "this is null in response, so cannot document"
+        altitude_change:
+          description: "this is null in response, so cannot document"
+        cumulative_workout_intensity:
+          type: "number"
+          format: "float"
+        zone_durations:
+          type: "array"
+          items: 
+            type: "integer"
+            format: "int32"
+          example: [0,0,212488,1861085,410473,0]
+        projected_score:
+          type: "number"
+          format: "double"
+        confidence:
+          description: "this is null in response, so cannot document"
+        wac_prediction:
+          description: "this is null in response, so cannot document"
+        kilojoules:
+          type: "number"
+          format: "double"
+        user_id:
+          type: "integer"
+          format: "int32"          
+        during:
+          type: "string"
+          example: "['2020-12-21T10:04:12.278Z','2020-12-21T10:45:36.285Z')"
+        timezone_offset:
+          type: "string"
+          example: "+0200"
+        survey_response_id:
+          type: "integer"
+          format: "int32"
+        percent_recorded:
+          type: "number"
+        auto_detected:
+          type: boolean
+        state:
+          type: "string"
+          example: "complete"
+        responded:
+          type: boolean
+        team_act_id:
+          type: "integer"
+          format: "int32"
+        source:
+          type: "string"
+          example: "auto"
+
+    V1VoiceOfWhoop:
+      properties:
+        text:
+          type: "string"
+          example: "Your RHR is in the normal range. This indicates that your body is rested."
+        header:
+          type: "string"
+          example: "Body is rested."
+        key:
+          type: "string"
+          description: "category/key"
+          
+    V1VoiceOfWhoopCycle:
+      description: "Multiple voice of whoops to cover an entire cycle's worth of data"
+      properties:
+        flags:
+          type: "object"
+        baseline:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        hoursOfSleep:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        naps:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        recentStrain:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        sleepDebt:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        sleepDisturbances:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        sleepLatency:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        sleepNeed:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        sleepPerformanceScore:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+        timeInBed:
+          $ref: "#/components/schemas/V1VoiceOfWhoop"
+    V1SleepEvent:
+      description: "Individual activity taking place during a sleep"
+      properties:
+        activity_id:
+          type: "integer"
+          format: "int32"
+          example: 357425838
+        during:
+          type: "string"
+          example: "['2021-12-28T21:57:22.373Z','2021-12-28T22:03:37.282Z')"
+        type:
+          type: "string"
+          enum:
+            - rem
+            - sws
+            - light
+            - disturbances
+    V1ActivityType:
+      description: "Type of activity on the whoop platform"
+      properties:
+        id: 
+          type: "integer"
+          format: "int32"
+          example: 84
+        name: 
+          type: "string"
+          example: "Jumping Rope"
+        created_at:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:09.178Z"
+        updated_at:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:14.814Z"
+        has_gps:
+          type: "boolean"
+          example: false
+        icon_url:
+          type: "string"
+          example: "https://s3-us-west-2.amazonaws.com/icons.whoop.com/mobile/activities/jumping_rope.png"
+        is_current: 
+          type: "boolean"
+          example: true
+        has_survey:
+          type: "boolean"
+          example: true
+        category:
+          type: "string"
+          example: "cardiovascular|non-cardiovascular"
+    WhoopMembership:
+      description: "Membership object for Whoop subscription"
+      properties:
+        affiliate:
+          type: "object"
+        balance:
+          type: "integer"
+          example: "12000"
+        canUpgrade:
+          type: "boolean"
+        cancelAtPeriodEnd:
+          type: "boolean"
+        canceledAt:
+          type: "string"
+        cancellationOffer:
+          type: "object"
+          properties:
+            eligible: 
+              type: "boolean"
+            coupon50:
+              type: "string"
+              example: "CANCEL50"
+            coupon100: 
+              type: "string"
+              example: "FREEMONTH01302020"
+            couponOneMonth50:
+              type: "string"
+              example: "CANCEL50ONEMONTH"
+        cardDigits:
+          type: "integer"
+          example: "4444"
+        cardType:
+          type: "string"
+          example: "MasterCard"
+        checkoutOrigin: 
+          type: "string"
+          example: "international"
+        commitmentEnd:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:14.814Z"
+        commitmentStart:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:14.814Z"         
+        coupon:
+          type: "object"
+          properties:
+            amount_off:
+              type: "number"
+              format: "double"
+            currency:
+              type: "string"
+            duration:
+              type: "string"
+            duration_in_months:
+              type: "integer"
+            id:
+              type: "string"
+            metadata:
+              type: "object"
+            name: 
+              type: "string"
+            percent_off:
+              type: "integer"
+        expirationDate:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:14.814Z"      
+        membershipStatus:
+          type: "string"
+        nextBillAmount:
+          type: "number"
+          format: "double"
+        nextBillDate:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:14.814Z"      
+        promotion:
+          type: "string"
+        retentionPromo:
+          type: "boolean"
+        scheduledCancelDate:
+          type: "string"
+          format: "date-time"
+          example: "2019-08-16T22:50:14.814Z"      
+        strapSerial:
+          type: "string"
+          example: "4X123567"
+        userId:
+          type: "integer"
+          example: "123456"
+    V0SurveyResponse:
+      properties:
+        questionId:
+          type: "integer"
+          format: "int32"
+        answer:
+          type: "integer"
+          format: "int32"
+        label:
+          type: "string"
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

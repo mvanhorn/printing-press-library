@@ -1,9 +1,0 @@
-/whoop-pp-cli
-/whoop-pp-mcp
-build/
-dogfood-results.json
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-.DS_Store

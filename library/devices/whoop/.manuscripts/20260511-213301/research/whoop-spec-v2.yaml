@@ -1,0 +1,614 @@
+openapi: 3.0.3
+info:
+  title: WHOOP
+  version: "2.0.0"
+  x-pp-display-name: WHOOP
+  x-pp-cli-name: whoop
+  description: |
+    Official WHOOP Developer Platform v2 API. Provides programmatic access to a user's
+    cycles, sleep, recovery, workouts, and profile data. Authentication is OAuth 2.0
+    with PKCE; this spec also accepts a static bearer token via the WHOOP_ACCESS_TOKEN
+    environment variable for non-interactive contexts (CI, agents).
+
+    Pagination: every list endpoint enforces `limit <= 25` (default `10`). Use the
+    `nextToken` query parameter with the `next_token` value from the previous response.
+    Sort order is `start` descending. Time filters: `start`, `end` (ISO-8601 UTC).
+  contact:
+    name: WHOOP Developer Platform
+    url: https://developer.whoop.com
+  license:
+    name: WHOOP Developer API Terms
+    url: https://developer.whoop.com/legal
+
+servers:
+  - url: https://api.prod.whoop.com/developer
+    description: Production
+
+security:
+  - oauth2: []
+  - bearerAuth: []
+
+tags:
+  - name: cycle
+    description: Physiological cycles (a WHOOP "day").
+  - name: sleep
+    description: Sleep activities (regular sleep + naps).
+  - name: recovery
+    description: Recovery scores for each cycle.
+  - name: workout
+    description: Workouts and sports.
+  - name: user
+    description: User profile and body measurements.
+  - name: activity-mapping
+    description: V1 -> V2 identifier mapping helper.
+
+paths:
+  /v2/cycle:
+    get:
+      operationId: listCycles
+      tags: [cycle]
+      summary: List physiological cycles
+      description: Returns the user's cycles (a WHOOP day) ordered by start time descending.
+      security:
+        - oauth2: [read:cycles]
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/startParam'
+        - $ref: '#/components/parameters/endParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Paginated list of cycles.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Cycle'
+                  next_token:
+                    type: string
+                    nullable: true
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v2/cycle/{cycleId}:
+    get:
+      operationId: getCycle
+      tags: [cycle]
+      summary: Get a single cycle by id
+      security:
+        - oauth2: [read:cycles]
+        - bearerAuth: []
+      parameters:
+        - name: cycleId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: A cycle.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cycle' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v2/cycle/{cycleId}/sleep:
+    get:
+      operationId: getSleepForCycle
+      tags: [cycle, sleep]
+      summary: Get the sleep associated with a cycle
+      security:
+        - oauth2: [read:sleep]
+        - bearerAuth: []
+      parameters:
+        - name: cycleId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: The sleep belonging to this cycle.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sleep' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v2/cycle/{cycleId}/recovery:
+    get:
+      operationId: getRecoveryForCycle
+      tags: [cycle, recovery]
+      summary: Get the recovery associated with a cycle
+      security:
+        - oauth2: [read:recovery]
+        - bearerAuth: []
+      parameters:
+        - name: cycleId
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: The recovery belonging to this cycle.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recovery' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v2/activity/sleep:
+    get:
+      operationId: listSleeps
+      tags: [sleep]
+      summary: List sleep activities
+      security:
+        - oauth2: [read:sleep]
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/startParam'
+        - $ref: '#/components/parameters/endParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Paginated list of sleeps.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items: { $ref: '#/components/schemas/Sleep' }
+                  next_token:
+                    type: string
+                    nullable: true
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v2/activity/sleep/{sleepId}:
+    get:
+      operationId: getSleep
+      tags: [sleep]
+      summary: Get a single sleep by UUID
+      security:
+        - oauth2: [read:sleep]
+        - bearerAuth: []
+      parameters:
+        - name: sleepId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: A sleep.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Sleep' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v2/recovery:
+    get:
+      operationId: listRecoveries
+      tags: [recovery]
+      summary: List recovery records
+      security:
+        - oauth2: [read:recovery]
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/startParam'
+        - $ref: '#/components/parameters/endParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Paginated list of recoveries.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items: { $ref: '#/components/schemas/Recovery' }
+                  next_token:
+                    type: string
+                    nullable: true
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v2/activity/workout:
+    get:
+      operationId: listWorkouts
+      tags: [workout]
+      summary: List workouts
+      security:
+        - oauth2: [read:workout]
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/startParam'
+        - $ref: '#/components/parameters/endParam'
+        - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Paginated list of workouts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items: { $ref: '#/components/schemas/Workout' }
+                  next_token:
+                    type: string
+                    nullable: true
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v2/activity/workout/{workoutId}:
+    get:
+      operationId: getWorkout
+      tags: [workout]
+      summary: Get a single workout by UUID
+      security:
+        - oauth2: [read:workout]
+        - bearerAuth: []
+      parameters:
+        - name: workoutId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: A workout.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Workout' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v1/user/profile/basic:
+    get:
+      operationId: getUserProfile
+      tags: [user]
+      summary: Get user profile (basic)
+      security:
+        - oauth2: [read:profile]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Basic user profile.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v1/user/measurement/body:
+    get:
+      operationId: getBodyMeasurement
+      tags: [user]
+      summary: Get user body measurement
+      security:
+        - oauth2: [read:body_measurement]
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Body measurement (height, weight, max HR).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BodyMeasurement' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v1/user/access:
+    delete:
+      operationId: revokeOAuthAccess
+      tags: [user]
+      summary: Revoke the user's OAuth access (delete token grants)
+      security:
+        - oauth2: []
+        - bearerAuth: []
+      responses:
+        '204': { description: Access revoked. }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /v1/activity-mapping/{v1Id}:
+    get:
+      operationId: getActivityMapping
+      tags: [activity-mapping]
+      summary: Translate a v1 sleep/workout id to a v2 UUID
+      security:
+        - oauth2: [read:sleep, read:workout]
+        - bearerAuth: []
+      parameters:
+        - name: v1Id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+        - name: type
+          in: query
+          required: true
+          description: Resource type being translated.
+          schema:
+            type: string
+            enum: [sleep, workout]
+      responses:
+        '200':
+          description: V2 UUID for the supplied v1 id.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  v1_id: { type: integer, format: int64 }
+                  v2_id: { type: string, format: uuid }
+                  type: { type: string }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: |
+        WHOOP OAuth 2.0 with PKCE (Authorization Code flow with code_verifier).
+        Required for interactive users. Refresh tokens issued only when the
+        `offline` scope is requested.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.prod.whoop.com/oauth/oauth2/auth
+          tokenUrl: https://api.prod.whoop.com/oauth/oauth2/token
+          refreshUrl: https://api.prod.whoop.com/oauth/oauth2/token
+          scopes:
+            read:recovery: Read recovery data
+            read:cycles: Read physiological cycles
+            read:sleep: Read sleep data
+            read:workout: Read workout data
+            read:profile: Read user profile
+            read:body_measurement: Read body measurements
+            offline: Receive a refresh token for long-lived background access
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Static bearer token fallback. Set environment variable
+        `WHOOP_ACCESS_TOKEN` (canonical) or `WHOOP_OAUTH` (back-compat).
+      x-env-vars:
+        - WHOOP_ACCESS_TOKEN
+        - WHOOP_OAUTH
+
+  parameters:
+    limitParam:
+      name: limit
+      in: query
+      required: false
+      description: Page size (server max 25; default 10).
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 25
+        default: 10
+    startParam:
+      name: start
+      in: query
+      required: false
+      description: ISO-8601 UTC start of time window (defaults to 24h ago).
+      schema:
+        type: string
+        format: date-time
+    endParam:
+      name: end
+      in: query
+      required: false
+      description: ISO-8601 UTC end of time window (defaults to now).
+      schema:
+        type: string
+        format: date-time
+    nextTokenParam:
+      name: nextToken
+      in: query
+      required: false
+      description: Cursor from prior response's `next_token`.
+      schema:
+        type: string
+
+  responses:
+    Unauthorized:
+      description: Missing or expired token.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Rate limit exceeded. Retry after backoff.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+        message: { type: string }
+        status: { type: integer }
+
+    Cycle:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        user_id: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        start: { type: string, format: date-time }
+        end: { type: string, format: date-time, nullable: true }
+        timezone_offset: { type: string }
+        score_state:
+          type: string
+          enum: [SCORED, PENDING_SCORE, UNSCORABLE]
+        score:
+          type: object
+          properties:
+            strain: { type: number, format: float }
+            kilojoule: { type: number, format: float }
+            average_heart_rate: { type: integer }
+            max_heart_rate: { type: integer }
+
+    Sleep:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        v1_id: { type: integer, format: int64, nullable: true }
+        cycle_id: { type: integer, format: int64, nullable: true }
+        user_id: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        start: { type: string, format: date-time }
+        end: { type: string, format: date-time }
+        timezone_offset: { type: string }
+        nap: { type: boolean }
+        score_state:
+          type: string
+          enum: [SCORED, PENDING_SCORE, UNSCORABLE]
+        score:
+          type: object
+          properties:
+            stage_summary:
+              type: object
+              properties:
+                total_in_bed_time_milli: { type: integer, format: int64 }
+                total_awake_time_milli: { type: integer, format: int64 }
+                total_no_data_time_milli: { type: integer, format: int64 }
+                total_light_sleep_time_milli: { type: integer, format: int64 }
+                total_slow_wave_sleep_time_milli: { type: integer, format: int64 }
+                total_rem_sleep_time_milli: { type: integer, format: int64 }
+                sleep_cycle_count: { type: integer }
+                disturbance_count: { type: integer }
+            sleep_needed:
+              type: object
+              properties:
+                baseline_milli: { type: integer, format: int64 }
+                need_from_sleep_debt_milli: { type: integer, format: int64 }
+                need_from_recent_strain_milli: { type: integer, format: int64 }
+                need_from_recent_nap_milli: { type: integer, format: int64 }
+            respiratory_rate: { type: number, format: float }
+            sleep_performance_percentage: { type: number, format: float }
+            sleep_consistency_percentage: { type: number, format: float }
+            sleep_efficiency_percentage: { type: number, format: float }
+
+    Recovery:
+      type: object
+      properties:
+        cycle_id: { type: integer, format: int64 }
+        sleep_id: { type: string, format: uuid }
+        user_id: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        score_state:
+          type: string
+          enum: [SCORED, PENDING_SCORE, UNSCORABLE]
+        score:
+          type: object
+          properties:
+            user_calibrating: { type: boolean }
+            recovery_score: { type: number, format: float }
+            resting_heart_rate: { type: integer }
+            hrv_rmssd_milli: { type: number, format: float }
+            spo2_percentage: { type: number, format: float }
+            skin_temp_celsius: { type: number, format: float }
+
+    Workout:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        v1_id: { type: integer, format: int64, nullable: true }
+        user_id: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        start: { type: string, format: date-time }
+        end: { type: string, format: date-time }
+        timezone_offset: { type: string }
+        sport_id: { type: integer }
+        sport_name: { type: string }
+        score_state:
+          type: string
+          enum: [SCORED, PENDING_SCORE, UNSCORABLE]
+        score:
+          type: object
+          properties:
+            strain: { type: number, format: float }
+            average_heart_rate: { type: integer }
+            max_heart_rate: { type: integer }
+            kilojoule: { type: number, format: float }
+            percent_recorded: { type: number, format: float }
+            distance_meter: { type: number, format: float }
+            altitude_gain_meter: { type: number, format: float }
+            altitude_change_meter: { type: number, format: float }
+            zone_durations:
+              type: object
+              properties:
+                zone_zero_milli: { type: integer, format: int64 }
+                zone_one_milli: { type: integer, format: int64 }
+                zone_two_milli: { type: integer, format: int64 }
+                zone_three_milli: { type: integer, format: int64 }
+                zone_four_milli: { type: integer, format: int64 }
+                zone_five_milli: { type: integer, format: int64 }
+
+    UserProfile:
+      type: object
+      properties:
+        user_id: { type: integer, format: int64 }
+        email: { type: string, format: email }
+        first_name: { type: string }
+        last_name: { type: string }
+
+    BodyMeasurement:
+      type: object
+      properties:
+        height_meter: { type: number, format: float }
+        weight_kilogram: { type: number, format: float }
+        max_heart_rate: { type: integer }
+
+x-pp-pagination:
+  style: cursor
+  request_param: nextToken
+  response_field: next_token
+  limit_param: limit
+  limit_max: 25
+  limit_default: 10
+  records_field: records
+
+x-pp-auth:
+  primary: oauth2
+  fallback_env_vars:
+    - WHOOP_ACCESS_TOKEN
+    - WHOOP_OAUTH
+  oauth_flow: authorization_code_pkce
+  default_redirect_uri: http://localhost:8085/callback
+  scopes_required:
+    - read:recovery
+    - read:cycles
+    - read:workout
+    - read:sleep
+    - read:profile
+    - read:body_measurement
+    - offline
+
+x-pp-mcp:
+  transport:
+    - stdio
+    - http
+  orchestration: code
+  endpoint_tools: hidden

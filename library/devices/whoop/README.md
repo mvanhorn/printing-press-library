@@ -1,8 +1,17 @@
-# Whoop CLI
+# WHOOP CLI
 
+Official WHOOP Developer Platform v2 API. Provides programmatic access to a user's
+cycles, sleep, recovery, workouts, and profile data. Authentication is OAuth 2.0
+with PKCE; this spec also accepts a static bearer token via the WHOOP_ACCESS_TOKEN
+environment variable for non-interactive contexts (CI, agents).
 
+Pagination: every list endpoint enforces `limit <= 25` (default `10`). Use the
+`nextToken` query parameter with the `next_token` value from the previous response.
+Sort order is `start` descending. Time filters: `start`, `end` (ISO-8601 UTC).
 
-Printed by [@gregvanhorn](https://github.com/gregvanhorn) (Greg Van Horn).
+WHOOP gives you a number every morning. whoop-pp-cli gives you the *why*. It syncs your full WHOOP history into a local SQLite database, runs cross-resource joins (sleep ⋈ recovery ⋈ workouts ⋈ cycles), and surfaces trends, correlations, and overtraining alerts no live API call can compute. Everything is agent-native: JSON output, --select field filtering, --agent mode for Claude Code, plus an MCP server for Claude Desktop.
+
+Learn more at [WHOOP](https://developer.whoop.com).
 
 ## Install
 
@@ -50,76 +59,39 @@ Tell your OpenClaw agent (copy this):
 Install the pp-whoop skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-whoop. The skill defines how its required CLI can be installed.
 ```
 
+## Authentication
+
+WHOOP uses OAuth 2.0 with PKCE — there is no static API key. You register an app at developer.whoop.com, get a Client ID and Client Secret, then run `whoop-pp-cli auth login`. The CLI opens your browser, you approve the requested scopes (sleep, recovery, workout, cycles, profile, body measurement, plus offline so we can refresh), and WHOOP redirects back to http://localhost:8085/callback where the CLI is listening. Tokens are stored under ~/.config/whoop-pp-cli/tokens.json and auto-refreshed 60 seconds before expiry. For non-interactive contexts (CI, serverless), you can skip the flow and just set WHOOP_ACCESS_TOKEN (or WHOOP_OAUTH for back-compat with the prior 1.0 release).
+
 ## Quick Start
 
-### 1. Install
-
-See [Install](#install) above.
-
-### 2. Set Up Credentials
-
-Whoop uses OAuth 2.0 — there is no static API key. You first create an OAuth
-app at [developer.whoop.com](https://developer.whoop.com), then exchange a
-browser-based authorization code for a Bearer token. The CLI automates the
-browser flow.
-
-#### One-time: register a redirect URI in the Whoop dashboard
-
-The CLI's `auth login` command starts a tiny local web server that catches the
-OAuth callback. By default it listens on **`http://localhost:8085/callback`**,
-and Whoop will reject the flow unless that exact URI is pre-registered on your
-OAuth app.
-
-1. Go to [developer.whoop.com](https://developer.whoop.com) → your OAuth app.
-2. Under **Redirect URIs**, add: `http://localhost:8085/callback`
-3. Save.
-
-If you'd rather use a different port, register `http://localhost:<port>/callback`
-in the dashboard and pass `--port <port>` on `auth login`.
-
-#### Run the login flow
-
 ```bash
-whoop-pp-cli auth login \
-  --client-id <your-client-id> \
-  --client-secret <your-client-secret>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```
 
-The CLI will open your browser, you approve the requested scopes, Whoop
-redirects back to `localhost:8085/callback`, and the access + refresh tokens
-are stored in the local config. From then on, every command authenticates
-automatically.
+## Unique Features
 
-If you already have a Bearer token, you can also set it directly:
-
-```bash
-export WHOOP_OAUTH="your-token-here"
-```
-
-#### Troubleshooting: `redirect_uri does not match`
-
-If you see "The OAuth2 request resulted in an error… The 'redirect_uri'
-parameter does not match any of the OAuth 2.0 Client's pre-registered
-redirect urls", the URI you used at login is not registered on the Whoop
-dashboard. Either:
-
-- Register `http://localhost:8085/callback` in the Whoop OAuth app, or
-- Pick a port that's already registered, e.g. `auth login --port 9000` if
-  `http://localhost:9000/callback` is what you registered.
-
-### 3. Verify Setup
-
-```bash
-whoop-pp-cli doctor
-```
-
-This checks your configuration and credentials.
-
-### 4. Try Your First Command
-
-```bash
-whoop-pp-cli activity-mapping mock-value
-```
+These capabilities aren't available in any other tool for this API.
+- **`analyze efficiency`** — Buckets cycles by strain (0-5, 5-10, 10-15, 15-21) and shows mean recovery per bucket vs. the prior equivalent window.
+- **`analyze sleep-debt`** — Cumulative sum of need_from_sleep_debt_milli weekly, with trend slope and human-friendly interpretation.
+- **`analyze overtraining`** — Flags days where strain exceeds N sigma above the 90-day mean and shows the recovery delta vs. window mean.
+- **`analyze correlate`** — Pearson correlation between any two whitelisted WHOOP metrics over a chosen window.
+- **`analyze why-today`** — Ranks today's recovery, HRV, RHR, sleep consistency, and prior-day strain by abs(z-score) vs. personal 14-day baseline.
+- **`sql`** — Execute read-only SELECT/WITH queries (or read-only PRAGMAs like table_info, table_list, foreign_key_list for schema introspection) against the local SQLite store. Accept the query as a positional arg or via --query.
+- **`search`** — FTS5 full-text search across all synced resources (cycle, sleep, recovery, workouts).
 
 ## Usage
 
@@ -131,67 +103,56 @@ Run `whoop-pp-cli --help` for the full command reference and flag list.
 
 Manage activity
 
-- **`whoop-pp-cli activity get-sleep-by-id`** - Get the sleep for the specified ID
-- **`whoop-pp-cli activity get-sleep-collection`** - Get all sleeps for a user, paginated. Results are sorted by start time in descending order.
-- **`whoop-pp-cli activity get-workout-by-id`** - Get the workout for the specified ID
-- **`whoop-pp-cli activity get-workout-collection`** - Get all workouts for a user, paginated. Results are sorted by start time in descending order.
+- **`whoop-pp-cli activity get-sleep`** - Get a single sleep by UUID
+- **`whoop-pp-cli activity get-workout`** - Get a single workout by UUID
+- **`whoop-pp-cli activity list-sleeps`** - List sleep activities
+- **`whoop-pp-cli activity list-workouts`** - List workouts
 
 ### activity-mapping
 
-Manage activity mapping
+V1 -> V2 identifier mapping helper.
 
-- **`whoop-pp-cli activity-mapping get`** - Lookup the V2 UUID for a given V1 activity ID
+- **`whoop-pp-cli activity-mapping get`** - Translate a v1 sleep/workout id to a v2 UUID
 
 ### cycle
 
-Manage cycle
+Physiological cycles (a WHOOP "day").
 
-- **`whoop-pp-cli cycle get-by-id`** - Get the cycle for the specified ID
-- **`whoop-pp-cli cycle get-collection`** - Get all physiological cycles for a user, paginated. Results are sorted by start time in descending order.
-
-### partner
-
-Endpoints for trusted WHOOP partner operations
-
-- **`whoop-pp-cli partner add-test-data`** - Generates test user and lab requisition data for partner integration testing. This endpoint is only available in non-production environments
-- **`whoop-pp-cli partner get-lab-requisition-by-id`** - Retrieves a lab requisition with its associated service requests by its unique identifier. The requesting partner must be an owner of the lab requisition.
-- **`whoop-pp-cli partner get-service-request-by-id`** - Retrieves a service request by its unique identifier. The requesting partner must be an owner of the service request.
-- **`whoop-pp-cli partner request-token`** - Exchanges partner client credentials for an access token.
-- **`whoop-pp-cli partner update-service-request-status`** - Updates the business status of a service request task. The requesting partner must be an owner of the service request.
-- **`whoop-pp-cli partner upload-diagnostic-report-results`** - Creates a diagnostic report with results for a service request. The requesting partner must be an owner of the service request.
+- **`whoop-pp-cli cycle get`** - Get a single cycle by id
+- **`whoop-pp-cli cycle list`** - Returns the user's cycles (a WHOOP day) ordered by start time descending.
 
 ### recovery
 
-Manage recovery
+Recovery scores for each cycle.
 
-- **`whoop-pp-cli recovery get-collection`** - Get all recoveries for a user, paginated. Results are sorted by start time of the related sleep in descending order.
+- **`whoop-pp-cli recovery list-recoveries`** - List recovery records
 
 ### user
 
-Endpoints for retrieving user profile and measurement data.
+User profile and body measurements.
 
-- **`whoop-pp-cli user get-body-measurement`** - Retrieves the body measurements (height, weight, max heart rate) for the authenticated user.
-- **`whoop-pp-cli user get-profile-basic`** - Retrieves the basic profile information (name, email) for the authenticated user.
-- **`whoop-pp-cli user revoke-oauth-access`** - Revoke the access token granted by the user. If the associated OAuth client is configured to receive webhooks, it will no longer receive them for this user.
+- **`whoop-pp-cli user get-body-measurement`** - Get user body measurement
+- **`whoop-pp-cli user get-profile`** - Get user profile (basic)
+- **`whoop-pp-cli user revoke-oauth-access`** - Revoke the user's OAuth access (delete token grants)
 
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-whoop-pp-cli activity-mapping mock-value
+whoop-pp-cli activity-mapping mock-value --type example-value
 
 # JSON for scripting and agents
-whoop-pp-cli activity-mapping mock-value --json
+whoop-pp-cli activity-mapping mock-value --type example-value --json
 
 # Filter to specific fields
-whoop-pp-cli activity-mapping mock-value --json --select id,name,status
+whoop-pp-cli activity-mapping mock-value --type example-value --json --select id,name,status
 
 # Dry run — show the request without sending
-whoop-pp-cli activity-mapping mock-value --dry-run
+whoop-pp-cli activity-mapping mock-value --type example-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-whoop-pp-cli activity-mapping mock-value --agent
+whoop-pp-cli activity-mapping mock-value --type example-value --agent
 ```
 
 ## Agent Usage
@@ -231,7 +192,7 @@ Install the MCP binary from this CLI's published public-library entry or pre-bui
 Then register it:
 
 ```bash
-claude mcp add whoop whoop-pp-mcp -e WHOOP_OAUTH=<your-token>
+claude mcp add whoop whoop-pp-mcp -e WHOOP_OAUTH2=<your-token>
 ```
 
 </details>
@@ -244,7 +205,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/whoop-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `WHOOP_OAUTH` when Claude Desktop prompts you.
+3. Fill in `WHOOP_OAUTH2` when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -264,7 +225,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "whoop": {
       "command": "whoop-pp-mcp",
       "env": {
-        "WHOOP_OAUTH": "<your-key>"
+        "WHOOP_OAUTH2": "<your-key>"
       }
     }
   }
@@ -285,19 +246,33 @@ Verifies configuration, credentials, and connectivity to the API.
 
 Config file: `~/.config/whoop-pp-cli/config.toml`
 
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
+
 Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `WHOOP_OAUTH` | per_call | Yes | Set to your API credential. |
+| `WHOOP_OAUTH2` | per_call | Yes | Set to your API credential. |
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `whoop-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $WHOOP_OAUTH`
+- Verify the environment variable is set: `echo $WHOOP_OAUTH2`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
+
+### API-specific
+
+- **HTTP 400 on every sync request** — Fixed in this version: client auto-clamps limit to 25 and paginates via next_token. If you see this on 1.x, upgrade to 2.x.
+- **`redirect_uri does not match` during auth login** — Add http://localhost:8085/callback to your app's Redirect URIs at developer.whoop.com. Or use `auth login --port <n>` and register http://localhost:<n>/callback instead.
+- **401 Unauthorized after some hours** — Re-run `whoop-pp-cli auth login` — by default the CLI requests `offline` and the refresh token is saved. The CLI auto-refreshes 60s before expiry. If you must use a static bearer, set `WHOOP_ACCESS_TOKEN` and refresh it manually.
+- **Pagination feels slow on long backfills** — `sync --concurrency 4 --rate-limit 5/s` parallelizes per-resource fetches. Or `sync --since 30d` for incremental updates after the first backfill.
+- **Recovery missing for some cycles** — Filter with `--scored-only` on list commands, or check `score_state` in your queries. WHOOP backfills these later; re-sync.
+
+## HTTP Transport
+
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
 
 ---
 

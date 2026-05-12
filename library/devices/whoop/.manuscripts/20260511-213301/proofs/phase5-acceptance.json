@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "api_name": "whoop",
+  "run_id": "20260511-213301",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 88,
+  "tests_passed": 88,
+  "tests_failed": 0,
+  "tests_skipped": 57,
+  "auth_context": {
+    "type": "oauth2",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "flagship_features": {
+    "pagination_r2": "pass",
+    "sync_recovery_typed_table": "pass",
+    "analyze_why_today": "pass",
+    "analyze_efficiency": "pass",
+    "analyze_correlate": "pass",
+    "analyze_sleep_debt": "pass",
+    "analyze_overtraining": "pass",
+    "sql": "pass",
+    "search": "pass"
+  },
+  "row_counts_after_30d_sync": {
+    "cycle": 81,
+    "activity": 87,
+    "activity_workout": 76,
+    "cycle_recovery": 80,
+    "resources_total": 324
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "user_get-body-measurement": "Get the authenticated user's body measurements from WHOOP. No parameters. Returns the BodyMeasurement object with height_meter (float), weight_kilogram (float), and max_heart_rate (integer). Used by analytics commands that need physiological context; prefer 'whoami' if you also need profile info in one call.",
+    "user_get-profile": "Get the authenticated user's basic WHOOP profile. No parameters. Returns the UserProfile object with user_id (int64), email, first_name, and last_name. Use this to confirm the active account or look up the user_id needed for cross-referencing other records; prefer 'whoami' if you also need body measurements in one call."
+  }
+}
