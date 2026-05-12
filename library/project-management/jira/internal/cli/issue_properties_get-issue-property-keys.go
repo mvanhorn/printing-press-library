@@ -16,7 +16,7 @@ func newIssuePropertiesGetIssuePropertyKeysCmd(flags *rootFlags) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:   "get-issue-property-keys <issueIdOrKey>",
 		Short: "Returns the URLs and keys of an issue's properties. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli issue properties get-issue-property-keys your-token-here",
+		Example: "  jira-pp-cli issue properties get-issue-property-keys your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.get-issue-property-keys", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

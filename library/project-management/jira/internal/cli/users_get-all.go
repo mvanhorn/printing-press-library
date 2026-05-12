@@ -21,7 +21,7 @@ func newUsersGetAllCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all",
 		Aliases: []string{"list"},
 		Short: "Returns a list of all users, including active users, inactive users and previously deleted users that have an...",
-		Example: "  jira-cloud-platform-pp-cli users get-all",
+		Example: "  jira-pp-cli users get-all",
 		Annotations: map[string]string{"pp:endpoint": "users.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/users/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

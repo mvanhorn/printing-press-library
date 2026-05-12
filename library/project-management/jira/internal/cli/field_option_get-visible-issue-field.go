@@ -20,7 +20,7 @@ func newFieldOptionGetVisibleIssueFieldCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-visible-issue-field <fieldKey>",
 		Short: "Returns a [paginated](#pagination) list of options for a select list issue field that can be viewed by the user....",
-		Example: "  jira-cloud-platform-pp-cli field option get-visible-issue-field your-token-here",
+		Example: "  jira-pp-cli field option get-visible-issue-field your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "option.get-visible-issue-field", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldKey}/option/suggestions/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

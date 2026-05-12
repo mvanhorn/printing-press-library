@@ -19,7 +19,7 @@ func newIssueGetIsWatchingBulkCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-is-watching-bulk",
 		Short: "Returns, for the user, details of the watched status of issues from a list. If an issue ID is invalid, the returned...",
-		Example: "  jira-cloud-platform-pp-cli issue get-is-watching-bulk",
+		Example: "  jira-pp-cli issue get-is-watching-bulk",
 		Annotations: map[string]string{"pp:endpoint": "issue.get-is-watching-bulk", "pp:method": "POST", "pp:path": "/rest/api/3/issue/watching"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

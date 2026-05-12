@@ -24,7 +24,7 @@ func newUserFindForPickerCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "find-for-picker",
 		Short: "Returns a list of users whose attributes match the query term. The returned object includes the `html` field where...",
-		Example: "  jira-cloud-platform-pp-cli user find-for-picker --query example-value",
+		Example: "  jira-pp-cli user find-for-picker --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "user.find-for-picker", "pp:method": "GET", "pp:path": "/rest/api/3/user/picker", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

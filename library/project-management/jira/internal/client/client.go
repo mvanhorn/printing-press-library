@@ -52,7 +52,7 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "jira-cloud-platform-pp-cli")
+	cacheDir := filepath.Join(homeDir, ".cache", "jira-pp-cli")
 	httpClient := newHTTPClient(timeout, nil)
 	return &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
@@ -247,7 +247,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set(k, v)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "jira-cloud-platform-pp-cli/1001.0.0-SNAPSHOT-d8478457c5fa155500daa93bc82897bab1ac835b")
+			req.Header.Set("User-Agent", "jira-pp-cli/1001.0.0-SNAPSHOT-d8478457c5fa155500daa93bc82897bab1ac835b")
 		}
 
 		resp, err := c.HTTPClient.Do(req)

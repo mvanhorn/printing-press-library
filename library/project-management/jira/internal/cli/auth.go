@@ -44,13 +44,13 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "setup",
 		Short: "Print steps for registering an OAuth app (use --launch to open the URL)",
-		Example: "  jira-cloud-platform-pp-cli auth setup\n  jira-cloud-platform-pp-cli auth setup --launch",
+		Example: "  jira-pp-cli auth setup\n  jira-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, "See API docs for OAuth app registration: http://www.atlassian.com")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then run:")
-			fmt.Fprintln(w, "  jira-cloud-platform-pp-cli auth login --client-id <id> --client-secret <secret>")
+			fmt.Fprintln(w, "  jira-pp-cli auth login --client-id <id> --client-secret <secret>")
 			if !launch {
 				return nil
 			}
@@ -246,8 +246,8 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("JIRA_CLOUD_PLATFORM_CLIENT_ID"), "OAuth2 client ID")
-	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("JIRA_CLOUD_PLATFORM_CLIENT_SECRET"), "OAuth2 client secret")
+	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("JIRA_CLIENT_ID"), "OAuth2 client ID")
+	cmd.Flags().StringVar(&clientSecret, "client-secret", os.Getenv("JIRA_CLIENT_SECRET"), "OAuth2 client secret")
 	cmd.Flags().IntVar(&port, "port", 8085, "Local callback server port")
 
 	return cmd

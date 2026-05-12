@@ -17,7 +17,7 @@ func newAtlassianConnectAddonPropertiesResourceGetAddonPropertiesGetCmd(flags *r
 		Use:   "addon-properties-resource-get-addon-properties-get <addonKey>",
 		Aliases: []string{"get"},
 		Short: "Gets all the properties of an app. The reserved key `connect_client_key_019cdff3-8bfb-71fe-9628-875b700aebb8` is not...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-get-addon-properties-get your-token-here",
+		Example: "  jira-pp-cli atlassian-connect addon-properties-resource-get-addon-properties-get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.addon-properties-resource-get-addon-properties-get", "pp:method": "GET", "pp:path": "/rest/atlassian-connect/1/addons/{addonKey}/properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

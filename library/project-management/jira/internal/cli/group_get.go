@@ -19,7 +19,7 @@ func newGroupGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get",
 		Short: "This operation is deprecated, use [`group/member`](#api-rest-api-3-group-member-get). Returns all users in a group....",
-		Example: "  jira-cloud-platform-pp-cli group get",
+		Example: "  jira-pp-cli group get",
 		Annotations: map[string]string{"pp:endpoint": "group.get", "pp:method": "GET", "pp:path": "/rest/api/3/group", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

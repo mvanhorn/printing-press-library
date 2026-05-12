@@ -17,7 +17,7 @@ func newProjectvalidateValidateProjectKeyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validate-project-key",
 		Short: "Validates a project key by confirming the key is a valid string and not in use. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli projectvalidate validate-project-key",
+		Example: "  jira-pp-cli projectvalidate validate-project-key",
 		Annotations: map[string]string{"pp:endpoint": "projectvalidate.validate-project-key", "pp:method": "GET", "pp:path": "/rest/api/3/projectvalidate/key", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

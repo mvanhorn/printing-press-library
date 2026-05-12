@@ -33,7 +33,7 @@ func profileStorePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
-	dir := filepath.Join(home, ".jira-cloud-platform-pp-cli")
+	dir := filepath.Join(home, ".jira-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
@@ -173,8 +173,8 @@ entry is replaced.
 
 To avoid creating empty profiles, at least one non-default flag must be
 present (other than --profile and --config).`,
-		Example: `  jira-cloud-platform-pp-cli profile save my-defaults --json --compact
-  jira-cloud-platform-pp-cli profile save tonight-defaults --region US`,
+		Example: `  jira-pp-cli profile save my-defaults --json --compact
+  jira-pp-cli profile save tonight-defaults --region US`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
@@ -217,8 +217,8 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "use <name>",
 		Short: "Print the flag values a profile will apply (does not execute anything)",
-		Example: `  jira-cloud-platform-pp-cli profile use my-defaults
-  jira-cloud-platform-pp-cli profile use tonight-defaults --json`,
+		Example: `  jira-pp-cli profile use my-defaults
+  jira-pp-cli profile use tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
@@ -252,8 +252,8 @@ func newProfileListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List saved profiles",
-		Example: `  jira-cloud-platform-pp-cli profile list
-  jira-cloud-platform-pp-cli profile list --json`,
+		Example: `  jira-pp-cli profile list
+  jira-pp-cli profile list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			s, err := loadProfileStore()
 			if err != nil {
@@ -291,8 +291,8 @@ func newProfileShowCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "show <name>",
 		Short: "Show a profile's values as JSON",
-		Example: `  jira-cloud-platform-pp-cli profile show my-defaults
-  jira-cloud-platform-pp-cli profile show tonight-defaults --json`,
+		Example: `  jira-pp-cli profile show my-defaults
+  jira-pp-cli profile show tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			p, err := GetProfile(args[0])
@@ -311,8 +311,8 @@ func newProfileDeleteCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete <name>",
 		Short: "Remove a profile",
-		Example: `  jira-cloud-platform-pp-cli profile delete my-defaults --yes
-  jira-cloud-platform-pp-cli profile delete old-profile --yes --json`,
+		Example: `  jira-pp-cli profile delete my-defaults --yes
+  jira-pp-cli profile delete old-profile --yes --json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]

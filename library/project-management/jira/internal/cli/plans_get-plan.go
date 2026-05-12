@@ -17,7 +17,7 @@ func newPlansGetPlanCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-plan <planId>",
 		Short: "Returns a plan. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli plans get-plan 42",
+		Example: "  jira-pp-cli plans get-plan 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.get-plan", "pp:method": "GET", "pp:path": "/rest/api/3/plans/plan/{planId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

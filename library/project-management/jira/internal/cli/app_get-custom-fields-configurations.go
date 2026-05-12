@@ -27,7 +27,7 @@ func newAppGetCustomFieldsConfigurationsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-custom-fields-configurations",
 		Aliases: []string{"create"},
 		Short: "Returns a [paginated](#pagination) list of configurations for list of custom fields of a...",
-		Example: "  jira-cloud-platform-pp-cli app get-custom-fields-configurations",
+		Example: "  jira-pp-cli app get-custom-fields-configurations",
 		Annotations: map[string]string{"pp:endpoint": "app.get-custom-fields-configurations", "pp:method": "POST", "pp:path": "/rest/api/3/app/field/context/configuration/list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

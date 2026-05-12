@@ -22,7 +22,7 @@ func newIssuetypeUpdateIssueTypeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "update-issue-type <id>",
 		Aliases: []string{"update"},
 		Short: "Updates the issue type. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli issuetype update-issue-type 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetype update-issue-type 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issuetype.update-issue-type", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetype/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

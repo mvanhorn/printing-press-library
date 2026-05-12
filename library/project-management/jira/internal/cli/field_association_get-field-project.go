@@ -20,7 +20,7 @@ func newFieldAssociationGetFieldProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-field-project <fieldId>",
 		Aliases: []string{"get"},
 		Short: "Returns a [paginated](#pagination) list of project associations for the given custom field. Each association...",
-		Example: "  jira-cloud-platform-pp-cli field association get-field-project 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli field association get-field-project 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "association.get-field-project", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldId}/association/project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

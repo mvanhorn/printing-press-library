@@ -68,7 +68,7 @@ func newFilterUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <id>",
 		Short: "Updates a filter. Use this operation to update a filter's name, description, JQL, or sharing....",
-		Example: "  jira-cloud-platform-pp-cli filter update 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
+		Example: "  jira-pp-cli filter update 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "filter.update", "pp:method": "PUT", "pp:path": "/rest/api/3/filter/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

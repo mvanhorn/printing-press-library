@@ -58,7 +58,7 @@ func newIssueCommentUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <issueIdOrKey> <id>",
 		Short: "Updates a comment. This operation can be accessed anonymously. **[Permissions](#permissions) required:** * *Browse...",
-		Example: "  jira-cloud-platform-pp-cli issue comment update your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue comment update your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "comment.update", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

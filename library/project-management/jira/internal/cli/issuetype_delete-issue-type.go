@@ -18,7 +18,7 @@ func newIssuetypeDeleteIssueTypeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-issue-type <id>",
 		Aliases: []string{"delete"},
 		Short: "Deletes the issue type. If the issue type is in use, all uses are updated with the alternative issue type...",
-		Example: "  jira-cloud-platform-pp-cli issuetype delete-issue-type 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetype delete-issue-type 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issuetype.delete-issue-type", "pp:method": "DELETE", "pp:path": "/rest/api/3/issuetype/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

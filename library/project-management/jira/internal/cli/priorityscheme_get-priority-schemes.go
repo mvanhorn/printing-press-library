@@ -25,7 +25,7 @@ func newPriorityschemeGetPrioritySchemesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-priority-schemes",
 		Short: "Returns a [paginated](#pagination) list of priority schemes. **[Permissions](#permissions) required:** Permission to...",
-		Example: "  jira-cloud-platform-pp-cli priorityscheme get-priority-schemes",
+		Example: "  jira-pp-cli priorityscheme get-priority-schemes",
 		Annotations: map[string]string{"pp:endpoint": "priorityscheme.get-priority-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/priorityscheme", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

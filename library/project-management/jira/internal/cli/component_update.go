@@ -110,7 +110,7 @@ func newComponentUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <id>",
 		Short: "Updates a component. Any fields included in the request are overwritten. If `leadAccountId` is an empty string ('')...",
-		Example: "  jira-cloud-platform-pp-cli component update 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli component update 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "component.update", "pp:method": "PUT", "pp:path": "/rest/api/3/component/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

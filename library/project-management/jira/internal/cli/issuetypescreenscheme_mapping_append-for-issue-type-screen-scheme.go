@@ -20,7 +20,7 @@ func newIssuetypescreenschemeMappingAppendForIssueTypeScreenSchemeCmd(flags *roo
 		Use:   "append-for-issue-type-screen-scheme <issueTypeScreenSchemeId>",
 		Aliases: []string{"update"},
 		Short: "Appends issue type to screen scheme mappings to an issue type screen scheme. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescreenscheme mapping append-for-issue-type-screen-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetypescreenscheme mapping append-for-issue-type-screen-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "mapping.append-for-issue-type-screen-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

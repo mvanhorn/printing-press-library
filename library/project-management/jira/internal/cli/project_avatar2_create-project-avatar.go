@@ -22,7 +22,7 @@ func newProjectAvatar2CreateProjectAvatarCmd(flags *rootFlags) *cobra.Command {
 		Use:   "create-project-avatar <projectIdOrKey>",
 		Aliases: []string{"create"},
 		Short: "Loads an avatar for a project. Specify the avatar's local file location in the body of the request. Also, include...",
-		Example: "  jira-cloud-platform-pp-cli project avatar2 create-project-avatar your-token-here",
+		Example: "  jira-pp-cli project avatar2 create-project-avatar your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "avatar2.create-project-avatar", "pp:method": "POST", "pp:path": "/rest/api/3/project/{projectIdOrKey}/avatar2"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

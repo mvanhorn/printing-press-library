@@ -16,7 +16,7 @@ func newPriorityDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <id>",
 		Short: "Deletes an issue priority. This operation is [asynchronous](#async). Follow the `location` link in the response to...",
-		Example: "  jira-cloud-platform-pp-cli priority delete 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli priority delete 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "priority.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/priority/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

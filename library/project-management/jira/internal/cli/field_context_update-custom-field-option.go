@@ -19,7 +19,7 @@ func newFieldContextUpdateCustomFieldOptionCmd(flags *rootFlags) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:   "update-custom-field-option <fieldId> <contextId>",
 		Short: "Updates the options of a custom field. If any of the options are not found, no options are updated. Options where...",
-		Example: "  jira-cloud-platform-pp-cli field context update-custom-field-option 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context update-custom-field-option 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.update-custom-field-option", "pp:method": "PUT", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}/option"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

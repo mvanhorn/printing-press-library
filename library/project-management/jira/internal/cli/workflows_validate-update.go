@@ -21,7 +21,7 @@ func newWorkflowsValidateUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validate-update",
 		Short: "Validate the payload for bulk update workflows. **[Permissions](#permissions) required:** * *Administer Jira*...",
-		Example: "  jira-cloud-platform-pp-cli workflows validate-update",
+		Example: "  jira-pp-cli workflows validate-update",
 		Annotations: map[string]string{"pp:endpoint": "workflows.validate-update", "pp:method": "POST", "pp:path": "/rest/api/3/workflows/update/validation"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

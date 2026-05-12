@@ -20,7 +20,7 @@ func newWorkflowschemeGetAllWorkflowSchemesCmd(flags *rootFlags) *cobra.Command 
 		Use:   "get-all-workflow-schemes",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of all workflow schemes, not including draft workflow schemes....",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme get-all-workflow-schemes",
+		Example: "  jira-pp-cli workflowscheme get-all-workflow-schemes",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.get-all-workflow-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/workflowscheme", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -16,7 +16,7 @@ func newIssueRemotelinkDeleteRemoteIssueLinkByIdCmd(flags *rootFlags) *cobra.Com
 	cmd := &cobra.Command{
 		Use:   "delete-remote-issue-link-by-id <issueIdOrKey> <linkId>",
 		Short: "Deletes a remote issue link from an issue. This operation requires [issue linking to be...",
-		Example: "  jira-cloud-platform-pp-cli issue remotelink delete-remote-issue-link-by-id your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue remotelink delete-remote-issue-link-by-id your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "remotelink.delete-remote-issue-link-by-id", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/remotelink/{linkId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

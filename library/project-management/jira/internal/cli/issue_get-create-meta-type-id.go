@@ -19,7 +19,7 @@ func newIssueGetCreateMetaTypeIdCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-create-meta-type-id <projectIdOrKey> <issueTypeId>",
 		Short: "Returns a page of field metadata for a specified project and issuetype id. Use the information to populate the...",
-		Example: "  jira-cloud-platform-pp-cli issue get-create-meta-type-id your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue get-create-meta-type-id your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issue.get-create-meta-type-id", "pp:method": "GET", "pp:path": "/rest/api/3/issue/createmeta/{projectIdOrKey}/issuetypes/{issueTypeId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

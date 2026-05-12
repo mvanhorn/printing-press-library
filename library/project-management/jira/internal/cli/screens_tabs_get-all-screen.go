@@ -18,7 +18,7 @@ func newScreensTabsGetAllScreenCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all-screen <screenId>",
 		Aliases: []string{"get"},
 		Short: "Returns the list of tabs for a screen. **[Permissions](#permissions) required:** * *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli screens tabs get-all-screen 42",
+		Example: "  jira-pp-cli screens tabs get-all-screen 42",
 		Annotations: map[string]string{"pp:endpoint": "tabs.get-all-screen", "pp:method": "GET", "pp:path": "/rest/api/3/screens/{screenId}/tabs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

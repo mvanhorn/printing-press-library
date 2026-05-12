@@ -21,7 +21,7 @@ func newIssueWorklogBulkMoveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bulk-move <issueIdOrKey>",
 		Short: "Moves a list of worklogs from one issue to another. This is an experimental API with several limitations: * You...",
-		Example: "  jira-cloud-platform-pp-cli issue worklog bulk-move your-token-here",
+		Example: "  jira-pp-cli issue worklog bulk-move your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "worklog.bulk-move", "pp:method": "POST", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/worklog/move"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

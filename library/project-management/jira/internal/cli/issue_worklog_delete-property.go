@@ -16,7 +16,7 @@ func newIssueWorklogDeletePropertyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete-property <issueIdOrKey> <worklogId> <propertyKey>",
 		Short: "Deletes a worklog property. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *...",
-		Example: "  jira-cloud-platform-pp-cli issue worklog delete-property your-token-here 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Example: "  jira-pp-cli issue worklog delete-property your-token-here 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "worklog.delete-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

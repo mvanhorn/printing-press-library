@@ -17,7 +17,7 @@ func newIssuePropertiesDeleteIssuePropertyCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-issue-property <issueIdOrKey> <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes an issue's property. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *...",
-		Example: "  jira-cloud-platform-pp-cli issue properties delete-issue-property your-token-here your-token-here",
+		Example: "  jira-pp-cli issue properties delete-issue-property your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.delete-issue-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

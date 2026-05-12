@@ -20,7 +20,7 @@ func newJqlGetFieldAutoCompleteForQueryStringCmd(flags *rootFlags) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:   "get-field-auto-complete-for-query-string",
 		Short: "Returns the JQL search auto complete suggestions for a field. Suggestions can be obtained by providing: *...",
-		Example: "  jira-cloud-platform-pp-cli jql get-field-auto-complete-for-query-string",
+		Example: "  jira-pp-cli jql get-field-auto-complete-for-query-string",
 		Annotations: map[string]string{"pp:endpoint": "jql.get-field-auto-complete-for-query-string", "pp:method": "GET", "pp:path": "/rest/api/3/jql/autocompletedata/suggestions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

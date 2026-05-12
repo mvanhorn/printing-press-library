@@ -16,7 +16,7 @@ func newIssueCommentDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <issueIdOrKey> <id>",
 		Short: "Deletes a comment. **[Permissions](#permissions) required:** * *Browse projects* [project...",
-		Example: "  jira-cloud-platform-pp-cli issue comment delete your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue comment delete your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "comment.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/comment/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

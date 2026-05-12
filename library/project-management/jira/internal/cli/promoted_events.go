@@ -17,7 +17,7 @@ func newEventsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "events",
 		Short: "Returns all issue events. **[Permissions](#permissions) required:** *Administer Jira* [global...",
 		Long:  "Shortcut for 'events get'. Returns all issue events. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli events",
+		Example: "  jira-pp-cli events",
 		Annotations: map[string]string{"pp:endpoint": "events.get", "pp:method": "GET", "pp:path": "/rest/api/3/events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

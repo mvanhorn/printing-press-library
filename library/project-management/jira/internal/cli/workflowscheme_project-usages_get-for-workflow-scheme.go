@@ -20,7 +20,7 @@ func newWorkflowschemeProjectUsagesGetForWorkflowSchemeCmd(flags *rootFlags) *co
 		Use:   "get-for-workflow-scheme <workflowSchemeId>",
 		Aliases: []string{"get"},
 		Short: "Returns a page of projects using a given workflow scheme.",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme project-usages get-for-workflow-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli workflowscheme project-usages get-for-workflow-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "project-usages.get-for-workflow-scheme", "pp:method": "GET", "pp:path": "/rest/api/3/workflowscheme/{workflowSchemeId}/projectUsages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

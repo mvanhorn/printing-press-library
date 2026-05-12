@@ -19,7 +19,7 @@ func newAtlassianConnectAppIssueFieldValueUpdateResourceUpdateIssueFieldsPutCmd(
 	cmd := &cobra.Command{
 		Use:   "app-issue-field-value-update-resource-update-issue-fields-put",
 		Short: "Updates the value of a custom field added by Connect apps on one or more issues. The values of up to 200 custom...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect app-issue-field-value-update-resource-update-issue-fields-put",
+		Example: "  jira-pp-cli atlassian-connect app-issue-field-value-update-resource-update-issue-fields-put",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.app-issue-field-value-update-resource-update-issue-fields-put", "pp:method": "PUT", "pp:path": "/rest/atlassian-connect/1/migration/field"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

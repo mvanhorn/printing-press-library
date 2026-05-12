@@ -3508,12 +3508,12 @@ func TestUpsertBatch_SetsIssuetypescreenschemeProjectParentID(t *testing.T) {
 	}
 }
 
-// TestUpsertBatch_PopulatesJiraCloudPlatformSearchTable verifies that UpsertBatch
+// TestUpsertBatch_PopulatesJiraSearchTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed jira_cloud_platform_search table. Regression for issue #268: before the fix, paginated
 // syncs only filled the generic resources table, so domain commands that
 // query the typed table saw zero rows.
-func TestUpsertBatch_PopulatesJiraCloudPlatformSearchTable(t *testing.T) {
+func TestUpsertBatch_PopulatesJiraSearchTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -3550,12 +3550,12 @@ func TestUpsertBatch_PopulatesJiraCloudPlatformSearchTable(t *testing.T) {
 	}
 }
 
-// TestUpsertBatch_PopulatesJiraCloudPlatformVersionTable verifies that UpsertBatch
+// TestUpsertBatch_PopulatesJiraVersionTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed jira_cloud_platform_version table. Regression for issue #268: before the fix, paginated
 // syncs only filled the generic resources table, so domain commands that
 // query the typed table saw zero rows.
-func TestUpsertBatch_PopulatesJiraCloudPlatformVersionTable(t *testing.T) {
+func TestUpsertBatch_PopulatesJiraVersionTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -3676,12 +3676,12 @@ func TestUpsertBatch_PopulatesMoveTable(t *testing.T) {
 	}
 }
 
-// TestUpsertBatch_PopulatesJiraCloudPlatformVersionRelatedIssueCountsTable verifies that UpsertBatch
+// TestUpsertBatch_PopulatesJiraVersionRelatedIssueCountsTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed jira_cloud_platform_version_related_issue_counts table. Regression for issue #268: before the fix, paginated
 // syncs only filled the generic resources table, so domain commands that
 // query the typed table saw zero rows.
-func TestUpsertBatch_PopulatesJiraCloudPlatformVersionRelatedIssueCountsTable(t *testing.T) {
+func TestUpsertBatch_PopulatesJiraVersionRelatedIssueCountsTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -3844,12 +3844,12 @@ func TestUpsertBatch_PopulatesUnresolvedIssueCountTable(t *testing.T) {
 	}
 }
 
-// TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowTable verifies that UpsertBatch
+// TestUpsertBatch_PopulatesJiraWorkflowTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed jira_cloud_platform_workflow table. Regression for issue #268: before the fix, paginated
 // syncs only filled the generic resources table, so domain commands that
 // query the typed table saw zero rows.
-func TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowTable(t *testing.T) {
+func TestUpsertBatch_PopulatesJiraWorkflowTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -3886,12 +3886,12 @@ func TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowTable(t *testing.T) {
 	}
 }
 
-// TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowProjectTable verifies that UpsertBatch
+// TestUpsertBatch_PopulatesJiraWorkflowProjectTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed jira_cloud_platform_workflow_project table. Regression for issue #268: before the fix, paginated
 // syncs only filled the generic resources table, so domain commands that
 // query the typed table saw zero rows.
-func TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowProjectTable(t *testing.T) {
+func TestUpsertBatch_PopulatesJiraWorkflowProjectTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -3928,10 +3928,10 @@ func TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowProjectTable(t *testing.T
 	}
 }
 
-// TestUpsertBatch_SetsJiraCloudPlatformWorkflowProjectParentID verifies that dependent-resource
+// TestUpsertBatch_SetsJiraWorkflowProjectParentID verifies that dependent-resource
 // sync (which injects parent_id into each item's JSON) populates the typed
 // parent_id column when items go through UpsertBatch. Regression for issue #268.
-func TestUpsertBatch_SetsJiraCloudPlatformWorkflowProjectParentID(t *testing.T) {
+func TestUpsertBatch_SetsJiraWorkflowProjectParentID(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -3960,12 +3960,12 @@ func TestUpsertBatch_SetsJiraCloudPlatformWorkflowProjectParentID(t *testing.T) 
 	}
 }
 
-// TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowProjectUsagesTable verifies that UpsertBatch
+// TestUpsertBatch_PopulatesJiraWorkflowProjectUsagesTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed jira_cloud_platform_workflow_project_usages table. Regression for issue #268: before the fix, paginated
 // syncs only filled the generic resources table, so domain commands that
 // query the typed table saw zero rows.
-func TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowProjectUsagesTable(t *testing.T) {
+func TestUpsertBatch_PopulatesJiraWorkflowProjectUsagesTable(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {
@@ -4002,10 +4002,10 @@ func TestUpsertBatch_PopulatesJiraCloudPlatformWorkflowProjectUsagesTable(t *tes
 	}
 }
 
-// TestUpsertBatch_SetsJiraCloudPlatformWorkflowProjectUsagesParentID verifies that dependent-resource
+// TestUpsertBatch_SetsJiraWorkflowProjectUsagesParentID verifies that dependent-resource
 // sync (which injects parent_id into each item's JSON) populates the typed
 // parent_id column when items go through UpsertBatch. Regression for issue #268.
-func TestUpsertBatch_SetsJiraCloudPlatformWorkflowProjectUsagesParentID(t *testing.T) {
+func TestUpsertBatch_SetsJiraWorkflowProjectUsagesParentID(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 	s, err := Open(dbPath)
 	if err != nil {

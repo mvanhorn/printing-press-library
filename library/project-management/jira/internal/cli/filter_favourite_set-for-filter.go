@@ -20,7 +20,7 @@ func newFilterFavouriteSetForFilterCmd(flags *rootFlags) *cobra.Command {
 		Use:   "set-for-filter <id>",
 		Aliases: []string{"update"},
 		Short: "Add a filter as a favorite for the user. **[Permissions](#permissions) required:** Permission to access Jira,...",
-		Example: "  jira-cloud-platform-pp-cli filter favourite set-for-filter 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli filter favourite set-for-filter 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "favourite.set-for-filter", "pp:method": "PUT", "pp:path": "/rest/api/3/filter/{id}/favourite"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -17,7 +17,7 @@ func newRoleGetProjectByIdCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-project-by-id <id>",
 		Aliases: []string{"get"},
 		Short: "Gets the project role details and the default actors associated with the role. The list of default actors is sorted...",
-		Example: "  jira-cloud-platform-pp-cli role get-project-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli role get-project-by-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "role.get-project-by-id", "pp:method": "GET", "pp:path": "/rest/api/3/role/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

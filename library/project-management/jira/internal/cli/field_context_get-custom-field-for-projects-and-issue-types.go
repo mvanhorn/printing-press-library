@@ -21,7 +21,7 @@ func newFieldContextGetCustomFieldForProjectsAndIssueTypesCmd(flags *rootFlags) 
 	cmd := &cobra.Command{
 		Use:   "get-custom-field-for-projects-and-issue-types <fieldId>",
 		Short: "Returns a [paginated](#pagination) list of project and issue type mappings and, for each mapping, the ID of a...",
-		Example: "  jira-cloud-platform-pp-cli field context get-custom-field-for-projects-and-issue-types 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli field context get-custom-field-for-projects-and-issue-types 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "context.get-custom-field-for-projects-and-issue-types", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldId}/context/mapping"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

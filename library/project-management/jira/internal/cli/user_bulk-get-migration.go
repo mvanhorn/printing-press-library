@@ -21,7 +21,7 @@ func newUserBulkGetMigrationCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bulk-get-migration",
 		Short: "Returns the account IDs for the users specified in the `key` or `username` parameters. Note that multiple `key` or...",
-		Example: "  jira-cloud-platform-pp-cli user bulk-get-migration",
+		Example: "  jira-pp-cli user bulk-get-migration",
 		Annotations: map[string]string{"pp:endpoint": "user.bulk-get-migration", "pp:method": "GET", "pp:path": "/rest/api/3/user/bulk/migration", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

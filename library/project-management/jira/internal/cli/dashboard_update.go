@@ -23,7 +23,7 @@ func newDashboardUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <id>",
 		Short: "Updates a dashboard, replacing all the dashboard details with those provided. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli dashboard update 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
+		Example: "  jira-pp-cli dashboard update 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "dashboard.update", "pp:method": "PUT", "pp:path": "/rest/api/3/dashboard/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -19,7 +19,7 @@ func newIssuetypescreenschemeMappingUpdateDefaultScreenSchemeCmd(flags *rootFlag
 	cmd := &cobra.Command{
 		Use:   "update-default-screen-scheme <issueTypeScreenSchemeId>",
 		Short: "Updates the default screen scheme of an issue type screen scheme. The default screen scheme is used for all unmapped...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescreenscheme mapping update-default-screen-scheme 550e8400-e29b-41d4-a716-446655440000 --screen-scheme-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetypescreenscheme mapping update-default-screen-scheme 550e8400-e29b-41d4-a716-446655440000 --screen-scheme-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "mapping.update-default-screen-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/mapping/default"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -21,7 +21,7 @@ func newWorkflowschemeDraftPublishWorkflowSchemeCmd(flags *rootFlags) *cobra.Com
 		Use:   "publish-workflow-scheme <id>",
 		Aliases: []string{"create"},
 		Short: "Publishes a draft workflow scheme. Where the draft workflow includes new workflow statuses for an issue type,...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme draft publish-workflow-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli workflowscheme draft publish-workflow-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "draft.publish-workflow-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme/{id}/draft/publish"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -105,7 +105,7 @@ reading source. Schema is versioned via schema_version.`,
 func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	envVars := []agentContextAuthEnvVar{
 		{
-			Name:      "JIRA_CLOUD_PLATFORM_OAUTH2",
+			Name:      "JIRA_OAUTH2",
 			Kind:      "per_call",
 			Required:  true,
 			Sensitive: true,
@@ -123,8 +123,8 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
-			Name:        "jira-cloud-platform-pp-cli",
-			Description: "Jira Cloud platform REST API documentation",
+			Name:        "jira-pp-cli",
+			Description: "Jira Cloud Platform REST API documentation",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

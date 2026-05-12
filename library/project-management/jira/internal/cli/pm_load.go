@@ -22,22 +22,22 @@ func newLoadCmd(flags *rootFlags) *cobra.Command {
 		Long: `Analyze locally synced data to show how many items are assigned to each
 person. Helps identify overloaded team members and unbalanced workload.`,
 		Example: `  # Show workload distribution
-  jira-cloud-platform-pp-cli load
+  jira-pp-cli load
 
   # Limit results
-  jira-cloud-platform-pp-cli load --limit 10
+  jira-pp-cli load --limit 10
 
   # Output as JSON
-  jira-cloud-platform-pp-cli load --json`,
+  jira-pp-cli load --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 
@@ -177,7 +177,7 @@ person. Helps identify overloaded team members and unbalanced workload.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-cloud-platform-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-pp-cli/data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum entries to show")
 
 	return cmd

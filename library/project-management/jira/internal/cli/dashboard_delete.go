@@ -16,7 +16,7 @@ func newDashboardDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <id>",
 		Short: "Deletes a dashboard. **[Permissions](#permissions) required:** None The dashboard to be deleted must be owned by the...",
-		Example: "  jira-cloud-platform-pp-cli dashboard delete 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli dashboard delete 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "dashboard.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/dashboard/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

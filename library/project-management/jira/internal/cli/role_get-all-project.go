@@ -17,7 +17,7 @@ func newRoleGetAllProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all-project",
 		Aliases: []string{"list"},
 		Short: "Gets a list of all project roles, complete with project role details and default actors. ### About project roles ###...",
-		Example: "  jira-cloud-platform-pp-cli role get-all-project",
+		Example: "  jira-pp-cli role get-all-project",
 		Annotations: map[string]string{"pp:endpoint": "role.get-all-project", "pp:method": "GET", "pp:path": "/rest/api/3/role", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

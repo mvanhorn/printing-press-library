@@ -14,8 +14,8 @@ func newWorklogSummaryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "summary <issueKey>",
 		Short: "Show total time logged on an issue, grouped by author",
-		Example: `  jira-cloud-platform-pp-cli issue worklog summary CC-132
-  jira-cloud-platform-pp-cli issue worklog summary CC-132 --agent`,
+		Example: `  jira-pp-cli issue worklog summary CC-132
+  jira-pp-cli issue worklog summary CC-132 --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

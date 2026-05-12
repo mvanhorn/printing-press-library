@@ -19,7 +19,7 @@ func newIssuesecurityschemesSetDefaultLevelsCmd(flags *rootFlags) *cobra.Command
 	cmd := &cobra.Command{
 		Use:   "set-default-levels",
 		Short: "Sets default issue security levels for schemes. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes set-default-levels",
+		Example: "  jira-pp-cli issuesecurityschemes set-default-levels",
 		Annotations: map[string]string{"pp:endpoint": "issuesecurityschemes.set-default-levels", "pp:method": "PUT", "pp:path": "/rest/api/3/issuesecurityschemes/level/default"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

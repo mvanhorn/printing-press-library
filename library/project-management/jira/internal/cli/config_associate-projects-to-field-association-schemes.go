@@ -19,7 +19,7 @@ func newConfigAssociateProjectsToFieldAssociationSchemesCmd(flags *rootFlags) *c
 		Use:   "associate-projects-to-field-association-schemes",
 		Aliases: []string{"update"},
 		Short: "Associate projects to field association schemes. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli config associate-projects-to-field-association-schemes",
+		Example: "  jira-pp-cli config associate-projects-to-field-association-schemes",
 		Annotations: map[string]string{"pp:endpoint": "config.associate-projects-to-field-association-schemes", "pp:method": "PUT", "pp:path": "/rest/api/3/config/fieldschemes/projects"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

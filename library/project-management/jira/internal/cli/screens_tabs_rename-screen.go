@@ -21,7 +21,7 @@ func newScreensTabsRenameScreenCmd(flags *rootFlags) *cobra.Command {
 		Use:   "rename-screen <screenId> <tabId>",
 		Aliases: []string{"update"},
 		Short: "Updates the name of a screen tab. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli screens tabs rename-screen 42 42 --name example-resource",
+		Example: "  jira-pp-cli screens tabs rename-screen 42 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "tabs.rename-screen", "pp:method": "PUT", "pp:path": "/rest/api/3/screens/{screenId}/tabs/{tabId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

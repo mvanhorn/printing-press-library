@@ -17,7 +17,7 @@ func newForgeDeleteAppPropertyCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-app-property <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a Forge app's property. **[Permissions](#permissions) required:** Only Forge apps can make this request....",
-		Example: "  jira-cloud-platform-pp-cli forge delete-app-property your-token-here",
+		Example: "  jira-pp-cli forge delete-app-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "forge.delete-app-property", "pp:method": "DELETE", "pp:path": "/rest/forge/1/app/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -19,7 +19,7 @@ func newFieldContextAssignProjectsToCustomFieldCmd(flags *rootFlags) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:   "assign-projects-to-custom-field <fieldId> <contextId>",
 		Short: "Assigns a custom field context to projects. If any project in the request is assigned to any context of the custom...",
-		Example: "  jira-cloud-platform-pp-cli field context assign-projects-to-custom-field 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context assign-projects-to-custom-field 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.assign-projects-to-custom-field", "pp:method": "PUT", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}/project"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

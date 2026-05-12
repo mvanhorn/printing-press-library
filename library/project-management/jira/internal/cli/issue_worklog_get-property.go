@@ -16,7 +16,7 @@ func newIssueWorklogGetPropertyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-property <issueIdOrKey> <worklogId> <propertyKey>",
 		Short: "Returns the value of a worklog property. This operation can be accessed anonymously. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli issue worklog get-property your-token-here 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Example: "  jira-pp-cli issue worklog get-property your-token-here 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "worklog.get-property", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

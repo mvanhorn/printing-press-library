@@ -21,7 +21,7 @@ func newIssuetypescreenschemeGetIssueTypeScreenSchemeMappingsCmd(flags *rootFlag
 		Use:   "get-issue-type-screen-scheme-mappings",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of issue type screen scheme items. Only issue type screen schemes used in...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescreenscheme get-issue-type-screen-scheme-mappings",
+		Example: "  jira-pp-cli issuetypescreenscheme get-issue-type-screen-scheme-mappings",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescreenscheme.get-issue-type-screen-scheme-mappings", "pp:method": "GET", "pp:path": "/rest/api/3/issuetypescreenscheme/mapping", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

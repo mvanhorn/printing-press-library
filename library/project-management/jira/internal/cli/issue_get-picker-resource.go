@@ -22,7 +22,7 @@ func newIssueGetPickerResourceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-picker-resource",
 		Short: "Returns lists of issues matching a query string. Use this resource to provide auto-completion suggestions when the...",
-		Example: "  jira-cloud-platform-pp-cli issue get-picker-resource",
+		Example: "  jira-pp-cli issue get-picker-resource",
 		Annotations: map[string]string{"pp:endpoint": "issue.get-picker-resource", "pp:method": "GET", "pp:path": "/rest/api/3/issue/picker", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

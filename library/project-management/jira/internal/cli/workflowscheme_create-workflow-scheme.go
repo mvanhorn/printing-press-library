@@ -58,7 +58,7 @@ func newWorkflowschemeCreateWorkflowSchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "create-workflow-scheme",
 		Aliases: []string{"create"},
 		Short: "Creates a workflow scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme create-workflow-scheme",
+		Example: "  jira-pp-cli workflowscheme create-workflow-scheme",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.create-workflow-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

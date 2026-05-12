@@ -20,7 +20,7 @@ func newProjectFeaturesToggleForProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "toggle-for-project <projectIdOrKey> <featureKey>",
 		Aliases: []string{"update"},
 		Short: "Sets the state of a project feature.",
-		Example: "  jira-cloud-platform-pp-cli project features toggle-for-project your-token-here your-token-here",
+		Example: "  jira-pp-cli project features toggle-for-project your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "features.toggle-for-project", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectIdOrKey}/features/{featureKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

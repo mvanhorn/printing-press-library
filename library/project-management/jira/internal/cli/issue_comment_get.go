@@ -21,7 +21,7 @@ func newIssueCommentGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <issueIdOrKey>",
 		Short: "Returns all comments for an issue. This operation can be accessed anonymously. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli issue comment get your-token-here",
+		Example: "  jira-pp-cli issue comment get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "comment.get", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/comment", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

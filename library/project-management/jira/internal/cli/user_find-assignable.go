@@ -30,7 +30,7 @@ func newUserFindAssignableCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "find-assignable",
 		Short: "Returns a list of users that can be assigned to an issue. Use this operation to find the list of users who can be...",
-		Example: "  jira-cloud-platform-pp-cli user find-assignable",
+		Example: "  jira-pp-cli user find-assignable",
 		Annotations: map[string]string{"pp:endpoint": "user.find-assignable", "pp:method": "GET", "pp:path": "/rest/api/3/user/assignable/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

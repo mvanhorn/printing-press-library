@@ -20,7 +20,7 @@ func newJqlMatchIssuesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "match-issues",
 		Short: "Checks whether one or more issues would be returned by one or more JQL queries. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli jql match-issues",
+		Example: "  jira-pp-cli jql match-issues",
 		Annotations: map[string]string{"pp:endpoint": "jql.match-issues", "pp:method": "POST", "pp:path": "/rest/api/3/jql/match"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

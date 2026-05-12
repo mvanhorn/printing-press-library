@@ -47,6 +47,25 @@
         "internal/cli/root.go",
         "internal/cli/issue_worklog.go"
       ]
+    },
+    {
+      "id": "shorten-cloud-platform-identifiers",
+      "summary": "Shorten identifiers from 'jira-cloud-platform' to 'jira': binary names (jira-pp-cli, jira-pp-mcp), deconflict-prefixed subcommand groups (jira-{search,version,workflow}), env var prefix (JIRA_*), and per-resource file names. Human-prose 'Jira Cloud Platform' is preserved in descriptions, headings, and the MCP server display name.",
+      "reason": "Identifiers were carried over from the OpenAPI spec title ('Jira Cloud Platform') and the long form caused the post-merge release build to fail because the workflow derived the build path from the directory basename ('jira') and looked for cmd/jira-pp-cli/ instead of cmd/jira-cloud-platform-pp-cli/. The shorter 'jira-' prefix still resolves the framework collisions with search/version/workflow that motivated the original prefix; the product name is retained in prose for recognition.",
+      "files": [
+        "cmd/jira-pp-cli/main.go",
+        "cmd/jira-pp-mcp/main.go",
+        ".printing-press.json",
+        ".goreleaser.yaml",
+        "Makefile",
+        "README.md",
+        "SKILL.md",
+        "AGENTS.md",
+        "internal/cli/*.go",
+        "internal/client/client.go",
+        "internal/config/config.go",
+        "internal/mcp/**"
+      ]
     }
   ]
 }

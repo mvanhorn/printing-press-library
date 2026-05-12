@@ -23,7 +23,7 @@ func newUserFindCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "find",
 		Short: "Returns a list of active users that match the search string and property. This operation first applies a filter to...",
-		Example: "  jira-cloud-platform-pp-cli user find",
+		Example: "  jira-pp-cli user find",
 		Annotations: map[string]string{"pp:endpoint": "user.find", "pp:method": "GET", "pp:path": "/rest/api/3/user/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("property") {

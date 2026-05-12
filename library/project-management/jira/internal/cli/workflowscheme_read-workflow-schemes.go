@@ -25,7 +25,7 @@ func newWorkflowschemeReadWorkflowSchemesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "read-workflow-schemes",
 		Short: "Returns a list of workflow schemes by providing workflow scheme IDs or project IDs. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme read-workflow-schemes",
+		Example: "  jira-pp-cli workflowscheme read-workflow-schemes",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.read-workflow-schemes", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme/read"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

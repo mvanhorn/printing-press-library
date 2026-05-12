@@ -17,7 +17,7 @@ func newProjectClassificationLevelRemoveDefaultProjectClassificationCmd(flags *r
 		Use:   "remove-default-project-classification <projectIdOrKey>",
 		Aliases: []string{"delete"},
 		Short: "Remove the default data classification level for a project. **[Permissions](#permissions) required:** * *Administer...",
-		Example: "  jira-cloud-platform-pp-cli project classification-level remove-default-project-classification your-token-here",
+		Example: "  jira-pp-cli project classification-level remove-default-project-classification your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "classification-level.remove-default-project-classification", "pp:method": "DELETE", "pp:path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

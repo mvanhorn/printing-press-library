@@ -21,7 +21,7 @@ func newIssueWorklogDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <issueIdOrKey> <id>",
 		Short: "Deletes a worklog from an issue. Time tracking must be enabled in Jira, otherwise this operation returns an error....",
-		Example: "  jira-cloud-platform-pp-cli issue worklog delete your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue worklog delete your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "worklog.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

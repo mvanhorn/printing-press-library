@@ -23,7 +23,7 @@ func newFieldconfigurationGetAllFieldConfigurationsCmd(flags *rootFlags) *cobra.
 		Use:   "get-all-field-configurations",
 		Aliases: []string{"list"},
 		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-cloud-platform-pp-cli fieldconfiguration get-all-field-configurations",
+		Example: "  jira-pp-cli fieldconfiguration get-all-field-configurations",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfiguration.get-all-field-configurations", "pp:method": "GET", "pp:path": "/rest/api/3/fieldconfiguration", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

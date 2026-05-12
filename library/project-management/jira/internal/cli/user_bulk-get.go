@@ -23,7 +23,7 @@ func newUserBulkGetCmd(flags *rootFlags) *cobra.Command {
 		Use:   "bulk-get",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of the users specified by one or more account IDs....",
-		Example: "  jira-cloud-platform-pp-cli user bulk-get --account-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli user bulk-get --account-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "user.bulk-get", "pp:method": "GET", "pp:path": "/rest/api/3/user/bulk", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("account-id") && !flags.dryRun {

@@ -19,7 +19,7 @@ func newIssueVotesAddCmd(flags *rootFlags) *cobra.Command {
 		Use:   "add <issueIdOrKey>",
 		Aliases: []string{"create"},
 		Short: "Adds the user's vote to an issue. This is the equivalent of the user clicking *Vote* on an issue in Jira. This...",
-		Example: "  jira-cloud-platform-pp-cli issue votes add your-token-here",
+		Example: "  jira-pp-cli issue votes add your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "votes.add", "pp:method": "POST", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/votes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

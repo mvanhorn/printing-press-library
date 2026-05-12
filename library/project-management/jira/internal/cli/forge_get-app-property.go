@@ -17,7 +17,7 @@ func newForgeGetAppPropertyCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-app-property <propertyKey>",
 		Aliases: []string{"get"},
 		Short: "Returns the value of a Forge app's property. **[Permissions](#permissions) required:** Only Forge apps can make this...",
-		Example: "  jira-cloud-platform-pp-cli forge get-app-property your-token-here",
+		Example: "  jira-pp-cli forge get-app-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "forge.get-app-property", "pp:method": "GET", "pp:path": "/rest/forge/1/app/properties/{propertyKey}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

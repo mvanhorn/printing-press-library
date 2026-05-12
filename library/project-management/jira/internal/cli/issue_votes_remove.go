@@ -17,7 +17,7 @@ func newIssueVotesRemoveCmd(flags *rootFlags) *cobra.Command {
 		Use:   "remove <issueIdOrKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a user's vote from an issue. This is the equivalent of the user clicking *Unvote* on an issue in Jira. This...",
-		Example: "  jira-cloud-platform-pp-cli issue votes remove your-token-here",
+		Example: "  jira-pp-cli issue votes remove your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "votes.remove", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/votes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

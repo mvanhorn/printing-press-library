@@ -21,7 +21,7 @@ func newAtlassianConnectMigrationResourceWorkflowRuleSearchPostCmd(flags *rootFl
 	cmd := &cobra.Command{
 		Use:   "migration-resource-workflow-rule-search-post",
 		Short: "Returns configurations for workflow transition rules migrated from server to cloud and owned by the calling Connect app.",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect migration-resource-workflow-rule-search-post --workflow-entity-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli atlassian-connect migration-resource-workflow-rule-search-post --workflow-entity-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.migration-resource-workflow-rule-search-post", "pp:method": "POST", "pp:path": "/rest/atlassian-connect/1/migration/workflow/rule/search"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

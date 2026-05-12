@@ -21,7 +21,7 @@ func newWorkflowsReadCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "read",
 		Short: "Returns a list of workflows and related statuses by providing workflow names, workflow IDs, or project and issue...",
-		Example: "  jira-cloud-platform-pp-cli workflows read",
+		Example: "  jira-pp-cli workflows read",
 		Annotations: map[string]string{"pp:endpoint": "workflows.read", "pp:method": "POST", "pp:path": "/rest/api/3/workflows"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

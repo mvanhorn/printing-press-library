@@ -17,7 +17,7 @@ func newProjectFeaturesGetForProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-for-project <projectIdOrKey>",
 		Aliases: []string{"get"},
 		Short: "Returns the list of features for a project.",
-		Example: "  jira-cloud-platform-pp-cli project features get-for-project your-token-here",
+		Example: "  jira-pp-cli project features get-for-project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "features.get-for-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/features", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

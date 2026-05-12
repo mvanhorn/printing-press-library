@@ -20,7 +20,7 @@ func newProjectClassificationLevelUpdateDefaultProjectClassificationCmd(flags *r
 		Use:   "update-default-project-classification <projectIdOrKey>",
 		Aliases: []string{"update"},
 		Short: "Updates the default data classification level for a project. **[Permissions](#permissions) required:** * *Administer...",
-		Example: "  jira-cloud-platform-pp-cli project classification-level update-default-project-classification your-token-here --id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli project classification-level update-default-project-classification your-token-here --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "classification-level.update-default-project-classification", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectIdOrKey}/classification-level/default"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -27,7 +27,7 @@ func newWorkflowschemeUpdateSchemesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-schemes",
 		Short: "Updates company-managed and team-managed project workflow schemes. This API doesn't have a concept of draft, so any...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme update-schemes --description example-value",
+		Example: "  jira-pp-cli workflowscheme update-schemes --description example-value",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.update-schemes", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

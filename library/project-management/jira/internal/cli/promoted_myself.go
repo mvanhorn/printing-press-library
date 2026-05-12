@@ -18,7 +18,7 @@ func newMyselfPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "myself",
 		Short: "Returns details for the current user. **[Permissions](#permissions) required:** Permission to access Jira.",
 		Long:  "Shortcut for 'myself get-current-user'. Returns details for the current user. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-cloud-platform-pp-cli myself",
+		Example: "  jira-pp-cli myself",
 		Annotations: map[string]string{"pp:endpoint": "myself.get-current-user", "pp:method": "GET", "pp:path": "/rest/api/3/myself", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -21,7 +21,7 @@ func newWorkflowschemeIssuetypeSetWorkflowSchemeIssueTypeCmd(flags *rootFlags) *
 		Use:   "set-workflow-scheme-issue-type <id> <issueType>",
 		Aliases: []string{"update"},
 		Short: "Sets the workflow for an issue type in a workflow scheme. Note that active workflow schemes cannot be edited. If the...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme issuetype set-workflow-scheme-issue-type 550e8400-e29b-41d4-a716-446655440000 example-value",
+		Example: "  jira-pp-cli workflowscheme issuetype set-workflow-scheme-issue-type 550e8400-e29b-41d4-a716-446655440000 example-value",
 		Annotations: map[string]string{"pp:endpoint": "issuetype.set-workflow-scheme-issue-type", "pp:method": "PUT", "pp:path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -96,16 +96,16 @@ otherwise searches local data. Falls back to local on network failure.
 In live mode: uses the API search endpoint only.
 In local mode: searches locally synced data only.`,
 		Example: `  # Search (uses API endpoint if available, local FTS otherwise)
-  jira-cloud-platform-pp-cli search "error timeout"
+  jira-pp-cli search "error timeout"
 
   # Force local search only
-  jira-cloud-platform-pp-cli search "payment failed" --data-source local
+  jira-pp-cli search "payment failed" --data-source local
 
   # Search a specific resource type locally
-  jira-cloud-platform-pp-cli search "critical" --type transactions --data-source local
+  jira-pp-cli search "critical" --type transactions --data-source local
 
   # JSON output for piping
-  jira-cloud-platform-pp-cli search "critical" --json --limit 20`,
+  jira-pp-cli search "critical" --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -139,12 +139,12 @@ In local mode: searches locally synced data only.`,
 
 			// Local FTS search
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first to populate the local database.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
 
@@ -167,7 +167,7 @@ In local mode: searches locally synced data only.`,
 			case "issuetype":
 				results, err = db.SearchIssuetype(query, limit)
 			case "jira_cloud_platform_version":
-				results, err = db.SearchJiraCloudPlatformVersion(query, limit)
+				results, err = db.SearchJiraVersion(query, limit)
 			case "notificationscheme":
 				results, err = db.SearchNotificationscheme(query, limit)
 			case "permissionscheme":
@@ -305,7 +305,7 @@ In local mode: searches locally synced data only.`,
 					}
 				}
 				{
-					partial, searchErr := db.SearchJiraCloudPlatformVersion(query, limit)
+					partial, searchErr := db.SearchJiraVersion(query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search jira_cloud_platform_version failed: %w", searchErr)
 					}
@@ -520,7 +520,7 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().StringVar(&project, "project", "", "Filter issue results by project key (e.g. TRAC)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-cloud-platform-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-pp-cli/data.db)")
 
 	return cmd
 }

@@ -19,7 +19,7 @@ func newUserRemoveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove",
 		Short: "Deletes a user. If the operation completes successfully then the user is removed from Jira's user base. This...",
-		Example: "  jira-cloud-platform-pp-cli user remove --account-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli user remove --account-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "user.remove", "pp:method": "DELETE", "pp:path": "/rest/api/3/user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("account-id") && !flags.dryRun {

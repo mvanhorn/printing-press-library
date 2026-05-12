@@ -17,7 +17,7 @@ func newDashboardItemsDeleteDashboardPropertyCmd(flags *rootFlags) *cobra.Comman
 		Use:   "delete-dashboard-property <dashboardId> <itemId> <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a dashboard item property. This operation can be accessed anonymously. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli dashboard items delete-dashboard-property 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Example: "  jira-pp-cli dashboard items delete-dashboard-property 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "items.delete-dashboard-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

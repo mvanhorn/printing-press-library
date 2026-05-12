@@ -20,7 +20,7 @@ func newStatusesWorkflowUsagesGetForStatusCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-for-status <statusId>",
 		Aliases: []string{"get"},
 		Short: "Returns a page of workflows using a given status.",
-		Example: "  jira-cloud-platform-pp-cli statuses workflow-usages get-for-status 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli statuses workflow-usages get-for-status 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "workflow-usages.get-for-status", "pp:method": "GET", "pp:path": "/rest/api/3/statuses/{statusId}/workflowUsages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

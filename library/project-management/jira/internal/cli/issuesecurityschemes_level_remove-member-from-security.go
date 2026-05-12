@@ -16,7 +16,7 @@ func newIssuesecurityschemesLevelRemoveMemberFromSecurityCmd(flags *rootFlags) *
 	cmd := &cobra.Command{
 		Use:   "remove-member-from-security <schemeId> <levelId> <memberId>",
 		Short: "Removes an issue security level member from an issue security scheme. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes level remove-member-from-security 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuesecurityschemes level remove-member-from-security 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "level.remove-member-from-security", "pp:method": "DELETE", "pp:path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}/member/{memberId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

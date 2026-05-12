@@ -17,7 +17,7 @@ func newPriorityschemeDeletePrioritySchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-priority-scheme <schemeId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a priority scheme. This operation is only available for priority schemes without any associated projects....",
-		Example: "  jira-cloud-platform-pp-cli priorityscheme delete-priority-scheme 42",
+		Example: "  jira-pp-cli priorityscheme delete-priority-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "priorityscheme.delete-priority-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/priorityscheme/{schemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

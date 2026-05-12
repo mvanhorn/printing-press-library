@@ -19,7 +19,7 @@ func newProjectDeleteProjectAsynchronouslyCmd(flags *rootFlags) *cobra.Command {
 		Use:   "project-asynchronously <projectIdOrKey>",
 		Aliases: []string{"create"},
 		Short: "Deletes a project asynchronously. This operation is: * transactional, that is, if part of the delete fails the...",
-		Example: "  jira-cloud-platform-pp-cli project delete project-asynchronously your-token-here",
+		Example: "  jira-pp-cli project delete project-asynchronously your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "delete.project-asynchronously", "pp:method": "POST", "pp:path": "/rest/api/3/project/{projectIdOrKey}/delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

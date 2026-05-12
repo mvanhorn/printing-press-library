@@ -23,7 +23,7 @@ func newAuditingPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "auditing",
 		Short: "Returns a list of audit records. The list can be filtered to include items: * where each item in `filter` has at...",
 		Long:  "Shortcut for 'auditing get-audit-records'. Returns a list of audit records. The list can be filtered to include items: * where each item in `filter` has at...",
-		Example: "  jira-cloud-platform-pp-cli auditing",
+		Example: "  jira-pp-cli auditing",
 		Annotations: map[string]string{"pp:endpoint": "auditing.get-audit-records", "pp:method": "GET", "pp:path": "/rest/api/3/auditing/record", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

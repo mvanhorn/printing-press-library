@@ -19,7 +19,7 @@ func newResolutionSetDefaultCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-default",
 		Short: "Sets default issue resolution. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli resolution set-default --id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli resolution set-default --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "resolution.set-default", "pp:method": "PUT", "pp:path": "/rest/api/3/resolution/default"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

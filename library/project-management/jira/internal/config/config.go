@@ -33,7 +33,7 @@ type Config struct {
 	// pattern as AuthorizationURL.
 	TokenURL       string `toml:"token_url,omitempty"`
 	Path           string `toml:"-"`
-	JiraCloudPlatformOauth2 string `toml:"cloud_platform_oauth2"`
+	JiraOauth2 string `toml:"cloud_platform_oauth2"`
 	// PATCH: http-basic-auth
 	APIToken string `toml:"api_token"`
 	Email    string `toml:"email"`
@@ -47,11 +47,11 @@ func Load(configPath string) (*Config, error) {
 	// Resolve config path
 	path := configPath
 	if path == "" {
-		path = os.Getenv("JIRA_CLOUD_PLATFORM_CONFIG")
+		path = os.Getenv("JIRA_CONFIG")
 	}
 	if path == "" {
 		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "jira-cloud-platform-pp-cli", "config.toml")
+		path = filepath.Join(home, ".config", "jira-pp-cli", "config.toml")
 	}
 	cfg.Path = path
 
@@ -64,9 +64,9 @@ func Load(configPath string) (*Config, error) {
 	}
 
 	// Env var overrides
-	if v := os.Getenv("JIRA_CLOUD_PLATFORM_OAUTH2"); v != "" {
-		cfg.JiraCloudPlatformOauth2 = v
-		cfg.AuthSource = "env:JIRA_CLOUD_PLATFORM_OAUTH2"
+	if v := os.Getenv("JIRA_OAUTH2"); v != "" {
+		cfg.JiraOauth2 = v
+		cfg.AuthSource = "env:JIRA_OAUTH2"
 	}
 	// PATCH: http-basic-auth
 	if v := os.Getenv("JIRA_API_TOKEN"); v != "" {
@@ -93,18 +93,18 @@ func Load(configPath string) (*Config, error) {
 	if cfg.AuthSource == "" && (cfg.AuthHeaderVal != "" || cfg.AccessToken != "") {
 		cfg.AuthSource = "config"
 	}
-	if cfg.AuthSource == "" && cfg.JiraCloudPlatformOauth2 != "" {
+	if cfg.AuthSource == "" && cfg.JiraOauth2 != "" {
 		cfg.AuthSource = "config"
 	}
 
 	// Base URL override (used by printing-press verify to point at mock/test servers)
-	if v := os.Getenv("JIRA_CLOUD_PLATFORM_BASE_URL"); v != "" {
+	if v := os.Getenv("JIRA_BASE_URL"); v != "" {
 		cfg.BaseURL = v
 	}
-	if v := os.Getenv("JIRA_CLOUD_PLATFORM_AUTHORIZATION_URL"); v != "" {
+	if v := os.Getenv("JIRA_AUTHORIZATION_URL"); v != "" {
 		cfg.AuthorizationURL = v
 	}
-	if v := os.Getenv("JIRA_CLOUD_PLATFORM_TOKEN_URL"); v != "" {
+	if v := os.Getenv("JIRA_TOKEN_URL"); v != "" {
 		cfg.TokenURL = v
 	}
 	return cfg, nil
@@ -120,9 +120,9 @@ func (c *Config) AuthHeader() string {
 		return "Basic " + creds
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
-	if c.JiraCloudPlatformOauth2 != "" {
-		c.AuthSource = "env:JIRA_CLOUD_PLATFORM_OAUTH2"
-		return "Bearer " + c.JiraCloudPlatformOauth2
+	if c.JiraOauth2 != "" {
+		c.AuthSource = "env:JIRA_OAUTH2"
+		return "Bearer " + c.JiraOauth2
 	}
 	if c.AccessToken != "" {
 		c.AuthSource = "oauth2"

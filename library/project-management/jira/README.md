@@ -1,21 +1,21 @@
 # Jira Cloud Platform CLI
 
-Jira Cloud platform REST API documentation
+Jira Cloud Platform REST API documentation
 
 Learn more at [Jira Cloud Platform](http://www.atlassian.com).
 
 ## Install
 
-The recommended path installs both the `jira-cloud-platform-pp-cli` binary and the `pp-jira-cloud-platform` agent skill in one shot:
+The recommended path installs both the `jira-pp-cli` binary and the `pp-jira` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install jira-cloud-platform
+npx -y @mvanhorn/printing-press install jira
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install jira-cloud-platform --cli-only
+npx -y @mvanhorn/printing-press install jira --cli-only
 ```
 
 
@@ -25,7 +25,7 @@ The generated install path is category-agnostic until this CLI is published. If 
 
 ### Pre-built binary
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/jira-cloud-platform-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/jira-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -33,13 +33,13 @@ Download a pre-built binary for your platform from the [latest release](https://
 From the Hermes CLI:
 
 ```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-jira-cloud-platform --force
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-jira --force
 ```
 
 Inside a Hermes chat session:
 
 ```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-jira-cloud-platform --force
+/skills install mvanhorn/printing-press-library/cli-skills/pp-jira --force
 ```
 
 ## Install for OpenClaw
@@ -47,7 +47,7 @@ Inside a Hermes chat session:
 Tell your OpenClaw agent (copy this):
 
 ```
-Install the pp-jira-cloud-platform skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-jira-cloud-platform. The skill defines how its required CLI can be installed.
+Install the pp-jira skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-jira. The skill defines how its required CLI can be installed.
 ```
 
 ## Quick Start
@@ -61,19 +61,19 @@ See [Install](#install) above.
 Get your access token from your API provider's developer portal, then store it:
 
 ```bash
-jira-cloud-platform-pp-cli auth set-token YOUR_TOKEN_HERE
+jira-pp-cli auth set-token YOUR_TOKEN_HERE
 ```
 
 Or set it via environment variable:
 
 ```bash
-export JIRA_CLOUD_PLATFORM_OAUTH2="your-token-here"
+export JIRA_OAUTH2="your-token-here"
 ```
 
 ### 3. Verify Setup
 
 ```bash
-jira-cloud-platform-pp-cli doctor
+jira-pp-cli doctor
 ```
 
 This checks your configuration and credentials.
@@ -81,12 +81,12 @@ This checks your configuration and credentials.
 ### 4. Try Your First Command
 
 ```bash
-jira-cloud-platform-pp-cli attachment get mock-value
+jira-pp-cli attachment get mock-value
 ```
 
 ## Usage
 
-Run `jira-cloud-platform-pp-cli --help` for the full command reference and flag list.
+Run `jira-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
@@ -94,10 +94,10 @@ Run `jira-cloud-platform-pp-cli --help` for the full command reference and flag 
 
 This resource represents an announcement banner. Use it to retrieve and update banner configuration.
 
-- **`jira-cloud-platform-pp-cli announcement-banner get-banner`** - Returns the current announcement banner configuration.
+- **`jira-pp-cli announcement-banner get-banner`** - Returns the current announcement banner configuration.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli announcement-banner set-banner`** - Updates the announcement banner configuration.
+- **`jira-pp-cli announcement-banner set-banner`** - Updates the announcement banner configuration.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -105,7 +105,7 @@ This resource represents an announcement banner. Use it to retrieve and update b
 
 Manage app
 
-- **`jira-cloud-platform-pp-cli app get-custom-field-configuration`** - Returns a [paginated](#pagination) list of configurations for a custom field of a [type](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) created by a [Forge app](https://developer.atlassian.com/platform/forge/).
+- **`jira-pp-cli app get-custom-field-configuration`** - Returns a [paginated](#pagination) list of configurations for a custom field of a [type](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) created by a [Forge app](https://developer.atlassian.com/platform/forge/).
 
 The result can be filtered by one of these criteria:
 
@@ -117,7 +117,7 @@ The result can be filtered by one of these criteria:
 Otherwise, all configurations are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg). Jira permissions are not required for the Forge app that provided the custom field type.
-- **`jira-cloud-platform-pp-cli app get-custom-fields-configurations`** - Returns a [paginated](#pagination) list of configurations for list of custom fields of a [type](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) created by a [Forge app](https://developer.atlassian.com/platform/forge/).
+- **`jira-pp-cli app get-custom-fields-configurations`** - Returns a [paginated](#pagination) list of configurations for list of custom fields of a [type](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) created by a [Forge app](https://developer.atlassian.com/platform/forge/).
 
 The result can be filtered by one of these criteria:
 
@@ -129,17 +129,17 @@ The result can be filtered by one of these criteria:
 Otherwise, all configurations for the provided list of custom fields are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg). Jira permissions are not required for the Forge app that provided the custom field type.
-- **`jira-cloud-platform-pp-cli app update-custom-field-configuration`** - Update the configuration for contexts of a custom field of a [type](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) created by a [Forge app](https://developer.atlassian.com/platform/forge/).
+- **`jira-pp-cli app update-custom-field-configuration`** - Update the configuration for contexts of a custom field of a [type](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) created by a [Forge app](https://developer.atlassian.com/platform/forge/).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg). Jira permissions are not required for the Forge app that created the custom field type.
-- **`jira-cloud-platform-pp-cli app update-custom-field-value`** - Updates the value of a custom field on one or more issues.
+- **`jira-pp-cli app update-custom-field-value`** - Updates the value of a custom field on one or more issues.
 
 Apps can only perform this operation on [custom fields](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field/) and [custom field types](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) declared in their own manifests.
 
 **[Permissions](#permissions) required:** Only the app that owns the custom field or custom field type can update its values with this operation.
 
 The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli app update-multiple-custom-field-values`** - Updates the value of one or more custom fields on one or more issues. Combinations of custom field and issue should be unique within the request.
+- **`jira-pp-cli app update-multiple-custom-field-values`** - Updates the value of one or more custom fields on one or more issues. Combinations of custom field and issue should be unique within the request.
 
 Apps can only perform this operation on [custom fields](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field/) and [custom field types](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field-type/) declared in their own manifests.
 
@@ -151,15 +151,15 @@ The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it
 
 Manage application properties
 
-- **`jira-cloud-platform-pp-cli application-properties get-advanced-settings`** - Returns the application properties that are accessible on the *Advanced Settings* page. To navigate to the *Advanced Settings* page in Jira, choose the Jira icon > **Jira settings** > **System**, **General Configuration** and then click **Advanced Settings** (in the upper right).
+- **`jira-pp-cli application-properties get-advanced-settings`** - Returns the application properties that are accessible on the *Advanced Settings* page. To navigate to the *Advanced Settings* page in Jira, choose the Jira icon > **Jira settings** > **System**, **General Configuration** and then click **Advanced Settings** (in the upper right).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli application-properties get-application-property`** - Returns all application properties or an application property.
+- **`jira-pp-cli application-properties get-application-property`** - Returns all application properties or an application property.
 
 If you specify a value for the `key` parameter, then an application property is returned as an object (not in an array). Otherwise, an array of all editable application properties is returned. See [Set application property](#api-rest-api-3-application-properties-id-put) for descriptions of editable properties.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli application-properties set-application-property`** - Changes the value of an application property. For example, you can change the value of the `jira.clone.prefix` from its default value of *CLONE -* to *Clone -* if you prefer sentence case capitalization. Editable properties are described below along with their default values.
+- **`jira-pp-cli application-properties set-application-property`** - Changes the value of an application property. For example, you can change the value of the `jira.clone.prefix` from its default value of *CLONE -* to *Clone -* if you prefer sentence case capitalization. Editable properties are described below along with their default values.
 
 #### Advanced settings ####
 
@@ -216,10 +216,10 @@ The settings listed below adjust the [look and feel](https://confluence.atlassia
 
 Manage applicationrole
 
-- **`jira-cloud-platform-pp-cli applicationrole get-all-application-roles`** - Returns all application roles. In Jira, application roles are managed using the [Application access configuration](https://confluence.atlassian.com/x/3YxjL) page.
+- **`jira-pp-cli applicationrole get-all-application-roles`** - Returns all application roles. In Jira, application roles are managed using the [Application access configuration](https://confluence.atlassian.com/x/3YxjL) page.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli applicationrole get-application-role`** - Returns an application role.
+- **`jira-pp-cli applicationrole get-application-role`** - Returns an application role.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -227,31 +227,31 @@ Manage applicationrole
 
 Manage atlassian connect
 
-- **`jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-delete-addon-property-delete`** - Deletes an app's property.
+- **`jira-pp-cli atlassian-connect addon-properties-resource-delete-addon-property-delete`** - Deletes an app's property.
 
 **[Permissions](#permissions) required:** Only a Connect app whose key matches `addonKey` can make this request.
 Additionally, Forge apps can access Connect app properties (stored against the same `app.connect.key`).
-- **`jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-get-addon-properties-get`** - Gets all the properties of an app. The reserved key `connect_client_key_019cdff3-8bfb-71fe-9628-875b700aebb8` is not returned.
+- **`jira-pp-cli atlassian-connect addon-properties-resource-get-addon-properties-get`** - Gets all the properties of an app. The reserved key `connect_client_key_019cdff3-8bfb-71fe-9628-875b700aebb8` is not returned.
 
 **[Permissions](#permissions) required:** Only a Connect app whose key matches `addonKey` can make this request.
 Additionally, Forge apps can access Connect app properties (stored against the same `app.connect.key`).
-- **`jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-get-addon-property-get`** - Returns the key and value of an app's property. The property key `connect_client_key_019cdff3-8bfb-71fe-9628-875b700aebb8`
+- **`jira-pp-cli atlassian-connect addon-properties-resource-get-addon-property-get`** - Returns the key and value of an app's property. The property key `connect_client_key_019cdff3-8bfb-71fe-9628-875b700aebb8`
 is reserved. It returns a synthetic, read-only property containing the Connect `clientKey` for the requested tenant.
 This is intended for Forge apps with `app.connect.key` to retrieve the Connect client key during migration.
 
 **[Permissions](#permissions) required:** Only a Connect app whose key matches `addonKey` can make this request.
 Additionally, Forge apps can access Connect app properties (stored against the same `app.connect.key`).
-- **`jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-put-addon-property-put`** - Sets the value of an app's property. Use this resource to store custom data for your app.
+- **`jira-pp-cli atlassian-connect addon-properties-resource-put-addon-property-put`** - Sets the value of an app's property. Use this resource to store custom data for your app.
 
 The value of the request body must be a [valid](http://tools.ietf.org/html/rfc4627), non-empty JSON blob. The maximum length is 32768 characters.
 
 **[Permissions](#permissions) required:** Only a Connect app whose key matches `addonKey` can make this request.
 Additionally, Forge apps can access Connect app properties (stored against the same `app.connect.key`).
-- **`jira-cloud-platform-pp-cli atlassian-connect app-issue-field-value-update-resource-update-issue-fields-put`** - Updates the value of a custom field added by Connect apps on one or more issues.
+- **`jira-pp-cli atlassian-connect app-issue-field-value-update-resource-update-issue-fields-put`** - Updates the value of a custom field added by Connect apps on one or more issues.
 The values of up to 200 custom fields can be updated.
 
 **[Permissions](#permissions) required:** Only Connect apps can make this request
-- **`jira-cloud-platform-pp-cli atlassian-connect connect-to-forge-migration-fetch-task-resource-fetch-migration-task-get`** - Returns the details of a Connect issue field's migration to Forge.
+- **`jira-pp-cli atlassian-connect connect-to-forge-migration-fetch-task-resource-fetch-migration-task-get`** - Returns the details of a Connect issue field's migration to Forge.
 
 When migrating a Connect app to Forge, [Issue Field](https://developer.atlassian.com/cloud/jira/software/modules/issue-field/) modules
 must be converted to [Custom field](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field/). When the
@@ -263,7 +263,7 @@ For more details, see
 [Jira modules > Jira Custom Fields](https://developer.atlassian.com/platform/adopting-forge-from-connect/migrate-jira-custom-fields/).
 
 **[Permissions](#permissions) required:** Only Connect and Forge apps can make this request.
-- **`jira-cloud-platform-pp-cli atlassian-connect connect-to-forge-migration-task-submission-resource-submit-task-post`** - Submits a request to trigger migration of connect issue field to its Forge custom field counterpart.
+- **`jira-pp-cli atlassian-connect connect-to-forge-migration-task-submission-resource-submit-task-post`** - Submits a request to trigger migration of connect issue field to its Forge custom field counterpart.
 
 When migrating a Connect app to Forge, [Issue Field](https://developer.atlassian.com/cloud/jira/software/modules/issue-field/) modules
 must be converted to [Custom field](https://developer.atlassian.com/platform/forge/manifest-reference/modules/jira-custom-field/) modules.
@@ -274,18 +274,18 @@ For more details, see
 [Jira modules > Jira Custom Fields](https://developer.atlassian.com/platform/adopting-forge-from-connect/migrate-jira-custom-fields/).
 
 **[Permissions](#permissions) required:** Only Connect and Forge apps can make this request.
-- **`jira-cloud-platform-pp-cli atlassian-connect dynamic-modules-resource-get-modules-get`** - Returns all modules registered dynamically by the calling app.
+- **`jira-pp-cli atlassian-connect dynamic-modules-resource-get-modules-get`** - Returns all modules registered dynamically by the calling app.
 
 **[Permissions](#permissions) required:** Only Connect apps can make this request.
-- **`jira-cloud-platform-pp-cli atlassian-connect dynamic-modules-resource-register-modules-post`** - Registers a list of modules.
+- **`jira-pp-cli atlassian-connect dynamic-modules-resource-register-modules-post`** - Registers a list of modules.
 
 **[Permissions](#permissions) required:** Only Connect apps can make this request.
-- **`jira-cloud-platform-pp-cli atlassian-connect dynamic-modules-resource-remove-modules-delete`** - Remove all or a list of modules registered by the calling app.
+- **`jira-pp-cli atlassian-connect dynamic-modules-resource-remove-modules-delete`** - Remove all or a list of modules registered by the calling app.
 
 **[Permissions](#permissions) required:** Only Connect apps can make this request.
-- **`jira-cloud-platform-pp-cli atlassian-connect migration-resource-update-entity-properties-value-put`** - Updates the values of multiple entity properties for an object, up to 50 updates per request. This operation is for use by Connect apps during app migration.
-- **`jira-cloud-platform-pp-cli atlassian-connect migration-resource-workflow-rule-search-post`** - Returns configurations for workflow transition rules migrated from server to cloud and owned by the calling Connect app.
-- **`jira-cloud-platform-pp-cli atlassian-connect service-registry-resource-services-get`** - Retrieve the attributes of given service registries.
+- **`jira-pp-cli atlassian-connect migration-resource-update-entity-properties-value-put`** - Updates the values of multiple entity properties for an object, up to 50 updates per request. This operation is for use by Connect apps during app migration.
+- **`jira-pp-cli atlassian-connect migration-resource-workflow-rule-search-post`** - Returns configurations for workflow transition rules migrated from server to cloud and owned by the calling Connect app.
+- **`jira-pp-cli atlassian-connect service-registry-resource-services-get`** - Retrieve the attributes of given service registries.
 
 **[Permissions](#permissions) required:** Only Connect apps can make this request and the servicesIds belong to the tenant you are requesting
 
@@ -293,7 +293,7 @@ For more details, see
 
 Manage attachment
 
-- **`jira-cloud-platform-pp-cli attachment get`** - Returns the metadata for an attachment. Note that the attachment itself is not returned.
+- **`jira-pp-cli attachment get`** - Returns the metadata for an attachment. Note that the attachment itself is not returned.
 
 This operation can be accessed anonymously.
 
@@ -302,7 +302,7 @@ This operation can be accessed anonymously.
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
  *  If attachments are added in private comments, the comment-level restriction will be applied.
-- **`jira-cloud-platform-pp-cli attachment get-content`** - Returns the contents of an attachment. A `Range` header can be set to define a range of bytes within the attachment to download. See the [HTTP Range header standard](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range) for details.
+- **`jira-pp-cli attachment get-content`** - Returns the contents of an attachment. A `Range` header can be set to define a range of bytes within the attachment to download. See the [HTTP Range header standard](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range) for details.
 
 To return a thumbnail of the attachment, use [Get attachment thumbnail](#api-rest-api-3-attachment-thumbnail-id-get).
 
@@ -313,14 +313,14 @@ This operation can be accessed anonymously.
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
  *  If attachments are added in private comments, the comment-level restriction will be applied.
-- **`jira-cloud-platform-pp-cli attachment get-meta`** - Returns the attachment settings, that is, whether attachments are enabled and the maximum attachment size allowed.
+- **`jira-pp-cli attachment get-meta`** - Returns the attachment settings, that is, whether attachments are enabled and the maximum attachment size allowed.
 
 Note that there are also [project permissions](https://confluence.atlassian.com/x/yodKLg) that restrict whether users can create and delete attachments.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli attachment get-thumbnail`** - Returns the thumbnail of an attachment.
+- **`jira-pp-cli attachment get-thumbnail`** - Returns the thumbnail of an attachment.
 
 To return the attachment contents, use [Get attachment content](#api-rest-api-3-attachment-content-id-get).
 
@@ -331,7 +331,7 @@ This operation can be accessed anonymously.
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
  *  If attachments are added in private comments, the comment-level restriction will be applied.
-- **`jira-cloud-platform-pp-cli attachment remove`** - Deletes an attachment from an issue.
+- **`jira-pp-cli attachment remove`** - Deletes an attachment from an issue.
 
 This operation can be accessed anonymously.
 
@@ -344,7 +344,7 @@ This operation can be accessed anonymously.
 
 Manage auditing
 
-- **`jira-cloud-platform-pp-cli auditing get-audit-records`** - Returns a list of audit records. The list can be filtered to include items:
+- **`jira-pp-cli auditing get-audit-records`** - Returns a list of audit records. The list can be filtered to include items:
 
  *  where each item in `filter` has at least one match in any of these fields:
     
@@ -373,7 +373,7 @@ This resource represents system and custom avatars. Use it to obtain the details
 
 Manage bulk
 
-- **`jira-cloud-platform-pp-cli bulk get-available-transitions`** - Use this API to retrieve a list of transitions available for the specified issues that can be used or bulk transition operations. You can submit either single or multiple issues in the query to obtain the available transitions.
+- **`jira-pp-cli bulk get-available-transitions`** - Use this API to retrieve a list of transitions available for the specified issues that can be used or bulk transition operations. You can submit either single or multiple issues in the query to obtain the available transitions.
 
 The response will provide the available transitions for issues, organized by their respective workflows. **Only the transitions that are common among the issues within that workflow and do not involve any additional field updates will be included.** For bulk transitions that require additional field updates, please utilise the Jira Cloud UI.
 
@@ -385,7 +385,7 @@ You can request available transitions for up to 1,000 issues in a single operati
  *  Transition [issues permission](https://support.atlassian.com/jira-cloud-administration/docs/permissions-for-company-managed-projects/#Transition-issues/) in all projects that contain the selected issues.
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli bulk get-editable-fields`** - Use this API to get a list of fields visible to the user to perform bulk edit operations. You can pass single or multiple issues in the query to get eligible editable fields. This API uses pagination to return responses, delivering 50 fields at a time.
+- **`jira-pp-cli bulk get-editable-fields`** - Use this API to get a list of fields visible to the user to perform bulk edit operations. You can pass single or multiple issues in the query to get eligible editable fields. This API uses pagination to return responses, delivering 50 fields at a time.
 
 **[Permissions](#permissions) required:**
 
@@ -393,7 +393,7 @@ You can request available transitions for up to 1,000 issues in a single operati
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
  *  Depending on the field, any field-specific permissions required to edit it.
-- **`jira-cloud-platform-pp-cli bulk get-operation-progress`** - Use this to get the progress state for the specified bulk operation `taskId`.
+- **`jira-pp-cli bulk get-operation-progress`** - Use this to get the progress state for the specified bulk operation `taskId`.
 
 **[Permissions](#permissions) required:**
 
@@ -408,7 +408,7 @@ If the task has completed, then this resource will return:
     {"processedAccessibleIssues":[10001,10002],"created":1709189449954,"progressPercent":100,"started":1709189450154,"status":"COMPLETE","submittedBy":{"accountId":"5b10a2844c20165700ede21g"},"invalidOrInaccessibleIssueCount":0,"taskId":"10000","totalIssueCount":2,"updated":1709189450354}
 
 **Note:** You can view task progress for up to 14 days from creation.
-- **`jira-cloud-platform-pp-cli bulk submit-delete`** - Use this API to submit a bulk delete request. You can delete up to 1,000 issues in a single operation.
+- **`jira-pp-cli bulk submit-delete`** - Use this API to submit a bulk delete request. You can delete up to 1,000 issues in a single operation.
 
 **[Permissions](#permissions) required:**
 
@@ -416,7 +416,7 @@ If the task has completed, then this resource will return:
  *  Delete [issues permission](https://support.atlassian.com/jira-cloud-administration/docs/permissions-for-company-managed-projects/#Delete-issues/) in all projects that contain the selected issues.
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli bulk submit-edit`** - Use this API to submit a bulk edit request and simultaneously edit multiple issues. There are limits applied to the number of issues and fields that can be edited. A single request can accommodate a maximum of 1000 issues (including subtasks) and 200 fields.
+- **`jira-pp-cli bulk submit-edit`** - Use this API to submit a bulk edit request and simultaneously edit multiple issues. There are limits applied to the number of issues and fields that can be edited. A single request can accommodate a maximum of 1000 issues (including subtasks) and 200 fields.
 
 **[Permissions](#permissions) required:**
 
@@ -424,7 +424,7 @@ If the task has completed, then this resource will return:
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  Edit [issues permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli bulk submit-move`** - Use this API to submit a bulk issue move request. You can move multiple issues from multiple projects in a single request, but they must all be moved to a single project, issue type, and parent. You can't move more than 1000 issues (including subtasks) at once.
+- **`jira-pp-cli bulk submit-move`** - Use this API to submit a bulk issue move request. You can move multiple issues from multiple projects in a single request, but they must all be moved to a single project, issue type, and parent. You can't move more than 1000 issues (including subtasks) at once.
 
 #### Scenarios: ####
 
@@ -455,7 +455,7 @@ When using the bulk move, keep in mind that there are limits on the number of is
  *  Create [issues permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in destination projects.
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in destination projects, if moving subtasks only.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli bulk submit-transition`** - Use this API to submit a bulk issue status transition request. You can transition multiple issues, alongside with their valid transition Ids. You can transition up to 1,000 issues in a single operation.
+- **`jira-pp-cli bulk submit-transition`** - Use this API to submit a bulk issue status transition request. You can transition multiple issues, alongside with their valid transition Ids. You can transition up to 1,000 issues in a single operation.
 
 **[Permissions](#permissions) required:**
 
@@ -463,14 +463,14 @@ When using the bulk move, keep in mind that there are limits on the number of is
  *  Transition [issues permission](https://support.atlassian.com/jira-cloud-administration/docs/permissions-for-company-managed-projects/#Transition-issues/) in all projects that contain the selected issues.
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli bulk submit-unwatch`** - Use this API to submit a bulk unwatch request. You can unwatch up to 1,000 issues in a single operation.
+- **`jira-pp-cli bulk submit-unwatch`** - Use this API to submit a bulk unwatch request. You can unwatch up to 1,000 issues in a single operation.
 
 **[Permissions](#permissions) required:**
 
  *  Global bulk change [permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-global-permissions/).
  *  Browse [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) in all projects that contain the selected issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli bulk submit-watch`** - Use this API to submit a bulk watch request. You can watch up to 1,000 issues in a single operation.
+- **`jira-pp-cli bulk submit-watch`** - Use this API to submit a bulk watch request. You can watch up to 1,000 issues in a single operation.
 
 **[Permissions](#permissions) required:**
 
@@ -482,7 +482,7 @@ When using the bulk move, keep in mind that there are limits on the number of is
 
 Manage changelog
 
-- **`jira-cloud-platform-pp-cli changelog get-bulk`** - Bulk fetch changelogs for multiple issues and filter by fields
+- **`jira-pp-cli changelog get-bulk`** - Bulk fetch changelogs for multiple issues and filter by fields
 
 Returns a paginated list of all changelogs for given issues sorted by changelog date and issue IDs, starting from the oldest changelog and smallest issue ID.
 
@@ -497,7 +497,7 @@ Issues are identified by their ID or key, and optionally changelogs can be filte
 
 This resource represents classification levels.
 
-- **`jira-cloud-platform-pp-cli classification-levels get-all-user-data`** - Returns all classification levels.
+- **`jira-pp-cli classification-levels get-all-user-data`** - Returns all classification levels.
 
 **[Permissions](#permissions) required:** None.
 
@@ -505,7 +505,7 @@ This resource represents classification levels.
 
 Manage comment
 
-- **`jira-cloud-platform-pp-cli comment get-by-ids`** - Returns a [paginated](#pagination) list of comments specified by a list of comment IDs.
+- **`jira-pp-cli comment get-by-ids`** - Returns a [paginated](#pagination) list of comments specified by a list of comment IDs.
 
 This operation can be accessed anonymously.
 
@@ -519,27 +519,27 @@ This operation can be accessed anonymously.
 
 Manage component
 
-- **`jira-cloud-platform-pp-cli component create`** - Creates a component. Use components to provide containers for issues within a project. Use components to provide containers for issues within a project.
+- **`jira-pp-cli component create`** - Creates a component. Use components to provide containers for issues within a project. Use components to provide containers for issues within a project.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Administer projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project in which the component is created or *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli component delete`** - Deletes a component.
+- **`jira-pp-cli component delete`** - Deletes a component.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Administer projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the component or *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli component find-for-projects`** - Returns a [paginated](#pagination) list of all components in a project, including global (Compass) components when applicable.
+- **`jira-pp-cli component find-for-projects`** - Returns a [paginated](#pagination) list of all components in a project, including global (Compass) components when applicable.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
-- **`jira-cloud-platform-pp-cli component get`** - Returns a component.
+- **`jira-pp-cli component get`** - Returns a component.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for project containing the component.
-- **`jira-cloud-platform-pp-cli component update`** - Updates a component. Any fields included in the request are overwritten. If `leadAccountId` is an empty string ("") the component lead is removed.
+- **`jira-pp-cli component update`** - Updates a component. Any fields included in the request are overwritten. If `leadAccountId` is an empty string ("") the component lead is removed.
 
 This operation can be accessed anonymously.
 
@@ -549,25 +549,25 @@ This operation can be accessed anonymously.
 
 Manage config
 
-- **`jira-cloud-platform-pp-cli config associate-projects-to-field-association-schemes`** - Associate projects to field association schemes.
+- **`jira-pp-cli config associate-projects-to-field-association-schemes`** - Associate projects to field association schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config clone-field-association-scheme`** - Endpoint for cloning an existing field association scheme into a new one.
+- **`jira-pp-cli config clone-field-association-scheme`** - Endpoint for cloning an existing field association scheme into a new one.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config create-field-association-scheme`** - Endpoint for creating a new field association scheme.
+- **`jira-pp-cli config create-field-association-scheme`** - Endpoint for creating a new field association scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config delete-field-association-scheme`** - Delete a specified field association scheme
+- **`jira-pp-cli config delete-field-association-scheme`** - Delete a specified field association scheme
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config get-field-association-scheme-by-id`** - Endpoint for fetching a field association scheme by its ID
+- **`jira-pp-cli config get-field-association-scheme-by-id`** - Endpoint for fetching a field association scheme by its ID
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config get-field-association-scheme-item-parameters`** - Retrieve field association parameters on a field association scheme
+- **`jira-pp-cli config get-field-association-scheme-item-parameters`** - Retrieve field association parameters on a field association scheme
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config get-field-association-schemes`** - REST endpoint for retrieving a paginated list of field association schemes with optional filtering.
+- **`jira-pp-cli config get-field-association-schemes`** - REST endpoint for retrieving a paginated list of field association schemes with optional filtering.
 
 This endpoint allows clients to fetch field association schemes with optional filtering by project IDs and text queries. The response includes scheme details with navigation links and filter metadata when applicable.
 
@@ -577,28 +577,28 @@ Filtering Behavior:
  *  When no filters are applied, matchedFilters is omitted from individual scheme objects
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config get-projects-with-field-schemes`** - Get projects with field association schemes. This will be a temporary API but useful when transitioning from the legacy field configuration APIs to the new ones.
+- **`jira-pp-cli config get-projects-with-field-schemes`** - Get projects with field association schemes. This will be a temporary API but useful when transitioning from the legacy field configuration APIs to the new ones.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config remove-field-association-scheme-item-parameters`** - Remove field association parameters overrides for work types.
+- **`jira-pp-cli config remove-field-association-scheme-item-parameters`** - Remove field association parameters overrides for work types.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config remove-fields-associated-with-schemes`** - Remove fields associated with field association schemes.
+- **`jira-pp-cli config remove-fields-associated-with-schemes`** - Remove fields associated with field association schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config search-field-association-scheme-fields`** - Search for fields belonging to a given field association scheme.
+- **`jira-pp-cli config search-field-association-scheme-fields`** - Search for fields belonging to a given field association scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config search-field-association-scheme-projects`** - REST Endpoint for searching for projects belonging to a given field association scheme
+- **`jira-pp-cli config search-field-association-scheme-projects`** - REST Endpoint for searching for projects belonging to a given field association scheme
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config update-field-association-scheme`** - Endpoint for updating an existing field association scheme.
+- **`jira-pp-cli config update-field-association-scheme`** - Endpoint for updating an existing field association scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config update-field-association-scheme-item-parameters`** - Update field association item parameters in field association schemes.
+- **`jira-pp-cli config update-field-association-scheme-item-parameters`** - Update field association item parameters in field association schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli config update-fields-associated-with-schemes`** - Update fields associated with field association schemes.
+- **`jira-pp-cli config update-fields-associated-with-schemes`** - Update fields associated with field association schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -606,22 +606,22 @@ Filtering Behavior:
 
 Manage configuration
 
-- **`jira-cloud-platform-pp-cli configuration get`** - Returns the [global settings](https://confluence.atlassian.com/x/qYXKM) in Jira. These settings determine whether optional features (for example, subtasks, time tracking, and others) are enabled. If time tracking is enabled, this operation also returns the time tracking configuration.
+- **`jira-pp-cli configuration get`** - Returns the [global settings](https://confluence.atlassian.com/x/qYXKM) in Jira. These settings determine whether optional features (for example, subtasks, time tracking, and others) are enabled. If time tracking is enabled, this operation also returns the time tracking configuration.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli configuration get-available-time-tracking-implementations`** - Returns all time tracking providers. By default, Jira only has one time tracking provider: *JIRA provided time tracking*. However, you can install other time tracking providers via apps from the Atlassian Marketplace. For more information on time tracking providers, see the documentation for the [ Time Tracking Provider](https://developer.atlassian.com/cloud/jira/platform/modules/time-tracking-provider/) module.
+- **`jira-pp-cli configuration get-available-time-tracking-implementations`** - Returns all time tracking providers. By default, Jira only has one time tracking provider: *JIRA provided time tracking*. However, you can install other time tracking providers via apps from the Atlassian Marketplace. For more information on time tracking providers, see the documentation for the [ Time Tracking Provider](https://developer.atlassian.com/cloud/jira/platform/modules/time-tracking-provider/) module.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli configuration get-selected-time-tracking-implementation`** - Returns the time tracking provider that is currently selected. Note that if time tracking is disabled, then a successful but empty response is returned.
+- **`jira-pp-cli configuration get-selected-time-tracking-implementation`** - Returns the time tracking provider that is currently selected. Note that if time tracking is disabled, then a successful but empty response is returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli configuration get-shared-time-tracking`** - Returns the time tracking settings. This includes settings such as the time format, default time unit, and others. For more information, see [Configuring time tracking](https://confluence.atlassian.com/x/qoXKM).
+- **`jira-pp-cli configuration get-shared-time-tracking`** - Returns the time tracking settings. This includes settings such as the time format, default time unit, and others. For more information, see [Configuring time tracking](https://confluence.atlassian.com/x/qoXKM).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli configuration select-time-tracking-implementation`** - Selects a time tracking provider.
+- **`jira-pp-cli configuration select-time-tracking-implementation`** - Selects a time tracking provider.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli configuration set-shared-time-tracking`** - Sets the time tracking settings.
+- **`jira-pp-cli configuration set-shared-time-tracking`** - Sets the time tracking settings.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -629,7 +629,7 @@ Manage configuration
 
 Manage custom field option
 
-- **`jira-cloud-platform-pp-cli custom-field-option get`** - Returns a custom field option. For example, an option in a select list.
+- **`jira-pp-cli custom-field-option get`** - Returns a custom field option. For example, an option in a select list.
 
 Note that this operation **only works for issue field select list options created in Jira or using operations from the [Issue custom field options](#api-group-Issue-custom-field-options) resource**, it cannot be used with issue field select list options created by Connect apps.
 
@@ -644,35 +644,35 @@ This operation can be accessed anonymously.
 
 This resource represents dashboards. Use it to obtain the details of dashboards as well as get, create, update, or remove item properties and gadgets from dashboards.
 
-- **`jira-cloud-platform-pp-cli dashboard bulk-edit`** - Bulk edit dashboards. Maximum number of dashboards to be edited at the same time is 100.
+- **`jira-pp-cli dashboard bulk-edit`** - Bulk edit dashboards. Maximum number of dashboards to be edited at the same time is 100.
 
 **[Permissions](#permissions) required:** None
 
 The dashboards to be updated must be owned by the user, or the user must be an administrator.
-- **`jira-cloud-platform-pp-cli dashboard create`** - Creates a dashboard.
+- **`jira-pp-cli dashboard create`** - Creates a dashboard.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli dashboard delete`** - Deletes a dashboard.
+- **`jira-pp-cli dashboard delete`** - Deletes a dashboard.
 
 **[Permissions](#permissions) required:** None
 
 The dashboard to be deleted must be owned by the user.
-- **`jira-cloud-platform-pp-cli dashboard get`** - Returns a dashboard.
+- **`jira-pp-cli dashboard get`** - Returns a dashboard.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
 
 However, to get a dashboard, the dashboard must be shared with the user or the user must own it. Note, users with the *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) are considered owners of the System dashboard. The System dashboard is considered to be shared with all other users.
-- **`jira-cloud-platform-pp-cli dashboard get-all`** - Returns a list of dashboards owned by or shared with the user. The list may be filtered to include only favorite or owned dashboards.
+- **`jira-pp-cli dashboard get-all`** - Returns a list of dashboards owned by or shared with the user. The list may be filtered to include only favorite or owned dashboards.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli dashboard get-all-available-gadgets`** - Gets a list of all available gadgets that can be added to all dashboards.
+- **`jira-pp-cli dashboard get-all-available-gadgets`** - Gets a list of all available gadgets that can be added to all dashboards.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli dashboard get-paginated`** - Returns a [paginated](#pagination) list of dashboards. This operation is similar to [Get dashboards](#api-rest-api-3-dashboard-get) except that the results can be refined to include dashboards that have specific attributes. For example, dashboards with a particular name. When multiple attributes are specified only filters matching all attributes are returned.
+- **`jira-pp-cli dashboard get-paginated`** - Returns a [paginated](#pagination) list of dashboards. This operation is similar to [Get dashboards](#api-rest-api-3-dashboard-get) except that the results can be refined to include dashboards that have specific attributes. For example, dashboards with a particular name. When multiple attributes are specified only filters matching all attributes are returned.
 
 This operation can be accessed anonymously.
 
@@ -683,7 +683,7 @@ This operation can be accessed anonymously.
  *  Dashboards shared with a private project that the user can browse. Not returned for anonymous users.
  *  Dashboards shared with a public project.
  *  Dashboards shared with the public.
-- **`jira-cloud-platform-pp-cli dashboard update`** - Updates a dashboard, replacing all the dashboard details with those provided.
+- **`jira-pp-cli dashboard update`** - Updates a dashboard, replacing all the dashboard details with those provided.
 
 **[Permissions](#permissions) required:** None
 
@@ -693,14 +693,14 @@ The dashboard to be updated must be owned by the user.
 
 Manage data policy
 
-- **`jira-cloud-platform-pp-cli data-policy get-policies`** - Returns data policies for the projects specified in the request.
-- **`jira-cloud-platform-pp-cli data-policy get-policy`** - Returns data policy for the workspace.
+- **`jira-pp-cli data-policy get-policies`** - Returns data policies for the projects specified in the request.
+- **`jira-pp-cli data-policy get-policy`** - Returns data policy for the workspace.
 
 ### events
 
 Manage events
 
-- **`jira-cloud-platform-pp-cli events get`** - Returns all issue events.
+- **`jira-pp-cli events get`** - Returns all issue events.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -708,14 +708,14 @@ Manage events
 
 Manage expression
 
-- **`jira-cloud-platform-pp-cli expression analyse`** - Analyses and validates Jira expressions.
+- **`jira-pp-cli expression analyse`** - Analyses and validates Jira expressions.
 
 As an experimental feature, this operation can also attempt to type-check the expressions.
 
 Learn more about Jira expressions in the [documentation](https://developer.atlassian.com/cloud/jira/platform/jira-expressions/).
 
 **[Permissions](#permissions) required**: None.
-- **`jira-cloud-platform-pp-cli expression evaluate-jira`** - Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)
+- **`jira-pp-cli expression evaluate-jira`** - Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)
 
 Evaluates a Jira expression and returns its value.
 
@@ -746,7 +746,7 @@ This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required**: None. However, an expression may return different results for different users depending on their permissions. For example, different users may see different comments on the same issue.  
 Permission to access Jira Software is required to access Jira Software context variables (`board` and `sprint`) or fields (for example, `issue.sprint`).
-- **`jira-cloud-platform-pp-cli expression evaluate-jsisjira`** - Evaluates a Jira expression and returns its value. The difference between this and `eval` is that this endpoint uses the enhanced search API when evaluating JQL queries. This API is eventually consistent, unlike the strongly consistent `eval` API. This allows for better performance and scalability. In addition, this API's response for JQL evaluation is based on a scrolling view (backed by a `nextPageToken`) instead of a paginated view (backed by `startAt` and `totalCount`).
+- **`jira-pp-cli expression evaluate-jsisjira`** - Evaluates a Jira expression and returns its value. The difference between this and `eval` is that this endpoint uses the enhanced search API when evaluating JQL queries. This API is eventually consistent, unlike the strongly consistent `eval` API. This allows for better performance and scalability. In addition, this API's response for JQL evaluation is based on a scrolling view (backed by a `nextPageToken`) instead of a paginated view (backed by `startAt` and `totalCount`).
 
 This resource can be used to test Jira expressions that you plan to use elsewhere, or to fetch data in a flexible way. Consult the [Jira expressions documentation](https://developer.atlassian.com/cloud/jira/platform/jira-expressions/) for more details.
 
@@ -780,7 +780,7 @@ Permission to access Jira Software is required to access Jira Software context v
 
 Manage field
 
-- **`jira-cloud-platform-pp-cli field create-associations`** - Associates fields with projects.
+- **`jira-pp-cli field create-associations`** - Associates fields with projects.
 
 Fields will be associated with each issue type on the requested projects.
 
@@ -791,15 +791,15 @@ If a success response is returned it means that the field association has been c
 Up to 50 fields and up to 100 projects can be associated in a single request. If more fields or projects are provided a 400 response will be returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli field create-custom`** - Creates a custom field.
+- **`jira-pp-cli field create-custom`** - Creates a custom field.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli field delete-custom`** - Deletes a custom field. The custom field is deleted whether it is in the trash or not. See [Edit or delete a custom field](https://confluence.atlassian.com/x/Z44fOw) for more information on trashing and deleting custom fields.
+- **`jira-pp-cli field delete-custom`** - Deletes a custom field. The custom field is deleted whether it is in the trash or not. See [Edit or delete a custom field](https://confluence.atlassian.com/x/Z44fOw) for more information on trashing and deleting custom fields.
 
 This operation is [asynchronous](#async). Follow the `location` link in the response to determine the status of the task and use [Get task](#api-rest-api-3-task-taskId-get) to obtain subsequent updates.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli field get`** - Returns system and custom issue fields according to the following rules:
+- **`jira-pp-cli field get`** - Returns system and custom issue fields according to the following rules:
 
  *  Fields that cannot be added to the issue navigator are always returned.
  *  Fields that cannot be placed on an issue screen are always returned.
@@ -810,7 +810,7 @@ This operation is [asynchronous](#async). Follow the `location` link in the resp
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli field get-paginated`** - Returns a [paginated](#pagination) list of fields for Classic Jira projects. The list can include:
+- **`jira-pp-cli field get-paginated`** - Returns a [paginated](#pagination) list of fields for Classic Jira projects. The list can include:
 
  *  all fields
  *  specific fields, by defining `id`
@@ -820,12 +820,12 @@ This operation can be accessed anonymously.
 Use `type` must be set to `custom` to show custom fields only.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli field get-trashed-paginated`** - Returns a [paginated](#pagination) list of fields in the trash. The list may be restricted to fields whose field name or description partially match a string.
+- **`jira-pp-cli field get-trashed-paginated`** - Returns a [paginated](#pagination) list of fields in the trash. The list may be restricted to fields whose field name or description partially match a string.
 
 Only custom fields can be queried, `type` must be set to `custom`.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli field remove-associations`** - Unassociates a set of fields with a project and issue type context.
+- **`jira-pp-cli field remove-associations`** - Unassociates a set of fields with a project and issue type context.
 
 Fields will be unassociated with all projects/issue types that share the same field configuration which the provided project and issue types are using. This means that while the field will be unassociated with the provided project and issue types, it will also be unassociated with any other projects and issue types that share the same field configuration.
 
@@ -834,7 +834,7 @@ If a success response is returned it means that the field association has been r
 Up to 50 fields and up to 100 projects and issue types can be unassociated in a single request. If more fields or projects are provided a 400 response will be returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli field update-custom`** - Updates a custom field.
+- **`jira-pp-cli field update-custom`** - Updates a custom field.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -842,21 +842,21 @@ Up to 50 fields and up to 100 projects and issue types can be unassociated in a 
 
 Manage fieldconfiguration
 
-- **`jira-cloud-platform-pp-cli fieldconfiguration create-field-configuration`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfiguration create-field-configuration`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Creates a field configuration. The field configuration is created with the same field properties as the default configuration, with all the fields being optional.
 
 This operation can only create configurations for use in company-managed (classic) projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfiguration delete-field-configuration`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfiguration delete-field-configuration`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Deletes a field configuration.
 
 This operation can only delete configurations used in company-managed (classic) projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfiguration get-all-field-configurations`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfiguration get-all-field-configurations`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Returns a [paginated](#pagination) list of field configurations. The list can be for all field configurations or a subset determined by any combination of these criteria:
 
@@ -867,7 +867,7 @@ Returns a [paginated](#pagination) list of field configurations. The list can be
 Only field configurations used in company-managed (classic) projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfiguration update-field-configuration`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfiguration update-field-configuration`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Updates a field configuration. The name and the description provided in the request override the existing values.
 
@@ -879,42 +879,42 @@ This operation can only update configurations used in company-managed (classic) 
 
 Manage fieldconfigurationscheme
 
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme assign-field-configuration-scheme-to-project`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme assign-field-configuration-scheme-to-project`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Assigns a field configuration scheme to a project. If the field configuration scheme ID is `null`, the operation assigns the default field configuration scheme.
 
 Field configuration schemes can only be assigned to classic projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme create-field-configuration-scheme`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme create-field-configuration-scheme`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Creates a field configuration scheme.
 
 This operation can only create field configuration schemes used in company-managed (classic) projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme delete-field-configuration-scheme`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme delete-field-configuration-scheme`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Deletes a field configuration scheme.
 
 This operation can only delete field configuration schemes used in company-managed (classic) projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme get-all-field-configuration-schemes`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme get-all-field-configuration-schemes`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Returns a [paginated](#pagination) list of field configuration schemes.
 
 Only field configuration schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme get-field-configuration-scheme-mappings`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme get-field-configuration-scheme-mappings`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Returns a [paginated](#pagination) list of field configuration issue type items.
 
 Only items used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme get-field-configuration-scheme-project-mapping`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme get-field-configuration-scheme-project-mapping`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Returns a [paginated](#pagination) list of field configuration schemes and, for each scheme, a list of the projects that use it.
 
@@ -923,7 +923,7 @@ The list is sorted by field configuration scheme ID. The first item contains the
 Only field configuration schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli fieldconfigurationscheme update-field-configuration-scheme`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
+- **`jira-pp-cli fieldconfigurationscheme update-field-configuration-scheme`** - Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/#api-group-field-schemes) which supports field association schemes.
 
 Updates a field configuration scheme.
 
@@ -935,13 +935,13 @@ This operation can only update field configuration schemes used in company-manag
 
 This resource represents [filters](https://confluence.atlassian.com/x/eQiiLQ). Use it to get, create, update, or delete filters. Also use it to configure the columns for a filter and set favorite filters.
 
-- **`jira-cloud-platform-pp-cli filter create`** - Creates a filter. The filter is shared according to the [default share scope](#api-rest-api-3-filter-post). The filter is not selected as a favorite.
+- **`jira-pp-cli filter create`** - Creates a filter. The filter is shared according to the [default share scope](#api-rest-api-3-filter-post). The filter is not selected as a favorite.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli filter delete`** - Delete a filter.
+- **`jira-pp-cli filter delete`** - Delete a filter.
 
 **[Permissions](#permissions) required:** Permission to access Jira, however filters can only be deleted by the creator of the filter or a user with *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli filter get`** - Returns a filter.
+- **`jira-pp-cli filter get`** - Returns a filter.
 
 This operation can be accessed anonymously.
 
@@ -952,10 +952,10 @@ This operation can be accessed anonymously.
  *  shared with a private project that the user has *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for.
  *  shared with a public project.
  *  shared with the public.
-- **`jira-cloud-platform-pp-cli filter get-default-share-scope`** - Returns the default sharing settings for new filters and dashboards for a user.
+- **`jira-pp-cli filter get-default-share-scope`** - Returns the default sharing settings for new filters and dashboards for a user.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli filter get-favourite`** - Returns the visible favorite filters of the user.
+- **`jira-pp-cli filter get-favourite`** - Returns the visible favorite filters of the user.
 
 This operation can be accessed anonymously.
 
@@ -968,7 +968,7 @@ This operation can be accessed anonymously.
  *  shared with the public.
 
 For example, if the user favorites a public filter that is subsequently made private that filter is not returned by this operation.
-- **`jira-cloud-platform-pp-cli filter get-my`** - Returns the filters owned by the user. If `includeFavourites` is `true`, the user's visible favorite filters are also returned.
+- **`jira-pp-cli filter get-my`** - Returns the filters owned by the user. If `includeFavourites` is `true`, the user's visible favorite filters are also returned.
 
 **[Permissions](#permissions) required:** Permission to access Jira, however, a favorite filters is only visible to the user where the filter is:
 
@@ -979,7 +979,7 @@ For example, if the user favorites a public filter that is subsequently made pri
  *  shared with the public.
 
 For example, if the user favorites a public filter that is subsequently made private that filter is not returned by this operation.
-- **`jira-cloud-platform-pp-cli filter get-paginated`** - Returns a [paginated](#pagination) list of filters. Use this operation to get:
+- **`jira-pp-cli filter get-paginated`** - Returns a [paginated](#pagination) list of filters. Use this operation to get:
 
  *  specific filters, by defining `id` only.
  *  filters that match all of the specified attributes. For example, all filters for a user with a particular word in their name. When multiple attributes are specified only filters matching all attributes are returned.
@@ -993,10 +993,10 @@ This operation can be accessed anonymously.
  *  filters shared with a private project that the user has *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for.
  *  filters shared with a public project.
  *  filters shared with the public.
-- **`jira-cloud-platform-pp-cli filter set-default-share-scope`** - Sets the default sharing for new filters and dashboards for a user.
+- **`jira-pp-cli filter set-default-share-scope`** - Sets the default sharing for new filters and dashboards for a user.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli filter update`** - Updates a filter. Use this operation to update a filter's name, description, JQL, or sharing.
+- **`jira-pp-cli filter update`** - Updates a filter. Use this operation to update a filter's name, description, JQL, or sharing.
 
 **[Permissions](#permissions) required:** Permission to access Jira, however the user must own the filter.
 
@@ -1004,23 +1004,23 @@ This operation can be accessed anonymously.
 
 Manage forge
 
-- **`jira-cloud-platform-pp-cli forge bulk-pin-unpin-projects-async`** - Bulk pin or unpin an issue panel (added by a Forge app) to or from multiple projects.
+- **`jira-pp-cli forge bulk-pin-unpin-projects-async`** - Bulk pin or unpin an issue panel (added by a Forge app) to or from multiple projects.
 
 The operation runs asynchronously. The response includes a task ID - use the [Get task](#api-rest-api-3-task-taskId-get) endpoint to check progress.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli forge delete-app-property`** - Deletes a Forge app's property.
+- **`jira-pp-cli forge delete-app-property`** - Deletes a Forge app's property.
 
 **[Permissions](#permissions) required:** Only Forge apps can make this request. This API can only be accessed using **[asApp()](https://developer.atlassian.com/platform/forge/apis-reference/fetch-api-product.requestjira/#method-signature)** requests from Forge.
 
 The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli forge get-app-property`** - Returns the value of a Forge app's property.
+- **`jira-pp-cli forge get-app-property`** - Returns the value of a Forge app's property.
 
 **[Permissions](#permissions) required:** Only Forge apps can make this request. This API can only be accessed using **[asApp()](https://developer.atlassian.com/platform/forge/apis-reference/fetch-api-product.requestjira/#method-signature)** requests from Forge.
-- **`jira-cloud-platform-pp-cli forge get-app-property-keys`** - Returns all property keys for the Forge app.
+- **`jira-pp-cli forge get-app-property-keys`** - Returns all property keys for the Forge app.
 
 **[Permissions](#permissions) required:** Only Forge apps can make this request. This API can only be accessed using **[asApp()](https://developer.atlassian.com/platform/forge/apis-reference/fetch-api-product.requestjira/#method-signature)** requests from Forge.
-- **`jira-cloud-platform-pp-cli forge put-app-property`** - Sets the value of a Forge app's property.
+- **`jira-pp-cli forge put-app-property`** - Sets the value of a Forge app's property.
 These values can be retrieved in [Jira expressions](/cloud/jira/platform/jira-expressions/)
 through the `app` [context variable](/cloud/jira/platform/jira-expressions/#context-variables).
 They are also available in [entity property display conditions](/platform/forge/manifest-reference/display-conditions/entity-property-conditions/).
@@ -1037,16 +1037,16 @@ The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it
 
 This resource represents groups of users. Use it to get, create, find, and delete groups as well as add and remove users from groups. (\[WARNING\] The standard Atlassian group names are default names only and can be edited or deleted. For example, an admin or Atlassian support could delete the default group jira-software-users or rename it to jsw-users at any point. See https://support.atlassian.com/user-management/docs/create-and-update-groups/ for details.)
 
-- **`jira-cloud-platform-pp-cli group add-user-to`** - Adds a user to a group.
+- **`jira-pp-cli group add-user-to`** - Adds a user to a group.
 
 **[Permissions](#permissions) required:** Site administration (that is, member of the *site-admin* [group](https://confluence.atlassian.com/x/24xjL)).
-- **`jira-cloud-platform-pp-cli group bulk-get`** - Returns a [paginated](#pagination) list of groups.
+- **`jira-pp-cli group bulk-get`** - Returns a [paginated](#pagination) list of groups.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli group create`** - Creates a group.
+- **`jira-pp-cli group create`** - Creates a group.
 
 **[Permissions](#permissions) required:** Site administration (that is, member of the *site-admin* [group](https://confluence.atlassian.com/x/24xjL)).
-- **`jira-cloud-platform-pp-cli group get`** - This operation is deprecated, use [`group/member`](#api-rest-api-3-group-member-get).
+- **`jira-pp-cli group get`** - This operation is deprecated, use [`group/member`](#api-rest-api-3-group-member-get).
 
 Returns all users in a group.
 
@@ -1054,7 +1054,7 @@ Returns all users in a group.
 
  *  *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli group get-users-from`** - Returns a [paginated](#pagination) list of all users in a group.
+- **`jira-pp-cli group get-users-from`** - Returns a [paginated](#pagination) list of all users in a group.
 
 Note that users are ordered by username, however the username is not returned in the results due to privacy reasons.
 
@@ -1062,10 +1062,10 @@ Note that users are ordered by username, however the username is not returned in
 
  *  *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli group remove`** - Deletes a group.
+- **`jira-pp-cli group remove`** - Deletes a group.
 
 **[Permissions](#permissions) required:** Site administration (that is, member of the *site-admin* strategic [group](https://confluence.atlassian.com/x/24xjL)).
-- **`jira-cloud-platform-pp-cli group remove-user-from`** - Removes a user from a group.
+- **`jira-pp-cli group remove-user-from`** - Removes a user from a group.
 
 **[Permissions](#permissions) required:** Site administration (that is, member of the *site-admin* [group](https://confluence.atlassian.com/x/24xjL)).
 
@@ -1073,7 +1073,7 @@ Note that users are ordered by username, however the username is not returned in
 
 This resource represents groups of users. Use it to get, create, find, and delete groups as well as add and remove users from groups. (\[WARNING\] The standard Atlassian group names are default names only and can be edited or deleted. For example, an admin or Atlassian support could delete the default group jira-software-users or rename it to jsw-users at any point. See https://support.atlassian.com/user-management/docs/create-and-update-groups/ for details.)
 
-- **`jira-cloud-platform-pp-cli groups find`** - Returns a list of groups whose names contain a query string. A list of group names can be provided to exclude groups from the results.
+- **`jira-pp-cli groups find`** - Returns a list of groups whose names contain a query string. A list of group names can be provided to exclude groups from the results.
 
 The primary use case for this resource is to populate a group picker suggestions list. To this end, the returned object includes the `html` field where the matched query term is highlighted in the group name with the HTML strong tag. Also, the groups list is wrapped in a response object that contains a header for use in the picker, specifically *Showing X of Y matching groups*.
 
@@ -1089,7 +1089,7 @@ This operation can be accessed anonymously.
 
 Manage groupuserpicker
 
-- **`jira-cloud-platform-pp-cli groupuserpicker find-users-and-groups`** - Returns a list of users and groups matching a string. The string is used:
+- **`jira-pp-cli groupuserpicker find-users-and-groups`** - Returns a list of users and groups matching a string. The string is used:
 
  *  for users, to find a case-insensitive match with display name and e-mail address. Note that if a user has hidden their email address in their user profile, partial matches of the email address will not find the user. An exact match is required.
  *  for groups, to find a case-sensitive match with group name.
@@ -1117,7 +1117,7 @@ This operation can be accessed anonymously.
 
 Manage instance
 
-- **`jira-cloud-platform-pp-cli instance get-license`** - Returns licensing information about the Jira instance.
+- **`jira-pp-cli instance get-license`** - Returns licensing information about the Jira instance.
 
 **[Permissions](#permissions) required:** None.
 
@@ -1125,7 +1125,7 @@ Manage instance
 
 Manage internal
 
-- **`jira-cloud-platform-pp-cli internal get-worklogs-by-issue-id-and-worklog-id`** - Returns worklog details for a list of issue ID and worklog ID pairs.
+- **`jira-pp-cli internal get-worklogs-by-issue-id-and-worklog-id`** - Returns worklog details for a list of issue ID and worklog ID pairs.
 
 This is an internal API for bulk fetching worklogs by their issue and worklog IDs. Worklogs that don't exist will be filtered out from the response.
 
@@ -1149,7 +1149,7 @@ This resource represents Jira issues. Use it to:
  *  Unarchive issues.
  *  Export archived issues.
 
-- **`jira-cloud-platform-pp-cli issue archive`** - Enables admins to archive up to 1000 issues in a single request using issue ID/key, returning details of the issue(s) archived in the process and the errors encountered, if any.
+- **`jira-pp-cli issue archive`** - Enables admins to archive up to 1000 issues in a single request using issue ID/key, returning details of the issue(s) archived in the process and the errors encountered, if any.
 
 **Note that:**
 
@@ -1161,7 +1161,7 @@ This resource represents Jira issues. Use it to:
 **License required:** Premium or Enterprise
 
 **Signed-in users only:** This API can't be accessed anonymously.
-- **`jira-cloud-platform-pp-cli issue archive-async`** - Enables admins to archive up to 100,000 issues in a single request using JQL, returning the URL to check the status of the submitted request.
+- **`jira-pp-cli issue archive-async`** - Enables admins to archive up to 100,000 issues in a single request using JQL, returning the URL to check the status of the submitted request.
 
 You can use the [get task](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-tasks/#api-rest-api-3-task-taskid-get) and [cancel task](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-tasks/#api-rest-api-3-task-taskid-cancel-post) APIs to manage the request.
 
@@ -1177,7 +1177,7 @@ You can use the [get task](https://developer.atlassian.com/cloud/jira/platform/r
 **Signed-in users only:** This API can't be accessed anonymously.
 
 **Rate limiting:** Only a single request per jira instance can be active at any given time.
-- **`jira-cloud-platform-pp-cli issue bulk-delete-property`** - Deletes a property value from multiple issues. The issues to be updated can be specified by filter criteria.
+- **`jira-pp-cli issue bulk-delete-property`** - Deletes a property value from multiple issues. The issues to be updated can be specified by filter criteria.
 
 The criteria the filter used to identify eligible issues are:
 
@@ -1198,7 +1198,7 @@ This operation is:
  *  *Browse projects* [ project permission](https://confluence.atlassian.com/x/yodKLg) for each project containing issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
  *  *Edit issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for each issue.
-- **`jira-cloud-platform-pp-cli issue bulk-fetch`** - Returns the details for a set of requested issues. You can request up to 100 issues.
+- **`jira-pp-cli issue bulk-fetch`** - Returns the details for a set of requested issues. You can request up to 100 issues.
 
 Each issue is identified by its ID or key, however, if the identifier doesn't match an issue, a case-insensitive search and check for moved issues is performed. If a matching issue is found its details are returned, a 302 or other redirect is **not** returned.
 
@@ -1210,7 +1210,7 @@ This operation can be accessed anonymously.
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue bulk-set-properties-by`** - Sets or updates entity property values on issues. Up to 10 entity properties can be specified for each issue and up to 100 issues included in the request.
+- **`jira-pp-cli issue bulk-set-properties-by`** - Sets or updates entity property values on issues. Up to 10 entity properties can be specified for each issue and up to 100 issues included in the request.
 
 The value of the request body must be a [valid](http://tools.ietf.org/html/rfc4627), non-empty JSON.
 
@@ -1223,7 +1223,7 @@ This operation is:
 
  *  *Browse projects* and *Edit issues* [project permissions](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue bulk-set-properties-list`** - Sets or updates a list of entity property values on issues. A list of up to 10 entity properties can be specified along with up to 10,000 issues on which to set or update that list of entity properties.
+- **`jira-pp-cli issue bulk-set-properties-list`** - Sets or updates a list of entity property values on issues. A list of up to 10 entity properties can be specified along with up to 10,000 issues on which to set or update that list of entity properties.
 
 The value of the request body must be a [valid](http://tools.ietf.org/html/rfc4627), non-empty JSON. The maximum length of single issue property value is 32768 characters. This operation can be accessed anonymously.
 
@@ -1236,7 +1236,7 @@ This operation is:
 
  *  *Browse projects* and *Edit issues* [project permissions](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue bulk-set-property`** - Sets a property value on multiple issues.
+- **`jira-pp-cli issue bulk-set-property`** - Sets a property value on multiple issues.
 
 The value set can be a constant or determined by a [Jira expression](https://developer.atlassian.com/cloud/jira/platform/jira-expressions/). Expressions must be computable with constant complexity when applied to a set of issues. Expressions must also comply with the [restrictions](https://developer.atlassian.com/cloud/jira/platform/jira-expressions/#restrictions) that apply to all Jira expressions.
 
@@ -1267,7 +1267,7 @@ This operation is:
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for each project containing issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
  *  *Edit issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for each issue.
-- **`jira-cloud-platform-pp-cli issue create`** - Creates an issue or, where the option to create subtasks is enabled in Jira, a subtask. A transition may be applied, to move the issue or subtask to a workflow step other than the default start step, and issue properties set.
+- **`jira-pp-cli issue create`** - Creates an issue or, where the option to create subtasks is enabled in Jira, a subtask. A transition may be applied, to move the issue or subtask to a workflow step other than the default start step, and issue properties set.
 
 The content of the issue or subtask is defined using `update` and `fields`. The fields that can be set in the issue or subtask are determined using the [ Get create issue metadata](#api-rest-api-3-issue-createmeta-get). These are the same fields that appear on the issue's create screen. Note that the `description`, `environment`, and any `textarea` type custom fields (multi-line text fields) take Atlassian Document Format content. Single line custom fields (`textfield`) accept a string and don't handle Atlassian Document Format content.
 
@@ -1279,7 +1279,7 @@ Creating a subtask differs from creating an issue as follows:
 In a next-gen project any issue may be made a child providing that the parent and child are members of the same project.
 
 **[Permissions](#permissions) required:** *Browse projects* and *Create issues* [project permissions](https://confluence.atlassian.com/x/yodKLg) for the project in which the issue or subtask is created.
-- **`jira-cloud-platform-pp-cli issue create-bulk`** - Creates upto **50** issues and, where the option to create subtasks is enabled in Jira, subtasks. Transitions may be applied, to move the issues or subtasks to a workflow step other than the default start step, and issue properties set.
+- **`jira-pp-cli issue create-bulk`** - Creates upto **50** issues and, where the option to create subtasks is enabled in Jira, subtasks. Transitions may be applied, to move the issues or subtasks to a workflow step other than the default start step, and issue properties set.
 
 The content of each issue or subtask is defined using `update` and `fields`. The fields that can be set in the issue or subtask are determined using the [ Get create issue metadata](#api-rest-api-3-issue-createmeta-get). These are the same fields that appear on the issues' create screens. Note that the `description`, `environment`, and any `textarea` type custom fields (multi-line text fields) take Atlassian Document Format content. Single line custom fields (`textfield`) accept a string and don't handle Atlassian Document Format content.
 
@@ -1289,7 +1289,7 @@ Creating a subtask differs from creating an issue as follows:
  *  `parent` the must contain the ID or key of the parent issue.
 
 **[Permissions](#permissions) required:** *Browse projects* and *Create issues* [project permissions](https://confluence.atlassian.com/x/yodKLg) for the project in which each issue or subtask is created.
-- **`jira-cloud-platform-pp-cli issue delete`** - Deletes an issue.
+- **`jira-pp-cli issue delete`** - Deletes an issue.
 
 An issue cannot be deleted if it has one or more subtasks. To delete an issue with subtasks, set `deleteSubtasks`. This causes the issue's subtasks to be deleted with the issue.
 
@@ -1299,7 +1299,7 @@ This operation can be accessed anonymously.
 
  *  *Browse projects* and *Delete issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue edit`** - Edits an issue. Issue properties may be updated as part of the edit. Please note that issue transition is not supported and is ignored here. To transition an issue, please use [Transition issue](#api-rest-api-3-issue-issueIdOrKey-transitions-post).
+- **`jira-pp-cli issue edit`** - Edits an issue. Issue properties may be updated as part of the edit. Please note that issue transition is not supported and is ignored here. To transition an issue, please use [Transition issue](#api-rest-api-3-issue-issueIdOrKey-transitions-post).
 
 The edits to the issue's fields are defined using `update` and `fields`. The fields that can be edited are determined using [ Get edit issue metadata](#api-rest-api-3-issue-issueIdOrKey-editmeta-get).
 
@@ -1313,7 +1313,7 @@ This operation can be accessed anonymously.
 
  *  *Browse projects* and *Edit issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue get`** - Returns the details for an issue.
+- **`jira-pp-cli issue get`** - Returns the details for an issue.
 
 The issue is identified by its ID or key, however, if the identifier doesn't match an issue, a case-insensitive search and check for moved issues is performed. If a matching issue is found its details are returned, a 302 or other redirect is **not** returned. The issue key returned in the response is the key of the issue found.
 
@@ -1323,7 +1323,7 @@ This operation can be accessed anonymously.
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue get-create-meta`** - Returns details of projects, issue types within projects, and, when requested, the create screen fields for each issue type for the user. Use the information to populate the requests in [ Create issue](#api-rest-api-3-issue-post) and [Create issues](#api-rest-api-3-issue-bulk-post).
+- **`jira-pp-cli issue get-create-meta`** - Returns details of projects, issue types within projects, and, when requested, the create screen fields for each issue type for the user. Use the information to populate the requests in [ Create issue](#api-rest-api-3-issue-post) and [Create issues](#api-rest-api-3-issue-bulk-post).
 
 Deprecated, see [Create Issue Meta Endpoint Deprecation Notice](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-1304).
 
@@ -1332,17 +1332,17 @@ The request can be restricted to specific projects or issue types using the quer
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Create issues* [project permission](https://confluence.atlassian.com/x/yodKLg) in the requested projects.
-- **`jira-cloud-platform-pp-cli issue get-create-meta-type-id`** - Returns a page of field metadata for a specified project and issuetype id. Use the information to populate the requests in [ Create issue](#api-rest-api-3-issue-post) and [Create issues](#api-rest-api-3-issue-bulk-post).
+- **`jira-pp-cli issue get-create-meta-type-id`** - Returns a page of field metadata for a specified project and issuetype id. Use the information to populate the requests in [ Create issue](#api-rest-api-3-issue-post) and [Create issues](#api-rest-api-3-issue-bulk-post).
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Create issues* [project permission](https://confluence.atlassian.com/x/yodKLg) in the requested projects.
-- **`jira-cloud-platform-pp-cli issue get-create-meta-types`** - Returns a page of issue type metadata for a specified project. Use the information to populate the requests in [ Create issue](#api-rest-api-3-issue-post) and [Create issues](#api-rest-api-3-issue-bulk-post).
+- **`jira-pp-cli issue get-create-meta-types`** - Returns a page of issue type metadata for a specified project. Use the information to populate the requests in [ Create issue](#api-rest-api-3-issue-post) and [Create issues](#api-rest-api-3-issue-bulk-post).
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Create issues* [project permission](https://confluence.atlassian.com/x/yodKLg) in the requested projects.
-- **`jira-cloud-platform-pp-cli issue get-is-watching-bulk`** - Returns, for the user, details of the watched status of issues from a list. If an issue ID is invalid, the returned watched status is `false`.
+- **`jira-pp-cli issue get-is-watching-bulk`** - Returns, for the user, details of the watched status of issues from a list. If an issue ID is invalid, the returned watched status is `false`.
 
 This operation requires the **Allow users to watch issues** option to be *ON*. This option is set in General configuration for Jira. See [Configuring Jira application options](https://confluence.atlassian.com/x/uYXKM) for details.
 
@@ -1350,13 +1350,13 @@ This operation requires the **Allow users to watch issues** option to be *ON*. T
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli issue get-limit-report`** - Returns all issues breaching and approaching per-issue limits.
+- **`jira-pp-cli issue get-limit-report`** - Returns all issues breaching and approaching per-issue limits.
 
 **[Permissions](#permissions) required:**
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) is required for the project the issues are in. Results may be incomplete otherwise
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issue get-picker-resource`** - Returns lists of issues matching a query string. Use this resource to provide auto-completion suggestions when the user is looking for an issue using a word or string.
+- **`jira-pp-cli issue get-picker-resource`** - Returns lists of issues matching a query string. Use this resource to provide auto-completion suggestions when the user is looking for an issue using a word or string.
 
 This operation returns two lists:
 
@@ -1366,7 +1366,7 @@ This operation returns two lists:
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli issue unarchive`** - Enables admins to unarchive up to 1000 issues in a single request using issue ID/key, returning details of the issue(s) unarchived in the process and the errors encountered, if any.
+- **`jira-pp-cli issue unarchive`** - Enables admins to unarchive up to 1000 issues in a single request using issue ID/key, returning details of the issue(s) unarchived in the process and the errors encountered, if any.
 
 **Note that:**
 
@@ -1385,7 +1385,7 @@ This resource represents links between issues. Use it to get, create, and delete
 
 To use it, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
-- **`jira-cloud-platform-pp-cli issue-link delete`** - Deletes an issue link.
+- **`jira-pp-cli issue-link delete`** - Deletes an issue link.
 
 This operation can be accessed anonymously.
 
@@ -1394,7 +1394,7 @@ This operation can be accessed anonymously.
  *  Browse project [project permission](https://confluence.atlassian.com/x/yodKLg) for all the projects containing the issues in the link.
  *  *Link issues* [project permission](https://confluence.atlassian.com/x/yodKLg) for at least one of the projects containing issues in the link.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, permission to view both of the issues.
-- **`jira-cloud-platform-pp-cli issue-link get`** - Returns an issue link.
+- **`jira-pp-cli issue-link get`** - Returns an issue link.
 
 This operation can be accessed anonymously.
 
@@ -1402,7 +1402,7 @@ This operation can be accessed anonymously.
 
  *  *Browse project* [project permission](https://confluence.atlassian.com/x/yodKLg) for all the projects containing the linked issues.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, permission to view both of the issues.
-- **`jira-cloud-platform-pp-cli issue-link link-issues`** - Creates a link between two issues. Use this operation to indicate a relationship between two issues and optionally add a comment to the from (outward) issue. To use this resource the site must have [Issue Linking](https://confluence.atlassian.com/x/yoXKM) enabled.
+- **`jira-pp-cli issue-link link-issues`** - Creates a link between two issues. Use this operation to indicate a relationship between two issues and optionally add a comment to the from (outward) issue. To use this resource the site must have [Issue Linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
 This resource returns nothing on the creation of an issue link. To obtain the ID of the issue link, use `https://your-domain.atlassian.net/rest/api/3/issue/[linked issue key]?fields=issuelinks`.
 
@@ -1423,31 +1423,31 @@ This resource represents [issue link](#api-group-Issue-links) types. Use it to g
 
 To use it, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
-- **`jira-cloud-platform-pp-cli issue-link-type create`** - Creates an issue link type. Use this operation to create descriptions of the reasons why issues are linked. The issue link type consists of a name and descriptions for a link's inward and outward relationships.
+- **`jira-pp-cli issue-link-type create`** - Creates an issue link type. Use this operation to create descriptions of the reasons why issues are linked. The issue link type consists of a name and descriptions for a link's inward and outward relationships.
 
 To use this operation, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issue-link-type delete`** - Deletes an issue link type.
+- **`jira-pp-cli issue-link-type delete`** - Deletes an issue link type.
 
 To use this operation, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issue-link-type get`** - Returns a list of all issue link types.
+- **`jira-pp-cli issue-link-type get`** - Returns a list of all issue link types.
 
 To use this operation, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for a project in the site.
-- **`jira-cloud-platform-pp-cli issue-link-type get-issuelinktype`** - Returns an issue link type.
+- **`jira-pp-cli issue-link-type get-issuelinktype`** - Returns an issue link type.
 
 To use this operation, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for a project in the site.
-- **`jira-cloud-platform-pp-cli issue-link-type update`** - Updates an issue link type.
+- **`jira-pp-cli issue-link-type update`** - Updates an issue link type.
 
 To use this operation, the site must have [issue linking](https://confluence.atlassian.com/x/yoXKM) enabled.
 
@@ -1469,7 +1469,7 @@ This resource represents Jira issues. Use it to:
  *  Unarchive issues.
  *  Export archived issues.
 
-- **`jira-cloud-platform-pp-cli issues export-archived`** - Enables admins to retrieve details of all archived issues. Upon a successful request, the admin who submitted it will receive an email with a link to download a CSV file with the issue details.
+- **`jira-pp-cli issues export-archived`** - Enables admins to retrieve details of all archived issues. Upon a successful request, the admin who submitted it will receive an email with a link to download a CSV file with the issue details.
 
 Note that this API only exports the values of system fields and archival-specific fields (`ArchivedBy` and `ArchivedDate`). Custom fields aren't supported.
 
@@ -1485,51 +1485,51 @@ Note that this API only exports the values of system fields and archival-specifi
 
 Manage issuesecurityschemes
 
-- **`jira-cloud-platform-pp-cli issuesecurityschemes associate-schemes-to-projects`** - Associates an issue security scheme with a project and remaps security levels of issues to the new levels, if provided.
+- **`jira-pp-cli issuesecurityschemes associate-schemes-to-projects`** - Associates an issue security scheme with a project and remaps security levels of issues to the new levels, if provided.
 
 This operation is [asynchronous](#async). Follow the `location` link in the response to determine the status of the task and use [Get task](#api-rest-api-3-task-taskId-get) to obtain subsequent updates.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes create-issue-security-scheme`** - Creates a security scheme with security scheme levels and levels' members. You can create up to 100 security scheme levels and security scheme levels' members per request.
+- **`jira-pp-cli issuesecurityschemes create-issue-security-scheme`** - Creates a security scheme with security scheme levels and levels' members. You can create up to 100 security scheme levels and security scheme levels' members per request.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes delete-security-scheme`** - Deletes an issue security scheme.
+- **`jira-pp-cli issuesecurityschemes delete-security-scheme`** - Deletes an issue security scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes get-issue-security-scheme`** - Returns an issue security scheme along with its security levels.
+- **`jira-pp-cli issuesecurityschemes get-issue-security-scheme`** - Returns an issue security scheme along with its security levels.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
  *  *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for a project that uses the requested issue security scheme.
-- **`jira-cloud-platform-pp-cli issuesecurityschemes get-issue-security-schemes`** - Returns all [issue security schemes](https://confluence.atlassian.com/x/J4lKLg).
+- **`jira-pp-cli issuesecurityschemes get-issue-security-schemes`** - Returns all [issue security schemes](https://confluence.atlassian.com/x/J4lKLg).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes get-security-level-members`** - Returns a [paginated](#pagination) list of issue security level members.
+- **`jira-pp-cli issuesecurityschemes get-security-level-members`** - Returns a [paginated](#pagination) list of issue security level members.
 
 Only issue security level members in the context of classic projects are returned.
 
 Filtering using parameters is inclusive: if you specify both security scheme IDs and level IDs, the result will include all issue security level members from the specified schemes and levels.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes get-security-levels`** - Returns a [paginated](#pagination) list of issue security levels.
+- **`jira-pp-cli issuesecurityschemes get-security-levels`** - Returns a [paginated](#pagination) list of issue security levels.
 
 Only issue security levels in the context of classic projects are returned.
 
 Filtering using IDs is inclusive: if you specify both security scheme IDs and level IDs, the result will include both specified issue security levels and all issue security levels from the specified schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes search-projects-using-security-schemes`** - Returns a [paginated](#pagination) mapping of projects that are using security schemes. You can provide either one or multiple security scheme IDs or project IDs to filter by. If you don't provide any, this will return a list of all mappings. Only issue security schemes in the context of classic projects are supported. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes search-security-schemes`** - Returns a [paginated](#pagination) list of issue security schemes.  
+- **`jira-pp-cli issuesecurityschemes search-projects-using-security-schemes`** - Returns a [paginated](#pagination) mapping of projects that are using security schemes. You can provide either one or multiple security scheme IDs or project IDs to filter by. If you don't provide any, this will return a list of all mappings. Only issue security schemes in the context of classic projects are supported. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
+- **`jira-pp-cli issuesecurityschemes search-security-schemes`** - Returns a [paginated](#pagination) list of issue security schemes.  
 If you specify the project ID parameter, the result will contain issue security schemes and related project IDs you filter by. Use \{@link IssueSecuritySchemeResource\#searchProjectsUsingSecuritySchemes(String, String, Set, Set)\} to obtain all projects related to scheme.
 
 Only issue security schemes in the context of classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes set-default-levels`** - Sets default issue security levels for schemes.
+- **`jira-pp-cli issuesecurityschemes set-default-levels`** - Sets default issue security levels for schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuesecurityschemes update-issue-security-scheme`** - Updates the issue security scheme.
+- **`jira-pp-cli issuesecurityschemes update-issue-security-scheme`** - Updates the issue security scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -1537,13 +1537,13 @@ Only issue security schemes in the context of classic projects are returned.
 
 Manage issuetype
 
-- **`jira-cloud-platform-pp-cli issuetype create-issue-type`** - Creates an issue type.
+- **`jira-pp-cli issuetype create-issue-type`** - Creates an issue type.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetype delete-issue-type`** - Deletes the issue type. If the issue type is in use, all uses are updated with the alternative issue type (`alternativeIssueTypeId`). A list of alternative issue types are obtained from the [Get alternative issue types](#api-rest-api-3-issuetype-id-alternatives-get) resource.
+- **`jira-pp-cli issuetype delete-issue-type`** - Deletes the issue type. If the issue type is in use, all uses are updated with the alternative issue type (`alternativeIssueTypeId`). A list of alternative issue types are obtained from the [Get alternative issue types](#api-rest-api-3-issuetype-id-alternatives-get) resource.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetype get-issue-all-types`** - Returns all issue types.
+- **`jira-pp-cli issuetype get-issue-all-types`** - Returns all issue types.
 
 This operation can be accessed anonymously.
 
@@ -1553,17 +1553,17 @@ This operation can be accessed anonymously.
  *  if the user has the *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for one or more projects, the issue types associated with the projects the user has permission to browse are returned.
  *  if the user is anonymous then they will be able to access projects with the *Browse projects* for anonymous users
  *  if the user authentication is incorrect they will fall back to anonymous
-- **`jira-cloud-platform-pp-cli issuetype get-issue-type`** - Returns an issue type.
+- **`jira-pp-cli issuetype get-issue-type`** - Returns an issue type.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) in a project the issue type is associated with or *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetype get-issue-types-for-project`** - Returns issue types for a project.
+- **`jira-pp-cli issuetype get-issue-types-for-project`** - Returns issue types for a project.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) in the relevant project or *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetype update-issue-type`** - Updates the issue type.
+- **`jira-pp-cli issuetype update-issue-type`** - Updates the issue type.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -1571,39 +1571,39 @@ This operation can be accessed anonymously.
 
 Manage issuetypescheme
 
-- **`jira-cloud-platform-pp-cli issuetypescheme assign-issue-type-scheme-to-project`** - Assigns an issue type scheme to a project.
+- **`jira-pp-cli issuetypescheme assign-issue-type-scheme-to-project`** - Assigns an issue type scheme to a project.
 
 If any issues in the project are assigned issue types not present in the new scheme, the operation will fail. To complete the assignment those issues must be updated to use issue types in the new scheme.
 
 Issue type schemes can only be assigned to classic projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescheme create-issue-type-scheme`** - Creates an issue type scheme.
+- **`jira-pp-cli issuetypescheme create-issue-type-scheme`** - Creates an issue type scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescheme delete-issue-type-scheme`** - Deletes an issue type scheme.
+- **`jira-pp-cli issuetypescheme delete-issue-type-scheme`** - Deletes an issue type scheme.
 
 Only issue type schemes used in classic projects can be deleted. Only issue type schemes not associated with a project can be deleted
 
 A validation error will be returned if the specified scheme is associated with one or more projects. Use [Get issue type scheme API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-type-schemes/#api-rest-api-3-issuetypescheme-get) (with the projects expand, and id query parameter) to get a list of projects. Then, use [Assign issue type scheme to project API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-type-schemes/#api-rest-api-3-issuetypescheme-project-put) to associate all projects to another scheme before deleting.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescheme get-all-issue-type-schemes`** - Returns a [paginated](#pagination) list of issue type schemes.
+- **`jira-pp-cli issuetypescheme get-all-issue-type-schemes`** - Returns a [paginated](#pagination) list of issue type schemes.
 
 Only issue type schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescheme get-issue-type-scheme-for-projects`** - Returns a [paginated](#pagination) list of issue type schemes and, for each issue type scheme, a list of the projects that use it.
+- **`jira-pp-cli issuetypescheme get-issue-type-scheme-for-projects`** - Returns a [paginated](#pagination) list of issue type schemes and, for each issue type scheme, a list of the projects that use it.
 
 Only issue type schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescheme get-issue-type-schemes-mapping`** - Returns a [paginated](#pagination) list of issue type scheme items.
+- **`jira-pp-cli issuetypescheme get-issue-type-schemes-mapping`** - Returns a [paginated](#pagination) list of issue type scheme items.
 
 Only issue type scheme items used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescheme update-issue-type-scheme`** - Updates an issue type scheme.
+- **`jira-pp-cli issuetypescheme update-issue-type-scheme`** - Updates an issue type scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -1611,41 +1611,41 @@ Only issue type scheme items used in classic projects are returned.
 
 Manage issuetypescreenscheme
 
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme assign-issue-type-screen-scheme-to-project`** - Assigns an issue type screen scheme to a project.
+- **`jira-pp-cli issuetypescreenscheme assign-issue-type-screen-scheme-to-project`** - Assigns an issue type screen scheme to a project.
 
 Issue type screen schemes can only be assigned to classic projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme create-issue-type-screen-scheme`** - Creates an issue type screen scheme.
+- **`jira-pp-cli issuetypescreenscheme create-issue-type-screen-scheme`** - Creates an issue type screen scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme delete-issue-type-screen-scheme`** - Deletes an issue type screen scheme.
+- **`jira-pp-cli issuetypescreenscheme delete-issue-type-screen-scheme`** - Deletes an issue type screen scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme get-issue-type-screen-scheme-mappings`** - Returns a [paginated](#pagination) list of issue type screen scheme items.
+- **`jira-pp-cli issuetypescreenscheme get-issue-type-screen-scheme-mappings`** - Returns a [paginated](#pagination) list of issue type screen scheme items.
 
 Only issue type screen schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme get-issue-type-screen-scheme-project-associations`** - Returns a [paginated](#pagination) list of issue type screen schemes and, for each issue type screen scheme, a list of the projects that use it.
+- **`jira-pp-cli issuetypescreenscheme get-issue-type-screen-scheme-project-associations`** - Returns a [paginated](#pagination) list of issue type screen schemes and, for each issue type screen scheme, a list of the projects that use it.
 
 Only issue type screen schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme get-issue-type-screen-schemes`** - Returns a [paginated](#pagination) list of issue type screen schemes.
+- **`jira-pp-cli issuetypescreenscheme get-issue-type-screen-schemes`** - Returns a [paginated](#pagination) list of issue type screen schemes.
 
 Only issue type screen schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli issuetypescreenscheme update-issue-type-screen-scheme`** - Updates an issue type screen scheme.
+- **`jira-pp-cli issuetypescreenscheme update-issue-type-screen-scheme`** - Updates an issue type screen scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
-### jira-cloud-platform-search
+### jira-search
 
 Manage jira cloud platform search
 
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-search and-reconsile-issues-using-jql`** - Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned search results. If you need [read-after-write](https://developer.atlassian.com/cloud/jira/platform/search-and-reconcile/) consistency, you can utilize the `reconcileIssues` parameter to ensure stronger consistency assurances. This operation can be accessed anonymously.
+- **`jira-pp-cli jira-search and-reconsile-issues-using-jql`** - Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned search results. If you need [read-after-write](https://developer.atlassian.com/cloud/jira/platform/search-and-reconcile/) consistency, you can utilize the `reconcileIssues` parameter to ensure stronger consistency assurances. This operation can be accessed anonymously.
 
 If the JQL query expression is too large to be encoded as a query parameter, use the [POST](#api-rest-api-3-search-post) version of this resource.
 
@@ -1653,13 +1653,13 @@ If the JQL query expression is too large to be encoded as a query parameter, use
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-search and-reconsile-issues-using-jql-post`** - Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned search results. If you need [read-after-write](https://developer.atlassian.com/cloud/jira/platform/search-and-reconcile/) consistency, you can utilize the `reconcileIssues` parameter to ensure stronger consistency assurances. This operation can be accessed anonymously.
+- **`jira-pp-cli jira-search and-reconsile-issues-using-jql-post`** - Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned search results. If you need [read-after-write](https://developer.atlassian.com/cloud/jira/platform/search-and-reconcile/) consistency, you can utilize the `reconcileIssues` parameter to ensure stronger consistency assurances. This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** Issues are included in the response where the user has:
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-search count-issues`** - Provide an estimated count of the issues that match the [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned output. This endpoint requires JQL to be bounded.
+- **`jira-pp-cli jira-search count-issues`** - Provide an estimated count of the issues that match the [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned output. This endpoint requires JQL to be bounded.
 
 This operation can be accessed anonymously.
 
@@ -1667,7 +1667,7 @@ This operation can be accessed anonymously.
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-search for-issues-using-jql`** - Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)
+- **`jira-pp-cli jira-search for-issues-using-jql`** - Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)
 
 Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ).
 
@@ -1679,7 +1679,7 @@ This operation can be accessed anonymously.
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-search for-issues-using-jql-post`** - Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)
+- **`jira-pp-cli jira-search for-issues-using-jql-post`** - Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046)
 
 Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ).
 
@@ -1692,16 +1692,16 @@ This operation can be accessed anonymously.
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
 
-### jira-cloud-platform-version
+### jira-version
 
 Manage jira cloud platform version
 
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-version create`** - Creates a project version.
+- **`jira-pp-cli jira-version create`** - Creates a project version.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project the version is added to.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-version delete`** - Deletes a project version.
+- **`jira-pp-cli jira-version delete`** - Deletes a project version.
 
 Deprecated, use [ Delete and replace version](#api-rest-api-3-version-id-removeAndSwap-post) that supports swapping version values in custom fields, in addition to the swapping for `fixVersion` and `affectedVersion` provided in this resource.
 
@@ -1710,27 +1710,27 @@ Alternative versions can be provided to update issues that use the deleted versi
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-version get`** - Returns a project version.
+- **`jira-pp-cli jira-version get`** - Returns a project version.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the version.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-version update`** - Updates a project version.
+- **`jira-pp-cli jira-version update`** - Updates a project version.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version.
 
-### jira-cloud-platform-workflow
+### jira-workflow
 
 Manage jira cloud platform workflow
 
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow create-transition-property`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); add transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead.
+- **`jira-pp-cli jira-workflow create-transition-property`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); add transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead.
 
 Adds a property to a workflow transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow delete-inactive`** - Deletes a workflow.
+- **`jira-pp-cli jira-workflow delete-inactive`** - Deletes a workflow.
 
 The workflow cannot be deleted if it is:
 
@@ -1740,12 +1740,12 @@ The workflow cannot be deleted if it is:
  *  associated with any draft workflow scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow delete-transition-property`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); delete transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead.
+- **`jira-pp-cli jira-workflow delete-transition-property`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); delete transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead.
 
 Deletes a property from a workflow transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow delete-transition-rule-configurations`** - Deletes workflow transition rules from one or more workflows. These rule types are supported:
+- **`jira-pp-cli jira-workflow delete-transition-rule-configurations`** - Deletes workflow transition rules from one or more workflows. These rule types are supported:
 
  *  [post functions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-post-function/)
  *  [conditions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-condition/)
@@ -1756,19 +1756,19 @@ Only rules created by the calling Connect app can be deleted.
 **Note:** The `draft` parameter in the request body WorkflowId is deprecated and will be removed from this API on [November 2, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-3147).
 
 **[Permissions](#permissions) required:** Only Connect apps can use this operation.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow get-paginated`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2569); use [Search workflows](#api-rest-api-3-workflows-search-get) instead.
+- **`jira-pp-cli jira-workflow get-paginated`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2569); use [Search workflows](#api-rest-api-3-workflows-search-get) instead.
 
 Returns a [paginated](#pagination) list of published classic workflows. When workflow names are specified, details of those workflows are returned. Otherwise, all published classic workflows are returned.
 
 This operation does not return next-gen workflows.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow get-transition-properties`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); fetch transition properties from [Bulk get workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-post) instead.
+- **`jira-pp-cli jira-workflow get-transition-properties`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); fetch transition properties from [Bulk get workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-post) instead.
 
 Returns the properties on a workflow transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow get-transition-rule-configurations`** - Returns a [paginated](#pagination) list of workflows with transition rules. The workflows can be filtered to return only those containing workflow transition rules:
+- **`jira-pp-cli jira-workflow get-transition-rule-configurations`** - Returns a [paginated](#pagination) list of workflows with transition rules. The workflows can be filtered to return only those containing workflow transition rules:
 
  *  of one or more transition rule types, such as [workflow post functions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-post-function/).
  *  matching one or more transition rule keys.
@@ -1778,7 +1778,7 @@ Only workflows containing transition rules created by the calling [Connect](http
 Due to server-side optimizations, workflows with an empty list of rules may be returned; these workflows can be ignored.
 
 **[Permissions](#permissions) required:** Only [Connect](https://developer.atlassian.com/cloud/jira/platform/index/#connect-apps) or [Forge](https://developer.atlassian.com/cloud/jira/platform/index/#forge-apps) apps can use this operation.
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow list-history`** - Returns a list of workflow history entries for a specified workflow id.
+- **`jira-pp-cli jira-workflow list-history`** - Returns a list of workflow history entries for a specified workflow id.
 
 **Note:** Stored workflow data expires after 60 days. Additionally, no data from before the 30th of October 2025 is available.
 
@@ -1786,7 +1786,7 @@ Due to server-side optimizations, workflows with an empty list of rules may be r
 
  *  *Administer Jira* global permission to access all, including project-scoped, workflows
  *  At least one of the *Administer projects* and *View (read-only) workflow* project permissions to access project-scoped workflows
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow read-from-history`** - Returns a workflow and related statuses for a specified workflow id and version number.
+- **`jira-pp-cli jira-workflow read-from-history`** - Returns a workflow and related statuses for a specified workflow id and version number.
 
 **Note:** Stored workflow data expires after 60 days. Additionally, no data from before the 30th of October 2025 is available.
 
@@ -1794,12 +1794,12 @@ Due to server-side optimizations, workflows with an empty list of rules may be r
 
  *  *Administer Jira* global permission to access all, including project-scoped, workflows
  *  At least one of the *Administer projects* and *View (read-only) workflow* project permissions to access project-scoped workflows
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow update-transition-property`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); update transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead.
+- **`jira-pp-cli jira-workflow update-transition-property`** - This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); update transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead.
 
 Updates a workflow transition by changing the property value. Trying to update a property that does not exist results in a new property being added to the transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jira-cloud-platform-workflow update-transition-rule-configurations`** - Updates configuration of workflow transition rules. The following rule types are supported:
+- **`jira-pp-cli jira-workflow update-transition-rule-configurations`** - Updates configuration of workflow transition rules. The following rule types are supported:
 
  *  [post functions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-post-function/)
  *  [conditions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-condition/)
@@ -1825,21 +1825,21 @@ This resource represents JQL search auto-complete details. Use it to obtain JQL 
  *  convert one or more JQL queries with user identifiers (username or user key) to equivalent JQL queries with account IDs.
  *  convert readable details in one or more JQL queries to IDs where a user doesn't have permission to view the entity whose details are readable.
 
-- **`jira-cloud-platform-pp-cli jql get-auto-complete`** - Returns reference data for JQL searches. This is a downloadable version of the documentation provided in [Advanced searching - fields reference](https://confluence.atlassian.com/x/gwORLQ) and [Advanced searching - functions reference](https://confluence.atlassian.com/x/hgORLQ), along with a list of JQL-reserved words. Use this information to assist with the programmatic creation of JQL queries or the validation of queries built in a custom query builder.
+- **`jira-pp-cli jql get-auto-complete`** - Returns reference data for JQL searches. This is a downloadable version of the documentation provided in [Advanced searching - fields reference](https://confluence.atlassian.com/x/gwORLQ) and [Advanced searching - functions reference](https://confluence.atlassian.com/x/hgORLQ), along with a list of JQL-reserved words. Use this information to assist with the programmatic creation of JQL queries or the validation of queries built in a custom query builder.
 
 To filter visible field details by project or collapse non-unique fields by field type then [Get field reference data (POST)](#api-rest-api-3-jql-autocompletedata-post) can be used.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli jql get-auto-complete-post`** - Returns reference data for JQL searches. This is a downloadable version of the documentation provided in [Advanced searching - fields reference](https://confluence.atlassian.com/x/gwORLQ) and [Advanced searching - functions reference](https://confluence.atlassian.com/x/hgORLQ), along with a list of JQL-reserved words. Use this information to assist with the programmatic creation of JQL queries or the validation of queries built in a custom query builder.
+- **`jira-pp-cli jql get-auto-complete-post`** - Returns reference data for JQL searches. This is a downloadable version of the documentation provided in [Advanced searching - fields reference](https://confluence.atlassian.com/x/gwORLQ) and [Advanced searching - functions reference](https://confluence.atlassian.com/x/hgORLQ), along with a list of JQL-reserved words. Use this information to assist with the programmatic creation of JQL queries or the validation of queries built in a custom query builder.
 
 This operation can filter the custom fields returned by project. Invalid project IDs in `projectIds` are ignored. System fields are always returned.
 
 It can also return the collapsed field for custom fields. Collapsed fields enable searches to be performed across all fields with the same name and of the same field type. For example, the collapsed field `Component - Component[Dropdown]` enables dropdown fields `Component - cf[10061]` and `Component - cf[10062]` to be searched simultaneously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli jql get-field-auto-complete-for-query-string`** - Returns the JQL search auto complete suggestions for a field.
+- **`jira-pp-cli jql get-field-auto-complete-for-query-string`** - Returns the JQL search auto complete suggestions for a field.
 
 Suggestions can be obtained by providing:
 
@@ -1851,35 +1851,35 @@ Suggestions can be obtained by providing:
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli jql get-precomputations`** - Returns the list of a function's precomputations along with information about when they were created, updated, and last used. Each precomputation has a `value` \- the JQL fragment to replace the custom function clause with.
+- **`jira-pp-cli jql get-precomputations`** - Returns the list of a function's precomputations along with information about when they were created, updated, and last used. Each precomputation has a `value` \- the JQL fragment to replace the custom function clause with.
 
 **[Permissions](#permissions) required:** This API is only accessible to apps and apps can only inspect their own functions.
 
 The new `read:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli jql get-precomputations-by-id`** - Returns function precomputations by IDs, along with information about when they were created, updated, and last used. Each precomputation has a `value` \- the JQL fragment to replace the custom function clause with.
+- **`jira-pp-cli jql get-precomputations-by-id`** - Returns function precomputations by IDs, along with information about when they were created, updated, and last used. Each precomputation has a `value` \- the JQL fragment to replace the custom function clause with.
 
 **[Permissions](#permissions) required:** This API is only accessible to apps and apps can only inspect their own functions.
 
 The new `read:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli jql match-issues`** - Checks whether one or more issues would be returned by one or more JQL queries.
+- **`jira-pp-cli jql match-issues`** - Checks whether one or more issues would be returned by one or more JQL queries.
 
 **[Permissions](#permissions) required:** None, however, issues are only matched against JQL queries where the user has:
 
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that the issue is in.
  *  If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue.
-- **`jira-cloud-platform-pp-cli jql migrate-queries`** - Converts one or more JQL queries with user identifiers (username or user key) to equivalent JQL queries with account IDs.
+- **`jira-pp-cli jql migrate-queries`** - Converts one or more JQL queries with user identifiers (username or user key) to equivalent JQL queries with account IDs.
 
 You may wish to use this operation if your system stores JQL queries and you want to make them GDPR-compliant. For more information about GDPR-related changes, see the [migration guide](https://developer.atlassian.com/cloud/jira/platform/deprecation-notice-user-privacy-api-migration-guide/).
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli jql parse-queries`** - Parses and validates JQL queries.
+- **`jira-pp-cli jql parse-queries`** - Parses and validates JQL queries.
 
 Validation is performed in context of the current user.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli jql sanitise-queries`** - Sanitizes one or more JQL queries by converting readable details into IDs where a user doesn't have permission to view the entity.
+- **`jira-pp-cli jql sanitise-queries`** - Sanitizes one or more JQL queries by converting readable details into IDs where a user doesn't have permission to view the entity.
 
 For example, if the query contains the clause *project = 'Secret project'*, and a user does not have browse permission for the project "Secret project", the sanitized query replaces the clause with *project = 12345"* (where 12345 is the ID of the project). If a user has the required permission, the clause is not sanitized. If the account ID is null, sanitizing is performed for an anonymous user.
 
@@ -1888,7 +1888,7 @@ Note that sanitization doesn't make the queries GDPR-compliant, because it doesn
 Before sanitization each JQL query is parsed. The queries are returned in the same order that they were passed.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli jql update-precomputations`** - Update the precomputation value of a function created by a Forge/Connect app.
+- **`jira-pp-cli jql update-precomputations`** - Update the precomputation value of a function created by a Forge/Connect app.
 
 **[Permissions](#permissions) required:** An API for apps to update their own precomputations.
 
@@ -1898,16 +1898,16 @@ The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it
 
 This resource represents available labels. Use it to get available labels for the global label field.
 
-- **`jira-cloud-platform-pp-cli label get-all`** - Returns a [paginated](#pagination) list of labels.
+- **`jira-pp-cli label get-all`** - Returns a [paginated](#pagination) list of labels.
 
 ### license
 
 Manage license
 
-- **`jira-cloud-platform-pp-cli license get-approximate-application-count`** - Returns the total approximate number of user accounts for a single Jira license. Note that this information is cached with a 7-day lifecycle and could be stale at the time of call.
+- **`jira-pp-cli license get-approximate-application-count`** - Returns the total approximate number of user accounts for a single Jira license. Note that this information is cached with a 7-day lifecycle and could be stale at the time of call.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli license get-approximate-count`** - Returns the approximate number of user accounts across all Jira licenses. Note that this information is cached with a 7-day lifecycle and could be stale at the time of call.
+- **`jira-pp-cli license get-approximate-count`** - Returns the approximate number of user accounts across all Jira licenses. Note that this information is cached with a 7-day lifecycle and could be stale at the time of call.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -1915,7 +1915,7 @@ Manage license
 
 Manage mypermissions
 
-- **`jira-cloud-platform-pp-cli mypermissions get-my-permissions`** - Returns a list of permissions indicating which permissions the user has. Details of the user's permissions can be obtained in a global, project, issue or comment context.
+- **`jira-pp-cli mypermissions get-my-permissions`** - Returns a list of permissions indicating which permissions the user has. Details of the user's permissions can be obtained in a global, project, issue or comment context.
 
 The user is reported as having a project permission:
 
@@ -1938,14 +1938,14 @@ This operation can be accessed anonymously.
 
 Manage mypreferences
 
-- **`jira-cloud-platform-pp-cli mypreferences get-locale`** - Returns the locale for the user.
+- **`jira-pp-cli mypreferences get-locale`** - Returns the locale for the user.
 
 If the user has no language preference set (which is the default setting) or this resource is accessed anonymous, the browser locale detected by Jira is returned. Jira detects the browser locale using the *Accept-Language* header in the request. However, if this doesn't match a locale available Jira, the site default locale is returned.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli mypreferences get-preference`** - Returns the value of a preference of the current user.
+- **`jira-pp-cli mypreferences get-preference`** - Returns the value of a preference of the current user.
 
 Note that these keys are deprecated:
 
@@ -1962,7 +1962,7 @@ These system preferences keys will be deprecated by 15/07/2024. You can still re
 Use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-management/rest/#api-users-account-id-manage-profile-patch) from the user management REST API to manage timezone and locale instead.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli mypreferences remove-preference`** - Deletes a preference of the user, which restores the default value of system defined settings.
+- **`jira-pp-cli mypreferences remove-preference`** - Deletes a preference of the user, which restores the default value of system defined settings.
 
 Note that these keys are deprecated:
 
@@ -1972,12 +1972,12 @@ Note that these keys are deprecated:
 Use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-management/rest/#api-users-account-id-manage-profile-patch) from the user management REST API to manage timezone and locale instead.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli mypreferences set-locale`** - Deprecated, use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-management/rest/#api-users-account-id-manage-profile-patch) from the user management REST API instead.
+- **`jira-pp-cli mypreferences set-locale`** - Deprecated, use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-management/rest/#api-users-account-id-manage-profile-patch) from the user management REST API instead.
 
 Sets the locale of the user. The locale must be one supported by the instance of Jira.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli mypreferences set-preference`** - Creates a preference for the user or updates a preference's value by sending a plain text string. For example, `false`. An arbitrary preference can be created with the value containing up to 255 characters. In addition, the following keys define system preferences that can be set or created:
+- **`jira-pp-cli mypreferences set-preference`** - Creates a preference for the user or updates a preference's value by sending a plain text string. For example, `false`. An arbitrary preference can be created with the value containing up to 255 characters. In addition, the following keys define system preferences that can be set or created:
 
  *  *user.notifications.mimetype* The mime type used in notifications sent to the user. Defaults to `html`.
  *  *user.default.share.private* Whether new [ filters](https://confluence.atlassian.com/x/eQiiLQ) are set to private. Defaults to `true`.
@@ -2005,7 +2005,7 @@ Use [ Update a user profile](https://developer.atlassian.com/cloud/admin/user-ma
 
 This resource represents information about the current user, such as basic details, group membership, application roles, preferences, and locale. Use it to get, create, update, and delete (restore default) values of the user's preferences and locale.
 
-- **`jira-cloud-platform-pp-cli myself get-current-user`** - Returns details for the current user.
+- **`jira-pp-cli myself get-current-user`** - Returns details for the current user.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
 
@@ -2013,24 +2013,24 @@ This resource represents information about the current user, such as basic detai
 
 Manage notificationscheme
 
-- **`jira-cloud-platform-pp-cli notificationscheme create-notification-scheme`** - Creates a notification scheme with notifications. You can create up to 1000 notifications per request.
+- **`jira-pp-cli notificationscheme create-notification-scheme`** - Creates a notification scheme with notifications. You can create up to 1000 notifications per request.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli notificationscheme delete-notification-scheme`** - Deletes a notification scheme.
+- **`jira-pp-cli notificationscheme delete-notification-scheme`** - Deletes a notification scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli notificationscheme get-notification-scheme`** - Returns a [notification scheme](https://confluence.atlassian.com/x/8YdKLg), including the list of events and the recipients who will receive notifications for those events.
+- **`jira-pp-cli notificationscheme get-notification-scheme`** - Returns a [notification scheme](https://confluence.atlassian.com/x/8YdKLg), including the list of events and the recipients who will receive notifications for those events.
 
 **[Permissions](#permissions) required:** Permission to access Jira, however, the user must have permission to administer at least one project associated with the notification scheme.
-- **`jira-cloud-platform-pp-cli notificationscheme get-notification-scheme-to-project-mappings`** - Returns a [paginated](#pagination) mapping of project that have notification scheme assigned. You can provide either one or multiple notification scheme IDs or project IDs to filter by. If you don't provide any, this will return a list of all mappings. Note that only company-managed (classic) projects are supported. This is because team-managed projects don't have a concept of a default notification scheme. The mappings are ordered by projectId.
+- **`jira-pp-cli notificationscheme get-notification-scheme-to-project-mappings`** - Returns a [paginated](#pagination) mapping of project that have notification scheme assigned. You can provide either one or multiple notification scheme IDs or project IDs to filter by. If you don't provide any, this will return a list of all mappings. Note that only company-managed (classic) projects are supported. This is because team-managed projects don't have a concept of a default notification scheme. The mappings are ordered by projectId.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli notificationscheme get-notification-schemes`** - Returns a [paginated](#pagination) list of [notification schemes](https://confluence.atlassian.com/x/8YdKLg) ordered by the display name.
+- **`jira-pp-cli notificationscheme get-notification-schemes`** - Returns a [paginated](#pagination) list of [notification schemes](https://confluence.atlassian.com/x/8YdKLg) ordered by the display name.
 
 *Note that you should allow for events without recipients to appear in responses.*
 
 **[Permissions](#permissions) required:** Permission to access Jira, however, the user must have permission to administer at least one project associated with a notification scheme for it to be returned.
-- **`jira-cloud-platform-pp-cli notificationscheme update-notification-scheme`** - Updates a notification scheme.
+- **`jira-pp-cli notificationscheme update-notification-scheme`** - Updates a notification scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -2038,7 +2038,7 @@ Manage notificationscheme
 
 This resource represents permissions. Use it to obtain details of all permissions and determine whether the user has certain permissions.
 
-- **`jira-cloud-platform-pp-cli permissions get-all`** - Returns all permissions, including:
+- **`jira-pp-cli permissions get-all`** - Returns all permissions, including:
 
  *  global permissions.
  *  project permissions.
@@ -2047,7 +2047,7 @@ This resource represents permissions. Use it to obtain details of all permission
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli permissions get-bulk`** - Returns:
+- **`jira-pp-cli permissions get-bulk`** - Returns:
 
  *  for a list of global permissions, the global permissions granted to a user.
  *  for a list of project permissions and lists of projects and issues, for each project permission a list of the projects and issues a user can access or manipulate.
@@ -2069,7 +2069,7 @@ Note that:
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) to check the permissions for other users, otherwise none. However, Connect apps can make a call from the app server to the product to obtain permission details for any user, without admin permission. This Connect app ability doesn't apply to calls made using AP.request() in a browser.
-- **`jira-cloud-platform-pp-cli permissions get-permitted-projects`** - Returns all the projects where the user is granted a list of project permissions.
+- **`jira-pp-cli permissions get-permitted-projects`** - Returns all the projects where the user is granted a list of project permissions.
 
 This operation can be accessed anonymously.
 
@@ -2079,13 +2079,13 @@ This operation can be accessed anonymously.
 
 Manage permissionscheme
 
-- **`jira-cloud-platform-pp-cli permissionscheme create-permission-scheme`** - Creates a new permission scheme. You can create a permission scheme with or without defining a set of permission grants.
+- **`jira-pp-cli permissionscheme create-permission-scheme`** - Creates a new permission scheme. You can create a permission scheme with or without defining a set of permission grants.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli permissionscheme delete-permission-scheme`** - Deletes a permission scheme.
+- **`jira-pp-cli permissionscheme delete-permission-scheme`** - Deletes a permission scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli permissionscheme get-all-permission-schemes`** - Returns all permission schemes.
+- **`jira-pp-cli permissionscheme get-all-permission-schemes`** - Returns all permission schemes.
 
 ### About permission schemes and grants ###
 
@@ -2177,10 +2177,10 @@ The [built-in Jira permissions](https://confluence.atlassian.com/x/yodKLg) are l
  *  `WORK_ON_ISSUES`
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli permissionscheme get-permission-scheme`** - Returns a permission scheme.
+- **`jira-pp-cli permissionscheme get-permission-scheme`** - Returns a permission scheme.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli permissionscheme update-permission-scheme`** - Updates a permission scheme. Below are some important things to note when using this resource:
+- **`jira-pp-cli permissionscheme update-permission-scheme`** - Updates a permission scheme. Below are some important things to note when using this resource:
 
  *  If a permissions list is present in the request, then it is set in the permission scheme, overwriting *all existing* grants.
  *  If you want to update only the name and description, then do not send a permissions list in the request.
@@ -2196,46 +2196,46 @@ See [About permission schemes and grants](../api-group-permission-schemes/#about
 
 This resource represents plans. Use it to get, create, duplicate, update, trash and archive plans.
 
-- **`jira-cloud-platform-pp-cli plans add-atlassian-team`** - Adds an existing Atlassian team to a plan and configures their plannning settings.
+- **`jira-pp-cli plans add-atlassian-team`** - Adds an existing Atlassian team to a plan and configures their plannning settings.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans archive`** - Archives a plan.
+- **`jira-pp-cli plans archive`** - Archives a plan.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans create`** - Creates a plan.
+- **`jira-pp-cli plans create`** - Creates a plan.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans create-only-team`** - Creates a plan-only team and configures their planning settings.
+- **`jira-pp-cli plans create-only-team`** - Creates a plan-only team and configures their planning settings.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans delete-only-team`** - Deletes a plan-only team and their planning settings.
+- **`jira-pp-cli plans delete-only-team`** - Deletes a plan-only team and their planning settings.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans duplicate`** - Duplicates a plan.
+- **`jira-pp-cli plans duplicate`** - Duplicates a plan.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans get`** - Returns a [paginated](#pagination) list of plans.
+- **`jira-pp-cli plans get`** - Returns a [paginated](#pagination) list of plans.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans get-atlassian-team`** - Returns planning settings for an Atlassian team in a plan.
+- **`jira-pp-cli plans get-atlassian-team`** - Returns planning settings for an Atlassian team in a plan.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans get-only-team`** - Returns planning settings for a plan-only team.
+- **`jira-pp-cli plans get-only-team`** - Returns planning settings for a plan-only team.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans get-plan`** - Returns a plan.
+- **`jira-pp-cli plans get-plan`** - Returns a plan.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans get-teams`** - Returns a [paginated](#pagination) list of plan-only and Atlassian teams in a plan.
+- **`jira-pp-cli plans get-teams`** - Returns a [paginated](#pagination) list of plan-only and Atlassian teams in a plan.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans remove-atlassian-team`** - Removes an Atlassian team from a plan and deletes their planning settings.
+- **`jira-pp-cli plans remove-atlassian-team`** - Removes an Atlassian team from a plan and deletes their planning settings.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans trash`** - Moves a plan to trash.
+- **`jira-pp-cli plans trash`** - Moves a plan to trash.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli plans update`** - Updates any of the following details of a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902).
+- **`jira-pp-cli plans update`** - Updates any of the following details of a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902).
 
  *  name
  *  leadAccountId
@@ -2283,7 +2283,7 @@ This resource represents plans. Use it to get, create, duplicate, update, trash 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
 *Note that "add" operations do not respect array indexes in target locations. Call the "Get plan" endpoint to find out the order of array elements.*
-- **`jira-cloud-platform-pp-cli plans update-atlassian-team`** - Updates any of the following planning settings of an Atlassian team in a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902).
+- **`jira-pp-cli plans update-atlassian-team`** - Updates any of the following planning settings of an Atlassian team in a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902).
 
  *  planningStyle
  *  issueSourceId
@@ -2293,7 +2293,7 @@ This resource represents plans. Use it to get, create, duplicate, update, trash 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
 *Note that "add" operations do not respect array indexes in target locations. Call the "Get Atlassian team in plan" endpoint to find out the order of array elements.*
-- **`jira-cloud-platform-pp-cli plans update-only-team`** - Updates any of the following planning settings of a plan-only team using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902).
+- **`jira-pp-cli plans update-only-team`** - Updates any of the following planning settings of a plan-only team using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902).
 
  *  name
  *  planningStyle
@@ -2310,36 +2310,36 @@ This resource represents plans. Use it to get, create, duplicate, update, trash 
 
 Manage priority
 
-- **`jira-cloud-platform-pp-cli priority create`** - Creates an issue priority.
+- **`jira-pp-cli priority create`** - Creates an issue priority.
 
 Deprecation applies to iconUrl param in request body which will be sunset on 16th Mar 2025. For more details refer to [changelog](https://developer.atlassian.com/changelog/#CHANGE-1525).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli priority delete`** - Deletes an issue priority.
+- **`jira-pp-cli priority delete`** - Deletes an issue priority.
 
 This operation is [asynchronous](#async). Follow the `location` link in the response to determine the status of the task and use [Get task](#api-rest-api-3-task-taskId-get) to obtain subsequent updates.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli priority get`** - Returns an issue priority.
+- **`jira-pp-cli priority get`** - Returns an issue priority.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli priority get-priorities`** - Returns the list of all issue priorities.
+- **`jira-pp-cli priority get-priorities`** - Returns the list of all issue priorities.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli priority move-priorities`** - Changes the order of issue priorities.
+- **`jira-pp-cli priority move-priorities`** - Changes the order of issue priorities.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli priority search-priorities`** - Returns a [paginated](#pagination) list of priorities. The list can contain all priorities or a subset determined by any combination of these criteria:
+- **`jira-pp-cli priority search-priorities`** - Returns a [paginated](#pagination) list of priorities. The list can contain all priorities or a subset determined by any combination of these criteria:
 
  *  a list of priority IDs. Any invalid priority IDs are ignored.
  *  a list of project IDs. Only priorities that are available in these projects will be returned. Any invalid project IDs are ignored.
  *  whether the field configuration is a default. This returns priorities from company-managed (classic) projects only, as there is no concept of default priorities in team-managed projects.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli priority set-default`** - Sets default issue priority.
+- **`jira-pp-cli priority set-default`** - Sets default issue priority.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli priority update`** - Updates an issue priority.
+- **`jira-pp-cli priority update`** - Updates an issue priority.
 
 At least one request body parameter must be defined.
 
@@ -2351,24 +2351,24 @@ Deprecation applies to iconUrl param in request body which will be sunset on 16t
 
 Manage priorityscheme
 
-- **`jira-cloud-platform-pp-cli priorityscheme create-priority-scheme`** - Creates a new priority scheme.
+- **`jira-pp-cli priorityscheme create-priority-scheme`** - Creates a new priority scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli priorityscheme delete-priority-scheme`** - Deletes a priority scheme.
+- **`jira-pp-cli priorityscheme delete-priority-scheme`** - Deletes a priority scheme.
 
 This operation is only available for priority schemes without any associated projects. Any associated projects must be removed from the priority scheme before this operation can be performed.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli priorityscheme get-available-priorities-by-priority-scheme`** - Returns a [paginated](#pagination) list of priorities available for adding to a priority scheme.
+- **`jira-pp-cli priorityscheme get-available-priorities-by-priority-scheme`** - Returns a [paginated](#pagination) list of priorities available for adding to a priority scheme.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli priorityscheme get-priority-schemes`** - Returns a [paginated](#pagination) list of priority schemes.
+- **`jira-pp-cli priorityscheme get-priority-schemes`** - Returns a [paginated](#pagination) list of priority schemes.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli priorityscheme suggested-priorities-for-mappings`** - Returns a [paginated](#pagination) list of priorities that would require mapping, given a change in priorities or projects associated with a priority scheme.
+- **`jira-pp-cli priorityscheme suggested-priorities-for-mappings`** - Returns a [paginated](#pagination) list of priorities that would require mapping, given a change in priorities or projects associated with a priority scheme.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli priorityscheme update-priority-scheme`** - Updates a priority scheme. This includes its details, the lists of priorities and projects in it
+- **`jira-pp-cli priorityscheme update-priority-scheme`** - Updates a priority scheme. This includes its details, the lists of priorities and projects in it
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -2376,7 +2376,7 @@ This operation is only available for priority schemes without any associated pro
 
 This resource represents projects. Use it to get, create, update, and delete projects. Also get statuses available to a project, a project's notification schemes, and update a project's type.
 
-- **`jira-cloud-platform-pp-cli project create`** - Creates a project based on a project type template, as shown in the following table:
+- **`jira-pp-cli project create`** - Creates a project based on a project type template, as shown in the following table:
 
 | Project Type Key | Project Template Key |  
 |--|--|  
@@ -2393,31 +2393,31 @@ The project types are available according to the installed Jira features as foll
 To determine which features are installed, go to **Jira settings** > **Apps** > **Manage apps** and review the System Apps list. To add Jira Software or Jira Service Management into a JIRA instance, use **Jira settings** > **Apps** > **Finding new apps**. For more information, see [ Managing add-ons](https://confluence.atlassian.com/x/S31NLg).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project delete`** - Deletes a project.
+- **`jira-pp-cli project delete`** - Deletes a project.
 
 You can't delete a project if it's archived. To delete an archived project, restore the project and then delete it. To restore a project, use the Jira UI.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project get`** - Returns the [project details](https://confluence.atlassian.com/x/ahLpNw) for a project.
+- **`jira-pp-cli project get`** - Returns the [project details](https://confluence.atlassian.com/x/ahLpNw) for a project.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
-- **`jira-cloud-platform-pp-cli project get-accessible-type-by-key`** - Returns a [project type](https://confluence.atlassian.com/x/Var1Nw) if it is accessible to the user.
+- **`jira-pp-cli project get-accessible-type-by-key`** - Returns a [project type](https://confluence.atlassian.com/x/Var1Nw) if it is accessible to the user.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli project get-all`** - Returns all projects visible to the user. Deprecated, use [ Get projects paginated](#api-rest-api-3-project-search-get) that supports search and pagination.
+- **`jira-pp-cli project get-all`** - Returns all projects visible to the user. Deprecated, use [ Get projects paginated](#api-rest-api-3-project-search-get) that supports search and pagination.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** Projects are returned only where the user has *Browse Projects* or *Administer projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
-- **`jira-cloud-platform-pp-cli project get-all-accessible-types`** - Returns all [project types](https://confluence.atlassian.com/x/Var1Nw) with a valid license.
-- **`jira-cloud-platform-pp-cli project get-all-types`** - Returns all [project types](https://confluence.atlassian.com/x/Var1Nw), whether or not the instance has a valid license for each type.
+- **`jira-pp-cli project get-all-accessible-types`** - Returns all [project types](https://confluence.atlassian.com/x/Var1Nw) with a valid license.
+- **`jira-pp-cli project get-all-types`** - Returns all [project types](https://confluence.atlassian.com/x/Var1Nw), whether or not the instance has a valid license for each type.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli project get-recent`** - Returns a list of up to 20 projects recently viewed by the user that are still visible to the user.
+- **`jira-pp-cli project get-recent`** - Returns a list of up to 20 projects recently viewed by the user that are still visible to the user.
 
 This operation can be accessed anonymously.
 
@@ -2426,12 +2426,12 @@ This operation can be accessed anonymously.
  *  *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
  *  *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project get-type-by-key`** - Returns a [project type](https://confluence.atlassian.com/x/Var1Nw).
+- **`jira-pp-cli project get-type-by-key`** - Returns a [project type](https://confluence.atlassian.com/x/Var1Nw).
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli project search`** - Returns a [paginated](#pagination) list of projects visible to the user.
+- **`jira-pp-cli project search`** - Returns a [paginated](#pagination) list of projects visible to the user.
 
 This operation can be accessed anonymously.
 
@@ -2440,7 +2440,7 @@ This operation can be accessed anonymously.
  *  *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
  *  *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project.
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project update`** - Updates the [project details](https://confluence.atlassian.com/x/ahLpNw) of a project.
+- **`jira-pp-cli project update`** - Updates the [project details](https://confluence.atlassian.com/x/ahLpNw) of a project.
 
 All parameters are optional in the body of the request. Schemes will only be updated if they are included in the request, any omitted schemes will be left unchanged.
 
@@ -2450,19 +2450,19 @@ All parameters are optional in the body of the request. Schemes will only be upd
 
 Manage project category
 
-- **`jira-cloud-platform-pp-cli project-category create`** - Creates a project category.
+- **`jira-pp-cli project-category create`** - Creates a project category.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project-category get-all-project-categories`** - Returns all project categories.
+- **`jira-pp-cli project-category get-all-project-categories`** - Returns all project categories.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli project-category get-by-id`** - Returns a project category.
+- **`jira-pp-cli project-category get-by-id`** - Returns a project category.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli project-category remove`** - Deletes a project category.
+- **`jira-pp-cli project-category remove`** - Deletes a project category.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project-category update`** - Updates a project category.
+- **`jira-pp-cli project-category update`** - Updates a project category.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -2470,7 +2470,7 @@ Manage project category
 
 This resource represents project templates. Use it to create a new project from a custom template.
 
-- **`jira-cloud-platform-pp-cli project-template create-project-with-custom-template`** - Creates a project based on a custom template provided in the request.
+- **`jira-pp-cli project-template create-project-with-custom-template`** - Creates a project based on a custom template provided in the request.
 
 The request body should contain the project details and the capabilities that comprise the project:
 
@@ -2486,22 +2486,22 @@ This operation is:
 ***Note: This API is only supported for Jira Enterprise edition.***
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli project-template edit-template`** - Edit custom template
+- **`jira-pp-cli project-template edit-template`** - Edit custom template
 
 This API endpoint allows you to edit an existing customised template.
 
 ***Note: Custom Templates are only supported for Jira Enterprise edition.***
-- **`jira-cloud-platform-pp-cli project-template live-template`** - Get custom template
+- **`jira-pp-cli project-template live-template`** - Get custom template
 
 This API endpoint allows you to get a live custom project template details by either templateKey or projectId
 
 ***Note: Custom Templates are only supported for Jira Enterprise edition.***
-- **`jira-cloud-platform-pp-cli project-template remove-template`** - Remove custom template
+- **`jira-pp-cli project-template remove-template`** - Remove custom template
 
 This API endpoint allows you to remove a specified customised template
 
 ***Note: Custom Templates are only supported for Jira Enterprise edition.***
-- **`jira-cloud-platform-pp-cli project-template save-template`** - Save custom template
+- **`jira-pp-cli project-template save-template`** - Save custom template
 
 This API endpoint allows you to save a customised template
 
@@ -2511,7 +2511,7 @@ This API endpoint allows you to save a customised template
 
 This resource represents projects. Use it to get, create, update, and delete projects. Also get statuses available to a project, a project's notification schemes, and update a project's type.
 
-- **`jira-cloud-platform-pp-cli projects get-fields`** - Returns a [paginated](#pagination) list of fields for the requested projects and work types.
+- **`jira-pp-cli projects get-fields`** - Returns a [paginated](#pagination) list of fields for the requested projects and work types.
 
 Only fields that are available for the specified combination of projects and work types are returned. This endpoint allows filtering to specific fields if field IDs are provided.
 
@@ -2521,13 +2521,13 @@ Only fields that are available for the specified combination of projects and wor
 
 Manage projectvalidate
 
-- **`jira-cloud-platform-pp-cli projectvalidate get-valid-project-key`** - Validates a project key and, if the key is invalid or in use, generates a valid random string for the project key.
+- **`jira-pp-cli projectvalidate get-valid-project-key`** - Validates a project key and, if the key is invalid or in use, generates a valid random string for the project key.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli projectvalidate get-valid-project-name`** - Checks that a project name isn't in use. If the name isn't in use, the passed string is returned. If the name is in use, this operation attempts to generate a valid project name based on the one supplied, usually by adding a sequence number. If a valid project name cannot be generated, a 404 response is returned.
+- **`jira-pp-cli projectvalidate get-valid-project-name`** - Checks that a project name isn't in use. If the name isn't in use, the passed string is returned. If the name is in use, this operation attempts to generate a valid project name based on the one supplied, usually by adding a sequence number. If a valid project name cannot be generated, a 404 response is returned.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli projectvalidate validate-project-key`** - Validates a project key by confirming the key is a valid string and not in use.
+- **`jira-pp-cli projectvalidate validate-project-key`** - Validates a project key by confirming the key is a valid string and not in use.
 
 **[Permissions](#permissions) required:** None.
 
@@ -2535,14 +2535,14 @@ Manage projectvalidate
 
 Manage redact
 
-- **`jira-cloud-platform-pp-cli redact get-redaction-status`** - Retrieves the current status of a redaction job ID.
+- **`jira-pp-cli redact get-redaction-status`** - Retrieves the current status of a redaction job ID.
 
 The jobStatus will be one of the following:
 
  *  IN\_PROGRESS - The redaction job is currently in progress
  *  COMPLETED - The redaction job has completed successfully.
  *  PENDING - The redaction job has not started yet
-- **`jira-cloud-platform-pp-cli redact redact`** - Submit a job to redact issue field data. This will trigger the redaction of the data in the specified fields asynchronously.
+- **`jira-pp-cli redact redact`** - Submit a job to redact issue field data. This will trigger the redaction of the data in the specified fields asynchronously.
 
 The redaction status can be polled using the job id.
 
@@ -2550,33 +2550,33 @@ The redaction status can be polled using the job id.
 
 Manage resolution
 
-- **`jira-cloud-platform-pp-cli resolution create`** - Creates an issue resolution.
+- **`jira-pp-cli resolution create`** - Creates an issue resolution.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli resolution delete`** - Deletes an issue resolution.
+- **`jira-pp-cli resolution delete`** - Deletes an issue resolution.
 
 This operation is [asynchronous](#async). Follow the `location` link in the response to determine the status of the task and use [Get task](#api-rest-api-3-task-taskId-get) to obtain subsequent updates.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli resolution get`** - Returns a list of all issue resolution values.
+- **`jira-pp-cli resolution get`** - Returns a list of all issue resolution values.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli resolution get-id`** - Returns an issue resolution value.
+- **`jira-pp-cli resolution get-id`** - Returns an issue resolution value.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli resolution move`** - Changes the order of issue resolutions.
+- **`jira-pp-cli resolution move`** - Changes the order of issue resolutions.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli resolution search`** - Returns a [paginated](#pagination) list of resolutions. The list can contain all resolutions or a subset determined by any combination of these criteria:
+- **`jira-pp-cli resolution search`** - Returns a [paginated](#pagination) list of resolutions. The list can contain all resolutions or a subset determined by any combination of these criteria:
 
  *  a list of resolutions IDs.
  *  whether the field configuration is a default. This returns resolutions from company-managed (classic) projects only, as there is no concept of default resolutions in team-managed projects.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli resolution set-default`** - Sets default issue resolution.
+- **`jira-pp-cli resolution set-default`** - Sets default issue resolution.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli resolution update`** - Updates an issue resolution.
+- **`jira-pp-cli resolution update`** - Updates an issue resolution.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -2584,18 +2584,18 @@ This operation is [asynchronous](#async). Follow the `location` link in the resp
 
 Manage role
 
-- **`jira-cloud-platform-pp-cli role create-project`** - Creates a new project role with no [default actors](#api-rest-api-3-resolution-get). You can use the [Add default actors to project role](#api-rest-api-3-role-id-actors-post) operation to add default actors to the project role after creating it.
+- **`jira-pp-cli role create-project`** - Creates a new project role with no [default actors](#api-rest-api-3-resolution-get). You can use the [Add default actors to project role](#api-rest-api-3-role-id-actors-post) operation to add default actors to the project role after creating it.
 
 *Note that although a new project role is available to all projects upon creation, any default actors that are associated with the project role are not added to projects that existed prior to the role being created.*<
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli role delete-project`** - Deletes a project role. You must specify a replacement project role if you wish to delete a project role that is in use.
+- **`jira-pp-cli role delete-project`** - Deletes a project role. You must specify a replacement project role if you wish to delete a project role that is in use.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli role fully-update-project`** - Updates the project role's name and description. You must include both a name and a description in the request.
+- **`jira-pp-cli role fully-update-project`** - Updates the project role's name and description. You must include both a name and a description in the request.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli role get-all-project`** - Gets a list of all project roles, complete with project role details and default actors.
+- **`jira-pp-cli role get-all-project`** - Gets a list of all project roles, complete with project role details and default actors.
 
 ### About project roles ###
 
@@ -2613,10 +2613,10 @@ Actors may be set as [default members](https://support.atlassian.com/jira-cloud-
  *  Actors: Users and groups that are associated with a project role for a project, which may differ from the default actors. This enables you to assign a user to different roles in different projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli role get-project-by-id`** - Gets the project role details and the default actors associated with the role. The list of default actors is sorted by display name.
+- **`jira-pp-cli role get-project-by-id`** - Gets the project role details and the default actors associated with the role. The list of default actors is sorted by display name.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli role partial-update-project`** - Updates either the project role's name or its description.
+- **`jira-pp-cli role partial-update-project`** - Updates either the project role's name or its description.
 
 You cannot update both the name and description at the same time using this operation. If you send a request with a name and a description only the name is updated.
 
@@ -2633,24 +2633,24 @@ This resource represents the screens used to record issue details. Use it to:
  *  update screens.
  *  add a field to the default screen.
 
-- **`jira-cloud-platform-pp-cli screens add-field-to-default`** - Adds a field to the default tab of the default screen.
+- **`jira-pp-cli screens add-field-to-default`** - Adds a field to the default tab of the default screen.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screens create`** - Creates a screen with a default field tab.
+- **`jira-pp-cli screens create`** - Creates a screen with a default field tab.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screens delete`** - Deletes a screen. A screen cannot be deleted if it is used in a screen scheme, workflow, or workflow draft.
+- **`jira-pp-cli screens delete`** - Deletes a screen. A screen cannot be deleted if it is used in a screen scheme, workflow, or workflow draft.
 
 Only screens used in classic projects can be deleted.
-- **`jira-cloud-platform-pp-cli screens get`** - Returns a [paginated](#pagination) list of all screens or those specified by one or more screen IDs.
+- **`jira-pp-cli screens get`** - Returns a [paginated](#pagination) list of all screens or those specified by one or more screen IDs.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screens get-bulk-tabs`** - Returns the list of tabs for a bulk of screens.
+- **`jira-pp-cli screens get-bulk-tabs`** - Returns the list of tabs for a bulk of screens.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screens update`** - Updates a screen. Only screens used in classic projects can be updated.
+- **`jira-pp-cli screens update`** - Updates a screen. Only screens used in classic projects can be updated.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -2658,20 +2658,20 @@ Only screens used in classic projects can be deleted.
 
 Manage screenscheme
 
-- **`jira-cloud-platform-pp-cli screenscheme create-screen-scheme`** - Creates a screen scheme.
+- **`jira-pp-cli screenscheme create-screen-scheme`** - Creates a screen scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screenscheme delete-screen-scheme`** - Deletes a screen scheme. A screen scheme cannot be deleted if it is used in an issue type screen scheme.
+- **`jira-pp-cli screenscheme delete-screen-scheme`** - Deletes a screen scheme. A screen scheme cannot be deleted if it is used in an issue type screen scheme.
 
 Only screens schemes used in classic projects can be deleted.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screenscheme get-screen-schemes`** - Returns a [paginated](#pagination) list of screen schemes.
+- **`jira-pp-cli screenscheme get-screen-schemes`** - Returns a [paginated](#pagination) list of screen schemes.
 
 Only screen schemes used in classic projects are returned.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli screenscheme update-screen-scheme`** - Updates a screen scheme. Only screen schemes used in classic projects can be updated.
+- **`jira-pp-cli screenscheme update-screen-scheme`** - Updates a screen scheme. Only screen schemes used in classic projects can be updated.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -2679,7 +2679,7 @@ Only screen schemes used in classic projects are returned.
 
 Manage securitylevel
 
-- **`jira-cloud-platform-pp-cli securitylevel get-issue-security-level`** - Returns details of an issue security level.
+- **`jira-pp-cli securitylevel get-issue-security-level`** - Returns details of an issue security level.
 
 Use [Get issue security scheme](#api-rest-api-3-issuesecurityschemes-id-get) to obtain the IDs of issue security levels associated with the issue security scheme.
 
@@ -2691,7 +2691,7 @@ This operation can be accessed anonymously.
 
 This resource provides information about the Jira instance.
 
-- **`jira-cloud-platform-pp-cli server-info get`** - Returns information about the Jira instance.
+- **`jira-pp-cli server-info get`** - Returns information about the Jira instance.
 
 This operation can be accessed anonymously.
 
@@ -2701,10 +2701,10 @@ This operation can be accessed anonymously.
 
 Manage settings
 
-- **`jira-cloud-platform-pp-cli settings get-issue-navigator-default-columns`** - Returns the default issue navigator columns.
+- **`jira-pp-cli settings get-issue-navigator-default-columns`** - Returns the default issue navigator columns.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli settings set-issue-navigator-default-columns`** - Sets the default issue navigator columns.
+- **`jira-pp-cli settings set-issue-navigator-default-columns`** - Sets the default issue navigator columns.
 
 The `columns` parameter accepts a navigable field value and is expressed as HTML form data. To specify multiple columns, pass multiple `columns` parameters. For example, in curl:
 
@@ -2720,14 +2720,14 @@ A navigable field is one that can be used as a column on the issue navigator. Fi
 
 This resource represents statuses. Use it to search, get, create, delete, and change statuses.
 
-- **`jira-cloud-platform-pp-cli status get`** - Returns a status. The status must be associated with an active workflow to be returned.
+- **`jira-pp-cli status get`** - Returns a status. The status must be associated with an active workflow to be returned.
 
 If a name is used on more than one status, only the status found first is returned. Therefore, identifying the status by its ID may be preferable.
 
 This operation can be accessed anonymously.
 
 [Permissions](#permissions) required: *Browse projects* [project permission](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/) for the project.
-- **`jira-cloud-platform-pp-cli status get-statuses`** - Returns a list of all statuses associated with active workflows.
+- **`jira-pp-cli status get-statuses`** - Returns a list of all statuses associated with active workflows.
 
 This operation can be accessed anonymously.
 
@@ -2737,10 +2737,10 @@ This operation can be accessed anonymously.
 
 Manage statuscategory
 
-- **`jira-cloud-platform-pp-cli statuscategory get-status-categories`** - Returns a list of all status categories.
+- **`jira-pp-cli statuscategory get-status-categories`** - Returns a list of all status categories.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli statuscategory get-status-category`** - Returns a status category. Status categories provided a mechanism for categorizing [statuses](#api-rest-api-3-status-idOrName-get).
+- **`jira-pp-cli statuscategory get-status-category`** - Returns a status category. Status categories provided a mechanism for categorizing [statuses](#api-rest-api-3-status-idOrName-get).
 
 **[Permissions](#permissions) required:** Permission to access Jira.
 
@@ -2748,38 +2748,38 @@ Manage statuscategory
 
 Manage statuses
 
-- **`jira-cloud-platform-pp-cli statuses create`** - Creates statuses for a global or project scope.
+- **`jira-pp-cli statuses create`** - Creates statuses for a global or project scope.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer projects* [project permission.](https://confluence.atlassian.com/x/yodKLg)
  *  *Administer Jira* [project permission.](https://confluence.atlassian.com/x/yodKLg)
-- **`jira-cloud-platform-pp-cli statuses delete-by-id`** - Deletes statuses by ID.
+- **`jira-pp-cli statuses delete-by-id`** - Deletes statuses by ID.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer projects* [project permission.](https://confluence.atlassian.com/x/yodKLg)
  *  *Administer Jira* [project permission.](https://confluence.atlassian.com/x/yodKLg)
-- **`jira-cloud-platform-pp-cli statuses get-by-id`** - Returns a list of the statuses specified by one or more status IDs.
+- **`jira-pp-cli statuses get-by-id`** - Returns a list of the statuses specified by one or more status IDs.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer projects* [project permission.](https://confluence.atlassian.com/x/yodKLg)
  *  *Administer Jira* [project permission.](https://confluence.atlassian.com/x/yodKLg)
-- **`jira-cloud-platform-pp-cli statuses get-by-name`** - Returns a list of the statuses specified by one or more status names.
+- **`jira-pp-cli statuses get-by-name`** - Returns a list of the statuses specified by one or more status names.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer projects* [project permission.](https://confluence.atlassian.com/x/yodKLg)
  *  *Administer Jira* [project permission.](https://confluence.atlassian.com/x/yodKLg)
  *  *Browse projects* [project permission.](https://confluence.atlassian.com/x/yodKLg)
-- **`jira-cloud-platform-pp-cli statuses search`** - Returns a [paginated](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/#pagination) list of statuses that match a search on name or project.
+- **`jira-pp-cli statuses search`** - Returns a [paginated](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/#pagination) list of statuses that match a search on name or project.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer projects* [project permission.](https://confluence.atlassian.com/x/yodKLg)
  *  *Administer Jira* [project permission.](https://confluence.atlassian.com/x/yodKLg)
-- **`jira-cloud-platform-pp-cli statuses update`** - Updates statuses by ID.
+- **`jira-pp-cli statuses update`** - Updates statuses by ID.
 
 **[Permissions](#permissions) required:**
 
@@ -2790,7 +2790,7 @@ Manage statuses
 
 This resource represents a [long-running asynchronous tasks](#async-operations). Use it to obtain details about the progress of a long-running task or cancel a long-running task.
 
-- **`jira-cloud-platform-pp-cli task get`** - Returns the status of a [long-running asynchronous task](#async).
+- **`jira-pp-cli task get`** - Returns the status of a [long-running asynchronous task](#async).
 
 When a task has finished, this operation returns the JSON blob applicable to the task. See the documentation of the operation that created the task for details. Task details are not permanently retained. As of September 2019, details are retained for 14 days although this period may change without notice.
 
@@ -2807,7 +2807,7 @@ When a task has finished, this operation returns the JSON blob applicable to the
 
 Manage ui modifications
 
-- **`jira-cloud-platform-pp-cli ui-modifications create`** - Creates a UI modification. UI modification can only be created by Forge apps.
+- **`jira-pp-cli ui-modifications create`** - Creates a UI modification. UI modification can only be created by Forge apps.
 
 Each app can define up to 3000 UI modifications. Each UI modification can define up to 1000 contexts. The same context can be assigned to maximum 100 UI modifications.
 
@@ -2828,17 +2828,17 @@ Each app can define up to 3000 UI modifications. Each UI modification can define
  *  *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for one or more projects, if the UI modification is created with contexts.
 
 The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli ui-modifications delete`** - Deletes a UI modification. All the contexts that belong to the UI modification are deleted too. UI modification can only be deleted by Forge apps.
+- **`jira-pp-cli ui-modifications delete`** - Deletes a UI modification. All the contexts that belong to the UI modification are deleted too. UI modification can only be deleted by Forge apps.
 
 **[Permissions](#permissions) required:** None.
 
 The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli ui-modifications get`** - Gets UI modifications. UI modifications can only be retrieved by Forge apps.
+- **`jira-pp-cli ui-modifications get`** - Gets UI modifications. UI modifications can only be retrieved by Forge apps.
 
 **[Permissions](#permissions) required:** None.
 
 The new `read:app-data:jira` OAuth scope is 100% optional now, and not using it won't break your app. However, we recommend adding it to your app's scope list because we will eventually make it mandatory.
-- **`jira-cloud-platform-pp-cli ui-modifications update`** - Updates a UI modification. UI modification can only be updated by Forge apps.
+- **`jira-pp-cli ui-modifications update`** - Updates a UI modification. UI modification can only be updated by Forge apps.
 
 Each UI modification can define up to 1000 contexts. The same context can be assigned to maximum 100 UI modifications.
 
@@ -2864,10 +2864,10 @@ The new `write:app-data:jira` OAuth scope is 100% optional now, and not using it
 
 Manage universal avatar
 
-- **`jira-cloud-platform-pp-cli universal-avatar delete-avatar`** - Deletes an avatar from a project, issue type or priority.
+- **`jira-pp-cli universal-avatar delete-avatar`** - Deletes an avatar from a project, issue type or priority.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli universal-avatar get-avatar-image-by-id`** - Returns a project, issue type or priority avatar image by ID.
+- **`jira-pp-cli universal-avatar get-avatar-image-by-id`** - Returns a project, issue type or priority avatar image by ID.
 
 This operation can be accessed anonymously.
 
@@ -2877,7 +2877,7 @@ This operation can be accessed anonymously.
  *  For custom project avatars, *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project the avatar belongs to.
  *  For custom issue type avatars, *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for at least one project the issue type is used in.
  *  For priority avatars, none.
-- **`jira-cloud-platform-pp-cli universal-avatar get-avatar-image-by-owner`** - Returns the avatar image for a project, issue type or priority.
+- **`jira-pp-cli universal-avatar get-avatar-image-by-owner`** - Returns the avatar image for a project, issue type or priority.
 
 This operation can be accessed anonymously.
 
@@ -2887,12 +2887,12 @@ This operation can be accessed anonymously.
  *  For custom project avatars, *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project the avatar belongs to.
  *  For custom issue type avatars, *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for at least one project the issue type is used in.
  *  For priority avatars, none.
-- **`jira-cloud-platform-pp-cli universal-avatar get-avatar-image-by-type`** - Returns the default project, issue type or priority avatar image.
+- **`jira-pp-cli universal-avatar get-avatar-image-by-type`** - Returns the default project, issue type or priority avatar image.
 
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** None.
-- **`jira-cloud-platform-pp-cli universal-avatar get-avatars`** - Returns the system and custom avatars for a project, issue type or priority.
+- **`jira-pp-cli universal-avatar get-avatars`** - Returns the system and custom avatars for a project, issue type or priority.
 
 This operation can be accessed anonymously.
 
@@ -2902,7 +2902,7 @@ This operation can be accessed anonymously.
  *  for custom issue type avatars, *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for at least one project the issue type is used in.
  *  for system avatars, none.
  *  for priority avatars, none.
-- **`jira-cloud-platform-pp-cli universal-avatar store-avatar`** - Loads a custom avatar for a project, issue type or priority.
+- **`jira-pp-cli universal-avatar store-avatar`** - Loads a custom avatar for a project, issue type or priority.
 
 Specify the avatar's local file location in the body of the request. Also, include the following headers:
 
@@ -2943,20 +2943,20 @@ This resource represent users. Use it to:
  *  get a list of the groups the user belongs to.
  *  get a list of user account IDs for a list of usernames or user keys.
 
-- **`jira-cloud-platform-pp-cli user bulk-get`** - Returns a [paginated](#pagination) list of the users specified by one or more account IDs.
+- **`jira-pp-cli user bulk-get`** - Returns a [paginated](#pagination) list of the users specified by one or more account IDs.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli user bulk-get-migration`** - Returns the account IDs for the users specified in the `key` or `username` parameters. Note that multiple `key` or `username` parameters can be specified.
+- **`jira-pp-cli user bulk-get-migration`** - Returns the account IDs for the users specified in the `key` or `username` parameters. Note that multiple `key` or `username` parameters can be specified.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli user create`** - Creates a user. This resource is retained for legacy compatibility. As soon as a more suitable alternative is available this resource will be deprecated.
+- **`jira-pp-cli user create`** - Creates a user. This resource is retained for legacy compatibility. As soon as a more suitable alternative is available this resource will be deprecated.
 
 **Note:** This API does not support Forge apps.
 
 If the user exists and has access to Jira, the operation returns a 201 status. If the user exists but does not have access to Jira, the operation returns a 400 status.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg). The caller has to be an **organization admin**.
-- **`jira-cloud-platform-pp-cli user delete-property`** - Deletes a property from a user.
+- **`jira-pp-cli user delete-property`** - Deletes a property from a user.
 
 Note: This operation does not access the [user properties](https://confluence.atlassian.com/x/8YxjL) created and maintained in Jira.
 
@@ -2964,7 +2964,7 @@ Note: This operation does not access the [user properties](https://confluence.at
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to delete a property from any user.
  *  Access to Jira, to delete a property from the calling user's record.
-- **`jira-cloud-platform-pp-cli user find`** - Returns a list of active users that match the search string and property.
+- **`jira-pp-cli user find`** - Returns a list of active users that match the search string and property.
 
 This operation first applies a filter to match the search string and property, and then takes the filtered users in the range defined by `startAt` and `maxResults`, up to the thousandth user. To get all the users who match the search string and property, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
 
@@ -2973,7 +2973,7 @@ This operation can be accessed anonymously.
 Privacy controls are applied to the response based on the users' preferences. This could mean, for example, that the user's email address is hidden. See the [Profile visibility overview](https://developer.atlassian.com/cloud/jira/platform/profile-visibility/) for more details.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg). Anonymous calls or calls by users without the required permission return empty search results.
-- **`jira-cloud-platform-pp-cli user find-assignable`** - Returns a list of users that can be assigned to an issue. Use this operation to find the list of users who can be assigned to:
+- **`jira-pp-cli user find-assignable`** - Returns a list of users that can be assigned to an issue. Use this operation to find the list of users who can be assigned to:
 
  *  a new issue, by providing the `projectKeyOrId`.
  *  an updated issue, by providing the `issueKey` or `issueId`.
@@ -2986,7 +2986,7 @@ This operation takes the users in the range defined by `startAt` and `maxResults
 Privacy controls are applied to the response based on the users' preferences. This could mean, for example, that the user's email address is hidden. See the [Profile visibility overview](https://developer.atlassian.com/cloud/jira/platform/profile-visibility/) for more details.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Assign issues* [project permission](https://confluence.atlassian.com/x/yodKLg)
-- **`jira-cloud-platform-pp-cli user find-bulk-assignable`** - Returns a list of users who can be assigned issues in one or more projects. The list may be restricted to users whose attributes match a string.
+- **`jira-pp-cli user find-bulk-assignable`** - Returns a list of users who can be assigned issues in one or more projects. The list may be restricted to users whose attributes match a string.
 
 This operation takes the users in the range defined by `startAt` and `maxResults`, up to the thousandth user, and then returns only the users from that range that can be assigned issues in the projects. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who can be assigned issues in the projects, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
 
@@ -2995,7 +2995,7 @@ Privacy controls are applied to the response based on the users' preferences. Th
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for each project specified in `projectKeys`.
-- **`jira-cloud-platform-pp-cli user find-by-query`** - Finds users with a structured query and returns a [paginated](#pagination) list of user details.
+- **`jira-pp-cli user find-by-query`** - Finds users with a structured query and returns a [paginated](#pagination) list of user details.
 
 This operation takes the users in the range defined by `startAt` and `maxResults`, up to the thousandth user, and then returns only the users from that range that match the structured query. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who match the structured query, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
 
@@ -3015,7 +3015,7 @@ The query statements are:
 The list of issues can be extended as needed, as in *(PROJ-1, PROJ-2, ... PROJ-n)*. Statements can be combined using the `AND` and `OR` operators to form more complex queries. For example:
 
 `is assignee of PROJ AND [propertyKey].entity.property.path is "property value"`
-- **`jira-cloud-platform-pp-cli user find-for-picker`** - Returns a list of users whose attributes match the query term. The returned object includes the `html` field where the matched query term is highlighted with the HTML strong tag. A list of account IDs can be provided to exclude users from the results.
+- **`jira-pp-cli user find-for-picker`** - Returns a list of users whose attributes match the query term. The returned object includes the `html` field where the matched query term is highlighted with the HTML strong tag. A list of account IDs can be provided to exclude users from the results.
 
 This operation takes the users in the range defined by `maxResults`, up to the thousandth user, and then returns only the users from that range that match the query term. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who match the query term, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
 
@@ -3024,7 +3024,7 @@ Privacy controls are applied to the response based on the users' preferences. Th
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg). Anonymous calls and calls by users without the required permission return search results for an exact name match only.
-- **`jira-cloud-platform-pp-cli user find-keys-by-query`** - Finds users with a structured query and returns a [paginated](#pagination) list of user keys.
+- **`jira-pp-cli user find-keys-by-query`** - Finds users with a structured query and returns a [paginated](#pagination) list of user keys.
 
 This operation takes the users in the range defined by `startAt` and `maxResults`, up to the thousandth user, and then returns only the users from that range that match the structured query. This means the operation usually returns fewer users than specified in `maxResults`. To get all the users who match the structured query, use [Get all users](#api-rest-api-3-users-search-get) and filter the records in your code.
 
@@ -3044,7 +3044,7 @@ The query statements are:
 The list of issues can be extended as needed, as in *(PROJ-1, PROJ-2, ... PROJ-n)*. Statements can be combined using the `AND` and `OR` operators to form more complex queries. For example:
 
 `is assignee of PROJ AND [propertyKey].entity.property.path is "property value"`
-- **`jira-cloud-platform-pp-cli user find-with-all-permissions`** - Returns a list of users who fulfill these criteria:
+- **`jira-pp-cli user find-with-all-permissions`** - Returns a list of users who fulfill these criteria:
 
  *  their user attributes match a search string.
  *  they have a set of permissions for a project or issue.
@@ -3061,7 +3061,7 @@ This operation can be accessed anonymously.
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to get users for any project.
  *  *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for a project, to get users for that project.
-- **`jira-cloud-platform-pp-cli user find-with-browse-permission`** - Returns a list of users who fulfill these criteria:
+- **`jira-pp-cli user find-with-browse-permission`** - Returns a list of users who fulfill these criteria:
 
  *  their user attributes match a search string.
  *  they have permission to browse issues.
@@ -3078,23 +3078,23 @@ Privacy controls are applied to the response based on the users' preferences. Th
 This operation can be accessed anonymously.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg). Anonymous calls and calls by users without the required permission return empty search results.
-- **`jira-cloud-platform-pp-cli user get`** - Returns a user.
+- **`jira-pp-cli user get`** - Returns a user.
 
 Privacy controls are applied to the response based on the user's preferences. This could mean, for example, that the user's email address is hidden. See the [Profile visibility overview](https://developer.atlassian.com/cloud/jira/platform/profile-visibility/) for more details.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli user get-default-columns`** - Returns the default [issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If `accountId` is not passed in the request, the calling user's details are returned.
+- **`jira-pp-cli user get-default-columns`** - Returns the default [issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If `accountId` is not passed in the request, the calling user's details are returned.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLgl), to get the column details for any user.
  *  Permission to access Jira, to get the calling user's column details.
-- **`jira-cloud-platform-pp-cli user get-email`** - Returns a user's email address regardless of the user's profile visibility settings. For Connect apps, this API is only available to apps approved by Atlassian, according to these [guidelines](https://community.developer.atlassian.com/t/guidelines-for-requesting-access-to-email-address/27603). For Forge apps, this API only supports access via asApp() requests.
-- **`jira-cloud-platform-pp-cli user get-email-bulk`** - Returns a user's email address regardless of the user's profile visibility settings. For Connect apps, this API is only available to apps approved by Atlassian, according to these [guidelines](https://community.developer.atlassian.com/t/guidelines-for-requesting-access-to-email-address/27603). For Forge apps, this API only supports access via asApp() requests.
-- **`jira-cloud-platform-pp-cli user get-groups`** - Returns the groups to which a user belongs.
+- **`jira-pp-cli user get-email`** - Returns a user's email address regardless of the user's profile visibility settings. For Connect apps, this API is only available to apps approved by Atlassian, according to these [guidelines](https://community.developer.atlassian.com/t/guidelines-for-requesting-access-to-email-address/27603). For Forge apps, this API only supports access via asApp() requests.
+- **`jira-pp-cli user get-email-bulk`** - Returns a user's email address regardless of the user's profile visibility settings. For Connect apps, this API is only available to apps approved by Atlassian, according to these [guidelines](https://community.developer.atlassian.com/t/guidelines-for-requesting-access-to-email-address/27603). For Forge apps, this API only supports access via asApp() requests.
+- **`jira-pp-cli user get-groups`** - Returns the groups to which a user belongs.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli user get-property`** - Returns the value of a user's property. If no property key is provided [Get user property keys](#api-rest-api-3-user-properties-get) is called.
+- **`jira-pp-cli user get-property`** - Returns the value of a user's property. If no property key is provided [Get user property keys](#api-rest-api-3-user-properties-get) is called.
 
 Note: This operation does not access the [user properties](https://confluence.atlassian.com/x/8YxjL) created and maintained in Jira.
 
@@ -3102,7 +3102,7 @@ Note: This operation does not access the [user properties](https://confluence.at
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to get a property from any user.
  *  Access to Jira, to get a property from the calling user's record.
-- **`jira-cloud-platform-pp-cli user get-property-keys`** - Returns the keys of all properties for a user.
+- **`jira-pp-cli user get-property-keys`** - Returns the keys of all properties for a user.
 
 Note: This operation does not access the [user properties](https://confluence.atlassian.com/x/8YxjL) created and maintained in Jira.
 
@@ -3110,16 +3110,16 @@ Note: This operation does not access the [user properties](https://confluence.at
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to access the property keys on any user.
  *  Access to Jira, to access the calling user's property keys.
-- **`jira-cloud-platform-pp-cli user remove`** - Deletes a user. If the operation completes successfully then the user is removed from Jira's user base. This operation does not delete the user's Atlassian account.
+- **`jira-pp-cli user remove`** - Deletes a user. If the operation completes successfully then the user is removed from Jira's user base. This operation does not delete the user's Atlassian account.
 
 **[Permissions](#permissions) required:** Site administration (that is, membership of the *site-admin* [group](https://confluence.atlassian.com/x/24xjL)).
-- **`jira-cloud-platform-pp-cli user reset-columns`** - Resets the default [ issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user to the system default. If `accountId` is not passed, the calling user's default columns are reset.
+- **`jira-pp-cli user reset-columns`** - Resets the default [ issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user to the system default. If `accountId` is not passed, the calling user's default columns are reset.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to set the columns on any user.
  *  Permission to access Jira, to set the calling user's columns.
-- **`jira-cloud-platform-pp-cli user set-columns`** - Sets the default [ issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If an account ID is not passed, the calling user's default columns are set. If no column details are sent, then all default columns are removed.
+- **`jira-pp-cli user set-columns`** - Sets the default [ issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If an account ID is not passed, the calling user's default columns are set. If no column details are sent, then all default columns are removed.
 
 The parameters for this resource are expressed as HTML form data. For example, in curl:
 
@@ -3129,7 +3129,7 @@ The parameters for this resource are expressed as HTML form data. For example, i
 
  *  *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg), to set the columns on any user.
  *  Permission to access Jira, to set the calling user's columns.
-- **`jira-cloud-platform-pp-cli user set-property`** - Sets the value of a user's property. Use this resource to store custom data against a user.
+- **`jira-pp-cli user set-property`** - Sets the value of a user's property. Use this resource to store custom data against a user.
 
 Note: This operation does not access the [user properties](https://confluence.atlassian.com/x/8YxjL) created and maintained in Jira.
 
@@ -3147,12 +3147,12 @@ This resource represent users. Use it to:
  *  get a list of the groups the user belongs to.
  *  get a list of user account IDs for a list of usernames or user keys.
 
-- **`jira-cloud-platform-pp-cli users get-all`** - Returns a list of all users, including active users, inactive users and previously deleted users that have an Atlassian account.
+- **`jira-pp-cli users get-all`** - Returns a list of all users, including active users, inactive users and previously deleted users that have an Atlassian account.
 
 Privacy controls are applied to the response based on the users' preferences. This could mean, for example, that the user's email address is hidden. See the [Profile visibility overview](https://developer.atlassian.com/cloud/jira/platform/profile-visibility/) for more details.
 
 **[Permissions](#permissions) required:** *Browse users and groups* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli users get-all-default`** - Returns a list of all users, including active users, inactive users and previously deleted users that have an Atlassian account.
+- **`jira-pp-cli users get-all-default`** - Returns a list of all users, including active users, inactive users and previously deleted users that have an Atlassian account.
 
 Privacy controls are applied to the response based on the users' preferences. This could mean, for example, that the user's email address is hidden. See the [Profile visibility overview](https://developer.atlassian.com/cloud/jira/platform/profile-visibility/) for more details.
 
@@ -3162,13 +3162,13 @@ Privacy controls are applied to the response based on the users' preferences. Th
 
 This resource represents webhooks. Webhooks are calls sent to a URL when an event occurs in Jira for issues specified by a JQL query. Only Connect and OAuth 2.0 apps can register and manage webhooks. For more information, see [Webhooks](https://developer.atlassian.com/cloud/jira/platform/webhooks/#registering-a-webhook-via-the-jira-rest-api-for-connect-apps).
 
-- **`jira-cloud-platform-pp-cli webhook delete-by-id`** - Removes webhooks by ID. Only webhooks registered by the calling app are removed. If webhooks created by other apps are specified, they are ignored.
+- **`jira-pp-cli webhook delete-by-id`** - Removes webhooks by ID. Only webhooks registered by the calling app are removed. If webhooks created by other apps are specified, they are ignored.
 
 **[Permissions](#permissions) required:** Only [Connect](https://developer.atlassian.com/cloud/jira/platform/#connect-apps) and [OAuth 2.0](https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps) apps can use this operation.
-- **`jira-cloud-platform-pp-cli webhook get-dynamic-for-app`** - Returns a [paginated](#pagination) list of the webhooks registered by the calling app.
+- **`jira-pp-cli webhook get-dynamic-for-app`** - Returns a [paginated](#pagination) list of the webhooks registered by the calling app.
 
 **[Permissions](#permissions) required:** Only [Connect](https://developer.atlassian.com/cloud/jira/platform/#connect-apps) and [OAuth 2.0](https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps) apps can use this operation.
-- **`jira-cloud-platform-pp-cli webhook get-failed`** - Returns webhooks that have recently failed to be delivered to the requesting app after the maximum number of retries.
+- **`jira-pp-cli webhook get-failed`** - Returns webhooks that have recently failed to be delivered to the requesting app after the maximum number of retries.
 
 After 72 hours the failure may no longer be returned by this operation.
 
@@ -3177,12 +3177,12 @@ The oldest failure is returned first.
 This method uses a cursor-based pagination. To request the next page use the failure time of the last webhook on the list as the `failedAfter` value or use the URL provided in `next`.
 
 **[Permissions](#permissions) required:** Only [Connect apps](https://developer.atlassian.com/cloud/jira/platform/index/#connect-apps) can use this operation.
-- **`jira-cloud-platform-pp-cli webhook refresh`** - Extends the life of webhook. Webhooks registered through the REST API expire after 30 days. Call this operation to keep them alive.
+- **`jira-pp-cli webhook refresh`** - Extends the life of webhook. Webhooks registered through the REST API expire after 30 days. Call this operation to keep them alive.
 
 Unrecognized webhook IDs (those that are not found or belong to other apps) are ignored.
 
 **[Permissions](#permissions) required:** Only [Connect](https://developer.atlassian.com/cloud/jira/platform/#connect-apps) and [OAuth 2.0](https://developer.atlassian.com/cloud/jira/platform/oauth-2-3lo-apps) apps can use this operation.
-- **`jira-cloud-platform-pp-cli webhook register-dynamic`** - Registers webhooks.
+- **`jira-pp-cli webhook register-dynamic`** - Registers webhooks.
 
 **NOTE:** for non-public OAuth apps, webhooks are delivered only if there is a match between the app owner and the user who registered a dynamic webhook.
 
@@ -3198,7 +3198,7 @@ This resource represents workflows. Use it to:
  *  Delete inactive workflows
  *  Get workflow capabilities
 
-- **`jira-cloud-platform-pp-cli workflows capabilities`** - Get the list of workflow capabilities for a specific workflow using either the workflow ID, or the project and issue type ID pair. The response includes the scope of the workflow, defined as global/project-based, and a list of project types that the workflow is scoped to. It also includes all rules organised into their broad categories (conditions, validators, actions, triggers, screens) as well as the source location (Atlassian-provided, Connect, Forge).
+- **`jira-pp-cli workflows capabilities`** - Get the list of workflow capabilities for a specific workflow using either the workflow ID, or the project and issue type ID pair. The response includes the scope of the workflow, defined as global/project-based, and a list of project types that the workflow is scoped to. It also includes all rules organised into their broad categories (conditions, validators, actions, triggers, screens) as well as the source location (Atlassian-provided, Connect, Forge).
 
 **[Permissions](#permissions) required:**
 
@@ -3733,43 +3733,43 @@ Parameters:
  *  `id` the ID of the Forge rule
  *  `disabled` determine if the Forge app is disabled. Allowed values: `true`, `false`.
  *  `tag` additional tags for the Forge app
-- **`jira-cloud-platform-pp-cli workflows create`** - Create workflows and related statuses.
+- **`jira-pp-cli workflows create`** - Create workflows and related statuses.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* project permission to create all, including global-scoped, workflows
  *  *Administer projects* project permissions to create project-scoped workflows
-- **`jira-cloud-platform-pp-cli workflows get-default-editor`** - Get the user's default workflow editor. This can be either the new editor or the legacy editor.
-- **`jira-cloud-platform-pp-cli workflows read`** - Returns a list of workflows and related statuses by providing workflow names, workflow IDs, or project and issue types.
+- **`jira-pp-cli workflows get-default-editor`** - Get the user's default workflow editor. This can be either the new editor or the legacy editor.
+- **`jira-pp-cli workflows read`** - Returns a list of workflows and related statuses by providing workflow names, workflow IDs, or project and issue types.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* global permission to access all, including project-scoped, workflows
  *  At least one of the *Administer projects* and *View (read-only) workflow* project permissions to access project-scoped workflows
-- **`jira-cloud-platform-pp-cli workflows read-previews`** - Returns a requested workflow within a given project. The response provides a read-only preview of the workflow, omitting full configuration details.
+- **`jira-pp-cli workflows read-previews`** - Returns a requested workflow within a given project. The response provides a read-only preview of the workflow, omitting full configuration details.
 
 **[Permissions](#permissions) required:**
 
  *  At least one of the *Administer projects* and *View (read-only) workflow* project permissions
-- **`jira-cloud-platform-pp-cli workflows search`** - Returns a [paginated](#pagination) list of global and project workflows. If workflow names are specified in the query string, details of those workflows are returned. Otherwise, all workflows are returned.
+- **`jira-pp-cli workflows search`** - Returns a [paginated](#pagination) list of global and project workflows. If workflow names are specified in the query string, details of those workflows are returned. Otherwise, all workflows are returned.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* global permission to access all, including project-scoped, workflows
  *  At least one of the *Administer projects* and *View (read-only) workflow* project permissions to access project-scoped workflows
-- **`jira-cloud-platform-pp-cli workflows update`** - Update workflows and related statuses.
+- **`jira-pp-cli workflows update`** - Update workflows and related statuses.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* project permission to create all, including global-scoped, workflows
  *  *Administer projects* project permissions to create project-scoped workflows
-- **`jira-cloud-platform-pp-cli workflows validate-create`** - Validate the payload for bulk create workflows.
+- **`jira-pp-cli workflows validate-create`** - Validate the payload for bulk create workflows.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* project permission to create all, including global-scoped, workflows
  *  *Administer projects* project permissions to create project-scoped workflows
-- **`jira-cloud-platform-pp-cli workflows validate-update`** - Validate the payload for bulk update workflows.
+- **`jira-pp-cli workflows validate-update`** - Validate the payload for bulk update workflows.
 
 **[Permissions](#permissions) required:**
 
@@ -3780,54 +3780,54 @@ Parameters:
 
 Manage workflowscheme
 
-- **`jira-cloud-platform-pp-cli workflowscheme assign-scheme-to-project`** - Assigns a workflow scheme to a project. This operation is performed only when there are no issues in the project.
+- **`jira-pp-cli workflowscheme assign-scheme-to-project`** - Assigns a workflow scheme to a project. This operation is performed only when there are no issues in the project.
 
 Workflow schemes can only be assigned to classic projects.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme create-workflow-scheme`** - Creates a workflow scheme.
+- **`jira-pp-cli workflowscheme create-workflow-scheme`** - Creates a workflow scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme delete-workflow-scheme`** - Deletes a workflow scheme. Note that a workflow scheme cannot be deleted if it is active (that is, being used by at least one project).
+- **`jira-pp-cli workflowscheme delete-workflow-scheme`** - Deletes a workflow scheme. Note that a workflow scheme cannot be deleted if it is active (that is, being used by at least one project).
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme get-all-workflow-schemes`** - Returns a [paginated](#pagination) list of all workflow schemes, not including draft workflow schemes.
+- **`jira-pp-cli workflowscheme get-all-workflow-schemes`** - Returns a [paginated](#pagination) list of all workflow schemes, not including draft workflow schemes.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme get-required-workflow-scheme-mappings`** - Gets the required status mappings for the desired changes to a workflow scheme. The results are provided per issue type and workflow. When updating a workflow scheme, status mappings can be provided per issue type, per workflow, or both.
+- **`jira-pp-cli workflowscheme get-required-workflow-scheme-mappings`** - Gets the required status mappings for the desired changes to a workflow scheme. The results are provided per issue type and workflow. When updating a workflow scheme, status mappings can be provided per issue type, per workflow, or both.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* permission to update all, including global-scoped, workflow schemes.
  *  *Administer projects* project permission to update project-scoped workflow schemes.
-- **`jira-cloud-platform-pp-cli workflowscheme get-workflow-scheme`** - Returns a workflow scheme.
+- **`jira-pp-cli workflowscheme get-workflow-scheme`** - Returns a workflow scheme.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme get-workflow-scheme-project-associations`** - Returns a list of the workflow schemes associated with a list of projects. Each returned workflow scheme includes a list of the requested projects associated with it. Any team-managed or non-existent projects in the request are ignored and no errors are returned.
+- **`jira-pp-cli workflowscheme get-workflow-scheme-project-associations`** - Returns a list of the workflow schemes associated with a list of projects. Each returned workflow scheme includes a list of the requested projects associated with it. Any team-managed or non-existent projects in the request are ignored and no errors are returned.
 
 If the project is associated with the `Default Workflow Scheme` no ID is returned. This is because the way the `Default Workflow Scheme` is stored means it has no ID.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme read-workflow-schemes`** - Returns a list of workflow schemes by providing workflow scheme IDs or project IDs.
+- **`jira-pp-cli workflowscheme read-workflow-schemes`** - Returns a list of workflow schemes by providing workflow scheme IDs or project IDs.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* global permission to access all, including project-scoped, workflow schemes
  *  *Administer projects* project permissions to access project-scoped workflow schemes
-- **`jira-cloud-platform-pp-cli workflowscheme switch-workflow-scheme-for-project`** - Switches a workflow scheme for a project.
+- **`jira-pp-cli workflowscheme switch-workflow-scheme-for-project`** - Switches a workflow scheme for a project.
 
 Workflow schemes can only be assigned to classic projects.
 
 **Calculating required mappings:** If statuses from the current workflow scheme won't exist in the target workflow scheme, you must provide `mappingsByIssueTypeOverride` to specify how issues with those statuses should be migrated. Use [the required workflow scheme mappings API](#api-rest-api-3-workflowscheme-update-mappings-post) to determine which statuses and issue types require mappings.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
-- **`jira-cloud-platform-pp-cli workflowscheme update-schemes`** - Updates company-managed and team-managed project workflow schemes. This API doesn't have a concept of draft, so any changes made to a workflow scheme are immediately available. When changing the available statuses for issue types, an [asynchronous task](#async) migrates the issues as defined in the provided mappings.
+- **`jira-pp-cli workflowscheme update-schemes`** - Updates company-managed and team-managed project workflow schemes. This API doesn't have a concept of draft, so any changes made to a workflow scheme are immediately available. When changing the available statuses for issue types, an [asynchronous task](#async) migrates the issues as defined in the provided mappings.
 
 **[Permissions](#permissions) required:**
 
  *  *Administer Jira* project permission to update all, including global-scoped, workflow schemes.
  *  *Administer projects* project permission to update project-scoped workflow schemes.
-- **`jira-cloud-platform-pp-cli workflowscheme update-workflow-scheme`** - Updates a company-manged project workflow scheme, including the name, default workflow, issue type to project mappings, and more. If the workflow scheme is active (that is, being used by at least one project), then a draft workflow scheme is created or updated instead, provided that `updateDraftIfNeeded` is set to `true`.
+- **`jira-pp-cli workflowscheme update-workflow-scheme`** - Updates a company-manged project workflow scheme, including the name, default workflow, issue type to project mappings, and more. If the workflow scheme is active (that is, being used by at least one project), then a draft workflow scheme is created or updated instead, provided that `updateDraftIfNeeded` is set to `true`.
 
 **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg).
 
@@ -3835,7 +3835,7 @@ Workflow schemes can only be assigned to classic projects.
 
 Manage worklog
 
-- **`jira-cloud-platform-pp-cli worklog get-for-ids`** - Returns worklog details for a list of worklog IDs.
+- **`jira-pp-cli worklog get-for-ids`** - Returns worklog details for a list of worklog IDs.
 
 The returned list of worklogs is limited to 1000 items.
 
@@ -3843,14 +3843,14 @@ The returned list of worklogs is limited to 1000 items.
 
  *  the worklog is set as *Viewable by All Users*.
  *  the user is a member of a project role or group with permission to view the worklog.
-- **`jira-cloud-platform-pp-cli worklog get-ids-of-deleted-since`** - Returns a list of IDs and delete timestamps for worklogs deleted after a date and time.
+- **`jira-pp-cli worklog get-ids-of-deleted-since`** - Returns a list of IDs and delete timestamps for worklogs deleted after a date and time.
 
 This resource is paginated, with a limit of 1000 worklogs per page. Each page lists worklogs from oldest to youngest. If the number of items in the date range exceeds 1000, `until` indicates the timestamp of the youngest item on the page. Also, `nextPage` provides the URL for the next page of worklogs. The `lastPage` parameter is set to true on the last page of worklogs.
 
 This resource does not return worklogs deleted during the minute preceding the request.
 
 **[Permissions](#permissions) required:** Permission to access Jira.
-- **`jira-cloud-platform-pp-cli worklog get-ids-of-modified-since`** - Returns a list of IDs and update timestamps for worklogs updated after a date and time.
+- **`jira-pp-cli worklog get-ids-of-modified-since`** - Returns a list of IDs and update timestamps for worklogs updated after a date and time.
 
 This resource is paginated, with a limit of 1000 worklogs per page. Each page lists worklogs from oldest to youngest. If the number of items in the date range exceeds 1000, `until` indicates the timestamp of the youngest item on the page. Also, `nextPage` provides the URL for the next page of worklogs. The `lastPage` parameter is set to true on the last page of worklogs.
 
@@ -3866,19 +3866,19 @@ This resource does not return worklogs updated during the minute preceding the r
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-jira-cloud-platform-pp-cli attachment get mock-value
+jira-pp-cli attachment get mock-value
 
 # JSON for scripting and agents
-jira-cloud-platform-pp-cli attachment get mock-value --json
+jira-pp-cli attachment get mock-value --json
 
 # Filter to specific fields
-jira-cloud-platform-pp-cli attachment get mock-value --json --select id,name,status
+jira-pp-cli attachment get mock-value --json --select id,name,status
 
 # Dry run — show the request without sending
-jira-cloud-platform-pp-cli attachment get mock-value --dry-run
+jira-pp-cli attachment get mock-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-jira-cloud-platform-pp-cli attachment get mock-value --agent
+jira-pp-cli attachment get mock-value --agent
 ```
 
 ## Agent Usage
@@ -3902,10 +3902,10 @@ Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API
 Install the focused skill — it auto-installs the CLI on first invocation:
 
 ```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-jira-cloud-platform -g
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-jira -g
 ```
 
-Then invoke `/pp-jira-cloud-platform <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+Then invoke `/pp-jira <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
 
 <details>
 <summary>Use as an MCP server in Claude Code (advanced)</summary>
@@ -3918,7 +3918,7 @@ Install the MCP binary from this CLI's published public-library entry or pre-bui
 Then register it:
 
 ```bash
-claude mcp add jira-cloud-platform jira-cloud-platform-pp-mcp -e JIRA_CLOUD_PLATFORM_OAUTH2=<your-token>
+claude mcp add jira jira-pp-mcp -e JIRA_OAUTH2=<your-token>
 ```
 
 </details>
@@ -3929,9 +3929,9 @@ This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle �
 
 To install:
 
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/jira-cloud-platform-current).
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/jira-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `JIRA_CLOUD_PLATFORM_OAUTH2` when Claude Desktop prompts you.
+3. Fill in `JIRA_OAUTH2` when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -3948,10 +3948,10 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```json
 {
   "mcpServers": {
-    "jira-cloud-platform": {
-      "command": "jira-cloud-platform-pp-mcp",
+    "jira": {
+      "command": "jira-pp-mcp",
       "env": {
-        "JIRA_CLOUD_PLATFORM_OAUTH2": "<your-key>"
+        "JIRA_OAUTH2": "<your-key>"
       }
     }
   }
@@ -3963,14 +3963,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ## Health Check
 
 ```bash
-jira-cloud-platform-pp-cli doctor
+jira-pp-cli doctor
 ```
 
 Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/jira-cloud-platform-pp-cli/config.toml`
+Config file: `~/.config/jira-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
@@ -3978,12 +3978,12 @@ Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `JIRA_CLOUD_PLATFORM_OAUTH2` | per_call | Yes | Set to your API credential. |
+| `JIRA_OAUTH2` | per_call | Yes | Set to your API credential. |
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
-- Run `jira-cloud-platform-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $JIRA_CLOUD_PLATFORM_OAUTH2`
+- Run `jira-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $JIRA_OAUTH2`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

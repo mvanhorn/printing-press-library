@@ -83,7 +83,7 @@ func newIssueTransitionsDoCmd(flags *rootFlags) *cobra.Command {
 		Use:   "do <issueIdOrKey>",
 		Aliases: []string{"create"},
 		Short: "Performs an issue transition and, if the transition has a screen, updates the fields from the transition screen....",
-		Example: "  jira-cloud-platform-pp-cli issue transitions do your-token-here",
+		Example: "  jira-pp-cli issue transitions do your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "transitions.do", "pp:method": "POST", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/transitions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

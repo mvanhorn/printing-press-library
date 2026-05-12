@@ -24,7 +24,7 @@ func newUserFindWithBrowsePermissionCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "find-with-browse-permission",
 		Short: "Returns a list of users who fulfill these criteria: * their user attributes match a search string. * they have...",
-		Example: "  jira-cloud-platform-pp-cli user find-with-browse-permission",
+		Example: "  jira-pp-cli user find-with-browse-permission",
 		Annotations: map[string]string{"pp:endpoint": "user.find-with-browse-permission", "pp:method": "GET", "pp:path": "/rest/api/3/user/viewissue/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

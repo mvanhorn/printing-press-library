@@ -18,7 +18,7 @@ func newStatusesGetByIdCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-by-id",
 		Aliases: []string{"list"},
 		Short: "Returns a list of the statuses specified by one or more status IDs. **[Permissions](#permissions) required:** *...",
-		Example: "  jira-cloud-platform-pp-cli statuses get-by-id --id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli statuses get-by-id --id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "statuses.get-by-id", "pp:method": "GET", "pp:path": "/rest/api/3/statuses", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("id") && !flags.dryRun {

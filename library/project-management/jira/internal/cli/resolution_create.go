@@ -20,7 +20,7 @@ func newResolutionCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates an issue resolution. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli resolution create --name example-resource",
+		Example: "  jira-pp-cli resolution create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "resolution.create", "pp:method": "POST", "pp:path": "/rest/api/3/resolution"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

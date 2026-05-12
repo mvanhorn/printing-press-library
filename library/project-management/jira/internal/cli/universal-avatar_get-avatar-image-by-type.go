@@ -19,7 +19,7 @@ func newUniversalAvatarGetAvatarImageByTypeCmd(flags *rootFlags) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:   "get-avatar-image-by-type",
 		Short: "Returns the default project, issue type or priority avatar image. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli universal-avatar get-avatar-image-by-type",
+		Example: "  jira-pp-cli universal-avatar get-avatar-image-by-type",
 		Annotations: map[string]string{"pp:endpoint": "universal-avatar.get-avatar-image-by-type", "pp:method": "GET", "pp:path": "/rest/api/3/universal_avatar/view/type/{type}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("type") {

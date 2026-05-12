@@ -18,7 +18,7 @@ func newProjectTemplateRemoveTemplateCmd(flags *rootFlags) *cobra.Command {
 		Use:   "remove-template",
 		Aliases: []string{"delete"},
 		Short: "Remove custom template This API endpoint allows you to remove a specified customised template ***Note: Custom...",
-		Example: "  jira-cloud-platform-pp-cli project-template remove-template --template-key your-token-here",
+		Example: "  jira-pp-cli project-template remove-template --template-key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "project-template.remove-template", "pp:method": "DELETE", "pp:path": "/rest/api/3/project-template/remove-template"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("template-key") && !flags.dryRun {

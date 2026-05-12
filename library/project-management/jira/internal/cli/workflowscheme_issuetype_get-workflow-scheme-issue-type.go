@@ -18,7 +18,7 @@ func newWorkflowschemeIssuetypeGetWorkflowSchemeIssueTypeCmd(flags *rootFlags) *
 		Use:   "get-workflow-scheme-issue-type <id> <issueType>",
 		Aliases: []string{"get"},
 		Short: "Returns the issue type-workflow mapping for an issue type in a workflow scheme. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme issuetype get-workflow-scheme-issue-type 550e8400-e29b-41d4-a716-446655440000 example-value",
+		Example: "  jira-pp-cli workflowscheme issuetype get-workflow-scheme-issue-type 550e8400-e29b-41d4-a716-446655440000 example-value",
 		Annotations: map[string]string{"pp:endpoint": "issuetype.get-workflow-scheme-issue-type", "pp:method": "GET", "pp:path": "/rest/api/3/workflowscheme/{id}/issuetype/{issueType}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

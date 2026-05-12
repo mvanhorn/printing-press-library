@@ -17,7 +17,7 @@ func newAtlassianConnectDynamicModulesResourceRemoveModulesDeleteCmd(flags *root
 	cmd := &cobra.Command{
 		Use:   "dynamic-modules-resource-remove-modules-delete",
 		Short: "Remove all or a list of modules registered by the calling app. **[Permissions](#permissions) required:** Only...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect dynamic-modules-resource-remove-modules-delete",
+		Example: "  jira-pp-cli atlassian-connect dynamic-modules-resource-remove-modules-delete",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.dynamic-modules-resource-remove-modules-delete", "pp:method": "DELETE", "pp:path": "/rest/atlassian-connect/1/app/module/dynamic"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

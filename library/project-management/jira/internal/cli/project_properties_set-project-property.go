@@ -19,7 +19,7 @@ func newProjectPropertiesSetProjectPropertyCmd(flags *rootFlags) *cobra.Command 
 		Use:   "set-project-property <projectIdOrKey> <propertyKey>",
 		Aliases: []string{"update"},
 		Short: "Sets the value of the [project property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-d...",
-		Example: "  jira-cloud-platform-pp-cli project properties set-project-property your-token-here your-token-here",
+		Example: "  jira-pp-cli project properties set-project-property your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.set-project-property", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

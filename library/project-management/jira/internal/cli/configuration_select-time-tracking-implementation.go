@@ -22,7 +22,7 @@ func newConfigurationSelectTimeTrackingImplementationCmd(flags *rootFlags) *cobr
 		Use:   "select-time-tracking-implementation",
 		Aliases: []string{"update"},
 		Short: "Selects a time tracking provider. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli configuration select-time-tracking-implementation --key your-token-here",
+		Example: "  jira-pp-cli configuration select-time-tracking-implementation --key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "configuration.select-time-tracking-implementation", "pp:method": "PUT", "pp:path": "/rest/api/3/configuration/timetracking"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

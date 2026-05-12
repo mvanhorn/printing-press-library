@@ -20,7 +20,7 @@ func newStatusesProjectGetIssueTypeUsagesForStatusCmd(flags *rootFlags) *cobra.C
 		Use:   "get-issue-type-usages-for-status <statusId> <projectId>",
 		Aliases: []string{"get"},
 		Short: "Returns a page of issue types in a project using a given status.",
-		Example: "  jira-cloud-platform-pp-cli statuses project get-issue-type-usages-for-status 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli statuses project get-issue-type-usages-for-status 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "project.get-issue-type-usages-for-status", "pp:method": "GET", "pp:path": "/rest/api/3/statuses/{statusId}/project/{projectId}/issueTypeUsages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

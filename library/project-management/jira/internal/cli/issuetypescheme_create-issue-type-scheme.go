@@ -23,7 +23,7 @@ func newIssuetypeschemeCreateIssueTypeSchemeCmd(flags *rootFlags) *cobra.Command
 		Use:   "create-issue-type-scheme",
 		Aliases: []string{"create"},
 		Short: "Creates an issue type scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme create-issue-type-scheme --name example-resource",
+		Example: "  jira-pp-cli issuetypescheme create-issue-type-scheme --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescheme.create-issue-type-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/issuetypescheme"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -16,7 +16,7 @@ func newIssueLinkDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <linkId>",
 		Short: "Deletes an issue link. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *...",
-		Example: "  jira-cloud-platform-pp-cli issue-link delete 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue-link delete 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issue-link.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/issueLink/{linkId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

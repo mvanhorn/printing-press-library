@@ -22,7 +22,7 @@ func newProjectRoleAddActorUsersCmd(flags *rootFlags) *cobra.Command {
 		Use:   "add-actor-users <projectIdOrKey> <id>",
 		Aliases: []string{"create"},
 		Short: "Adds actors to a project role for the project. To replace all actors for the project, use [Set actors for project...",
-		Example: "  jira-cloud-platform-pp-cli project role add-actor-users your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli project role add-actor-users your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "role.add-actor-users", "pp:method": "POST", "pp:path": "/rest/api/3/project/{projectIdOrKey}/role/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

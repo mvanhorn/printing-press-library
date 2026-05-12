@@ -26,7 +26,7 @@ func newUserCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates a user. This resource is retained for legacy compatibility. As soon as a more suitable alternative is...",
-		Example: "  jira-cloud-platform-pp-cli user create --email-address user@example.com",
+		Example: "  jira-pp-cli user create --email-address user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "user.create", "pp:method": "POST", "pp:path": "/rest/api/3/user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

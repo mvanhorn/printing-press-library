@@ -20,7 +20,7 @@ func newScreensUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <screenId>",
 		Short: "Updates a screen. Only screens used in classic projects can be updated. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli screens update 42",
+		Example: "  jira-pp-cli screens update 42",
 		Annotations: map[string]string{"pp:endpoint": "screens.update", "pp:method": "PUT", "pp:path": "/rest/api/3/screens/{screenId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

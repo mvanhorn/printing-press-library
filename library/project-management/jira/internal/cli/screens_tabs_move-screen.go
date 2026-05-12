@@ -18,7 +18,7 @@ func newScreensTabsMoveScreenCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "move-screen <screenId> <tabId> <pos>",
 		Short: "Moves a screen tab. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli screens tabs move-screen 42 42 42",
+		Example: "  jira-pp-cli screens tabs move-screen 42 42 42",
 		Annotations: map[string]string{"pp:endpoint": "tabs.move-screen", "pp:method": "POST", "pp:path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/move/{pos}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

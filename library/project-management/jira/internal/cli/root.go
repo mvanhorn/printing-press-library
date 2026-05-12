@@ -81,16 +81,16 @@ func Execute() error {
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "jira-cloud-platform-pp-cli",
-		Short: "Manage jira-cloud-platform resources via the jira-cloud-platform API",
-		Long: `Manage jira-cloud-platform resources via the jira-cloud-platform API.
+		Use:   "jira-pp-cli",
+		Short: "Manage jira resources via the jira API",
+		Long: `Manage jira resources via the jira API.
 
 Add --agent to any command for JSON output + non-interactive mode.
-Run 'jira-cloud-platform-pp-cli doctor' to verify auth and connectivity.`,
+Run 'jira-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
-	rootCmd.SetVersionTemplate("jira-cloud-platform-pp-cli {{ .Version }}\n")
+	rootCmd.SetVersionTemplate("jira-pp-cli {{ .Version }}\n")
 
 	rootCmd.PersistentFlags().BoolVar(&flags.asJSON, "json", false, "Output as JSON")
 	rootCmd.PersistentFlags().BoolVar(&flags.compact, "compact", false, "Return only key fields (id, name, status, timestamps) for minimal token usage")
@@ -110,7 +110,7 @@ Run 'jira-cloud-platform-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'jira-cloud-platform-pp-cli profile list')")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'jira-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
@@ -194,9 +194,9 @@ Run 'jira-cloud-platform-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newIssuetypeCmd(flags))
 	rootCmd.AddCommand(newIssuetypeschemeCmd(flags))
 	rootCmd.AddCommand(newIssuetypescreenschemeCmd(flags))
-	rootCmd.AddCommand(newJiraCloudPlatformSearchCmd(flags))
-	rootCmd.AddCommand(newJiraCloudPlatformVersionCmd(flags))
-	rootCmd.AddCommand(newJiraCloudPlatformWorkflowCmd(flags))
+	rootCmd.AddCommand(newJiraSearchCmd(flags))
+	rootCmd.AddCommand(newJiraVersionCmd(flags))
+	rootCmd.AddCommand(newJiraWorkflowCmd(flags))
 	rootCmd.AddCommand(newJqlCmd(flags))
 	rootCmd.AddCommand(newLicenseCmd(flags))
 	rootCmd.AddCommand(newMypreferencesCmd(flags))
@@ -324,7 +324,7 @@ func newVersionCliCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("jira-cloud-platform-pp-cli %s\n", version)
+			fmt.Printf("jira-pp-cli %s\n", version)
 		},
 	}
 }

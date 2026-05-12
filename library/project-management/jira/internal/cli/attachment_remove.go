@@ -17,7 +17,7 @@ func newAttachmentRemoveCmd(flags *rootFlags) *cobra.Command {
 		Use:   "remove <id>",
 		Aliases: []string{"delete"},
 		Short: "Deletes an attachment from an issue. This operation can be accessed anonymously. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli attachment remove 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli attachment remove 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "attachment.remove", "pp:method": "DELETE", "pp:path": "/rest/api/3/attachment/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

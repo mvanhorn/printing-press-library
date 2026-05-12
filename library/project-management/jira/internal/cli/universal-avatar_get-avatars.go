@@ -17,7 +17,7 @@ func newUniversalAvatarGetAvatarsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-avatars <entityId>",
 		Short: "Returns the system and custom avatars for a project, issue type or priority. This operation can be accessed...",
-		Example: "  jira-cloud-platform-pp-cli universal-avatar get-avatars 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli universal-avatar get-avatars 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "universal-avatar.get-avatars", "pp:method": "GET", "pp:path": "/rest/api/3/universal_avatar/type/{type}/owner/{entityId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

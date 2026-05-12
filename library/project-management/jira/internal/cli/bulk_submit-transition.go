@@ -25,7 +25,7 @@ func newBulkSubmitTransitionCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-transition",
 		Short: "Use this API to submit a bulk issue status transition request. You can transition multiple issues, alongside with...",
-		Example: "  jira-cloud-platform-pp-cli bulk submit-transition",
+		Example: "  jira-pp-cli bulk submit-transition",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-transition", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/transition"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

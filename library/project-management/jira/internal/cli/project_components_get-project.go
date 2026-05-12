@@ -18,7 +18,7 @@ func newProjectComponentsGetProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-project <projectIdOrKey>",
 		Aliases: []string{"get"},
 		Short: "Returns all components in a project. See the [Get project components...",
-		Example: "  jira-cloud-platform-pp-cli project components get-project your-token-here",
+		Example: "  jira-pp-cli project components get-project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "components.get-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/components", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

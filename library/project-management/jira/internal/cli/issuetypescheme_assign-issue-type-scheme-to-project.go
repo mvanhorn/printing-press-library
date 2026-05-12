@@ -21,7 +21,7 @@ func newIssuetypeschemeAssignIssueTypeSchemeToProjectCmd(flags *rootFlags) *cobr
 		Use:   "assign-issue-type-scheme-to-project",
 		Aliases: []string{"update"},
 		Short: "Assigns an issue type scheme to a project. If any issues in the project are assigned issue types not present in the...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme assign-issue-type-scheme-to-project --issue-type-scheme-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetypescheme assign-issue-type-scheme-to-project --issue-type-scheme-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescheme.assign-issue-type-scheme-to-project", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetypescheme/project"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -17,7 +17,7 @@ func newPermissionschemeDeletePermissionSchemeCmd(flags *rootFlags) *cobra.Comma
 		Use:   "delete-permission-scheme <schemeId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a permission scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli permissionscheme delete-permission-scheme 42",
+		Example: "  jira-pp-cli permissionscheme delete-permission-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "permissionscheme.delete-permission-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/permissionscheme/{schemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

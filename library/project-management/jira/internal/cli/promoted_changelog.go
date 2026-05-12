@@ -21,7 +21,7 @@ func newChangelogPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "changelog",
 		Short: "Bulk fetch changelogs for multiple issues and filter by fields Returns a paginated list of all changelogs for given...",
 		Long:  "Shortcut for 'changelog get-bulk'. Bulk fetch changelogs for multiple issues and filter by fields Returns a paginated list of all changelogs for given...",
-		Example: "  jira-cloud-platform-pp-cli changelog",
+		Example: "  jira-pp-cli changelog",
 		Annotations: map[string]string{"pp:endpoint": "changelog.get-bulk", "pp:method": "POST", "pp:path": "/rest/api/3/changelog/bulkfetch"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("issue-ids-or-keys") && !flags.dryRun {

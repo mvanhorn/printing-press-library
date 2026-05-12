@@ -17,7 +17,7 @@ func newScreenschemeDeleteScreenSchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-screen-scheme <screenSchemeId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a screen scheme. A screen scheme cannot be deleted if it is used in an issue type screen scheme. Only...",
-		Example: "  jira-cloud-platform-pp-cli screenscheme delete-screen-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli screenscheme delete-screen-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "screenscheme.delete-screen-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/screenscheme/{screenSchemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -22,7 +22,7 @@ func newGroupAddUserToCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-user-to",
 		Short: "Adds a user to a group. **[Permissions](#permissions) required:** Site administration (that is, member of the...",
-		Example: "  jira-cloud-platform-pp-cli group add-user-to",
+		Example: "  jira-pp-cli group add-user-to",
 		Annotations: map[string]string{"pp:endpoint": "group.add-user-to", "pp:method": "POST", "pp:path": "/rest/api/3/group/user"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

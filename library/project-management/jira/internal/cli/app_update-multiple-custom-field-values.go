@@ -20,7 +20,7 @@ func newAppUpdateMultipleCustomFieldValuesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-multiple-custom-field-values",
 		Short: "Updates the value of one or more custom fields on one or more issues. Combinations of custom field and issue should...",
-		Example: "  jira-cloud-platform-pp-cli app update-multiple-custom-field-values",
+		Example: "  jira-pp-cli app update-multiple-custom-field-values",
 		Annotations: map[string]string{"pp:endpoint": "app.update-multiple-custom-field-values", "pp:method": "POST", "pp:path": "/rest/api/3/app/field/value"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

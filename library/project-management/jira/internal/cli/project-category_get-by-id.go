@@ -17,7 +17,7 @@ func newProjectCategoryGetByIdCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-by-id <id>",
 		Aliases: []string{"get"},
 		Short: "Returns a project category. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-cloud-platform-pp-cli project-category get-by-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli project-category get-by-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "project-category.get-by-id", "pp:method": "GET", "pp:path": "/rest/api/3/projectCategory/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

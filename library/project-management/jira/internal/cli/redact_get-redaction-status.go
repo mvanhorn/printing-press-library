@@ -17,7 +17,7 @@ func newRedactGetRedactionStatusCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-redaction-status <jobId>",
 		Aliases: []string{"get"},
 		Short: "Retrieves the current status of a redaction job ID. The jobStatus will be one of the following: * IN_PROGRESS - The...",
-		Example: "  jira-cloud-platform-pp-cli redact get-redaction-status 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli redact get-redaction-status 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "redact.get-redaction-status", "pp:method": "GET", "pp:path": "/rest/api/3/redact/status/{jobId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

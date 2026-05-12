@@ -87,7 +87,7 @@ func newIssueEditCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "edit <issueIdOrKey>",
 		Short: "Edits an issue. Issue properties may be updated as part of the edit. Please note that issue transition is not...",
-		Example: "  jira-cloud-platform-pp-cli issue edit your-token-here",
+		Example: "  jira-pp-cli issue edit your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "issue.edit", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/{issueIdOrKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

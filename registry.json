@@ -780,7 +780,7 @@
       "name": "jira",
       "category": "project-management",
       "api": "jira",
-      "description": "Jira Cloud platform REST API documentation",
+      "description": "Jira Cloud Platform REST API documentation",
       "path": "library/project-management/jira",
       "printer": "neektza",
       "printer_name": "Nikica Jokic"

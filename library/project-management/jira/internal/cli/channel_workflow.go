@@ -35,10 +35,10 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 local SQLite database. Supports incremental sync (only new data since last run)
 and full resync. After archiving, use 'search' for instant full-text search.`,
 		Example: `  # Archive all resources
-  jira-cloud-platform-pp-cli workflow archive
+  jira-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)
-  jira-cloud-platform-pp-cli workflow archive --full`,
+  jira-pp-cli workflow archive --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -47,7 +47,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"application-properties", "application-properties-advanced-settings", "applicationrole", "auditing", "classification-levels", "component", "config", "configuration", "dashboard", "dashboard-gadgets", "events", "field", "field-search-trashed", "fieldconfiguration", "fieldconfigurationscheme", "fieldconfigurationscheme-mapping", "filter", "filter-favourite", "forge", "group", "group-member", "groups", "issue", "issuesecurityschemes", "issuesecurityschemes-level-member", "issuesecurityschemes-project", "issuetype", "issuetypescheme", "issuetypescheme-mapping", "issuetypescreenscheme", "issuetypescreenscheme-mapping", "jira-cloud-platform-search", "jira-cloud-platform-search-jql", "jira-cloud-platform-workflow", "jql", "jql-autocompletedata-suggestions", "label", "notificationscheme", "notificationscheme-project", "permissions", "permissionscheme", "plans", "priority", "priorityscheme", "project", "project-category", "project-recent", "project-type", "project-type-accessible", "projectvalidate", "resolution", "role", "screens", "screenscheme", "settings", "status", "statuscategory", "statuses", "ui-modifications", "user", "user-bulk-migration", "user-columns", "users", "webhook", "webhook-failed", "workflows", "workflows-default-editor", "workflowscheme",  }
+			resources := []string{"application-properties", "application-properties-advanced-settings", "applicationrole", "auditing", "classification-levels", "component", "config", "configuration", "dashboard", "dashboard-gadgets", "events", "field", "field-search-trashed", "fieldconfiguration", "fieldconfigurationscheme", "fieldconfigurationscheme-mapping", "filter", "filter-favourite", "forge", "group", "group-member", "groups", "issue", "issuesecurityschemes", "issuesecurityschemes-level-member", "issuesecurityschemes-project", "issuetype", "issuetypescheme", "issuetypescheme-mapping", "issuetypescreenscheme", "issuetypescreenscheme-mapping", "jira-search", "jira-search-jql", "jira-workflow", "jql", "jql-autocompletedata-suggestions", "label", "notificationscheme", "notificationscheme-project", "permissions", "permissionscheme", "plans", "priority", "priorityscheme", "project", "project-category", "project-recent", "project-type", "project-type-accessible", "projectvalidate", "resolution", "role", "screens", "screenscheme", "settings", "status", "statuscategory", "statuses", "ui-modifications", "user", "user-bulk-migration", "user-columns", "users", "webhook", "webhook-failed", "workflows", "workflows-default-editor", "workflowscheme",  }
 			totalSynced := 0
 
 			for _, resource := range resources {
@@ -135,7 +135,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-cloud-platform-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -149,13 +149,13 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Show local archive status and sync state for all resources",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
-  jira-cloud-platform-pp-cli workflow status
+  jira-pp-cli workflow status
 
   # Show status as JSON
-  jira-cloud-platform-pp-cli workflow status --json`,
+  jira-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {

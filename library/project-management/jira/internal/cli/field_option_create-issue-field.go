@@ -25,7 +25,7 @@ func newFieldOptionCreateIssueFieldCmd(flags *rootFlags) *cobra.Command {
 		Use:   "create-issue-field <fieldKey>",
 		Aliases: []string{"create"},
 		Short: "Creates an option for a select list issue field. Note that this operation **only works for issue field select list...",
-		Example: "  jira-cloud-platform-pp-cli field option create-issue-field your-token-here --value example-value",
+		Example: "  jira-pp-cli field option create-issue-field your-token-here --value example-value",
 		Annotations: map[string]string{"pp:endpoint": "option.create-issue-field", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldKey}/option"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

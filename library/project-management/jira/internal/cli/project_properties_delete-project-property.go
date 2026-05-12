@@ -17,7 +17,7 @@ func newProjectPropertiesDeleteProjectPropertyCmd(flags *rootFlags) *cobra.Comma
 		Use:   "delete-project-property <projectIdOrKey> <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes the [property](https://developer.atlassian.com/cloud/jira/platform/storing-data-without-a-database/#a-id-jira...",
-		Example: "  jira-cloud-platform-pp-cli project properties delete-project-property your-token-here your-token-here",
+		Example: "  jira-pp-cli project properties delete-project-property your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.delete-project-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/project/{projectIdOrKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

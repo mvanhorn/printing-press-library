@@ -16,7 +16,7 @@ func newAtlassianConnectConnectToForgeMigrationFetchTaskResourceFetchMigrationTa
 	cmd := &cobra.Command{
 		Use:   "connect-to-forge-migration-fetch-task-resource-fetch-migration-task-get <connectKey> <jiraIssueFieldsKey>",
 		Short: "Returns the details of a Connect issue field's migration to Forge. When migrating a Connect app to Forge, [Issue...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect connect-to-forge-migration-fetch-task-resource-fetch-migration-task-get your-token-here your-token-here",
+		Example: "  jira-pp-cli atlassian-connect connect-to-forge-migration-fetch-task-resource-fetch-migration-task-get your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.connect-to-forge-migration-fetch-task-resource-fetch-migration-task-get", "pp:method": "GET", "pp:path": "/rest/atlassian-connect/1/migration/{connectKey}/{jiraIssueFieldsKey}/task", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

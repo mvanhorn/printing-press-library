@@ -21,7 +21,7 @@ func newProjectPermissionschemeAssignPermissionSchemeCmd(flags *rootFlags) *cobr
 		Use:   "assign-permission-scheme <projectKeyOrId>",
 		Aliases: []string{"update"},
 		Short: "Assigns a permission scheme with a project. See [Managing project...",
-		Example: "  jira-cloud-platform-pp-cli project permissionscheme assign-permission-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli project permissionscheme assign-permission-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "permissionscheme.assign-permission-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectKeyOrId}/permissionscheme"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

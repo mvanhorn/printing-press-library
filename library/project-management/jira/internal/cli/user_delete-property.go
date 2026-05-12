@@ -20,7 +20,7 @@ func newUserDeletePropertyCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-property <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a property from a user. Note: This operation does not access the [user...",
-		Example: "  jira-cloud-platform-pp-cli user delete-property your-token-here",
+		Example: "  jira-pp-cli user delete-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "user.delete-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/user/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

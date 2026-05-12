@@ -23,7 +23,7 @@ func newPriorityUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <id>",
 		Short: "Updates an issue priority. At least one request body parameter must be defined. Deprecation applies to iconUrl param...",
-		Example: "  jira-cloud-platform-pp-cli priority update 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli priority update 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "priority.update", "pp:method": "PUT", "pp:path": "/rest/api/3/priority/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

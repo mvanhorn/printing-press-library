@@ -19,7 +19,7 @@ func newIssuePropertiesSetIssuePropertyCmd(flags *rootFlags) *cobra.Command {
 		Use:   "set-issue-property <issueIdOrKey> <propertyKey>",
 		Aliases: []string{"update"},
 		Short: "Sets the value of an issue's property. Use this resource to store custom data against an issue. The value of the...",
-		Example: "  jira-cloud-platform-pp-cli issue properties set-issue-property your-token-here your-token-here",
+		Example: "  jira-pp-cli issue properties set-issue-property your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.set-issue-property", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

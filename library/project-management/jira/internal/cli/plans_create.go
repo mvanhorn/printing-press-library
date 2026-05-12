@@ -38,7 +38,7 @@ func newPlansCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates a plan. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli plans create --name example-resource",
+		Example: "  jira-pp-cli plans create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "plans.create", "pp:method": "POST", "pp:path": "/rest/api/3/plans/plan"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

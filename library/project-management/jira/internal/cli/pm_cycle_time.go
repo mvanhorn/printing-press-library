@@ -29,20 +29,20 @@ Outputs p50/p75/p90 percentiles and a histogram bucket distribution.
 
 Data must be synced first: run 'sync --project KEY'.`,
 		Example: `  # Cycle time for all resolved issues in last 90 days
-  jira-cloud-platform-pp-cli cycle-time --project MYPROJ
+  jira-pp-cli cycle-time --project MYPROJ
 
   # Bug-specific cycle time
-  jira-cloud-platform-pp-cli cycle-time --project MYPROJ --type Bug --last 30
+  jira-pp-cli cycle-time --project MYPROJ --type Bug --last 30
 
   # JSON output for agents
-  jira-cloud-platform-pp-cli cycle-time --project MYPROJ --agent`,
+  jira-pp-cli cycle-time --project MYPROJ --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			lastDays, err := parseDurationDays(lastStr)
@@ -52,7 +52,7 @@ Data must be synced first: run 'sync --project KEY'.`,
 
 			db, err2 := store.OpenWithContext(cmd.Context(), dbPath)
 			if err2 != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err2)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err2)
 			}
 			defer db.Close()
 

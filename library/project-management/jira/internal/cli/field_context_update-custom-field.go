@@ -20,7 +20,7 @@ func newFieldContextUpdateCustomFieldCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-custom-field <fieldId> <contextId>",
 		Short: "Updates a [ custom field context](https://confluence.atlassian.com/adminjiracloud/what-are-custom-field-contexts-9919...",
-		Example: "  jira-cloud-platform-pp-cli field context update-custom-field 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context update-custom-field 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.update-custom-field", "pp:method": "PUT", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

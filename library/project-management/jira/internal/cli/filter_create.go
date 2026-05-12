@@ -69,7 +69,7 @@ func newFilterCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates a filter. The filter is shared according to the [default share scope](#api-rest-api-3-filter-post). The...",
-		Example: "  jira-cloud-platform-pp-cli filter create --name example-resource",
+		Example: "  jira-pp-cli filter create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "filter.create", "pp:method": "POST", "pp:path": "/rest/api/3/filter"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -20,7 +20,7 @@ func newIssuesecurityschemesLevelAddSecurityCmd(flags *rootFlags) *cobra.Command
 		Use:   "add-security <schemeId>",
 		Aliases: []string{"update"},
 		Short: "Adds levels and levels' members to the issue security scheme. You can add up to 100 levels per request....",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes level add-security 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuesecurityschemes level add-security 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "level.add-security", "pp:method": "PUT", "pp:path": "/rest/api/3/issuesecurityschemes/{schemeId}/level"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

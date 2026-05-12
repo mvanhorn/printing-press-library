@@ -17,7 +17,7 @@ func newConfigDeleteFieldAssociationSchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-field-association-scheme <id>",
 		Aliases: []string{"delete"},
 		Short: "Delete a specified field association scheme **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli config delete-field-association-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli config delete-field-association-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "config.delete-field-association-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/config/fieldschemes/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -17,7 +17,7 @@ func newFieldContextDeleteCustomFieldCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-custom-field <fieldId> <contextId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a [ custom field context](https://confluence.atlassian.com/adminjiracloud/what-are-custom-field-contexts-9919...",
-		Example: "  jira-cloud-platform-pp-cli field context delete-custom-field 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context delete-custom-field 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.delete-custom-field", "pp:method": "DELETE", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -17,7 +17,7 @@ func newIssuetypeschemeIssuetypeRemoveIssueTypeFromIssueTypeSchemeCmd(flags *roo
 		Use:   "remove-issue-type-from-issue-type-scheme <issueTypeSchemeId> <issueTypeId>",
 		Aliases: []string{"delete"},
 		Short: "Removes an issue type from an issue type scheme. This operation cannot remove: * any issue type used by issues. *...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme issuetype remove-issue-type-from-issue-type-scheme 42 42",
+		Example: "  jira-pp-cli issuetypescheme issuetype remove-issue-type-from-issue-type-scheme 42 42",
 		Annotations: map[string]string{"pp:endpoint": "issuetype.remove-issue-type-from-issue-type-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype/{issueTypeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

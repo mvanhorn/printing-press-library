@@ -24,7 +24,7 @@ func newFieldContextCreateCustomFieldCmd(flags *rootFlags) *cobra.Command {
 		Use:   "create-custom-field <fieldId>",
 		Aliases: []string{"create"},
 		Short: "Creates a custom field context. If `projectIds` is empty, a global context is created. A global context is one that...",
-		Example: "  jira-cloud-platform-pp-cli field context create-custom-field 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
+		Example: "  jira-pp-cli field context create-custom-field 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "context.create-custom-field", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldId}/context"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

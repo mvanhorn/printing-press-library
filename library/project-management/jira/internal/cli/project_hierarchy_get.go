@@ -16,7 +16,7 @@ func newProjectHierarchyGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <projectId>",
 		Short: "Get the issue type hierarchy for a next-gen project. The issue type hierarchy for a project consists of: * *Epic* at...",
-		Example: "  jira-cloud-platform-pp-cli project hierarchy get 42",
+		Example: "  jira-pp-cli project hierarchy get 42",
 		Annotations: map[string]string{"pp:endpoint": "hierarchy.get", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectId}/hierarchy", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

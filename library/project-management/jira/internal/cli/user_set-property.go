@@ -21,7 +21,7 @@ func newUserSetPropertyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-property <propertyKey>",
 		Short: "Sets the value of a user's property. Use this resource to store custom data against a user. Note: This operation...",
-		Example: "  jira-cloud-platform-pp-cli user set-property your-token-here",
+		Example: "  jira-pp-cli user set-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "user.set-property", "pp:method": "PUT", "pp:path": "/rest/api/3/user/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

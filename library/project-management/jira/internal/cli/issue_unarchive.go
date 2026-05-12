@@ -19,7 +19,7 @@ func newIssueUnarchiveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "unarchive",
 		Short: "Enables admins to unarchive up to 1000 issues in a single request using issue ID/key, returning details of the...",
-		Example: "  jira-cloud-platform-pp-cli issue unarchive",
+		Example: "  jira-pp-cli issue unarchive",
 		Annotations: map[string]string{"pp:endpoint": "issue.unarchive", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/unarchive"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

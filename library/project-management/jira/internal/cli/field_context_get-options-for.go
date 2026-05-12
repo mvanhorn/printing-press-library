@@ -21,7 +21,7 @@ func newFieldContextGetOptionsForCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-options-for <fieldId> <contextId>",
 		Short: "Returns a [paginated](#pagination) list of all custom field option for a context. Options are returned first then...",
-		Example: "  jira-cloud-platform-pp-cli field context get-options-for 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context get-options-for 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.get-options-for", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}/option", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

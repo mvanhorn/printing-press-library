@@ -24,7 +24,7 @@ func newProjectTemplateEditTemplateCmd(flags *rootFlags) *cobra.Command {
 		Use:   "edit-template",
 		Aliases: []string{"update"},
 		Short: "Edit custom template This API endpoint allows you to edit an existing customised template. ***Note: Custom Templates...",
-		Example: "  jira-cloud-platform-pp-cli project-template edit-template",
+		Example: "  jira-pp-cli project-template edit-template",
 		Annotations: map[string]string{"pp:endpoint": "project-template.edit-template", "pp:method": "PUT", "pp:path": "/rest/api/3/project-template/edit-template"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -20,7 +20,7 @@ func newFieldconfigurationschemeGetFieldConfigurationSchemeProjectMappingCmd(fla
 	cmd := &cobra.Command{
 		Use:   "get-field-configuration-scheme-project-mapping",
 		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-cloud-platform-pp-cli fieldconfigurationscheme get-field-configuration-scheme-project-mapping --project-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli fieldconfigurationscheme get-field-configuration-scheme-project-mapping --project-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfigurationscheme.get-field-configuration-scheme-project-mapping", "pp:method": "GET", "pp:path": "/rest/api/3/fieldconfigurationscheme/project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("project-id") && !flags.dryRun {

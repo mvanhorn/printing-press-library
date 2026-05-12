@@ -25,7 +25,7 @@ func newFieldGetPaginatedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-paginated",
 		Short: "Returns a [paginated](#pagination) list of fields for Classic Jira projects. The list can include: * all fields *...",
-		Example: "  jira-cloud-platform-pp-cli field get-paginated",
+		Example: "  jira-pp-cli field get-paginated",
 		Annotations: map[string]string{"pp:endpoint": "field.get-paginated", "pp:method": "GET", "pp:path": "/rest/api/3/field/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

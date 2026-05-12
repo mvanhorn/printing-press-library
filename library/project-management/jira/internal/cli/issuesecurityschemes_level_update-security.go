@@ -20,7 +20,7 @@ func newIssuesecurityschemesLevelUpdateSecurityCmd(flags *rootFlags) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:   "update-security <schemeId> <levelId>",
 		Short: "Updates the issue security level. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes level update-security 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuesecurityschemes level update-security 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "level.update-security", "pp:method": "PUT", "pp:path": "/rest/api/3/issuesecurityschemes/{schemeId}/level/{levelId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -19,7 +19,7 @@ func newAtlassianConnectAddonPropertiesResourcePutAddonPropertyPutCmd(flags *roo
 		Use:   "addon-properties-resource-put-addon-property-put <addonKey> <propertyKey>",
 		Aliases: []string{"update"},
 		Short: "Sets the value of an app's property. Use this resource to store custom data for your app. The value of the request...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-put-addon-property-put your-token-here your-token-here",
+		Example: "  jira-pp-cli atlassian-connect addon-properties-resource-put-addon-property-put your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.addon-properties-resource-put-addon-property-put", "pp:method": "PUT", "pp:path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

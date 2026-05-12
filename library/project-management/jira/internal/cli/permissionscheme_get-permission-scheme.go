@@ -18,7 +18,7 @@ func newPermissionschemeGetPermissionSchemeCmd(flags *rootFlags) *cobra.Command 
 		Use:   "get-permission-scheme <schemeId>",
 		Aliases: []string{"get"},
 		Short: "Returns a permission scheme. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-cloud-platform-pp-cli permissionscheme get-permission-scheme 42",
+		Example: "  jira-pp-cli permissionscheme get-permission-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "permissionscheme.get-permission-scheme", "pp:method": "GET", "pp:path": "/rest/api/3/permissionscheme/{schemeId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

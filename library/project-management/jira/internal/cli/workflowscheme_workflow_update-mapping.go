@@ -24,7 +24,7 @@ func newWorkflowschemeWorkflowUpdateMappingCmd(flags *rootFlags) *cobra.Command 
 		Use:   "update-mapping <id>",
 		Aliases: []string{"update"},
 		Short: "Sets the issue types for a workflow in a workflow scheme. The workflow can also be set as the default workflow for...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme workflow update-mapping 550e8400-e29b-41d4-a716-446655440000 --workflow-name example-resource",
+		Example: "  jira-pp-cli workflowscheme workflow update-mapping 550e8400-e29b-41d4-a716-446655440000 --workflow-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "workflow.update-mapping", "pp:method": "PUT", "pp:path": "/rest/api/3/workflowscheme/{id}/workflow"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -17,7 +17,7 @@ func newAtlassianConnectServiceRegistryResourceServicesGetCmd(flags *rootFlags) 
 	cmd := &cobra.Command{
 		Use:   "service-registry-resource-services-get",
 		Short: "Retrieve the attributes of given service registries. **[Permissions](#permissions) required:** Only Connect apps can...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect service-registry-resource-services-get --service-ids example-value",
+		Example: "  jira-pp-cli atlassian-connect service-registry-resource-services-get --service-ids example-value",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.service-registry-resource-services-get", "pp:method": "GET", "pp:path": "/rest/atlassian-connect/1/service-registry", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("service-ids") && !flags.dryRun {

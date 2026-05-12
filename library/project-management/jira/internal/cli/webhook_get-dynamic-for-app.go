@@ -20,7 +20,7 @@ func newWebhookGetDynamicForAppCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-dynamic-for-app",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of the webhooks registered by the calling app. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli webhook get-dynamic-for-app",
+		Example: "  jira-pp-cli webhook get-dynamic-for-app",
 		Annotations: map[string]string{"pp:endpoint": "webhook.get-dynamic-for-app", "pp:method": "GET", "pp:path": "/rest/api/3/webhook", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

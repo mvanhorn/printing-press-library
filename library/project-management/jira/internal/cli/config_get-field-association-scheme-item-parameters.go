@@ -16,7 +16,7 @@ func newConfigGetFieldAssociationSchemeItemParametersCmd(flags *rootFlags) *cobr
 	cmd := &cobra.Command{
 		Use:   "get-field-association-scheme-item-parameters <id> <fieldId>",
 		Short: "Retrieve field association parameters on a field association scheme **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli config get-field-association-scheme-item-parameters 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli config get-field-association-scheme-item-parameters 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "config.get-field-association-scheme-item-parameters", "pp:method": "GET", "pp:path": "/rest/api/3/config/fieldschemes/{id}/fields/{fieldId}/parameters", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

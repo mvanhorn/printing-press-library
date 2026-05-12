@@ -1,34 +1,34 @@
 # Jira Cloud Platform Printed CLI Agent Guide
 
-This directory is a generated `jira-cloud-platform-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
+This directory is a generated `jira-pp-cli` printed CLI. It was produced by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press), so treat systemic fixes as upstream Printing Press fixes first. Keep local edits narrow and document why a generated-tree patch belongs here.
 
 ## Local Operating Contract
 
 Start by asking the generated CLI for current runtime truth:
 
 ```bash
-jira-cloud-platform-pp-cli doctor --json
-jira-cloud-platform-pp-cli agent-context --pretty
+jira-pp-cli doctor --json
+jira-pp-cli agent-context --pretty
 ```
 
 Use runtime discovery instead of relying on a copied command list:
 
 ```bash
-jira-cloud-platform-pp-cli which "<capability>" --json
-jira-cloud-platform-pp-cli <command> --help
+jira-pp-cli which "<capability>" --json
+jira-pp-cli <command> --help
 ```
 
 Add `--agent` to command invocations for JSON, compact output, non-interactive defaults, no color, and confirmation-safe scripting:
 
 ```bash
-jira-cloud-platform-pp-cli <command> --agent
+jira-pp-cli <command> --agent
 ```
 
 Before running an unfamiliar command that may mutate remote state, inspect its help and prefer a dry run:
 
 ```bash
-jira-cloud-platform-pp-cli <command> --help
-jira-cloud-platform-pp-cli <command> --dry-run --agent
+jira-pp-cli <command> --help
+jira-pp-cli <command> --dry-run --agent
 ```
 
 Use `--yes --no-input` only after the target, arguments, and side effects are clear.

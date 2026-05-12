@@ -17,7 +17,7 @@ func newWorkflowschemeDraftGetDefaultWorkflowCmd(flags *rootFlags) *cobra.Comman
 		Use:   "get-default-workflow <id>",
 		Aliases: []string{"get"},
 		Short: "Returns the default workflow for a workflow scheme's draft. The default workflow is the workflow that is assigned...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme draft get-default-workflow 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli workflowscheme draft get-default-workflow 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "draft.get-default-workflow", "pp:method": "GET", "pp:path": "/rest/api/3/workflowscheme/{id}/draft/default", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

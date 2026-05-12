@@ -17,7 +17,7 @@ func newFieldconfigurationschemeDeleteFieldConfigurationSchemeCmd(flags *rootFla
 		Use:   "delete-field-configuration-scheme <id>",
 		Aliases: []string{"delete"},
 		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-cloud-platform-pp-cli fieldconfigurationscheme delete-field-configuration-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli fieldconfigurationscheme delete-field-configuration-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfigurationscheme.delete-field-configuration-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/fieldconfigurationscheme/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -24,7 +24,7 @@ func newBulkSubmitUnwatchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-unwatch",
 		Short: "Use this API to submit a bulk unwatch request. You can unwatch up to 1,000 issues in a single operation....",
-		Example: "  jira-cloud-platform-pp-cli bulk submit-unwatch",
+		Example: "  jira-pp-cli bulk submit-unwatch",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-unwatch", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/unwatch"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

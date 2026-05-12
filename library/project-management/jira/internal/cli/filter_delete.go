@@ -16,7 +16,7 @@ func newFilterDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete <id>",
 		Short: "Delete a filter. **[Permissions](#permissions) required:** Permission to access Jira, however filters can only be...",
-		Example: "  jira-cloud-platform-pp-cli filter delete 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli filter delete 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "filter.delete", "pp:method": "DELETE", "pp:path": "/rest/api/3/filter/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -19,7 +19,7 @@ func newPermissionsGetPermittedProjectsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-permitted-projects",
 		Short: "Returns all the projects where the user is granted a list of project permissions. This operation can be accessed...",
-		Example: "  jira-cloud-platform-pp-cli permissions get-permitted-projects",
+		Example: "  jira-pp-cli permissions get-permitted-projects",
 		Annotations: map[string]string{"pp:endpoint": "permissions.get-permitted-projects", "pp:method": "POST", "pp:path": "/rest/api/3/permissions/project"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

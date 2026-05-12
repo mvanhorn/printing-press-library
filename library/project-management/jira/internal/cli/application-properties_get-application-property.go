@@ -19,7 +19,7 @@ func newApplicationPropertiesGetApplicationPropertyCmd(flags *rootFlags) *cobra.
 	cmd := &cobra.Command{
 		Use:   "get-application-property",
 		Short: "Returns all application properties or an application property. If you specify a value for the `key` parameter, then...",
-		Example: "  jira-cloud-platform-pp-cli application-properties get-application-property",
+		Example: "  jira-pp-cli application-properties get-application-property",
 		Annotations: map[string]string{"pp:endpoint": "application-properties.get-application-property", "pp:method": "GET", "pp:path": "/rest/api/3/application-properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

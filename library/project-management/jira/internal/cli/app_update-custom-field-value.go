@@ -20,7 +20,7 @@ func newAppUpdateCustomFieldValueCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-custom-field-value <fieldIdOrKey>",
 		Short: "Updates the value of a custom field on one or more issues. Apps can only perform this operation on [custom...",
-		Example: "  jira-cloud-platform-pp-cli app update-custom-field-value your-token-here",
+		Example: "  jira-pp-cli app update-custom-field-value your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "app.update-custom-field-value", "pp:method": "PUT", "pp:path": "/rest/api/3/app/field/{fieldIdOrKey}/value"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

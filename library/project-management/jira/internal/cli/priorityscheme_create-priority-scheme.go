@@ -26,7 +26,7 @@ func newPriorityschemeCreatePrioritySchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "create-priority-scheme",
 		Aliases: []string{"create"},
 		Short: "Creates a new priority scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli priorityscheme create-priority-scheme --name example-resource",
+		Example: "  jira-pp-cli priorityscheme create-priority-scheme --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "priorityscheme.create-priority-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/priorityscheme"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

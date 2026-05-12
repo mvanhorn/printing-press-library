@@ -20,7 +20,7 @@ func newBulkGetEditableFieldsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-editable-fields",
 		Short: "Use this API to get a list of fields visible to the user to perform bulk edit operations. You can pass single or...",
-		Example: "  jira-cloud-platform-pp-cli bulk get-editable-fields --issue-ids-or-keys your-token-here",
+		Example: "  jira-pp-cli bulk get-editable-fields --issue-ids-or-keys your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "bulk.get-editable-fields", "pp:method": "GET", "pp:path": "/rest/api/3/bulk/issues/fields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("issue-ids-or-keys") && !flags.dryRun {

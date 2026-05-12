@@ -16,7 +16,7 @@ func newIssueVotesGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <issueIdOrKey>",
 		Short: "Returns details about the votes on an issue. This operation requires the **Allow users to vote on issues** option to...",
-		Example: "  jira-cloud-platform-pp-cli issue votes get your-token-here",
+		Example: "  jira-pp-cli issue votes get your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "votes.get", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/votes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

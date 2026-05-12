@@ -20,7 +20,7 @@ func newFilterOwnerChangeFilterCmd(flags *rootFlags) *cobra.Command {
 		Use:   "change-filter <id>",
 		Aliases: []string{"update"},
 		Short: "Changes the owner of the filter. **[Permissions](#permissions) required:** Permission to access Jira. However, the...",
-		Example: "  jira-cloud-platform-pp-cli filter owner change-filter 550e8400-e29b-41d4-a716-446655440000 --account-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli filter owner change-filter 550e8400-e29b-41d4-a716-446655440000 --account-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "owner.change-filter", "pp:method": "PUT", "pp:path": "/rest/api/3/filter/{id}/owner"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

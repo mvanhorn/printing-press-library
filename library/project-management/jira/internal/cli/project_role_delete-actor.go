@@ -20,7 +20,7 @@ func newProjectRoleDeleteActorCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-actor <projectIdOrKey> <id>",
 		Aliases: []string{"delete"},
 		Short: "Deletes actors from a project role for the project. To remove default actors from the project role, use [Delete...",
-		Example: "  jira-cloud-platform-pp-cli project role delete-actor your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli project role delete-actor your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "role.delete-actor", "pp:method": "DELETE", "pp:path": "/rest/api/3/project/{projectIdOrKey}/role/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

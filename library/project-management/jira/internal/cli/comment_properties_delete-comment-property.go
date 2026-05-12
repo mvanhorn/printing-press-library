@@ -17,7 +17,7 @@ func newCommentPropertiesDeleteCommentPropertyCmd(flags *rootFlags) *cobra.Comma
 		Use:   "delete-comment-property <commentId> <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a comment property. **[Permissions](#permissions) required:** either of: * *Edit All Comments* [project...",
-		Example: "  jira-cloud-platform-pp-cli comment properties delete-comment-property 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Example: "  jira-pp-cli comment properties delete-comment-property 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.delete-comment-property", "pp:method": "DELETE", "pp:path": "/rest/api/3/comment/{commentId}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

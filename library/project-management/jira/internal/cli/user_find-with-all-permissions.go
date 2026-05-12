@@ -25,7 +25,7 @@ func newUserFindWithAllPermissionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "find-with-all-permissions",
 		Short: "Returns a list of users who fulfill these criteria: * their user attributes match a search string. * they have a set...",
-		Example: "  jira-cloud-platform-pp-cli user find-with-all-permissions --permissions example-value",
+		Example: "  jira-pp-cli user find-with-all-permissions --permissions example-value",
 		Annotations: map[string]string{"pp:endpoint": "user.find-with-all-permissions", "pp:method": "GET", "pp:path": "/rest/api/3/user/permission/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("permissions") && !flags.dryRun {

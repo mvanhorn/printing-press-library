@@ -19,7 +19,7 @@ func newFieldContextRemoveIssueTypesFromCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-issue-types-from <fieldId> <contextId>",
 		Short: "Removes issue types from a custom field context. A custom field context without any issue types applies to all issue...",
-		Example: "  jira-cloud-platform-pp-cli field context remove-issue-types-from 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context remove-issue-types-from 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.remove-issue-types-from", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}/issuetype/remove"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

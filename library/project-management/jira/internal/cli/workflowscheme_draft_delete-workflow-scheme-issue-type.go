@@ -16,7 +16,7 @@ func newWorkflowschemeDraftDeleteWorkflowSchemeIssueTypeCmd(flags *rootFlags) *c
 	cmd := &cobra.Command{
 		Use:   "delete-workflow-scheme-issue-type <id> <issueType>",
 		Short: "Deletes the issue type-workflow mapping for an issue type in a workflow scheme's draft....",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme draft delete-workflow-scheme-issue-type 550e8400-e29b-41d4-a716-446655440000 example-value",
+		Example: "  jira-pp-cli workflowscheme draft delete-workflow-scheme-issue-type 550e8400-e29b-41d4-a716-446655440000 example-value",
 		Annotations: map[string]string{"pp:endpoint": "draft.delete-workflow-scheme-issue-type", "pp:method": "DELETE", "pp:path": "/rest/api/3/workflowscheme/{id}/draft/issuetype/{issueType}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

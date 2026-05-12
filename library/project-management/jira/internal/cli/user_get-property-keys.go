@@ -19,7 +19,7 @@ func newUserGetPropertyKeysCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-property-keys",
 		Short: "Returns the keys of all properties for a user. Note: This operation does not access the [user...",
-		Example: "  jira-cloud-platform-pp-cli user get-property-keys",
+		Example: "  jira-pp-cli user get-property-keys",
 		Annotations: map[string]string{"pp:endpoint": "user.get-property-keys", "pp:method": "GET", "pp:path": "/rest/api/3/user/properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

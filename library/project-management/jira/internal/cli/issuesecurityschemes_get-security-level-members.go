@@ -23,7 +23,7 @@ func newIssuesecurityschemesGetSecurityLevelMembersCmd(flags *rootFlags) *cobra.
 	cmd := &cobra.Command{
 		Use:   "get-security-level-members",
 		Short: "Returns a [paginated](#pagination) list of issue security level members. Only issue security level members in the...",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes get-security-level-members",
+		Example: "  jira-pp-cli issuesecurityschemes get-security-level-members",
 		Annotations: map[string]string{"pp:endpoint": "issuesecurityschemes.get-security-level-members", "pp:method": "GET", "pp:path": "/rest/api/3/issuesecurityschemes/level/member", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

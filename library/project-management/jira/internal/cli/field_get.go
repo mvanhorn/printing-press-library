@@ -17,7 +17,7 @@ func newFieldGetCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get",
 		Aliases: []string{"list"},
 		Short: "Returns system and custom issue fields according to the following rules: * Fields that cannot be added to the issue...",
-		Example: "  jira-cloud-platform-pp-cli field get",
+		Example: "  jira-pp-cli field get",
 		Annotations: map[string]string{"pp:endpoint": "field.get", "pp:method": "GET", "pp:path": "/rest/api/3/field", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

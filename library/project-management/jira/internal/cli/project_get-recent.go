@@ -18,7 +18,7 @@ func newProjectGetRecentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-recent",
 		Short: "Returns a list of up to 20 projects recently viewed by the user that are still visible to the user. This operation...",
-		Example: "  jira-cloud-platform-pp-cli project get-recent",
+		Example: "  jira-pp-cli project get-recent",
 		Annotations: map[string]string{"pp:endpoint": "project.get-recent", "pp:method": "GET", "pp:path": "/rest/api/3/project/recent", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

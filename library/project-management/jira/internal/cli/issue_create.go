@@ -83,7 +83,7 @@ func newIssueCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates an issue or, where the option to create subtasks is enabled in Jira, a subtask. A transition may be applied,...",
-		Example: "  jira-cloud-platform-pp-cli issue create",
+		Example: "  jira-pp-cli issue create",
 		Annotations: map[string]string{"pp:endpoint": "issue.create", "pp:method": "POST", "pp:path": "/rest/api/3/issue"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

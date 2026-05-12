@@ -18,7 +18,7 @@ func newAvatarSystemGetAllAvatarsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all-avatars",
 		Aliases: []string{"get"},
 		Short: "Returns a list of system avatar details by owner type, where the owner types are issue type, project, user or...",
-		Example: "  jira-cloud-platform-pp-cli avatar system get-all-avatars",
+		Example: "  jira-pp-cli avatar system get-all-avatars",
 		Annotations: map[string]string{"pp:endpoint": "system.get-all-avatars", "pp:method": "GET", "pp:path": "/rest/api/3/avatar/{type}/system", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("type") {

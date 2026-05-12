@@ -21,7 +21,7 @@ func newIssuetypescreenschemeProjectGetForIssueTypeScreenSchemeCmd(flags *rootFl
 		Use:   "get-for-issue-type-screen-scheme <issueTypeScreenSchemeId>",
 		Aliases: []string{"get"},
 		Short: "Returns a [paginated](#pagination) list of projects associated with an issue type screen scheme. Only...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescreenscheme project get-for-issue-type-screen-scheme 42",
+		Example: "  jira-pp-cli issuetypescreenscheme project get-for-issue-type-screen-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "project.get-for-issue-type-screen-scheme", "pp:method": "GET", "pp:path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

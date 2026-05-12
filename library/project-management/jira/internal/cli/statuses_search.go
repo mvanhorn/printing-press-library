@@ -22,7 +22,7 @@ func newStatusesSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search",
 		Short: "Returns a [paginated](https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/#pagination) list of...",
-		Example: "  jira-cloud-platform-pp-cli statuses search",
+		Example: "  jira-pp-cli statuses search",
 		Annotations: map[string]string{"pp:endpoint": "statuses.search", "pp:method": "GET", "pp:path": "/rest/api/3/statuses/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

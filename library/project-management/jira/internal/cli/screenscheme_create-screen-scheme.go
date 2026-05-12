@@ -25,7 +25,7 @@ func newScreenschemeCreateScreenSchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "create-screen-scheme",
 		Aliases: []string{"create"},
 		Short: "Creates a screen scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli screenscheme create-screen-scheme --name example-resource",
+		Example: "  jira-pp-cli screenscheme create-screen-scheme --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "screenscheme.create-screen-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/screenscheme"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

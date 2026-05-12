@@ -20,7 +20,7 @@ func newConfigUpdateFieldAssociationSchemeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-field-association-scheme <id>",
 		Short: "Endpoint for updating an existing field association scheme. **[Permissions](#permissions) required:** *Administer...",
-		Example: "  jira-cloud-platform-pp-cli config update-field-association-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli config update-field-association-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "config.update-field-association-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/config/fieldschemes/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

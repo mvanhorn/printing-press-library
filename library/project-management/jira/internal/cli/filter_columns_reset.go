@@ -17,7 +17,7 @@ func newFilterColumnsResetCmd(flags *rootFlags) *cobra.Command {
 		Use:   "reset <id>",
 		Aliases: []string{"delete"},
 		Short: "Reset the user's column configuration for the filter to the default. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli filter columns reset 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli filter columns reset 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "columns.reset", "pp:method": "DELETE", "pp:path": "/rest/api/3/filter/{id}/columns"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

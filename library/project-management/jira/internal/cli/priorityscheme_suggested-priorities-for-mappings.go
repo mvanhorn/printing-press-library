@@ -24,7 +24,7 @@ func newPriorityschemeSuggestedPrioritiesForMappingsCmd(flags *rootFlags) *cobra
 	cmd := &cobra.Command{
 		Use:   "suggested-priorities-for-mappings",
 		Short: "Returns a [paginated](#pagination) list of priorities that would require mapping, given a change in priorities or...",
-		Example: "  jira-cloud-platform-pp-cli priorityscheme suggested-priorities-for-mappings",
+		Example: "  jira-pp-cli priorityscheme suggested-priorities-for-mappings",
 		Annotations: map[string]string{"pp:endpoint": "priorityscheme.suggested-priorities-for-mappings", "pp:method": "POST", "pp:path": "/rest/api/3/priorityscheme/mappings"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -17,7 +17,7 @@ func newMypreferencesGetPreferenceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-preference",
 		Short: "Returns the value of a preference of the current user. Note that these keys are deprecated: * *jira.user.locale* The...",
-		Example: "  jira-cloud-platform-pp-cli mypreferences get-preference --key your-token-here",
+		Example: "  jira-pp-cli mypreferences get-preference --key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "mypreferences.get-preference", "pp:method": "GET", "pp:path": "/rest/api/3/mypreferences", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("key") && !flags.dryRun {

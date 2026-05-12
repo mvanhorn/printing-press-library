@@ -21,7 +21,7 @@ func newWorkflowschemeDefaultUpdateWorkflowCmd(flags *rootFlags) *cobra.Command 
 		Use:   "update-workflow <id>",
 		Aliases: []string{"update"},
 		Short: "Sets the default workflow for a workflow scheme. Note that active workflow schemes cannot be edited. If the workflow...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme default update-workflow 550e8400-e29b-41d4-a716-446655440000 --workflow example-value",
+		Example: "  jira-pp-cli workflowscheme default update-workflow 550e8400-e29b-41d4-a716-446655440000 --workflow example-value",
 		Annotations: map[string]string{"pp:endpoint": "default.update-workflow", "pp:method": "PUT", "pp:path": "/rest/api/3/workflowscheme/{id}/default"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

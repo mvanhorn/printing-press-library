@@ -32,7 +32,7 @@ func newProjectUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <projectIdOrKey>",
 		Short: "Updates the [project details](https://confluence.atlassian.com/x/ahLpNw) of a project. All parameters are optional...",
-		Example: "  jira-cloud-platform-pp-cli project update your-token-here",
+		Example: "  jira-pp-cli project update your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "project.update", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectIdOrKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

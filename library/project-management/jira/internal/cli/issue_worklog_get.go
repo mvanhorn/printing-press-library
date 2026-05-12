@@ -17,7 +17,7 @@ func newIssueWorklogGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <issueIdOrKey> <id>",
 		Short: "Returns a worklog. Time tracking must be enabled in Jira, otherwise this operation returns an error. For more...",
-		Example: "  jira-cloud-platform-pp-cli issue worklog get your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue worklog get your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "worklog.get", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

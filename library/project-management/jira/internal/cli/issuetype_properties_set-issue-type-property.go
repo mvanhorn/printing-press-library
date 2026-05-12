@@ -19,7 +19,7 @@ func newIssuetypePropertiesSetIssueTypePropertyCmd(flags *rootFlags) *cobra.Comm
 		Use:   "set-issue-type-property <issueTypeId> <propertyKey>",
 		Aliases: []string{"update"},
 		Short: "Creates or updates the value of the [issue type property](https://developer.atlassian.com/cloud/jira/platform/storing...",
-		Example: "  jira-cloud-platform-pp-cli issuetype properties set-issue-type-property 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Example: "  jira-pp-cli issuetype properties set-issue-type-property 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "properties.set-issue-type-property", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetype/{issueTypeId}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

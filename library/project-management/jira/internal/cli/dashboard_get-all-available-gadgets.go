@@ -16,7 +16,7 @@ func newDashboardGetAllAvailableGadgetsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-all-available-gadgets",
 		Short: "Gets a list of all available gadgets that can be added to all dashboards. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli dashboard get-all-available-gadgets",
+		Example: "  jira-pp-cli dashboard get-all-available-gadgets",
 		Annotations: map[string]string{"pp:endpoint": "dashboard.get-all-available-gadgets", "pp:method": "GET", "pp:path": "/rest/api/3/dashboard/gadgets", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

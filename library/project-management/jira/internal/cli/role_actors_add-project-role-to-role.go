@@ -22,7 +22,7 @@ func newRoleActorsAddProjectRoleToRoleCmd(flags *rootFlags) *cobra.Command {
 		Use:   "add-project-role-to-role <id>",
 		Aliases: []string{"create"},
 		Short: "Adds [default actors](#api-rest-api-3-resolution-get) to a role. You may add groups or users, but you cannot add...",
-		Example: "  jira-cloud-platform-pp-cli role actors add-project-role-to-role 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli role actors add-project-role-to-role 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "actors.add-project-role-to-role", "pp:method": "POST", "pp:path": "/rest/api/3/role/{id}/actors"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

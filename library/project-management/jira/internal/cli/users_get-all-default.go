@@ -20,7 +20,7 @@ func newUsersGetAllDefaultCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-all-default",
 		Short: "Returns a list of all users, including active users, inactive users and previously deleted users that have an...",
-		Example: "  jira-cloud-platform-pp-cli users get-all-default",
+		Example: "  jira-pp-cli users get-all-default",
 		Annotations: map[string]string{"pp:endpoint": "users.get-all-default", "pp:method": "GET", "pp:path": "/rest/api/3/users", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -16,7 +16,7 @@ func newPlansRemoveAtlassianTeamCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-atlassian-team <planId> <atlassianTeamId>",
 		Short: "Removes an Atlassian team from a plan and deletes their planning settings. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli plans remove-atlassian-team 42 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli plans remove-atlassian-team 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "plans.remove-atlassian-team", "pp:method": "DELETE", "pp:path": "/rest/api/3/plans/plan/{planId}/team/atlassian/{atlassianTeamId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

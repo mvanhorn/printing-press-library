@@ -68,22 +68,22 @@ Exit codes & warnings:
   --strict to exit non-zero on any per-resource failure. Exit is always
   non-zero when every selected resource failed, regardless of --strict.`,
 		Example: `  # Sync all resources
-  jira-cloud-platform-pp-cli sync
+  jira-pp-cli sync
 
   # Sync specific resources only
-  jira-cloud-platform-pp-cli sync --resources channels,messages
+  jira-pp-cli sync --resources channels,messages
 
   # Full resync (ignore previous checkpoint)
-  jira-cloud-platform-pp-cli sync --full
+  jira-pp-cli sync --full
 
   # Incremental sync: only records from the last 7 days
-  jira-cloud-platform-pp-cli sync --since 7d
+  jira-pp-cli sync --since 7d
 
   # Parallel sync with 8 workers
-  jira-cloud-platform-pp-cli sync --concurrency 8
+  jira-pp-cli sync --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  jira-cloud-platform-pp-cli sync --latest-only`,
+  jira-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -92,7 +92,7 @@ Exit codes & warnings:
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
@@ -289,7 +289,7 @@ Exit codes & warnings:
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-cloud-platform-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
@@ -1047,15 +1047,15 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	case "issuetypescreenscheme_project":
 		return db.UpsertIssuetypescreenschemeProject(data)
 	case "jira_cloud_platform_search":
-		return db.UpsertJiraCloudPlatformSearch(data)
+		return db.UpsertJiraSearch(data)
 	case "jira_cloud_platform_version":
-		return db.UpsertJiraCloudPlatformVersion(data)
+		return db.UpsertJiraVersion(data)
 	case "mergeto":
 		return db.UpsertMergeto(data)
 	case "move":
 		return db.UpsertMove(data)
 	case "jira_cloud_platform_version_related_issue_counts":
-		return db.UpsertJiraCloudPlatformVersionRelatedIssueCounts(data)
+		return db.UpsertJiraVersionRelatedIssueCounts(data)
 	case "relatedwork":
 		return db.UpsertRelatedwork(data)
 	case "remove_and_swap":
@@ -1063,11 +1063,11 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	case "unresolved_issue_count":
 		return db.UpsertUnresolvedIssueCount(data)
 	case "jira_cloud_platform_workflow":
-		return db.UpsertJiraCloudPlatformWorkflow(data)
+		return db.UpsertJiraWorkflow(data)
 	case "jira_cloud_platform_workflow_project":
-		return db.UpsertJiraCloudPlatformWorkflowProject(data)
+		return db.UpsertJiraWorkflowProject(data)
 	case "jira_cloud_platform_workflow_project_usages":
-		return db.UpsertJiraCloudPlatformWorkflowProjectUsages(data)
+		return db.UpsertJiraWorkflowProjectUsages(data)
 	case "workflow_schemes":
 		return db.UpsertWorkflowSchemes(data)
 	case "jql":
@@ -1285,9 +1285,9 @@ func defaultSyncResources() []string {
 		"issuetypescheme-mapping",
 		"issuetypescreenscheme",
 		"issuetypescreenscheme-mapping",
-		"jira-cloud-platform-search",
-		"jira-cloud-platform-search-jql",
-		"jira-cloud-platform-workflow",
+		"jira-search",
+		"jira-search-jql",
+		"jira-workflow",
 		"jql",
 		"jql-autocompletedata-suggestions",
 		"label",
@@ -1361,9 +1361,9 @@ func syncResourcePath(resource string) (string, error) {
 		"issuetypescheme-mapping": "/rest/api/3/issuetypescheme/mapping",
 		"issuetypescreenscheme": "/rest/api/3/issuetypescreenscheme",
 		"issuetypescreenscheme-mapping": "/rest/api/3/issuetypescreenscheme/mapping",
-		"jira-cloud-platform-search": "/rest/api/3/search",
-		"jira-cloud-platform-search-jql": "/rest/api/3/search/jql",
-		"jira-cloud-platform-workflow": "/rest/api/3/workflow/search",
+		"jira-search": "/rest/api/3/search",
+		"jira-search-jql": "/rest/api/3/search/jql",
+		"jira-workflow": "/rest/api/3/workflow/search",
 		"jql": "/rest/api/3/jql/function/computation",
 		"jql-autocompletedata-suggestions": "/rest/api/3/jql/autocompletedata/suggestions",
 		"label": "/rest/api/3/label",
@@ -1424,8 +1424,8 @@ func dependentResourceDefs() []dependentResourceDef {
 		{Name: "issue_comment", ParentTable: "issue", ParentIDParam: "issueIdOrKey", PathTemplate: "/rest/api/3/issue/{issueIdOrKey}/comment"},
 		{Name: "issue_worklog", ParentTable: "issue", ParentIDParam: "issueIdOrKey", PathTemplate: "/rest/api/3/issue/{issueIdOrKey}/worklog"},
 		{Name: "issuetypescreenscheme_project", ParentTable: "issuetypescreenscheme", ParentIDParam: "issueTypeScreenSchemeId", PathTemplate: "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project"},
-		{Name: "jira_cloud_platform_workflow_project", ParentTable: "jira-cloud-platform-workflow", ParentIDParam: "workflowId", PathTemplate: "/rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages"},
-		{Name: "jira_cloud_platform_workflow_project_usages", ParentTable: "jira-cloud-platform-workflow", ParentIDParam: "workflowId", PathTemplate: "/rest/api/3/workflow/{workflowId}/projectUsages"},
+		{Name: "jira_cloud_platform_workflow_project", ParentTable: "jira-workflow", ParentIDParam: "workflowId", PathTemplate: "/rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages"},
+		{Name: "jira_cloud_platform_workflow_project_usages", ParentTable: "jira-workflow", ParentIDParam: "workflowId", PathTemplate: "/rest/api/3/workflow/{workflowId}/projectUsages"},
 		{Name: "members", ParentTable: "issuesecurityschemes", ParentIDParam: "issueSecuritySchemeId", PathTemplate: "/rest/api/3/issuesecurityschemes/{issueSecuritySchemeId}/members"},
 		{Name: "option", ParentTable: "field", ParentIDParam: "fieldKey", PathTemplate: "/rest/api/3/field/{fieldKey}/option"},
 		{Name: "plans", ParentTable: "plans", ParentIDParam: "planId", PathTemplate: "/rest/api/3/plans/plan/{planId}/team"},
@@ -1435,7 +1435,7 @@ func dependentResourceDefs() []dependentResourceDef {
 		{Name: "statuses_project", ParentTable: "statuses", ParentIDParam: "statusId", PathTemplate: "/rest/api/3/statuses/{statusId}/project/{projectId}/issueTypeUsages"},
 		{Name: "statuses_project_usages", ParentTable: "statuses", ParentIDParam: "statusId", PathTemplate: "/rest/api/3/statuses/{statusId}/projectUsages"},
 		{Name: "version", ParentTable: "project", ParentIDParam: "projectIdOrKey", PathTemplate: "/rest/api/3/project/{projectIdOrKey}/version"},
-		{Name: "workflow_schemes", ParentTable: "jira-cloud-platform-workflow", ParentIDParam: "workflowId", PathTemplate: "/rest/api/3/workflow/{workflowId}/workflowSchemes"},
+		{Name: "workflow_schemes", ParentTable: "jira-workflow", ParentIDParam: "workflowId", PathTemplate: "/rest/api/3/workflow/{workflowId}/workflowSchemes"},
 		{Name: "workflow_usages", ParentTable: "statuses", ParentIDParam: "statusId", PathTemplate: "/rest/api/3/statuses/{statusId}/workflowUsages"},
 		{Name: "workflowscheme_project_usages", ParentTable: "workflowscheme", ParentIDParam: "workflowSchemeId", PathTemplate: "/rest/api/3/workflowscheme/{workflowSchemeId}/projectUsages"},
 	}
@@ -1723,8 +1723,8 @@ var resourceIDFieldOverrides = map[string]string{
 	"issuetypescreenscheme": "id",
 	"issuetypescreenscheme-mapping": "issueTypeId",
 	"issuetypescreenscheme_project": "id",
-	"jira-cloud-platform-search-jql": "id",
-	"jira-cloud-platform-workflow": "id",
+	"jira-search-jql": "id",
+	"jira-workflow": "id",
 	"jira_cloud_platform_workflow_project": "projectId",
 	"jql": "id",
 	"members": "id",

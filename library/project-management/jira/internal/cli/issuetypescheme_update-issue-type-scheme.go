@@ -21,7 +21,7 @@ func newIssuetypeschemeUpdateIssueTypeSchemeCmd(flags *rootFlags) *cobra.Command
 	cmd := &cobra.Command{
 		Use:   "update-issue-type-scheme <issueTypeSchemeId>",
 		Short: "Updates an issue type scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme update-issue-type-scheme 42",
+		Example: "  jira-pp-cli issuetypescheme update-issue-type-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescheme.update-issue-type-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

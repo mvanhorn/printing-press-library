@@ -17,7 +17,7 @@ func newCustomFieldOptionPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "custom-field-option <id>",
 		Short: "Returns a custom field option. For example, an option in a select list. Note that this operation **only works for...",
 		Long:  "Shortcut for 'custom-field-option get'. Returns a custom field option. For example, an option in a select list. Note that this operation **only works for...",
-		Example: "  jira-cloud-platform-pp-cli custom-field-option 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli custom-field-option 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "custom-field-option.get", "pp:method": "GET", "pp:path": "/rest/api/3/customFieldOption/{id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

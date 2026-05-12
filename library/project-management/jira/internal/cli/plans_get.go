@@ -22,7 +22,7 @@ func newPlansGetCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of plans. **[Permissions](#permissions) required:** *Administer Jira*...",
-		Example: "  jira-cloud-platform-pp-cli plans get",
+		Example: "  jira-pp-cli plans get",
 		Annotations: map[string]string{"pp:endpoint": "plans.get", "pp:method": "GET", "pp:path": "/rest/api/3/plans/plan", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

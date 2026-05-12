@@ -51,7 +51,7 @@ func newBulkSubmitEditCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-edit",
 		Short: "Use this API to submit a bulk edit request and simultaneously edit multiple issues. There are limits applied to the...",
-		Example: "  jira-cloud-platform-pp-cli bulk submit-edit",
+		Example: "  jira-pp-cli bulk submit-edit",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-edit", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/fields"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

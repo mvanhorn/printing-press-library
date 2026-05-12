@@ -23,7 +23,7 @@ func newWorkflowschemeDraftUpdateWorkflowMappingCmd(flags *rootFlags) *cobra.Com
 	cmd := &cobra.Command{
 		Use:   "update-workflow-mapping <id>",
 		Short: "Sets the issue types for a workflow in a workflow scheme's draft. The workflow can also be set as the default...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme draft update-workflow-mapping 550e8400-e29b-41d4-a716-446655440000 --workflow-name example-resource",
+		Example: "  jira-pp-cli workflowscheme draft update-workflow-mapping 550e8400-e29b-41d4-a716-446655440000 --workflow-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "draft.update-workflow-mapping", "pp:method": "PUT", "pp:path": "/rest/api/3/workflowscheme/{id}/draft/workflow"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

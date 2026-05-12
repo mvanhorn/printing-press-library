@@ -19,7 +19,7 @@ func newWorkflowschemeCreatedraftCreateWorkflowSchemeDraftFromParentCmd(flags *r
 		Use:   "create-workflow-scheme-draft-from-parent <id>",
 		Aliases: []string{"create"},
 		Short: "Create a draft workflow scheme from an active workflow scheme, by copying the active workflow scheme. Note that an...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme createdraft create-workflow-scheme-draft-from-parent 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli workflowscheme createdraft create-workflow-scheme-draft-from-parent 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "createdraft.create-workflow-scheme-draft-from-parent", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme/{id}/createdraft"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

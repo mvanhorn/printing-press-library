@@ -19,7 +19,7 @@ func newGroupCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates a group. **[Permissions](#permissions) required:** Site administration (that is, member of the *site-admin*...",
-		Example: "  jira-cloud-platform-pp-cli group create --name example-resource",
+		Example: "  jira-pp-cli group create --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "group.create", "pp:method": "POST", "pp:path": "/rest/api/3/group"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

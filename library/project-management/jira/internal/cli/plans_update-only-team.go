@@ -18,7 +18,7 @@ func newPlansUpdateOnlyTeamCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-only-team <planId> <planOnlyTeamId>",
 		Short: "Updates any of the following planning settings of a plan-only team using [JSON...",
-		Example: "  jira-cloud-platform-pp-cli plans update-only-team 42 42",
+		Example: "  jira-pp-cli plans update-only-team 42 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.update-only-team", "pp:method": "PUT", "pp:path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

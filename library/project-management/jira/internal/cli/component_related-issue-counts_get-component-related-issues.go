@@ -17,7 +17,7 @@ func newComponentRelatedIssueCountsGetComponentRelatedIssuesCmd(flags *rootFlags
 		Use:   "get-component-related-issues <id>",
 		Aliases: []string{"get"},
 		Short: "Returns the counts of issues assigned to the component. This operation can be accessed anonymously. **Deprecation...",
-		Example: "  jira-cloud-platform-pp-cli component related-issue-counts get-component-related-issues 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli component related-issue-counts get-component-related-issues 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "related-issue-counts.get-component-related-issues", "pp:method": "GET", "pp:path": "/rest/api/3/component/{id}/relatedIssueCounts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

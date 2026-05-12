@@ -17,7 +17,7 @@ func newIssueRemotelinkGetRemoteIssueLinksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-remote-issue-links <issueIdOrKey>",
 		Short: "Returns the remote issue links for an issue. When a remote issue link global ID is provided the record with that...",
-		Example: "  jira-cloud-platform-pp-cli issue remotelink get-remote-issue-links your-token-here",
+		Example: "  jira-pp-cli issue remotelink get-remote-issue-links your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "remotelink.get-remote-issue-links", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/remotelink", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

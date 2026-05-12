@@ -20,7 +20,7 @@ func newWorkflowsCapabilitiesCmd(flags *rootFlags) *cobra.Command {
 		Use:   "capabilities",
 		Aliases: []string{"list"},
 		Short: "Get the list of workflow capabilities for a specific workflow using either the workflow ID, or the project and issue...",
-		Example: "  jira-cloud-platform-pp-cli workflows capabilities",
+		Example: "  jira-pp-cli workflows capabilities",
 		Annotations: map[string]string{"pp:endpoint": "workflows.capabilities", "pp:method": "GET", "pp:path": "/rest/api/3/workflows/capabilities", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

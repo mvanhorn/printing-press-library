@@ -21,7 +21,7 @@ func newWorkflowschemeSwitchWorkflowSchemeForProjectCmd(flags *rootFlags) *cobra
 	cmd := &cobra.Command{
 		Use:   "switch-workflow-scheme-for-project",
 		Short: "Switches a workflow scheme for a project. Workflow schemes can only be assigned to classic projects. **Calculating...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme switch-workflow-scheme-for-project",
+		Example: "  jira-pp-cli workflowscheme switch-workflow-scheme-for-project",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.switch-workflow-scheme-for-project", "pp:method": "POST", "pp:path": "/rest/api/3/workflowscheme/project/switch"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

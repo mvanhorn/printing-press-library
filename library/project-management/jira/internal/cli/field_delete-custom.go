@@ -17,7 +17,7 @@ func newFieldDeleteCustomCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-custom <id>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a custom field. The custom field is deleted whether it is in the trash or not. See [Edit or delete a custom...",
-		Example: "  jira-cloud-platform-pp-cli field delete-custom 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli field delete-custom 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "field.delete-custom", "pp:method": "DELETE", "pp:path": "/rest/api/3/field/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

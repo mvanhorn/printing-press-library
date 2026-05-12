@@ -17,7 +17,7 @@ func newScreensAvailableFieldsGetAvailableScreenFieldsCmd(flags *rootFlags) *cob
 		Use:   "get-available-screen-fields <screenId>",
 		Aliases: []string{"get"},
 		Short: "Returns the fields that can be added to a tab on a screen. **[Permissions](#permissions) required:** *Administer...",
-		Example: "  jira-cloud-platform-pp-cli screens available-fields get-available-screen-fields 42",
+		Example: "  jira-pp-cli screens available-fields get-available-screen-fields 42",
 		Annotations: map[string]string{"pp:endpoint": "available-fields.get-available-screen-fields", "pp:method": "GET", "pp:path": "/rest/api/3/screens/{screenId}/availableFields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

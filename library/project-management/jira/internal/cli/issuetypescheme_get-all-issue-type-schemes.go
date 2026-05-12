@@ -24,7 +24,7 @@ func newIssuetypeschemeGetAllIssueTypeSchemesCmd(flags *rootFlags) *cobra.Comman
 		Use:   "get-all-issue-type-schemes",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of issue type schemes. Only issue type schemes used in classic projects are...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme get-all-issue-type-schemes",
+		Example: "  jira-pp-cli issuetypescheme get-all-issue-type-schemes",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescheme.get-all-issue-type-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/issuetypescheme", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

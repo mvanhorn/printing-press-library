@@ -17,7 +17,7 @@ func newTaskPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "task <taskId>",
 		Short: "Returns the status of a [long-running asynchronous task](#async). When a task has finished, this operation returns...",
 		Long:  "Shortcut for 'task get'. Returns the status of a [long-running asynchronous task](#async). When a task has finished, this operation returns...",
-		Example: "  jira-cloud-platform-pp-cli task 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli task 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "task.get", "pp:method": "GET", "pp:path": "/rest/api/3/task/{taskId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

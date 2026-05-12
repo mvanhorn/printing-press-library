@@ -17,7 +17,7 @@ func newPriorityGetPrioritiesCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-priorities",
 		Aliases: []string{"list"},
 		Short: "Returns the list of all issue priorities. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-cloud-platform-pp-cli priority get-priorities",
+		Example: "  jira-pp-cli priority get-priorities",
 		Annotations: map[string]string{"pp:endpoint": "priority.get-priorities", "pp:method": "GET", "pp:path": "/rest/api/3/priority", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

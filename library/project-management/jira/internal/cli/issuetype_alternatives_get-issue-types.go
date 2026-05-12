@@ -17,7 +17,7 @@ func newIssuetypeAlternativesGetIssueTypesCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-issue-types <id>",
 		Aliases: []string{"get"},
 		Short: "Returns a list of issue types that can be used to replace the issue type. The alternative issue types are those...",
-		Example: "  jira-cloud-platform-pp-cli issuetype alternatives get-issue-types 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetype alternatives get-issue-types 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "alternatives.get-issue-types", "pp:method": "GET", "pp:path": "/rest/api/3/issuetype/{id}/alternatives", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

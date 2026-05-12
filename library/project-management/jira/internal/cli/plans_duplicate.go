@@ -19,7 +19,7 @@ func newPlansDuplicateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "duplicate <planId>",
 		Short: "Duplicates a plan. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli plans duplicate 42 --name example-resource",
+		Example: "  jira-pp-cli plans duplicate 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "plans.duplicate", "pp:method": "POST", "pp:path": "/rest/api/3/plans/plan/{planId}/duplicate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

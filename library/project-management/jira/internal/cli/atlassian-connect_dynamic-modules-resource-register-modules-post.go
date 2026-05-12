@@ -19,7 +19,7 @@ func newAtlassianConnectDynamicModulesResourceRegisterModulesPostCmd(flags *root
 	cmd := &cobra.Command{
 		Use:   "dynamic-modules-resource-register-modules-post",
 		Short: "Registers a list of modules. **[Permissions](#permissions) required:** Only Connect apps can make this request.",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect dynamic-modules-resource-register-modules-post",
+		Example: "  jira-pp-cli atlassian-connect dynamic-modules-resource-register-modules-post",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.dynamic-modules-resource-register-modules-post", "pp:method": "POST", "pp:path": "/rest/atlassian-connect/1/app/module/dynamic"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

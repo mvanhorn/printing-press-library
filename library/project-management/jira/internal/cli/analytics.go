@@ -26,21 +26,21 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
 Data must be synced first with the sync command.`,
 		Example: `  # Count records by type
-  jira-cloud-platform-pp-cli analytics --type messages
+  jira-pp-cli analytics --type messages
 
   # Group by a field
-  jira-cloud-platform-pp-cli analytics --type messages --group-by author_id
+  jira-pp-cli analytics --type messages --group-by author_id
 
   # Top 10 most frequent values
-  jira-cloud-platform-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
+  jira-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 

@@ -17,7 +17,7 @@ func newStatusGetStatusesCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-statuses",
 		Aliases: []string{"list"},
 		Short: "Returns a list of all statuses associated with active workflows. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli status get-statuses",
+		Example: "  jira-pp-cli status get-statuses",
 		Annotations: map[string]string{"pp:endpoint": "status.get-statuses", "pp:method": "GET", "pp:path": "/rest/api/3/status", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

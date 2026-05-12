@@ -21,7 +21,7 @@ func newFieldContextGetDefaultValuesCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-default-values <fieldId>",
 		Aliases: []string{"get"},
 		Short: "Returns a [paginated](#pagination) list of defaults for a custom field. The results can be filtered by `contextId`,...",
-		Example: "  jira-cloud-platform-pp-cli field context get-default-values 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli field context get-default-values 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "context.get-default-values", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldId}/context/defaultValue", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

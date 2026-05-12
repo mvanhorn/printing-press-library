@@ -21,7 +21,7 @@ func newResolutionSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search",
 		Short: "Returns a [paginated](#pagination) list of resolutions. The list can contain all resolutions or a subset determined...",
-		Example: "  jira-cloud-platform-pp-cli resolution search",
+		Example: "  jira-pp-cli resolution search",
 		Annotations: map[string]string{"pp:endpoint": "resolution.search", "pp:method": "GET", "pp:path": "/rest/api/3/resolution/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

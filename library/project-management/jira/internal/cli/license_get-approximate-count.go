@@ -17,7 +17,7 @@ func newLicenseGetApproximateCountCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-approximate-count",
 		Aliases: []string{"list"},
 		Short: "Returns the approximate number of user accounts across all Jira licenses. Note that this information is cached with...",
-		Example: "  jira-cloud-platform-pp-cli license get-approximate-count",
+		Example: "  jira-pp-cli license get-approximate-count",
 		Annotations: map[string]string{"pp:endpoint": "license.get-approximate-count", "pp:method": "GET", "pp:path": "/rest/api/3/license/approximateLicenseCount", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

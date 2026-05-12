@@ -18,7 +18,7 @@ func newPermissionschemePermissionGetSchemeGrantCmd(flags *rootFlags) *cobra.Com
 		Use:   "get-scheme-grant <schemeId> <permissionId>",
 		Aliases: []string{"get"},
 		Short: "Returns a permission grant. **[Permissions](#permissions) required:** Permission to access Jira.",
-		Example: "  jira-cloud-platform-pp-cli permissionscheme permission get-scheme-grant 42 42",
+		Example: "  jira-pp-cli permissionscheme permission get-scheme-grant 42 42",
 		Annotations: map[string]string{"pp:endpoint": "permission.get-scheme-grant", "pp:method": "GET", "pp:path": "/rest/api/3/permissionscheme/{schemeId}/permission/{permissionId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

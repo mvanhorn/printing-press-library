@@ -21,7 +21,7 @@ func newDashboardGetAllCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all",
 		Aliases: []string{"list"},
 		Short: "Returns a list of dashboards owned by or shared with the user. The list may be filtered to include only favorite or...",
-		Example: "  jira-cloud-platform-pp-cli dashboard get-all",
+		Example: "  jira-pp-cli dashboard get-all",
 		Annotations: map[string]string{"pp:endpoint": "dashboard.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/dashboard", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("filter") {

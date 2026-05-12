@@ -242,6 +242,14 @@ jobs:
           os="${PLATFORM%/*}"
           arch="${PLATFORM#*/}"
           slug=$(basename "${CLI_TARGET}")
+          # cli_name is the authoritative binary name. Reading it from
+          # .printing-press.json keeps this step honest when a CLI's directory
+          # basename and cli_name diverge (e.g. an abbreviated slug paired
+          # with a longer spec-derived binary name). Falling back to the
+          # derived form preserves behavior for entries whose manifest
+          # predates this field. See PR #455 / issue #688 for the jira case
+          # this prevents.
+          cli_name=$(jq -er '.cli_name' "${cli_dir}/.printing-press.json" 2>/dev/null || printf '%s-pp-cli' "${slug}")
           echo "SLUG=${slug}" >> "$GITHUB_ENV"
           echo "PLATFORM_TAG=${os}-${arch}" >> "$GITHUB_ENV"
           ext=""
@@ -256,7 +264,7 @@ jobs:
           # config the CLI ships with.
           GOOS="$os" GOARCH="$arch" CGO_ENABLED=0 \
             go build -trimpath -ldflags='-s -w' \
-            -o "$out" "./cmd/${slug}-pp-cli"
+            -o "$out" "./cmd/${cli_name}"
           ls -lh "$out"
       - name: Upload CLI artifact
         uses: actions/upload-artifact@v6

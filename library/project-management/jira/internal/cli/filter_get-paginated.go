@@ -30,7 +30,7 @@ func newFilterGetPaginatedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-paginated",
 		Short: "Returns a [paginated](#pagination) list of filters. Use this operation to get: * specific filters, by defining `id`...",
-		Example: "  jira-cloud-platform-pp-cli filter get-paginated",
+		Example: "  jira-pp-cli filter get-paginated",
 		Annotations: map[string]string{"pp:endpoint": "filter.get-paginated", "pp:method": "GET", "pp:path": "/rest/api/3/filter/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

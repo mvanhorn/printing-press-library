@@ -22,7 +22,7 @@ func newUiModificationsUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <uiModificationId>",
 		Short: "Updates a UI modification. UI modification can only be updated by Forge apps. Each UI modification can define up to...",
-		Example: "  jira-cloud-platform-pp-cli ui-modifications update 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli ui-modifications update 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "ui-modifications.update", "pp:method": "PUT", "pp:path": "/rest/api/3/uiModifications/{uiModificationId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

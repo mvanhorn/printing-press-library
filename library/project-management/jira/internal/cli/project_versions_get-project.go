@@ -18,7 +18,7 @@ func newProjectVersionsGetProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-project <projectIdOrKey>",
 		Aliases: []string{"get"},
 		Short: "Returns all versions in a project. The response is not paginated. Use [Get project versions...",
-		Example: "  jira-cloud-platform-pp-cli project versions get-project your-token-here",
+		Example: "  jira-pp-cli project versions get-project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "versions.get-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/versions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -25,28 +25,28 @@ Uses the local issue link store to traverse blocker relationships.
 
 Data must be synced first: run 'sync --project KEY'.`,
 		Example: `  # All blocked issues in local store
-  jira-cloud-platform-pp-cli blocked
+  jira-pp-cli blocked
 
   # Scoped to a project
-  jira-cloud-platform-pp-cli blocked --project MYPROJ
+  jira-pp-cli blocked --project MYPROJ
 
   # Blocked issues assigned to me
-  jira-cloud-platform-pp-cli blocked --assignee me
+  jira-pp-cli blocked --assignee me
 
   # JSON output for agents
-  jira-cloud-platform-pp-cli blocked --project MYPROJ --agent`,
+  jira-pp-cli blocked --project MYPROJ --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 

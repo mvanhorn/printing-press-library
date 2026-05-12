@@ -22,7 +22,7 @@ func newNotificationschemeGetNotificationSchemeToProjectMappingsCmd(flags *rootF
 		Use:   "get-notification-scheme-to-project-mappings",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) mapping of project that have notification scheme assigned. You can provide either...",
-		Example: "  jira-cloud-platform-pp-cli notificationscheme get-notification-scheme-to-project-mappings",
+		Example: "  jira-pp-cli notificationscheme get-notification-scheme-to-project-mappings",
 		Annotations: map[string]string{"pp:endpoint": "notificationscheme.get-notification-scheme-to-project-mappings", "pp:method": "GET", "pp:path": "/rest/api/3/notificationscheme/project", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

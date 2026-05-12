@@ -16,7 +16,7 @@ func newIssueLinkTypeGetIssuelinktypeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-issuelinktype <issueLinkTypeId>",
 		Short: "Returns an issue link type. To use this operation, the site must have [issue...",
-		Example: "  jira-cloud-platform-pp-cli issue-link-type get-issuelinktype 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue-link-type get-issuelinktype 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issue-link-type.get-issuelinktype", "pp:method": "GET", "pp:path": "/rest/api/3/issueLinkType/{issueLinkTypeId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

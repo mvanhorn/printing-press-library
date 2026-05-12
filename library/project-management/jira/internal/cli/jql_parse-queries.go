@@ -20,7 +20,7 @@ func newJqlParseQueriesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "parse-queries",
 		Short: "Parses and validates JQL queries. Validation is performed in context of the current user. This operation can be...",
-		Example: "  jira-cloud-platform-pp-cli jql parse-queries --validation example-value",
+		Example: "  jira-pp-cli jql parse-queries --validation example-value",
 		Annotations: map[string]string{"pp:endpoint": "jql.parse-queries", "pp:method": "POST", "pp:path": "/rest/api/3/jql/parse"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("validation") {

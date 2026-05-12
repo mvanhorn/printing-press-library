@@ -22,7 +22,7 @@ func newBulkGetOperationProgressCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-operation-progress <taskId>",
 		Aliases: []string{"get"},
 		Short: "Use this to get the progress state for the specified bulk operation `taskId`. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli bulk get-operation-progress 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli bulk get-operation-progress 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "bulk.get-operation-progress", "pp:method": "GET", "pp:path": "/rest/api/3/bulk/queue/{taskId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

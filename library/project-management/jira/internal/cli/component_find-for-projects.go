@@ -23,7 +23,7 @@ func newComponentFindForProjectsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "find-for-projects",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of all components in a project, including global (Compass) components when...",
-		Example: "  jira-cloud-platform-pp-cli component find-for-projects",
+		Example: "  jira-pp-cli component find-for-projects",
 		Annotations: map[string]string{"pp:endpoint": "component.find-for-projects", "pp:method": "GET", "pp:path": "/rest/api/3/component", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

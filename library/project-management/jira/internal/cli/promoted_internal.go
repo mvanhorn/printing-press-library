@@ -18,7 +18,7 @@ func newInternalPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "internal",
 		Short: "Returns worklog details for a list of issue ID and worklog ID pairs. This is an internal API for bulk fetching...",
 		Long:  "Shortcut for 'internal get-worklogs-by-issue-id-and-worklog-id'. Returns worklog details for a list of issue ID and worklog ID pairs. This is an internal API for bulk fetching...",
-		Example: "  jira-cloud-platform-pp-cli internal",
+		Example: "  jira-pp-cli internal",
 		Annotations: map[string]string{"pp:endpoint": "internal.get-worklogs-by-issue-id-and-worklog-id", "pp:method": "POST", "pp:path": "/rest/internal/api/latest/worklog/bulk"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

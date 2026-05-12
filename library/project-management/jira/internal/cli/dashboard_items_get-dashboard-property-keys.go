@@ -16,7 +16,7 @@ func newDashboardItemsGetDashboardPropertyKeysCmd(flags *rootFlags) *cobra.Comma
 	cmd := &cobra.Command{
 		Use:   "get-dashboard-property-keys <dashboardId> <itemId>",
 		Short: "Returns the keys of all properties for a dashboard item. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli dashboard items get-dashboard-property-keys 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli dashboard items get-dashboard-property-keys 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "items.get-dashboard-property-keys", "pp:method": "GET", "pp:path": "/rest/api/3/dashboard/{dashboardId}/items/{itemId}/properties", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

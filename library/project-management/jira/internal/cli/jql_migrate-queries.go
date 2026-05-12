@@ -19,7 +19,7 @@ func newJqlMigrateQueriesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate-queries",
 		Short: "Converts one or more JQL queries with user identifiers (username or user key) to equivalent JQL queries with account...",
-		Example: "  jira-cloud-platform-pp-cli jql migrate-queries",
+		Example: "  jira-pp-cli jql migrate-queries",
 		Annotations: map[string]string{"pp:endpoint": "jql.migrate-queries", "pp:method": "POST", "pp:path": "/rest/api/3/jql/pdcleaner"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -23,7 +23,7 @@ func newWorkflowsValidateCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validate-create",
 		Short: "Validate the payload for bulk create workflows. **[Permissions](#permissions) required:** * *Administer Jira*...",
-		Example: "  jira-cloud-platform-pp-cli workflows validate-create",
+		Example: "  jira-pp-cli workflows validate-create",
 		Annotations: map[string]string{"pp:endpoint": "workflows.validate-create", "pp:method": "POST", "pp:path": "/rest/api/3/workflows/create/validation"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

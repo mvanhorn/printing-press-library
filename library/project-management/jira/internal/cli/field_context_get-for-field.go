@@ -22,7 +22,7 @@ func newFieldContextGetForFieldCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-for-field <fieldId>",
 		Short: "Returns a [paginated](#pagination) list of [ contexts](https://confluence.atlassian.com/adminjiracloud/what-are-custo...",
-		Example: "  jira-cloud-platform-pp-cli field context get-for-field 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli field context get-for-field 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "context.get-for-field", "pp:method": "GET", "pp:path": "/rest/api/3/field/{fieldId}/context", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -21,7 +21,7 @@ func newJqlGetAutoCompletePostCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-auto-complete-post",
 		Aliases: []string{"create"},
 		Short: "Returns reference data for JQL searches. This is a downloadable version of the documentation provided in [Advanced...",
-		Example: "  jira-cloud-platform-pp-cli jql get-auto-complete-post",
+		Example: "  jira-pp-cli jql get-auto-complete-post",
 		Annotations: map[string]string{"pp:endpoint": "jql.get-auto-complete-post", "pp:method": "POST", "pp:path": "/rest/api/3/jql/autocompletedata"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

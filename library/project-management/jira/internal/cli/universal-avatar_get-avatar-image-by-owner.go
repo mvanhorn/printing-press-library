@@ -19,7 +19,7 @@ func newUniversalAvatarGetAvatarImageByOwnerCmd(flags *rootFlags) *cobra.Command
 	cmd := &cobra.Command{
 		Use:   "get-avatar-image-by-owner <entityId>",
 		Short: "Returns the avatar image for a project, issue type or priority. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli universal-avatar get-avatar-image-by-owner 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli universal-avatar get-avatar-image-by-owner 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "universal-avatar.get-avatar-image-by-owner", "pp:method": "GET", "pp:path": "/rest/api/3/universal_avatar/view/type/{type}/owner/{entityId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

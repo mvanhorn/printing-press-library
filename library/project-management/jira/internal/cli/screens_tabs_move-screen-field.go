@@ -20,7 +20,7 @@ func newScreensTabsMoveScreenFieldCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "move-screen-field <screenId> <tabId> <id>",
 		Short: "Moves a screen tab field. If `after` and `position` are provided in the request, `position` is ignored....",
-		Example: "  jira-cloud-platform-pp-cli screens tabs move-screen-field 42 42 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli screens tabs move-screen-field 42 42 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "tabs.move-screen-field", "pp:method": "POST", "pp:path": "/rest/api/3/screens/{screenId}/tabs/{tabId}/fields/{id}/move"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

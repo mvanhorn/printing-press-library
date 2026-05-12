@@ -20,7 +20,7 @@ func newIssuetypeschemeGetIssueTypeSchemesMappingCmd(flags *rootFlags) *cobra.Co
 	cmd := &cobra.Command{
 		Use:   "get-issue-type-schemes-mapping",
 		Short: "Returns a [paginated](#pagination) list of issue type scheme items. Only issue type scheme items used in classic...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme get-issue-type-schemes-mapping",
+		Example: "  jira-pp-cli issuetypescheme get-issue-type-schemes-mapping",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescheme.get-issue-type-schemes-mapping", "pp:method": "GET", "pp:path": "/rest/api/3/issuetypescheme/mapping", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -20,7 +20,7 @@ func newConfigSearchFieldAssociationSchemeFieldsCmd(flags *rootFlags) *cobra.Com
 	cmd := &cobra.Command{
 		Use:   "search-field-association-scheme-fields <id>",
 		Short: "Search for fields belonging to a given field association scheme. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli config search-field-association-scheme-fields 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli config search-field-association-scheme-fields 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "config.search-field-association-scheme-fields", "pp:method": "GET", "pp:path": "/rest/api/3/config/fieldschemes/{id}/fields", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

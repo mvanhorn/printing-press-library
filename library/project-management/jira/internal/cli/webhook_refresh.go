@@ -20,7 +20,7 @@ func newWebhookRefreshCmd(flags *rootFlags) *cobra.Command {
 		Use:   "refresh",
 		Aliases: []string{"update"},
 		Short: "Extends the life of webhook. Webhooks registered through the REST API expire after 30 days. Call this operation to...",
-		Example: "  jira-cloud-platform-pp-cli webhook refresh",
+		Example: "  jira-pp-cli webhook refresh",
 		Annotations: map[string]string{"pp:endpoint": "webhook.refresh", "pp:method": "PUT", "pp:path": "/rest/api/3/webhook/refresh"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

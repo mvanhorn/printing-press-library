@@ -26,7 +26,7 @@ func newForgeBulkPinUnpinProjectsAsyncCmd(flags *rootFlags) *cobra.Command {
 		Use:   "bulk-pin-unpin-projects-async",
 		Aliases: []string{"create"},
 		Short: "Bulk pin or unpin an issue panel (added by a Forge app) to or from multiple projects. The operation runs...",
-		Example: "  jira-cloud-platform-pp-cli forge bulk-pin-unpin-projects-async --module-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli forge bulk-pin-unpin-projects-async --module-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "forge.bulk-pin-unpin-projects-async", "pp:method": "POST", "pp:path": "/rest/api/3/forge/panel/action/bulk/async"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -23,7 +23,7 @@ func newIssuetypescreenschemeGetIssueTypeScreenSchemesCmd(flags *rootFlags) *cob
 	cmd := &cobra.Command{
 		Use:   "get-issue-type-screen-schemes",
 		Short: "Returns a [paginated](#pagination) list of issue type screen schemes. Only issue type screen schemes used in classic...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescreenscheme get-issue-type-screen-schemes",
+		Example: "  jira-pp-cli issuetypescreenscheme get-issue-type-screen-schemes",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescreenscheme.get-issue-type-screen-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/issuetypescreenscheme", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

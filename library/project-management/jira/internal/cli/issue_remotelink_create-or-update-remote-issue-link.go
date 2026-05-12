@@ -33,7 +33,7 @@ func newIssueRemotelinkCreateOrUpdateRemoteIssueLinkCmd(flags *rootFlags) *cobra
 		Use:   "create-or-update-remote-issue-link <issueIdOrKey>",
 		Aliases: []string{"create"},
 		Short: "Creates or updates a remote issue link for an issue. If a `globalId` is provided and a remote issue link with that...",
-		Example: "  jira-cloud-platform-pp-cli issue remotelink create-or-update-remote-issue-link your-token-here",
+		Example: "  jira-pp-cli issue remotelink create-or-update-remote-issue-link your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "remotelink.create-or-update-remote-issue-link", "pp:method": "POST", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/remotelink"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

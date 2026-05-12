@@ -3,7 +3,7 @@
   "generated_at": "2026-05-11T12:24:51.392512Z",
   "printing_press_version": "4.3.0",
   "api_name": "jira",
-  "cli_name": "jira-cloud-platform-pp-cli",
+  "cli_name": "jira-pp-cli",
   "spec_path": "/Users/neektza/printing-press/.runstate/jira-4403e15e/runs/20260511-114028/jira-spec.json",
   "run_id": "20260511-114028",
   "novel_features": [

@@ -46,7 +46,7 @@ func newIssueAssigneeAssignIssueCmd(flags *rootFlags) *cobra.Command {
 		Use:   "assign-issue <issueIdOrKey>",
 		Aliases: []string{"update"},
 		Short: "Assigns an issue to a user. Use this operation when the calling user does not have the *Edit Issues* permission but...",
-		Example: "  jira-cloud-platform-pp-cli issue assignee assign-issue your-token-here",
+		Example: "  jira-pp-cli issue assignee assign-issue your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "assignee.assign-issue", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/assignee"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

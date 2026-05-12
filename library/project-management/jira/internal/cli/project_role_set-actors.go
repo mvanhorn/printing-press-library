@@ -20,7 +20,7 @@ func newProjectRoleSetActorsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "set-actors <projectIdOrKey> <id>",
 		Aliases: []string{"update"},
 		Short: "Sets the actors for a project role for a project, replacing all existing actors. To add actors to the project...",
-		Example: "  jira-cloud-platform-pp-cli project role set-actors your-token-here 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli project role set-actors your-token-here 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "role.set-actors", "pp:method": "PUT", "pp:path": "/rest/api/3/project/{projectIdOrKey}/role/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

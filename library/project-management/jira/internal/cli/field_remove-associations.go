@@ -18,7 +18,7 @@ func newFieldRemoveAssociationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-associations",
 		Short: "Unassociates a set of fields with a project and issue type context. Fields will be unassociated with all...",
-		Example: "  jira-cloud-platform-pp-cli field remove-associations",
+		Example: "  jira-pp-cli field remove-associations",
 		Annotations: map[string]string{"pp:endpoint": "field.remove-associations", "pp:method": "DELETE", "pp:path": "/rest/api/3/field/association"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

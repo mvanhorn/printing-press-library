@@ -20,7 +20,7 @@ func newIssuetypeschemeIssuetypeAddIssueTypesToIssueTypeSchemeCmd(flags *rootFla
 		Use:   "add-issue-types-to-issue-type-scheme <issueTypeSchemeId>",
 		Aliases: []string{"update"},
 		Short: "Adds issue types to an issue type scheme. The added issue types are appended to the issue types list. If any of the...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescheme issuetype add-issue-types-to-issue-type-scheme 42",
+		Example: "  jira-pp-cli issuetypescheme issuetype add-issue-types-to-issue-type-scheme 42",
 		Annotations: map[string]string{"pp:endpoint": "issuetype.add-issue-types-to-issue-type-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/issuetypescheme/{issueTypeSchemeId}/issuetype"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

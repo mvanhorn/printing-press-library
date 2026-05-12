@@ -1,11 +1,11 @@
 version: 2
-project_name: jira-cloud-platform-pp-cli
+project_name: jira-pp-cli
 changelog:
   disable: true
 builds:
-  - id: jira-cloud-platform-pp-cli
-    main: ./cmd/jira-cloud-platform-pp-cli
-    binary: jira-cloud-platform-pp-cli
+  - id: jira-pp-cli
+    main: ./cmd/jira-pp-cli
+    binary: jira-pp-cli
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -17,9 +17,9 @@ builds:
       - linux_arm64
       - windows_amd64
       - windows_arm64
-  - id: jira-cloud-platform-pp-mcp
-    main: ./cmd/jira-cloud-platform-pp-mcp
-    binary: jira-cloud-platform-pp-mcp
+  - id: jira-pp-mcp
+    main: ./cmd/jira-pp-mcp
+    binary: jira-pp-mcp
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -40,12 +40,12 @@ archives:
 checksum:
   name_template: checksums.txt
 brews:
-  - name: jira-cloud-platform-pp-cli
+  - name: jira-pp-cli
     repository:
       owner: nikica-jokic
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Jira Cloud platform REST API documentation"
+    description: "Jira Cloud Platform REST API documentation"
     install: |
-      bin.install "jira-cloud-platform-pp-cli"
-      bin.install "jira-cloud-platform-pp-mcp"
+      bin.install "jira-pp-cli"
+      bin.install "jira-pp-mcp"

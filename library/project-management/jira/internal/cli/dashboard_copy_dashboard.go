@@ -24,7 +24,7 @@ func newDashboardCopyDashboardCmd(flags *rootFlags) *cobra.Command {
 		Use:   "dashboard <id>",
 		Aliases: []string{"create"},
 		Short: "Copies a dashboard. Any values provided in the `dashboard` parameter replace those in the copied dashboard....",
-		Example: "  jira-cloud-platform-pp-cli dashboard copy dashboard 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
+		Example: "  jira-pp-cli dashboard copy dashboard 550e8400-e29b-41d4-a716-446655440000 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "copy.dashboard", "pp:method": "POST", "pp:path": "/rest/api/3/dashboard/{id}/copy"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

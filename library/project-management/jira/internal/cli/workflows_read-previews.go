@@ -22,7 +22,7 @@ func newWorkflowsReadPreviewsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "read-previews",
 		Short: "Returns a requested workflow within a given project. The response provides a read-only preview of the workflow,...",
-		Example: "  jira-cloud-platform-pp-cli workflows read-previews --project-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli workflows read-previews --project-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "workflows.read-previews", "pp:method": "POST", "pp:path": "/rest/api/3/workflows/preview"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

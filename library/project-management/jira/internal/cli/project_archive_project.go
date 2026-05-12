@@ -19,7 +19,7 @@ func newProjectArchiveProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "project <projectIdOrKey>",
 		Aliases: []string{"create"},
 		Short: "Archives a project. You can't delete a project if it's archived. To delete an archived project, restore the project...",
-		Example: "  jira-cloud-platform-pp-cli project archive project your-token-here",
+		Example: "  jira-pp-cli project archive project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "archive.project", "pp:method": "POST", "pp:path": "/rest/api/3/project/{projectIdOrKey}/archive"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

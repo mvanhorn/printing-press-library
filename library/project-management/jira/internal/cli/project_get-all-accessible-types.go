@@ -16,7 +16,7 @@ func newProjectGetAllAccessibleTypesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-all-accessible-types",
 		Short: "Returns all [project types](https://confluence.atlassian.com/x/Var1Nw) with a valid license.",
-		Example: "  jira-cloud-platform-pp-cli project get-all-accessible-types",
+		Example: "  jira-pp-cli project get-all-accessible-types",
 		Annotations: map[string]string{"pp:endpoint": "project.get-all-accessible-types", "pp:method": "GET", "pp:path": "/rest/api/3/project/type/accessible", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

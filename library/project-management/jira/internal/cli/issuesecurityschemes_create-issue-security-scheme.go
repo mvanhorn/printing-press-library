@@ -22,7 +22,7 @@ func newIssuesecurityschemesCreateIssueSecuritySchemeCmd(flags *rootFlags) *cobr
 		Use:   "create-issue-security-scheme",
 		Aliases: []string{"create"},
 		Short: "Creates a security scheme with security scheme levels and levels' members. You can create up to 100 security scheme...",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes create-issue-security-scheme --name example-resource",
+		Example: "  jira-pp-cli issuesecurityschemes create-issue-security-scheme --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "issuesecurityschemes.create-issue-security-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/issuesecurityschemes"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -18,7 +18,7 @@ func newIssueRemotelinkDeleteRemoteIssueLinkByGlobalIdCmd(flags *rootFlags) *cob
 		Use:   "delete-remote-issue-link-by-global-id <issueIdOrKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes the remote issue link from the issue using the link's global ID. Where the global ID includes reserved URL...",
-		Example: "  jira-cloud-platform-pp-cli issue remotelink delete-remote-issue-link-by-global-id your-token-here --global-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issue remotelink delete-remote-issue-link-by-global-id your-token-here --global-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "remotelink.delete-remote-issue-link-by-global-id", "pp:method": "DELETE", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/remotelink"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

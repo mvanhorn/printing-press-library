@@ -17,7 +17,7 @@ func newPlansDeleteOnlyTeamCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-only-team <planId> <planOnlyTeamId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a plan-only team and their planning settings. **[Permissions](#permissions) required:** *Administer Jira*...",
-		Example: "  jira-cloud-platform-pp-cli plans delete-only-team 42 42",
+		Example: "  jira-pp-cli plans delete-only-team 42 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.delete-only-team", "pp:method": "DELETE", "pp:path": "/rest/api/3/plans/plan/{planId}/team/planonly/{planOnlyTeamId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

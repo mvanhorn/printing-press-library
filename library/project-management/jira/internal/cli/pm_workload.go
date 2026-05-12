@@ -26,28 +26,28 @@ before assigning new work.
 
 Data must be synced first: run 'sync --project KEY'.`,
 		Example: `  # Workload across all synced issues
-  jira-cloud-platform-pp-cli workload
+  jira-pp-cli workload
 
   # Scope to one project
-  jira-cloud-platform-pp-cli workload --project MYPROJ
+  jira-pp-cli workload --project MYPROJ
 
   # Cross-project: multiple projects
-  jira-cloud-platform-pp-cli workload --project PROJ1,PROJ2
+  jira-pp-cli workload --project PROJ1,PROJ2
 
   # JSON output for agents
-  jira-cloud-platform-pp-cli workload --project MYPROJ --agent`,
+  jira-pp-cli workload --project MYPROJ --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 

@@ -23,7 +23,7 @@ func newIssueBulkSetPropertyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bulk-set-property <propertyKey>",
 		Short: "Sets a property value on multiple issues. The value set can be a constant or determined by a [Jira...",
-		Example: "  jira-cloud-platform-pp-cli issue bulk-set-property your-token-here",
+		Example: "  jira-pp-cli issue bulk-set-property your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "issue.bulk-set-property", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

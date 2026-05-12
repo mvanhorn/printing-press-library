@@ -40,7 +40,7 @@ func newPermissionschemeUpdatePermissionSchemeCmd(flags *rootFlags) *cobra.Comma
 		Use:   "update-permission-scheme <schemeId>",
 		Aliases: []string{"update"},
 		Short: "Updates a permission scheme. Below are some important things to note when using this resource: * If a permissions...",
-		Example: "  jira-cloud-platform-pp-cli permissionscheme update-permission-scheme 42 --name example-resource",
+		Example: "  jira-pp-cli permissionscheme update-permission-scheme 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "permissionscheme.update-permission-scheme", "pp:method": "PUT", "pp:path": "/rest/api/3/permissionscheme/{schemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

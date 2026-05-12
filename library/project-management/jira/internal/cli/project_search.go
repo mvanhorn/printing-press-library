@@ -30,7 +30,7 @@ func newProjectSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "search",
 		Short: "Returns a [paginated](#pagination) list of projects visible to the user. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli project search",
+		Example: "  jira-pp-cli project search",
 		Annotations: map[string]string{"pp:endpoint": "project.search", "pp:method": "GET", "pp:path": "/rest/api/3/project/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

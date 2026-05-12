@@ -18,7 +18,7 @@ func newFilterGetMyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-my",
 		Short: "Returns the filters owned by the user. If `includeFavourites` is `true`, the user's visible favorite filters are...",
-		Example: "  jira-cloud-platform-pp-cli filter get-my",
+		Example: "  jira-pp-cli filter get-my",
 		Annotations: map[string]string{"pp:endpoint": "filter.get-my", "pp:method": "GET", "pp:path": "/rest/api/3/filter/my", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -21,7 +21,7 @@ func newGroupRemoveCmd(flags *rootFlags) *cobra.Command {
 		Use:   "remove",
 		Aliases: []string{"delete"},
 		Short: "Deletes a group. **[Permissions](#permissions) required:** Site administration (that is, member of the *site-admin*...",
-		Example: "  jira-cloud-platform-pp-cli group remove",
+		Example: "  jira-pp-cli group remove",
 		Annotations: map[string]string{"pp:endpoint": "group.remove", "pp:method": "DELETE", "pp:path": "/rest/api/3/group"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

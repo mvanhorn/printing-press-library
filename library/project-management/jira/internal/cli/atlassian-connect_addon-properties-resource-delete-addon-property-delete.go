@@ -17,7 +17,7 @@ func newAtlassianConnectAddonPropertiesResourceDeleteAddonPropertyDeleteCmd(flag
 		Use:   "addon-properties-resource-delete-addon-property-delete <addonKey> <propertyKey>",
 		Aliases: []string{"delete"},
 		Short: "Deletes an app's property. **[Permissions](#permissions) required:** Only a Connect app whose key matches `addonKey`...",
-		Example: "  jira-cloud-platform-pp-cli atlassian-connect addon-properties-resource-delete-addon-property-delete your-token-here your-token-here",
+		Example: "  jira-pp-cli atlassian-connect addon-properties-resource-delete-addon-property-delete your-token-here your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "atlassian-connect.addon-properties-resource-delete-addon-property-delete", "pp:method": "DELETE", "pp:path": "/rest/atlassian-connect/1/addons/{addonKey}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

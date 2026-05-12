@@ -17,7 +17,7 @@ func newIssueWatchersGetIssueCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-issue <issueIdOrKey>",
 		Aliases: []string{"get"},
 		Short: "Returns the watchers for an issue. This operation requires the **Allow users to watch issues** option to be *ON*....",
-		Example: "  jira-cloud-platform-pp-cli issue watchers get-issue your-token-here",
+		Example: "  jira-pp-cli issue watchers get-issue your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "watchers.get-issue", "pp:method": "GET", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/watchers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

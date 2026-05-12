@@ -20,7 +20,7 @@ func newProjectRoledetailsGetProjectRoleDetailsCmd(flags *rootFlags) *cobra.Comm
 		Use:   "get-project-role-details <projectIdOrKey>",
 		Aliases: []string{"get"},
 		Short: "Returns all [project roles](https://support.atlassian.com/jira-cloud-administration/docs/manage-project-roles/) and...",
-		Example: "  jira-cloud-platform-pp-cli project roledetails get-project-role-details your-token-here",
+		Example: "  jira-pp-cli project roledetails get-project-role-details your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "roledetails.get-project-role-details", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/roledetails", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

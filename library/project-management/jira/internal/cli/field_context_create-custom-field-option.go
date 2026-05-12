@@ -19,7 +19,7 @@ func newFieldContextCreateCustomFieldOptionCmd(flags *rootFlags) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:   "create-custom-field-option <fieldId> <contextId>",
 		Short: "Creates options and, where the custom select field is of the type Select List (cascading), cascading options for a...",
-		Example: "  jira-cloud-platform-pp-cli field context create-custom-field-option 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli field context create-custom-field-option 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "context.create-custom-field-option", "pp:method": "POST", "pp:path": "/rest/api/3/field/{fieldId}/context/{contextId}/option"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

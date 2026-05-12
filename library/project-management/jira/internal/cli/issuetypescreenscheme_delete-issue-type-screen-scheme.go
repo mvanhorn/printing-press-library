@@ -17,7 +17,7 @@ func newIssuetypescreenschemeDeleteIssueTypeScreenSchemeCmd(flags *rootFlags) *c
 		Use:   "delete-issue-type-screen-scheme <issueTypeScreenSchemeId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes an issue type screen scheme. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli issuetypescreenscheme delete-issue-type-screen-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli issuetypescreenscheme delete-issue-type-screen-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "issuetypescreenscheme.delete-issue-type-screen-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

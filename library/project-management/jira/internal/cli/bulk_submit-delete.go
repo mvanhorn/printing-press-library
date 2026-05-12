@@ -26,7 +26,7 @@ func newBulkSubmitDeleteCmd(flags *rootFlags) *cobra.Command {
 		Use:   "submit-delete",
 		Aliases: []string{"create"},
 		Short: "Use this API to submit a bulk delete request. You can delete up to 1,000 issues in a single operation....",
-		Example: "  jira-cloud-platform-pp-cli bulk submit-delete",
+		Example: "  jira-pp-cli bulk submit-delete",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-delete", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

@@ -4997,11 +4997,11 @@ func TestMigrate_AddsColumnsOnUpgrade_IssuetypescreenschemeProject(t *testing.T)
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformSearch verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_JiraSearch verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformSearch(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_JiraSearch(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -5064,11 +5064,11 @@ func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformSearch(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformVersion verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_JiraVersion verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformVersion(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_JiraVersion(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -5265,11 +5265,11 @@ func TestMigrate_AddsColumnsOnUpgrade_Move(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformVersionRelatedIssueCounts verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_JiraVersionRelatedIssueCounts verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformVersionRelatedIssueCounts(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_JiraVersionRelatedIssueCounts(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -5513,11 +5513,11 @@ func TestMigrate_AddsColumnsOnUpgrade_UnresolvedIssueCount(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflow verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_JiraWorkflow verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflow(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_JiraWorkflow(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -5582,11 +5582,11 @@ func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflow(t *testing.T) {
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflowProject verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_JiraWorkflowProject verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflowProject(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_JiraWorkflowProject(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and
@@ -5645,11 +5645,11 @@ func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflowProject(t *testin
 	}
 }
 
-// TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflowProjectUsages verifies that opening a
+// TestMigrate_AddsColumnsOnUpgrade_JiraWorkflowProjectUsages verifies that opening a
 // database created by an older binary succeeds and adds newly generated
 // columns before CREATE INDEX runs against the pre-existing table. Regression
 // coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_JiraCloudPlatformWorkflowProjectUsages(t *testing.T) {
+func TestMigrate_AddsColumnsOnUpgrade_JiraWorkflowProjectUsages(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "data.db")
 
 	// Pre-create the DB with the older table shape: id, data, synced_at and

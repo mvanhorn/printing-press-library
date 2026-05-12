@@ -22,7 +22,7 @@ func newIssuesecurityschemesMembersGetIssueSecurityLevelCmd(flags *rootFlags) *c
 		Use:   "get-issue-security-level <issueSecuritySchemeId>",
 		Aliases: []string{"get"},
 		Short: "Returns issue security level members. Only issue security level members in context of classic projects are returned....",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes members get-issue-security-level 42",
+		Example: "  jira-pp-cli issuesecurityschemes members get-issue-security-level 42",
 		Annotations: map[string]string{"pp:endpoint": "members.get-issue-security-level", "pp:method": "GET", "pp:path": "/rest/api/3/issuesecurityschemes/{issueSecuritySchemeId}/members", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

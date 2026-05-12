@@ -18,7 +18,7 @@ func newIssueWorklogSetPropertyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-property <issueIdOrKey> <worklogId> <propertyKey>",
 		Short: "Sets the value of a worklog property. Use this operation to store custom data against the worklog. The value of the...",
-		Example: "  jira-cloud-platform-pp-cli issue worklog set-property your-token-here 550e8400-e29b-41d4-a716-446655440000 your-token-here",
+		Example: "  jira-pp-cli issue worklog set-property your-token-here 550e8400-e29b-41d4-a716-446655440000 your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "worklog.set-property", "pp:method": "PUT", "pp:path": "/rest/api/3/issue/{issueIdOrKey}/worklog/{worklogId}/properties/{propertyKey}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -23,7 +23,7 @@ func newIssueLinkTypeCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Creates an issue link type. Use this operation to create descriptions of the reasons why issues are linked. The...",
-		Example: "  jira-cloud-platform-pp-cli issue-link-type create",
+		Example: "  jira-pp-cli issue-link-type create",
 		Annotations: map[string]string{"pp:endpoint": "issue-link-type.create", "pp:method": "POST", "pp:path": "/rest/api/3/issueLinkType"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

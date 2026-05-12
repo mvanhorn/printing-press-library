@@ -17,7 +17,7 @@ func newRoleActorsGetProjectRoleForRoleCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-project-role-for-role <id>",
 		Aliases: []string{"get"},
 		Short: "Returns the [default actors](#api-rest-api-3-resolution-get) for the project role. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli role actors get-project-role-for-role 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli role actors get-project-role-for-role 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "actors.get-project-role-for-role", "pp:method": "GET", "pp:path": "/rest/api/3/role/{id}/actors", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

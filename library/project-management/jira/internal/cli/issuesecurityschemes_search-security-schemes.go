@@ -21,7 +21,7 @@ func newIssuesecurityschemesSearchSecuritySchemesCmd(flags *rootFlags) *cobra.Co
 	cmd := &cobra.Command{
 		Use:   "search-security-schemes",
 		Short: "Returns a [paginated](#pagination) list of issue security schemes. If you specify the project ID parameter, the...",
-		Example: "  jira-cloud-platform-pp-cli issuesecurityschemes search-security-schemes",
+		Example: "  jira-pp-cli issuesecurityschemes search-security-schemes",
 		Annotations: map[string]string{"pp:endpoint": "issuesecurityschemes.search-security-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/issuesecurityschemes/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

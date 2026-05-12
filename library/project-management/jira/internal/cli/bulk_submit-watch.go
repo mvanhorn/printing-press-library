@@ -24,7 +24,7 @@ func newBulkSubmitWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-watch",
 		Short: "Use this API to submit a bulk watch request. You can watch up to 1,000 issues in a single operation....",
-		Example: "  jira-cloud-platform-pp-cli bulk submit-watch",
+		Example: "  jira-pp-cli bulk submit-watch",
 		Annotations: map[string]string{"pp:endpoint": "bulk.submit-watch", "pp:method": "POST", "pp:path": "/rest/api/3/bulk/issues/watch"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

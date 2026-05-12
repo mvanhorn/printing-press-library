@@ -24,7 +24,7 @@ func newPlansCreateOnlyTeamCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-only-team <planId>",
 		Short: "Creates a plan-only team and configures their planning settings. **[Permissions](#permissions) required:**...",
-		Example: "  jira-cloud-platform-pp-cli plans create-only-team 42 --name example-resource",
+		Example: "  jira-pp-cli plans create-only-team 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "plans.create-only-team", "pp:method": "POST", "pp:path": "/rest/api/3/plans/plan/{planId}/team/planonly"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

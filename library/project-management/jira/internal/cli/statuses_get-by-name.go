@@ -18,7 +18,7 @@ func newStatusesGetByNameCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-by-name",
 		Short: "Returns a list of the statuses specified by one or more status names. **[Permissions](#permissions) required:** *...",
-		Example: "  jira-cloud-platform-pp-cli statuses get-by-name --name example-resource",
+		Example: "  jira-pp-cli statuses get-by-name --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "statuses.get-by-name", "pp:method": "GET", "pp:path": "/rest/api/3/statuses/byNames", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("name") && !flags.dryRun {

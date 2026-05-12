@@ -20,7 +20,7 @@ func newDashboardGadgetGetAllCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all <dashboardId>",
 		Aliases: []string{"get"},
 		Short: "Returns a list of dashboard gadgets on a dashboard. This operation returns: * Gadgets from a list of IDs, when `id`...",
-		Example: "  jira-cloud-platform-pp-cli dashboard gadget get-all 42",
+		Example: "  jira-pp-cli dashboard gadget get-all 42",
 		Annotations: map[string]string{"pp:endpoint": "gadget.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/dashboard/{dashboardId}/gadget", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

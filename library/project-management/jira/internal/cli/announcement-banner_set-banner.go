@@ -23,7 +23,7 @@ func newAnnouncementBannerSetBannerCmd(flags *rootFlags) *cobra.Command {
 		Use:   "set-banner",
 		Aliases: []string{"update"},
 		Short: "Updates the announcement banner configuration. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli announcement-banner set-banner",
+		Example: "  jira-pp-cli announcement-banner set-banner",
 		Annotations: map[string]string{"pp:endpoint": "announcement-banner.set-banner", "pp:method": "PUT", "pp:path": "/rest/api/3/announcementBanner"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

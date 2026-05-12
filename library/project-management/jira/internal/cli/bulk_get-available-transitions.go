@@ -20,7 +20,7 @@ func newBulkGetAvailableTransitionsCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-available-transitions",
 		Aliases: []string{"list"},
 		Short: "Use this API to retrieve a list of transitions available for the specified issues that can be used or bulk...",
-		Example: "  jira-cloud-platform-pp-cli bulk get-available-transitions --issue-ids-or-keys your-token-here",
+		Example: "  jira-pp-cli bulk get-available-transitions --issue-ids-or-keys your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "bulk.get-available-transitions", "pp:method": "GET", "pp:path": "/rest/api/3/bulk/issues/transition", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("issue-ids-or-keys") && !flags.dryRun {

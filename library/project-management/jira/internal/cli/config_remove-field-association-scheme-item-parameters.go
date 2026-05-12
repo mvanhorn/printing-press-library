@@ -16,7 +16,7 @@ func newConfigRemoveFieldAssociationSchemeItemParametersCmd(flags *rootFlags) *c
 	cmd := &cobra.Command{
 		Use:   "remove-field-association-scheme-item-parameters",
 		Short: "Remove field association parameters overrides for work types. **[Permissions](#permissions) required:** *Administer...",
-		Example: "  jira-cloud-platform-pp-cli config remove-field-association-scheme-item-parameters",
+		Example: "  jira-pp-cli config remove-field-association-scheme-item-parameters",
 		Annotations: map[string]string{"pp:endpoint": "config.remove-field-association-scheme-item-parameters", "pp:method": "DELETE", "pp:path": "/rest/api/3/config/fieldschemes/fields/parameters"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

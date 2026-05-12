@@ -3542,7 +3542,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/issuetypescreenscheme/{issueTypeScreenSchemeId}/project", []mcpParamBinding{{PublicName: "issueTypeScreenSchemeId", WireName: "issueTypeScreenSchemeId", Location: "path"},{PublicName: "startAt", WireName: "startAt", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"},{PublicName: "query", WireName: "query", Location: "query"}, }, []string{"issueTypeScreenSchemeId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-search_and-reconsile-issues-using-jql",
+		mcplib.NewTool("jira-search_and-reconsile-issues-using-jql",
 			mcplib.WithDescription("Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned search results. If you need [read-after-write](https://developer.atlassian.com/cloud/jira/platform/search-and-reconcile/) consistency, you can utilize the `reconcileIssues` parameter to ensure stronger consistency assurances. This operation can be accessed anonymously. If the JQL query expression is too large to be encoded as a query parameter, use the [POST](#api-rest-api-3-search-post) version of this resource. **[Permissions](#permissions) required:** Issues are included in the response where the user has: * *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue. * If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue. (public)"),
 			mcplib.WithString("jql", mcplib.Description("A [JQL](https://confluence.atlassian.com/x/egORLQ) expression. For performance reasons, this parameter requires a...")),
 			mcplib.WithString("nextPageToken", mcplib.Description("The token for a page to fetch that is not the first page. The first page has a `nextPageToken` of `null`. Use the...")),
@@ -3560,7 +3560,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/search/jql", []mcpParamBinding{{PublicName: "jql", WireName: "jql", Location: "query"},{PublicName: "nextPageToken", WireName: "nextPageToken", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"},{PublicName: "fields", WireName: "fields", Location: "query"},{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "properties", WireName: "properties", Location: "query"},{PublicName: "fieldsByKeys", WireName: "fieldsByKeys", Location: "query"},{PublicName: "failFast", WireName: "failFast", Location: "query"},{PublicName: "reconcileIssues", WireName: "reconcileIssues", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-search_and-reconsile-issues-using-jql-post",
+		mcplib.NewTool("jira-search_and-reconsile-issues-using-jql-post",
 			mcplib.WithDescription("Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned search results. If you need [read-after-write](https://developer.atlassian.com/cloud/jira/platform/search-and-reconcile/) consistency, you can utilize the `reconcileIssues` parameter to ensure stronger consistency assurances. This operation can be accessed anonymously. **[Permissions](#permissions) required:** Issues are included in the response where the user has: * *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue. * If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue. (public)"),
 			mcplib.WithString("expand", mcplib.Description("Use [expand](#expansion) to include additional information about issues in the response. Note that, unlike the...")),
 			mcplib.WithString("fields", mcplib.Description("A list of fields to return for each issue. Use it to retrieve a subset of fields. This parameter accepts a...")),
@@ -3576,7 +3576,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/search/jql", []mcpParamBinding{{PublicName: "expand", WireName: "expand", Location: "body"},{PublicName: "fields", WireName: "fields", Location: "body"},{PublicName: "fieldsByKeys", WireName: "fieldsByKeys", Location: "body"},{PublicName: "jql", WireName: "jql", Location: "body"},{PublicName: "maxResults", WireName: "maxResults", Location: "body"},{PublicName: "nextPageToken", WireName: "nextPageToken", Location: "body"},{PublicName: "properties", WireName: "properties", Location: "body"},{PublicName: "reconcileIssues", WireName: "reconcileIssues", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-search_count-issues",
+		mcplib.NewTool("jira-search_count-issues",
 			mcplib.WithDescription("Provide an estimated count of the issues that match the [JQL](https://confluence.atlassian.com/x/egORLQ). Recent updates might not be immediately visible in the returned output. This endpoint requires JQL to be bounded. This operation can be accessed anonymously. **[Permissions](#permissions) required:** Issues are included in the response where the user has: * *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue. * If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue. (public)"),
 			mcplib.WithString("jql", mcplib.Description("A [JQL](https://confluence.atlassian.com/x/egORLQ) expression. For performance reasons, this parameter requires a...")),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -3585,7 +3585,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/search/approximate-count", []mcpParamBinding{{PublicName: "jql", WireName: "jql", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-search_for-issues-using-jql",
+		mcplib.NewTool("jira-search_for-issues-using-jql",
 			mcplib.WithDescription("Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046) Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). If the JQL query expression is too large to be encoded as a query parameter, use the [POST](#api-rest-api-3-search-post) version of this resource. This operation can be accessed anonymously. **[Permissions](#permissions) required:** Issues are included in the response where the user has: * *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue. * If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue. (public)"),
 			mcplib.WithString("jql", mcplib.Description("The [JQL](https://confluence.atlassian.com/x/egORLQ) that defines the search. Note: * If no JQL expression is...")),
 			mcplib.WithString("startAt", mcplib.Description("The index of the first item to return in a page of results (page offset).")),
@@ -3603,7 +3603,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/search", []mcpParamBinding{{PublicName: "jql", WireName: "jql", Location: "query"},{PublicName: "startAt", WireName: "startAt", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"},{PublicName: "validateQuery", WireName: "validateQuery", Location: "query"},{PublicName: "fields", WireName: "fields", Location: "query"},{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "properties", WireName: "properties", Location: "query"},{PublicName: "fieldsByKeys", WireName: "fieldsByKeys", Location: "query"},{PublicName: "failFast", WireName: "failFast", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-search_for-issues-using-jql-post",
+		mcplib.NewTool("jira-search_for-issues-using-jql-post",
 			mcplib.WithDescription("Endpoint is currently being removed. [More details](https://developer.atlassian.com/changelog/#CHANGE-2046) Searches for issues using [JQL](https://confluence.atlassian.com/x/egORLQ). There is a [GET](#api-rest-api-3-search-get) version of this resource that can be used for smaller JQL query expressions. This operation can be accessed anonymously. **[Permissions](#permissions) required:** Issues are included in the response where the user has: * *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the issue. * If [issue-level security](https://confluence.atlassian.com/x/J4lKLg) is configured, issue-level security permission to view the issue. (public)"),
 			mcplib.WithString("expand", mcplib.Description("Use [expand](#expansion) to include additional information about issues in the response. Note that, unlike the...")),
 			mcplib.WithString("fields", mcplib.Description("A list of fields to return for each issue, use it to retrieve a subset of fields. This parameter accepts a...")),
@@ -3619,7 +3619,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/search", []mcpParamBinding{{PublicName: "expand", WireName: "expand", Location: "body"},{PublicName: "fields", WireName: "fields", Location: "body"},{PublicName: "fieldsByKeys", WireName: "fieldsByKeys", Location: "body"},{PublicName: "jql", WireName: "jql", Location: "body"},{PublicName: "maxResults", WireName: "maxResults", Location: "body"},{PublicName: "properties", WireName: "properties", Location: "body"},{PublicName: "startAt", WireName: "startAt", Location: "body"},{PublicName: "validateQuery", WireName: "validateQuery", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_create",
+		mcplib.NewTool("jira-version_create",
 			mcplib.WithDescription("Creates a project version. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project the version is added to. (public)"),
 			mcplib.WithString("approvers", mcplib.Description("If the expand option `approvers` is used, returns a list containing the approvers for this version.")),
 			mcplib.WithString("archived", mcplib.Description("Indicates that the version is archived. Optional when creating or updating a version.")),
@@ -3646,7 +3646,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/version", []mcpParamBinding{{PublicName: "approvers", WireName: "approvers", Location: "body"},{PublicName: "archived", WireName: "archived", Location: "body"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "driver", WireName: "driver", Location: "body"},{PublicName: "expand", WireName: "expand", Location: "body"},{PublicName: "id", WireName: "id", Location: "body"},{PublicName: "issuesStatusForFixVersion", WireName: "issuesStatusForFixVersion", Location: "body"},{PublicName: "moveUnfixedIssuesTo", WireName: "moveUnfixedIssuesTo", Location: "body"},{PublicName: "name", WireName: "name", Location: "body"},{PublicName: "operations", WireName: "operations", Location: "body"},{PublicName: "overdue", WireName: "overdue", Location: "body"},{PublicName: "project", WireName: "project", Location: "body"},{PublicName: "projectId", WireName: "projectId", Location: "body"},{PublicName: "releaseDate", WireName: "releaseDate", Location: "body"},{PublicName: "released", WireName: "released", Location: "body"},{PublicName: "self", WireName: "self", Location: "body"},{PublicName: "startDate", WireName: "startDate", Location: "body"},{PublicName: "userReleaseDate", WireName: "userReleaseDate", Location: "body"},{PublicName: "userStartDate", WireName: "userStartDate", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_delete",
+		mcplib.NewTool("jira-version_delete",
 			mcplib.WithDescription("Deletes a project version. Deprecated, use [ Delete and replace version](#api-rest-api-3-version-id-removeAndSwap-post) that supports swapping version values in custom fields, in addition to the swapping for `fixVersion` and `affectedVersion` provided in this resource. Alternative versions can be provided to update issues that use the deleted version in `fixVersion` or `affectedVersion`. If alternatives are not provided, occurrences of `fixVersion` and `affectedVersion` that contain the deleted version are cleared. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version. Destructive. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithString("moveFixIssuesTo", mcplib.Description("The ID of the version to update `fixVersion` to when the field contains the deleted version. The replacement version...")),
@@ -3657,7 +3657,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("DELETE", "/rest/api/3/version/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "moveFixIssuesTo", WireName: "moveFixIssuesTo", Location: "query"},{PublicName: "moveAffectedIssuesTo", WireName: "moveAffectedIssuesTo", Location: "query"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_get",
+		mcplib.NewTool("jira-version_get",
 			mcplib.WithDescription("Returns a project version. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithString("expand", mcplib.Description("Use [expand](#expansion) to include additional information about version in the response. This parameter accepts a...")),
@@ -3668,7 +3668,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/version/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "expand", WireName: "expand", Location: "query"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_update",
+		mcplib.NewTool("jira-version_update",
 			mcplib.WithDescription("Updates a project version. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithString("approvers", mcplib.Description("If the expand option `approvers` is used, returns a list containing the approvers for this version.")),
@@ -3694,7 +3694,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/rest/api/3/version/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "approvers", WireName: "approvers", Location: "body"},{PublicName: "archived", WireName: "archived", Location: "body"},{PublicName: "description", WireName: "description", Location: "body"},{PublicName: "driver", WireName: "driver", Location: "body"},{PublicName: "expand", WireName: "expand", Location: "body"},{PublicName: "issuesStatusForFixVersion", WireName: "issuesStatusForFixVersion", Location: "body"},{PublicName: "moveUnfixedIssuesTo", WireName: "moveUnfixedIssuesTo", Location: "body"},{PublicName: "name", WireName: "name", Location: "body"},{PublicName: "operations", WireName: "operations", Location: "body"},{PublicName: "overdue", WireName: "overdue", Location: "body"},{PublicName: "project", WireName: "project", Location: "body"},{PublicName: "projectId", WireName: "projectId", Location: "body"},{PublicName: "releaseDate", WireName: "releaseDate", Location: "body"},{PublicName: "released", WireName: "released", Location: "body"},{PublicName: "self", WireName: "self", Location: "body"},{PublicName: "startDate", WireName: "startDate", Location: "body"},{PublicName: "userReleaseDate", WireName: "userReleaseDate", Location: "body"},{PublicName: "userStartDate", WireName: "userStartDate", Location: "body"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_mergeto_merge-versions",
+		mcplib.NewTool("jira-version_mergeto_merge-versions",
 			mcplib.WithDescription("Merges two project versions. The merge is completed by deleting the version specified in `id` and replacing any occurrences of its ID in `fixVersion` with the version ID specified in `moveIssuesTo`. Consider using [ Delete and replace version](#api-rest-api-3-version-id-removeAndSwap-post) instead. This resource supports swapping version values in `fixVersion`, `affectedVersion`, and custom fields. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version to delete.")),
 			mcplib.WithString("moveIssuesTo", mcplib.Required(), mcplib.Description("The ID of the version to merge into.")),
@@ -3703,7 +3703,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/rest/api/3/version/{id}/mergeto/{moveIssuesTo}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "moveIssuesTo", WireName: "moveIssuesTo", Location: "path"}, }, []string{"id","moveIssuesTo", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_move_version",
+		mcplib.NewTool("jira-version_move_version",
 			mcplib.WithDescription("Modifies the version's sequence within the project, which affects the display order of the versions in Jira. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Browse projects* project permission for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version to be moved.")),
 			mcplib.WithString("after", mcplib.Description("The URL (self link) of the version after which to place the moved version. Cannot be used with `position`.")),
@@ -3714,7 +3714,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/version/{id}/move", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "after", WireName: "after", Location: "body"},{PublicName: "position", WireName: "position", Location: "body"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_related-issue-counts_get-version-related-issues",
+		mcplib.NewTool("jira-version_related-issue-counts_get-version-related-issues",
 			mcplib.WithDescription("Returns the following counts for a version: * Number of issues where the `fixVersion` is set to the version. * Number of issues where the `affectedVersion` is set to the version. * Number of issues where a version custom field is set to the version. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Browse projects* project permission for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -3724,7 +3724,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/version/{id}/relatedIssueCounts", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_relatedwork_create-related-work",
+		mcplib.NewTool("jira-version_relatedwork_create-related-work",
 			mcplib.WithDescription("Creates a related work for the given version. You can only create a generic link type of related works via this API. relatedWorkId will be auto-generated UUID, that does not need to be provided. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Resolve issues:* and *Edit issues* [Managing project permissions](https://confluence.atlassian.com/adminjiraserver/managing-project-permissions-938847145.html) for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithString("category", mcplib.Required(), mcplib.Description("The category of the related work")),
@@ -3738,7 +3738,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/version/{id}/relatedwork", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "category", WireName: "category", Location: "body"},{PublicName: "issueId", WireName: "issueId", Location: "body"},{PublicName: "relatedWorkId", WireName: "relatedWorkId", Location: "body"},{PublicName: "title", WireName: "title", Location: "body"},{PublicName: "url", WireName: "url", Location: "body"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_relatedwork_delete-related-work",
+		mcplib.NewTool("jira-version_relatedwork_delete-related-work",
 			mcplib.WithDescription("Deletes the given related work for the given version. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Resolve issues:* and *Edit issues* [Managing project permissions](https://confluence.atlassian.com/adminjiraserver/managing-project-permissions-938847145.html) for the project that contains the version. Destructive. (public)"),
 			mcplib.WithString("versionId", mcplib.Required(), mcplib.Description("The ID of the version that the target related work belongs to.")),
 			mcplib.WithString("relatedWorkId", mcplib.Required(), mcplib.Description("The ID of the related work to delete.")),
@@ -3748,7 +3748,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("DELETE", "/rest/api/3/version/{versionId}/relatedwork/{relatedWorkId}", []mcpParamBinding{{PublicName: "versionId", WireName: "versionId", Location: "path"},{PublicName: "relatedWorkId", WireName: "relatedWorkId", Location: "path"}, }, []string{"versionId","relatedWorkId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_relatedwork_get-related-work",
+		mcplib.NewTool("jira-version_relatedwork_get-related-work",
 			mcplib.WithDescription("Returns related work items for the given version id. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Browse projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project containing the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -3758,7 +3758,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/version/{id}/relatedwork", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_relatedwork_update-related-work",
+		mcplib.NewTool("jira-version_relatedwork_update-related-work",
 			mcplib.WithDescription("Updates the given related work. You can only update generic link related works via Rest APIs. Any archived version related works can't be edited. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Resolve issues:* and *Edit issues* [Managing project permissions](https://confluence.atlassian.com/adminjiraserver/managing-project-permissions-938847145.html) for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version to update the related work on. For the related work id, pass it to the input JSON.")),
 			mcplib.WithString("category", mcplib.Required(), mcplib.Description("The category of the related work")),
@@ -3771,7 +3771,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/rest/api/3/version/{id}/relatedwork", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "category", WireName: "category", Location: "body"},{PublicName: "issueId", WireName: "issueId", Location: "body"},{PublicName: "relatedWorkId", WireName: "relatedWorkId", Location: "body"},{PublicName: "title", WireName: "title", Location: "body"},{PublicName: "url", WireName: "url", Location: "body"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_remove-and-swap_delete-and-replace-version",
+		mcplib.NewTool("jira-version_remove-and-swap_delete-and-replace-version",
 			mcplib.WithDescription("Deletes a project version. Alternative versions can be provided to update issues that use the deleted version in `fixVersion`, `affectedVersion`, or any version picker custom fields. If alternatives are not provided, occurrences of `fixVersion`, `affectedVersion`, and any version picker custom field, that contain the deleted version, are cleared. Any replacement version must be in the same project as the version being deleted and cannot be the version being deleted. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg) or *Administer Projects* [project permission](https://confluence.atlassian.com/x/yodKLg) for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithString("customFieldReplacementList", mcplib.Description("An array of custom field IDs (`customFieldId`) and version IDs (`moveTo`) to update when the fields contain the...")),
@@ -3783,7 +3783,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/version/{id}/removeAndSwap", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"},{PublicName: "customFieldReplacementList", WireName: "customFieldReplacementList", Location: "body"},{PublicName: "moveAffectedIssuesTo", WireName: "moveAffectedIssuesTo", Location: "body"},{PublicName: "moveFixIssuesTo", WireName: "moveFixIssuesTo", Location: "body"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-version_unresolved-issue-count_get-version-unresolved-issues",
+		mcplib.NewTool("jira-version_unresolved-issue-count_get-version-unresolved-issues",
 			mcplib.WithDescription("Returns counts of the issues and unresolved issues for the project version. This operation can be accessed anonymously. **[Permissions](#permissions) required:** *Browse projects* project permission for the project that contains the version. (public)"),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("The ID of the version.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -3793,7 +3793,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/version/{id}/unresolvedIssueCount", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, }, []string{"id", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_create-transition-property",
+		mcplib.NewTool("jira-workflow_create-transition-property",
 			mcplib.WithDescription("This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); add transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead. Adds a property to a workflow transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg). **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg)."),
 			mcplib.WithString("transitionId", mcplib.Required(), mcplib.Description("The ID of the transition.")),
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("The key of the property being added, also known as the name of the property. Set this to the same value as the `key`...")),
@@ -3807,7 +3807,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/workflow/transitions/{transitionId}/properties", []mcpParamBinding{{PublicName: "transitionId", WireName: "transitionId", Location: "path"},{PublicName: "key", WireName: "key", Location: "query"},{PublicName: "workflowName", WireName: "workflowName", Location: "query"},{PublicName: "workflowMode", WireName: "workflowMode", Location: "query"},{PublicName: "id", WireName: "id", Location: "body"},{PublicName: "value", WireName: "value", Location: "body"}, }, []string{"transitionId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_delete-inactive",
+		mcplib.NewTool("jira-workflow_delete-inactive",
 			mcplib.WithDescription("Deletes a workflow. The workflow cannot be deleted if it is: * an active workflow. * a system workflow. * associated with any workflow scheme. * associated with any draft workflow scheme. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg). Destructive."),
 			mcplib.WithString("entityId", mcplib.Required(), mcplib.Description("The entity ID of the workflow.")),
 			mcplib.WithDestructiveHintAnnotation(true),
@@ -3816,7 +3816,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("DELETE", "/rest/api/3/workflow/{entityId}", []mcpParamBinding{{PublicName: "entityId", WireName: "entityId", Location: "path"}, }, []string{"entityId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_delete-transition-property",
+		mcplib.NewTool("jira-workflow_delete-transition-property",
 			mcplib.WithDescription("This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); delete transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead. Deletes a property from a workflow transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg). **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg). Destructive."),
 			mcplib.WithString("transitionId", mcplib.Required(), mcplib.Description("The ID of the transition.")),
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("The name of the transition property to delete, also known as the name of the property.")),
@@ -3828,7 +3828,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("DELETE", "/rest/api/3/workflow/transitions/{transitionId}/properties", []mcpParamBinding{{PublicName: "transitionId", WireName: "transitionId", Location: "path"},{PublicName: "key", WireName: "key", Location: "query"},{PublicName: "workflowName", WireName: "workflowName", Location: "query"},{PublicName: "workflowMode", WireName: "workflowMode", Location: "query"}, }, []string{"transitionId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_delete-transition-rule-configurations",
+		mcplib.NewTool("jira-workflow_delete-transition-rule-configurations",
 			mcplib.WithDescription("Deletes workflow transition rules from one or more workflows. These rule types are supported: * [post functions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-post-function/) * [conditions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-condition/) * [validators](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-validator/) Only rules created by the calling Connect app can be deleted. **Note:** The `draft` parameter in the request body WorkflowId is deprecated and will be removed from this API on [November 2, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-3147). **[Permissions](#permissions) required:** Only Connect apps can use this operation."),
 			mcplib.WithString("workflows", mcplib.Required(), mcplib.Description("The list of workflows with transition rules to delete.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -3836,7 +3836,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/rest/api/3/workflow/rule/config/delete", []mcpParamBinding{{PublicName: "workflows", WireName: "workflows", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_get-paginated",
+		mcplib.NewTool("jira-workflow_get-paginated",
 			mcplib.WithDescription("This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2569); use [Search workflows](#api-rest-api-3-workflows-search-get) instead. Returns a [paginated](#pagination) list of published classic workflows. When workflow names are specified, details of those workflows are returned. Otherwise, all published classic workflows are returned. This operation does not return next-gen workflows. **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg)."),
 			mcplib.WithString("startAt", mcplib.Description("The index of the first item to return in a page of results (page offset).")),
 			mcplib.WithString("maxResults", mcplib.Description("The maximum number of items to return per page.")),
@@ -3852,7 +3852,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/workflow/search", []mcpParamBinding{{PublicName: "startAt", WireName: "startAt", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"},{PublicName: "workflowName", WireName: "workflowName", Location: "query"},{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "queryString", WireName: "queryString", Location: "query"},{PublicName: "orderBy", WireName: "orderBy", Location: "query"},{PublicName: "isActive", WireName: "isActive", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_get-transition-properties",
+		mcplib.NewTool("jira-workflow_get-transition-properties",
 			mcplib.WithDescription("This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); fetch transition properties from [Bulk get workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-post) instead. Returns the properties on a workflow transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg). **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg)."),
 			mcplib.WithString("transitionId", mcplib.Required(), mcplib.Description("The ID of the transition. To get the ID, view the workflow in text mode in the Jira administration console. The ID...")),
 			mcplib.WithString("includeReservedKeys", mcplib.Description("Some properties with keys that have the *jira.* prefix are reserved, which means they are not editable. To include...")),
@@ -3866,7 +3866,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/workflow/transitions/{transitionId}/properties", []mcpParamBinding{{PublicName: "transitionId", WireName: "transitionId", Location: "path"},{PublicName: "includeReservedKeys", WireName: "includeReservedKeys", Location: "query"},{PublicName: "key", WireName: "key", Location: "query"},{PublicName: "workflowName", WireName: "workflowName", Location: "query"},{PublicName: "workflowMode", WireName: "workflowMode", Location: "query"}, }, []string{"transitionId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_get-transition-rule-configurations",
+		mcplib.NewTool("jira-workflow_get-transition-rule-configurations",
 			mcplib.WithDescription("Returns a [paginated](#pagination) list of workflows with transition rules. The workflows can be filtered to return only those containing workflow transition rules: * of one or more transition rule types, such as [workflow post functions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-post-function/). * matching one or more transition rule keys. Only workflows containing transition rules created by the calling [Connect](https://developer.atlassian.com/cloud/jira/platform/index/#connect-apps) or [Forge](https://developer.atlassian.com/cloud/jira/platform/index/#forge-apps) app are returned. Due to server-side optimizations, workflows with an empty list of rules may be returned; these workflows can be ignored. **[Permissions](#permissions) required:** Only [Connect](https://developer.atlassian.com/cloud/jira/platform/index/#connect-apps) or [Forge](https://developer.atlassian.com/cloud/jira/platform/index/#forge-apps) apps can use this operation."),
 			mcplib.WithString("startAt", mcplib.Description("The index of the first item to return in a page of results (page offset).")),
 			mcplib.WithString("maxResults", mcplib.Description("The maximum number of items to return per page.")),
@@ -3883,7 +3883,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/workflow/rule/config", []mcpParamBinding{{PublicName: "startAt", WireName: "startAt", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"},{PublicName: "types", WireName: "types", Location: "query"},{PublicName: "keys", WireName: "keys", Location: "query"},{PublicName: "workflowNames", WireName: "workflowNames", Location: "query"},{PublicName: "withTags", WireName: "withTags", Location: "query"},{PublicName: "draft", WireName: "draft", Location: "query"},{PublicName: "expand", WireName: "expand", Location: "query"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_list-history",
+		mcplib.NewTool("jira-workflow_list-history",
 			mcplib.WithDescription("Returns a list of workflow history entries for a specified workflow id. **Note:** Stored workflow data expires after 60 days. Additionally, no data from before the 30th of October 2025 is available. **[Permissions](#permissions) required:** * *Administer Jira* global permission to access all, including project-scoped, workflows * At least one of the *Administer projects* and *View (read-only) workflow* project permissions to access project-scoped workflows."),
 			mcplib.WithString("expand", mcplib.Description("Use [expand](#expansion) to include additional information in the response. This parameter accepts a comma-separated...")),
 			mcplib.WithString("workflowId", mcplib.Description("The id of the workflow to read the history for.")),
@@ -3893,7 +3893,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/workflow/history/list", []mcpParamBinding{{PublicName: "expand", WireName: "expand", Location: "query"},{PublicName: "workflowId", WireName: "workflowId", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_read-from-history",
+		mcplib.NewTool("jira-workflow_read-from-history",
 			mcplib.WithDescription("Returns a workflow and related statuses for a specified workflow id and version number. **Note:** Stored workflow data expires after 60 days. Additionally, no data from before the 30th of October 2025 is available. **[Permissions](#permissions) required:** * *Administer Jira* global permission to access all, including project-scoped, workflows * At least one of the *Administer projects* and *View (read-only) workflow* project permissions to access project-scoped workflows."),
 			mcplib.WithString("version", mcplib.Description("Version")),
 			mcplib.WithString("workflowId", mcplib.Description("Workflow id")),
@@ -3903,7 +3903,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/rest/api/3/workflow/history", []mcpParamBinding{{PublicName: "version", WireName: "version", Location: "body"},{PublicName: "workflowId", WireName: "workflowId", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_update-transition-property",
+		mcplib.NewTool("jira-workflow_update-transition-property",
 			mcplib.WithDescription("This will be removed on [June 1, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-2570); update transition properties using [Bulk update workflows](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflows/#api-rest-api-3-workflows-update-post) instead. Updates a workflow transition by changing the property value. Trying to update a property that does not exist results in a new property being added to the transition. Transition properties are used to change the behavior of a transition. For more information, see [Transition properties](https://confluence.atlassian.com/x/zIhKLg#Advancedworkflowconfiguration-transitionproperties) and [Workflow properties](https://confluence.atlassian.com/x/JYlKLg). **[Permissions](#permissions) required:** *Administer Jira* [global permission](https://confluence.atlassian.com/x/x4dKLg)."),
 			mcplib.WithString("transitionId", mcplib.Required(), mcplib.Description("The ID of the transition.")),
 			mcplib.WithString("key", mcplib.Required(), mcplib.Description("The key of the property being updated, also known as the name of the property. Set this to the same value as the...")),
@@ -3916,7 +3916,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/rest/api/3/workflow/transitions/{transitionId}/properties", []mcpParamBinding{{PublicName: "transitionId", WireName: "transitionId", Location: "path"},{PublicName: "key", WireName: "key", Location: "query"},{PublicName: "workflowName", WireName: "workflowName", Location: "query"},{PublicName: "workflowMode", WireName: "workflowMode", Location: "query"},{PublicName: "id", WireName: "id", Location: "body"},{PublicName: "value", WireName: "value", Location: "body"}, }, []string{"transitionId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_update-transition-rule-configurations",
+		mcplib.NewTool("jira-workflow_update-transition-rule-configurations",
 			mcplib.WithDescription("Updates configuration of workflow transition rules. The following rule types are supported: * [post functions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-post-function/) * [conditions](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-condition/) * [validators](https://developer.atlassian.com/cloud/jira/platform/modules/workflow-validator/) Only rules created by the calling [Connect](https://developer.atlassian.com/cloud/jira/platform/index/#connect-apps) or [Forge](https://developer.atlassian.com/cloud/jira/platform/index/#forge-apps) app can be updated. To assist with app migration, this operation can be used to: * Disable a rule. * Add a `tag`. Use this to filter rules in the [Get workflow transition rule configurations](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-workflow-transition-rules/#api-rest-api-3-workflow-rule-config-get). Rules are enabled if the `disabled` parameter is not provided. **Note:** The `draft` parameter in the request body WorkflowId is deprecated and will be removed from this API on [November 2, 2026](https://developer.atlassian.com/cloud/jira/platform/changelog/#CHANGE-3147). **[Permissions](#permissions) required:** Only [Connect](https://developer.atlassian.com/cloud/jira/platform/index/#connect-apps) or [Forge](https://developer.atlassian.com/cloud/jira/platform/index/#forge-apps) apps can use this operation."),
 			mcplib.WithString("workflows", mcplib.Required(), mcplib.Description("The list of workflows with transition rules to update.")),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -3924,7 +3924,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("PUT", "/rest/api/3/workflow/rule/config", []mcpParamBinding{{PublicName: "workflows", WireName: "workflows", Location: "body"}, }, []string{ }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_project_get-workflow-issue-type-usages",
+		mcplib.NewTool("jira-workflow_project_get-workflow-issue-type-usages",
 			mcplib.WithDescription("Returns a page of issue types using a given workflow within a project. Required: workflowId, projectId. Optional: nextPageToken, maxResults (default: 50)."),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("The workflow ID")),
 			mcplib.WithString("projectId", mcplib.Required(), mcplib.Description("The project ID")),
@@ -3937,7 +3937,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/workflow/{workflowId}/project/{projectId}/issueTypeUsages", []mcpParamBinding{{PublicName: "workflowId", WireName: "workflowId", Location: "path"},{PublicName: "projectId", WireName: "projectId", Location: "path"},{PublicName: "nextPageToken", WireName: "nextPageToken", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"}, }, []string{"workflowId","projectId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_project-usages_get-for-workflow",
+		mcplib.NewTool("jira-workflow_project-usages_get-for-workflow",
 			mcplib.WithDescription("Returns a page of projects using a given workflow. Required: workflowId. Optional: nextPageToken, maxResults (default: 50)."),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("The workflow ID")),
 			mcplib.WithString("nextPageToken", mcplib.Description("The cursor for pagination")),
@@ -3949,7 +3949,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/rest/api/3/workflow/{workflowId}/projectUsages", []mcpParamBinding{{PublicName: "workflowId", WireName: "workflowId", Location: "path"},{PublicName: "nextPageToken", WireName: "nextPageToken", Location: "query"},{PublicName: "maxResults", WireName: "maxResults", Location: "query"}, }, []string{"workflowId", }),
 	)
 	s.AddTool(
-		mcplib.NewTool("jira-cloud-platform-workflow_workflow-schemes_get-usages-for-workflow",
+		mcplib.NewTool("jira-workflow_workflow-schemes_get-usages-for-workflow",
 			mcplib.WithDescription("Returns a page of workflow schemes using a given workflow. Required: workflowId. Optional: nextPageToken, maxResults (default: 50)."),
 			mcplib.WithString("workflowId", mcplib.Required(), mcplib.Description("The workflow ID")),
 			mcplib.WithString("nextPageToken", mcplib.Description("The cursor for pagination")),
@@ -7220,21 +7220,21 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export JIRA_CLOUD_PLATFORM_OAUTH2=<your-key>" +
+					"\n      Set your API key: export JIRA_OAUTH2=<your-key>" +
 					"\n      See API docs: http://www.atlassian.com" +
-					"\n      Run 'jira-cloud-platform-pp-cli doctor' to check auth status."), nil
+					"\n      Run 'jira-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your token." +
-					"\n      Set it with: export JIRA_CLOUD_PLATFORM_OAUTH2=<your-key>" +
+					"\n      Set it with: export JIRA_OAUTH2=<your-key>" +
 					"\n      See API docs: http://www.atlassian.com" +
-					"\n      Run 'jira-cloud-platform-pp-cli doctor' to check auth status."), nil
+					"\n      Run 'jira-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export JIRA_CLOUD_PLATFORM_OAUTH2=<your-key>" +
+					"\n      Set it with: export JIRA_OAUTH2=<your-key>" +
 					"\n      See API docs: http://www.atlassian.com" +
-					"\n      Run 'jira-cloud-platform-pp-cli doctor' to check auth status."), nil
+					"\n      Run 'jira-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
 					return mcplib.NewToolResultText("already deleted (no-op)"), nil
@@ -7268,7 +7268,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 
 func newMCPClient() (*client.Client, error) {
 	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "jira-cloud-platform-pp-cli", "config.toml")
+	cfgPath := filepath.Join(home, ".config", "jira-pp-cli", "config.toml")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
@@ -7285,7 +7285,7 @@ func newMCPClient() (*client.Client, error) {
 
 func dbPath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "jira-cloud-platform-pp-cli", "data.db")
+	return filepath.Join(home, ".local", "share", "jira-pp-cli", "data.db")
 }
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
@@ -7416,17 +7416,17 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":         "jira-cloud-platform",
-		"description": "Jira Cloud platform REST API documentation",
+		"api":         "jira",
+		"description": "Jira Cloud Platform REST API documentation",
 		"archetype":   "project-management",
 		"tool_count":  619,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion jira-cloud-platform-pp-cli binary.",
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion jira-pp-cli binary.",
 		"auth": map[string]any{
 			"type": "bearer_token",
 			"env_vars": []map[string]any{
 				{
-					"name": "JIRA_CLOUD_PLATFORM_OAUTH2",
+					"name": "JIRA_OAUTH2",
 					"kind": "per_call",
 					"required": true,
 					"sensitive": true,
@@ -7683,20 +7683,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable": true,
 			},
 			{
-				"name": "jira-cloud-platform-search",
+				"name": "jira-search",
 				"description": "Manage jira cloud platform search",
 				"endpoints": []string{"and-reconsile-issues-using-jql", "and-reconsile-issues-using-jql-post", "count-issues", "for-issues-using-jql", "for-issues-using-jql-post",  },
 				"syncable": true,
 				"searchable": true,
 			},
 			{
-				"name": "jira-cloud-platform-version",
+				"name": "jira-version",
 				"description": "Manage jira cloud platform version",
 				"endpoints": []string{"create", "delete", "get", "update",  },
 				"searchable": true,
 			},
 			{
-				"name": "jira-cloud-platform-workflow",
+				"name": "jira-workflow",
 				"description": "Manage jira cloud platform workflow",
 				"endpoints": []string{"create-transition-property", "delete-inactive", "delete-transition-property", "delete-transition-rule-configurations", "get-paginated", "get-transition-properties", "get-transition-rule-configurations", "list-history", "read-from-history", "update-transition-property", "update-transition-rule-configurations",  },
 				"syncable": true,

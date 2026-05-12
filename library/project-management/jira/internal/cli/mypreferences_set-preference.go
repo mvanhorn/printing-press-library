@@ -19,7 +19,7 @@ func newMypreferencesSetPreferenceCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-preference",
 		Short: "Creates a preference for the user or updates a preference's value by sending a plain text string. For example,...",
-		Example: "  jira-cloud-platform-pp-cli mypreferences set-preference --key your-token-here",
+		Example: "  jira-pp-cli mypreferences set-preference --key your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "mypreferences.set-preference", "pp:method": "PUT", "pp:path": "/rest/api/3/mypreferences"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("key") && !flags.dryRun {

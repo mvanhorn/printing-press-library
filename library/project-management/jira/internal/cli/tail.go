@@ -30,13 +30,13 @@ Gracefully shuts down on SIGTERM/SIGINT.
 Note: For APIs with WebSocket or SSE support, a future version will use
 native streaming instead of polling.`,
 		Example: `  # Tail all changes every 10 seconds
-  jira-cloud-platform-pp-cli tail --interval 10s
+  jira-pp-cli tail --interval 10s
 
   # Tail a specific resource
-  jira-cloud-platform-pp-cli tail messages --interval 5s
+  jira-pp-cli tail messages --interval 5s
 
   # Pipe to jq for filtering
-  jira-cloud-platform-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
+  jira-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				resource = args[0]
@@ -142,9 +142,9 @@ func tailKnownResources() []string {
 		"issuetype",
 		"issuetypescheme",
 		"issuetypescreenscheme",
-		"jira-cloud-platform-search",
-		"jira-cloud-platform-version",
-		"jira-cloud-platform-workflow",
+		"jira-search",
+		"jira-version",
+		"jira-workflow",
 		"jql",
 		"label",
 		"license",

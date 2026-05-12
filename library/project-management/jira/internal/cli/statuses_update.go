@@ -19,7 +19,7 @@ func newStatusesUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update",
 		Short: "Updates statuses by ID. **[Permissions](#permissions) required:** * *Administer projects* [project...",
-		Example: "  jira-cloud-platform-pp-cli statuses update",
+		Example: "  jira-pp-cli statuses update",
 		Annotations: map[string]string{"pp:endpoint": "statuses.update", "pp:method": "PUT", "pp:path": "/rest/api/3/statuses"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

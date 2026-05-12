@@ -26,7 +26,7 @@ func newDashboardGadgetAddCmd(flags *rootFlags) *cobra.Command {
 		Use:   "add <dashboardId>",
 		Aliases: []string{"create"},
 		Short: "Adds a gadget to a dashboard. **[Permissions](#permissions) required:** None.",
-		Example: "  jira-cloud-platform-pp-cli dashboard gadget add 42",
+		Example: "  jira-pp-cli dashboard gadget add 42",
 		Annotations: map[string]string{"pp:endpoint": "gadget.add", "pp:method": "POST", "pp:path": "/rest/api/3/dashboard/{dashboardId}/gadget"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

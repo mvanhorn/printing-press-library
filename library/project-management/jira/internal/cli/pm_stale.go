@@ -28,31 +28,31 @@ the specified number of days. Useful for identifying forgotten or zombie work.
 
 Data must be synced first: run 'sync --project KEY'.`,
 		Example: `  # Issues not updated in 14 days (default)
-  jira-cloud-platform-pp-cli stale
+  jira-pp-cli stale
 
   # Custom threshold
-  jira-cloud-platform-pp-cli stale --days 7
+  jira-pp-cli stale --days 7
 
   # In-Progress issues not touched in a week
-  jira-cloud-platform-pp-cli stale --days 7 --status "In Progress"
+  jira-pp-cli stale --days 7 --status "In Progress"
 
   # Scoped to a project
-  jira-cloud-platform-pp-cli stale --days 14 --project MYPROJ
+  jira-pp-cli stale --days 14 --project MYPROJ
 
   # JSON output for agents
-  jira-cloud-platform-pp-cli stale --days 14 --agent`,
+  jira-pp-cli stale --days 14 --agent`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 

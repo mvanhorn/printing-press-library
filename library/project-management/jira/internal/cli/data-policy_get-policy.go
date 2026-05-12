@@ -16,7 +16,7 @@ func newDataPolicyGetPolicyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-policy",
 		Short: "Returns data policy for the workspace.",
-		Example: "  jira-cloud-platform-pp-cli data-policy get-policy",
+		Example: "  jira-pp-cli data-policy get-policy",
 		Annotations: map[string]string{"pp:endpoint": "data-policy.get-policy", "pp:method": "GET", "pp:path": "/rest/api/3/data-policy", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

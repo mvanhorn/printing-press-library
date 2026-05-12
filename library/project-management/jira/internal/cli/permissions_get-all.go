@@ -17,7 +17,7 @@ func newPermissionsGetAllCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all",
 		Aliases: []string{"list"},
 		Short: "Returns all permissions, including: * global permissions. * project permissions. * global permissions added by...",
-		Example: "  jira-cloud-platform-pp-cli permissions get-all",
+		Example: "  jira-pp-cli permissions get-all",
 		Annotations: map[string]string{"pp:endpoint": "permissions.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/permissions", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

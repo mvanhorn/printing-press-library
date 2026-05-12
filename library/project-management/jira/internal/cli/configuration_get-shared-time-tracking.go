@@ -16,7 +16,7 @@ func newConfigurationGetSharedTimeTrackingCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-shared-time-tracking",
 		Short: "Returns the time tracking settings. This includes settings such as the time format, default time unit, and others....",
-		Example: "  jira-cloud-platform-pp-cli configuration get-shared-time-tracking",
+		Example: "  jira-pp-cli configuration get-shared-time-tracking",
 		Annotations: map[string]string{"pp:endpoint": "configuration.get-shared-time-tracking", "pp:method": "GET", "pp:path": "/rest/api/3/configuration/timetracking/options", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

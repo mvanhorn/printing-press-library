@@ -17,7 +17,7 @@ func newWorkflowschemeDeleteWorkflowSchemeCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-workflow-scheme <id>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a workflow scheme. Note that a workflow scheme cannot be deleted if it is active (that is, being used by at...",
-		Example: "  jira-cloud-platform-pp-cli workflowscheme delete-workflow-scheme 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli workflowscheme delete-workflow-scheme 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "workflowscheme.delete-workflow-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/workflowscheme/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

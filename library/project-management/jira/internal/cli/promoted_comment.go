@@ -19,7 +19,7 @@ func newCommentPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "comment",
 		Short: "Returns a [paginated](#pagination) list of comments specified by a list of comment IDs. This operation can be...",
 		Long:  "Shortcut for 'comment get-by-ids'. Returns a [paginated](#pagination) list of comments specified by a list of comment IDs. This operation can be...",
-		Example: "  jira-cloud-platform-pp-cli comment",
+		Example: "  jira-pp-cli comment",
 		Annotations: map[string]string{"pp:endpoint": "comment.get-by-ids", "pp:method": "POST", "pp:path": "/rest/api/3/comment/list"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("ids") && !flags.dryRun {

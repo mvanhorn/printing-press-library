@@ -35,7 +35,7 @@ func feedbackFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
-	dir := filepath.Join(home, ".jira-cloud-platform-pp-cli")
+	dir := filepath.Join(home, ".jira-pp-cli")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
@@ -46,15 +46,15 @@ func feedbackFilePath() (string, error) {
 // is available. Surfaced via agent-context so introspecting agents know
 // whether their feedback will ship upstream.
 func FeedbackEndpointConfigured() bool {
-	return os.Getenv("JIRA_CLOUD_PLATFORM_FEEDBACK_ENDPOINT") != ""
+	return os.Getenv("JIRA_FEEDBACK_ENDPOINT") != ""
 }
 
 func feedbackEndpoint() string {
-	return os.Getenv("JIRA_CLOUD_PLATFORM_FEEDBACK_ENDPOINT")
+	return os.Getenv("JIRA_FEEDBACK_ENDPOINT")
 }
 
 func feedbackAutoSend() bool {
-	v := strings.ToLower(strings.TrimSpace(os.Getenv("JIRA_CLOUD_PLATFORM_FEEDBACK_AUTO_SEND")))
+	v := strings.ToLower(strings.TrimSpace(os.Getenv("JIRA_FEEDBACK_AUTO_SEND")))
 	return v == "1" || v == "true" || v == "yes"
 }
 
@@ -81,7 +81,7 @@ func postFeedback(url string, entry FeedbackEntry) error {
 		return fmt.Errorf("building feedback request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "jira-cloud-platform-pp-cli/feedback")
+	req.Header.Set("User-Agent", "jira-pp-cli/feedback")
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -100,9 +100,9 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.jira-cloud-platform-pp-cli/feedback.jsonl.
-When ` + "`JIRA_CLOUD_PLATFORM_FEEDBACK_ENDPOINT`" + ` is set and either --send is
-passed or ` + "`JIRA_CLOUD_PLATFORM_FEEDBACK_AUTO_SEND=true`" + `, the entry is
+		Long: `Feedback is captured locally first at ~/.jira-pp-cli/feedback.jsonl.
+When ` + "`JIRA_FEEDBACK_ENDPOINT`" + ` is set and either --send is
+passed or ` + "`JIRA_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
 
 Write what surprised you or tripped you up, not a bug report. The
@@ -131,7 +131,7 @@ maintainer sees it.`,
 
 			entry := FeedbackEntry{
 				Text:      text,
-				CLI:       "jira-cloud-platform-pp-cli",
+				CLI:       "jira-pp-cli",
 				Version:   version,
 				AgentID:   os.Getenv("AGENT_ID"),
 				Timestamp: time.Now().UTC(),
@@ -184,9 +184,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List recent feedback entries",
-		Example: `  jira-cloud-platform-pp-cli feedback list
-  jira-cloud-platform-pp-cli feedback list --limit 5
-  jira-cloud-platform-pp-cli feedback list --json`,
+		Example: `  jira-pp-cli feedback list
+  jira-pp-cli feedback list --limit 5
+  jira-pp-cli feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			p, err := feedbackFilePath()
 			if err != nil {

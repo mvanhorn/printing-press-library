@@ -27,7 +27,7 @@ func newGroupuserpickerPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "groupuserpicker",
 		Short: "Returns a list of users and groups matching a string. The string is used: * for users, to find a case-insensitive...",
 		Long:  "Shortcut for 'groupuserpicker find-users-and-groups'. Returns a list of users and groups matching a string. The string is used: * for users, to find a case-insensitive...",
-		Example: "  jira-cloud-platform-pp-cli groupuserpicker --query example-value",
+		Example: "  jira-pp-cli groupuserpicker --query example-value",
 		Annotations: map[string]string{"pp:endpoint": "groupuserpicker.find-users-and-groups", "pp:method": "GET", "pp:path": "/rest/api/3/groupuserpicker", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {

@@ -19,7 +19,7 @@ func newPlansUpdateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <planId>",
 		Short: "Updates any of the following details of a plan using [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902). *...",
-		Example: "  jira-cloud-platform-pp-cli plans update 42",
+		Example: "  jira-pp-cli plans update 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.update", "pp:method": "PUT", "pp:path": "/rest/api/3/plans/plan/{planId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -23,7 +23,7 @@ func newPriorityschemeGetAvailablePrioritiesByPrioritySchemeCmd(flags *rootFlags
 		Use:   "get-available-priorities-by-priority-scheme",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of priorities available for adding to a priority scheme....",
-		Example: "  jira-cloud-platform-pp-cli priorityscheme get-available-priorities-by-priority-scheme --scheme-id 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli priorityscheme get-available-priorities-by-priority-scheme --scheme-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "priorityscheme.get-available-priorities-by-priority-scheme", "pp:method": "GET", "pp:path": "/rest/api/3/priorityscheme/priorities/available", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("scheme-id") && !flags.dryRun {

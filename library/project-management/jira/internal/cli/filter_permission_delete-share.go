@@ -17,7 +17,7 @@ func newFilterPermissionDeleteShareCmd(flags *rootFlags) *cobra.Command {
 		Use:   "delete-share <id> <permissionId>",
 		Aliases: []string{"delete"},
 		Short: "Deletes a share permission from a filter. **[Permissions](#permissions) required:** Permission to access Jira and...",
-		Example: "  jira-cloud-platform-pp-cli filter permission delete-share 550e8400-e29b-41d4-a716-446655440000 42",
+		Example: "  jira-pp-cli filter permission delete-share 550e8400-e29b-41d4-a716-446655440000 42",
 		Annotations: map[string]string{"pp:endpoint": "permission.delete-share", "pp:method": "DELETE", "pp:path": "/rest/api/3/filter/{id}/permission/{permissionId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

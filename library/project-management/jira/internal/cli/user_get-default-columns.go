@@ -18,7 +18,7 @@ func newUserGetDefaultColumnsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-default-columns",
 		Short: "Returns the default [issue table columns](https://confluence.atlassian.com/x/XYdKLg) for the user. If `accountId` is...",
-		Example: "  jira-cloud-platform-pp-cli user get-default-columns",
+		Example: "  jira-pp-cli user get-default-columns",
 		Annotations: map[string]string{"pp:endpoint": "user.get-default-columns", "pp:method": "GET", "pp:path": "/rest/api/3/user/columns", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

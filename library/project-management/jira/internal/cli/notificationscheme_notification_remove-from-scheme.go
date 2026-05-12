@@ -17,7 +17,7 @@ func newNotificationschemeNotificationRemoveFromSchemeCmd(flags *rootFlags) *cob
 		Use:   "remove-from-scheme <notificationSchemeId> <notificationId>",
 		Aliases: []string{"delete"},
 		Short: "Removes a notification from a notification scheme. **[Permissions](#permissions) required:** *Administer Jira*...",
-		Example: "  jira-cloud-platform-pp-cli notificationscheme notification remove-from-scheme 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Example: "  jira-pp-cli notificationscheme notification remove-from-scheme 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "notification.remove-from-scheme", "pp:method": "DELETE", "pp:path": "/rest/api/3/notificationscheme/{notificationSchemeId}/notification/{notificationId}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

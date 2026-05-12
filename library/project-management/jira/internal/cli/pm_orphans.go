@@ -22,19 +22,19 @@ func newOrphansCmd(flags *rootFlags) *cobra.Command {
 		Long: `Scan locally synced data for items that are missing important fields
 such as assignee, project, priority, or labels. Useful for triaging unowned work.`,
 		Example: `  # Find orphaned items
-  jira-cloud-platform-pp-cli orphans
+  jira-pp-cli orphans
 
   # Output as JSON
-  jira-cloud-platform-pp-cli orphans --json`,
+  jira-pp-cli orphans --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("jira-cloud-platform-pp-cli")
+				dbPath = defaultDBPath("jira-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'jira-cloud-platform-pp-cli sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'jira-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 
@@ -152,7 +152,7 @@ such as assignee, project, priority, or labels. Useful for triaging unowned work
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-cloud-platform-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/jira-pp-cli/data.db)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum items to show")
 
 	return cmd

@@ -17,7 +17,7 @@ func newProjectAvatarsGetAllProjectCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-all-project <projectIdOrKey>",
 		Aliases: []string{"get"},
 		Short: "Returns all project avatars, grouped by system and custom avatars. This operation can be accessed anonymously....",
-		Example: "  jira-cloud-platform-pp-cli project avatars get-all-project your-token-here",
+		Example: "  jira-pp-cli project avatars get-all-project your-token-here",
 		Annotations: map[string]string{"pp:endpoint": "avatars.get-all-project", "pp:method": "GET", "pp:path": "/rest/api/3/project/{projectIdOrKey}/avatars", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

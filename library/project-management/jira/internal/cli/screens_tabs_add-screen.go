@@ -21,7 +21,7 @@ func newScreensTabsAddScreenCmd(flags *rootFlags) *cobra.Command {
 		Use:   "add-screen <screenId>",
 		Aliases: []string{"create"},
 		Short: "Creates a tab for a screen. **[Permissions](#permissions) required:** *Administer Jira* [global...",
-		Example: "  jira-cloud-platform-pp-cli screens tabs add-screen 42 --name example-resource",
+		Example: "  jira-pp-cli screens tabs add-screen 42 --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "tabs.add-screen", "pp:method": "POST", "pp:path": "/rest/api/3/screens/{screenId}/tabs"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

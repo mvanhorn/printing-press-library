@@ -19,7 +19,7 @@ func newPlansGetTeamsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-teams <planId>",
 		Short: "Returns a [paginated](#pagination) list of plan-only and Atlassian teams in a plan. **[Permissions](#permissions)...",
-		Example: "  jira-cloud-platform-pp-cli plans get-teams 42",
+		Example: "  jira-pp-cli plans get-teams 42",
 		Annotations: map[string]string{"pp:endpoint": "plans.get-teams", "pp:method": "GET", "pp:path": "/rest/api/3/plans/plan/{planId}/team", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

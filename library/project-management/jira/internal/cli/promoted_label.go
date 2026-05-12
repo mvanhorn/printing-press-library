@@ -20,7 +20,7 @@ func newLabelPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:   "label",
 		Short: "Returns a [paginated](#pagination) list of labels.",
 		Long:  "Shortcut for 'label get-all'. Returns a [paginated](#pagination) list of labels.",
-		Example: "  jira-cloud-platform-pp-cli label",
+		Example: "  jira-pp-cli label",
 		Annotations: map[string]string{"pp:endpoint": "label.get-all", "pp:method": "GET", "pp:path": "/rest/api/3/label", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

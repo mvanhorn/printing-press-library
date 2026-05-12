@@ -24,7 +24,7 @@ func newScreenschemeGetScreenSchemesCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-screen-schemes",
 		Aliases: []string{"list"},
 		Short: "Returns a [paginated](#pagination) list of screen schemes. Only screen schemes used in classic projects are...",
-		Example: "  jira-cloud-platform-pp-cli screenscheme get-screen-schemes",
+		Example: "  jira-pp-cli screenscheme get-screen-schemes",
 		Annotations: map[string]string{"pp:endpoint": "screenscheme.get-screen-schemes", "pp:method": "GET", "pp:path": "/rest/api/3/screenscheme", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("order-by") {

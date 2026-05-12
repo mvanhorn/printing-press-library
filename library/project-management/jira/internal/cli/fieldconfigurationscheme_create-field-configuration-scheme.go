@@ -21,7 +21,7 @@ func newFieldconfigurationschemeCreateFieldConfigurationSchemeCmd(flags *rootFla
 		Use:   "create-field-configuration-scheme",
 		Aliases: []string{"create"},
 		Short: "Deprecated, use [ Field schemes](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-field-schemes/...",
-		Example: "  jira-cloud-platform-pp-cli fieldconfigurationscheme create-field-configuration-scheme --name example-resource",
+		Example: "  jira-pp-cli fieldconfigurationscheme create-field-configuration-scheme --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "fieldconfigurationscheme.create-field-configuration-scheme", "pp:method": "POST", "pp:path": "/rest/api/3/fieldconfigurationscheme"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

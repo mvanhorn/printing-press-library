@@ -18,7 +18,7 @@ func newWorklogGetIdsOfDeletedSinceCmd(flags *rootFlags) *cobra.Command {
 		Use:   "get-ids-of-deleted-since",
 		Aliases: []string{"list"},
 		Short: "Returns a list of IDs and delete timestamps for worklogs deleted after a date and time. This resource is paginated,...",
-		Example: "  jira-cloud-platform-pp-cli worklog get-ids-of-deleted-since",
+		Example: "  jira-pp-cli worklog get-ids-of-deleted-since",
 		Annotations: map[string]string{"pp:endpoint": "worklog.get-ids-of-deleted-since", "pp:method": "GET", "pp:path": "/rest/api/3/worklog/deleted", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
