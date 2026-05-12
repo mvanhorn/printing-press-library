@@ -4,10 +4,13 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
+	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola/safestorage"
 )
 
 // newSyncCacheCmd is registered as the top-level 'sync' replacement.
@@ -37,6 +40,9 @@ The hydration is idempotent: re-running replaces every row.`,
 			}
 			c, err := openGranolaCache()
 			if err != nil {
+				// PATCH(encrypted-cache): record the decrypt failure so doctor
+				// can report it without itself prompting the Keychain.
+				recordSyncDecryptStatus(err)
 				return err
 			}
 			// PATCH(encrypted-cache): Granola desktop moved documents
@@ -81,8 +87,60 @@ The hydration is idempotent: re-running replaces every row.`,
 			if hydrateErr != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: documents API hydrate failed: %v\n", hydrateErr)
 			}
+			// PATCH(encrypted-cache): record success so doctor can report
+			// "ok (last decrypted: <time>)" without itself decrypting.
+			state := granola.SyncState{
+				LastSyncAt:           time.Now().UTC(),
+				LastDecryptStatus:    granola.DecryptStatusOK,
+				LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
+				LastDocumentsFetched: docsFetched,
+			}
+			if hydrateErr != nil {
+				state.LastDecryptErrorMsg = hydrateErr.Error()
+			}
+			if writeErr := granola.WriteSyncState(state); writeErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to write sync state: %v\n", writeErr)
+			}
 			return nil
 		},
 	}
 	return cmd
+}
+
+// PATCH(encrypted-cache): translate the load-error error chain into a
+// sync-state record so doctor can surface "decrypt failed" specifically
+// rather than the generic "load failed".
+func recordSyncDecryptStatus(err error) {
+	state := granola.SyncState{
+		LastSyncAt:        time.Now().UTC(),
+		LastDecryptStatus: granola.DecryptStatusFailed,
+		LastDecryptErrorMsg: err.Error(),
+	}
+	switch {
+	case errors.Is(err, safestorage.ErrKeyUnavailable):
+		state.LastDecryptErrorClass = "key_unavailable"
+	case errors.Is(err, safestorage.ErrDecryptFailed):
+		state.LastDecryptErrorClass = "decrypt_failed"
+	case errors.Is(err, safestorage.ErrUnsupportedPlatform):
+		state.LastDecryptErrorClass = "unsupported_platform"
+	default:
+		state.LastDecryptErrorClass = "other"
+	}
+	_ = granola.WriteSyncState(state)
+}
+
+// tokenSourceLabel returns a human-readable + JSON-stable label for the
+// TokenSource enum. Used in the sync state record.
+func tokenSourceLabel(s granola.TokenSource) string {
+	switch s {
+	case granola.TokenSourceEnvOverride:
+		return "env_override"
+	case granola.TokenSourcePlaintextSupabase:
+		return "plaintext_supabase"
+	case granola.TokenSourceEncryptedSupabase:
+		return "encrypted_supabase"
+	case granola.TokenSourceStoredAccounts:
+		return "stored_accounts"
+	}
+	return "unknown"
 }

@@ -194,6 +194,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
 
+			// PATCH(encrypted-cache): observe the encrypted-store state by
+			// inspecting the support dir + sync state file. Never invokes
+			// safestorage.Decrypt - doctor should diagnose, not prompt.
+			collectEncryptedStoreReport(report)
+
 			report["version"] = version
 
 			if flags.asJSON {
@@ -211,6 +216,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"env_vars", "Env Vars"},
 				{"api", "API"},
 				{"credentials", "Credentials"},
+				{"encrypted_store", "Encrypted store"}, // PATCH(encrypted-cache)
 			}
 			for _, ck := range checkKeys {
 				v, ok := report[ck.key]
