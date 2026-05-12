@@ -16,10 +16,16 @@ func newSoldCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sold",
 		Short: "Search sold listings (alias for `homes --status sold`).",
-		Long: `Convenience wrapper that runs the gis search with status=sold and
-the default sold-time filter (1y/3y/5y window).`,
-		Example: `  redfin-pp-cli sold --region-id 30772 --region-type 6 --year-min 2024 --json
-  redfin-pp-cli sold --region-slug "city/30772/TX/Austin" --beds-min 4 --json`,
+		Long: `Convenience wrapper that runs the gis search with status=sold.
+
+By default this fires the Stingray sf combo Redfin's website uses for
+the "include sold past 3 years" filter button (sf=1,2,3,5,6,7). Use
+--sold-window to pick a different bucket: 1mo|3mo|6mo|1y|2y|3y. The
+--sf flag is a raw escape hatch that bypasses --sold-window and passes
+its value through verbatim — useful when Stingray adds new codes.`,
+		Example: `  redfin-pp-cli sold --region-slug "city/30772/TX/Austin" --beds-min 4 --json
+  redfin-pp-cli sold --region-slug "city/30772/TX/Austin" --sold-window 1y --limit 25
+  redfin-pp-cli sold --region-id 30772 --region-type 6 --year-min 2024 --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			hf.status = "sold"
@@ -59,5 +65,7 @@ the default sold-time filter (1y/3y/5y window).`,
 	cmd.Flags().IntVar(&hf.page, "page", 1, "1-indexed page number")
 	cmd.Flags().IntVar(&hf.limit, "limit", 50, "Listings per page (max 350)")
 	cmd.Flags().BoolVar(&hf.all, "all", false, "Auto-paginate up to 5 pages")
+	cmd.Flags().StringVar(&hf.soldWindow, "sold-window", "", "Sold-status time window: 1mo|3mo|6mo|1y|2y|3y (default: 3y, Redfin's 'include sold past 3 years' combo)")
+	cmd.Flags().StringVar(&hf.sf, "sf", "", "Raw Stingray 'sf' parameter (escape hatch; overrides --sold-window)")
 	return cmd
 }
