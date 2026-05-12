@@ -124,6 +124,14 @@ type clientLike interface {
 // practical ceiling. Shared by insider-cluster, restatements, and late-filers.
 const efTSMaxFetch = 1000
 
+// PATCH(greptile P2): efTSPageSize is the explicit `size` parameter sent on
+// every EFTS request. EFTS's documented default is 10 but relying on that
+// implicit default was flagged as fragile — if EFTS ever changes the
+// default our "less than a full page → done" termination heuristic in
+// fetchAllEFTSHits would silently break. Setting size= explicitly pins
+// both ends of the contract.
+const efTSPageSize = 10
+
 // PATCH(greptile P1): fetchAllEFTSHits pages through EFTS for `q` (mutating
 // `q.From` per page) up to efTSMaxFetch hits and returns the full hit set
 // plus the server-reported total available. `truncated` is true when the
@@ -146,7 +154,7 @@ func fetchAllEFTSHits(c clientLike, q EFTSQuery) (hits []EFTSHit, totalAvailable
 			break
 		}
 		hits = append(hits, batch...)
-		if len(batch) < 10 {
+		if len(batch) < efTSPageSize {
 			break
 		}
 		from += len(batch)
@@ -189,6 +197,9 @@ func (q EFTSQuery) URL() string {
 	if q.From > 0 {
 		v.Set("from", strconv.Itoa(q.From))
 	}
+	// PATCH(greptile P2): pin the page size explicitly rather than relying
+	// on EFTS's implicit default.
+	v.Set("size", strconv.Itoa(efTSPageSize))
 	return "https://efts.sec.gov/LATEST/search-index?" + v.Encode()
 }
 

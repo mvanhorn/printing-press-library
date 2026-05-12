@@ -69,6 +69,18 @@
       "summary": "Emit a stderr warning and reword `--help` when `--sic` is set in `industry-bench`.",
       "reason": "The XBRL frame endpoint does not carry SIC codes; deriving them per-CIK via the submissions endpoint would cost thousands of HTTP calls per run. Previously the flag was silently ignored with only `sic_note` in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
       "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "insider-cluster-within-subday-warn",
+      "summary": "Warn when `insider-cluster --within` parses to less than 24h before silently rounding the clustering window to 1 day.",
+      "reason": "Clustering math operates on whole-day buckets so sub-day `--within` values (e.g., 12h) were clamped to 1 day with no indication to the user. Now we emit a stderr warning naming the parsed hours and the rounded floor.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "efts-explicit-size-param",
+      "summary": "Pin EFTS page size explicitly via a new `efTSPageSize=10` constant and `size=` URL param.",
+      "reason": "fetchAllEFTSHits' 'less than a full page → done' termination heuristic relied on EFTS's implicit default of 10 hits per page. If EFTS ever changed the default the heuristic would silently terminate at the wrong boundary, hiding hits. Setting size= explicitly pins both ends of the contract.",
+      "files": ["internal/cli/sec_helpers.go"]
     }
   ]
 }

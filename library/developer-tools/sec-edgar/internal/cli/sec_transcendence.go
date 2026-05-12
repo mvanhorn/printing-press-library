@@ -297,8 +297,15 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(fmt.Errorf("--within must be Nd or Nh: %w", err))
 			}
-			windowDays := int(now.Sub(withinDuration).Hours() / 24)
+			// PATCH(greptile P2): warn when --within parses to less than 24h.
+			// Clustering math operates on whole-day buckets; sub-day values
+			// were previously rounded up to 1 day silently.
+			windowHours := now.Sub(withinDuration).Hours()
+			windowDays := int(windowHours / 24)
 			if windowDays < 1 {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: --within=%s parses to %.1fh (< 24h); rounding up to 1 day for the clustering window.\n",
+					within, windowHours)
 				windowDays = 1
 			}
 			// PATCH(greptile P1): delegate paginated EFTS fetch to the shared
