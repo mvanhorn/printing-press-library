@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "patches": [
+    {
+      "id": "safestorage-package",
+      "files": [
+        "internal/granola/safestorage/safestorage.go",
+        "internal/granola/safestorage/safestorage_darwin.go",
+        "internal/granola/safestorage/safestorage_other.go",
+        "internal/granola/safestorage/safestorage_test.go",
+        "internal/granola/safestorage/testdata/regenerate.sh",
+        "internal/granola/safestorage/testdata/scheme.md",
+        "internal/granola/safestorage/testdata/README.md",
+        "internal/granola/safestorage/testdata/synthetic-aes-gcm-test-dek.bin",
+        "internal/granola/safestorage/testdata/fixture-supabase.enc",
+        "internal/granola/safestorage/testdata/fixture-cache.enc"
+      ],
+      "summary": "New internal/granola/safestorage package owning the two-tier decryption of Granola desktop's encrypted local storage. Layer 1: 'v10'-prefixed AES-128-CBC over storage.dek with PBKDF2-SHA1(keychain_base64_string, 'saltysalt', 1003, 16) and a 16-byte ASCII-space IV (standard Chromium OSCrypt envelope). Plaintext is base64 of a 32-byte DEK. Layer 2: AES-256-GCM with the DEK; envelope is nonce(12)||ciphertext||tag(16) with no AAD. Exported API: Key, Decrypt, Available, Reset, ZeroBytes plus error sentinels (ErrUnsupportedPlatform/ErrKeyUnavailable/ErrDecryptFailed). macOS implementation shells out to /usr/bin/security; safestorage_other.go returns ErrUnsupportedPlatform on non-darwin builds. GRANOLA_SAFESTORAGE_KEY_OVERRIDE env var lets tests inject a known DEK without touching the OS Keychain.",
+      "reason": "Granola desktop began writing cache-v6.json.enc, supabase.json.enc, and user-preferences.json.enc around early May 2026 while keeping stale plaintext stubs. The plain-file readers Damien shipped in the generator-produced code return 0 rows on modern installs. Empirical scheme finding documented in safestorage/testdata/scheme.md; verified end-to-end against Granola 7.205.0 macOS."
+    },
+    {
+      "id": "cache-loadcache-encrypted-resolver",
+      "files": [
+        "internal/granola/cache.go",
+        "internal/granola/cache_test.go",
+        "internal/granola/cache_integration_test.go"
+      ],
+      "summary": "Add DefaultEncryptedCachePath, ResolveCachePath, and supportDir helpers; teach LoadCache to prefer cache-v6.json.enc over the plaintext stub via the resolver. GRANOLA_CACHE_PATH override continues to win. Decrypt failures surface as wrapped errors (no silent fallback to stale plaintext, per plan D2). Updated existing TestLoadCache_RealFile to account for the schema-shift where documents moved out of the cache; added 4 resolver tests + an integration test gated by GRANOLA_INTEGRATION=1.",
+      "reason": "Same root cause as safestorage-package. LoadCache was the load-bearing entry point for every command that reads the cache; without this change the safestorage package would never be invoked."
+    },
+    {
+      "id": "workos-encrypted-supabase-and-d6",
+      "files": [
+        "internal/granola/workos.go",
+        "internal/granola/workos_test.go",
+        "internal/granola/workos_integration_test.go"
+      ],
+      "summary": "Teach loadFromSupabaseJSON to prefer supabase.json.enc. Add TokenSource enum tracking origin of the cached token. RefreshAccessToken now refuses to rotate the token when CurrentTokenSource()==TokenSourceEncryptedSupabase, returning a new ErrRefreshRefused sentinel; refresh stays allowed for env-override, plaintext supabase, and stored-accounts sources. Added 5 unit tests + an integration test.",
+      "reason": "WorkOS uses single-use refresh-token rotation. If the CLI reads the live refresh token from supabase.json.enc and rotates it, Granola desktop's stored copy becomes invalid and the user is signed out next time the desktop tries to refresh. Plan D6 - the CLI is read-only against the encrypted token store."
+    },
+    {
+      "id": "sync-document-api-hydrate",
+      "files": [
+        "internal/granola/api_documents.go",
+        "internal/granola/api_documents_test.go",
+        "internal/cli/sync_cache.go",
+        "internal/cli/granola_helpers.go"
+      ],
+      "summary": "Add HydrateDocumentsFromAPI that pages /v2/get-documents (existing internalapi.GetDocuments) and stuffs the results into cache.Documents before SyncFromCache upserts. sync_cache.go calls the hydrate before opening the store; the API error is surfaced as a non-fatal warning so cache-sourced state (transcripts/folders/recipes/panels/chats) still lands when the API is down. Fix in same file: openGranolaCache used to pass the plaintext path to LoadCache, bypassing the resolver - changed to pass empty string so the resolver picks the .enc file.",
+      "reason": "Granola desktop moved meeting documents out of cache-v6.json at the same time as the encryption rollout. Without this, even successfully decrypted cache contains 0 documents; every meetings-list command returns empty. The existing internalapi.go already had GetDocuments; this PR wires it into sync."
+    },
+    {
+      "id": "doctor-encrypted-store-and-sync-state",
+      "files": [
+        "internal/granola/syncstate.go",
+        "internal/granola/syncstate_test.go",
+        "internal/cli/doctor.go",
+        "internal/cli/doctor_encrypted_store.go",
+        "internal/cli/sync_cache.go"
+      ],
+      "summary": "New SyncState helper writes ~/.local/share/granola-pp-cli/sync_state.json (atomic tmp+rename) capturing last sync timestamp, decrypt status, error class on failure, token source, and documents fetched. sync_cache.go writes on every run (success or decrypt failure). doctor.go adds an EncryptedStore check that distinguishes no-install / pre-encryption / present-no-sync / ok / failed-with-class states by reading the sync state file - never invoking safestorage.Decrypt, so doctor never triggers the Keychain prompt.",
+      "reason": "Plan U5 requirement: doctor must surface the four-state encrypted-store diagnostic without prompting the user, so it stays a pure observation command. The previous design (attempt-with-timeout) was unachievable because /usr/bin/security either blocks on prompt or succeeds silently."
+    },
+    {
+      "id": "skill-doc-auth-rewrite",
+      "files": ["SKILL.md"],
+      "summary": "Rewrite the Auth Setup section for the encrypted-cache install flow. Drops the 'three auth surfaces' framing centered on GRANOLA_API_KEY. New flow: install Granola desktop + sign in; first sync prompts Keychain; CLI is read-only against the refresh token (D6); GRANOLA_WORKOS_TOKEN is the power-user opt-in. Adds a Troubleshooting subsection mapping each doctor verdict to a remediation.",
+      "reason": "The old skill doc was actively misleading post-encryption: it told users to set GRANOLA_API_KEY (a dead path for most workflows) and described auto-discovery from plaintext supabase.json (broken on modern Granola)."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Encrypted-storage decryption belongs in the Printing Press generator's standard template for Electron-app CLIs",
+      "reason": "Granola, Slack, VS Code, Signal, Notion, and many other Electron apps use the same OSCrypt envelope on macOS. A shared safestorage-style helper in the generator templates would let future printed CLIs handle encrypted local stores out of the box. Filing as a follow-up rather than blocking this PR on a generator-side change."
+    },
+    {
+      "summary": "Linux libsecret and Windows DPAPI implementations of safestorage.Key",
+      "reason": "Current safestorage_other.go returns ErrUnsupportedPlatform. Linux libsecret + Windows DPAPI keychain access patterns are well-documented; deferred so the macOS-blocking issue ships now."
+    },
+    {
+      "summary": "stored-accounts.json.enc fallback",
+      "reason": "supabase.json.enc covers the primary token surface today. stored-accounts.json.enc is rarely populated on modern installs; the existing plaintext stored-accounts fallback stays in place for legacy users."
+    }
+  ]
+}
