@@ -1,0 +1,685 @@
+name: pubsec-tech
+description: "Federal IT spending, opportunities, and news joined into one local store"
+cli_description: "Federal IT spending, opportunities, and news joined into one local store — searchable, scriptable, and agent-ready."
+version: "0.1.0"
+base_url: "https://api.usaspending.gov"
+
+# Default auth for the free tier (USAspending): none. SAM.gov endpoints declare
+# tier: paid and pick up the api_key auth via tier_routing.
+auth:
+  type: none
+
+tier_routing:
+  default_tier: free
+  tiers:
+    free:
+      auth:
+        type: none
+    paid:
+      # Cross-host routing: USAspending lives at api.usaspending.gov (free),
+      # SAM.gov at api.sam.gov (paid, data.gov key). DATA_GOV_API_KEY scopes
+      # to SAM.gov only - the per-request host check rejects the credential
+      # if it ever tries to leak to api.usaspending.gov. Reviewed in Phase 2.
+      allow_cross_host_auth: true
+      base_url: "https://api.sam.gov"
+      auth:
+        type: api_key
+        in: query
+        header: api_key
+        env_vars:
+          - DATA_GOV_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/pubsec-tech/config.toml"
+
+resources:
+  agencies:
+    description: "Federal agencies (toptier and subtier) - USAspending"
+    tier: free
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/references/toptier_agencies/"
+        description: "List every toptier federal agency with budget, obligations, and outlays for the current fiscal year. Use this to discover canonical agency codes and abbreviations before drilling into agency profiles."
+        params:
+          - name: fiscal_year
+            type: int
+            description: "Fiscal year to report against (defaults to current FY)"
+          - name: sort
+            type: string
+            description: "Sort field (budget_authority_amount, obligated_amount, outlay_amount)"
+          - name: order
+            type: string
+            description: "Sort order: asc or desc (default desc)"
+        response:
+          type: object
+          item: AgencyList
+      get:
+        method: GET
+        path: "/api/v2/agency/{toptier_code}/"
+        description: "Get one agency's profile by toptier code (e.g. 097 for DoD, 047 for GSA, 014 for Treasury)"
+        params:
+          - name: toptier_code
+            type: string
+            required: true
+            positional: true
+            description: "Three-digit Treasury toptier agency code (e.g. 097 for DoD)"
+          - name: fiscal_year
+            type: int
+            description: "Fiscal year (defaults to current FY)"
+        response:
+          type: object
+          item: AgencyProfile
+      budget_function:
+        method: GET
+        path: "/api/v2/agency/{toptier_code}/budget_function/"
+        description: "Agency obligations grouped by budget function (e.g. National Defense, General Science) for one fiscal year"
+        params:
+          - name: toptier_code
+            type: string
+            required: true
+            positional: true
+            description: "Toptier agency code"
+          - name: fiscal_year
+            type: int
+            description: "Fiscal year (defaults to current FY)"
+        response:
+          type: object
+          item: BudgetFunctionList
+      obligations_by_award_category:
+        method: GET
+        path: "/api/v2/agency/{toptier_code}/obligations_by_award_category/"
+        description: "Agency obligations split by award category (contracts, grants, direct payments, loans, other)"
+        params:
+          - name: toptier_code
+            type: string
+            required: true
+            positional: true
+            description: "Toptier agency code"
+          - name: fiscal_year
+            type: int
+            description: "Fiscal year"
+        response:
+          type: object
+          item: ObligationsByCategory
+      subagencies:
+        method: GET
+        path: "/api/v2/agency/{toptier_code}/sub_agency/"
+        description: "List subagencies (bureaus and offices) under a toptier agency, with obligation totals"
+        params:
+          - name: toptier_code
+            type: string
+            required: true
+            positional: true
+            description: "Toptier agency code"
+          - name: fiscal_year
+            type: int
+            description: "Fiscal year"
+        response:
+          type: object
+          item: SubagencyList
+
+  awards:
+    description: "Federal contract and assistance awards - USAspending"
+    tier: free
+    endpoints:
+      get:
+        method: GET
+        path: "/api/v2/awards/{award_id}/"
+        description: "Get full detail for one award by generated_internal_id (the CONT_AWD_... or ASST_NON_... identifier)"
+        params:
+          - name: award_id
+            type: string
+            required: true
+            positional: true
+            description: "Award generated_internal_id (e.g. CONT_AWD_SAQMMA11F0233_1900_GS00Q09BGD0048_4735)"
+        response:
+          type: object
+          item: AwardDetail
+      search:
+        method: POST
+        path: "/api/v2/search/spending_by_award/"
+        description: "Search awards by filter combination (NAICS, PSC, time, agency, dollar bounds, recipient). Pass the filters object as JSON; Phase 3 novel-feature commands wrap this with friendly flags."
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "USAspending filter object - see https://api.usaspending.gov/docs/endpoints (e.g. {time_period:[{start_date,end_date}], naics_codes:{require:[]}, award_type_codes:[]})"
+          - name: fields
+            type: array
+            description: "List of field names to return (e.g. [Award ID, Recipient Name, Award Amount])"
+          - name: page
+            type: int
+            description: "1-indexed page number"
+          - name: limit
+            type: int
+            description: "Records per page (max 100 for this endpoint)"
+          - name: sort
+            type: string
+            description: "Field name to sort by (e.g. Award Amount)"
+          - name: order
+            type: string
+            description: "asc or desc"
+        response:
+          type: object
+          item: AwardSearchResults
+      subawards:
+        method: GET
+        path: "/api/v2/subawards/"
+        description: "List subawards under a prime award"
+        params:
+          - name: award_id
+            type: string
+            description: "Filter to one prime award (CONT_AWD_... id)"
+          - name: page
+            type: int
+            description: "1-indexed page"
+          - name: limit
+            type: int
+            description: "Records per page"
+          - name: sort
+            type: string
+            description: "Sort field"
+        response:
+          type: object
+          item: SubawardList
+
+  spending:
+    description: "Aggregated federal spending breakdowns - USAspending"
+    tier: free
+    endpoints:
+      over_time:
+        method: POST
+        path: "/api/v2/search/spending_over_time/"
+        description: "Time-series spending aggregation grouped by fiscal year, quarter, or month for a filter set"
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "USAspending filter object"
+          - name: group
+            type: string
+            description: "Grouping: fiscal_year, quarter, or month (default fiscal_year)"
+          - name: subawards
+            type: bool
+            description: "Include subawards (default false)"
+        response:
+          type: object
+          item: SpendingOverTime
+      by_geography:
+        method: POST
+        path: "/api/v2/search/spending_by_geography/"
+        description: "Spending aggregation by state, county, or congressional district"
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "USAspending filter object"
+          - name: scope
+            type: string
+            description: "Scope: place_of_performance or recipient_location"
+          - name: geo_layer
+            type: string
+            description: "Geographic layer: state, county, or district"
+        response:
+          type: object
+          item: SpendingByGeography
+      by_category:
+        method: POST
+        path: "/api/v2/search/spending_by_category/{category}/"
+        description: "Spending grouped by a named category (recipient, awarding_agency, awarding_subagency, federal_account, psc, cfda, recipient_duns, country, state, district)"
+        params:
+          - name: category
+            type: string
+            required: true
+            positional: true
+            description: "Category name (recipient, awarding_agency, psc, cfda, etc.)"
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "USAspending filter object"
+          - name: limit
+            type: int
+            description: "Top-N to return"
+          - name: page
+            type: int
+            description: "1-indexed page"
+        response:
+          type: object
+          item: SpendingByCategory
+
+  recipients:
+    description: "Federal award recipients (vendors and grantees) - USAspending"
+    tier: free
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/recipient/duns/"
+        description: "List recipients with rollup totals; supports search by name or UEI"
+        params:
+          - name: keyword
+            type: string
+            description: "Recipient name keyword (LIKE-style prefix match)"
+          - name: award_type
+            type: string
+            description: "Limit to a recipient award type: all, contracts, direct_payments, grants, loans, other_financial_assistance"
+          - name: limit
+            type: int
+            description: "Records per page (default 50)"
+          - name: page
+            type: int
+            description: "1-indexed page"
+        response:
+          type: object
+          item: RecipientList
+      get:
+        method: GET
+        path: "/api/v2/recipient/{recipient_id}/"
+        description: "Get a recipient profile including DUNS, UEI, alternate names, parent recipient, and total federal $"
+        params:
+          - name: recipient_id
+            type: string
+            required: true
+            positional: true
+            description: "Recipient hash id (returned by recipient list)"
+        response:
+          type: object
+          item: RecipientProfile
+      autocomplete:
+        method: POST
+        path: "/api/v2/autocomplete/recipient/"
+        description: "Server-side recipient autocomplete for resolving vendor names to UEIs"
+        body:
+          - name: search_text
+            type: string
+            required: true
+            description: "Recipient name search text"
+          - name: limit
+            type: int
+            description: "Records per page"
+        response:
+          type: object
+          item: RecipientAutocomplete
+
+  references:
+    description: "Reference data: NAICS, PSC, glossary, codes"
+    tier: free
+    endpoints:
+      naics:
+        method: GET
+        path: "/api/v2/references/naics/"
+        description: "NAICS code hierarchy lookup; pass naics= to filter to a code prefix"
+        params:
+          - name: naics
+            type: string
+            description: "NAICS code or prefix"
+          - name: tier
+            type: string
+            description: "Hierarchy tier: 2-digit, 3-digit, 4-digit, 5-digit, or 6-digit"
+        response:
+          type: object
+          item: NaicsList
+      glossary:
+        method: GET
+        path: "/api/v2/references/glossary/"
+        description: "151-term federal-spending glossary; pass term= to filter"
+        params:
+          - name: term
+            type: string
+            description: "Glossary term to look up"
+        response:
+          type: object
+          item: GlossaryList
+
+  opportunities:
+    description: "Live federal contract opportunities (RFPs, sources sought, awards) - SAM.gov"
+    tier: paid
+    endpoints:
+      search:
+        method: GET
+        path: "/opportunities/v2/search"
+        description: "Search SAM.gov opportunities by NAICS, PSC, set-aside, agency, and posted-date window. Requires DATA_GOV_API_KEY environment variable."
+        params:
+          - name: postedFrom
+            type: string
+            required: true
+            flag_name: posted-from
+            description: "Posted-from date in MM/dd/yyyy format (window max 1 year wide)"
+          - name: postedTo
+            type: string
+            required: true
+            flag_name: posted-to
+            description: "Posted-to date in MM/dd/yyyy format"
+          - name: ptype
+            type: string
+            flag_name: notice-type
+            description: "Procurement type code: p=Pre-sol, o=Solicitation, k=Combined Synopsis/Sol, a=Award Notice, r=Sources Sought, s=Special Notice"
+          - name: ncode
+            type: string
+            flag_name: naics
+            description: "NAICS code (<=6 digits)"
+          - name: ccode
+            type: string
+            flag_name: psc
+            description: "Classification (PSC) code"
+          - name: typeOfSetAside
+            type: string
+            flag_name: set-aside
+            description: "Set-aside code: SBA, 8A, HZC, SDVOSBC, WOSB, EDWOSB, VSA, LAS, etc."
+          - name: state
+            type: string
+            description: "Place-of-performance state (2-letter)"
+          - name: zip
+            type: string
+            description: "Place-of-performance ZIP"
+          - name: organizationCode
+            type: string
+            flag_name: org-code
+            description: "Organizing agency code"
+          - name: organizationName
+            type: string
+            flag_name: org-name
+            description: "Organizing agency name"
+          - name: title
+            type: string
+            description: "Opportunity title keyword"
+          - name: solnum
+            type: string
+            description: "Solicitation number"
+          - name: noticeid
+            type: string
+            flag_name: notice-id
+            description: "Notice ID (returns single opportunity)"
+          - name: rdlfrom
+            type: string
+            flag_name: deadline-from
+            description: "Response-deadline-from in MM/dd/yyyy"
+          - name: rdlto
+            type: string
+            flag_name: deadline-to
+            description: "Response-deadline-to in MM/dd/yyyy"
+          - name: limit
+            type: int
+            description: "Records per page (1-1000; pass explicitly - default is 1)"
+          - name: offset
+            type: int
+            description: "0-indexed pagination offset"
+        response:
+          type: object
+          item: OpportunitySearch
+      get:
+        method: GET
+        path: "/opportunities/v2/search"
+        description: "Fetch a single SAM opportunity by notice ID. Requires DATA_GOV_API_KEY."
+        params:
+          - name: noticeid
+            type: string
+            required: true
+            positional: true
+            flag_name: notice-id
+            description: "Notice ID"
+          - name: postedFrom
+            type: string
+            required: true
+            flag_name: posted-from
+            description: "Posted-from date in MM/dd/yyyy (SAM requires this even for single-notice lookup; pass a wide window or the original post date)"
+          - name: postedTo
+            type: string
+            required: true
+            flag_name: posted-to
+            description: "Posted-to date in MM/dd/yyyy"
+        response:
+          type: object
+          item: OpportunityDetail
+      description:
+        method: GET
+        path: "/opportunities/v1/noticedesc"
+        description: "Full RFP description body for one opportunity (separate v1 endpoint). Requires DATA_GOV_API_KEY."
+        params:
+          - name: noticeid
+            type: string
+            required: true
+            positional: true
+            flag_name: notice-id
+            description: "Notice ID"
+        response:
+          type: object
+          item: OpportunityDescription
+
+  entities:
+    description: "SAM.gov registered entities, exclusions, and 889 compliance - SAM.gov"
+    tier: paid
+    endpoints:
+      list:
+        method: GET
+        path: "/entity-information/v3/entities"
+        description: "Search SAM-registered entities by UEI, CAGE, DUNS, or legal business name. Requires DATA_GOV_API_KEY."
+        params:
+          - name: ueiSAM
+            type: string
+            flag_name: uei
+            description: "UEI (12-character SAM unique entity ID)"
+          - name: cageCode
+            type: string
+            flag_name: cage
+            description: "CAGE code"
+          - name: legalBusinessName
+            type: string
+            flag_name: name
+            description: "Legal business name (partial match)"
+          - name: registrationStatus
+            type: string
+            flag_name: status
+            description: "Registration status: A=Active, E=Expired"
+          - name: includeSections
+            type: string
+            flag_name: include
+            description: "Comma-separated section names to include: coreData, assertions, repsAndCerts, pointsOfContact"
+        response:
+          type: object
+          item: EntityList
+
+types:
+  AgencyList:
+    fields:
+      - name: messages
+        type: array
+      - name: results
+        type: array
+
+  AgencyProfile:
+    fields:
+      - name: fiscal_year
+        type: int
+      - name: toptier_code
+        type: string
+      - name: name
+        type: string
+      - name: abbreviation
+        type: string
+      - name: mission
+        type: string
+      - name: about_agency_data
+        type: string
+
+  BudgetFunctionList:
+    fields:
+      - name: fiscal_year
+        type: int
+      - name: toptier_code
+        type: string
+      - name: results
+        type: array
+
+  ObligationsByCategory:
+    fields:
+      - name: fiscal_year
+        type: int
+      - name: results
+        type: array
+
+  SubagencyList:
+    fields:
+      - name: fiscal_year
+        type: int
+      - name: toptier_code
+        type: string
+      - name: results
+        type: array
+
+  AwardDetail:
+    fields:
+      - name: generated_unique_award_id
+        type: string
+      - name: piid
+        type: string
+      - name: type
+        type: string
+      - name: type_description
+        type: string
+      - name: description
+        type: string
+      - name: total_obligation
+        type: number
+      - name: base_and_all_options_value
+        type: number
+      - name: total_outlay
+        type: number
+      - name: period_of_performance
+        type: object
+      - name: awarding_agency
+        type: object
+      - name: funding_agency
+        type: object
+      - name: recipient
+        type: object
+
+  AwardSearchResults:
+    fields:
+      - name: spending_level
+        type: string
+      - name: limit
+        type: int
+      - name: results
+        type: array
+      - name: page_metadata
+        type: object
+
+  SubawardList:
+    fields:
+      - name: results
+        type: array
+      - name: page_metadata
+        type: object
+
+  SpendingOverTime:
+    fields:
+      - name: group
+        type: string
+      - name: results
+        type: array
+      - name: messages
+        type: array
+
+  SpendingByGeography:
+    fields:
+      - name: scope
+        type: string
+      - name: geo_layer
+        type: string
+      - name: results
+        type: array
+
+  SpendingByCategory:
+    fields:
+      - name: category
+        type: string
+      - name: limit
+        type: int
+      - name: page_metadata
+        type: object
+      - name: results
+        type: array
+
+  RecipientList:
+    fields:
+      - name: results
+        type: array
+      - name: page_metadata
+        type: object
+
+  RecipientProfile:
+    fields:
+      - name: recipient_id
+        type: string
+      - name: name
+        type: string
+      - name: alternate_names
+        type: array
+      - name: duns
+        type: string
+      - name: uei
+        type: string
+      - name: parent_id
+        type: string
+      - name: parent_name
+        type: string
+      - name: business_types
+        type: array
+      - name: location
+        type: object
+      - name: total_transaction_amount
+        type: number
+      - name: total_transactions
+        type: int
+
+  RecipientAutocomplete:
+    fields:
+      - name: results
+        type: array
+
+  NaicsList:
+    fields:
+      - name: results
+        type: array
+
+  GlossaryList:
+    fields:
+      - name: results
+        type: array
+
+  OpportunitySearch:
+    fields:
+      - name: totalRecords
+        type: int
+      - name: limit
+        type: int
+      - name: offset
+        type: int
+      - name: opportunitiesData
+        type: array
+      - name: links
+        type: array
+
+  OpportunityDetail:
+    fields:
+      - name: opportunitiesData
+        type: array
+      - name: totalRecords
+        type: int
+
+  OpportunityDescription:
+    fields:
+      - name: description
+        type: string
+
+  EntityList:
+    fields:
+      - name: totalRecords
+        type: int
+      - name: entityData
+        type: array
+      - name: links
+        type: array

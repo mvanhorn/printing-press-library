@@ -1,0 +1,357 @@
+{
+  "api_name": "pubsec-tech",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "cliwant/mcp-sam-gov",
+      "url": "https://github.com/cliwant/mcp-sam-gov",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 36,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "blencorp/capture-mcp-server",
+      "url": "https://github.com/blencorp/capture-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 22,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agilesix/usaspending-mcp-nextjs",
+      "url": "https://github.com/agilesix/usaspending-mcp-nextjs",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "thsmale/usaspending-mcp-server",
+      "url": "https://github.com/thsmale/usaspending-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flothjl/usaspending-mcp",
+      "url": "https://github.com/flothjl/usaspending-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MindPetal/sam-search",
+      "url": "https://github.com/MindPetal/sam-search",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pretorin-ai/govbizops",
+      "url": "https://github.com/pretorin-ai/govbizops",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "odysseus0/feed",
+      "url": "https://github.com/odysseus0/feed",
+      "language": "Go",
+      "install_method": "",
+      "stars": 9,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T01:35:00Z",
+  "novel_features": [
+    {
+      "name": "Vendor rollup",
+      "command": "vendor",
+      "description": "Joins SAM registration, exclusions, USAspending recipient profile, open opportunities, and recent news mentions for one federal vendor (needs DATA_GOV_API_KEY for the SAM.gov tier; pre-sync awards/recipients/news for full coverage).",
+      "rationale": "Joins five local tables (entities, exclusions, recipients, opportunities, articles) that the upstream APIs never join together. Capture-mcp's get_entity_and_awards covers two of those tables; no tool covers all five.",
+      "example": "pubsec-tech-pp-cli vendor \"Leidos\" --agent",
+      "why_it_matters": "When the user asks about one company in federal IT, this is the one-shot answer — saves a dozen API calls and the join logic.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recompete radar",
+      "command": "recompete",
+      "description": "Lists federal IT awards whose period of performance ends inside a chosen window, joined to the incumbent's profile and to any follow-on RFP already posted on SAM (run `sync --resources awards` first).",
+      "rationale": "Local SQL on awards.period_of_performance_current_end_date plus cross-source join to live SAM opportunities; no API endpoint returns this view.",
+      "example": "pubsec-tech-pp-cli recompete --naics 541512 --within 18m --agent",
+      "why_it_matters": "Lets a BD analyst or reporter find contracts that are about to recompete before they show up as news.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "News-to-contract correlation",
+      "command": "news link",
+      "description": "Fetches RSS articles and links each one to the underlying contracts and opportunities by deterministic name-match against local recipient and agency tables (needs `news sync` plus `sync --resources recipients,agencies` for entity matches).",
+      "rationale": "Three orthogonal data surfaces (awards, opportunities, news) joined by a persisted tags table — no existing tool combines all three.",
+      "example": "pubsec-tech-pp-cli news link --since 7d --agent",
+      "why_it_matters": "Turns a federal-tech news feed into a structured set of references to actual contracts and RFPs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agency modernization view",
+      "command": "agency",
+      "description": "For one agency, returns open IT opportunities, recent IT awards, IT-NAICS spend trend, and recent news mentions in one composed view.",
+      "rationale": "Cross-table aggregation scoped to a curated IT-NAICS set; useful only because awards, opportunities, and articles are all in the same local store.",
+      "example": "pubsec-tech-pp-cli agency DOD --modernization --agent",
+      "why_it_matters": "Answers 'what's happening in agency X on the IT side' in one call instead of three searches across three websites.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly BD digest",
+      "command": "digest",
+      "description": "One structured bundle: new awards in window, upcoming recompetes, open-opportunity hits, and recent news, scoped to a comma-separated NAICS list or a saved profile.",
+      "rationale": "Composes recompete + deadline + news-correlation outputs against a user-persisted NAICS filter stored in local config.",
+      "example": "pubsec-tech-pp-cli digest --since 7d --naics 541511,541512,541519 --agent",
+      "why_it_matters": "Drops a 2.5-hour Monday-morning BD ritual to a single command.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Explain this headline",
+      "command": "explain",
+      "description": "Given a news article URL or headline string, returns the article's text plus the linked recipients and opportunities, with the matched mention spans.",
+      "rationale": "Looks up the article in local store, reads its persisted tags rows, returns linked records — pure local-data join after sync.",
+      "example": "pubsec-tech-pp-cli explain \"https://www.nextgov.com/...\"",
+      "why_it_matters": "A reporter or analyst pasting a URL gets the contract context, not just the article text.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Anti-hallucination code guard",
+      "command": "code resolve",
+      "description": "Resolves a plain term ('cloud', 'cybersecurity') to a NAICS or PSC code only if it matches a real row in the local reference tables; on miss, returns suggestions and exits non-zero rather than guessing.",
+      "rationale": "Existing autocompletes (cliwant) return permissive matches; this command refuses to guess so an agent can not silently query with a hallucinated code.",
+      "example": "pubsec-tech-pp-cli code resolve \"cloud\" --kind naics --agent",
+      "why_it_matters": "Agents hallucinate NAICS codes constantly; this turns a silent empty-result-set into an actionable error.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Set-aside eligibility filter",
+      "command": "opps eligible",
+      "description": "Filters open opportunities to those whose set-aside categories match the SAM-registered socioeconomic indicators of a given UEI (needs DATA_GOV_API_KEY plus `sync --resources entities,opportunities`).",
+      "rationale": "Joins SAM entity socioeconomic fields with opportunity set-aside taxonomy; no MCP cross-references the two.",
+      "example": "pubsec-tech-pp-cli opps eligible ABC1234567 --agent",
+      "why_it_matters": "Vendors only see opportunities they can actually bid on; saves time triaging.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Vendor watchlist diff",
+      "command": "watch vendor",
+      "description": "Persistent watchlist that returns the news articles touching a vendor since the last recorded watch-tick (use --peek to read without advancing).",
+      "rationale": "Persisted watchlist state plus a diff against prior sync snapshot; one-shot tools cannot do this.",
+      "example": "pubsec-tech-pp-cli watch vendor \"Leidos\" --agent",
+      "why_it_matters": "Reporters and analysts watching dozens of vendors get only the article deltas they care about.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Vendor rollup",
+      "command": "vendor",
+      "description": "Joins SAM registration, exclusions, USAspending recipient profile, open opportunities, and recent news mentions for one federal vendor (needs DATA_GOV_API_KEY for the SAM.gov tier; pre-sync awards/recipients/news for full coverage).",
+      "rationale": "Joins five local tables (entities, exclusions, recipients, opportunities, articles) that the upstream APIs never join together. Capture-mcp's get_entity_and_awards covers two of those tables; no tool covers all five.",
+      "example": "pubsec-tech-pp-cli vendor \"Leidos\" --agent",
+      "why_it_matters": "When the user asks about one company in federal IT, this is the one-shot answer — saves a dozen API calls and the join logic.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recompete radar",
+      "command": "recompete",
+      "description": "Lists federal IT awards whose period of performance ends inside a chosen window, joined to the incumbent's profile and to any follow-on RFP already posted on SAM (run `sync --resources awards` first).",
+      "rationale": "Local SQL on awards.period_of_performance_current_end_date plus cross-source join to live SAM opportunities; no API endpoint returns this view.",
+      "example": "pubsec-tech-pp-cli recompete --naics 541512 --within 18m --agent",
+      "why_it_matters": "Lets a BD analyst or reporter find contracts that are about to recompete before they show up as news.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "News-to-contract correlation",
+      "command": "news link",
+      "description": "Fetches RSS articles and links each one to the underlying contracts and opportunities by deterministic name-match against local recipient and agency tables (needs `news sync` plus `sync --resources recipients,agencies` for entity matches).",
+      "rationale": "Three orthogonal data surfaces (awards, opportunities, news) joined by a persisted tags table — no existing tool combines all three.",
+      "example": "pubsec-tech-pp-cli news link --since 7d --agent",
+      "why_it_matters": "Turns a federal-tech news feed into a structured set of references to actual contracts and RFPs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agency modernization view",
+      "command": "agency",
+      "description": "For one agency, returns open IT opportunities, recent IT awards, IT-NAICS spend trend, and recent news mentions in one composed view.",
+      "rationale": "Cross-table aggregation scoped to a curated IT-NAICS set; useful only because awards, opportunities, and articles are all in the same local store.",
+      "example": "pubsec-tech-pp-cli agency DOD --modernization --agent",
+      "why_it_matters": "Answers 'what's happening in agency X on the IT side' in one call instead of three searches across three websites.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly BD digest",
+      "command": "digest",
+      "description": "One structured bundle: new awards in window, upcoming recompetes, open-opportunity hits, and recent news, scoped to a comma-separated NAICS list or a saved profile.",
+      "rationale": "Composes recompete + deadline + news-correlation outputs against a user-persisted NAICS filter stored in local config.",
+      "example": "pubsec-tech-pp-cli digest --since 7d --naics 541511,541512,541519 --agent",
+      "why_it_matters": "Drops a 2.5-hour Monday-morning BD ritual to a single command.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Explain this headline",
+      "command": "explain",
+      "description": "Given a news article URL or headline string, returns the article's text plus the linked recipients and opportunities, with the matched mention spans.",
+      "rationale": "Looks up the article in local store, reads its persisted tags rows, returns linked records — pure local-data join after sync.",
+      "example": "pubsec-tech-pp-cli explain \"https://www.nextgov.com/...\"",
+      "why_it_matters": "A reporter or analyst pasting a URL gets the contract context, not just the article text.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Anti-hallucination code guard",
+      "command": "code resolve",
+      "description": "Resolves a plain term ('cloud', 'cybersecurity') to a NAICS or PSC code only if it matches a real row in the local reference tables; on miss, returns suggestions and exits non-zero rather than guessing.",
+      "rationale": "Existing autocompletes (cliwant) return permissive matches; this command refuses to guess so an agent can not silently query with a hallucinated code.",
+      "example": "pubsec-tech-pp-cli code resolve \"cloud\" --kind naics --agent",
+      "why_it_matters": "Agents hallucinate NAICS codes constantly; this turns a silent empty-result-set into an actionable error.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Set-aside eligibility filter",
+      "command": "opps eligible",
+      "description": "Filters open opportunities to those whose set-aside categories match the SAM-registered socioeconomic indicators of a given UEI (needs DATA_GOV_API_KEY plus `sync --resources entities,opportunities`).",
+      "rationale": "Joins SAM entity socioeconomic fields with opportunity set-aside taxonomy; no MCP cross-references the two.",
+      "example": "pubsec-tech-pp-cli opps eligible ABC1234567 --agent",
+      "why_it_matters": "Vendors only see opportunities they can actually bid on; saves time triaging.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Vendor watchlist diff",
+      "command": "watch vendor",
+      "description": "Persistent watchlist that returns the news articles touching a vendor since the last recorded watch-tick (use --peek to read without advancing).",
+      "rationale": "Persisted watchlist state plus a diff against prior sync snapshot; one-shot tools cannot do this.",
+      "example": "pubsec-tech-pp-cli watch vendor \"Leidos\" --agent",
+      "why_it_matters": "Reporters and analysts watching dozens of vendors get only the article deltas they care about.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "pubsec-tech",
+    "headline": "Federal IT spending, opportunities, and news joined into one local store — searchable, scriptable, and agent-ready.",
+    "value_prop": "pubsec-tech wraps USAspending.gov (federal awards), SAM.gov Opportunities (live RFPs), and federal-tech RSS feeds (Nextgov/FCW, FedScoop, CyberScoop, MeriTalk, GovExec Technology, Federal News Network, and more) behind a single Go CLI. Unique to this CLI: cross-source joins that the upstream APIs never expose together — vendor rollups, recompete radar, news-to-contract correlation, and anti-hallucination NAICS/PSC guards.",
+    "auth_narrative": "USAspending and every RSS feed are free and keyless. SAM.gov Opportunities needs a free data.gov API key (https://api.data.gov/signup/) set as DATA_GOV_API_KEY. Without the key, USAspending and news commands still work; only SAM.gov commands raise a clear error directing the user to obtain a key.",
+    "quickstart": [
+      {
+        "command": "pubsec-tech sync --full",
+        "comment": "Pull NAICS/PSC reference tables, top-tier agencies, and recent IT-NAICS awards into the local SQLite store. Required before search/digest/correlation commands."
+      },
+      {
+        "command": "pubsec-tech-pp-cli news sync",
+        "comment": "Pull RSS articles from the seven enabled federal-tech feeds (Nextgov/FCW, FedScoop, CyberScoop, MeriTalk, GovExec Technology, Federal News Network) into the local store."
+      },
+      {
+        "command": "pubsec-tech-pp-cli vendor \"Leidos\" --agent",
+        "comment": "One-shot vendor rollup: SAM registration, exclusions, USAspending recipient profile, open opportunities, recent news mentions."
+      },
+      {
+        "command": "pubsec-tech-pp-cli recompete --naics 541512 --within 18m --agent",
+        "comment": "Find contracts ending in the next 18 months that match the NAICS, with the incumbent vendor's profile."
+      },
+      {
+        "command": "pubsec-tech-pp-cli news link --since 7d --agent",
+        "comment": "Last 7 days of federal-IT news with each article linked to the underlying awards and opportunities."
+      },
+      {
+        "command": "pubsec-tech-pp-cli digest --since 7d --json",
+        "comment": "Single agent-readable digest: new opps, new awards, top headlines, deadlines this week."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "SAM.gov commands return 'DATA_GOV_API_KEY required'",
+        "fix": "Sign up at https://api.data.gov/signup/ (free), then `export DATA_GOV_API_KEY=\u003cyour-key\u003e` and re-run."
+      },
+      {
+        "symptom": "SAM.gov commands return 429 'too many requests'",
+        "fix": "Non-federal data.gov keys are capped at 1,000 req/day. Use `pubsec-tech sync --opps-only` overnight and then query local store rather than re-hitting the API."
+      },
+      {
+        "symptom": "GovTech RSS feed fails with 403",
+        "fix": "GovTech is fronted by Cloudflare and blocks plain HTTP clients. Disable it via `pubsec-tech sources disable govtech` or set a browser-shaped User-Agent in config."
+      },
+      {
+        "symptom": "`code resolve cloud` exits non-zero with 'no match'",
+        "fix": "That's intentional — the anti-hallucination guard refuses to invent NAICS codes. Look at the suggestions it returned, pick one, and re-run with the exact code."
+      },
+      {
+        "symptom": "USAspending search returns an empty array but you expect results",
+        "fix": "Use `pubsec-tech code resolve` to confirm the NAICS/PSC code you passed actually exists, and confirm date format (`--fy 2025` not `--year 2025`)."
+      }
+    ],
+    "when_to_use": "Use pubsec-tech when you need to query federal IT spending, find live IT contract opportunities, or correlate federal-tech news with the underlying contracts. It is the right choice for any task that joins two or more of: USAspending awards, SAM.gov opportunities, and federal-tech news (Nextgov, FedScoop, CyberScoop, MeriTalk, GovExec, FNN). It is not the right choice for grants-only research (use Grants.gov directly), defense-specific operational queries (use Defense News + service-specific APIs), or state/local contract data outside the optional StateScoop/Route Fifty RSS sources.",
+    "recipes": [
+      {
+        "title": "Confirm a NAICS code before any downstream query",
+        "command": "pubsec-tech-pp-cli code resolve \"computer systems design\" --kind naics --agent",
+        "explanation": "Anti-hallucination guard: returns the canonical NAICS code (541512) or exits non-zero with suggestions if the term doesn't match a real row. Always run this before querying USAspending with a NAICS filter."
+      },
+      {
+        "title": "Daily digest scoped to your NAICS list",
+        "command": "pubsec-tech-pp-cli digest --since 24h --naics 541511,541512,541519 --agent --select new_articles.title,upcoming_recompetes.recipient_name,opp_hit_count",
+        "explanation": "Composes recompete + news-correlation against the IT NAICS set in one structured response. Demonstrates --select with dotted paths to narrow the verbose digest payload to only the fields an agent needs."
+      },
+      {
+        "title": "Find recompete opportunities for IT services",
+        "command": "pubsec-tech-pp-cli recompete --naics 541511,541512,541519 --within 18m --min-ceiling 50000000 --agent",
+        "explanation": "Joins awards.period_of_performance_current_end_date with the incumbent recipient and any already-posted follow-on RFP."
+      },
+      {
+        "title": "Explain a news article",
+        "command": "pubsec-tech-pp-cli explain \"https://fedscoop.com/...\" --agent",
+        "explanation": "Returns the article plus the awards and opportunities it references, with the matched mention spans."
+      },
+      {
+        "title": "Triage open opportunities for a small business",
+        "command": "pubsec-tech-pp-cli opps eligible ABC1234567 --posted-from 14d --agent",
+        "explanation": "Filters open SAM opportunities to those whose set-aside categories the entity actually qualifies for (8(a), SDVOSB, WOSB, HUBZone)."
+      }
+    ],
+    "trigger_phrases": [
+      "federal IT contracts",
+      "federal IT spending",
+      "find IT opportunities",
+      "what did GSA spend on",
+      "recompete radar",
+      "vendor rollup",
+      "explain this federal news article",
+      "use pubsec-tech",
+      "run pubsec-tech"
+    ]
+  }
+}

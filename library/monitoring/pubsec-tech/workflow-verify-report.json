@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/abraham.rosloff/printing-press/.runstate/cli-printing-press-87ac61e4/runs/20260511-211932/working/pubsec-tech-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

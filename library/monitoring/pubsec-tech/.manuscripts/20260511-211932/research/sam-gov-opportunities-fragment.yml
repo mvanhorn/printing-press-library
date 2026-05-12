@@ -1,0 +1,334 @@
+/v2/search:
+    get:
+      tags:
+        - 'Public GET Opportunities API '
+      summary: 'API to get opportunities based on filter'
+      operationId: getOpportunitiesUsingGET
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - text/plain
+      parameters:
+        -
+          name: ptype
+          in: query
+          description: 'Enter Procurement type.'
+          required: false
+          type: array
+          items:
+            type: string
+          collectionFormat: multi
+        -
+          name: noticeid
+          in: query
+          description: 'Enter Notice Id.'
+          required: false
+          type: string
+        -
+          name: solnum
+          in: query
+          description: 'Enter Solicitation number.'
+          required: false
+          type: string
+        -
+          name: title
+          in: query
+          description: 'Enter Title.'
+          required: false
+          type: string
+        -
+          name: state
+          in: query
+          description: 'Enter Place of performence State.'
+          required: false
+          type: string
+        -
+          name: zip
+          in: query
+          description: 'Enter Place of performence Zip.'
+          required: false
+          type: string
+        -
+          name: typeOfSetAsideDescription
+          in: query
+          description: 'Enter type Of SetAside Description.'
+          required: false
+          type: string
+        -
+          name: typeOfSetAside
+          in: query
+          description: 'Enter type Of SetAside Code.'
+          required: false
+          type: string
+        -
+          name: ncode
+          in: query
+          description: 'Enter Naics code.'
+          required: false
+          type: string
+        -
+          name: ccode
+          in: query
+          description: 'Enter Classification code.'
+          required: false
+          type: string
+        -
+          name: postedFrom
+          in: query
+          description: "Enter posted from date in mm/dd/yyyy format. Required when providing\nlimit."
+          required: false
+          type: string
+        -
+          name: postedTo
+          in: query
+          description: "Enter posted to date in mm/dd/yyyy format. Required when providing\nlimit."
+          required: false
+          type: string
+        -
+          name: rdlfrom
+          in: query
+          description: 'Enter response deadline in mm/dd/yyyy format'
+          required: false
+          type: string
+        -
+          name: rdlto
+          in: query
+          description: 'Enter response deadline to in mm/dd/yyyy format'
+          required: false
+          type: string
+        -
+          name: limit
+          in: query
+          description: 'Enter limit to fetch number of records'
+          required: true
+          type: string
+        -
+          name: offset
+          in: query
+          description: 'Enter offset value'
+          required: true
+          type: string
+          default: '0'
+        -
+          name: api_key
+          in: query
+          description: 'Enter the Public API Key.'
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: 'Not Found'
+definitions:
+  Data:
+    type: object
+    properties:
+      disabled_at:
+        type: string
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      enabled:
+        type: boolean
+      expires_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      registration_source:
+        type: string
+      roles:
+        type: array
+        items:
+          type: string
+      settings:
+        $ref: '#/definitions/Settings'
+  Creator:
+    type: object
+    properties:
+      username:
+        type: string
+  APIKeyUser:
+    type: object
+    properties:
+      api_key:
+        type: string
+      api_key_hides_at:
+        type: string
+      api_key_preview:
+        type: string
+      created_at:
+        type: string
+      creator:
+        $ref: '#/definitions/Creator'
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      enabled:
+        type: boolean
+      expires_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      registration_ip:
+        type: string
+      registration_origin:
+        type: string
+      registration_referer:
+        type: string
+      registration_source:
+        type: string
+      registration_user_agent:
+        type: string
+      roles:
+        type: array
+        items:
+          type: string
+      settings:
+        $ref: '#/definitions/Settings'
+      terms_and_conditions:
+        type: boolean
+      throttle_by_ip:
+        type: boolean
+      updated_at:
+        type: string
+      updater:
+        $ref: '#/definitions/Updater'
+      use_description:
+        type: string
+      website:
+        type: string
+  SystemAccountDetail:
+    type: object
+    properties:
+      id:
+        type: string
+      isFedCapable:
+        type: boolean
+      isGov:
+        type: boolean
+  Feature:
+    type: object
+    properties:
+      featureKey:
+        type: string
+      featureValue:
+        type: boolean
+  SystemAccountDisableUsers:
+    type: object
+    properties:
+      arrayOfSAUserNames:
+        type: array
+        items:
+          type: string
+  Response:
+    type: object
+    properties:
+      errorMessage:
+        type: string
+      message:
+        type: string
+      successMessage:
+        type: string
+  RateLimit:
+    type: object
+    properties:
+      accuracy:
+        type: integer
+        format: int32
+      distributed:
+        type: boolean
+      duration:
+        type: integer
+        format: int64
+      id:
+        type: string
+      limit:
+        type: integer
+        format: int32
+      limit_by:
+        type: string
+      response_headers:
+        type: boolean
+  EmailDetails:
+    type: object
+    properties:
+      _links:
+        type: array
+        items:
+          $ref: '#/definitions/Link'
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+  Updater:
+    type: object
+    properties:
+      username:
+        type: string
+  FilteredAPIKeyUserDetails:
+    type: object
+    properties:
+      _links:
+        type: array
+        items:
+          $ref: '#/definitions/Link'
+      apiKey:
+        type: string
+      apiKeyExpiryDate:
+        type: string
+      limit:
+        type: string
+      roles:
+        type: array
+        items:
+          type: string
+  Settings:
+    type: object
+    properties:
+      id:
+        type: string
+      rate_limit_mode:
+        type: string
+      rate_limits:
+        type: array
+        items:
+          $ref: '#/definitions/RateLimit'
+  Link:
+    type: object
+    properties:
+      deprecation:
+        type: string
+      href:
+        type: string
+      hreflang:
+        type: string
+      media:
+        type: string
+      rel:
+        type: string
+      templated:
+        type: boolean
+      title:
+        type: string
+      type:
+        type: string

@@ -1,0 +1,51 @@
+version: 2
+project_name: pubsec-tech-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: pubsec-tech-pp-cli
+    main: ./cmd/pubsec-tech-pp-cli
+    binary: pubsec-tech-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/monitoring/pubsec-tech/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: pubsec-tech-pp-mcp
+    main: ./cmd/pubsec-tech-pp-mcp
+    binary: pubsec-tech-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: pubsec-tech-pp-cli
+    repository:
+      owner: abe-rosloff
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Federal IT spending, opportunities, and news joined into one local store — searchable, scriptable, and agent-ready."
+    install: |
+      bin.install "pubsec-tech-pp-cli"
+      bin.install "pubsec-tech-pp-mcp"

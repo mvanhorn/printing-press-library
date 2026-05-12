@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T14:22:07.910073Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "pubsec-tech",
+  "display_name": "pubsec-tech",
+  "cli_name": "pubsec-tech-pp-cli",
+  "spec_path": "/Users/abraham.rosloff/printing-press/.runstate/cli-printing-press-87ac61e4/runs/20260511-211932/research/pubsec-tech-spec.yaml",
+  "run_id": "20260511-211932",
+  "novel_features": [
+    {
+      "name": "Vendor rollup",
+      "command": "vendor",
+      "description": "Joins SAM registration, exclusions, USAspending recipient profile, open opportunities, and recent news mentions for one federal vendor (needs DATA_GOV_API_KEY for the SAM.gov tier; pre-sync awards/recipients/news for full coverage)."
+    },
+    {
+      "name": "Recompete radar",
+      "command": "recompete",
+      "description": "Lists federal IT awards whose period of performance ends inside a chosen window, joined to the incumbent's profile and to any follow-on RFP already posted on SAM (run `sync --resources awards` first)."
+    },
+    {
+      "name": "News-to-contract correlation",
+      "command": "news link",
+      "description": "Fetches RSS articles and links each one to the underlying contracts and opportunities by deterministic name-match against local recipient and agency tables (needs `news sync` plus `sync --resources recipients,agencies` for entity matches)."
+    },
+    {
+      "name": "Agency modernization view",
+      "command": "agency",
+      "description": "For one agency, returns open IT opportunities, recent IT awards, IT-NAICS spend trend, and recent news mentions in one composed view."
+    },
+    {
+      "name": "Weekly BD digest",
+      "command": "digest",
+      "description": "One structured bundle: new awards in window, upcoming recompetes, open-opportunity hits, and recent news, scoped to a comma-separated NAICS list or a saved profile."
+    },
+    {
+      "name": "Explain this headline",
+      "command": "explain",
+      "description": "Given a news article URL or headline string, returns the article's text plus the linked recipients and opportunities, with the matched mention spans."
+    },
+    {
+      "name": "Anti-hallucination code guard",
+      "command": "code resolve",
+      "description": "Resolves a plain term ('cloud', 'cybersecurity') to a NAICS or PSC code only if it matches a real row in the local reference tables; on miss, returns suggestions and exits non-zero rather than guessing."
+    },
+    {
+      "name": "Set-aside eligibility filter",
+      "command": "opps eligible",
+      "description": "Filters open opportunities to those whose set-aside categories match the SAM-registered socioeconomic indicators of a given UEI (needs DATA_GOV_API_KEY plus `sync --resources entities,opportunities`)."
+    },
+    {
+      "name": "Vendor watchlist diff",
+      "command": "watch vendor",
+      "description": "Persistent watchlist that returns the news articles touching a vendor since the last recorded watch-tick (use --peek to read without advancing)."
+    }
+  ],
+  "printer": "arosloff",
+  "printer_name": "Abe Rosloff",
+  "owner": "arosloff",
+  "owner_name": "Abe Rosloff",
+  "category": "monitoring"
+}
