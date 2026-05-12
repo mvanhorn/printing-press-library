@@ -36,7 +36,7 @@
         "internal/cli/helpers.go"
       ],
       "validated_outcome": "workspaces list --select id,name --agent returns the projects array with id/name kept per item; bare-array and direct-object selection paths unchanged.",
-      "upstream_issue": "TO-FILE: cli-printing-press --select on list envelopes"
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1143"
     },
     {
       "id": "doctor-authenticated-probe",
@@ -46,7 +46,7 @@
         "internal/cli/doctor.go"
       ],
       "validated_outcome": "Valid key: 'OK Credentials: valid'. Invalid key: 'FAIL Credentials: invalid (HTTP 401 from /workspaces)'.",
-      "upstream_issue": "TO-FILE: cli-printing-press doctor verify path should be an authenticated endpoint, not /"
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1161"
     },
     {
       "id": "readme-workspace-id-flag",
@@ -56,7 +56,7 @@
         "README.md"
       ],
       "validated_outcome": "Example now copy-pastes successfully against a real workspace ID.",
-      "upstream_issue": "TO-FILE: cli-printing-press README examples should reflect actual generated flag names"
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1144"
     },
     {
       "id": "vm-direct-routing",
@@ -89,7 +89,7 @@
         "AGENTS.md"
       ],
       "validated_outcome": "Live-VM end-to-end smoke (all 15 functional tests pass): cold-start navigate auto-deploys the bridge in ~6s; read-page returns refs; find+click navigates; screenshot --out writes a real 107KB 1024x768 PNG; evaluate returns page title; switch-tab succeeds (empty bridge body synthesized to {success:true,transport:'empty_body'}); type and form-input both verified against Google search. MCP listing returns 16 chrome_* tools (total surface 65). End-to-end MCP invocation of chrome_evaluate via stdio JSON-RPC returns the page title. VM-direct A/B: central avg 1.23s vs VM-direct steady-state 0.48s (61% reduction).",
-      "upstream_issue": "TO-FILE: cli-printing-press companion-bridge template family (embed asset + deploy shim + bridge OpenAPI -> generated proxy CLI surface, generalizable to Kubernetes/AWS SSM/E2B/Modal/Daytona)"
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1162"
     },
     {
       "id": "cache-key-auth-fingerprint",
@@ -99,7 +99,7 @@
         "internal/client/client.go"
       ],
       "validated_outcome": "After populating the cache with a good key, the same request with a bad key gets cache-miss -> live API -> 401 -> exit 4. Good-key requests still hit cache (verified by repeated calls without --no-cache).",
-      "upstream_issue": "TO-FILE: cli-printing-press cache key must include auth fingerprint and sorted params"
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1142"
     }
   ]
 }

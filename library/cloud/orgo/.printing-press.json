@@ -58,6 +58,11 @@
       "name": "Cost Breakdown",
       "command": "cost",
       "description": "Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by per-tier rate, sums by workspace. --forecast projects month-end burn."
+    },
+    {
+      "name": "DOM-Aware Browser Automation",
+      "command": "chrome",
+      "description": "16-subcommand group driving Chrome inside an Orgo VM at the DOM level via an auto-deployed in-VM Node bridge (port 7331). Surface: navigate, tabs, new-tab, switch-tab, read-page (a11y tree with refs), find, page-text, screenshot, click (--ref or --x/--y), type, form-input, scroll, evaluate, console, network, resize. Cobra-tree walker auto-registers each as an MCP tool (chrome_*). Inherits VM-direct routing transparently."
     }
   ],
   "printer": "NickVasilescu"

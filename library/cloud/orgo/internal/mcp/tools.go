@@ -748,6 +748,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Oversized Computers", "command": "oversized", "description": "Flags computers with CPU >= 4 cores or RAM >= 16 GB whose last CLI-recorded action is older than the threshold and...", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Bulk Prune", "command": "prune", "description": "Cross-workspace status-filtered batch delete with dry-run by default.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Cost Breakdown", "command": "cost", "description": "Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "DOM-Aware Browser Automation", "command": "chrome", "description": "16-subcommand group driving Chrome inside an Orgo VM at the DOM level via an auto-deployed in-VM Node bridge (port 7331). Surface: navigate, tabs, new-tab, switch-tab, read-page (a11y tree with refs), find, page-text, screenshot, click (--ref or --x/--y), type, form-input, scroll, evaluate, console, network, resize. Each subcommand is auto-registered as an MCP tool (chrome_*).", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Agent Action Replay", "insight": ""},
@@ -758,6 +759,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Oversized Computers", "insight": ""},
 			{"topic": "Bulk Prune", "insight": ""},
 			{"topic": "Cost Breakdown", "insight": ""},
+			{"topic": "DOM-Aware Browser Automation", "insight": "Prefer chrome read-page + chrome click --ref over pixel-based computers screenshot get + computers click mouse for any web workflow; refs are stable across re-renders and 1-2 orders of magnitude cheaper in tokens than re-screenshotting between actions."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
