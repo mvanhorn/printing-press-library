@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-12T03:48:17.2338386Z",
+  "cli_dir": "C:/Users/Joey/printing-press/.runstate/joey-69bb3f9f/runs/20260511-221728/working/dataforseo-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "get",
+      "file": "task.go",
+      "line": 408,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Heuristic false positive: 'task get' body performs c.Post() to DataForSEO task_get endpoints AND UPDATEs the local task_ledger (status, fetched_at, result). Both an external POST and a local DB write. mcp:read-only would mis-classify a write-shaped operation and let agents skip the destructive-action prompt incorrectly."
+    }
+  ]
+}

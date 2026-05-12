@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T03:48:52.2823648Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "dataforseo",
+  "cli_name": "dataforseo-pp-cli",
+  "run_id": "20260511-221728",
+  "printer": "Mazzsterr",
+  "printer_name": "Mazzsterr",
+  "novel_features": [
+    {
+      "name": "Keyword pre-cleaner with 40501 surfacer",
+      "command": "keywords clean",
+      "description": "Pre-clean keywords before sending to Google Ads volume so one bad keyword doesn't poison the whole batch, and surface task-level 40501 errors that DataForSEO hides behind a top-level 20000.",
+      "rationale": "Only possible because the CLI inspects the response envelope per-task and short-circuits the request before sending if any keyword fails the >10-word / punctuation rules.",
+      "example": "dataforseo-pp-cli keywords clean keywords.txt --location-code 2840 --json",
+      "why_it_matters": "Reach for this when you'd otherwise call the Google Ads volume endpoint directly. DataForSEO returns top-level 20000 (success) even when every task inside failed validation; this command refuses to send poisoned batches and exits non-zero on hidden errors.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Auto-mode router (Live \u2194 Standard)",
+      "command": "keywords volume",
+      "description": "Auto-pick the cost-optimal execution mode based on batch size via `--mode auto`. Batches of 5 or fewer go through Live (sync, premium); larger batches route through Standard (queued, ~3.3\u00d7 cheaper) with a managed poll loop.",
+      "rationale": "DataForSEO's Live vs Standard cost differential is the top community complaint; no competitor MCP routes automatically \u2014 they make the user pick mode every call.",
+      "example": "dataforseo-pp-cli keywords volume --keywords keywords.txt --mode auto --json",
+      "why_it_matters": "Use whenever the batch size is uncertain. Pass `--mode auto` (the default) to avoid burning 3.3\u00d7 the cost on a 200-keyword job because the user forgot to flip to Standard.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cost estimator with pre-call confirmation gate",
+      "command": "cost estimate",
+      "description": "Predict spend before any live API call using a static price table per endpoint family multiplied by the planned input size. Optional --confirm-over flag gates spending above a threshold.",
+      "rationale": "DataForSEO's pricing varies 3.3\u00d7 between Live and Standard and 30\u00d7 across endpoint families; no other wrapper offers pre-call cost transparency.",
+      "example": "dataforseo-pp-cli cost estimate keywords-data google-ads search-volume --keywords keywords.txt --confirm-over 1.00",
+      "why_it_matters": "Reach for this before any batch-size or backlink call. Joey's #1 fear with DataForSEO is accidentally burning the $50 deposit on one careless command; this prevents that.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Standard-mode task bundler with resumable local ledger",
+      "command": "task bundle",
+      "description": "Run the full Standard-mode lifecycle (task_post \u2192 tasks_ready poll \u2192 task_get \u2192 merge) as one command, with task IDs persisted to local SQLite so Ctrl-C or a laptop sleep doesn't lose the queue.",
+      "rationale": "The task_post / tasks_ready / task_get triple is the largest UX gap in the official MCP; users self-host poll loops or use pingback callbacks they can't easily host.",
+      "example": "dataforseo-pp-cli task bundle serp/google/organic/task_post --in batch.json --json",
+      "why_it_matters": "Use for any cost-sensitive batch job (which is most of them). One command replaces a Python poll-loop script and survives interruptions.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local SQLite store + offline FTS over past results",
+      "command": "search",
+      "description": "Every result-returning API call mirrors into local SQLite (keywords, serp_results, backlinks, ai_mentions) with FTS5 indexes; offline `search` runs FTS5 MATCH over snippets, URLs, anchor text, and AI-answer excerpts without re-billing.",
+      "rationale": "Cross-entity local query no single API call provides; powers every delta tracker downstream.",
+      "example": "dataforseo-pp-cli search \"tree service daytona\" --json --select keyword,position,url",
+      "why_it_matters": "Use whenever you're tempted to re-call the same SERP/volume/backlink endpoint. The local store makes re-queries free.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Volume delta tracker",
+      "command": "keywords delta",
+      "description": "Joins the current Google Ads volume API response against the last stored value per keyword in local SQLite and outputs movers sorted by absolute delta.",
+      "rationale": "Cross-source join only possible with local history.",
+      "example": "dataforseo-pp-cli keywords delta --since 7d --json --select keyword,volume,delta",
+      "why_it_matters": "Reach for this whenever a content team asks 'which of the keywords we tracked last week moved.' DataForSEO doesn't return historical volume in one call; the local store enables this.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Rank + SERP-feature delta over URL list",
+      "command": "rank track",
+      "description": "Parse a sitemap or URL\u2192keyword map, call `serp/google/organic/live/advanced` per keyword, diff position + SERP features (AI Overview, featured snippet, knowledge panel, PAA) against last run, and flag movers and feature gains/losses.",
+      "rationale": "Multi-endpoint local join (SERP API \u00d7 URL\u2192keyword map \u00d7 historical rank) only possible with the local store; covers the Monday-morning rank-check ritual that costs $150-400/mo at Ahrefs/Semrush.",
+      "example": "dataforseo-pp-cli rank track --sitemap https://fsmstumpgrinding.com/sitemap.xml --features --json",
+      "why_it_matters": "Use weekly across any tracked page inventory. Replaces a manual GSC + incognito-Google ritual with one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AI-visibility delta in LLM answers",
+      "command": "ai-visibility track",
+      "description": "Call AI Optimization family endpoints (gemini, chat_gpt, llm_mentions, claude, perplexity) for a brand \u00d7 keyword grid, store per-LLM mentions/excerpts in SQLite, and diff week-over-week presence + mention count per LLM.",
+      "rationale": "AI Optimization is a new family (36 paths) and no community wrapper diffs week-over-week; the local store enables it.",
+      "example": "dataforseo-pp-cli ai-visibility track --brand \"FSM Stump Grinding\" --keywords keywords.txt --json",
+      "why_it_matters": "Use weekly to track whether a brand's offer copy is being cited by ChatGPT/Claude/Gemini/Perplexity for buyer-intent queries. The mechanical alternative is asking each LLM by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Backlinks-since-last-run",
+      "command": "backlinks new",
+      "description": "Snapshot `backlinks/summary` + `referring_domains` + `anchors` into local SQLite; on each run diff against the prior snapshot and surface newly-acquired referring domains with anchor text.",
+      "rationale": "Diff against history only possible with the local snapshot; replaces $199+/mo Ahrefs queries.",
+      "example": "dataforseo-pp-cli backlinks new --domain fsmstumpgrinding.com --json",
+      "why_it_matters": "Use weekly during any link-acquisition campaign (citation submissions, guest posts, PR placements) to confirm new backlinks landed and anchor text is on-brand.",
+      "group": "Local state that compounds"
+    }
+  ]
+}
