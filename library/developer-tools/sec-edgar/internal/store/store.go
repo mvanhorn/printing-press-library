@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -545,12 +546,16 @@ func extractObjectID(obj map[string]any) string {
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
+// PATCH(greptile P1): use FNV-1a 64-bit instead of a polynomial 31×h+c
+// hash. The previous scheme collided readily on string IDs of similar
+// length and content (common for EDGAR accession numbers and ticker
+// concatenations); a collision silently deletes the prior document's FTS
+// entry via `DELETE FROM resources_fts WHERE rowid = ?` in the upsert
+// path. FNV-1a has dramatically better distribution at the same cost.
 func ftsRowID(id string) int64 {
-	var h uint64
-	for _, c := range id {
-		h = h*31 + uint64(c)
-	}
-	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(id))
+	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF) // ensure positive
 }
 
 // LookupFieldValue resolves a field value from a JSON object map, trying

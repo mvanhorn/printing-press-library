@@ -93,6 +93,12 @@ func newWatchlistItemsCmd(flags *rootFlags) *cobra.Command {
 				formFilter["8-K"] = struct{}{}
 				formFilter["8-K/A"] = struct{}{}
 			}
+			// PATCH(greptile P1): scan Recent AND any older Filings.Files pages
+			// whose [FilingFrom, FilingTo] overlaps the requested window.
+			// Previously only Recent was searched; for active filers
+			// (~400-entry cap) this silently dropped older filings inside
+			// the window with no warning.
+			window := periodRange{start: sinceTime, end: untilTime}
 			rows := []map[string]any{}
 			for _, cik := range ciks {
 				p, err := fetchSubmissions(c, cik)
@@ -104,53 +110,69 @@ func newWatchlistItemsCmd(flags *rootFlags) *cobra.Command {
 					})
 					continue
 				}
-				r := p.Filings.Recent
-				for i := range r.AccessionNumber {
-					form := r.Form[i]
-					if len(formFilter) > 0 {
-						if _, ok := formFilter[strings.ToUpper(form)]; !ok {
-							continue
-						}
-					}
-					fdRaw := r.FilingDate[i]
-					if !sinceTime.IsZero() {
-						if fd, e := time.Parse("2006-01-02", fdRaw); e == nil && fd.Before(sinceTime) {
-							continue
-						}
-					}
-					if !untilTime.IsZero() {
-						if fd, e := time.Parse("2006-01-02", fdRaw); e == nil && fd.After(untilTime) {
-							continue
-						}
-					}
-					items := ""
-					if i < len(r.Items) {
-						items = r.Items[i]
-					}
-					if len(wantItems) > 0 {
-						if items == "" {
-							continue
-						}
-						hit := false
-						for _, it := range parseCSV(items) {
-							if _, ok := wantItems[normalizeItem(it)]; ok {
-								hit = true
-								break
+				scanPage := func(r *submissionRecent) {
+					for i := range r.AccessionNumber {
+						form := r.Form[i]
+						if len(formFilter) > 0 {
+							if _, ok := formFilter[strings.ToUpper(form)]; !ok {
+								continue
 							}
 						}
-						if !hit {
-							continue
+						fdRaw := r.FilingDate[i]
+						if !sinceTime.IsZero() {
+							if fd, e := time.Parse("2006-01-02", fdRaw); e == nil && fd.Before(sinceTime) {
+								continue
+							}
 						}
+						if !untilTime.IsZero() {
+							if fd, e := time.Parse("2006-01-02", fdRaw); e == nil && fd.After(untilTime) {
+								continue
+							}
+						}
+						items := ""
+						if i < len(r.Items) {
+							items = r.Items[i]
+						}
+						if len(wantItems) > 0 {
+							if items == "" {
+								continue
+							}
+							hit := false
+							for _, it := range parseCSV(items) {
+								if _, ok := wantItems[normalizeItem(it)]; ok {
+									hit = true
+									break
+								}
+							}
+							if !hit {
+								continue
+							}
+						}
+						rows = append(rows, map[string]any{
+							"cik":         cik,
+							"company":     p.Name,
+							"accession":   r.AccessionNumber[i],
+							"form":        form,
+							"filing_date": fdRaw,
+							"items":       items,
+							"filing_url":  archiveBase(cik, r.AccessionNumber[i]) + r.PrimaryDocument[i],
+						})
 					}
-					rows = append(rows, map[string]any{
-						"cik":         cik,
-						"company":     p.Name,
-						"accession":   r.AccessionNumber[i],
-						"form":        form,
-						"filing_date": fdRaw,
-						"items":       items,
-						"filing_url":  archiveBase(cik, r.AccessionNumber[i]) + r.PrimaryDocument[i],
-					})
+				}
+				scanPage(&p.Filings.Recent)
+				for _, ref := range p.Filings.Files {
+					if !filingsPageOverlaps(ref, window) {
+						continue
+					}
+					page, perr := fetchSubmissionPage(c, ref.Name)
+					if perr != nil {
+						rows = append(rows, map[string]any{
+							"cik":   cik,
+							"error": fmt.Sprintf("fetching submissions page %s: %s", ref.Name, perr),
+						})
+						continue
+					}
+					scanPage(page)
 				}
 			}
 			sort.SliceStable(rows, func(i, j int) bool {
@@ -257,6 +279,16 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			now := time.Now().UTC()
+			// PATCH(greptile P2): the --code (transaction code P/S/A) filter
+			// is not implemented in v1 — it would require fetching each
+			// Form 4 XML to read the underlying transaction. Until that
+			// lands, fail loudly to stderr so users don't silently get
+			// unfiltered results.
+			if code != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: --code=%s is not applied in v1 (Form 4 XML fetching not implemented); results are unfiltered by transaction code.\n",
+					code)
+			}
 			sinceTime, err := parseSince(since, now)
 			if err != nil {
 				return usageErr(err)
@@ -428,7 +460,7 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&within, "within", "5d", "Rolling window (e.g. 5d, 14d)")
 	cmd.Flags().IntVar(&minInsiders, "min-insiders", 3, "Minimum Form 4 filings per issuer within the rolling window required to flag a cluster (see Long for why this is filings rather than strict distinct-insider count)")
-	cmd.Flags().StringVar(&code, "code", "", "Form 4 transaction code (P=open-market buy, S=sale); informational only in v1")
+	cmd.Flags().StringVar(&code, "code", "", "Form 4 transaction code (P=open-market buy, S=sale). NOT APPLIED in v1: this flag is accepted for future compatibility but does not filter results; a stderr warning is emitted if set.")
 	cmd.Flags().StringVar(&since, "since", "90d", "Earliest filing date (YYYY-MM-DD or Nd)")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Max clusters to return")
 	return cmd
@@ -639,6 +671,17 @@ func newIndustryBenchCmd(flags *rootFlags) *cobra.Command {
 			if period == "" {
 				return usageErr(fmt.Errorf("--period is required (e.g. --period CY2024Q1, CY2024, CY2024Q1I)"))
 			}
+			// PATCH(greptile P2): the --sic filter is not implemented in v1
+			// — the XBRL frame endpoint doesn't carry SIC codes, and the
+			// per-CIK submissions lookup needed to derive them would cost
+			// thousands of HTTP calls per run. Until a local-store path
+			// lands, fail loudly to stderr so users don't silently get
+			// frame-wide percentiles when they asked for an SIC slice.
+			if sicCSV != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: --sic=%s is not applied in v1 (XBRL frame does not include SIC; per-CIK lookup is too costly); results span the entire frame.\n",
+					sicCSV)
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -710,7 +753,7 @@ func newIndustryBenchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&taxonomy, "taxonomy", "us-gaap", "Taxonomy: us-gaap, dei, ifrs-full, srt")
 	cmd.Flags().StringVar(&unit, "unit", "USD", "Unit (USD, USD/shares, shares, pure)")
 	cmd.Flags().StringVar(&period, "period", "", "Period code (e.g. CY2024Q1, CY2024Q1I, CY2024)")
-	cmd.Flags().StringVar(&sicCSV, "sic", "", "Restrict to one or more SIC codes (CSV)")
+	cmd.Flags().StringVar(&sicCSV, "sic", "", "Restrict to one or more SIC codes (CSV). NOT APPLIED in v1: this flag is accepted for future compatibility but does not filter the frame; a stderr warning is emitted if set.")
 	cmd.Flags().StringVar(&statCSV, "stat", "p10,p50,p90", "Percentiles to compute (CSV, e.g. p10,p25,p50,p75,p90)")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Max top-N issuers to return")
 	return cmd
@@ -1292,14 +1335,22 @@ func scan13FAccession(r *submissionRecent, wantDate periodRange) string {
 // filingsPageOverlaps reports whether an older-submissions page's date
 // range [FilingFrom, FilingTo] could plausibly contain a filing in
 // wantDate. Pages with unparseable ranges are conservatively assumed to
-// overlap so we never silently skip a candidate.
+// overlap so we never silently skip a candidate. A zero start or end on
+// wantDate is treated as unbounded — used by watchlist items where
+// `--until` is optional.
 func filingsPageOverlaps(ref submissionFilesRef, wantDate periodRange) bool {
 	from, fromErr := time.Parse("2006-01-02", ref.FilingFrom)
 	to, toErr := time.Parse("2006-01-02", ref.FilingTo)
 	if fromErr != nil || toErr != nil {
 		return true
 	}
-	return !to.Before(wantDate.start) && !from.After(wantDate.end)
+	if !wantDate.start.IsZero() && to.Before(wantDate.start) {
+		return false
+	}
+	if !wantDate.end.IsZero() && from.After(wantDate.end) {
+		return false
+	}
+	return true
 }
 
 type periodRange struct {

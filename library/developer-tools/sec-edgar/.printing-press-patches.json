@@ -45,6 +45,30 @@
       "summary": "Extend `find13FAccession` (holdings delta) to fall through to older `Filings.Files` pages when the target period falls outside `Filings.Recent`.",
       "reason": "SEC submissions JSON caps `filings.recent` at the most recent ~400 filings; active large institutional filers exhaust Recent within a few years, so any `--period` or `--vs` older than that window silently returned 'no 13F-HR filing found'. Now we scan Recent first, then walk `filings.files[]` page refs whose [FilingFrom, FilingTo] overlaps the target quarter, fetching each via the new `fetchSubmissionPage`.",
       "files": ["internal/cli/sec_absorbed.go", "internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "watchlist-items-walk-older-pages",
+      "summary": "Extend `watchlist items` to scan older `Filings.Files` pages whose date range overlaps the requested `--since`/`--until` window.",
+      "reason": "Same Filings.Recent ~400-filing cap surfaced for find13FAccession also hides older watchlist matches when the window extends past Recent. Refactored the per-CIK scan into a closure and applied it to Recent plus every overlapping older page. filingsPageOverlaps now treats zero start/end as unbounded so an open-ended window doesn't reject every page.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "store-ftsrowid-fnv1a",
+      "summary": "Swap the polynomial 31×h+c hash in `ftsRowID` for `hash/fnv.New64a`.",
+      "reason": "The polynomial hash collided readily on short string IDs of similar length and content (common shape for EDGAR accession numbers and ticker concatenations). A collision in `ftsRowID` causes the FTS upsert path's `DELETE FROM resources_fts WHERE rowid = ?` to silently delete the prior document's index row, leaving the first document unsearchable with no error surfaced. FNV-1a has dramatically better distribution at the same cost.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "insider-cluster-code-warn",
+      "summary": "Emit a stderr warning and reword `--help` when `--code` is set in `insider-cluster`.",
+      "reason": "The v1 implementation does not apply transaction-code filtering (would require per-filing Form 4 XML fetching). Previously the flag was silently ignored with only a buried note in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "industry-bench-sic-warn",
+      "summary": "Emit a stderr warning and reword `--help` when `--sic` is set in `industry-bench`.",
+      "reason": "The XBRL frame endpoint does not carry SIC codes; deriving them per-CIK via the submissions endpoint would cost thousands of HTTP calls per run. Previously the flag was silently ignored with only `sic_note` in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
+      "files": ["internal/cli/sec_transcendence.go"]
     }
   ]
 }
