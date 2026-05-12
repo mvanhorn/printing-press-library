@@ -1,0 +1,321 @@
+{
+  "api_name": "cloudflare",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "wrangler",
+      "url": "https://github.com/cloudflare/workers-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4000,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flarectl",
+      "url": "https://github.com/cloudflare/cloudflare-go/tree/v0/cmd/flarectl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2000,
+      "last_updated": "",
+      "command_count": 35,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "terraform-provider-cloudflare",
+      "url": "https://github.com/cloudflare/terraform-provider-cloudflare",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1300,
+      "last_updated": "",
+      "command_count": 300,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cloudflare-go",
+      "url": "https://github.com/cloudflare/cloudflare-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cf-terraforming",
+      "url": "https://github.com/cloudflare/cf-terraforming",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cloudflare-cli",
+      "url": "https://github.com/danielpigott/cloudflare-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-server-cloudflare",
+      "url": "https://github.com/cloudflare/mcp-server-cloudflare",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "Cloudflare envelope: {success, errors, messages, result, result_info}",
+    "Account-scoped + zone-scoped REST",
+    "Pagination via page+per_page or cursor",
+    "modified_on timestamp on most resources for delta sync",
+    "API tokens (Bearer) preferred; legacy email+key still supported",
+    "Cloudflare's own Code Mode MCP pattern: search+execute"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T16:38:00Z",
+  "novel_features": [
+    {
+      "name": "Idempotent DNS apply",
+      "command": "dns apply",
+      "description": "Apply a single DNS record with no-op-if-identical semantics, so the same command is safe to run repeatedly.",
+      "rationale": "Existing CLIs error on duplicate; the only way to make DNS provisioning idempotent today is a wrapper script around list+create+update.",
+      "example": "cloudflare-pp-cli dns apply --zone example.com --type A --name @ --content 203.0.113.10 --proxied=false --json",
+      "why_it_matters": "Reach for this when you need to provision DNS from a script or agent — guaranteed safe to run again with the same args.",
+      "group": "Idempotent infra"
+    },
+    {
+      "name": "Semantic redirect shortcut",
+      "command": "redirect set",
+      "description": "Create a 301/302 redirect from a URL pattern to a URL template — the Page Rule under the hood is composed for you.",
+      "rationale": "Page Rules' forwarding_url action requires careful JSON; nobody wraps it semantically.",
+      "example": "cloudflare-pp-cli redirect set \"legacy.example.com/*\" \"https://example.com/$1\" --status 301 --json",
+      "why_it_matters": "Reach for this when you want a domain-level 301 redirect without hand-rolling a Page Rule body.",
+      "group": "Idempotent infra"
+    },
+    {
+      "name": "DNS propagation verifier",
+      "command": "propagate watch",
+      "description": "Verify a DNS record has propagated by querying multiple public resolvers (Cloudflare 1.1.1.1, Google 8.8.8.8, Quad9 9.9.9.9).",
+      "rationale": "Cloudflare's own API tells you the record exists at Cloudflare; it can't tell you what other resolvers see.",
+      "example": "cloudflare-pp-cli propagate watch example.com A --expect 203.0.113.10 --watch",
+      "why_it_matters": "Reach for this immediately after `dns apply` to confirm the record is visible globally before kicking off downstream steps.",
+      "group": "Verification"
+    },
+    {
+      "name": "Cross-product domain locator",
+      "command": "where-is",
+      "description": "Find every place a hostname appears across DNS records, Worker routes, Page Rules, Access apps, and Custom Hostnames in one command.",
+      "rationale": "Local SQLite cache joins data that no single API call can — Cloudflare's product silos make this dashboard-impossible.",
+      "example": "cloudflare-pp-cli where-is example.com --json",
+      "why_it_matters": "Reach for this before deleting or changing a domain — check that nothing else depends on it.",
+      "group": "Cross-product"
+    },
+    {
+      "name": "Zone drift diff",
+      "command": "zones diff",
+      "description": "Diff two zones across settings, page rules, and DNS records (semantic name+type match) to find drift.",
+      "rationale": "Cloudflare's dashboard has no diff view; Terraform requires you to manage both zones declaratively.",
+      "example": "cloudflare-pp-cli zones diff staging.example.com prod.example.com --json",
+      "why_it_matters": "Reach for this before promoting staging to prod, during incident review, or when onboarding a tenant zone from a template.",
+      "group": "Cross-product"
+    },
+    {
+      "name": "Worker single-pane bindings",
+      "command": "worker bindings show",
+      "description": "Show every binding (KV, R2, D1, queue, secret, cron, route, custom domain) for one Worker in a single table.",
+      "rationale": "Wrangler exposes the pieces but never unifies them; the dashboard requires multiple tabs.",
+      "example": "cloudflare-pp-cli worker bindings show my-worker --account <account_id> --json",
+      "why_it_matters": "Reach for this when debugging a Worker in production — see everything wired to it without 10 dashboard tabs.",
+      "group": "Cross-product"
+    },
+    {
+      "name": "Cache purge with verify",
+      "command": "cache purge release",
+      "description": "Purge cache by URL/tag/hostname and verify with cf-cache-status header probes (MISS then HIT).",
+      "rationale": "Existing purge commands fire-and-forget; verifying the purge actually landed is a separate manual step.",
+      "example": "cloudflare-pp-cli cache purge release --zone example.com --tags release-v1 --probe https://example.com/",
+      "why_it_matters": "Reach for this in deploy/release scripts where downstream steps depend on cached content actually being purged.",
+      "group": "Verification"
+    },
+    {
+      "name": "Setup-zone named intent",
+      "command": "setup_zone",
+      "description": "End-to-end zone setup: A record, optional redirect, SSL strict, Always-Use-HTTPS — one command instead of four dashboard tabs.",
+      "rationale": "Composes the most common new-deploy workflow from individual primitives so the agent or operator runs one thing.",
+      "example": "cloudflare-pp-cli setup_zone example.com --origin 203.0.113.10 --redirect-from \"legacy.example.com/*\" --json",
+      "why_it_matters": "Reach for this when wiring a new domain end-to-end — the primary intent for a freshly-deployed app.",
+      "group": "Composition"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Idempotent DNS apply",
+      "command": "dns apply",
+      "description": "Apply a single DNS record with no-op-if-identical semantics, so the same command is safe to run repeatedly.",
+      "rationale": "Existing CLIs error on duplicate; the only way to make DNS provisioning idempotent today is a wrapper script around list+create+update.",
+      "example": "cloudflare-pp-cli dns apply --zone example.com --type A --name @ --content 203.0.113.10 --proxied=false --json",
+      "why_it_matters": "Reach for this when you need to provision DNS from a script or agent — guaranteed safe to run again with the same args.",
+      "group": "Idempotent infra"
+    },
+    {
+      "name": "Semantic redirect shortcut",
+      "command": "redirect set",
+      "description": "Create a 301/302 redirect from a URL pattern to a URL template — the Page Rule under the hood is composed for you.",
+      "rationale": "Page Rules' forwarding_url action requires careful JSON; nobody wraps it semantically.",
+      "example": "cloudflare-pp-cli redirect set \"legacy.example.com/*\" \"https://example.com/$1\" --status 301 --json",
+      "why_it_matters": "Reach for this when you want a domain-level 301 redirect without hand-rolling a Page Rule body.",
+      "group": "Idempotent infra"
+    },
+    {
+      "name": "DNS propagation verifier",
+      "command": "propagate watch",
+      "description": "Verify a DNS record has propagated by querying multiple public resolvers (Cloudflare 1.1.1.1, Google 8.8.8.8, Quad9 9.9.9.9).",
+      "rationale": "Cloudflare's own API tells you the record exists at Cloudflare; it can't tell you what other resolvers see.",
+      "example": "cloudflare-pp-cli propagate watch example.com A --expect 203.0.113.10 --watch",
+      "why_it_matters": "Reach for this immediately after `dns apply` to confirm the record is visible globally before kicking off downstream steps.",
+      "group": "Verification"
+    },
+    {
+      "name": "Cross-product domain locator",
+      "command": "where-is",
+      "description": "Find every place a hostname appears across DNS records, Worker routes, Page Rules, Access apps, and Custom Hostnames in one command.",
+      "rationale": "Local SQLite cache joins data that no single API call can — Cloudflare's product silos make this dashboard-impossible.",
+      "example": "cloudflare-pp-cli where-is example.com --json",
+      "why_it_matters": "Reach for this before deleting or changing a domain — check that nothing else depends on it.",
+      "group": "Cross-product"
+    },
+    {
+      "name": "Zone drift diff",
+      "command": "zones diff",
+      "description": "Diff two zones across settings, page rules, and DNS records (semantic name+type match) to find drift.",
+      "rationale": "Cloudflare's dashboard has no diff view; Terraform requires you to manage both zones declaratively.",
+      "example": "cloudflare-pp-cli zones diff staging.example.com prod.example.com --json",
+      "why_it_matters": "Reach for this before promoting staging to prod, during incident review, or when onboarding a tenant zone from a template.",
+      "group": "Cross-product"
+    },
+    {
+      "name": "Worker single-pane bindings",
+      "command": "worker bindings show",
+      "description": "Show every binding (KV, R2, D1, queue, secret, cron, route, custom domain) for one Worker in a single table.",
+      "rationale": "Wrangler exposes the pieces but never unifies them; the dashboard requires multiple tabs.",
+      "example": "cloudflare-pp-cli worker bindings show my-worker --account <account_id> --json",
+      "why_it_matters": "Reach for this when debugging a Worker in production — see everything wired to it without 10 dashboard tabs.",
+      "group": "Cross-product"
+    },
+    {
+      "name": "Cache purge with verify",
+      "command": "cache purge release",
+      "description": "Purge cache by URL/tag/hostname and verify with cf-cache-status header probes (MISS then HIT).",
+      "rationale": "Existing purge commands fire-and-forget; verifying the purge actually landed is a separate manual step.",
+      "example": "cloudflare-pp-cli cache purge release --zone example.com --tags release-v1 --probe https://example.com/",
+      "why_it_matters": "Reach for this in deploy/release scripts where downstream steps depend on cached content actually being purged.",
+      "group": "Verification"
+    },
+    {
+      "name": "Setup-zone named intent",
+      "command": "setup_zone",
+      "description": "End-to-end zone setup: A record, optional redirect, SSL strict, Always-Use-HTTPS — one command instead of four dashboard tabs.",
+      "rationale": "Composes the most common new-deploy workflow from individual primitives so the agent or operator runs one thing.",
+      "example": "cloudflare-pp-cli setup_zone example.com --origin 203.0.113.10 --redirect-from \"legacy.example.com/*\" --json",
+      "why_it_matters": "Reach for this when wiring a new domain end-to-end — the primary intent for a freshly-deployed app.",
+      "group": "Composition"
+    }
+  ],
+  "narrative": {
+    "display_name": "Cloudflare",
+    "headline": "The unified Cloudflare CLI agents and operators both want — every product covered, with offline cache, agent-native output, and the Cloudflare-pattern MCP surface.",
+    "value_prop": "Wrangler is Workers-only, flarectl is dormant, Terraform is declarative-only. This CLI absorbs all three and adds cross-product transcendence: idempotent DNS apply, semantic redirects, multi-resolver propagation watch, where-is, zone drift diff. MCP exposes the entire ~3000-endpoint surface through a thin search+execute pair (the Cloudflare pattern) so agents don't burn tokens loading per-endpoint tools.",
+    "auth_narrative": "Cloudflare uses scoped API tokens (Bearer) — preferred over the legacy email+global-key pair. Set `CLOUDFLARE_API_TOKEN` once; the CLI auto-resolves account_id and zone_id from names so most commands take human-readable inputs.",
+    "quickstart": [
+      {
+        "command": "cloudflare-pp-cli doctor",
+        "comment": "verify your token works and capture account/zone IDs into local cache"
+      },
+      {
+        "command": "cloudflare-pp-cli sync --full",
+        "comment": "snapshot zones, DNS records, workers, page rules, etc. for offline cross-product queries"
+      },
+      {
+        "command": "cloudflare-pp-cli setup_zone example.com --origin 203.0.113.10",
+        "comment": "end-to-end zone setup in one command"
+      },
+      {
+        "command": "cloudflare-pp-cli propagate watch example.com A --expect 203.0.113.10",
+        "comment": "verify global DNS propagation across public resolvers"
+      },
+      {
+        "command": "cloudflare-pp-cli where-is example.com --json",
+        "comment": "see every place this domain is wired across Cloudflare products"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / 403 from API",
+        "fix": "run `cloudflare-pp-cli doctor`; if token is valid, the token's permissions don't cover the resource — Cloudflare API tokens are scoped"
+      },
+      {
+        "symptom": "rate limit (429)",
+        "fix": "the CLI auto-retries with the Retry-After header; if persistent, check `audit logs` for token-bound abuse alerts"
+      },
+      {
+        "symptom": "search returns no results",
+        "fix": "run `cloudflare-pp-cli sync --full` to refresh the local cache; cross-product joins read from local SQLite"
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to manage Cloudflare imperatively across multiple products in one place: DNS + Workers + Page Rules + Access + Cache + WAF. It also doubles as an MCP server with the Cloudflare-pattern search+execute pair, so agents acting on infrastructure can navigate the full ~3000-endpoint API surface without burning tokens on per-endpoint tool definitions.",
+    "recipes": [
+      {
+        "title": "End-to-end example.com setup",
+        "command": "cloudflare-pp-cli setup_zone example.com --origin 203.0.113.10 --redirect-from \"legacy.example.com/*\" --json",
+        "explanation": "Provisions A record, optional redirect Page Rule, SSL strict, and Always-Use-HTTPS in one shot."
+      },
+      {
+        "title": "Audit zone drift before promoting staging to prod",
+        "command": "cloudflare-pp-cli zones diff staging.example.com prod.example.com --json --select drift,settings,page_rules,dns",
+        "explanation": "Returns settings/page-rule/DNS deltas with --select narrowing the response so agents see only the relevant nested fields."
+      },
+      {
+        "title": "Find every place a domain is wired",
+        "command": "cloudflare-pp-cli where-is example.com --json",
+        "explanation": "Local SQLite join across DNS, Worker routes, Page Rules, Access apps, custom hostnames."
+      },
+      {
+        "title": "Idempotent DNS provisioning from a script",
+        "command": "cloudflare-pp-cli dns apply --zone example.com --type A --name @ --content 203.0.113.10 --proxied=false --dry-run",
+        "explanation": "Shows what would change without applying. Drop --dry-run to commit."
+      },
+      {
+        "title": "Cache purge with verification",
+        "command": "cloudflare-pp-cli cache purge release --zone example.com --tags release-v1 --probe https://example.com/ --json",
+        "explanation": "Purges by tag, then probes the URL and asserts cf-cache-status transitions from MISS to HIT."
+      }
+    ],
+    "trigger_phrases": [
+      "set up dns for",
+      "purge cloudflare cache",
+      "redirect to",
+      "propagation check",
+      "where is this domain",
+      "use cloudflare",
+      "run cloudflare-pp-cli"
+    ]
+  }
+}
