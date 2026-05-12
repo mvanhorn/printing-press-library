@@ -1,0 +1,27 @@
+# Compiled binary (use `go install` to fetch)
+/orgo-pp-cli
+/orgo-pp-mcp
+
+# Build artifacts
+/build/
+/dist/
+
+# Test/dogfood outputs
+/dogfood-results.json
+/.gotmp/
+/coverage.out
+/coverage.html
+
+# Local SQLite cache (per-user)
+*.db
+*.db-shm
+*.db-wal
+
+# Editor noise
+.vscode/
+.idea/
+.DS_Store
+
+# Environment-local
+.env
+.env.local

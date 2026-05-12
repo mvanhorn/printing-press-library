@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/nickvasilescu/printing-press/library/orgo",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

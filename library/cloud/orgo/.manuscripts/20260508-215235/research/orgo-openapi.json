@@ -1,0 +1,2622 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Orgo API",
+    "description": "Desktop infrastructure for AI agents. Create workspaces, provision virtual computers, and control them programmatically.",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Orgo Support",
+      "email": "spencer@orgo.ai",
+      "url": "https://orgo.ai"
+    },
+    "x-cli-description": "The audit ledger Orgo doesn't otherwise have, plus every existing Orgo SDK feature in one Go binary."
+  },
+  "servers": [
+    {
+      "url": "https://www.orgo.ai/api",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Workspaces",
+      "description": "Organize computers into named workspaces"
+    },
+    {
+      "name": "Computers",
+      "description": "Provision and manage virtual computers"
+    },
+    {
+      "name": "Computer Lifecycle",
+      "description": "Start, stop, and restart computers"
+    },
+    {
+      "name": "Computer Actions",
+      "description": "Control mouse, keyboard, and execute commands"
+    },
+    {
+      "name": "Streaming",
+      "description": "Stream computer display via RTMP"
+    },
+    {
+      "name": "Files",
+      "description": "Upload and download files"
+    }
+  ],
+  "paths": {
+    "/workspaces": {
+      "get": {
+        "operationId": "listWorkspaces",
+        "summary": "List workspaces",
+        "description": "Returns all workspaces for the authenticated user.",
+        "tags": [
+          "Workspaces"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of workspaces",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workspaces": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Workspace"
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "workspaces": [
+                    {
+                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                      "name": "production",
+                      "user_id": "4d96f9a0-7727-4b63-889a-32544c206d7c",
+                      "status": "active",
+                      "icon_url": null,
+                      "created_at": "2026-04-07T10:30:00Z",
+                      "updated_at": "2026-04-07T10:30:00Z",
+                      "desktops": []
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createWorkspace",
+        "summary": "Create workspace",
+        "description": "Creates a new workspace. Workspace names must be unique per user.",
+        "tags": [
+          "Workspaces"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Workspace name. Must be unique within your account.",
+                    "minLength": 1,
+                    "example": "my-workspace"
+                  },
+                  "icon_url": {
+                    "type": "string",
+                    "description": "Optional icon URL"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "inactive"
+                    ],
+                    "default": "active"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Workspace created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Workspace"
+                },
+                "example": {
+                  "id": "550e8400-e29b-41d4-a716-446655440000",
+                  "name": "my-workspace",
+                  "user_id": "4d96f9a0-7727-4b63-889a-32544c206d7c",
+                  "status": "active",
+                  "icon_url": null,
+                  "created_at": "2026-04-07T10:30:00Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Workspace name already exists or invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/workspaces/{id}": {
+      "get": {
+        "operationId": "getWorkspace",
+        "summary": "Get workspace",
+        "description": "Returns a workspace by ID, including its computers.",
+        "tags": [
+          "Workspaces"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Workspace ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workspace details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceWithDesktops"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteWorkspace",
+        "summary": "Delete workspace",
+        "description": "Deletes a workspace and all its computers. This action cannot be undone.",
+        "tags": [
+          "Workspaces"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Workspace ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workspace deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers": {
+      "post": {
+        "operationId": "createComputer",
+        "summary": "Create computer",
+        "description": "Creates a new virtual computer in a workspace. The computer starts automatically after creation.",
+        "tags": [
+          "Computers"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateComputerRequest"
+              },
+              "example": {
+                "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
+                "name": "agent-1",
+                "os": "linux",
+                "ram": 4,
+                "cpu": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Computer created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Computer"
+                },
+                "example": {
+                  "id": "a3bb189e-8bf9-3888-9912-ace4e6543002",
+                  "name": "agent-1",
+                  "workspace_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "os": "linux",
+                  "ram": 4,
+                  "cpu": 1,
+                  "status": "running",
+                  "url": "https://orgo.ai/workspaces/a3bb189e-8bf9-3888-9912-ace4e6543002",
+                  "created_at": "2026-04-07T10:35:00Z",
+                  "fly_instance_id": "a3881618",
+                  "hostname": "a3881618.orgo.dev",
+                  "connection_url": "https://a3881618.orgo.dev",
+                  "vnc_password": "a06db12a8683df96"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid configuration or quota exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/computers/{id}": {
+      "get": {
+        "operationId": "getComputer",
+        "summary": "Get computer",
+        "description": "Returns computer details including current status.",
+        "tags": [
+          "Computers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Computer details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Computer"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteComputer",
+        "summary": "Delete computer",
+        "description": "Permanently deletes a computer and all its data.",
+        "tags": [
+          "Computers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Computer deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/start": {
+      "post": {
+        "operationId": "startComputer",
+        "summary": "Start computer",
+        "description": "Starts a stopped computer. Computers auto-stop after inactivity.",
+        "tags": [
+          "Computer Lifecycle"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Computer starting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "starting"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/stop": {
+      "post": {
+        "operationId": "stopComputer",
+        "summary": "Stop computer",
+        "description": "Stops a running computer. State is preserved.",
+        "tags": [
+          "Computer Lifecycle"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Computer stopping",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "stopping"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/restart": {
+      "post": {
+        "operationId": "restartComputer",
+        "summary": "Restart computer",
+        "description": "Restarts a computer. Equivalent to stop + start.",
+        "tags": [
+          "Computer Lifecycle"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Computer restarting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "restarting"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/auto-stop": {
+      "get": {
+        "operationId": "getAutoStop",
+        "summary": "Get auto-stop setting",
+        "description": "Returns the current auto-stop configuration for a computer.",
+        "tags": [
+          "Computer Lifecycle"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current auto-stop setting",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "auto_stop_minutes": {
+                      "type": "integer",
+                      "description": "Minutes of inactivity before auto-stop. 0 means never auto-stop.",
+                      "example": 15
+                    },
+                    "configurable": {
+                      "type": "boolean",
+                      "description": "Whether your plan allows changing this setting.",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateAutoStop",
+        "summary": "Update auto-stop setting",
+        "description": "Updates the auto-stop setting for a computer. Paid plans only \u2014 free tier is fixed at 15 minutes.",
+        "tags": [
+          "Computer Lifecycle"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "auto_stop_minutes"
+                ],
+                "properties": {
+                  "auto_stop_minutes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Minutes of inactivity before auto-stop. Set to 0 to disable.",
+                    "example": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Auto-stop updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "auto_stop_minutes": {
+                      "type": "integer",
+                      "example": 0
+                    },
+                    "auto_suspend_after": {
+                      "type": "string",
+                      "example": "0s"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/clone": {
+      "post": {
+        "operationId": "cloneComputer",
+        "summary": "Clone computer",
+        "description": "Creates a copy of a computer with the same disk state. Counts toward your plan's computer limit.",
+        "tags": [
+          "Computers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Source computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Clone created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string",
+                      "example": "agent-1 (clone)"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "running"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/resize": {
+      "patch": {
+        "operationId": "resizeComputer",
+        "summary": "Resize computer",
+        "description": "Live-resizes a running computer's CPU, RAM, disk, or bandwidth. All fields optional \u2014 only include what you want to change.",
+        "tags": [
+          "Computers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vcpus": {
+                    "type": "integer",
+                    "enum": [
+                      1,
+                      2,
+                      4,
+                      8,
+                      16
+                    ],
+                    "description": "New CPU count. Capped by plan."
+                  },
+                  "mem_gb": {
+                    "type": "integer",
+                    "enum": [
+                      4,
+                      8,
+                      16,
+                      32,
+                      64
+                    ],
+                    "description": "New RAM in GB. Capped by plan."
+                  },
+                  "disk_size_gb": {
+                    "type": "integer",
+                    "description": "New disk size in GB. Grow only \u2014 shrinking not supported."
+                  },
+                  "bandwidth_limit_mbps": {
+                    "type": "integer",
+                    "description": "New bandwidth cap in Mbps. Capped by plan."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resize complete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "vcpus": {
+                      "type": "integer"
+                    },
+                    "mem_gb": {
+                      "type": "integer"
+                    },
+                    "disk_size_gb": {
+                      "type": "integer"
+                    },
+                    "bandwidth_limit_mbps": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid value (e.g. shrinking disk)"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Value exceeds plan limit"
+          },
+          "409": {
+            "description": "Computer is not running"
+          }
+        }
+      }
+    },
+    "/computers/{id}/move": {
+      "patch": {
+        "operationId": "moveComputer",
+        "summary": "Move computer to another workspace",
+        "description": "Moves a computer to a different workspace. Both source and destination must be owned by you.",
+        "tags": [
+          "Computers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "project_id"
+                ],
+                "properties": {
+                  "project_id": {
+                    "type": "string",
+                    "description": "Destination workspace ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Computer moved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "project_id": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Already in this workspace"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/vnc-password": {
+      "get": {
+        "operationId": "getVncPassword",
+        "summary": "Get VNC password",
+        "description": "Returns the VNC password for direct VNC connection to the computer. Only accessible by workspace owners and members.",
+        "tags": [
+          "Computers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VNC password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "password": {
+                      "type": "string",
+                      "description": "VNC connection password"
+                    }
+                  }
+                },
+                "example": {
+                  "password": "abc123xyz"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "Access denied - not a workspace owner or member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/screenshot": {
+      "get": {
+        "operationId": "getScreenshot",
+        "summary": "Take screenshot",
+        "description": "Captures a screenshot of the computer display. Returns base64-encoded PNG or a URL.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Screenshot captured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "image": {
+                      "type": "string",
+                      "description": "Base64-encoded PNG or URL to the image"
+                    }
+                  }
+                },
+                "example": {
+                  "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA..."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/click": {
+      "post": {
+        "operationId": "mouseClick",
+        "summary": "Click mouse",
+        "description": "Performs a mouse click at the specified coordinates.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClickRequest"
+              },
+              "examples": {
+                "left-click": {
+                  "summary": "Left click",
+                  "value": {
+                    "x": 100,
+                    "y": 200
+                  }
+                },
+                "right-click": {
+                  "summary": "Right click",
+                  "value": {
+                    "x": 100,
+                    "y": 200,
+                    "button": "right"
+                  }
+                },
+                "double-click": {
+                  "summary": "Double click",
+                  "value": {
+                    "x": 100,
+                    "y": 200,
+                    "double": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Click performed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/drag": {
+      "post": {
+        "operationId": "mouseDrag",
+        "summary": "Drag mouse",
+        "description": "Performs a mouse drag from start to end coordinates.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DragRequest"
+              },
+              "example": {
+                "start_x": 100,
+                "start_y": 100,
+                "end_x": 300,
+                "end_y": 200,
+                "duration": 0.5
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Drag performed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/type": {
+      "post": {
+        "operationId": "typeText",
+        "summary": "Type text",
+        "description": "Types text on the computer keyboard.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TypeRequest"
+              },
+              "example": {
+                "text": "Hello, world!"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Text typed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/key": {
+      "post": {
+        "operationId": "pressKey",
+        "summary": "Press key",
+        "description": "Presses a key or key combination (e.g., Enter, Tab, ctrl+c).",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeyRequest"
+              },
+              "examples": {
+                "enter": {
+                  "summary": "Press Enter",
+                  "value": {
+                    "key": "Enter"
+                  }
+                },
+                "shortcut": {
+                  "summary": "Ctrl+C shortcut",
+                  "value": {
+                    "key": "ctrl+c"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Key pressed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/scroll": {
+      "post": {
+        "operationId": "scroll",
+        "summary": "Scroll",
+        "description": "Scrolls the mouse wheel up or down.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScrollRequest"
+              },
+              "example": {
+                "direction": "down",
+                "amount": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Scroll performed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/wait": {
+      "post": {
+        "operationId": "wait",
+        "summary": "Wait",
+        "description": "Pauses execution for the specified duration.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WaitRequest"
+              },
+              "example": {
+                "duration": 2
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wait completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/bash": {
+      "post": {
+        "operationId": "executeBash",
+        "summary": "Execute bash",
+        "description": "Executes a bash command on the computer.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BashRequest"
+              },
+              "example": {
+                "command": "ls -la /home/user"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Command executed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BashResponse"
+                },
+                "example": {
+                  "output": "total 32\ndrwxr-xr-x 4 user user 4096 Jan 15 10:30 .\ndrwxr-xr-x 3 root root 4096 Jan 15 10:00 ..\n-rw-r--r-- 1 user user  220 Jan 15 10:00 .bashrc\ndrwxr-xr-x 2 user user 4096 Jan 15 10:30 Desktop\n",
+                  "success": true
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/exec": {
+      "post": {
+        "operationId": "executePython",
+        "summary": "Execute Python",
+        "description": "Executes Python code on the computer.",
+        "tags": [
+          "Computer Actions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExecRequest"
+              },
+              "example": {
+                "code": "import os\nprint(os.getcwd())",
+                "timeout": 10
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Code executed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecResponse"
+                },
+                "example": {
+                  "output": "/home/user\n",
+                  "success": true
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/stream/start": {
+      "post": {
+        "operationId": "startStream",
+        "summary": "Start stream",
+        "description": "Starts streaming the computer display via RTMP to a configured connection.",
+        "tags": [
+          "Streaming"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamStartRequest"
+              },
+              "example": {
+                "connection_name": "twitch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stream started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamStartResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/stream/status": {
+      "get": {
+        "operationId": "getStreamStatus",
+        "summary": "Get stream status",
+        "description": "Returns the current streaming status.",
+        "tags": [
+          "Streaming"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamStatusResponse"
+                },
+                "example": {
+                  "status": "streaming",
+                  "start_time": "2024-01-15T10:30:00Z",
+                  "pid": 12345
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/computers/{id}/stream/stop": {
+      "post": {
+        "operationId": "stopStream",
+        "summary": "Stop stream",
+        "description": "Stops the active RTMP stream.",
+        "tags": [
+          "Streaming"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Computer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream stopped",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamStopResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/files/upload": {
+      "post": {
+        "operationId": "uploadFile",
+        "summary": "Upload file",
+        "description": "Uploads a file to a workspace. Maximum file size is 10MB.",
+        "tags": [
+          "Files"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "projectId"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to upload (max 10MB)"
+                  },
+                  "projectId": {
+                    "type": "string",
+                    "description": "Workspace ID"
+                  },
+                  "desktopId": {
+                    "type": "string",
+                    "description": "Optional computer ID to associate the file with"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileUploadResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "File too large or missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/files": {
+      "get": {
+        "operationId": "listFiles",
+        "summary": "List files",
+        "description": "Lists all files in a workspace, optionally filtered by computer.",
+        "tags": [
+          "Files"
+        ],
+        "parameters": [
+          {
+            "name": "projectId",
+            "in": "query",
+            "required": true,
+            "description": "Workspace ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "desktopId",
+            "in": "query",
+            "required": false,
+            "description": "Optional computer ID to filter by",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileListResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/files/export": {
+      "post": {
+        "operationId": "exportFile",
+        "summary": "Export file",
+        "description": "Exports a file from the computer's filesystem and returns a download URL.",
+        "tags": [
+          "Files"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FileExportRequest"
+              },
+              "example": {
+                "desktopId": "a3bb189e-8bf9-3888-9912-ace4e6543002",
+                "path": "Desktop/results.txt"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "File exported",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileExportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Computer not running or invalid path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/files/download": {
+      "get": {
+        "operationId": "downloadFile",
+        "summary": "Download file",
+        "description": "Returns a signed download URL for a file. URLs expire in 1 hour.",
+        "tags": [
+          "Files"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "File ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Download URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileDownloadResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/files/delete": {
+      "delete": {
+        "operationId": "deleteFile",
+        "summary": "Delete file",
+        "description": "Permanently deletes a file from storage.",
+        "tags": [
+          "Files"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "description": "File ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Workspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique workspace identifier",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Workspace name",
+            "example": "production"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Owner user ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ],
+            "example": "active"
+          },
+          "icon_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "Optional icon URL"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WorkspaceWithDesktops": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Workspace"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "desktops": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Computer"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Computer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique computer identifier",
+            "example": "a3bb189e-8bf9-3888-9912-ace4e6543002"
+          },
+          "name": {
+            "type": "string",
+            "description": "Computer name",
+            "example": "agent-1"
+          },
+          "project_name": {
+            "type": "string",
+            "description": "Name of the parent workspace",
+            "example": "production"
+          },
+          "os": {
+            "type": "string",
+            "enum": [
+              "linux"
+            ],
+            "description": "Operating system",
+            "example": "linux"
+          },
+          "ram": {
+            "type": "integer",
+            "enum": [
+              4,
+              8,
+              16,
+              32,
+              64
+            ],
+            "description": "RAM in GB",
+            "example": 4
+          },
+          "cpu": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              4,
+              8,
+              16
+            ],
+            "description": "CPU cores",
+            "example": 1
+          },
+          "disk_size_gb": {
+            "type": "integer",
+            "description": "Disk size in GB",
+            "example": 8
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "creating",
+              "starting",
+              "running",
+              "stopping",
+              "stopped",
+              "restarting",
+              "suspended",
+              "deleting",
+              "error"
+            ],
+            "description": "Current status",
+            "example": "running"
+          },
+          "url": {
+            "type": "string",
+            "description": "Dashboard URL for the computer",
+            "example": "https://orgo.ai/workspaces/a3bb189e-8bf9-3888-9912-ace4e6543002"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fly_instance_id": {
+            "type": "string",
+            "description": "Stable internal instance identifier",
+            "example": "a3881618"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Proxy hostname for direct connections (always {fly_instance_id}.orgo.dev)",
+            "example": "a3881618.orgo.dev"
+          },
+          "connection_url": {
+            "type": "string",
+            "description": "Full noVNC web client URL (https://{hostname}). Open in a browser for an instant VNC session.",
+            "example": "https://a3881618.orgo.dev"
+          },
+          "vnc_password": {
+            "type": "string",
+            "description": "VNC / WebSocket Bearer token. Rotates on every restart \u2014 do not persist across restarts.",
+            "example": "a06db12a8683df96"
+          }
+        }
+      },
+      "CreateComputerRequest": {
+        "type": "object",
+        "required": [
+          "workspace_id",
+          "name"
+        ],
+        "properties": {
+          "workspace_id": {
+            "type": "string",
+            "description": "ID of the workspace to create the computer in",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Computer name",
+            "minLength": 1,
+            "example": "agent-1"
+          },
+          "os": {
+            "type": "string",
+            "enum": [
+              "linux"
+            ],
+            "default": "linux",
+            "description": "Operating system"
+          },
+          "cpu": {
+            "type": "integer",
+            "enum": [
+              1,
+              2,
+              4,
+              8,
+              16
+            ],
+            "default": 1,
+            "description": "CPU cores. Capped by plan."
+          },
+          "ram": {
+            "type": "integer",
+            "enum": [
+              4,
+              8,
+              16,
+              32,
+              64
+            ],
+            "default": 4,
+            "description": "RAM in GB. Capped by plan."
+          },
+          "disk_size_gb": {
+            "type": "integer",
+            "default": 8,
+            "description": "Disk size in GB. Capped by plan."
+          },
+          "resolution": {
+            "type": "string",
+            "default": "1280x720x24",
+            "description": "Display resolution in WIDTHxHEIGHTxDEPTH format",
+            "example": "1280x720x24"
+          },
+          "image": {
+            "type": "string",
+            "description": "Custom Docker image reference. Use with templates built via the SDK.",
+            "example": "orgoforge:abc123"
+          },
+          "auto_stop_minutes": {
+            "type": "integer",
+            "description": "Auto-stop after this many minutes of inactivity. Set to 0 to disable. Free tier locked to 15 minutes.",
+            "minimum": 0,
+            "example": 30
+          }
+        }
+      },
+      "ClickRequest": {
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "properties": {
+          "x": {
+            "type": "integer",
+            "description": "X coordinate",
+            "minimum": 0
+          },
+          "y": {
+            "type": "integer",
+            "description": "Y coordinate",
+            "minimum": 0
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "default": "left",
+            "description": "Mouse button"
+          },
+          "double": {
+            "type": "boolean",
+            "default": false,
+            "description": "Double-click"
+          }
+        }
+      },
+      "DragRequest": {
+        "type": "object",
+        "required": [
+          "start_x",
+          "start_y",
+          "end_x",
+          "end_y"
+        ],
+        "properties": {
+          "start_x": {
+            "type": "integer",
+            "description": "Start X coordinate"
+          },
+          "start_y": {
+            "type": "integer",
+            "description": "Start Y coordinate"
+          },
+          "end_x": {
+            "type": "integer",
+            "description": "End X coordinate"
+          },
+          "end_y": {
+            "type": "integer",
+            "description": "End Y coordinate"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "default": "left",
+            "description": "Mouse button"
+          },
+          "duration": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Drag duration in seconds"
+          }
+        }
+      },
+      "TypeRequest": {
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text to type"
+          }
+        }
+      },
+      "KeyRequest": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Key or key combination (e.g., Enter, Tab, ctrl+c, alt+F4)",
+            "example": "Enter"
+          }
+        }
+      },
+      "ScrollRequest": {
+        "type": "object",
+        "required": [
+          "direction"
+        ],
+        "properties": {
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down"
+            ],
+            "description": "Scroll direction"
+          },
+          "amount": {
+            "type": "integer",
+            "default": 3,
+            "description": "Scroll amount (clicks)",
+            "minimum": 1
+          }
+        }
+      },
+      "WaitRequest": {
+        "type": "object",
+        "required": [
+          "duration"
+        ],
+        "properties": {
+          "duration": {
+            "type": "number",
+            "description": "Duration in seconds",
+            "minimum": 0,
+            "maximum": 60
+          }
+        }
+      },
+      "BashRequest": {
+        "type": "object",
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Bash command to execute"
+          }
+        }
+      },
+      "BashResponse": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "string",
+            "description": "Command output"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether command succeeded"
+          }
+        }
+      },
+      "ExecRequest": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Python code to execute"
+          },
+          "timeout": {
+            "type": "integer",
+            "default": 10,
+            "description": "Timeout in seconds",
+            "minimum": 1,
+            "maximum": 300
+          }
+        }
+      },
+      "ExecResponse": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "string",
+            "description": "Code output"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether execution succeeded"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if failed"
+          },
+          "error_type": {
+            "type": "string",
+            "description": "Error type if failed"
+          },
+          "timeout": {
+            "type": "boolean",
+            "description": "Whether execution timed out"
+          }
+        }
+      },
+      "ActionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "StreamStartRequest": {
+        "type": "object",
+        "required": [
+          "connection_name"
+        ],
+        "properties": {
+          "connection_name": {
+            "type": "string",
+            "description": "Name of the configured RTMP connection"
+          }
+        }
+      },
+      "StreamStartResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "pid": {
+            "type": "integer",
+            "description": "Stream process ID"
+          }
+        }
+      },
+      "StreamStatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "streaming",
+              "terminated"
+            ]
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "pid": {
+            "type": "integer"
+          }
+        }
+      },
+      "StreamStopResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        }
+      },
+      "File": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "File ID"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original filename"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "description": "File size in bytes"
+          },
+          "content_type": {
+            "type": "string",
+            "description": "MIME type"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FileUploadResponse": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "$ref": "#/components/schemas/File"
+          }
+        }
+      },
+      "FileExportRequest": {
+        "type": "object",
+        "required": [
+          "desktopId",
+          "path"
+        ],
+        "properties": {
+          "desktopId": {
+            "type": "string",
+            "description": "Computer ID"
+          },
+          "path": {
+            "type": "string",
+            "description": "Path to file on computer (e.g., Desktop/results.txt)"
+          }
+        }
+      },
+      "FileExportResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "file": {
+            "$ref": "#/components/schemas/File"
+          },
+          "url": {
+            "type": "string",
+            "description": "Signed download URL (expires in 1 hour)"
+          }
+        }
+      },
+      "FileListResponse": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/File"
+            }
+          }
+        }
+      },
+      "FileDownloadResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Signed download URL (expires in 1 hour)"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error message"
+          }
+        }
+      },
+      "CreateBuildRequest": {
+        "type": "object",
+        "required": [
+          "orgId",
+          "projectId"
+        ],
+        "properties": {
+          "orgId": {
+            "type": "string",
+            "description": "Organization/user ID"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "Workspace ID to store the template in"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template name (used to reference it later)",
+            "example": "data-science"
+          }
+        }
+      },
+      "UpdateBuildRequest": {
+        "type": "object",
+        "required": [
+          "buildId",
+          "status"
+        ],
+        "properties": {
+          "buildId": {
+            "type": "string",
+            "description": "Build ID"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "building",
+              "completed",
+              "failed"
+            ],
+            "description": "New build status"
+          },
+          "logs": {
+            "type": "string",
+            "description": "Build logs"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Error message if build failed"
+          }
+        }
+      },
+      "BuildResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "build": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Build ID"
+              },
+              "tag": {
+                "type": "string",
+                "description": "Unique build tag"
+              },
+              "imageRef": {
+                "type": "string",
+                "description": "Full image reference (orgoforge:tag)",
+                "example": "orgoforge:abc123"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "building",
+                  "completed",
+                  "failed"
+                ],
+                "description": "Build status"
+              },
+              "name": {
+                "type": "string",
+                "description": "Template name"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Invalid or missing API key",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Invalid API key"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Resource not found"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Access denied or plan limit reached",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "example": {
+              "error": "Access denied"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key authentication. Get your key at orgo.ai/workspaces",
+        "x-auth-env-vars": [
+          "ORGO_API_KEY"
+        ]
+      }
+    }
+  },
+  "mcp": {
+    "transport": [
+      "stdio",
+      "http"
+    ],
+    "addr": ":7777"
+  }
+}

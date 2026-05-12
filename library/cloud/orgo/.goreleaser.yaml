@@ -1,0 +1,51 @@
+version: 2
+project_name: orgo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: orgo-pp-cli
+    main: ./cmd/orgo-pp-cli
+    binary: orgo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: orgo-pp-mcp
+    main: ./cmd/orgo-pp-mcp
+    binary: orgo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: orgo-pp-cli
+    repository:
+      owner: nickvasilescu
+      name: homebrew-tap
+    homepage: "https://orgo-pp-cli"
+    description: "The audit ledger Orgo doesn't otherwise have, plus every existing Orgo SDK feature in one Go binary."
+    install: |
+      bin.install "orgo-pp-cli"
+      bin.install "orgo-pp-mcp"

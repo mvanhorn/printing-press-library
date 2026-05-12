@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "orgo-pp-mcp",
+  "display_name": "Orgo",
+  "version": "4.1.0",
+  "description": "Orgo API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/orgo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/orgo-pp-mcp",
+      "args": [],
+      "env": {
+        "ORGO_API_KEY": "${user_config.orgo_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "orgo_api_key": {
+      "type": "string",
+      "title": "ORGO_API_KEY",
+      "description": "Sets ORGO_API_KEY for the Orgo MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

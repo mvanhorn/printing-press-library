@@ -1,0 +1,765 @@
+{
+  "api_name": "orgo",
+  "base_url": "https://www.orgo.ai/api",
+  "description": "Desktop infrastructure for AI agents. Create workspaces, provision virtual computers, and control them programmatically.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ORGO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ORGO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "computers_create",
+      "description": "Creates a new virtual computer in a workspace. The computer starts automatically after creation. Required: name, workspace_id. Optional: auto_stop_minutes, cpu (default: 1), disk_size_gb (default: 8) (plus 4 more). Returns the new Computer.",
+      "method": "POST",
+      "path": "/computers",
+      "params": [
+        {
+          "name": "auto_stop_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Auto-stop after this many minutes of inactivity. Set to 0 to disable. Free tier locked to 15 minutes."
+        },
+        {
+          "name": "cpu",
+          "type": "int",
+          "location": "body",
+          "description": "CPU cores. Capped by plan."
+        },
+        {
+          "name": "disk_size_gb",
+          "type": "int",
+          "location": "body",
+          "description": "Disk size in GB. Capped by plan."
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "location": "body",
+          "description": "Custom Docker image reference. Use with templates built via the SDK."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Computer name",
+          "required": true
+        },
+        {
+          "name": "os",
+          "type": "string",
+          "location": "body",
+          "description": "Operating system"
+        },
+        {
+          "name": "ram",
+          "type": "int",
+          "location": "body",
+          "description": "RAM in GB. Capped by plan."
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "location": "body",
+          "description": "Display resolution in WIDTHxHEIGHTxDEPTH format"
+        },
+        {
+          "name": "workspace_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the workspace to create the computer in",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_delete",
+      "description": "Permanently deletes a computer and all its data. Required: id. Returns the ComputersDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/computers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_get",
+      "description": "Returns computer details including current status. Required: id.",
+      "method": "GET",
+      "path": "/computers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_auto-stop_get",
+      "description": "Returns the current auto-stop configuration for a computer. Required: id.",
+      "method": "GET",
+      "path": "/computers/{id}/auto-stop",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_auto-stop_update",
+      "description": "Updates the auto-stop setting for a computer. Paid plans only — free tier is fixed at 15 minutes. Required: id, auto_stop_minutes. Returns the updated AutoStopUpdateResponse.",
+      "method": "PATCH",
+      "path": "/computers/{id}/auto-stop",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "auto_stop_minutes",
+          "type": "int",
+          "location": "body",
+          "description": "Minutes of inactivity before auto-stop. Set to 0 to disable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_bash_execute",
+      "description": "Executes a bash command on the computer. Required: id, command. Returns the new BashResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/bash",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "description": "Bash command to execute",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_click_mouse",
+      "description": "Performs a mouse click at the specified coordinates. Required: id, x, y. Optional: button (default: left), double (default: false). Returns the new ActionResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/click",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "button",
+          "type": "string",
+          "location": "body",
+          "description": "Mouse button"
+        },
+        {
+          "name": "double",
+          "type": "bool",
+          "location": "body",
+          "description": "Double-click"
+        },
+        {
+          "name": "x",
+          "type": "int",
+          "location": "body",
+          "description": "X coordinate",
+          "required": true
+        },
+        {
+          "name": "y",
+          "type": "int",
+          "location": "body",
+          "description": "Y coordinate",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_clone_computer",
+      "description": "Creates a copy of a computer with the same disk state. Counts toward your plan's computer limit. Required: id. Returns the new CloneComputerResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/clone",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Source computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_drag_mouse",
+      "description": "Performs a mouse drag from start to end coordinates. Required: id, end_x, end_y, start_x, start_y. Optional: button (default: left), duration (default: 0.5). Returns the new ActionResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/drag",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "button",
+          "type": "string",
+          "location": "body",
+          "description": "Mouse button"
+        },
+        {
+          "name": "duration",
+          "type": "float",
+          "location": "body",
+          "description": "Drag duration in seconds"
+        },
+        {
+          "name": "end_x",
+          "type": "int",
+          "location": "body",
+          "description": "End X coordinate",
+          "required": true
+        },
+        {
+          "name": "end_y",
+          "type": "int",
+          "location": "body",
+          "description": "End Y coordinate",
+          "required": true
+        },
+        {
+          "name": "start_x",
+          "type": "int",
+          "location": "body",
+          "description": "Start X coordinate",
+          "required": true
+        },
+        {
+          "name": "start_y",
+          "type": "int",
+          "location": "body",
+          "description": "Start Y coordinate",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_exec_execute-python",
+      "description": "Executes Python code on the computer. Required: id, code. Optional: timeout (default: 10). Returns the new ExecResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/exec",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Python code to execute",
+          "required": true
+        },
+        {
+          "name": "timeout",
+          "type": "int",
+          "location": "body",
+          "description": "Timeout in seconds"
+        }
+      ]
+    },
+    {
+      "name": "computers_key_press",
+      "description": "Presses a key or key combination (e.g., Enter, Tab, ctrl+c). Required: id, key. Returns the new ActionResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/key",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Key or key combination (e.g., Enter, Tab, ctrl+c, alt+F4)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_move_computer",
+      "description": "Moves a computer to a different workspace. Both source and destination must be owned by you. Required: id, project_id. Returns the updated MoveComputerResponse.",
+      "method": "PATCH",
+      "path": "/computers/{id}/move",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "body",
+          "description": "Destination workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_resize_computer",
+      "description": "Live-resizes a running computer's CPU, RAM, disk, or bandwidth. All fields optional — only include what you want to change. Required: id. Optional: bandwidth_limit_mbps, disk_size_gb, mem_gb (plus 1 more). Returns the updated ResizeComputerResponse.",
+      "method": "PATCH",
+      "path": "/computers/{id}/resize",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "bandwidth_limit_mbps",
+          "type": "int",
+          "location": "body",
+          "description": "New bandwidth cap in Mbps. Capped by plan."
+        },
+        {
+          "name": "disk_size_gb",
+          "type": "int",
+          "location": "body",
+          "description": "New disk size in GB. Grow only — shrinking not supported."
+        },
+        {
+          "name": "mem_gb",
+          "type": "int",
+          "location": "body",
+          "description": "New RAM in GB. Capped by plan."
+        },
+        {
+          "name": "vcpus",
+          "type": "int",
+          "location": "body",
+          "description": "New CPU count. Capped by plan."
+        }
+      ]
+    },
+    {
+      "name": "computers_restart_computer",
+      "description": "Restarts a computer. Equivalent to stop + start. Required: id. Returns the new RestartComputerResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/restart",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_screenshot_get",
+      "description": "Captures a screenshot of the computer display. Returns base64-encoded PNG or a URL. Required: id.",
+      "method": "GET",
+      "path": "/computers/{id}/screenshot",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_scroll_scroll",
+      "description": "Scrolls the mouse wheel up or down. Required: id, direction. Optional: amount (default: 3). Returns the new ActionResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/scroll",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "int",
+          "location": "body",
+          "description": "Scroll amount (clicks)"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "body",
+          "description": "Scroll direction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_start_computer",
+      "description": "Starts a stopped computer. Computers auto-stop after inactivity. Required: id. Returns the new StartComputerResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/start",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_stop_computer",
+      "description": "Stops a running computer. State is preserved. Required: id. Returns the new StopComputerResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/stop",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_stream_get-status",
+      "description": "Get the current RTMP display-stream status for a computer. Required: id (computer ID). Returns a status enum (idle, streaming, terminated), the streamer process start_time, and the streamer pid. Use this to check whether computers_stream_start succeeded and the framebuffer is currently being broadcast before reading network traffic with computers_screenshot or starting a recorder.",
+      "method": "GET",
+      "path": "/computers/{id}/stream/status",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_stream_start",
+      "description": "Starts streaming the computer display via RTMP to a configured connection. Required: id, connection_name. Returns the new StreamStartResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/stream/start",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "connection_name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the configured RTMP connection",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_stream_stop",
+      "description": "Stops the active RTMP stream. Required: id. Returns the new StreamStopResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/stream/stop",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_type_text",
+      "description": "Types text on the computer keyboard. Required: id, text. Returns the new ActionResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/type",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text to type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_vnc-password_get",
+      "description": "Returns the VNC password for direct VNC connection to the computer. Only accessible by workspace owners and members. Required: id.",
+      "method": "GET",
+      "path": "/computers/{id}/vnc-password",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_wait_wait",
+      "description": "Pauses execution for the specified duration. Required: id, duration. Returns the new ActionResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/wait",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "duration",
+          "type": "float",
+          "location": "body",
+          "description": "Duration in seconds",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_delete",
+      "description": "Permanently deletes a file from storage. Required: id. Returns the FilesDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/files/delete",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "File ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_download",
+      "description": "Returns a signed download URL for a file. URLs expire in 1 hour. Required: id.",
+      "method": "GET",
+      "path": "/files/download",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "File ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_export",
+      "description": "Exports a file from the computer's filesystem and returns a download URL. Required: desktopId, path.",
+      "method": "POST",
+      "path": "/files/export",
+      "params": [
+        {
+          "name": "desktopId",
+          "type": "string",
+          "location": "body",
+          "description": "Computer ID",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to file on computer (e.g., Desktop/results.txt)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "Lists all files in a workspace, optionally filtered by computer. Required: projectId. Optional: desktopId. Returns the FileListResponse.",
+      "method": "GET",
+      "path": "/files",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Workspace ID",
+          "required": true
+        },
+        {
+          "name": "desktopId",
+          "type": "string",
+          "location": "query",
+          "description": "Optional computer ID to filter by"
+        }
+      ]
+    },
+    {
+      "name": "files_upload",
+      "description": "Uploads a file to a workspace. Maximum file size is 10MB. Required: file, projectId. Optional: desktopId. Returns the new FileUploadResponse.",
+      "method": "POST",
+      "path": "/files/upload",
+      "params": [
+        {
+          "name": "desktopId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional computer ID to associate the file with"
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File to upload (max 10MB)",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_create",
+      "description": "Creates a new workspace. Workspace names must be unique per user. Required: name. Optional: icon_url, status (default: active). Returns the new Workspace.",
+      "method": "POST",
+      "path": "/workspaces",
+      "params": [
+        {
+          "name": "icon_url",
+          "type": "string",
+          "location": "body",
+          "description": "Optional icon URL"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace name. Must be unique within your account.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "workspaces_delete",
+      "description": "Deletes a workspace and all its computers. This action cannot be undone. Required: id. Returns the WorkspacesDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/workspaces/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_get",
+      "description": "Returns a workspace by ID, including its computers. Required: id.",
+      "method": "GET",
+      "path": "/workspaces/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_list",
+      "description": "List all workspaces owned by the authenticated user. Returns an array of workspace objects, each with id, name, user_id, status (active|inactive), icon_url, created_at, and updated_at. Workspaces are the top-level container for computers; use this to discover the workspace id you pass to computers_create or computers_list. No parameters; the response is not paginated.",
+      "method": "GET",
+      "path": "/workspaces",
+      "params": []
+    }
+  ]
+}

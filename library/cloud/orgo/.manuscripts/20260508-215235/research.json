@@ -1,0 +1,300 @@
+{
+  "api_name": "orgo",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "@orgo-ai/mcp",
+      "url": "https://github.com/nickvasilescu/orgo-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "orgo (Python SDK)",
+      "url": "https://pypi.org/project/orgo/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "orgo (npm SDK)",
+      "url": "https://www.npmjs.com/package/orgo",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "n8n-nodes-orgo",
+      "url": "https://www.npmjs.com/package/n8n-nodes-orgo",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@pipedream/orgo",
+      "url": "https://www.npmjs.com/package/@pipedream/orgo",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T21:58:00Z",
+  "novel_features": [
+    {
+      "name": "Agent Action Replay",
+      "command": "replay",
+      "description": "Generate a self-contained static HTML timeline of every screenshot, click, bash, and exec your agent ran on a computer.",
+      "rationale": "Orgo's API returns one screenshot or bash result at a time; the timeline is a local artifact built across many calls in the local actions store.",
+      "example": "orgo replay desktop_abc --since 1h --out replay.html",
+      "why_it_matters": "Reach for this when you need to audit, share, or debug what an agent actually did on a desktop — no live API roundtrips, just a single HTML file you can email or attach to an issue.",
+      "group": "Audit ledger only the CLI has"
+    },
+    {
+      "name": "Audit Trail",
+      "command": "audit",
+      "description": "Chronological table of every CLI-driven action against your computers in a time window, scoped by workspace, FTS-searchable.",
+      "rationale": "Orgo does not expose a per-account action log; this is reconstructed entirely from the CLI's local actions store.",
+      "example": "orgo audit --workspace prod --since 7d --agent --select timestamp,computer,kind,summary",
+      "why_it_matters": "Reach for this when a customer asks 'what did the agent do this week' or you need a regression bundle for an incident.",
+      "group": "Audit ledger only the CLI has"
+    },
+    {
+      "name": "Action Grep",
+      "command": "grep",
+      "description": "FTS5 search over historical bash commands, Python exec code, and click coordinates from the local actions store.",
+      "rationale": "Pure local-data search; the API has no endpoint that returns historical bash text.",
+      "example": "orgo grep 'pip install' --type bash --since 30d",
+      "why_it_matters": "Reach for this when you need to find a specific command an agent ran but don't remember which computer or when.",
+      "group": "Audit ledger only the CLI has"
+    },
+    {
+      "name": "Fleet Doctor",
+      "command": "fleet",
+      "description": "Cross-workspace health rollup: surfaces suspended (over-quota), errored, stuck-creating, and stuck-stopping computers, plus an API-key validity probe.",
+      "rationale": "No single Orgo endpoint returns 'all computers across all my workspaces with health flags'; this is a cross-workspace join with derived fields.",
+      "example": "orgo-pp-cli fleet --agent",
+      "why_it_matters": "Reach for this for incident response, before pushing a fleet change, or as a daily cron — one call replaces walking every workspace by hand.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Idle Computers",
+      "command": "idle",
+      "description": "Sorts running computers by hours-since-last-CLI-action, surfacing burns that could be stopped.",
+      "rationale": "Orgo's API has no concept of idle; this is a join of local action timestamps with live status.",
+      "example": "orgo idle --threshold-hours 24",
+      "why_it_matters": "Reach for this on your weekly cost pass — every idle computer with auto-stop disabled is a known leak.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Oversized Computers",
+      "command": "oversized",
+      "description": "Flags computers with CPU \u003e= 4 cores or RAM \u003e= 16 GB whose last CLI-recorded action is older than the threshold and whose auto-stop is disabled.",
+      "rationale": "Configuration-vs-activity heuristic joining the local actions store with computer specs.",
+      "example": "orgo oversized --min-cores 4 --idle-days 7",
+      "why_it_matters": "Reach for this when you suspect a workspace is overspending — it pinpoints the exact downsize candidates.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Bulk Prune",
+      "command": "prune",
+      "description": "Cross-workspace status-filtered batch delete with dry-run by default.",
+      "rationale": "API has per-id delete; cross-workspace status-filtered batched dry-run is the value-add.",
+      "example": "orgo prune --status suspended,error --older-than 7d --dry-run",
+      "why_it_matters": "Reach for this for Friday cleanup or after a downgrade leaves a fleet of suspended computers behind.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Cost Breakdown",
+      "command": "cost",
+      "description": "Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by per-tier rate, sums by workspace. --forecast projects month-end burn.",
+      "rationale": "Orgo's API returns no billing data; cost is reconstructed from observed events in the local store.",
+      "example": "orgo cost --workspace prod --since 30d --forecast",
+      "why_it_matters": "Reach for this for monthly invoicing, customer billing questions, or to forecast whether a workload will hit the plan ceiling.",
+      "group": "Fleet stewardship"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Agent Action Replay",
+      "command": "replay",
+      "description": "Generate a self-contained static HTML timeline of every screenshot, click, bash, and exec your agent ran on a computer.",
+      "rationale": "Orgo's API returns one screenshot or bash result at a time; the timeline is a local artifact built across many calls in the local actions store.",
+      "example": "orgo replay desktop_abc --since 1h --out replay.html",
+      "why_it_matters": "Reach for this when you need to audit, share, or debug what an agent actually did on a desktop — no live API roundtrips, just a single HTML file you can email or attach to an issue.",
+      "group": "Audit ledger only the CLI has"
+    },
+    {
+      "name": "Audit Trail",
+      "command": "audit",
+      "description": "Chronological table of every CLI-driven action against your computers in a time window, scoped by workspace, FTS-searchable.",
+      "rationale": "Orgo does not expose a per-account action log; this is reconstructed entirely from the CLI's local actions store.",
+      "example": "orgo audit --workspace prod --since 7d --agent --select timestamp,computer,kind,summary",
+      "why_it_matters": "Reach for this when a customer asks 'what did the agent do this week' or you need a regression bundle for an incident.",
+      "group": "Audit ledger only the CLI has"
+    },
+    {
+      "name": "Action Grep",
+      "command": "grep",
+      "description": "FTS5 search over historical bash commands, Python exec code, and click coordinates from the local actions store.",
+      "rationale": "Pure local-data search; the API has no endpoint that returns historical bash text.",
+      "example": "orgo grep 'pip install' --type bash --since 30d",
+      "why_it_matters": "Reach for this when you need to find a specific command an agent ran but don't remember which computer or when.",
+      "group": "Audit ledger only the CLI has"
+    },
+    {
+      "name": "Fleet Doctor",
+      "command": "fleet",
+      "description": "Cross-workspace health rollup: surfaces suspended (over-quota), errored, stuck-creating, and stuck-stopping computers, plus an API-key validity probe.",
+      "rationale": "No single Orgo endpoint returns 'all computers across all my workspaces with health flags'; this is a cross-workspace join with derived fields.",
+      "example": "orgo-pp-cli fleet --agent",
+      "why_it_matters": "Reach for this for incident response, before pushing a fleet change, or as a daily cron — one call replaces walking every workspace by hand.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Idle Computers",
+      "command": "idle",
+      "description": "Sorts running computers by hours-since-last-CLI-action, surfacing burns that could be stopped.",
+      "rationale": "Orgo's API has no concept of idle; this is a join of local action timestamps with live status.",
+      "example": "orgo idle --threshold-hours 24",
+      "why_it_matters": "Reach for this on your weekly cost pass — every idle computer with auto-stop disabled is a known leak.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Oversized Computers",
+      "command": "oversized",
+      "description": "Flags computers with CPU \u003e= 4 cores or RAM \u003e= 16 GB whose last CLI-recorded action is older than the threshold and whose auto-stop is disabled.",
+      "rationale": "Configuration-vs-activity heuristic joining the local actions store with computer specs.",
+      "example": "orgo oversized --min-cores 4 --idle-days 7",
+      "why_it_matters": "Reach for this when you suspect a workspace is overspending — it pinpoints the exact downsize candidates.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Bulk Prune",
+      "command": "prune",
+      "description": "Cross-workspace status-filtered batch delete with dry-run by default.",
+      "rationale": "API has per-id delete; cross-workspace status-filtered batched dry-run is the value-add.",
+      "example": "orgo prune --status suspended,error --older-than 7d --dry-run",
+      "why_it_matters": "Reach for this for Friday cleanup or after a downgrade leaves a fleet of suspended computers behind.",
+      "group": "Fleet stewardship"
+    },
+    {
+      "name": "Cost Breakdown",
+      "command": "cost",
+      "description": "Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by per-tier rate, sums by workspace. --forecast projects month-end burn.",
+      "rationale": "Orgo's API returns no billing data; cost is reconstructed from observed events in the local store.",
+      "example": "orgo cost --workspace prod --since 30d --forecast",
+      "why_it_matters": "Reach for this for monthly invoicing, customer billing questions, or to forecast whether a workload will hit the plan ceiling.",
+      "group": "Fleet stewardship"
+    }
+  ],
+  "narrative": {
+    "display_name": "Orgo",
+    "headline": "The audit ledger Orgo doesn't otherwise have, plus every existing Orgo SDK feature in one Go binary.",
+    "value_prop": "Every screenshot, bash command, and click your agent runs through this CLI lands in a local SQLite store, so commands like `replay`, `audit`, `grep`, and `cost` see what no Orgo API call can. On top of that, the full computer-control surface — clone, resize, screenshot, click, type, bash — works offline-first with auto-JSON when piped, typed exit codes, and a `doctor` that flags stuck or suspended computers across every workspace in one call.",
+    "auth_narrative": "Bearer auth via ORGO_API_KEY (sk_live_...). Get a key at https://www.orgo.ai/workspaces. The CLI reads ORGO_API_KEY on every invocation, so rotating keys requires no restart. orgo doctor probes the key against the live API and reports the source (env var vs config file) without printing the value.",
+    "quickstart": [
+      {
+        "command": "orgo-pp-cli workspaces list",
+        "comment": "Confirms auth works and shows what you've got"
+      },
+      {
+        "command": "orgo-pp-cli computers create --workspace-id WORKSPACE_ID --name agent-1 --cpu 2 --ram 8",
+        "comment": "Spin up a new desktop"
+      },
+      {
+        "command": "orgo-pp-cli computers screenshot get COMPUTER_ID",
+        "comment": "Pull the framebuffer; lands in the local actions ledger too"
+      },
+      {
+        "command": "orgo-pp-cli computers bash execute COMPUTER_ID --command \"ls /home/orgo\"",
+        "comment": "Run a real shell command on the desktop"
+      },
+      {
+        "command": "orgo-pp-cli fleet",
+        "comment": "Cross-workspace health rollup — suspended, errored, stuck"
+      },
+      {
+        "command": "orgo-pp-cli audit --since 1h --agent",
+        "comment": "See exactly what the CLI just did, agent-shaped output"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 'Invalid API key' on every command",
+        "fix": "Run `orgo doctor` to see which env var the CLI read; rotate the key at https://www.orgo.ai/workspaces and `export ORGO_API_KEY=sk_live_...`"
+      },
+      {
+        "symptom": "Computer stuck in 'creating' or 'stopping' for \u003e5 minutes",
+        "fix": "`orgo doctor` flags stuck computers; `orgo computers restart \u003cid\u003e` is the typical recovery"
+      },
+      {
+        "symptom": "Computer status is 'suspended' after a plan downgrade",
+        "fix": "`orgo prune --status suspended --dry-run` lists every over-quota computer; remove some or upgrade the plan to resume"
+      },
+      {
+        "symptom": "audit/replay/cost show no data",
+        "fix": "Those commands read from the local actions store; you must have run actions through this CLI first. Ad-hoc curl calls don't populate it."
+      }
+    ],
+    "when_to_use": "This CLI is the right choice for any agent task that involves Orgo cloud computers — provisioning, controlling, cleaning up, or auditing what an agent did on them. Reach for it when an agent needs to drive a desktop and you want a local audit trail, when you need fleet-wide visibility (idle, oversized, suspended), or when you need to reconstruct what happened during an incident. Use the orgo SDKs (Python or TS) only when you need in-process integration; the CLI is the right shape for shell, cron, and agent invocations.",
+    "recipes": [
+      {
+        "title": "Recover stuck computers",
+        "command": "orgo-pp-cli fleet --json | jq '.computers[] | select(.flags[]? == \"stuck\") | .id'",
+        "explanation": "Lists every computer flagged as stuck creating/stopping, ready to pipe into `xargs orgo-pp-cli computers restart`."
+      },
+      {
+        "title": "Weekly cost pass",
+        "command": "orgo-pp-cli cost --since 7d --forecast --agent --select workspace,total_hours,total_cost_usd",
+        "explanation": "Per-workspace running-hours plus month-end projection; pairs `--agent` with `--select` to keep the response token-tight."
+      },
+      {
+        "title": "Replay a debugging session",
+        "command": "orgo-pp-cli replay COMPUTER_ID --since 30m --out /tmp/last-session.html",
+        "explanation": "Single-file HTML timeline of every screenshot, bash, and exec the agent ran; attach to issues."
+      },
+      {
+        "title": "Find the bash command that broke things",
+        "command": "orgo-pp-cli grep \"pip install\" --type bash --since 24h",
+        "explanation": "FTS over the local actions ledger; finds the exact command across every computer."
+      },
+      {
+        "title": "Friday fleet cleanup",
+        "command": "orgo-pp-cli prune --status suspended,error --older-than 7d",
+        "explanation": "Cross-workspace dry-run pass by default; add --yes once you eyeball the list."
+      }
+    ],
+    "trigger_phrases": [
+      "orgo cli",
+      "what did the agent do on the orgo computer",
+      "audit my orgo computers",
+      "spin up an orgo desktop",
+      "screenshot the orgo computer",
+      "use orgo",
+      "run orgo"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "computers_stream_get-status": "Get the current RTMP display-stream status for a computer. Required: id (computer ID). Returns a status enum (idle, streaming, terminated), the streamer process start_time, and the streamer pid. Use this to check whether computers_stream_start succeeded and the framebuffer is currently being broadcast before reading network traffic with computers_screenshot or starting a recorder.",
+    "workspaces_list": "List all workspaces owned by the authenticated user. Returns an array of workspace objects, each with id, name, user_id, status (active|inactive), icon_url, created_at, and updated_at. Workspaces are the top-level container for computers; use this to discover the workspace id you pass to computers_create or computers_list. No parameters; the response is not paginated."
+  }
+}
