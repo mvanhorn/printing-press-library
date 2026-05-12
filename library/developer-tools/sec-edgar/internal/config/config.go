@@ -83,11 +83,9 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// PATCH(greptile P2): drop unreachable duplicate `== ""` check on SecEdgarUserAgent.
 	token := c.SecEdgarUserAgent
 	if token == "" {
-		return ""
-	}
-	if c.SecEdgarUserAgent == "" {
 		return ""
 	}
 	return token

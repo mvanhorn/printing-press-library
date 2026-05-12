@@ -511,7 +511,12 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 					return usageErr(fmt.Errorf("invalid --keyword regex: %w", err))
 				}
 			}
-			seen := map[string]struct{}{}
+			// PATCH(greptile P2): bound the dedup set so long-running `watch` cannot grow memory unboundedly.
+			// The Atom feed returns the most recent 100 entries; seenCap >> feed window means we never
+			// re-emit an entry that could still appear in the feed.
+			const seenCap = 4096
+			seen := make(map[string]struct{}, seenCap)
+			seenOrder := make([]string, 0, seenCap)
 			ctx, cancel := context.WithCancel(cmd.Context())
 			defer cancel()
 			iter := 0
@@ -532,7 +537,13 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 					if _, ok := seen[accession]; ok {
 						continue
 					}
+					// PATCH(greptile P2): FIFO eviction keeps `seen` bounded at seenCap entries.
+					if len(seenOrder) >= seenCap {
+						delete(seen, seenOrder[0])
+						seenOrder = seenOrder[1:]
+					}
 					seen[accession] = struct{}{}
+					seenOrder = append(seenOrder, accession)
 					form, _ := e["form"].(string)
 					cik, _ := e["cik"].(string)
 					items, _ := e["items"].(string)
