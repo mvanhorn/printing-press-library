@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -62,9 +63,13 @@ func (d *stdoutDispatcher) Name() string {
 func (d *stdoutDispatcher) SetStdoutWriter(w io.Writer) { d.out = w }
 
 func (d *stdoutDispatcher) Dispatch(_ context.Context, res CheckResult) error {
+	// PATCH(greptile P2): default to os.Stdout when no writer was
+	// injected so library callers that pass opts.Dispatcher == nil don't
+	// silently lose alerts. The CLI still injects cobra.Command's writer
+	// via SetStdoutWriter when it wants --deliver / output capture.
 	w := d.out
 	if w == nil {
-		return nil
+		w = os.Stdout
 	}
 	if d.jsonOnly {
 		enc := json.NewEncoder(w)

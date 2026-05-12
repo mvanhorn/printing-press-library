@@ -147,10 +147,20 @@ func Check(ctx context.Context, store *Store, w *Watch, opts CheckOptions) (*Che
 	dispatch := false
 	switch {
 	case opts.ForceAlert:
-		dispatch = matched != nil
+		// PATCH(greptile P1): force-alert overrides threshold + dedup,
+		// but it must NOT bypass the confidence filter. A MatchProbable
+		// hit (same airline + cabin but Google didn't echo the flight
+		// number) is informational only — alerting on it would update
+		// last_alerted_price for a flight the user may not hold and
+		// suppress the next legitimate high-confidence alert.
+		dispatch = matched != nil && confidence == MatchExact
 		if !dispatch {
 			res.AlertSuppressed = true
-			res.AlertSuppressReason = "force-alert requested but no matching itinerary returned"
+			if matched == nil {
+				res.AlertSuppressReason = "force-alert requested but no matching itinerary returned"
+			} else {
+				res.AlertSuppressReason = "force-alert requested but match confidence below high (refusing to alert on a flight the user may not hold)"
+			}
 		}
 	case confidence != MatchExact:
 		res.AlertSuppressed = true
@@ -272,9 +282,17 @@ func departureTimeMatches(candidateISO, wantHHMM string) bool {
 	if err1 != nil || err2 != nil {
 		return true
 	}
+	// PATCH(greptile P1): treat HH:MM as a point on a 24-hour clock so a
+	// 23:50 watch matches a 00:10 candidate by 20 min, not 23h40m. Both
+	// timestamps are anchored on the zero date by time.Parse, so a naive
+	// Sub gives the linear distance; wrap to the shorter arc whenever the
+	// raw diff exceeds 12h.
 	diff := candT.Sub(wantT)
 	if diff < 0 {
 		diff = -diff
+	}
+	if diff > 12*time.Hour {
+		diff = 24*time.Hour - diff
 	}
 	return diff <= time.Duration(DepartureTimeToleranceMinutes)*time.Minute
 }
