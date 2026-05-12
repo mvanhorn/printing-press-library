@@ -1,6 +1,6 @@
 ---
 name: pp-wanderlust-goat
-description: "What a knowledgeable local with great taste would tell you to walk to from here. Trigger phrases: `what should I walk to from here`, `find me a kissaten`, `amazing places near me`, `is <place> still open`, `sunset photo spots near`, `sync this city for offline`, `use wanderlust-goat`, `run wanderlust-goat`."
+description: "What a knowledgeable local with great taste would tell you to walk to. Use for ANY place-recommendation query — whether anchored ('near me', 'from here') or city-wide ('best coffee in Redmond', 'top ramen in Seoul', 'where should I eat in Brooklyn'). The CLI accepts a city name, neighborhood, address, or lat,lng as the anchor — so even bare 'best X in <city>' queries should run through it instead of being answered from model knowledge. Trigger phrases: `best <thing> in <place>`, `top <thing> in <place>`, `where to <verb> in <place>`, `good <thing> near <place>`, `what's good in <place>`, `recommendations for <place>`, `what should I walk to from here`, `find me a kissaten`, `amazing places near me`, `is <place> still open`, `sunset photo spots near`, `sync this city for offline`, `use wanderlust-goat`, `run wanderlust-goat`."
 author: "Joe Heitzeberg"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
