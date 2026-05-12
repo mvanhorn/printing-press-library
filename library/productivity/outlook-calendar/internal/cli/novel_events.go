@@ -106,6 +106,7 @@ func parseGraphTime(g graphDateTime) (time.Time, error) {
 func loadEvents(ctx context.Context, db *sql.DB, start, end time.Time) ([]graphEvent, error) {
 	q := `SELECT data FROM events WHERE COALESCE(is_cancelled, 0) = 0`
 	args := []any{}
+	// PATCH: push start/end window into SQL WHERE via json_extract so conflicts/freetime/prep don't pull the whole events table into memory; Go-side overlap filter remains the precise gate.
 	if !start.IsZero() {
 		q += ` AND json_extract(data, '$.start.dateTime') IS NOT NULL`
 		q += ` AND json_extract(data, '$.end.dateTime') >= ?`

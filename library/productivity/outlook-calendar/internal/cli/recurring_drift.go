@@ -103,6 +103,7 @@ organizer-side reschedules that cause people to join calls at the wrong hour.`,
 					}
 				}
 
+				// PATCH: parallel end-time divergence check so silently shortened/extended instances surface alongside start-time drift.
 				masterEnd, meErr := parseGraphTime(master.End)
 				instEnd, ieErr := parseGraphTime(inst.End)
 				if meErr == nil && ieErr == nil {

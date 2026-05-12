@@ -1152,6 +1152,7 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 	return ""
 }
 
+// PATCH(upstream cli-printing-press#1000): validate resourceType via a parameterized sqlite_master lookup before interpolating into SELECT, closing the SQL injection sink.
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 //

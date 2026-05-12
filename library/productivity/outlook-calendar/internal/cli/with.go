@@ -107,6 +107,8 @@ func newWithCmd(flags *rootFlags) *cobra.Command {
 					lastSeen = row.Start
 				}
 			}
+			// PATCH: capture total match count before --recent truncation so Count reports all shared events, not the displayed slice.
+			totalCount := len(matches)
 			sort.Slice(matches, func(i, j int) bool { return matches[i].Start > matches[j].Start })
 			if recent > 0 && len(matches) > recent {
 				matches = matches[:recent]
@@ -114,7 +116,7 @@ func newWithCmd(flags *rootFlags) *cobra.Command {
 
 			out := result{
 				Email:      needle,
-				Count:      len(matches),
+				Count:      totalCount,
 				LastSeen:   lastSeen,
 				FirstSeen:  firstSeen,
 				WindowDays: days,

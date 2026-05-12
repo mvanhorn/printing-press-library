@@ -171,6 +171,7 @@ func resolveSince(s string, anchor time.Time, db *store.Store) (time.Time, error
 	case "today":
 		return time.Date(anchor.Year(), anchor.Month(), anchor.Day(), 0, 0, 0, 0, anchor.Location()), nil
 	case "last-sync":
+		// PATCH: --since last-sync reads store.GetLastSyncedAt("events") instead of hardcoding now-24h.
 		if db != nil {
 			if ts := db.GetLastSyncedAt("events"); ts != "" {
 				if t := parseAnyTime(ts); !t.IsZero() {
