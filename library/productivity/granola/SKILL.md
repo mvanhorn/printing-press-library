@@ -222,9 +222,28 @@ Calendared meetings with no Granola recording — weekly accountability check.
 
 ## Auth Setup
 
-Three auth surfaces, ordered fastest to most permissioned. The local cache at ~/Library/Application Support/Granola/cache-v6.json needs no credentials. The internal API at api.granola.ai auto-discovers your WorkOS access_token from supabase.json / stored-accounts.json and rotates the refresh token through WorkOS on every call. The public API at public-api.granola.ai accepts a Bearer key in `GRANOLA_API_KEY` for workspace-scoped queries; it backs the typed `notes` and `folders` top-level commands and is the source when you pass `--data-source live`.
+1. **Install Granola desktop and sign in.** The CLI reads the local cache and tokens the desktop manages. No CLI-side credentials to configure.
 
-Run `granola-pp-cli doctor` to verify setup.
+2. **Run any command.** On macOS, the first invocation that needs the cache or tokens (typically `granola-pp-cli sync`) triggers a Keychain prompt for `Granola Safe Storage`. Click "Always Allow" so subsequent runs are silent. The CLI uses Granola's own Keychain-stored encryption key to decrypt `cache-v6.json.enc` and `supabase.json.enc`.
+
+3. **CLI is read-only against the refresh token.** Granola desktop owns rotation; the CLI never calls `RefreshAccessToken` against the encrypted token store because rotating it there would sign Granola desktop out next time the desktop tries to refresh. If a request fails with "token expired", open Granola desktop briefly to refresh, then re-run the CLI command.
+
+4. **Power users / CI: `GRANOLA_WORKOS_TOKEN`.** Setting this env var bypasses the Keychain prompt entirely and accepts the refresh-rotation trade-off (rotating the token via the CLI will sign the desktop out). Use only when CLI-side refresh is required, typically for headless agents.
+
+Optional public REST API path: set `GRANOLA_API_KEY` for the typed `notes` and `folders` top-level commands at `public-api.granola.ai`. Most workflows do not need this.
+
+Run `granola-pp-cli doctor` to verify setup. The "Encrypted store" line distinguishes four states: not installed, pre-encryption Granola, present-but-not-yet-synced, ok, or last-sync-failed-with-class.
+
+### Troubleshooting
+
+| `doctor` says... | What to do |
+|---|---|
+| `INFO no Granola install detected` | Install Granola desktop from granola.ai and sign in. |
+| `INFO not in use (Granola pre-encryption)` | Granola desktop pre-encryption versions wrote plaintext files; the CLI still reads them. Upgrade Granola desktop to pick up the encrypted store. |
+| `INFO present; run sync to authorize Keychain access` | Run `granola-pp-cli sync`. Click "Always Allow" on the macOS prompt. |
+| `OK ok` | Last successful sync recorded. Token source and document-fetch count visible in `--json` output. |
+| `ERROR last sync failed to decrypt (key_unavailable)` | Sign back into Granola desktop, re-run sync, accept the Keychain prompt. |
+| `ERROR last sync failed to decrypt (decrypt_failed)` | Encryption scheme may have drifted with a Granola update. File an issue with the doctor output. |
 
 ## Agent Mode
 
