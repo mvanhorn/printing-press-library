@@ -123,6 +123,12 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	// dates_native.go (which hardcodes 1 adult and therefore has no analogue).
 	applyPerPassengerPrice(flights, opts.Passengers)
 
+	// PATCH(library): attach booking URLs to each flight so callers have a
+	// one-click handoff. See booking_urls.go.
+	for i := range flights {
+		flights[i].BookingURLs = buildBookingURLs(opts, flights[i])
+	}
+
 	tripTypeName := "ONE_WAY"
 	if tripType == tripTypeRoundTrip {
 		tripTypeName = "ROUND_TRIP"

@@ -50,6 +50,10 @@ type Flight struct {
 	Legs            []Leg   `json:"legs"`
 	Price           float64 `json:"price"`
 	Currency        string  `json:"currency"`
+	// PATCH(library): one-click handoff to a real booking surface. Google is
+	// always populated; Airline is populated only when all legs are operated
+	// by a single carrier in the airlineTemplates table. See booking_urls.go.
+	BookingURLs BookingURLs `json:"booking_urls"`
 }
 
 // SearchResult is the normalized envelope returned by Search.
