@@ -1,0 +1,303 @@
+{
+  "api_name": "bls",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "blscrapeR",
+      "url": "https://github.com/keberwein/blscrapeR",
+      "language": "R",
+      "install_method": "",
+      "stars": 117,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "us-gov-open-data-mcp",
+      "url": "https://github.com/lzinga/us-gov-open-data-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 98,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bls (OliverSherouse)",
+      "url": "https://github.com/OliverSherouse/bls",
+      "language": "Python",
+      "install_method": "",
+      "stars": 84,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "blsAPI",
+      "url": "https://github.com/mikeasilva/blsAPI",
+      "language": "R",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyBLS",
+      "url": "https://github.com/addisonlynch/pyBLS",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tap-bls",
+      "url": "https://github.com/frasermarlow/tap-bls",
+      "language": "Python",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bls-data",
+      "url": "https://github.com/a-finocchiaro/bls-data",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-bls",
+      "url": "https://github.com/cridenour/go-bls",
+      "language": "Go",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T19:13:00Z",
+  "novel_features": [
+    {
+      "name": "Series search",
+      "command": "series search",
+      "description": "Find the right BLS series ID by plain-English title, survey, or area without leaving the terminal.",
+      "rationale": "BLS publishes no public series-search endpoint; every existing wrapper leaves discovery to the user. Only a locally-synced FTS5 index over the BLS flat-file series catalog makes this possible.",
+      "example": "bls-pp-cli series search \"Los Angeles CPI all items\" --json",
+      "why_it_matters": "Reach for this when you need the canonical BLS series ID for a concept (any indicator, any area, any survey) before fetching values. Without it, agents either hallucinate IDs or rely on a hand-curated dictionary.",
+      "group": "Discovery the live API can't do"
+    },
+    {
+      "name": "Macro snapshot",
+      "command": "snapshot macro",
+      "description": "One command returns the current state of the U.S. macro economy: headline + core CPI, U3, payrolls, JOLTS openings, PPI, ECI, productivity, with YoY and MoM changes.",
+      "rationale": "Combines a curated ~15-series cross-survey batch with BLS's server-side calculations:true flag. Replaces a dashboard that today requires opening FRED in a browser and pasting series IDs into a notebook.",
+      "example": "bls-pp-cli snapshot macro --csv \u003e macro.csv",
+      "why_it_matters": "Use when you want a single read of the U.S. labor and price-stability picture without composing a 15-series request yourself.",
+      "group": "Workflow shortcuts"
+    },
+    {
+      "name": "Release calendar",
+      "command": "releases next",
+      "description": "List upcoming BLS releases (CPI, employment situation, JOLTS, PPI...) with date, time, and news-release URL.",
+      "rationale": "BLS publishes the release calendar only as HTML behind Akamai bot protection. A locally-curated table refreshed by sync turns that into a queryable surface (and survives shutdown reshuffles).",
+      "example": "bls-pp-cli releases next --within 14d --json",
+      "why_it_matters": "Use to plan around BLS data drops; combine with --watch to poll until the next print lands.",
+      "group": "Workflow shortcuts"
+    },
+    {
+      "name": "Footnote decoder",
+      "command": "footnotes decode",
+      "description": "Decode BLS footnote codes (P, R, C, ...) into plain-English explanations.",
+      "rationale": "The live API returns footnote codes but never their text; only the flat-file footnote tables hold the explanations. A local join solves it.",
+      "example": "bls-pp-cli footnotes decode P R --json",
+      "why_it_matters": "Reach for this when an observation comes back with footnotes you don't recognize — preliminary vs revised vs corrected matters for the analyst writeup.",
+      "group": "Discovery the live API can't do"
+    },
+    {
+      "name": "Historical extremum",
+      "command": "series extremum",
+      "description": "Compute max, min, and percentile rank of a series's latest observation across a configurable window from the local cache.",
+      "rationale": "BLS returns a window of values, never extrema. SQL over the local observations cache answers \"is this the highest since X\" in one call.",
+      "example": "bls-pp-cli series extremum LNS14000000 --since 2005 --json",
+      "why_it_matters": "Use for release-day writeups, agent tool-calls that need historical context, and quickly answering \"have we been here before\" without scrolling FRED charts.",
+      "group": "Local-cache queries"
+    },
+    {
+      "name": "SA vs NSA compare",
+      "command": "series compare-sa",
+      "description": "Show seasonally-adjusted and not-seasonally-adjusted variants of a series side-by-side.",
+      "rationale": "BLS encodes seasonal adjustment in position 3 of the packed series ID. The local seasonal-adjustment lookup table makes a one-command pairing possible.",
+      "example": "bls-pp-cli series compare-sa CUUR0000SA0 --json",
+      "why_it_matters": "Use when you need to disambiguate whether a trend you're seeing is genuine or a seasonal artifact.",
+      "group": "Local-cache queries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Series search",
+      "command": "series search",
+      "description": "Find the right BLS series ID by plain-English title, survey, or area without leaving the terminal.",
+      "rationale": "BLS publishes no public series-search endpoint; every existing wrapper leaves discovery to the user. Only a locally-synced FTS5 index over the BLS flat-file series catalog makes this possible.",
+      "example": "bls-pp-cli series search \"Los Angeles CPI all items\" --json",
+      "why_it_matters": "Reach for this when you need the canonical BLS series ID for a concept (any indicator, any area, any survey) before fetching values. Without it, agents either hallucinate IDs or rely on a hand-curated dictionary.",
+      "group": "Discovery the live API can't do"
+    },
+    {
+      "name": "Macro snapshot",
+      "command": "snapshot macro",
+      "description": "One command returns the current state of the U.S. macro economy: headline + core CPI, U3, payrolls, JOLTS openings, PPI, ECI, productivity, with YoY and MoM changes.",
+      "rationale": "Combines a curated ~15-series cross-survey batch with BLS's server-side calculations:true flag. Replaces a dashboard that today requires opening FRED in a browser and pasting series IDs into a notebook.",
+      "example": "bls-pp-cli snapshot macro --csv \u003e macro.csv",
+      "why_it_matters": "Use when you want a single read of the U.S. labor and price-stability picture without composing a 15-series request yourself.",
+      "group": "Workflow shortcuts"
+    },
+    {
+      "name": "Release calendar",
+      "command": "releases next",
+      "description": "List upcoming BLS releases (CPI, employment situation, JOLTS, PPI...) with date, time, and news-release URL.",
+      "rationale": "BLS publishes the release calendar only as HTML behind Akamai bot protection. A locally-curated table refreshed by sync turns that into a queryable surface (and survives shutdown reshuffles).",
+      "example": "bls-pp-cli releases next --within 14d --json",
+      "why_it_matters": "Use to plan around BLS data drops; combine with --watch to poll until the next print lands.",
+      "group": "Workflow shortcuts"
+    },
+    {
+      "name": "Footnote decoder",
+      "command": "footnotes decode",
+      "description": "Decode BLS footnote codes (P, R, C, ...) into plain-English explanations.",
+      "rationale": "The live API returns footnote codes but never their text; only the flat-file footnote tables hold the explanations. A local join solves it.",
+      "example": "bls-pp-cli footnotes decode P R --json",
+      "why_it_matters": "Reach for this when an observation comes back with footnotes you don't recognize — preliminary vs revised vs corrected matters for the analyst writeup.",
+      "group": "Discovery the live API can't do"
+    },
+    {
+      "name": "Historical extremum",
+      "command": "series extremum",
+      "description": "Compute max, min, and percentile rank of a series's latest observation across a configurable window from the local cache.",
+      "rationale": "BLS returns a window of values, never extrema. SQL over the local observations cache answers \"is this the highest since X\" in one call.",
+      "example": "bls-pp-cli series extremum LNS14000000 --since 2005 --json",
+      "why_it_matters": "Use for release-day writeups, agent tool-calls that need historical context, and quickly answering \"have we been here before\" without scrolling FRED charts.",
+      "group": "Local-cache queries"
+    },
+    {
+      "name": "SA vs NSA compare",
+      "command": "series compare-sa",
+      "description": "Show seasonally-adjusted and not-seasonally-adjusted variants of a series side-by-side.",
+      "rationale": "BLS encodes seasonal adjustment in position 3 of the packed series ID. The local seasonal-adjustment lookup table makes a one-command pairing possible.",
+      "example": "bls-pp-cli series compare-sa CUUR0000SA0 --json",
+      "why_it_matters": "Use when you need to disambiguate whether a trend you're seeing is genuine or a seasonal artifact.",
+      "group": "Local-cache queries"
+    }
+  ],
+  "narrative": {
+    "display_name": "BLS",
+    "headline": "The first feature-rich CLI for the BLS Public Data API — with offline series search, a release calendar, footnote decoding, and a one-command macro snapshot that no Python or R wrapper offers.",
+    "value_prop": "BLS publishes hundreds of thousands of labor and economic time series behind packed structural IDs like CUUR0000SA0 and LNS14000000, and the live API has no way to search for them. bls-pp-cli ships a locally-synced series catalog with FTS5 search, a curated U.S. macro snapshot, the release calendar, and footnote decoding — the things every analyst, reporter, and agent needs but no existing wrapper provides. Every command is also an MCP tool, so LLM agents can resolve series IDs and fetch values without a hand-curated dictionary.",
+    "auth_narrative": "BLS API works without a key (25 queries/day, 3 series per request, 10 years of history). A free registration key from https://data.bls.gov/registrationEngine/ unlocks 500 queries/day, 50 series per request, 20 years, and the calculations / catalog / annual-average flags. Set with `bls-pp-cli auth set-token \u003ckey\u003e` or `BLS_API_KEY=\u003ckey\u003e` in your environment.",
+    "quickstart": [
+      {
+        "command": "bls-pp-cli auth set-token \u003cyour-bls-key\u003e",
+        "comment": "One-time: stash your free BLS registration key in the local config so every command can use it."
+      },
+      {
+        "command": "bls-pp-cli sync",
+        "comment": "Bulk-imports the BLS flat-file series catalog, surveys, areas, items, and footnotes into a local SQLite store. Takes a few minutes; run monthly."
+      },
+      {
+        "command": "bls-pp-cli series search \"Los Angeles CPI all items\" --json",
+        "comment": "Find the canonical BLS series ID by plain English instead of bouncing through bls.gov/cpi/tables."
+      },
+      {
+        "command": "bls-pp-cli series get CUURA421SA0 --start 2020 --end 2025 --calc",
+        "comment": "Fetch the L.A. CPI-U with server-side YoY/MoM changes."
+      },
+      {
+        "command": "bls-pp-cli snapshot macro --csv",
+        "comment": "Pull the current U.S. macro dashboard (CPI, core CPI, U3, payrolls, JOLTS openings, PPI, ECI, productivity) in one call."
+      },
+      {
+        "command": "bls-pp-cli releases next --within 14d",
+        "comment": "See which BLS releases are coming up so you know when to refresh."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "REQUEST_NOT_PROCESSED: daily threshold reached",
+        "fix": "Free unauthenticated tier is 25 queries/day. Register at https://data.bls.gov/registrationEngine/ and run `bls-pp-cli auth set-token \u003ckey\u003e` for 500/day."
+      },
+      {
+        "symptom": "Series ID not found by `series search`",
+        "fix": "The local catalog may be stale or missing the survey. Run `bls-pp-cli sync` to refresh from BLS flat files."
+      },
+      {
+        "symptom": "`series get` returns empty data array",
+        "fix": "BLS returns empty for IDs that don't exist (no 404). Verify the ID with `bls-pp-cli series search \u003cplain-english\u003e` or `bls-pp-cli sql 'SELECT id FROM series WHERE id = ?'`."
+      },
+      {
+        "symptom": "Server-side calculations are missing from the response",
+        "fix": "`calculations:true` requires a registered key. Set BLS_API_KEY and pass --calc."
+      },
+      {
+        "symptom": "`sync` fails downloading flat files",
+        "fix": "download.bls.gov is bot-walled. The CLI ships a browser-realistic user-agent and a polite rate limit; if you still get 403, run with `--source api-only` to skip flat-file enrichment."
+      }
+    ],
+    "when_to_use": "Reach for bls-pp-cli when you need authoritative U.S. labor or price-stability data and you don't want to bounce between FRED, bls.gov data tools, and Python notebooks. The CLI is best for: (1) workflows where series-ID discovery is the bottleneck; (2) cross-survey snapshots that touch multiple BLS surveys at once; (3) agent contexts where every command is also an MCP tool. Skip it if you need exotic vintage/revision history beyond what BLS publishes through the API — only the live values are mirrored.",
+    "recipes": [
+      {
+        "title": "Series-ID archaeology, gone",
+        "command": "bls-pp-cli series search \"unemployment rate California\" --survey LAUS --json --select results.id,results.title,results.units",
+        "explanation": "Use --select with dotted paths to narrow the FTS5 response to just the fields an agent or downstream script needs."
+      },
+      {
+        "title": "Release-day reaction prep",
+        "command": "bls-pp-cli snapshot macro --json --select id,label,value,yoy_pct",
+        "explanation": "Snapshot returns 15 macro indicators with server-side YoY/MoM in one call. Pipe through jq for further shaping."
+      },
+      {
+        "title": "Inflation-adjust a price",
+        "command": "bls-pp-cli inflation adjust --amount 100 --from-year 2010 --to-year 2024",
+        "explanation": "Local CPI cache means this works offline once you have synced."
+      },
+      {
+        "title": "Watch for the next CPI print",
+        "command": "bls-pp-cli releases next --survey CPI --watch --within 24h",
+        "explanation": "Polls the local release calendar until the next CPI release window opens."
+      },
+      {
+        "title": "Agent-friendly batch fetch",
+        "command": "bls-pp-cli series batch --ids CUUR0000SA0,CUSR0000SA0L1E,LNS14000000,CES0000000001 --start 2020 --end 2025 --agent --select Results.series.seriesID,Results.series.data.year,Results.series.data.value",
+        "explanation": "Pull 4 macro indicators in one call with structured agent output and dotted-path field selection."
+      }
+    ],
+    "trigger_phrases": [
+      "fetch BLS series",
+      "look up a BLS series ID",
+      "BLS unemployment rate",
+      "what's the latest CPI",
+      "U.S. macro snapshot",
+      "next BLS release",
+      "decode a BLS footnote",
+      "use bls",
+      "run bls"
+    ]
+  }
+}

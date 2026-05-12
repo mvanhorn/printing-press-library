@@ -1,0 +1,1016 @@
+{
+  "dir": "/Users/ahuang/printing-press/.runstate/shimmering-frolicking-porcupine-e2ef502d/runs/20260512-125748/working/bls-pp-cli",
+  "binary": "/Users/ahuang/printing-press/.runstate/shimmering-frolicking-porcupine-e2ef502d/runs/20260512-125748/working/bls-pp-cli/bls-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 63,
+  "passed": 60,
+  "failed": 3,
+  "skipped": 39,
+  "commands": [
+    "doctor",
+    "feedback list",
+    "footnotes decode",
+    "footnotes list",
+    "import",
+    "inflation adjust",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "releases next",
+    "series batch",
+    "series compare-sa",
+    "series extremum",
+    "series get",
+    "series popular",
+    "series search",
+    "snapshot macro",
+    "surveys get",
+    "surveys list",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  bls-pp-cli doctor [flags]\n\nExamples:\n  bls-pp-cli doctor\n  bls-pp-cli doctor --json\n  bls-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK API: reachable\n  WARN Credentials: present (not verified — set auth.verify_path in spec for an API acceptance check)\n  config_path: /Users/ahuang/.config/bls-pp-cli/config.toml\n  base_url: https://api.bls.gov/publicAPI/v2\n  auth_source: env:BLS_API_KEY\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /Users/ahuang/.local/share/bls-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 176128\n    stale_after: 6h0m0s\n    resources:\n      - series: 0 rows, 1m0s\n      - surveys: 0 rows, 1m0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:BLS_API_KEY\",\n  \"base_url\": \"https://api.bls.gov/publicAPI/v2\",\n  \"cache\": {\n    \"db_bytes\": 176128,\n    \"db_path\": \"/Users/ahuang/.local/share/bls-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-05-12T20:53:57Z\",\n        \"rows\": 0,\n        \"staleness\": \"1m0s\",\n        \"type\": \"series\"\n      },\n      {\n        \"last_synced_at\": \"2026-05-12T20:53:57Z\",\n        \"rows\": 0,\n        \"staleness\": \"1m0s\",\n        \"type\": \"surveys\"\n      }\n    ],\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/Users/ahuang/.config/bls-pp-cli/config.toml\",\n  \"credentials\": \"present (not verified — set auth.verify_path in spec for an API acceptance check)\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  bls-pp-cli feedback list [flags]\n\nExamples:\n  bls-pp-cli feedback list\n  bls-pp-cli feedback list --limit 5\n  bls-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:39:27.94268Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:39:27.961172Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:43:45.56196Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:43:45.578866Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:48:26.475722Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:48:26.497703Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:39:27.94268Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:39:27.961172Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:43:45.56196Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:43:45.578866Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:48:26.475722Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"bls-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T20:48:26.497703Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "footnotes decode",
+      "kind": "help",
+      "args": [
+        "footnotes",
+        "decode",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "BLS observations carry footnote codes (single letters like P for preliminary, R\nfor revised, C for corrected) but the live API never returns the explanations.\nThis command joins the codes against the local footnote table.\n\nPass codes as separate arguments; unknown codes are reported with empty text so\nyou can spot newly-added BLS codes that need to be added to the local table.\n\nUsage:\n  bls-pp-cli footnotes decode \u003ccode\u003e... [flags]\n\nExamples:\n  bls-pp-cli footnotes decode P\n  bls-pp-cli footnotes decode P R C --json\n\nFlags:\n  -h, --help   help for decode\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "footnotes decode",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"code\" at depth 0"
+    },
+    {
+      "command": "footnotes decode",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"code\" at depth 0"
+    },
+    {
+      "command": "footnotes decode",
+      "kind": "error_path",
+      "args": [
+        "footnotes",
+        "decode",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: none of the supplied codes are known BLS footnote codes; run `bls-pp-cli footnotes list` to see all codes\nnone of the supplied codes are known BLS footnote codes; run `bls-pp-cli footnotes list` to see all codes\n"
+    },
+    {
+      "command": "footnotes list",
+      "kind": "help",
+      "args": [
+        "footnotes",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List every known BLS footnote code with its plain-English text.\n\nUsage:\n  bls-pp-cli footnotes list [flags]\n\nExamples:\n  bls-pp-cli footnotes list\n  bls-pp-cli footnotes list --json\n  bls-pp-cli footnotes list --csv \u003e footnotes.csv\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "footnotes list",
+      "kind": "happy_path",
+      "args": [
+        "footnotes",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"code\": \"A\",\n    \"text\": \"Annual averages do not include benchmark values; some categories are not seasonally adjusted.\"\n  },\n  {\n    \"code\": \"B\",\n    \"text\": \"Reflects a discontinuity from prior series. Use caution comparing across the break.\"\n  },\n  {\n    \"code\": \"C\",\n    \"text\": \"Corrected. Replaces a previously published value.\"\n  },\n  {\n    \"code\": \"D\",\n    \"text\": \"Data are not available because category contains few firms or workers.\"\n  },\n  {\n    \"code\": \"E\",\n    \"text\": \"Annual average computed from data published in the news release. Differs slightly from annual averages calculated from monthly values.\"\n  },\n  {\n    \"code\": \"F\",\n    \"text\": \"Forecast or projected value.\"\n  },\n  {\n    \"code\": \"G\",\n    \"text\": \"Adjusted to a new geographic or industry classification (e.g., NAICS revision).\"\n  },\n  {\n    \"code\": \"H\",\n    \"text\": \"Estimate has high relative standard error; interpret with caution.\"\n  },\n  {\n    \"code\": \"I\",\n    \"text\": \"Imputed value used when the actual observation was unavailable.\"\n  },\n  {\n    \"code\": \"J\",\n    \"text\": \"Reference period changed.\"\n  },\n  {\n    \"code\": \"K\",\n    \"text\": \"Confidential; data withheld to avoid disclosing data of an individual reporting entity.\"\n  },\n  {\n    \"code\": \"L\",\n    \"text\": \"Less than 0.05 (or 0.5 depending on series precision).\"\n  },\n  {\n    \"code\": \"M\",\n    \"text\": \"Methodology change applied this period.\"\n  },\n  {\n    \"code\": \"N\",\n    \"text\": \"Not available.\"\n  },\n  {\n    \"code\": \"O\",\n    \"text\": \"Outlier; observation may be affected by a one-time event (e.g., natural disaster, strike).\"\n  },\n  {\n    \"code\": \"P\",\n    \"text\": \"Preliminary; will be revised in subsequent releases.\"\n  },\n  {\n    \"code\": \"Q\",\n    \"text\": \"Quartile or quantile boundary; not a standard observation.\"\n  },\n  {\n    \"code\": \"R\",\n    \"text\": \"Revised; replaces a value published earlier.\"\n  },\n  {\n    \"code\": \"S\",\n    \"text\": \"Special; refer to release notes for interpretation.\"\n  },\n  {\n    \"code\": \"T\",\n    \"text\": \"Truncated for confidentiality.\"\n  },\n  {\n    \"code\": \"U\",\n    \"text\": \"Unavailable for this period.\"\n  },\n  {\n    \"code\": \"V\",\n    \"text\": \"Volatile; treat short-term movements with caution.\"\n  },\n  {\n    \"code\": \"W\",\n    \"text\": \"Withdrawn; series no longer published.\"\n  },\n  {\n    \"code\": \"X\",\n    \"text\": \"Suppressed for disclosure reasons.\"\n  },\n  {\n    \"code\": \"Y\",\n    \"text\": \"Year-over-year change basis (rather than month-over-month).\"\n  },\n  {\n    \"code\": \"Z\",\n    \"text\": \"Zero; value rounds to zero at the published precision.\"\n  },\n  {\n    \"code\": \"1\",\n    \"text\": \"Includes other industries not shown separately.\"\n  },\n  {\n    \"code\": \"2\",\n    \"text\": \"Discontinued series.\"\n  },\n  {\n    \"code\": \"3\",\n    \"text\": \"Suppressed to avoid disclosure of confidential information.\"\n  },\n  {\n    \"code\": \"4\",\n    \"text\": \"Reflects expanded geographic coverage starting this period.\"\n  },\n  {\n    \"code\": \"5\",\n    \"text\": \"Insufficient response to meet publication standards.\"\n  },\n  {\n    \"code\": \"6\",\n    \"text\": \"Updated population controls applied.\"\n  },\n  {\n    \"code\": \"7\",\n    \"text\": \"Annual updates applied; revisions reflect benchmark.\"\n  },\n  {\n    \"code\": \"8\",\n    \"text\": \"Includes data benchmarked or revised in this period.\"\n  },\n  {\n    \"code\": \"9\",\n    \"text\": \"Data unavailable for this period.\"\n  }\n]\n"
+    },
+    {
+      "command": "footnotes list",
+      "kind": "json_fidelity",
+      "args": [
+        "footnotes",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"code\": \"A\",\n    \"text\": \"Annual averages do not include benchmark values; some categories are not seasonally adjusted.\"\n  },\n  {\n    \"code\": \"B\",\n    \"text\": \"Reflects a discontinuity from prior series. Use caution comparing across the break.\"\n  },\n  {\n    \"code\": \"C\",\n    \"text\": \"Corrected. Replaces a previously published value.\"\n  },\n  {\n    \"code\": \"D\",\n    \"text\": \"Data are not available because category contains few firms or workers.\"\n  },\n  {\n    \"code\": \"E\",\n    \"text\": \"Annual average computed from data published in the news release. Differs slightly from annual averages calculated from monthly values.\"\n  },\n  {\n    \"code\": \"F\",\n    \"text\": \"Forecast or projected value.\"\n  },\n  {\n    \"code\": \"G\",\n    \"text\": \"Adjusted to a new geographic or industry classification (e.g., NAICS revision).\"\n  },\n  {\n    \"code\": \"H\",\n    \"text\": \"Estimate has high relative standard error; interpret with caution.\"\n  },\n  {\n    \"code\": \"I\",\n    \"text\": \"Imputed value used when the actual observation was unavailable.\"\n  },\n  {\n    \"code\": \"J\",\n    \"text\": \"Reference period changed.\"\n  },\n  {\n    \"code\": \"K\",\n    \"text\": \"Confidential; data withheld to avoid disclosing data of an individual reporting entity.\"\n  },\n  {\n    \"code\": \"L\",\n    \"text\": \"Less than 0.05 (or 0.5 depending on series precision).\"\n  },\n  {\n    \"code\": \"M\",\n    \"text\": \"Methodology change applied this period.\"\n  },\n  {\n    \"code\": \"N\",\n    \"text\": \"Not available.\"\n  },\n  {\n    \"code\": \"O\",\n    \"text\": \"Outlier; observation may be affected by a one-time event (e.g., natural disaster, strike).\"\n  },\n  {\n    \"code\": \"P\",\n    \"text\": \"Preliminary; will be revised in subsequent releases.\"\n  },\n  {\n    \"code\": \"Q\",\n    \"text\": \"Quartile or quantile boundary; not a standard observation.\"\n  },\n  {\n    \"code\": \"R\",\n    \"text\": \"Revised; replaces a value published earlier.\"\n  },\n  {\n    \"code\": \"S\",\n    \"text\": \"Special; refer to release notes for interpretation.\"\n  },\n  {\n    \"code\": \"T\",\n    \"text\": \"Truncated for confidentiality.\"\n  },\n  {\n    \"code\": \"U\",\n    \"text\": \"Unavailable for this period.\"\n  },\n  {\n    \"code\": \"V\",\n    \"text\": \"Volatile; treat short-term movements with caution.\"\n  },\n  {\n    \"code\": \"W\",\n    \"text\": \"Withdrawn; series no longer published.\"\n  },\n  {\n    \"code\": \"X\",\n    \"text\": \"Suppressed for disclosure reasons.\"\n  },\n  {\n    \"code\": \"Y\",\n    \"text\": \"Year-over-year change basis (rather than month-over-month).\"\n  },\n  {\n    \"code\": \"Z\",\n    \"text\": \"Zero; value rounds to zero at the published precision.\"\n  },\n  {\n    \"code\": \"1\",\n    \"text\": \"Includes other industries not shown separately.\"\n  },\n  {\n    \"code\": \"2\",\n    \"text\": \"Discontinued series.\"\n  },\n  {\n    \"code\": \"3\",\n    \"text\": \"Suppressed to avoid disclosure of confidential information.\"\n  },\n  {\n    \"code\": \"4\",\n    \"text\": \"Reflects expanded geographic coverage starting this period.\"\n  },\n  {\n    \"code\": \"5\",\n    \"text\": \"Insufficient response to meet publication standards.\"\n  },\n  {\n    \"code\": \"6\",\n    \"text\": \"Updated population controls applied.\"\n  },\n  {\n    \"code\": \"7\",\n    \"text\": \"Annual updates applied; revisions reflect benchmark.\"\n  },\n  {\n    \"code\": \"8\",\n    \"text\": \"Includes data benchmarked or revised in this period.\"\n  },\n  {\n    \"code\": \"9\",\n    \"text\": \"Data unavailable for this period.\"\n  }\n]\n"
+    },
+    {
+      "command": "footnotes list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  bls-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  bls-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  bls-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | bls-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\nrequired flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "inflation adjust",
+      "kind": "help",
+      "args": [
+        "inflation",
+        "adjust",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches annual averages of CPI-U (default) or CPI-W from the BLS API and\ndeflates/inflates the input amount: adjusted = amount * cpi_to / cpi_from.\n\nReturns annual-average index values so the answer is stable regardless of\nwhich month you happen to run it. BLS caps each request at 20 years with\na registered key (10 years unauthenticated); for wider windows, chain two\ncalls and multiply the ratios.\n\nUsage:\n  bls-pp-cli inflation adjust [flags]\n\nExamples:\n  bls-pp-cli inflation adjust --amount 100 --from-year 2010 --to-year 2024\n  bls-pp-cli inflation adjust --amount 50000 --from-year 2010 --to-year 2024 --index CPI-W --json\n\nFlags:\n      --amount float    Dollar amount to convert.\n      --from-year int   Source year (the year the dollars were earned/spent).\n  -h, --help            help for adjust\n      --index string    Which index to use: CPI-U (default, all urban consumers) or CPI-W (urban wage earners). (default \"CPI-U\")\n      --to-year int     Target year (the year to express the amount in).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "inflation adjust",
+      "kind": "happy_path",
+      "args": [
+        "inflation",
+        "adjust",
+        "--amount",
+        "100",
+        "--from-year",
+        "2010",
+        "--to-year",
+        "2024"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"amount\": 100,\n  \"from_year\": 2010,\n  \"to_year\": 2024,\n  \"cpi_from\": 218.056,\n  \"cpi_to\": 313.689,\n  \"adjusted_amount\": 143.85708258429028,\n  \"series_id\": \"CUUR0000SA0\",\n  \"index\": \"CPI-U\",\n  \"annualized\": false\n}\n"
+    },
+    {
+      "command": "inflation adjust",
+      "kind": "json_fidelity",
+      "args": [
+        "inflation",
+        "adjust",
+        "--amount",
+        "100",
+        "--from-year",
+        "2010",
+        "--to-year",
+        "2024",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"amount\": 100,\n  \"from_year\": 2010,\n  \"to_year\": 2024,\n  \"cpi_from\": 218.056,\n  \"cpi_to\": 313.689,\n  \"adjusted_amount\": 143.85708258429028,\n  \"series_id\": \"CUUR0000SA0\",\n  \"index\": \"CPI-U\",\n  \"annualized\": false\n}\n"
+    },
+    {
+      "command": "inflation adjust",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  bls-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  bls-pp-cli profile delete my-defaults --yes\n  bls-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "delete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  bls-pp-cli profile list [flags]\n\nExamples:\n  bls-pp-cli profile list\n  bls-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  bls-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  bls-pp-cli profile save my-defaults --json --compact\n  bls-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  bls-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  bls-pp-cli profile show my-defaults\n  bls-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  bls-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  bls-pp-cli profile use my-defaults\n  bls-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "releases next",
+      "kind": "help",
+      "args": [
+        "releases",
+        "next",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Reads the locally-curated 2026 BLS release calendar. BLS publishes the\ncalendar only as HTML behind Akamai bot protection, so the local table is\nthe only programmatic surface for \"what's printing next.\" Filter by\nsurvey or window with --survey/--within; pass --watch to poll until the\nnext release window opens (useful in CI / scheduled jobs).\n\nUsage:\n  bls-pp-cli releases next [flags]\n\nExamples:\n  bls-pp-cli releases next\n  bls-pp-cli releases next --survey CPI --within 14d\n  bls-pp-cli releases next --survey CE --watch\n\nFlags:\n  -h, --help            help for next\n      --limit int       Maximum number of releases to return. (default 20)\n      --survey string   Filter by survey: CPI, CE (employment), JT (JOLTS), WP (PPI), CI (ECI), PR (productivity), or two-letter abbr.\n      --watch           Poll until the next release window opens (no-op under PRINTING_PRESS_VERIFY).\n      --within string   Only include releases within this duration from now (e.g. 24h, 14d, 30d).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "releases next",
+      "kind": "happy_path",
+      "args": [
+        "releases",
+        "next"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"date\": \"2026-05-13T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - April 2026\",\n    \"period\": \"April 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-05-14T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"WP\",\n    \"title\": \"Producer Price Index - April 2026\",\n    \"period\": \"April 2026\",\n    \"url\": \"https://www.bls.gov/news.release/ppi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-04T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - April 2026\",\n    \"period\": \"April 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-05T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-11T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-12T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"WP\",\n    \"title\": \"Producer Price Index - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/ppi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-02T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - June 2026\",\n    \"period\": \"June 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-09T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-15T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - June 2026\",\n    \"period\": \"June 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-30T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CI\",\n    \"title\": \"Employment Cost Index - Q2 2026\",\n    \"period\": \"Q2 2026\",\n    \"url\": \"https://www.bls.gov/news.release/eci.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-06T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - June 2026\",\n    \"period\": \"June 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-06T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"PR\",\n    \"title\": \"Productivity and Costs - Q2 2026 preliminary\",\n    \"period\": \"Q2 2026\",\n    \"url\": \"https://www.bls.gov/news.release/prod2.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-07T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - July 2026\",\n    \"period\": \"July 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-12T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - July 2026\",\n    \"period\": \"July 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-09-03T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - July 2026\",\n    \"period\": \"July 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-09-04T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - August 2026\",\n    \"period\": \"August 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-09-10T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - August 2026\",\n    \"period\": \"August 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-10-02T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - September 2026\",\n    \"period\": \"September 2026\",\n    \"url\": \"ht…[truncated]"
+    },
+    {
+      "command": "releases next",
+      "kind": "json_fidelity",
+      "args": [
+        "releases",
+        "next",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"date\": \"2026-05-13T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - April 2026\",\n    \"period\": \"April 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-05-14T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"WP\",\n    \"title\": \"Producer Price Index - April 2026\",\n    \"period\": \"April 2026\",\n    \"url\": \"https://www.bls.gov/news.release/ppi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-04T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - April 2026\",\n    \"period\": \"April 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-05T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-11T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-06-12T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"WP\",\n    \"title\": \"Producer Price Index - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/ppi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-02T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - June 2026\",\n    \"period\": \"June 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-09T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - May 2026\",\n    \"period\": \"May 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-15T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - June 2026\",\n    \"period\": \"June 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-07-30T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CI\",\n    \"title\": \"Employment Cost Index - Q2 2026\",\n    \"period\": \"Q2 2026\",\n    \"url\": \"https://www.bls.gov/news.release/eci.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-06T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - June 2026\",\n    \"period\": \"June 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-06T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"PR\",\n    \"title\": \"Productivity and Costs - Q2 2026 preliminary\",\n    \"period\": \"Q2 2026\",\n    \"url\": \"https://www.bls.gov/news.release/prod2.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-07T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - July 2026\",\n    \"period\": \"July 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-08-12T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - July 2026\",\n    \"period\": \"July 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-09-03T12:30:00Z\",\n    \"time\": \"10:00 AM ET\",\n    \"survey\": \"JT\",\n    \"title\": \"Job Openings and Labor Turnover - July 2026\",\n    \"period\": \"July 2026\",\n    \"url\": \"https://www.bls.gov/news.release/jolts.toc.htm\"\n  },\n  {\n    \"date\": \"2026-09-04T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - August 2026\",\n    \"period\": \"August 2026\",\n    \"url\": \"https://www.bls.gov/news.release/empsit.toc.htm\"\n  },\n  {\n    \"date\": \"2026-09-10T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CU\",\n    \"title\": \"Consumer Price Index - August 2026\",\n    \"period\": \"August 2026\",\n    \"url\": \"https://www.bls.gov/news.release/cpi.toc.htm\"\n  },\n  {\n    \"date\": \"2026-10-02T12:30:00Z\",\n    \"time\": \"8:30 AM ET\",\n    \"survey\": \"CE\",\n    \"title\": \"Employment Situation - September 2026\",\n    \"period\": \"September 2026\",\n    \"url\": \"ht…[truncated]"
+    },
+    {
+      "command": "releases next",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "series batch",
+      "kind": "help",
+      "args": [
+        "series",
+        "batch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch up to 50 BLS series in one call. Pass --ids comma-separated; the CLI partitions IDs \u003e50 across multiple requests.\n\nUsage:\n  bls-pp-cli series batch [flags]\n\nExamples:\n  bls-pp-cli series batch --ids 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --annualaverage   Include annual averages (registered key only).\n      --aspects         Include aspect-level metadata.\n      --calculations    Add YoY/MoM percent-change columns (registered key only).\n      --catalog         Include catalog metadata per series (registered key only).\n      --end string      Latest year to include.\n  -h, --help            help for batch\n      --ids string      List of packed BLS series IDs (JSON array or comma-separated, e.g. 'CUUR0000SA0,LNS14000000').\n      --latest          Return only the latest observation per series.\n      --start string    Earliest year to include.\n      --stdin           Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "series batch",
+      "kind": "happy_path",
+      "args": [
+        "series",
+        "batch",
+        "--ids",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/timeseries/data/\",\n  \"resource\": \"series\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.bls.gov/publicAPI/v2/timeseries/data/\n  ?registrationkey=****04b6\n  Body:\n{\n    \"registrationkey\": \"****redacted-bls-key****\",\n    \"seriesid\": [\n      \"550e8400-e29b-41d4-a716-446655440000\"\n    ]\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "series batch",
+      "kind": "json_fidelity",
+      "args": [
+        "series",
+        "batch",
+        "--ids",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/timeseries/data/\",\n  \"resource\": \"series\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.bls.gov/publicAPI/v2/timeseries/data/\n  ?registrationkey=****04b6\n  Body:\n{\n    \"registrationkey\": \"****redacted-bls-key****\",\n    \"seriesid\": [\n      \"550e8400-e29b-41d4-a716-446655440000\"\n    ]\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "series batch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "series batch",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "series compare-sa",
+      "kind": "help",
+      "args": [
+        "series",
+        "compare-sa",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Decodes position 3 of the packed BLS series ID to derive both the SA and NSA\nvariants, then batch-fetches both and aligns them by (year, period). Supports the\nprefixes CU, CW, CE, LN, JT, CI, WP — the surveys that publish dual-adjustment\nseries in a documented position-3 encoding.\n\nSome surveys (AP, OE) publish only one variant; for those the command emits a\nsingle-row response with a note explaining why a comparison is not available.\n\nUsage:\n  bls-pp-cli series compare-sa \u003cseriesid\u003e [flags]\n\nExamples:\n  bls-pp-cli series compare-sa CUUR0000SA0\n  bls-pp-cli series compare-sa LNS14000000 --start 2020 --end 2025 --json\n\nFlags:\n      --end string     Latest year.\n  -h, --help           help for compare-sa\n      --start string   Earliest year (default: BLS default window).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "series compare-sa",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "series compare-sa",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "series compare-sa",
+      "kind": "error_path",
+      "args": [
+        "series",
+        "compare-sa",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: series \"__PRINTING_PRESS_INVALID__\" is from a survey that does not have a documented SA/NSA toggle (supported prefixes: CU, CW, LN, JT, CE, CI, WP); comparison unavailable\nseries \"__PRINTING_PRESS_INVALID__\" is from a survey that does not have a documented SA/NSA toggle (supported prefixes: CU, CW, LN, JT, CE, CI, WP); comparison unavailable\n"
+    },
+    {
+      "command": "series extremum",
+      "kind": "help",
+      "args": [
+        "series",
+        "extremum",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "BLS returns a window of values, never extrema. This command runs the\nneeded scan locally: SQL over the cached observations table populated by\nsync, with a live fallback when the cache is empty for the requested\nwindow. Useful for release-day writeups (\"is this the highest unemployment\nrate since 1990?\") and for agent tool-calls that need historical context.\n\nUsage:\n  bls-pp-cli series extremum \u003cseriesid\u003e [flags]\n\nExamples:\n  bls-pp-cli series extremum LNS14000000 --since 1990\n  bls-pp-cli series extremum CUSR0000SA0 --since 2000 --json\n\nFlags:\n  -h, --help        help for extremum\n      --since int   Earliest year to include in the scan. Defaults to 1990 on live fallback.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "series extremum",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"seriesid\""
+    },
+    {
+      "command": "series extremum",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"seriesid\""
+    },
+    {
+      "command": "series extremum",
+      "kind": "error_path",
+      "args": [
+        "series",
+        "extremum",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: no observations found for series __PRINTING_PRESS_INVALID__; verify the ID with `bls-pp-cli series search`\nno observations found for series __PRINTING_PRESS_INVALID__; verify the ID with `bls-pp-cli series search`\n"
+    },
+    {
+      "command": "series get",
+      "kind": "help",
+      "args": [
+        "series",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a single BLS time-series by ID.\n\nUsage:\n  bls-pp-cli series get \u003cseriesid\u003e [flags]\n\nExamples:\n  bls-pp-cli series get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --annual-avg     Include annual averages alongside monthly values (requires a registered key).\n      --aspects        Include aspect-level metadata (e.g. CPI item codes) per observation.\n      --calc           Add server-side YoY/MoM percent-change columns (requires a registered key).\n      --catalog        Include catalog metadata (title, units, survey) per series (requires a registered key).\n      --end string     Latest year to include.\n  -h, --help           help for get\n      --latest         Return only the latest observation. Pairs with startyear/endyear when set.\n      --start string   Earliest year to include (default: 10 most recent years for the unauth tier, 20 with a key).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "series get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"seriesid\""
+    },
+    {
+      "command": "series get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"seriesid\""
+    },
+    {
+      "command": "series get",
+      "kind": "error_path",
+      "args": [
+        "series",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "fail",
+      "reason": "expected non-zero exit for invalid argument",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"status\": \"REQUEST_SUCCEEDED\",\n    \"responseTime\": 98,\n    \"message\": [\n      \"Invalid Series for Series __printing_press_invalid__\"\n    ],\n    \"Results\": {\n      \"series\": [\n        {\n          \"seriesID\": \"__printing_press_invalid__\",\n          \"data\": []\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    {
+      "command": "series popular",
+      "kind": "help",
+      "args": [
+        "series",
+        "popular",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List BLS's most-popular series, optionally filtered by survey.\n\nUsage:\n  bls-pp-cli series popular [flags]\n\nExamples:\n  bls-pp-cli series popular\n\nFlags:\n  -h, --help            help for popular\n      --survey string   Survey abbreviation (e.g. CU for CPI-U, LN for CPS, JT for JOLTS). Omit for the all-survey popular list.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "series popular",
+      "kind": "happy_path",
+      "args": [
+        "series",
+        "popular"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"status\": \"REQUEST_SUCCEEDED\",\n    \"responseTime\": 31,\n    \"message\": [],\n    \"Results\": {\n      \"series\": [\n        {\n          \"seriesID\": \"CUUR0000SA0\"\n        },\n        {\n          \"seriesID\": \"LNS14000000\"\n        },\n        {\n          \"seriesID\": \"CES0000000001\"\n        },\n        {\n          \"seriesID\": \"CUUR0000SA0L1E\"\n        },\n        {\n          \"seriesID\": \"WPUFD49104\"\n        },\n        {\n          \"seriesID\": \"CUSR0000SA0\"\n        },\n        {\n          \"seriesID\": \"WPUFD4\"\n        },\n        {\n          \"seriesID\": \"CES0500000003\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031004\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031006\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031048\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031005\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031021\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031029\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031001\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031051\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031013\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031017\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031026\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031022\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031053\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031055\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031018\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031025\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031019\"\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    {
+      "command": "series popular",
+      "kind": "json_fidelity",
+      "args": [
+        "series",
+        "popular",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"status\": \"REQUEST_SUCCEEDED\",\n    \"responseTime\": 31,\n    \"message\": [],\n    \"Results\": {\n      \"series\": [\n        {\n          \"seriesID\": \"CUUR0000SA0\"\n        },\n        {\n          \"seriesID\": \"LNS14000000\"\n        },\n        {\n          \"seriesID\": \"CES0000000001\"\n        },\n        {\n          \"seriesID\": \"CUUR0000SA0L1E\"\n        },\n        {\n          \"seriesID\": \"WPUFD49104\"\n        },\n        {\n          \"seriesID\": \"CUSR0000SA0\"\n        },\n        {\n          \"seriesID\": \"WPUFD4\"\n        },\n        {\n          \"seriesID\": \"CES0500000003\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031004\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031006\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031048\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031005\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031021\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031029\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031001\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031051\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031013\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031017\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031026\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031022\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031053\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031055\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031018\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031025\"\n        },\n        {\n          \"seriesID\": \"ISU00000000031019\"\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    {
+      "command": "series popular",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "series search",
+      "kind": "help",
+      "args": [
+        "series",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Run an FTS5 search over the locally-synced BLS series catalog. The catalog covers the most common ~120 indicators across CPI, CES, CPS, JOLTS, PPI, ECI, productivity, and LAUS. Pass --survey/--area/--item/--adjust to narrow further. BLS has no public series-search endpoint, so this is the only way to discover IDs without scraping bls.gov data tools.\n\nUsage:\n  bls-pp-cli series search \u003cquery\u003e [flags]\n\nExamples:\n  bls-pp-cli series search \"Los Angeles CPI\"\n  bls-pp-cli series search \"unemployment rate\" --survey LN\n  bls-pp-cli series search \"shelter\" --survey CU --adjust seasonal --json\n\nFlags:\n      --adjust string   Filter by seasonal adjustment: seasonal or nsa.\n      --area string     Substring match against the area label (e.g. \"Los Angeles\", \"California\").\n  -h, --help            help for search\n      --item string     Substring match against the item label (e.g. \"shelter\", \"food\").\n      --limit int       Maximum number of results to return. (default 25)\n      --survey string   Filter by BLS survey abbreviation (e.g. CU, LN, CE, JT).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "series search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "series search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "series search",
+      "kind": "error_path",
+      "args": [
+        "series",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "null\n"
+    },
+    {
+      "command": "snapshot macro",
+      "kind": "help",
+      "args": [
+        "snapshot",
+        "macro",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Batch-fetches the 15 series that define the U.S. macro picture in a single POST:\nheadline + core CPI, food/energy/shelter components, U-3 unemployment, labor force\nparticipation, payrolls, average hourly earnings, JOLTS openings and quits rate,\nPPI final demand, ECI, and nonfarm business productivity.\n\nWith a registered BLS_API_KEY the call requests server-side YoY/MoM percent-change\ncolumns (calculations: true). Without a key, only the value column is returned.\n\nUsage:\n  bls-pp-cli snapshot macro [flags]\n\nExamples:\n  bls-pp-cli snapshot macro\n  bls-pp-cli snapshot macro --csv \u003e macro.csv\n  bls-pp-cli snapshot macro --json --select id,label,value,yoy_pct\n\nFlags:\n      --end string     Latest year for the snapshot batch.\n  -h, --help           help for macro\n      --start string   Earliest year for the snapshot batch (defaults to BLS's default window).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "snapshot macro",
+      "kind": "happy_path",
+      "args": [
+        "snapshot",
+        "macro"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"CUSR0000SA0\",\n    \"label\": \"CPI-U, all items (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"332.407\",\n    \"mom_pct\": \"0.6\",\n    \"yoy_pct\": \"3.8\"\n  },\n  {\n    \"id\": \"CUSR0000SA0L1E\",\n    \"label\": \"Core CPI (all items less food and energy, SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"335.423\",\n    \"mom_pct\": \"0.4\",\n    \"yoy_pct\": \"2.7\"\n  },\n  {\n    \"id\": \"CUSR0000SAF1\",\n    \"label\": \"CPI-U, food (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"348.349\",\n    \"mom_pct\": \"0.5\",\n    \"yoy_pct\": \"3.2\"\n  },\n  {\n    \"id\": \"CUSR0000SA0E\",\n    \"label\": \"CPI-U, energy (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"325.978\",\n    \"mom_pct\": \"3.8\",\n    \"yoy_pct\": \"17.5\"\n  },\n  {\n    \"id\": \"CUSR0000SAH1\",\n    \"label\": \"CPI-U, shelter (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"426.642\",\n    \"mom_pct\": \"0.6\",\n    \"yoy_pct\": \"3.3\"\n  },\n  {\n    \"id\": \"LNS14000000\",\n    \"label\": \"Unemployment rate (U-3, SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"4.3\",\n    \"mom_pct\": \"0.0\",\n    \"yoy_pct\": \"2.4\"\n  },\n  {\n    \"id\": \"LNS11300000\",\n    \"label\": \"Labor force participation rate (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"61.8\",\n    \"mom_pct\": \"-0.2\",\n    \"yoy_pct\": \"-1.3\"\n  },\n  {\n    \"id\": \"LNS12300000\",\n    \"label\": \"Employment-population ratio (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"59.1\",\n    \"mom_pct\": \"-0.2\",\n    \"yoy_pct\": \"-1.5\"\n  },\n  {\n    \"id\": \"CES0000000001\",\n    \"label\": \"Total nonfarm payroll employment (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"158736\",\n    \"mom_pct\": \"0.1\",\n    \"yoy_pct\": \"0.2\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"CES0500000003\",\n    \"label\": \"Avg hourly earnings, total private (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"37.41\",\n    \"mom_pct\": \"0.2\",\n    \"yoy_pct\": \"3.6\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"JTS000000000000000JOL\",\n    \"label\": \"Job openings, total nonfarm (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"March\",\n    \"value\": \"6866\",\n    \"mom_pct\": \"-0.8\",\n    \"yoy_pct\": \"-1.2\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"JTS000000000000000QUR\",\n    \"label\": \"Quits rate, total nonfarm (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"March\",\n    \"value\": \"2.0\",\n    \"mom_pct\": \"5.3\",\n    \"yoy_pct\": \"-9.1\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"WPSFD4\",\n    \"label\": \"PPI, final demand (NSA)\",\n    \"year\": \"2026\",\n    \"period\": \"March\",\n    \"value\": \"154.006\",\n    \"mom_pct\": \"0.5\",\n    \"yoy_pct\": \"4.0\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"CIU1010000000000A\",\n    \"label\": \"ECI, total compensation, all civilian (NSA)\",\n    \"year\": \"2026\",\n    \"period\": \"1st Quarter\",\n    \"value\": \"3.4\"\n  },\n  {\n    \"id\": \"PRS85006092\",\n    \"label\": \"Nonfarm business labor productivity, % chg (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"1st Quarter\",\n    \"value\": \"0.8\"\n  }\n]\n"
+    },
+    {
+      "command": "snapshot macro",
+      "kind": "json_fidelity",
+      "args": [
+        "snapshot",
+        "macro",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": \"CUSR0000SA0\",\n    \"label\": \"CPI-U, all items (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"332.407\",\n    \"mom_pct\": \"0.6\",\n    \"yoy_pct\": \"3.8\"\n  },\n  {\n    \"id\": \"CUSR0000SA0L1E\",\n    \"label\": \"Core CPI (all items less food and energy, SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"335.423\",\n    \"mom_pct\": \"0.4\",\n    \"yoy_pct\": \"2.7\"\n  },\n  {\n    \"id\": \"CUSR0000SAF1\",\n    \"label\": \"CPI-U, food (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"348.349\",\n    \"mom_pct\": \"0.5\",\n    \"yoy_pct\": \"3.2\"\n  },\n  {\n    \"id\": \"CUSR0000SA0E\",\n    \"label\": \"CPI-U, energy (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"325.978\",\n    \"mom_pct\": \"3.8\",\n    \"yoy_pct\": \"17.5\"\n  },\n  {\n    \"id\": \"CUSR0000SAH1\",\n    \"label\": \"CPI-U, shelter (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"426.642\",\n    \"mom_pct\": \"0.6\",\n    \"yoy_pct\": \"3.3\"\n  },\n  {\n    \"id\": \"LNS14000000\",\n    \"label\": \"Unemployment rate (U-3, SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"4.3\",\n    \"mom_pct\": \"0.0\",\n    \"yoy_pct\": \"2.4\"\n  },\n  {\n    \"id\": \"LNS11300000\",\n    \"label\": \"Labor force participation rate (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"61.8\",\n    \"mom_pct\": \"-0.2\",\n    \"yoy_pct\": \"-1.3\"\n  },\n  {\n    \"id\": \"LNS12300000\",\n    \"label\": \"Employment-population ratio (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"59.1\",\n    \"mom_pct\": \"-0.2\",\n    \"yoy_pct\": \"-1.5\"\n  },\n  {\n    \"id\": \"CES0000000001\",\n    \"label\": \"Total nonfarm payroll employment (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"158736\",\n    \"mom_pct\": \"0.1\",\n    \"yoy_pct\": \"0.2\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"CES0500000003\",\n    \"label\": \"Avg hourly earnings, total private (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"April\",\n    \"value\": \"37.41\",\n    \"mom_pct\": \"0.2\",\n    \"yoy_pct\": \"3.6\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"JTS000000000000000JOL\",\n    \"label\": \"Job openings, total nonfarm (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"March\",\n    \"value\": \"6866\",\n    \"mom_pct\": \"-0.8\",\n    \"yoy_pct\": \"-1.2\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"JTS000000000000000QUR\",\n    \"label\": \"Quits rate, total nonfarm (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"March\",\n    \"value\": \"2.0\",\n    \"mom_pct\": \"5.3\",\n    \"yoy_pct\": \"-9.1\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"WPSFD4\",\n    \"label\": \"PPI, final demand (NSA)\",\n    \"year\": \"2026\",\n    \"period\": \"March\",\n    \"value\": \"154.006\",\n    \"mom_pct\": \"0.5\",\n    \"yoy_pct\": \"4.0\",\n    \"footnote\": \"P\"\n  },\n  {\n    \"id\": \"CIU1010000000000A\",\n    \"label\": \"ECI, total compensation, all civilian (NSA)\",\n    \"year\": \"2026\",\n    \"period\": \"1st Quarter\",\n    \"value\": \"3.4\"\n  },\n  {\n    \"id\": \"PRS85006092\",\n    \"label\": \"Nonfarm business labor productivity, % chg (SA)\",\n    \"year\": \"2026\",\n    \"period\": \"1st Quarter\",\n    \"value\": \"0.8\"\n  }\n]\n"
+    },
+    {
+      "command": "snapshot macro",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "surveys get",
+      "kind": "help",
+      "args": [
+        "surveys",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show detail for a single BLS survey (allowed calculations, annual averages, etc.).\n\nUsage:\n  bls-pp-cli surveys get \u003csurvey_abbreviation\u003e [flags]\n\nExamples:\n  bls-pp-cli surveys get example-value\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "surveys get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"survey_abbreviation\" at depth 0"
+    },
+    {
+      "command": "surveys get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"survey_abbreviation\" at depth 0"
+    },
+    {
+      "command": "surveys get",
+      "kind": "error_path",
+      "args": [
+        "surveys",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "fail",
+      "reason": "expected non-zero exit for invalid argument",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": \"{\\\"status\\\":\\\"REQUEST_SUCCEEDED\\\",\\\"responseTime\\\":11,\\\"message\\\":[],\\\"Results\\\":null\\n}]\\n}}\"\n}\n"
+    },
+    {
+      "command": "surveys list",
+      "kind": "help",
+      "args": [
+        "surveys",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List every BLS survey by abbreviation and name.\n\nUsage:\n  bls-pp-cli surveys list [flags]\n\nExamples:\n  bls-pp-cli surveys list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "surveys list",
+      "kind": "happy_path",
+      "args": [
+        "surveys",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"status\": \"REQUEST_SUCCEEDED\",\n    \"responseTime\": 12,\n    \"message\": [],\n    \"Results\": {\n      \"survey\": [\n        {\n          \"survey_abbreviation\": \"AP\",\n          \"survey_name\": \"Consumer Price Index - Average Price Data\"\n        },\n        {\n          \"survey_abbreviation\": \"BD\",\n          \"survey_name\": \"Business Employment Dynamics\"\n        },\n        {\n          \"survey_abbreviation\": \"BG\",\n          \"survey_name\": \"Collective Bargaining Agreements-State and Local Government\"\n        },\n        {\n          \"survey_abbreviation\": \"BP\",\n          \"survey_name\": \"Collective Bargaining Agreements-Private Sector\"\n        },\n        {\n          \"survey_abbreviation\": \"CA\",\n          \"survey_name\": \"Biennial Nonfatal Case and Demographic numbers and rates: selected characteristics\"\n        },\n        {\n          \"survey_abbreviation\": \"CB\",\n          \"survey_name\": \"Biennial Nonfatal Case and Demographic numbers and rates: selected characteristics\"\n        },\n        {\n          \"survey_abbreviation\": \"CC\",\n          \"survey_name\": \"Employer Costs for Employee Compensation\"\n        },\n        {\n          \"survey_abbreviation\": \"CD\",\n          \"survey_name\": \"Nonfatal cases involving days away from work: selected characteristics\"\n        },\n        {\n          \"survey_abbreviation\": \"CE\",\n          \"survey_name\": \"Employment, Hours, and Earnings from the Current Employment Statistics survey (National)\"\n        },\n        {\n          \"survey_abbreviation\": \"CF\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries\"\n        },\n        {\n          \"survey_abbreviation\": \"CH\",\n          \"survey_name\": \"Nonfatal cases involving days away from work: selected characteristics (2003 - 2010)\"\n        },\n        {\n          \"survey_abbreviation\": \"CI\",\n          \"survey_name\": \"Employment Cost Index\"\n        },\n        {\n          \"survey_abbreviation\": \"CM\",\n          \"survey_name\": \"Employer Costs for Employee Compensation\"\n        },\n        {\n          \"survey_abbreviation\": \"CS\",\n          \"survey_name\": \"Nonfatal cases involving days away from work: selected characteristics (2011 forward)\"\n        },\n        {\n          \"survey_abbreviation\": \"CU\",\n          \"survey_name\": \"Consumer Price Index - All Urban Consumers\"\n        },\n        {\n          \"survey_abbreviation\": \"CW\",\n          \"survey_name\": \"Consumer Price Index - Urban Wage Earners and Clerical Workers\"\n        },\n        {\n          \"survey_abbreviation\": \"CX\",\n          \"survey_name\": \"Consumer Expenditure Survey\"\n        },\n        {\n          \"survey_abbreviation\": \"EB\",\n          \"survey_name\": \"Employee Benefits Survey\"\n        },\n        {\n          \"survey_abbreviation\": \"EC\",\n          \"survey_name\": \"Employment Cost Index\"\n        },\n        {\n          \"survey_abbreviation\": \"EE\",\n          \"survey_name\": \"National Employment, Hours, and Earnings\"\n        },\n        {\n          \"survey_abbreviation\": \"EI\",\n          \"survey_name\": \"Import/Export Price Indexes\"\n        },\n        {\n          \"survey_abbreviation\": \"EN\",\n          \"survey_name\": \"Quarterly Census of Employment and Wages\"\n        },\n        {\n          \"survey_abbreviation\": \"EP\",\n          \"survey_name\": \"Employment Projections by Industry\"\n        },\n        {\n          \"survey_abbreviation\": \"EW\",\n          \"survey_name\": \"Quarterly Census of Employment and Wages (SIC)\"\n        },\n        {\n          \"survey_abbreviation\": \"FA\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries (2023 forward)\"\n        },\n        {\n          \"survey_abbreviation\": \"FI\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries (2003 - 2010)\"\n        },\n        {\n          \"survey_abbreviation\": \"FM\",\n          \"survey_name\": \"Marital and family labor force statistics from the Current Population Survey\"\n        },\n        {\n          \"survey_abbreviation\": \"FW\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries (2011-2022)\"\n        },\n        {\n          \"survey_abbreviation\": \"GG\",\n          \"survey_na…[truncated]"
+    },
+    {
+      "command": "surveys list",
+      "kind": "json_fidelity",
+      "args": [
+        "surveys",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"status\": \"REQUEST_SUCCEEDED\",\n    \"responseTime\": 12,\n    \"message\": [],\n    \"Results\": {\n      \"survey\": [\n        {\n          \"survey_abbreviation\": \"AP\",\n          \"survey_name\": \"Consumer Price Index - Average Price Data\"\n        },\n        {\n          \"survey_abbreviation\": \"BD\",\n          \"survey_name\": \"Business Employment Dynamics\"\n        },\n        {\n          \"survey_abbreviation\": \"BG\",\n          \"survey_name\": \"Collective Bargaining Agreements-State and Local Government\"\n        },\n        {\n          \"survey_abbreviation\": \"BP\",\n          \"survey_name\": \"Collective Bargaining Agreements-Private Sector\"\n        },\n        {\n          \"survey_abbreviation\": \"CA\",\n          \"survey_name\": \"Biennial Nonfatal Case and Demographic numbers and rates: selected characteristics\"\n        },\n        {\n          \"survey_abbreviation\": \"CB\",\n          \"survey_name\": \"Biennial Nonfatal Case and Demographic numbers and rates: selected characteristics\"\n        },\n        {\n          \"survey_abbreviation\": \"CC\",\n          \"survey_name\": \"Employer Costs for Employee Compensation\"\n        },\n        {\n          \"survey_abbreviation\": \"CD\",\n          \"survey_name\": \"Nonfatal cases involving days away from work: selected characteristics\"\n        },\n        {\n          \"survey_abbreviation\": \"CE\",\n          \"survey_name\": \"Employment, Hours, and Earnings from the Current Employment Statistics survey (National)\"\n        },\n        {\n          \"survey_abbreviation\": \"CF\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries\"\n        },\n        {\n          \"survey_abbreviation\": \"CH\",\n          \"survey_name\": \"Nonfatal cases involving days away from work: selected characteristics (2003 - 2010)\"\n        },\n        {\n          \"survey_abbreviation\": \"CI\",\n          \"survey_name\": \"Employment Cost Index\"\n        },\n        {\n          \"survey_abbreviation\": \"CM\",\n          \"survey_name\": \"Employer Costs for Employee Compensation\"\n        },\n        {\n          \"survey_abbreviation\": \"CS\",\n          \"survey_name\": \"Nonfatal cases involving days away from work: selected characteristics (2011 forward)\"\n        },\n        {\n          \"survey_abbreviation\": \"CU\",\n          \"survey_name\": \"Consumer Price Index - All Urban Consumers\"\n        },\n        {\n          \"survey_abbreviation\": \"CW\",\n          \"survey_name\": \"Consumer Price Index - Urban Wage Earners and Clerical Workers\"\n        },\n        {\n          \"survey_abbreviation\": \"CX\",\n          \"survey_name\": \"Consumer Expenditure Survey\"\n        },\n        {\n          \"survey_abbreviation\": \"EB\",\n          \"survey_name\": \"Employee Benefits Survey\"\n        },\n        {\n          \"survey_abbreviation\": \"EC\",\n          \"survey_name\": \"Employment Cost Index\"\n        },\n        {\n          \"survey_abbreviation\": \"EE\",\n          \"survey_name\": \"National Employment, Hours, and Earnings\"\n        },\n        {\n          \"survey_abbreviation\": \"EI\",\n          \"survey_name\": \"Import/Export Price Indexes\"\n        },\n        {\n          \"survey_abbreviation\": \"EN\",\n          \"survey_name\": \"Quarterly Census of Employment and Wages\"\n        },\n        {\n          \"survey_abbreviation\": \"EP\",\n          \"survey_name\": \"Employment Projections by Industry\"\n        },\n        {\n          \"survey_abbreviation\": \"EW\",\n          \"survey_name\": \"Quarterly Census of Employment and Wages (SIC)\"\n        },\n        {\n          \"survey_abbreviation\": \"FA\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries (2023 forward)\"\n        },\n        {\n          \"survey_abbreviation\": \"FI\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries (2003 - 2010)\"\n        },\n        {\n          \"survey_abbreviation\": \"FM\",\n          \"survey_name\": \"Marital and family labor force statistics from the Current Population Survey\"\n        },\n        {\n          \"survey_abbreviation\": \"FW\",\n          \"survey_name\": \"Census of Fatal Occupational Injuries (2011-2022)\"\n        },\n        {\n          \"survey_abbreviation\": \"GG\",\n          \"survey_na…[truncated]"
+    },
+    {
+      "command": "surveys list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  bls-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  bls-pp-cli sync\n\n  # Sync specific resources only\n  bls-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  bls-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  bls-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  bls-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  bls-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/bls-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --param stringArray            Extra query param to inject into every sync request (repeatable, key=value). Use for APIs whose spec marks a filter optional but the endpoint rejects calls without it (e.g. --param mine=true). Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param when both define the same key.\n      --resources strings            Comma-separated resource types to sync\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --q…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"series\"}\n{\"event\":\"sync_start\",\"resource\":\"surveys\"}\n{\"event\":\"sync_warning\",\"resource\":\"series\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"surveys\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"series\",\"total\":0,\"duration_ms\":356}\n{\"event\":\"sync_complete\",\"resource\":\"surveys\",\"total\":0,\"duration_ms\":357}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":357}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"series\"}\n{\"event\":\"sync_start\",\"resource\":\"surveys\"}\n{\"event\":\"sync_warning\",\"resource\":\"series\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"surveys\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"surveys\",\"total\":0,\"duration_ms\":296}\n{\"event\":\"sync_complete\",\"resource\":\"series\",\"total\":0,\"duration_ms\":300}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":300}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  bls-pp-cli which [query] [flags]\n\nExamples:\n  bls-pp-cli which \"stale tickets\"\n  bls-pp-cli which \"bottleneck\"\n  bls-pp-cli which --limit 1 \"send message\"\n  bls-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  bls-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  bls-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  bls-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/bls-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"series\"}\n{\"event\":\"sync_warning\",\"resource\":\"series\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"series\",\"total\":0,\"duration_ms\":290}\n{\"event\":\"sync_start\",\"resource\":\"surveys\"}\n{\"event\":\"sync_warning\",\"resource\":\"surveys\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"surveys\",\"total\":0,\"duration_ms\":177}\nArchived 0 items across 2 resources to /Users/ahuang/.local/share/bls-pp-cli/data.db\n  series: 0 synced\n  surveys: 0 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "fail",
+      "reason": "invalid JSON",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"series\"}\n{\"event\":\"sync_warning\",\"resource\":\"series\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"series\",\"total\":0,\"duration_ms\":280}\n{\"event\":\"sync_start\",\"resource\":\"surveys\"}\n{\"event\":\"sync_warning\",\"resource\":\"surveys\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"surveys\",\"total\":0,\"duration_ms\":122}\n{\n  \"resources_synced\": 2,\n  \"store_path\": \"/Users/ahuang/.local/share/bls-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-12T20:54:42Z\",\n  \"total_items\": 0\n}\n  series: 0 synced\n  surveys: 0 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  bls-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  bls-pp-cli workflow status\n\n  # Show status as JSON\n  bls-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'bls-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-12T20:54:35.488182Z"
+}
+Error: live dogfood failed: 3/63 tests failed
+live dogfood failed: 3/63 tests failed

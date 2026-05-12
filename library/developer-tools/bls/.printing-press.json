@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T21:25:34.456943Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "bls",
+  "display_name": "BLS",
+  "cli_name": "bls-pp-cli",
+  "owner": "amandahuarng",
+  "printer": "amandahuarng",
+  "printer_name": "Amanda Huang",
+  "spec_path": "/Users/ahuang/printing-press/.runstate/shimmering-frolicking-porcupine-e2ef502d/runs/20260512-125748/research/bls-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:de26604c50e5b366ec7ee09d695a1aff18caac6d002d85be23c84be3593cf76b",
+  "run_id": "20260512-125748",
+  "category": "developer-tools",
+  "description": "Fetch U.S. labor and economic time-series from BLS with offline series search, a curated macro snapshot, the release calendar, and footnote decoding.",
+  "mcp_binary": "bls-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BLS_API_KEY"
+  ],
+  "auth_key_url": "https://data.bls.gov/registrationEngine/",
+  "auth_optional": true,
+  "novel_features": [
+    {
+      "name": "Series search",
+      "command": "series search",
+      "description": "Find the right BLS series ID by plain-English title, survey, or area without leaving the terminal."
+    },
+    {
+      "name": "Macro snapshot",
+      "command": "snapshot macro",
+      "description": "One command returns the current state of the U.S. macro economy: headline + core CPI, U3, payrolls, JOLTS openings, PPI, ECI, productivity, with YoY and MoM changes."
+    },
+    {
+      "name": "Release calendar",
+      "command": "releases next",
+      "description": "List upcoming BLS releases (CPI, employment situation, JOLTS, PPI...) with date, time, and news-release URL."
+    },
+    {
+      "name": "Footnote decoder",
+      "command": "footnotes decode",
+      "description": "Decode BLS footnote codes (P, R, C, ...) into plain-English explanations."
+    },
+    {
+      "name": "Historical extremum",
+      "command": "series extremum",
+      "description": "Compute max, min, and percentile rank of a series's latest observation across a configurable window from the local cache."
+    },
+    {
+      "name": "SA vs NSA compare",
+      "command": "series compare-sa",
+      "description": "Show seasonally-adjusted and not-seasonally-adjusted variants of a series side-by-side."
+    }
+  ]
+}

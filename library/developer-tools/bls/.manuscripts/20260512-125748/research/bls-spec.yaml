@@ -1,0 +1,193 @@
+name: bls
+display_name: "BLS"
+description: "U.S. Bureau of Labor Statistics Public Data API — time-series for CPI, employment, unemployment, JOLTS, productivity, and more."
+cli_description: "Fetch U.S. labor and economic time-series from BLS with offline series search, a curated macro snapshot, the release calendar, and footnote decoding."
+version: "0.1.0"
+base_url: "https://api.bls.gov/publicAPI/v2"
+website_url: "https://www.bls.gov/developers/"
+category: "developer-tools"
+
+auth:
+  type: api_key
+  in: query
+  header: "registrationkey"
+  optional: true
+  env_vars:
+    - BLS_API_KEY
+  key_url: "https://data.bls.gov/registrationEngine/"
+  instructions: "Free registration unlocks 500 queries/day (vs 25 unauth), 50 series per batch, 20-year history, and the calculations / catalog / annual-average flags."
+
+config:
+  format: toml
+  path: "~/.config/bls-pp-cli/config.toml"
+
+health_check_path: "/surveys/"
+
+resources:
+  series:
+    description: "Fetch BLS time-series observations (CPI, employment, unemployment, JOLTS, PPI, ECI, productivity, and more)."
+    endpoints:
+      get:
+        method: GET
+        path: "/timeseries/data/{seriesid}"
+        description: "Fetch a single BLS time-series by ID."
+        params:
+          - name: seriesid
+            type: string
+            required: true
+            positional: true
+            description: "Packed BLS series ID, e.g. CUUR0000SA0 (CPI-U all items) or LNS14000000 (U.S. unemployment rate)."
+          - name: startyear
+            type: string
+            flag_name: start
+            aliases: [startyear]
+            description: "Earliest year to include (default: 10 most recent years for the unauth tier, 20 with a key)."
+          - name: endyear
+            type: string
+            flag_name: end
+            aliases: [endyear]
+            description: "Latest year to include."
+          - name: latest
+            type: bool
+            description: "Return only the latest observation. Pairs with startyear/endyear when set."
+          - name: calculations
+            type: bool
+            flag_name: calc
+            aliases: [calculations]
+            description: "Add server-side YoY/MoM percent-change columns (requires a registered key)."
+          - name: annualaverage
+            type: bool
+            flag_name: annual-avg
+            aliases: [annualaverage]
+            description: "Include annual averages alongside monthly values (requires a registered key)."
+          - name: catalog
+            type: bool
+            description: "Include catalog metadata (title, units, survey) per series (requires a registered key)."
+          - name: aspects
+            type: bool
+            description: "Include aspect-level metadata (e.g. CPI item codes) per observation."
+        response:
+          type: object
+          item: TimeSeriesResponse
+
+      batch:
+        method: POST
+        path: "/timeseries/data/"
+        description: "Fetch up to 50 BLS series in one call. Pass --ids comma-separated; the CLI partitions IDs >50 across multiple requests."
+        body:
+          - name: seriesid
+            flag_name: ids
+            aliases: [seriesid]
+            type: string
+            required: true
+            description: "List of packed BLS series IDs (JSON array or comma-separated, e.g. \"CUUR0000SA0,LNS14000000\")."
+          - name: startyear
+            flag_name: start
+            aliases: [startyear]
+            type: string
+            description: "Earliest year to include."
+          - name: endyear
+            flag_name: end
+            aliases: [endyear]
+            type: string
+            description: "Latest year to include."
+          - name: latest
+            type: bool
+            description: "Return only the latest observation per series."
+          - name: calculations
+            type: bool
+            description: "Add YoY/MoM percent-change columns (registered key only)."
+          - name: annualaverage
+            type: bool
+            description: "Include annual averages (registered key only)."
+          - name: catalog
+            type: bool
+            description: "Include catalog metadata per series (registered key only)."
+          - name: aspects
+            type: bool
+            description: "Include aspect-level metadata."
+        response:
+          type: object
+          item: TimeSeriesResponse
+
+      popular:
+        method: GET
+        path: "/timeseries/popular"
+        description: "List BLS's most-popular series, optionally filtered by survey."
+        id_field: "seriesID"
+        response_path: "Results.series"
+        params:
+          - name: survey
+            type: string
+            description: "Survey abbreviation (e.g. CU for CPI-U, LN for CPS, JT for JOLTS). Omit for the all-survey popular list."
+        response:
+          type: object
+          item: PopularResponse
+
+  surveys:
+    description: "BLS survey directory (CPI, CES, CPS, JOLTS, PPI, ECI, productivity, and more)."
+    endpoints:
+      list:
+        method: GET
+        path: "/surveys/"
+        description: "List every BLS survey by abbreviation and name."
+        id_field: "survey_abbreviation"
+        response_path: "Results.survey"
+        response:
+          type: object
+          item: SurveysListResponse
+
+      get:
+        method: GET
+        path: "/surveys/{survey_abbreviation}"
+        description: "Show detail for a single BLS survey (allowed calculations, annual averages, etc.)."
+        id_field: "survey_abbreviation"
+        response_path: "Results.survey"
+        params:
+          - name: survey_abbreviation
+            type: string
+            required: true
+            positional: true
+            description: "Two-letter survey abbreviation, e.g. CU, LN, CE, JT, PP, EC, PR."
+        response:
+          type: object
+          item: SurveysListResponse
+
+types:
+  TimeSeriesResponse:
+    fields:
+      - name: status
+        type: string
+      - name: responseTime
+        type: int
+      - name: message
+        type: array
+      - name: Results
+        type: object
+        fields:
+          - name: series
+            type: array
+
+  PopularResponse:
+    fields:
+      - name: status
+        type: string
+      - name: responseTime
+        type: int
+      - name: Results
+        type: object
+        fields:
+          - name: series
+            type: array
+
+  SurveysListResponse:
+    fields:
+      - name: status
+        type: string
+      - name: responseTime
+        type: int
+      - name: Results
+        type: object
+        fields:
+          - name: survey
+            type: array

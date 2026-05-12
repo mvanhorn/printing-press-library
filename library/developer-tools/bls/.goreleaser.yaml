@@ -1,0 +1,51 @@
+version: 2
+project_name: bls-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bls-pp-cli
+    main: ./cmd/bls-pp-cli
+    binary: bls-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bls-pp-mcp
+    main: ./cmd/bls-pp-mcp
+    binary: bls-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bls-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first feature-rich CLI for the BLS Public Data API — with offline series search, a release calendar, footnote..."
+    install: |
+      bin.install "bls-pp-cli"
+      bin.install "bls-pp-mcp"

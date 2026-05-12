@@ -1,0 +1,206 @@
+{
+  "api_name": "bls",
+  "base_url": "https://api.bls.gov/publicAPI/v2",
+  "description": "U.S. Bureau of Labor Statistics Public Data API — time-series for CPI, employment, unemployment, JOLTS, productivity, and more.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "registrationkey",
+    "in": "query",
+    "env_vars": [
+      "BLS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BLS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://data.bls.gov/registrationEngine/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "series_batch",
+      "description": "Fetch up to 50 BLS series in one call. Pass --ids comma-separated; the CLI partitions IDs \u003e50 across multiple requests. Required: ids. Optional: start, end, latest (plus 4 more). Returns the new TimeSeriesResponse.",
+      "method": "POST",
+      "path": "/timeseries/data/",
+      "params": [
+        {
+          "name": "ids",
+          "wire_name": "seriesid",
+          "type": "string",
+          "location": "body",
+          "description": "List of packed BLS series IDs (JSON array or comma-separated, e.g. 'CUUR0000SA0,LNS14000000').",
+          "required": true,
+          "aliases": [
+            "seriesid"
+          ]
+        },
+        {
+          "name": "start",
+          "wire_name": "startyear",
+          "type": "string",
+          "location": "body",
+          "description": "Earliest year to include.",
+          "aliases": [
+            "startyear"
+          ]
+        },
+        {
+          "name": "end",
+          "wire_name": "endyear",
+          "type": "string",
+          "location": "body",
+          "description": "Latest year to include.",
+          "aliases": [
+            "endyear"
+          ]
+        },
+        {
+          "name": "latest",
+          "type": "bool",
+          "location": "body",
+          "description": "Return only the latest observation per series."
+        },
+        {
+          "name": "calculations",
+          "type": "bool",
+          "location": "body",
+          "description": "Add YoY/MoM percent-change columns (registered key only)."
+        },
+        {
+          "name": "annualaverage",
+          "type": "bool",
+          "location": "body",
+          "description": "Include annual averages (registered key only)."
+        },
+        {
+          "name": "catalog",
+          "type": "bool",
+          "location": "body",
+          "description": "Include catalog metadata per series (registered key only)."
+        },
+        {
+          "name": "aspects",
+          "type": "bool",
+          "location": "body",
+          "description": "Include aspect-level metadata."
+        }
+      ]
+    },
+    {
+      "name": "series_get",
+      "description": "Fetch a single BLS time-series by ID. Required: seriesid. Optional: start, end, latest (plus 4 more). Returns the TimeSeriesResponse.",
+      "method": "GET",
+      "path": "/timeseries/data/{seriesid}",
+      "params": [
+        {
+          "name": "seriesid",
+          "type": "string",
+          "location": "path",
+          "description": "Packed BLS series ID, e.g. CUUR0000SA0 (CPI-U all items) or LNS14000000 (U.S. unemployment rate).",
+          "required": true
+        },
+        {
+          "name": "start",
+          "wire_name": "startyear",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest year to include (default: 10 most recent years for the unauth tier, 20 with a key).",
+          "aliases": [
+            "startyear"
+          ]
+        },
+        {
+          "name": "end",
+          "wire_name": "endyear",
+          "type": "string",
+          "location": "query",
+          "description": "Latest year to include.",
+          "aliases": [
+            "endyear"
+          ]
+        },
+        {
+          "name": "latest",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only the latest observation. Pairs with startyear/endyear when set."
+        },
+        {
+          "name": "calc",
+          "wire_name": "calculations",
+          "type": "bool",
+          "location": "query",
+          "description": "Add server-side YoY/MoM percent-change columns (requires a registered key).",
+          "aliases": [
+            "calculations"
+          ]
+        },
+        {
+          "name": "annual-avg",
+          "wire_name": "annualaverage",
+          "type": "bool",
+          "location": "query",
+          "description": "Include annual averages alongside monthly values (requires a registered key).",
+          "aliases": [
+            "annualaverage"
+          ]
+        },
+        {
+          "name": "catalog",
+          "type": "bool",
+          "location": "query",
+          "description": "Include catalog metadata (title, units, survey) per series (requires a registered key)."
+        },
+        {
+          "name": "aspects",
+          "type": "bool",
+          "location": "query",
+          "description": "Include aspect-level metadata (e.g. CPI item codes) per observation."
+        }
+      ]
+    },
+    {
+      "name": "series_popular",
+      "description": "List BLS's most-popular series, optionally filtered by survey. Optional: survey. Returns the PopularResponse.",
+      "method": "GET",
+      "path": "/timeseries/popular",
+      "params": [
+        {
+          "name": "survey",
+          "type": "string",
+          "location": "query",
+          "description": "Survey abbreviation (e.g. CU for CPI-U, LN for CPS, JT for JOLTS). Omit for the all-survey popular list."
+        }
+      ]
+    },
+    {
+      "name": "surveys_get",
+      "description": "Show detail for a single BLS survey (allowed calculations, annual averages, etc.). Required: survey_abbreviation. Returns the SurveysListResponse.",
+      "method": "GET",
+      "path": "/surveys/{survey_abbreviation}",
+      "params": [
+        {
+          "name": "survey_abbreviation",
+          "type": "string",
+          "location": "path",
+          "description": "Two-letter survey abbreviation, e.g. CU, LN, CE, JT, PP, EC, PR.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "surveys_list",
+      "description": "List every BLS survey by abbreviation and name. Returns the SurveysListResponse.",
+      "method": "GET",
+      "path": "/surveys/",
+      "params": []
+    }
+  ]
+}
