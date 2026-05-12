@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T11:18:59.353563Z",
+  "cli_dir": "~/printing-press/.runstate/buffet-system-413ba239/runs/20260512-031042/working/seykota-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-12T11:18:59.353564Z"
+  }
+}

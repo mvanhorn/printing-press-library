@@ -1,0 +1,12 @@
+# build artifacts
+/seykota-pp-cli
+/seykota-pp-mcp
+*.test
+*.out
+build/
+dist/
+# the uncompressed working snapshot — only the gzipped copy is committed/embedded
+/internal/cli/data/snapshot.db
+/internal/cli/data/snapshot.db-wal
+/internal/cli/data/snapshot.db-shm
+/internal/cli/data/snapshot.db-journal

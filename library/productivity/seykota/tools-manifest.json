@@ -1,0 +1,88 @@
+{
+  "api_name": "seykota",
+  "base_url": "https://www.seykota.com",
+  "description": "Ed Seykota's Trading Tribe archive — 20 years of FAQ, the Trading System Project rules, and the risk-of-ruin essay, searchable offline, with the position-sizing calculators built in",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "seykota-pp-cli (+https://github.com/mvanhorn)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "pages_faq-index",
+      "description": "The master FAQ index — links to every monthly FAQ page (2010–2023). Returns the Page.",
+      "method": "GET",
+      "path": "/tt/FAQ_Index/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_faq-month",
+      "description": "One month of Ed's FAQ. Required: year, month, range. Returns the Page.",
+      "method": "GET",
+      "path": "/{year}/{month}/{range}/default.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "string",
+          "location": "path",
+          "description": "Year folder, e.g. 2023",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "path",
+          "description": "Month folder, e.g. JAN (2011+) or Jan (2010)",
+          "required": true
+        },
+        {
+          "name": "range",
+          "type": "string",
+          "location": "path",
+          "description": "Day-range folder, e.g. 01-31",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pages_risk-essay",
+      "description": "Ed Seykota's 'Risk Management' essay — the position-sizing math (Coin-Toss model, Kelly, Uncle Point, Lake Ratio, heat). Returns the Page.",
+      "method": "GET",
+      "path": "/tribe/risk/index.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_tsp-index",
+      "description": "The Trading System Project index — links to every TSP section. Returns the Page.",
+      "method": "GET",
+      "path": "/tribe/TSP/index.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "pages_tsp-section",
+      "description": "One Trading System Project section (EA, SR, Trends, Diversify, Continuous, Data_Verification). Required: slug. Returns the Page.",
+      "method": "GET",
+      "path": "/tribe/TSP/{slug}/index.htm",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Section slug, e.g. EA, SR, Trends, Diversify, Continuous",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: seykota-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: seykota-pp-cli
+    main: ./cmd/seykota-pp-cli
+    binary: seykota-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/seykota/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: seykota-pp-mcp
+    main: ./cmd/seykota-pp-mcp
+    binary: seykota-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: seykota-pp-cli
+    repository:
+      owner: kjuju600
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Ed Seykota's Trading Tribe archive on the command line — 20 years of FAQ, the Trading System Project rules, and..."
+    install: |
+      bin.install "seykota-pp-cli"
+      bin.install "seykota-pp-mcp"

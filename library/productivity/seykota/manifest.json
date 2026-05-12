@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "seykota-pp-mcp",
+  "display_name": "Seykota",
+  "version": "4.5.0",
+  "description": "Seykota API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/seykota-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/seykota-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

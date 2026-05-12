@@ -1,0 +1,92 @@
+{
+  "dir": "~/printing-press/.runstate/buffet-system-413ba239/runs/20260512-031042/working/seykota-pp-cli",
+  "spec_path": "~/printing-press/.runstate/buffet-system-413ba239/runs/20260512-031042/research/seykota-spec.yaml",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 55,
+    "dead": 1,
+    "items": [
+      "extractResponseData"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 46,
+      "registered": 46
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 6,
+    "found": 6
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 6,
+    "exempted_via_store": 6
+  },
+  "source_client_check": {
+    "checked": 5
+  },
+  "print_json_filtered_check": {
+    "checked": 25
+  },
+  "test_presence": {
+    "checked": 3,
+    "thin_tests": [
+      "corpus (2 test funcs)"
+    ]
+  },
+  "naming_check": {
+    "checked": 25
+  },
+  "issues": [
+    "1 dead helper functions found"
+  ]
+}

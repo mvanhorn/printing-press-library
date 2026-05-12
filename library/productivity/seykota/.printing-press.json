@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T11:21:00.433667Z",
+  "printing_press_version": "4.5.0",
+  "api_name": "seykota",
+  "display_name": "Seykota",
+  "cli_name": "seykota-pp-cli",
+  "owner": "kjuju600",
+  "printer": "kjuju600",
+  "printer_name": "kjuju600",
+  "spec_path": "~/printing-press/.runstate/buffet-system-413ba239/runs/20260512-031042/research/seykota-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:2624f0cbf7d94a57487c5c4528fdf0003bb1dcb932b4931dbcf37bc82f8dbc31",
+  "run_id": "20260512-031042",
+  "mcp_binary": "seykota-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Concept chronology",
+      "command": "timeline",
+      "description": "See how Seykota's thinking on a concept appears across 20 years — a year-ordered list of every FAQ month, TSP section, and risk-essay passage that matches your query."
+    },
+    {
+      "name": "Coin-Toss simulator",
+      "command": "risk coin-toss",
+      "description": "Monte-Carlo the risk essay's own Coin-Toss / fixed-fraction model with your win rate, payoff, and bet fraction — reports median terminal equity, probability of ruin, max drawdown, and the optimal-f comparison."
+    },
+    {
+      "name": "Lake Ratio calculator",
+      "command": "risk lake-ratio",
+      "description": "Compute Seykota's Lake Ratio — the area of drawdown 'water' divided by the area under the equity 'land' — over your own equity curve from a CSV or stdin."
+    },
+    {
+      "name": "FAQ contributor index",
+      "command": "faq contributors",
+      "description": "List everyone who wrote into Ed's FAQ with how many months each appears in, or pass a name to see exactly which months they show up in."
+    },
+    {
+      "name": "Metric explainer",
+      "command": "risk explain",
+      "description": "For a named risk metric — heat, Kelly K, the Uncle Point, the Lake Ratio, the Timid/Bold trader rules — print the exact passage from the risk essay that defines it plus the calculator subcommand that runs it."
+    },
+    {
+      "name": "Citation-formatted search",
+      "command": "cite",
+      "description": "Search the archive and get back one ready-to-paste citation per hit — source, date or section, snippet, and URL — or BibTeX entries."
+    }
+  ]
+}

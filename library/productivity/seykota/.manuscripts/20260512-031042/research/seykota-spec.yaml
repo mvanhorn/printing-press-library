@@ -1,0 +1,88 @@
+name: seykota
+description: "Ed Seykota's Trading Tribe archive — 20 years of FAQ, the Trading System Project rules, and the risk-of-ruin essay, searchable offline, with the position-sizing calculators built in"
+version: "0.1.0"
+base_url: "https://www.seykota.com"
+http_transport: standard
+health_check_path: "/tt/FAQ_Index/"
+required_headers:
+  - name: User-Agent
+    value: "seykota-pp-cli (+https://github.com/mvanhorn)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/seykota-pp-cli/config.toml"
+
+resources:
+  pages:
+    description: "Fetch raw pages from seykota.com (used by 'index build' to refresh the local archive; for normal use prefer 'search', 'faq', 'tsp', and 'risk')"
+    endpoints:
+      faq-index:
+        method: GET
+        path: "/tt/FAQ_Index/"
+        description: "The master FAQ index — links to every monthly FAQ page (2010–2023)"
+        response:
+          type: object
+          item: Page
+      faq-month:
+        method: GET
+        path: "/{year}/{month}/{range}/default.html"
+        description: "One month of Ed's FAQ"
+        params:
+          - name: year
+            type: string
+            required: true
+            positional: true
+            description: "Year folder, e.g. 2023"
+          - name: month
+            type: string
+            required: true
+            positional: true
+            description: "Month folder, e.g. JAN (2011+) or Jan (2010)"
+          - name: range
+            type: string
+            required: true
+            positional: true
+            description: "Day-range folder, e.g. 01-31"
+        response:
+          type: object
+          item: Page
+      tsp-index:
+        method: GET
+        path: "/tribe/TSP/index.htm"
+        description: "The Trading System Project index — links to every TSP section"
+        response:
+          type: object
+          item: Page
+      tsp-section:
+        method: GET
+        path: "/tribe/TSP/{slug}/index.htm"
+        description: "One Trading System Project section (EA, SR, Trends, Diversify, Continuous, Data_Verification)"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Section slug, e.g. EA, SR, Trends, Diversify, Continuous"
+        response:
+          type: object
+          item: Page
+      risk-essay:
+        method: GET
+        path: "/tribe/risk/index.htm"
+        description: "Ed Seykota's 'Risk Management' essay — the position-sizing math (Coin-Toss model, Kelly, Uncle Point, Lake Ratio, heat)"
+        response:
+          type: object
+          item: Page
+
+types:
+  Page:
+    fields:
+      - name: url
+        type: string
+      - name: title
+        type: string
+      - name: text
+        type: string

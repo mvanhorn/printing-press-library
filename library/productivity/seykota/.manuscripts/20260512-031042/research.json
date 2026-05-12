@@ -1,0 +1,203 @@
+{
+  "api_name": "seykota",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T10:19:33Z",
+  "novel_features": [
+    {
+      "name": "Concept chronology",
+      "command": "timeline",
+      "description": "See how Seykota's thinking on a concept appears across 20 years — a year-ordered list of every FAQ month, TSP section, and risk-essay passage that matches your query.",
+      "rationale": "Requires bucketing the local FTS5 index over the entire crawled corpus by year and merging FAQ, TSP, and risk hits into one timeline — the site's Google search box is undated and unordered.",
+      "example": "seykota timeline \"heat\" --json",
+      "why_it_matters": "Reach for this when you need the evolution of a trend-following idea over time, not just its latest mention.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Coin-Toss simulator",
+      "command": "risk coin-toss",
+      "description": "Monte-Carlo the risk essay's own Coin-Toss / fixed-fraction model with your win rate, payoff, and bet fraction — reports median terminal equity, probability of ruin, max drawdown, and the optimal-f comparison.",
+      "rationale": "The essay walks through this simulation in prose but nothing on the site runs it; the CLI turns a named model unique to this corpus into a seeded, deterministic command.",
+      "example": "seykota risk coin-toss --win-rate 0.5 --payoff 2 --bet-fraction 0.25 --trials 100 --runs 10000 --seed 1",
+      "why_it_matters": "Use this to stress-test a position-sizing fraction against ruin before you trade it.",
+      "group": "Seykota's risk math, runnable"
+    },
+    {
+      "name": "Lake Ratio calculator",
+      "command": "risk lake-ratio",
+      "description": "Compute Seykota's Lake Ratio — the area of drawdown 'water' divided by the area under the equity 'land' — over your own equity curve from a CSV or stdin.",
+      "rationale": "The essay defines the Lake Ratio only qualitatively via the lake metaphor; reducing a real equity series to the number exists nowhere as a tool.",
+      "example": "seykota risk lake-ratio --values 100,105,98,110,102,120 --json",
+      "why_it_matters": "Use this to score how 'underwater' a strategy's equity curve spends its time, beyond max drawdown.",
+      "group": "Seykota's risk math, runnable"
+    },
+    {
+      "name": "FAQ contributor index",
+      "command": "faq contributors",
+      "description": "List everyone who wrote into Ed's FAQ with how many months each appears in, or pass a name to see exactly which months they show up in.",
+      "rationale": "seykota.com has no contributor index; this aggregates parsed contributor lines across all ~266 month-pages held in local SQLite, exploiting the FAQ's reader-mailbag structure.",
+      "example": "seykota faq contributors --json",
+      "why_it_matters": "Use this when cross-referencing or citing recurring FAQ contributors in research notes.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Metric explainer",
+      "command": "risk explain",
+      "description": "For a named risk metric — heat, Kelly K, the Uncle Point, the Lake Ratio, the Timid/Bold trader rules — print the exact passage from the risk essay that defines it plus the calculator subcommand that runs it.",
+      "rationale": "The site keeps the prose essay and any calculation entirely separate; this maps a curated metric vocabulary onto the defining essay section and the matching `risk` subcommand.",
+      "example": "seykota risk explain uncle-point",
+      "why_it_matters": "Use this to get the definition and the formula together before you compute anything.",
+      "group": "Seykota's risk math, runnable"
+    },
+    {
+      "name": "Citation-formatted search",
+      "command": "cite",
+      "description": "Search the archive and get back one ready-to-paste citation per hit — source, date or section, snippet, and URL — or BibTeX entries.",
+      "rationale": "Turns FTS5 hits into attributed quotes using the per-row date/section/URL metadata the raw site never surfaces alongside the text.",
+      "example": "seykota cite \"pyramiding\" --bibtex",
+      "why_it_matters": "Use this whenever you need to quote Seykota with a real citation in a write-up or a tooltip.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Concept chronology",
+      "command": "timeline",
+      "description": "See how Seykota's thinking on a concept appears across 20 years — a year-ordered list of every FAQ month, TSP section, and risk-essay passage that matches your query.",
+      "rationale": "Requires bucketing the local FTS5 index over the entire crawled corpus by year and merging FAQ, TSP, and risk hits into one timeline — the site's Google search box is undated and unordered.",
+      "example": "seykota timeline \"heat\" --json",
+      "why_it_matters": "Reach for this when you need the evolution of a trend-following idea over time, not just its latest mention.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Coin-Toss simulator",
+      "command": "risk coin-toss",
+      "description": "Monte-Carlo the risk essay's own Coin-Toss / fixed-fraction model with your win rate, payoff, and bet fraction — reports median terminal equity, probability of ruin, max drawdown, and the optimal-f comparison.",
+      "rationale": "The essay walks through this simulation in prose but nothing on the site runs it; the CLI turns a named model unique to this corpus into a seeded, deterministic command.",
+      "example": "seykota risk coin-toss --win-rate 0.5 --payoff 2 --bet-fraction 0.25 --trials 100 --runs 10000 --seed 1",
+      "why_it_matters": "Use this to stress-test a position-sizing fraction against ruin before you trade it.",
+      "group": "Seykota's risk math, runnable"
+    },
+    {
+      "name": "Lake Ratio calculator",
+      "command": "risk lake-ratio",
+      "description": "Compute Seykota's Lake Ratio — the area of drawdown 'water' divided by the area under the equity 'land' — over your own equity curve from a CSV or stdin.",
+      "rationale": "The essay defines the Lake Ratio only qualitatively via the lake metaphor; reducing a real equity series to the number exists nowhere as a tool.",
+      "example": "seykota risk lake-ratio --values 100,105,98,110,102,120 --json",
+      "why_it_matters": "Use this to score how 'underwater' a strategy's equity curve spends its time, beyond max drawdown.",
+      "group": "Seykota's risk math, runnable"
+    },
+    {
+      "name": "FAQ contributor index",
+      "command": "faq contributors",
+      "description": "List everyone who wrote into Ed's FAQ with how many months each appears in, or pass a name to see exactly which months they show up in.",
+      "rationale": "seykota.com has no contributor index; this aggregates parsed contributor lines across all ~266 month-pages held in local SQLite, exploiting the FAQ's reader-mailbag structure.",
+      "example": "seykota faq contributors --json",
+      "why_it_matters": "Use this when cross-referencing or citing recurring FAQ contributors in research notes.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Metric explainer",
+      "command": "risk explain",
+      "description": "For a named risk metric — heat, Kelly K, the Uncle Point, the Lake Ratio, the Timid/Bold trader rules — print the exact passage from the risk essay that defines it plus the calculator subcommand that runs it.",
+      "rationale": "The site keeps the prose essay and any calculation entirely separate; this maps a curated metric vocabulary onto the defining essay section and the matching `risk` subcommand.",
+      "example": "seykota risk explain uncle-point",
+      "why_it_matters": "Use this to get the definition and the formula together before you compute anything.",
+      "group": "Seykota's risk math, runnable"
+    },
+    {
+      "name": "Citation-formatted search",
+      "command": "cite",
+      "description": "Search the archive and get back one ready-to-paste citation per hit — source, date or section, snippet, and URL — or BibTeX entries.",
+      "rationale": "Turns FTS5 hits into attributed quotes using the per-row date/section/URL metadata the raw site never surfaces alongside the text.",
+      "example": "seykota cite \"pyramiding\" --bibtex",
+      "why_it_matters": "Use this whenever you need to quote Seykota with a real citation in a write-up or a tooltip.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Ed Seykota's Trading Tribe",
+    "headline": "Ed Seykota's Trading Tribe archive on the command line — 20 years of FAQ, the Trading System Project rules, and the risk-of-ruin essay, searchable offline, with the position-sizing calculators built in.",
+    "value_prop": "seykota.com is the canonical primary source for trend-following risk control, but it's a sprawling 1990s static site with no search worth using and no calculators. This CLI ships a vendored snapshot of the FAQ months, the TSP sections, and the risk essay so `search`, `faq`, `tsp`, and `risk show` work with zero network — and it turns the essay's math into runnable commands: `risk kelly`, `risk heat`, `risk uncle-point`, `risk coin-toss`, `risk lake-ratio`. `timeline` shows how a concept appears across 20 years; `cite` gives you attributed quotes; `risk explain` ties each metric to the passage that defines it.",
+    "quickstart": [
+      {
+        "command": "seykota search \"heat\" --limit 5",
+        "comment": "Confirm the offline index works — top FAQ/TSP/risk hits on portfolio heat with source URLs."
+      },
+      {
+        "command": "seykota risk kelly --win-rate 0.5 --payoff 2",
+        "comment": "The essay's Kelly fraction, K = W - (1-W)/R = 0.25, as a one-liner."
+      },
+      {
+        "command": "seykota risk heat --equity 100000 --risk-pct 1 --entry 50 --stop 45",
+        "comment": "Per-trade risk and share count for one position; add --positions to sum portfolio heat."
+      },
+      {
+        "command": "seykota tsp show EA",
+        "comment": "The Trading System Project's exponential-crossover system rules."
+      },
+      {
+        "command": "seykota timeline \"whipsaw\"",
+        "comment": "Every place Seykota addressed whipsaws, in chronological order."
+      },
+      {
+        "command": "seykota index build",
+        "comment": "Re-crawl seykota.com to refresh the local index; add --full-archive for the pre-2010 day-pages."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns nothing",
+        "fix": "The vendored snapshot ships with the binary; run `seykota doctor` to confirm the DB path, or `seykota index build` to (re)build it from the live site."
+      },
+      {
+        "symptom": "index build is slow or gets throttled",
+        "fix": "The crawler is rate-limited on purpose (~1 request/second) — a full refresh of ~270 pages takes a few minutes; let it finish."
+      },
+      {
+        "symptom": "a FAQ search hit lands on a month page, not the exact exchange",
+        "fix": "The MVP index stores one row per month-page; use `faq show \u003cyear\u003e \u003cmonth\u003e` and search within, or grep the page text — per-exchange indexing is intentionally deferred."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs Ed Seykota's actual words on trend following, position sizing, heat, pyramiding, exits, or trading psychology — with a citeable source — or needs to run the position-sizing math from his risk essay (Kelly, heat, Uncle Point, Coin-Toss simulation, Lake Ratio) on concrete numbers. It is the right choice over a generic web search because it is offline, structured, dated, and the calculators match Seykota's exact formulations.",
+    "recipes": [
+      {
+        "title": "Quote Seykota on a topic with a citation",
+        "command": "seykota cite \"risk per trade\" --style faq",
+        "explanation": "Returns FAQ hits formatted as citations — month, snippet, URL — ready to paste into a research note or a tab tooltip."
+      },
+      {
+        "title": "Size a position the way the essay prescribes",
+        "command": "seykota risk heat --equity 250000 --risk-pct 0.5 --entry 412.30 --stop 398.00 --json --select shares,risk_dollars,heat_pct",
+        "explanation": "Per-trade dollars at risk, share count, and the resulting heat percentage as compact JSON for piping."
+      },
+      {
+        "title": "Stress-test a betting fraction against ruin",
+        "command": "seykota risk coin-toss --win-rate 0.45 --payoff 2.5 --bet-fraction 0.1 --trials 200 --runs 50000 --seed 7 --json",
+        "explanation": "Monte-Carlos the essay's Coin-Toss model and reports ruin probability, median terminal equity, and max drawdown deterministically."
+      },
+      {
+        "title": "Trace a concept across the archive",
+        "command": "seykota timeline \"trend following\" --json --select year,source,title,url",
+        "explanation": "A year-ordered list of every FAQ month, TSP section, and risk passage that mentions trend following — narrowed to the fields an agent needs."
+      },
+      {
+        "title": "Read the TSP system rules offline",
+        "command": "seykota tsp show SR",
+        "explanation": "Prints the support-and-resistance system section of the Trading System Project, with its last-updated date and links, from the local snapshot."
+      }
+    ],
+    "trigger_phrases": [
+      "what did Seykota say about heat",
+      "Seykota position sizing rules",
+      "kelly criterion for my win rate",
+      "compute portfolio heat",
+      "Trading System Project EA crossover rules",
+      "use seykota",
+      "run seykota"
+    ]
+  }
+}

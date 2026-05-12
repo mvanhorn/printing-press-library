@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-12T16:47:26.579006Z",
+  "cli_dir": "/tmp/printing-press/publish/seykota-esBy6Z/package/library/productivity/seykota",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "internal/crawl/parse_test.go",
+      "line": 47,
+      "column": 17,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Test fixture HTML in TestAbsLinksAndResolve: `\u003ca href=\"mailto:user@example.com\"\u003eg\u003c/a\u003e` — a mailto link the AbsLinks parser must drop. Uses the RFC 2606 reserved example.com domain."
+    }
+  ],
+  "findings_count_before": 1
+}
