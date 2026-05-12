@@ -41,6 +41,13 @@
       "summary": "Set c.NoCache = true in today.go and team.go after newClient(). Both commands are described as fetching live cricket data; without NoCache, a call within the 5-min HTTP cache window would return a stale snapshot.",
       "reason": "Same NoCache bug pattern as watch.go and watchlist refresh, just in two more hand-written commands. Greptile flagged today.go directly (P1); team.go has the identical shape and was patched proactively to prevent another review-fix cycle. Mirrors the pattern sync.go already uses.",
       "files": ["internal/cli/today.go", "internal/cli/team.go"]
+    },
+    {
+      "id": "sync-offset-pagination",
+      "summary": "Switch sync from limit/after cursor pagination to offset-based pagination (CricAPI's actual contract). sync was silently delivering only the first ~25 items per resource.",
+      "reason": "determinePaginationDefaults returned cursorParam='after' and limitParam='limit', neither of which CricAPI accepts. extractPaginationFromEnvelope could never find a next_cursor field in CricAPI's {data:[...], info:{...}} envelope, so nextCursor was always '' and the loop exited after one page. Now: pagination defaults to offset semantics, the loop skips the limit param entirely when limitParam is empty, and nextCursor is derived from the running consumed-items count. Greptile P1. Same root cause as the workflow archive pagination patch — both should be fixed upstream in cli-printing-press templates so future CLIs ship correct pagination based on the spec-declared contract.",
+      "files": ["internal/cli/sync.go"],
+      "deferred_to_upstream": ["Generator should respect spec-declared pagination params (offset vs limit/after) when emitting sync.go and workflow archive."]
     }
   ]
 }

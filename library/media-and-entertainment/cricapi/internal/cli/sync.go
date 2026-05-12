@@ -311,12 +311,18 @@ func syncResource(c interface {
 	for {
 		params := map[string]string{}
 
-		// Set page size
-		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+		// PATCH: only send a page-size param if the spec declared one.
+		// CricAPI's contract is offset-only (limitParam is empty).
+		if pageSize.limitParam != "" {
+			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+		}
 
-		// Set cursor for resume
+		// Set cursor for resume (for CricAPI, cursor is the running offset as a string)
 		if cursor != "" {
 			params[pageSize.cursorParam] = cursor
+		} else if pageSize.cursorParam == "offset" {
+			// PATCH: explicit offset=0 on first page so the request is unambiguous.
+			params[pageSize.cursorParam] = "0"
 		}
 
 		// Set since filter
@@ -341,7 +347,22 @@ func syncResource(c interface {
 
 		// Try to extract items from the response.
 		// Strategy: try array first, then common wrapper keys.
-		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
+		items, envelopeCursor, envelopeHasMore := extractPageItems(data, pageSize.cursorParam)
+
+		// PATCH: for offset-based APIs (CricAPI), the envelope has no
+		// next_cursor/after field, so envelopeCursor is always "" and
+		// envelopeHasMore is false. Derive nextCursor from the running
+		// offset (consumedTotal + this page's items) and treat any
+		// page that returned >= pageSize.limit items as "probably more".
+		var nextCursor string
+		var hasMore bool
+		if pageSize.cursorParam == "offset" {
+			nextCursor = strconv.Itoa(consumedTotal + len(items))
+			hasMore = len(items) >= pageSize.limit
+		} else {
+			nextCursor = envelopeCursor
+			hasMore = envelopeHasMore
+		}
 
 		if len(items) == 0 {
 			// Single object response - try to store as-is
@@ -497,11 +518,19 @@ type paginationDefaults struct {
 
 // determinePaginationDefaults returns the pagination parameter names to use.
 // Values are detected from the API spec by the profiler at generation time.
+//
+// PATCH: CricAPI uses offset-based pagination, not cursor-based. The
+// generator emitted limit/after defaults; CricAPI ignores both and
+// always returns its default ~25-item page. Returning offset+25 lets
+// the loop body advance correctly via params["offset"]=<n>. Same root
+// cause as the workflow archive pagination patch — should be fixed
+// upstream in cli-printing-press so the generator respects spec-declared
+// pagination params.
 func determinePaginationDefaults() paginationDefaults {
 	return paginationDefaults{
-		cursorParam: "after",
-		limitParam:  "limit",
-		limit:       100,
+		cursorParam: "offset",
+		limitParam:  "", // empty signals: don't send a limit param (CricAPI ignores it)
+		limit:       25, // CricAPI's actual default page size
 	}
 }
 
