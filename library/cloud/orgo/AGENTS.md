@@ -48,6 +48,17 @@ ORGO_VM_URL=<url> ORGO_VM_TOKEN=<vnc_password> orgo-pp-cli computers click mouse
 
 Non-bypassable commands (workspaces, fleet, etc.) flow through the central API unchanged when `--vm-*` is set, so mixed workloads don't need flag juggling. See `README.md` "VM-Direct Routing" for the response-shape caveat on `screenshot get` (base64 inline vs signed URL).
 
+For DOM-aware web workflows, prefer the `chrome` subcommands over pixel-based `computers click mouse` / `computers screenshot get` loops:
+
+```bash
+# Read the page as a ref-keyed accessibility tree, then act by ref.
+orgo-pp-cli chrome read-page <id> --filter interactive --agent
+orgo-pp-cli chrome click <id> --ref ref_3 --agent
+orgo-pp-cli chrome form-input <id> --ref ref_7 --value "..." --agent
+```
+
+`chrome` calls bottom out on `/computers/{id}/bash`, so they inherit `--vm-from`/`--vm-url`/`--vm-token` transparently. The bridge auto-deploys on first call and survives across invocations until the VM stops or the embedded bridge hash changes. See `README.md` "DOM-Aware Browser Automation" for the full 16-command surface.
+
 For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 
 ## Local Customizations

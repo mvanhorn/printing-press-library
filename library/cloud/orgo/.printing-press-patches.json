@@ -72,6 +72,26 @@
       "upstream_issue": ""
     },
     {
+      "id": "chrome-transcendence-commands",
+      "summary": "Hand-built `chrome` subcommand set (16 commands) plus an embedded in-VM Node bridge: DOM-aware Chrome automation (navigate/read_page/find/click/type/form_input/evaluate/etc.) layered on top of the printed Orgo CLI; auto-registered as MCP tools via the cobra-tree walker.",
+      "reason": "The upstream OpenAPI spec describes the central Orgo REST API, but DOM-aware browser control lives in a per-VM Node bridge (port 7331) speaking a custom JSON protocol with no place in the spec. PP has no template for the 'companion bridge' pattern (embed an artifact, deploy it via the primary API's exec endpoint, proxy through bash + curl). Without this CLI-local layer, the existing `orgo-chrome-mcp` (TypeScript/Node, npm-published) stays a second install with its own server registration. Folding it into orgo-pp-cli collapses the install story to one binary, one MCPB bundle, one `claude mcp add orgo`. Calls bottom out on `/computers/{id}/bash`, so they transparently inherit `--vm-from`/`--vm-url`/`--vm-token` (PR #483). Should generalize as a PP 'companion-bridge template family' for any compute API with an exec endpoint (Kubernetes exec, AWS SSM, E2B/Modal/Daytona) — to be filed as a separate PP feature request.",
+      "files": [
+        "internal/chrome/bridge.go",
+        "internal/chrome/bridge/orgo-chrome-bridge.js",
+        "internal/cli/chrome.go",
+        "internal/cli/chrome_navigation.go",
+        "internal/cli/chrome_read.go",
+        "internal/cli/chrome_interaction.go",
+        "internal/cli/chrome_debug.go",
+        "internal/cli/chrome_window.go",
+        "internal/cli/root.go",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "validated_outcome": "Live-VM end-to-end smoke (all 15 functional tests pass): cold-start navigate auto-deploys the bridge in ~6s; read-page returns refs; find+click navigates; screenshot --out writes a real 107KB 1024x768 PNG; evaluate returns page title; switch-tab succeeds (empty bridge body synthesized to {success:true,transport:'empty_body'}); type and form-input both verified against Google search. MCP listing returns 16 chrome_* tools (total surface 65). End-to-end MCP invocation of chrome_evaluate via stdio JSON-RPC returns the page title. VM-direct A/B: central avg 1.23s vs VM-direct steady-state 0.48s (61% reduction).",
+      "upstream_issue": "TO-FILE: cli-printing-press companion-bridge template family (embed asset + deploy shim + bridge OpenAPI -> generated proxy CLI surface, generalizable to Kubernetes/AWS SSM/E2B/Modal/Daytona)"
+    },
+    {
       "id": "cache-key-auth-fingerprint",
       "summary": "Response cache key now includes a hash of the configured auth header and sorts params before hashing, so different API keys can't share cache buckets and map iteration order can't perturb the key.",
       "reason": "Generic PP bug. The cache key was sha256(path + map-iterated params) and ignored credentials entirely. Effect: a `--data-source live` (or default) call with an invalid key served the cached response from a previous valid-key call, leaking data and masking 401s as exit 0. Also: map iteration order is non-deterministic in Go, so identical requests with multiple params could land on different cache files run-to-run, defeating the cache.",

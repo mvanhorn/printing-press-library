@@ -218,6 +218,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPruneCmd(flags))
 	rootCmd.AddCommand(newCostCmd(flags))
 	rootCmd.AddCommand(newFleetCmd(flags))
+	rootCmd.AddCommand(newChromeCmd(flags))
 
 	return rootCmd
 }
