@@ -23,6 +23,16 @@ import (
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
+// PATCH(greptile P1 sec): strict identifier check for any string that must be
+// interpolated into SQL where parameter binding is impossible (table names,
+// JSON path keys). SQLite supports neither. Anything outside [A-Za-z0-9_] is
+// rejected by callers before it reaches a query string.
+var safeSQLIdent = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
+
+func isSafeSQLIdent(s string) bool {
+	return s != "" && safeSQLIdent.MatchString(s)
+}
+
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
@@ -732,9 +742,20 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	// PATCH(greptile P1 sec): only attempt the domain-table path when
+	// resourceType is a plain identifier. SQLite cannot bind table names, so
+	// untrusted resourceType values must be validated before interpolation,
+	// otherwise a crafted value like `resources; DROP TABLE resources; --`
+	// could execute arbitrary SQL. Unsafe identifiers fall straight through
+	// to the parameterized generic-table query below.
+	var rows *sql.Rows
+	var err error
+	if isSafeSQLIdent(resourceType) {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	} else {
+		err = fmt.Errorf("unsafe resource type identifier")
+	}
 	if err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
@@ -819,6 +840,13 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// PATCH(greptile P1 sec): SQLite cannot bind JSON path keys, so the
+		// field name is interpolated into the query string. Skip any caller-
+		// supplied field that isn't a plain identifier rather than risk
+		// arbitrary SQL execution via a crafted match-field name.
+		if !isSafeSQLIdent(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
