@@ -84,10 +84,15 @@ type homesFlags struct {
 	limit      int
 	all        bool
 	sort       string
+	// PATCH(upstream printing-press-library#482): --sold-window + --sf for Stingray sf-param control
 	soldWindow string
 	sf         string
 }
 
+// PATCH(upstream printing-press-library#482): new helper — Stingray's "Invalid
+// arguments (code 101)" rejection of the prior hard-coded sf=1,3,5,7,9 default
+// is fixed by mapping --sold-window through this function.
+//
 // soldFlagsFor maps a CLI-facing --sold-window value to a Stingray
 // "sf" parameter string. Stingray rejects ad-hoc multi-code unions
 // with `Invalid arguments` (resultCode 101) — see issue #482 — so each
@@ -170,10 +175,12 @@ func optsFromFlags(hf *homesFlags) (redfin.SearchOptions, error) {
 	}
 	soldFlags := ""
 	if statusCode == 7 {
+		// PATCH(upstream printing-press-library#482): replaced hard-coded
+		// "1,3,5,7,9" (Stingray-rejected) with --sf-or-window resolution.
 		// Pick the Stingray sf parameter for the requested sold window.
 		// --sf <raw> wins (escape hatch for power users); else
 		// --sold-window <name> maps to a known-valid code; else default
-		// to the website's 3y combo (1,2,3,5,6,7). Issue #482.
+		// to the website's 3y combo (1,2,3,5,6,7).
 		switch {
 		case hf.sf != "":
 			soldFlags = hf.sf
@@ -336,6 +343,7 @@ stripped automatically before parsing.`,
 	cmd.Flags().IntVar(&hf.limit, "limit", 50, "Listings per page (max 350)")
 	cmd.Flags().BoolVar(&hf.all, "all", false, "Auto-paginate up to 5 pages")
 	cmd.Flags().StringVar(&hf.sort, "sort", "", "Sort: score-desc, price-asc, price-desc, days-on-redfin-asc")
+	// PATCH(upstream printing-press-library#482): expose Stingray sf-param control.
 	cmd.Flags().StringVar(&hf.soldWindow, "sold-window", "", "Sold-status time window: 1mo|3mo|6mo|1y|2y|3y (default: 3y). Ignored unless --status=sold.")
 	cmd.Flags().StringVar(&hf.sf, "sf", "", "Raw Stingray 'sf' parameter (escape hatch; overrides --sold-window). Ignored unless --status=sold.")
 	return cmd

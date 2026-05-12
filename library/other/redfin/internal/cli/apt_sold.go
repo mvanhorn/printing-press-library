@@ -65,6 +65,7 @@ its value through verbatim — useful when Stingray adds new codes.`,
 	cmd.Flags().IntVar(&hf.page, "page", 1, "1-indexed page number")
 	cmd.Flags().IntVar(&hf.limit, "limit", 50, "Listings per page (max 350)")
 	cmd.Flags().BoolVar(&hf.all, "all", false, "Auto-paginate up to 5 pages")
+	// PATCH(upstream printing-press-library#482): expose Stingray sf-param control on the sold command (parallel to homes).
 	cmd.Flags().StringVar(&hf.soldWindow, "sold-window", "", "Sold-status time window: 1mo|3mo|6mo|1y|2y|3y (default: 3y, Redfin's 'include sold past 3 years' combo)")
 	cmd.Flags().StringVar(&hf.sf, "sf", "", "Raw Stingray 'sf' parameter (escape hatch; overrides --sold-window)")
 	return cmd
