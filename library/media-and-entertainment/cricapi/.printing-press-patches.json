@@ -28,6 +28,13 @@
       "summary": "Set c.NoCache = true in watchlist refresh after newClient(), so 'fetch latest info' actually fetches live data instead of returning the 5-min cached snapshot.",
       "reason": "The command's stated purpose is to refresh series info, but without NoCache it silently returned cached data within the 5-min HTTP cache window. Same fix as watch.go and sync.go. Greptile P1.",
       "files": ["internal/cli/watchlist.go"]
+    },
+    {
+      "id": "workflow-archive-offset-pagination",
+      "summary": "Switch workflow archive from limit/after pagination (which CricAPI ignores) to offset-based pagination (CricAPI's actual contract). Archive was silently delivering only the first page of every resource.",
+      "reason": "The generator-emitted workflow archive sent params['limit']='100' and params['after']=<last_id>, neither of which CricAPI accepts — the API always returned its default page (~25 items), `len(items) < 100` was immediately true, and the loop exited after one iteration. The fix mirrors sync.go's offset incrementing. Greptile P1. Same root cause as the SQL injection: generator-template assumes a different pagination contract; should also be fixed upstream so future CLIs ship correctly.",
+      "files": ["internal/cli/channel_workflow.go"],
+      "deferred_to_upstream": ["Generator should respect spec-declared pagination params (offset vs limit/after) when emitting workflow archive."]
     }
   ]
 }

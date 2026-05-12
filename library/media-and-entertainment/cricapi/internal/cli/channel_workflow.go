@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/cricapi/internal/store"
@@ -69,9 +70,16 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
 
-				params := map[string]string{"limit": "100"}
+				// PATCH: CricAPI's pagination contract is `offset=<n>`, not `limit`/`after`.
+				// The generator-emitted defaults (`limit=100`, `after=<last-id>`) are
+				// silently ignored by CricAPI — the API always responded with its default
+				// page (~25 items), `len(items) < 100` was immediately true, and the loop
+				// exited after one iteration. workflow archive was effectively delivering
+				// only the first page of each resource. Generator-template bug; should
+				// also be fixed upstream so future CLIs ship correct pagination.
+				params := map[string]string{"offset": "0"}
 				if cursor != "" {
-					params["after"] = cursor
+					params["offset"] = cursor
 				}
 
 				count := 0
@@ -103,13 +111,11 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						if err := s.Upsert(resource, id, item); err != nil {
 							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s/%s: %v\n", resource, id, err)
 						}
-						cursor = id
 						count++
 					}
-					if len(items) < 100 {
-						break
-					}
-					params["after"] = cursor
+					// Advance by the running offset; persist that offset as the resume cursor.
+					cursor = strconv.Itoa(count)
+					params["offset"] = cursor
 				}
 
 				if count > 0 {
