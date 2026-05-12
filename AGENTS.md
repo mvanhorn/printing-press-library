@@ -88,17 +88,17 @@ The `verify-library-conventions.yml` workflow runs `verify_publish_package.py` o
 
 Every PR against this repo gets an automated review from **Greptile** alongside the verify-* workflows. Greptile posts a top-level summary comment with a **confidence score on a 0-5 scale** (5 = "Production ready", 4 = "Minor polish needed", 3 = "Implementation issues", 2 = "Significant bugs", 0-1 = "Critical problems"), plus inline comments tagged with **P0 / P1 / P2** severity (P0 = must fix before merge, P1 = should fix, P2 = consider fixing) and categorized as Logic / Syntax / Style. Status is shown via 👀 (analyzing) → 👍 (done) or 😕 (failed); Greptile does NOT use GitHub's approve / request-changes flow.
 
-**The bar is 5/5 with zero unresolved comments before merge.** A 4/5 with open P1s is not ready. The score is a triage signal — a high score doesn't mean "merge blindly", it means "no obvious problems found, focus human review where it matters." Treat every P0 and P1 as blocking; P2s require either a fix or a concrete reply explaining why we're deferring.
+**The bar is resolving every Greptile finding before merge** — the 0-5 score is a confidence signal, not a guarantee, so don't treat the number itself as the gate. 4/5 and 5/5 are both acceptable end states; the score will land in that range naturally once threads are addressed. A 5/5 with open P1s is still not ready; a 4/5 with everything resolved is. Treat every P0 and P1 as blocking; P2s require either a fix or a concrete reply explaining why we're deferring.
 
-If you (an agent) opened the PR, you own driving it to 5/5:
+If you (an agent) opened the PR, you own driving it to ready-to-merge:
 
 1. **Watch for the review.** Greptile posts within a few minutes of PR open or push. Read findings with `gh pr view <PR> --comments`; check the summary comment for the score and the inline threads for P0/P1/P2 tags.
 2. **Address every finding in code or in a reply.** Push fixes when a finding is valid. When you genuinely believe a finding is wrong or out of scope, reply with a concrete reason (not "won't fix" — explain *why* the code is right as written, or *why* the deferral is justified) and ask the thread to be resolved.
 3. **Re-trigger after pushes.** Greptile re-reviews automatically on push. A stuck review can be re-run via the "Re-trigger Greptile" button in the summary comment footer.
-4. **Don't merge with unresolved Greptile threads or a sub-5 score.** If a finding looks like a genuine false positive that won't drop, escalate to a human reviewer on the thread before merging.
+4. **Don't merge with unresolved Greptile threads.** If a thread won't resolve because a finding looks like a genuine false positive, escalate to a human reviewer on the thread before merging. A high score is not a substitute for closing the thread.
 5. **Greptile is configured by `greptile.json` at the repo root.** That config encodes repo-specific rules — manuscript-content judgment for new CLIs, reprint classification, PR title / branch / body shape. Don't disable rules to silence a finding; the rule exists because something burned us. If you believe a rule is mis-firing across the board, file a separate PR amending `greptile.json` with reasoning.
 
-The same expectation applies to non-CLI PRs (CI fixes, bug fixes, doc edits, sweep-canonical runs): drive to 5/5 with no open comments before merge. The strictness is uniform; the rule-set Greptile applies varies with what you touched.
+The same expectation applies to non-CLI PRs (CI fixes, bug fixes, doc edits, sweep-canonical runs): resolve every comment before merge. The strictness is uniform; the rule-set Greptile applies varies with what you touched.
 
 ## Repository layout
 
