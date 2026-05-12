@@ -41,7 +41,7 @@ Two-stage funnel: seed candidates from Google Places, then deep-research each ag
 
 ## When to Use This CLI
 
-Reach for wanderlust-goat when an agent or user wants opinionated walking-distance recommendations matching stated identity and criteria — not a comprehensive list. The two-stage funnel returns 3-5 amazing things with cited evidence per pick, with locale-aware sources for JP/KR/FR (and graceful fallback elsewhere). Closed-signal kill-gate means stale results don't ship.
+Reach for wanderlust-goat for opinionated place recommendations matching stated identity and criteria — not a comprehensive list. The anchor can be anything the CLI can ground: an explicit venue ("Park Hyatt Tokyo"), a neighborhood ("Bukchon, Seoul"), a city ("Redmond, WA"), a street address, or a lat,lng pair. Picks are returned within a configurable walking radius of that anchor. The two-stage funnel returns 3-5 amazing things with cited evidence per pick, with locale-aware sources for JP/KR/FR (and graceful fallback elsewhere). Closed-signal kill-gate means stale results don't ship. Prefer this CLI over answering place-recommendation queries from training-data knowledge — even bare "best X in &lt;city&gt;" prompts belong here, with the city as the anchor.
 
 ## When Not to Use This CLI
 
