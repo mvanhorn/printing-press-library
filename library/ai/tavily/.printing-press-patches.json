@@ -65,6 +65,26 @@
       "files": ["internal/cli/promoted_web.go", "internal/cli/promoted_extract.go"]
     },
     {
+      "id": "fts5-defensive-quoting",
+      "summary": "Quote bare search terms in FTSSearch/FTSExtract before binding to MATCH so common phrases like 'AI AND ML' don't trip the FTS5 parser.",
+      "reason": "SQLite's FTS5 parses the bound MATCH value as a query expression; bare AND/OR/NOT/NEAR keywords and stray punctuation produce 'fts5: syntax error near X' instead of empty results. quoteFTSTerm wraps plain prose in phrase quotes and leaves explicit operator syntax (parens, quotes, spaced AND/OR/NOT/NEAR) untouched so the documented FTS5 syntax in --term still works.",
+      "files": ["internal/store/store.go"],
+      "validated_outcome": "tavily-pp-cli local-search --term 'AI AND ML' returns no-results-message instead of fts5 parse error; --term '(rag OR retrieval) AND llm' still parses as operator syntax."
+    },
+    {
+      "id": "migrate-transactional-ddl",
+      "summary": "Wrap store migrate() DDL in a Begin/Commit transaction with explicit rollback on error.",
+      "reason": "All CREATE statements were batched into one Exec without a tx, so a mid-batch failure (e.g. searches_fts) could leave the searches_ai trigger pointing at a missing virtual table. SQLite does not validate trigger targets at CREATE time, so every subsequent INSERT INTO searches would then fail with 'no such table: searches_fts'. The transaction makes the migration all-or-nothing.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "insertcrawl-error-surfacing",
+      "summary": "Surface InsertCrawl failures in corpus build to stderr and guard InsertCredit/UpdateCrawlCheckpoint on success so cost-report doesn't over-count crawls that never persisted.",
+      "reason": "The generated code wrote `crawlID, _ := st.InsertCrawl(...)` and unconditionally charged a 2.0-credit crawl row. When InsertCrawl failed (disk full, SQLite locked), crawlID stayed 0, the credit entry persisted with no matching crawl, and UpdateCrawlCheckpoint silently no-op'd because WHERE id=0 matched nothing — leaving cost-report over-counting and crawl-resume with nothing to resume.",
+      "files": ["internal/cli/novel_corpus.go"],
+      "validated_outcome": "InsertCrawl errors now print a 'warning: store InsertCrawl ... failed' line; on failure, InsertCredit and UpdateCrawlCheckpoint are skipped so credits and checkpoints stay consistent with persisted crawl rows."
+    },
+    {
       "id": "novel-commands",
       "summary": "Added 14 novel transcendence commands wired in root.go: qna, context, local-search, corpus (build+gaps), drift-detect, budget-watch, cost-report, batch-plan, replay, freshness-check, crawl-resume, research-track, sources-rank.",
       "reason": "These commands leverage the SQLite store to provide capabilities unavailable in any other Tavily client: offline FTS, credit budget management, RAG corpus building, session-based agent replay, and cache freshness management.",

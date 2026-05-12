@@ -15,6 +15,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -112,8 +113,19 @@ func (s *DB) Close() error {
 	return s.db.Close()
 }
 
+// migrate runs the DDL that brings a fresh database up to the current
+// schema. The statements must apply atomically: SQLite's CREATE TRIGGER
+// does not validate the target table at creation time, so a half-applied
+// migration can leave a searches_ai trigger pointing at a missing
+// searches_fts virtual table, which then fails every subsequent
+// INSERT INTO searches with 'no such table: searches_fts'.
+// PATCH: wrap DDL in a transaction so partial migrations roll back.
 func (s *DB) migrate() error {
-	_, err := s.db.Exec(`
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("begin migration tx: %w", err)
+	}
+	if _, err := tx.Exec(`
 		CREATE TABLE IF NOT EXISTS searches (
 			id         INTEGER PRIMARY KEY AUTOINCREMENT,
 			query      TEXT NOT NULL,
@@ -199,8 +211,14 @@ func (s *DB) migrate() error {
 		CREATE INDEX IF NOT EXISTS idx_credits_endpoint ON credits(endpoint);
 		CREATE INDEX IF NOT EXISTS idx_credits_session  ON credits(session);
 		CREATE INDEX IF NOT EXISTS idx_credits_ts       ON credits(created_at);
-	`)
-	return err
+	`); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("apply migration: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit migration: %w", err)
+	}
+	return nil
 }
 
 // --- Search ---
@@ -233,6 +251,26 @@ func (s *DB) SearchesByQuery(query string, limit int) ([]SearchRow, error) {
 	return scanSearchRows(rows)
 }
 
+// quoteFTSTerm makes a user-supplied search term safe to bind to an FTS5
+// MATCH clause. SQLite's FTS5 engine parses the bound value as a query
+// expression, so bare keywords (AND/OR/NOT/NEAR) or stray punctuation cause
+// hard parse errors. We wrap the term in FTS5 phrase quotes when it looks
+// like plain prose, and leave it alone when the caller has explicitly
+// opted into operator syntax (parens, quotes, or an uppercase operator
+// surrounded by spaces).
+// PATCH: defensive FTS5 quoting so common phrases like "AI AND ML" don't
+// raise 'fts5: syntax error near AND' before reaching the matcher.
+func quoteFTSTerm(term string) string {
+	if strings.ContainsAny(term, `"()`) ||
+		strings.Contains(term, " AND ") ||
+		strings.Contains(term, " OR ") ||
+		strings.Contains(term, " NOT ") ||
+		strings.Contains(term, " NEAR ") {
+		return term
+	}
+	return `"` + strings.ReplaceAll(term, `"`, `""`) + `"`
+}
+
 // FTSSearch runs full-text search over all stored search queries and responses.
 func (s *DB) FTSSearch(term string, limit int) ([]SearchRow, error) {
 	if limit <= 0 {
@@ -245,7 +283,7 @@ func (s *DB) FTSSearch(term string, limit int) ([]SearchRow, error) {
 		 WHERE searches_fts MATCH ?
 		 ORDER BY rank
 		 LIMIT ?`,
-		term, limit,
+		quoteFTSTerm(term), limit,
 	)
 	if err != nil {
 		return nil, err
@@ -266,7 +304,7 @@ func (s *DB) FTSExtract(term string, limit int) ([]ExtractRow, error) {
 		 WHERE extracts_fts MATCH ?
 		 ORDER BY rank
 		 LIMIT ?`,
-		term, limit,
+		quoteFTSTerm(term), limit,
 	)
 	if err != nil {
 		return nil, err

@@ -154,8 +154,18 @@ Pass multiple --query flags or a file of queries (one per line) with --query-fil
 								continue
 							}
 							paramsJSON, _ := json.Marshal(crawlBody)
-							crawlID, _ := st.InsertCrawl(r.URL, string(paramsJSON), session)
-							st.InsertCredit("crawl", 2.0, session)
+							// PATCH: surface InsertCrawl failures and skip
+							// the matching InsertCredit / UpdateCrawlCheckpoint
+							// so cost-report doesn't over-count crawls that
+							// have no row to resume from.
+							crawlID, cierr := st.InsertCrawl(r.URL, string(paramsJSON), session)
+							if cierr != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "warning: store InsertCrawl %q failed: %v\n", r.URL, cierr)
+							} else {
+								if cerr := st.InsertCredit("crawl", 2.0, session); cerr != nil {
+									fmt.Fprintf(cmd.ErrOrStderr(), "warning: store InsertCredit crawl failed: %v\n", cerr)
+								}
+							}
 
 							var cresp struct {
 								Results []struct {
@@ -179,7 +189,11 @@ Pass multiple --query flags or a file of queries (one per line) with --query-fil
 									})
 								}
 							}
-							st.UpdateCrawlCheckpoint(crawlID, len(cresp.Results), "{}", "complete")
+							if cierr == nil {
+								if uerr := st.UpdateCrawlCheckpoint(crawlID, len(cresp.Results), "{}", "complete"); uerr != nil {
+									fmt.Fprintf(cmd.ErrOrStderr(), "warning: store UpdateCrawlCheckpoint id=%d failed: %v\n", crawlID, uerr)
+								}
+							}
 						}
 					}
 				} else {
