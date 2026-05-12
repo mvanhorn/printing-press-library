@@ -39,6 +39,11 @@ The hydration is idempotent: re-running replaces every row.`,
 			if err != nil {
 				return err
 			}
+			// PATCH(encrypted-cache): Granola desktop moved documents
+			// out of cache-v6.json into the API around May 2026. Hydrate
+			// from /v2/get-documents so SyncFromCache's meeting upsert
+			// loop has something to iterate.
+			docsFetched, hydrateErr := granola.HydrateDocumentsFromAPI(c, nil)
 			s, err := openGranolaStore(cmd.Context())
 			if err != nil {
 				return err
@@ -62,9 +67,20 @@ The hydration is idempotent: re-running replaces every row.`,
 				"workspaces":          res.Workspaces,
 				"chat_threads":        res.ChatThreads,
 				"chat_messages":       res.ChatMessages,
+				"documents_fetched":   docsFetched,
+			}
+			if hydrateErr != nil {
+				summary["documents_fetch_error"] = hydrateErr.Error()
 			}
 			b, _ := json.Marshal(summary)
 			fmt.Fprintln(cmd.OutOrStdout(), string(b))
+			// Surface the hydrate error as a non-fatal warning to stderr
+			// so the user sees it but the sync still reports what it
+			// successfully synced from the cache (transcripts, folders,
+			// recipes, panels, chats).
+			if hydrateErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: documents API hydrate failed: %v\n", hydrateErr)
+			}
 			return nil
 		},
 	}

@@ -19,9 +19,16 @@ import (
 
 // openGranolaCache loads the local cache file. Returns a typed error if
 // the file is missing so commands can surface a helpful message.
+//
+// PATCH(encrypted-cache): pass an empty path to LoadCache so the resolver
+// picks the encrypted sibling (cache-v6.json.enc) when it exists. The
+// previous version pinned to DefaultCachePath() which is the plaintext
+// path - on modern Granola installs the plaintext copy is a stale stub
+// and the real data lives only in the .enc file. ResolveCachePath()
+// returns the path used so the error message stays informative.
 func openGranolaCache() (*granola.Cache, error) {
-	path := granola.DefaultCachePath()
-	c, err := granola.LoadCache(path)
+	path, _ := granola.ResolveCachePath()
+	c, err := granola.LoadCache("")
 	if err != nil {
 		return nil, fmt.Errorf("loading Granola cache at %s: %w", path, err)
 	}
