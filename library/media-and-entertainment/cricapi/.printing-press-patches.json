@@ -85,6 +85,14 @@
       "files": [
         "internal/cli/team.go"
       ]
+    },
+    {
+      "id": "workflow-archive-envelope-extraction",
+      "summary": "Unwrap CricAPI's {data:[...], info:{...}} envelope in workflow archive before deciding if a response is a singleton.",
+      "reason": "After the earlier pagination fix, the inner unmarshal still tried to decode the raw response directly as []json.RawMessage. CricAPI always wraps list responses in an envelope, so this unmarshal always failed and the code fell through to the singleton branch \u2014 every resource ended up with one row containing the raw envelope blob. Mirrors the unwrap pattern in sync.go's extractPageItems. Greptile P1. Also guards the singleton branch behind count==0 so a paginated tail-page doesn't insert a bogus singleton.",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ]
     }
   ]
 }

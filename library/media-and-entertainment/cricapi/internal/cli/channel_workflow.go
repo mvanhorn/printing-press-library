@@ -89,16 +89,28 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
 					}
+					// PATCH: CricAPI wraps list responses as {"data":[...], "info":{...}},
+					// not bare arrays. Direct unmarshal into []json.RawMessage always
+					// failed and we fell through to the singleton branch — every
+					// resource ended up with one row containing the raw envelope blob.
+					// Unwrap the envelope before deciding whether this is a singleton.
 					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
-						// Might be a single object, not array
-						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
+					if json.Unmarshal(data, &items) != nil {
+						var env struct {
+							Data []json.RawMessage `json:"data"`
 						}
-						count++
-						break
+						if json.Unmarshal(data, &env) == nil && len(env.Data) > 0 {
+							items = env.Data
+						}
 					}
 					if len(items) == 0 {
+						// Genuine singleton response only on the first page.
+						if count == 0 {
+							if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
+							}
+							count++
+						}
 						break
 					}
 					for _, item := range items {
