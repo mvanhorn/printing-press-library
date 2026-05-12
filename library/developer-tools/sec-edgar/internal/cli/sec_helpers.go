@@ -119,6 +119,45 @@ type clientLike interface {
 	Get(path string, params map[string]string) (json.RawMessage, error)
 }
 
+// PATCH(greptile P1): efTSMaxFetch caps how many EFTS hits we will ever fetch
+// for a single command. EFTS itself caps deep pagination, so this is also a
+// practical ceiling. Shared by insider-cluster, restatements, and late-filers.
+const efTSMaxFetch = 1000
+
+// PATCH(greptile P1): fetchAllEFTSHits pages through EFTS for `q` (mutating
+// `q.From` per page) up to efTSMaxFetch hits and returns the full hit set
+// plus the server-reported total available. `truncated` is true when the
+// total exceeds what we fetched — callers MUST surface a warning so missing
+// rows aren't silently dropped. Replaces three separate copies of the same
+// pagination loop that previously sat in restatements / late-filers (which
+// did NOT paginate at all and silently returned ≤10 hits) and insider-cluster
+// (which did paginate but had its own inlined copy).
+func fetchAllEFTSHits(c clientLike, q EFTSQuery) (hits []EFTSHit, totalAvailable int, truncated bool, err error) {
+	from := 0
+	for from < efTSMaxFetch {
+		q.From = from
+		var resp EFTSResponse
+		if err = fetchSECJSON(c, q.URL(), &resp); err != nil {
+			return nil, 0, false, err
+		}
+		totalAvailable = resp.Hits.Total.Value
+		batch := resp.Flatten()
+		if len(batch) == 0 {
+			break
+		}
+		hits = append(hits, batch...)
+		if len(batch) < 10 {
+			break
+		}
+		from += len(batch)
+		if from >= totalAvailable {
+			break
+		}
+	}
+	truncated = totalAvailable > len(hits)
+	return hits, totalAvailable, truncated, nil
+}
+
 // efts URL builder. Returns an absolute https URL pointing at
 // efts.sec.gov/LATEST/search-index with the provided EFTS query parameters.
 type EFTSQuery struct {

@@ -269,43 +269,21 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 			if windowDays < 1 {
 				windowDays = 1
 			}
-			// Page through EFTS for form=4 in the window. EFTS caps deep
-			// pagination, so we stop at efTSMaxFetch and surface truncation
-			// via meta + stderr rather than silently dropping filings.
-			const efTSMaxFetch = 1000
-			hits := []EFTSHit{}
-			from := 0
-			totalAvailable := 0
-			for from < efTSMaxFetch {
-				q := EFTSQuery{
-					Forms: []string{"4"},
-					Start: sinceTime.Format("2006-01-02"),
-					End:   now.Format("2006-01-02"),
-					From:  from,
-				}
-				var resp EFTSResponse
-				if err := fetchSECJSON(c, q.URL(), &resp); err != nil {
-					return classifyAPIError(err, flags)
-				}
-				totalAvailable = resp.Hits.Total.Value
-				batch := resp.Flatten()
-				if len(batch) == 0 {
-					break
-				}
-				hits = append(hits, batch...)
-				if len(batch) < 10 {
-					break
-				}
-				from += len(batch)
-				if from >= totalAvailable {
-					break
-				}
+			// PATCH(greptile P1): delegate paginated EFTS fetch to the shared
+			// fetchAllEFTSHits helper. Behavior preserved: same efTSMaxFetch
+			// cap, same stderr truncation warning. Previously fixed inline.
+			hits, totalAvailable, truncated, err := fetchAllEFTSHits(c, EFTSQuery{
+				Forms: []string{"4"},
+				Start: sinceTime.Format("2006-01-02"),
+				End:   now.Format("2006-01-02"),
+			})
+			if err != nil {
+				return classifyAPIError(err, flags)
 			}
-			truncated := totalAvailable > from
 			if truncated {
 				fmt.Fprintf(cmd.ErrOrStderr(),
 					"warning: insider-cluster fetched %d of %d available Form 4 filings in --since=%s; clustering may omit issuers. Narrow --since to reduce truncation.\n",
-					from, totalAvailable, since)
+					len(hits), totalAvailable, since)
 			}
 			// Group filings by issuer. EFTS Form 4 returns one row per filing
 			// with `ciks` listing every CIK on the filing (issuer + every
@@ -982,34 +960,40 @@ func newRestatementsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
-			// Two EFTS queries: (1) amendment forms; (2) 8-K with item 4.02.
+			// PATCH(greptile P1): page through each EFTS query rather than
+			// reading a single un-paginated response (which silently capped
+			// each form type at the EFTS default of 10 hits). Truncation is
+			// surfaced once at the end via stderr.
 			rows := []map[string]any{}
 			amendForms := []string{"10-K/A", "10-Q/A", "20-F/A"}
+			truncatedForms := []string{}
 			for _, form := range amendForms {
-				q := EFTSQuery{
+				fetched, total, truncated, err := fetchAllEFTSHits(c, EFTSQuery{
 					Forms: []string{form},
 					Start: sinceTime.Format("2006-01-02"),
 					End:   now.Format("2006-01-02"),
-				}
-				var resp EFTSResponse
-				if err := fetchSECJSON(c, q.URL(), &resp); err != nil {
+				})
+				if err != nil {
 					return classifyAPIError(err, flags)
 				}
-				for _, h := range resp.Flatten() {
+				for _, h := range fetched {
 					rows = append(rows, hitToRow(h, "amendment"))
 				}
+				if truncated {
+					truncatedForms = append(truncatedForms,
+						fmt.Sprintf("%s (%d of %d)", form, len(fetched), total))
+				}
 			}
-			q := EFTSQuery{
+			eightK, eightKTotal, eightKTruncated, err := fetchAllEFTSHits(c, EFTSQuery{
 				Q:     `"non-reliance"`,
 				Forms: []string{"8-K"},
 				Start: sinceTime.Format("2006-01-02"),
 				End:   now.Format("2006-01-02"),
-			}
-			var resp EFTSResponse
-			if err := fetchSECJSON(c, q.URL(), &resp); err != nil {
+			})
+			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			for _, h := range resp.Flatten() {
+			for _, h := range eightK {
 				// Confirm it carries Item 4.02 if items are populated.
 				ok := false
 				if len(h.Items) == 0 {
@@ -1025,6 +1009,15 @@ func newRestatementsCmd(flags *rootFlags) *cobra.Command {
 				if ok {
 					rows = append(rows, hitToRow(h, "8-K item 4.02"))
 				}
+			}
+			if eightKTruncated {
+				truncatedForms = append(truncatedForms,
+					fmt.Sprintf("8-K non-reliance (%d of %d)", len(eightK), eightKTotal))
+			}
+			if len(truncatedForms) > 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: restatements truncated EFTS results for [%s] in --since=%s; results may omit filings. Narrow --since to reduce truncation.\n",
+					strings.Join(truncatedForms, ", "), since)
 			}
 			sort.SliceStable(rows, func(i, j int) bool {
 				di, _ := rows[i]["file_date"].(string)
@@ -1102,18 +1095,25 @@ func newLateFilersCmd(flags *rootFlags) *cobra.Command {
 			for _, w := range wanted {
 				ntForms = append(ntForms, "NT "+strings.ToUpper(w))
 			}
-			q := EFTSQuery{
+			// PATCH(greptile P1): page through EFTS rather than reading a
+			// single un-paginated response (which silently capped at the
+			// EFTS default of 10 hits regardless of window).
+			fetched, totalAvailable, truncated, err := fetchAllEFTSHits(c, EFTSQuery{
 				Forms: ntForms,
 				Start: sinceTime.Format("2006-01-02"),
 				End:   now.Format("2006-01-02"),
-			}
-			var resp EFTSResponse
-			if err := fetchSECJSON(c, q.URL(), &resp); err != nil {
+			})
+			if err != nil {
 				return classifyAPIError(err, flags)
 			}
 			rows := []map[string]any{}
-			for _, h := range resp.Flatten() {
+			for _, h := range fetched {
 				rows = append(rows, hitToRow(h, "late_filing_notice"))
+			}
+			if truncated {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: late-filers fetched %d of %d available NT filings in --since=%s; results may omit filings. Narrow --since to reduce truncation.\n",
+					len(fetched), totalAvailable, since)
 			}
 			sort.SliceStable(rows, func(i, j int) bool {
 				di, _ := rows[i]["file_date"].(string)
@@ -1234,6 +1234,12 @@ func newHoldingsDeltaCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// PATCH(greptile P1): scan `Filings.Recent` first (covers the most recent
+// ~400 filings), then fall through to older `Filings.Files` pages when the
+// requested period falls outside Recent. Previously this only searched
+// Recent, so any quarter older than the active filer's recency window
+// silently returned "no 13F-HR filing found" with no indication that the
+// real cause was an unfetched history page rather than a true absence.
 func find13FAccession(c clientLike, cik, period string) (string, error) {
 	p, err := fetchSubmissions(c, cik)
 	if err != nil {
@@ -1243,7 +1249,28 @@ func find13FAccession(c clientLike, cik, period string) (string, error) {
 	if wantDate.start.IsZero() {
 		return "", fmt.Errorf("unrecognized period %q (expected YYYYQN, e.g. 2024Q4)", period)
 	}
-	r := p.Filings.Recent
+	if acc := scan13FAccession(&p.Filings.Recent, wantDate); acc != "" {
+		return acc, nil
+	}
+	for _, ref := range p.Filings.Files {
+		// Each older page advertises the date range it covers. Skip pages
+		// whose [FilingFrom, FilingTo] cannot overlap our target quarter so
+		// large filers don't pay the cost of fetching every page.
+		if !filingsPageOverlaps(ref, wantDate) {
+			continue
+		}
+		page, err := fetchSubmissionPage(c, ref.Name)
+		if err != nil {
+			return "", fmt.Errorf("fetching submissions page %s: %w", ref.Name, err)
+		}
+		if acc := scan13FAccession(page, wantDate); acc != "" {
+			return acc, nil
+		}
+	}
+	return "", fmt.Errorf("no 13F-HR filing found for CIK %s in period %s", cik, period)
+}
+
+func scan13FAccession(r *submissionRecent, wantDate periodRange) string {
 	for i := range r.AccessionNumber {
 		form := strings.ToUpper(r.Form[i])
 		if form != "13F-HR" && form != "13F-HR/A" {
@@ -1257,9 +1284,22 @@ func find13FAccession(c clientLike, cik, period string) (string, error) {
 		if t.Before(wantDate.start) || t.After(wantDate.end) {
 			continue
 		}
-		return r.AccessionNumber[i], nil
+		return r.AccessionNumber[i]
 	}
-	return "", fmt.Errorf("no 13F-HR filing found for CIK %s in period %s", cik, period)
+	return ""
+}
+
+// filingsPageOverlaps reports whether an older-submissions page's date
+// range [FilingFrom, FilingTo] could plausibly contain a filing in
+// wantDate. Pages with unparseable ranges are conservatively assumed to
+// overlap so we never silently skip a candidate.
+func filingsPageOverlaps(ref submissionFilesRef, wantDate periodRange) bool {
+	from, fromErr := time.Parse("2006-01-02", ref.FilingFrom)
+	to, toErr := time.Parse("2006-01-02", ref.FilingTo)
+	if fromErr != nil || toErr != nil {
+		return true
+	}
+	return !to.Before(wantDate.start) && !from.After(wantDate.end)
 }
 
 type periodRange struct {

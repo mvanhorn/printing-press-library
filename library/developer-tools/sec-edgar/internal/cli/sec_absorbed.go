@@ -149,6 +149,19 @@ type submissionRecent struct {
 	IsXBRL          []int    `json:"isXBRL"`
 }
 
+// PATCH(greptile P1): submissionFilesRef points at an older page of this
+// CIK's filing history. SEC submissions JSON puts the most recent ~400
+// filings inline under filings.recent; everything older sits in a list of
+// page refs under filings.files. Each ref includes the date range it
+// covers, so callers that only need certain periods can skip pages they
+// know are out of range.
+type submissionFilesRef struct {
+	Name        string `json:"name"`
+	FilingCount int    `json:"filingCount"`
+	FilingFrom  string `json:"filingFrom"`
+	FilingTo    string `json:"filingTo"`
+}
+
 type submissionPayload struct {
 	CIK     string   `json:"cik"`
 	Name    string   `json:"name"`
@@ -156,7 +169,8 @@ type submissionPayload struct {
 	SICDesc string   `json:"sicDescription"`
 	Tickers []string `json:"tickers"`
 	Filings struct {
-		Recent submissionRecent `json:"recent"`
+		Recent submissionRecent     `json:"recent"`
+		Files  []submissionFilesRef `json:"files"`
 	} `json:"filings"`
 }
 
@@ -167,6 +181,19 @@ func fetchSubmissions(c clientLike, cik string) (*submissionPayload, error) {
 		return nil, err
 	}
 	return &p, nil
+}
+
+// PATCH(greptile P1): fetchSubmissionPage retrieves one of the older pages
+// referenced by submissionPayload.Filings.Files. Each page JSON has the
+// same shape as the inline `recent` block — parallel arrays of accession
+// numbers, forms, dates, etc. — so callers can scan it the same way.
+func fetchSubmissionPage(c clientLike, name string) (*submissionRecent, error) {
+	url := fmt.Sprintf("https://data.sec.gov/submissions/%s", name)
+	var r submissionRecent
+	if err := fetchSECJSON(c, url, &r); err != nil {
+		return nil, err
+	}
+	return &r, nil
 }
 
 func newFilingsCmd(flags *rootFlags) *cobra.Command {
