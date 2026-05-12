@@ -1377,6 +1377,13 @@ func period13FDateRange(period string) periodRange {
 	if err != nil {
 		return periodRange{}
 	}
+	// PATCH(greptile P1): reject quarters outside [1,4]. Without this,
+	// strings like `2024Q99` parse cleanly and time.Date silently
+	// normalizes `month := (99-1)*3+1 = 295` into a date range in
+	// roughly year 2048 rather than returning an empty range.
+	if q < 1 || q > 4 {
+		return periodRange{}
+	}
 	month := (q-1)*3 + 1
 	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	end := start.AddDate(0, 3, -1)

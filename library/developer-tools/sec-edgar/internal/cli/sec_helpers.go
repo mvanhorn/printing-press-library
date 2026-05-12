@@ -129,8 +129,9 @@ const efTSMaxFetch = 1000
 // implicit default was flagged as fragile — if EFTS ever changes the
 // default our "less than a full page → done" termination heuristic in
 // fetchAllEFTSHits would silently break. Setting size= explicitly pins
-// both ends of the contract.
-const efTSPageSize = 10
+// both ends of the contract. 100 is EFTS's documented maximum and cuts
+// the worst-case full-1000-hit fetch from 100 HTTP calls to 10.
+const efTSPageSize = 100
 
 // PATCH(greptile P1): fetchAllEFTSHits pages through EFTS for `q` (mutating
 // `q.From` per page) up to efTSMaxFetch hits and returns the full hit set

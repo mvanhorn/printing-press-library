@@ -78,9 +78,15 @@
     },
     {
       "id": "efts-explicit-size-param",
-      "summary": "Pin EFTS page size explicitly via a new `efTSPageSize=10` constant and `size=` URL param.",
-      "reason": "fetchAllEFTSHits' 'less than a full page → done' termination heuristic relied on EFTS's implicit default of 10 hits per page. If EFTS ever changed the default the heuristic would silently terminate at the wrong boundary, hiding hits. Setting size= explicitly pins both ends of the contract.",
+      "summary": "Pin EFTS page size explicitly via a new `efTSPageSize=100` constant and `size=` URL param.",
+      "reason": "fetchAllEFTSHits' 'less than a full page → done' termination heuristic relied on EFTS's implicit default of 10 hits per page. If EFTS ever changed the default the heuristic would silently terminate at the wrong boundary, hiding hits. Setting size= explicitly pins both ends of the contract. 100 is EFTS's documented maximum and cuts the worst-case full-1000-hit fetch from 100 HTTP calls to 10.",
       "files": ["internal/cli/sec_helpers.go"]
+    },
+    {
+      "id": "period13fdaterange-quarter-guard",
+      "summary": "Reject quarters outside [1,4] in `period13FDateRange`.",
+      "reason": "Previously `q` was parsed as any integer; strings like `2024Q99` parsed cleanly and `time.Date` silently normalized `month := (q-1)*3+1 = 295` into a date range in roughly year 2048 rather than returning an empty range. Added an explicit range guard that returns `periodRange{}` for out-of-range quarters, matching the function's existing return-zero-on-invalid pattern.",
+      "files": ["internal/cli/sec_transcendence.go"]
     }
   ]
 }
