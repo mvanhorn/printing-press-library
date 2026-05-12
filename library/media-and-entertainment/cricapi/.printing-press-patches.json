@@ -48,6 +48,12 @@
       "reason": "determinePaginationDefaults returned cursorParam='after' and limitParam='limit', neither of which CricAPI accepts. extractPaginationFromEnvelope could never find a next_cursor field in CricAPI's {data:[...], info:{...}} envelope, so nextCursor was always '' and the loop exited after one page. Now: pagination defaults to offset semantics, the loop skips the limit param entirely when limitParam is empty, and nextCursor is derived from the running consumed-items count. Greptile P1. Same root cause as the workflow archive pagination patch — both should be fixed upstream in cli-printing-press templates so future CLIs ship correct pagination based on the spec-declared contract.",
       "files": ["internal/cli/sync.go"],
       "deferred_to_upstream": ["Generator should respect spec-declared pagination params (offset vs limit/after) when emitting sync.go and workflow archive."]
+    },
+    {
+      "id": "sync-empty-last-page-no-singleton",
+      "summary": "Guard upsertSingleObject behind pagesFetched == 0 so an empty last page in offset pagination isn't mis-stored as a bogus singleton row.",
+      "reason": "When a resource's total item count is an exact multiple of pageSize.limit (25), the offset loop fetches one trailing empty page (CricAPI returns {data:[], info:{...}}). The original len(items)==0 branch called upsertSingleObject with the metadata envelope, which has no id/name/uuid field — extractID returned '' and the row got keyed id='<resource>'. On every sync run where the boundary landed perfectly, a bogus row was overwriting itself and inflating totalCount by 1. Greptile P1. Fix: only treat empty response as a singleton when no prior pages were fetched.",
+      "files": ["internal/cli/sync.go"]
     }
   ]
 }

@@ -365,14 +365,24 @@ func syncResource(c interface {
 		}
 
 		if len(items) == 0 {
-			// Single object response - try to store as-is
-			if err := upsertSingleObject(db, resource, data); err != nil {
-				if !humanFriendly {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+			// PATCH: only treat empty response as a singleton on the FIRST
+			// page. With offset pagination, when total items is an exact
+			// multiple of pageSize.limit, the loop fetches one extra page
+			// that CricAPI returns as {"data":[], "info":{...}}. Without
+			// this guard, the envelope was being upserted as a bogus
+			// `id="<resource>"` row on every sync where the boundary
+			// landed perfectly, inflating totalCount and overwriting itself.
+			if pagesFetched == 0 {
+				// Single object response - try to store as-is
+				if err := upsertSingleObject(db, resource, data); err != nil {
+					if !humanFriendly {
+						fmt.Fprintf(os.Stdout, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+					}
+					return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 				}
-				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+				totalCount++
 			}
-			totalCount++
+			// empty page after at least one full page → natural end of data
 			break
 		}
 
