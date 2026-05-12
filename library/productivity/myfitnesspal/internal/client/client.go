@@ -60,6 +60,13 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 	surfHTTPClient := surfClient.Std()
 	surfTransport := surfHTTPClient.Transport
 	if surfTransport == nil {
+		// PATCH(local): fail loud instead of silently degrading. A nil transport here
+		// means Surf's API changed shape — falling back to http.DefaultTransport would
+		// drop the Chrome TLS fingerprint and every request would hit MFP's anti-bot
+		// wall with no visible cause.
+		fmt.Fprintln(os.Stderr, "WARNING: Surf transport is nil — Chrome TLS fingerprint unavailable. "+
+			"MFP requests will likely be rejected by anti-bot. Falling back to stdlib transport; "+
+			"check the enetx/surf version.")
 		surfTransport = http.DefaultTransport
 	}
 
@@ -338,8 +345,11 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			enc.Encode(pretty)
 		}
 	}
+	// PATCH(local): dry-run displays "Cookie:" to match what the live request actually
+	// sends (the cookie-header-not-authorization patch). Previously hard-coded
+	// "Authorization", which misled anyone using --dry-run to diagnose auth failures.
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil

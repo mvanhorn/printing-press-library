@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/enetx/surf"
@@ -20,6 +21,25 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/internal/parser"
 )
+
+// PATCH(local): share the Surf-backed *http.Client across diary fetches via sync.Once.
+// Previously fetchAuthenticatedHTML allocated a fresh Surf client (and its TLS
+// connection pool) on every call, costing a full TLS handshake per date when
+// reading multiple days. The shared client mirrors how internal/client/client.go's
+// newHTTPClient builds its Surf client once at construction time.
+var (
+	diaryHTTPClient     *http.Client
+	diaryHTTPClientOnce sync.Once
+)
+
+func sharedDiaryHTTPClient() *http.Client {
+	diaryHTTPClientOnce.Do(func() {
+		surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(30 * time.Second).Build().Unwrap()
+		diaryHTTPClient = surfClient.Std()
+		diaryHTTPClient.Timeout = 30 * time.Second
+	})
+	return diaryHTTPClient
+}
 
 func newDiaryGetDayCmd(flags *rootFlags) *cobra.Command {
 	var flagUsername string
@@ -116,10 +136,7 @@ func fetchAuthenticatedHTML(cfg *config.Config, target string) (string, error) {
 	req.Header.Set("Accept", "text/html,application/xhtml+xml")
 	// User-Agent set by Surf's Impersonate().Chrome(); do not override here.
 
-	surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(30 * time.Second).Build().Unwrap()
-	httpClient := surfClient.Std()
-	httpClient.Timeout = 30 * time.Second
-	resp, err := httpClient.Do(req)
+	resp, err := sharedDiaryHTTPClient().Do(req)
 	if err != nil {
 		return "", fmt.Errorf("GET %s: %w", target, err)
 	}

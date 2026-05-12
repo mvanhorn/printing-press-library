@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-10",
+  "applied_at": "2026-05-12",
   "base_run_id": "20260508-133559",
   "base_printing_press_version": "4.0.6",
   "patches": [
@@ -13,11 +13,24 @@
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
     },
     {
+      "id": "surf-transport-nil-loud-warning",
+      "summary": "Emit a loud stderr warning when Surf's underlying *http.Transport is nil instead of silently falling back to http.DefaultTransport.",
+      "reason": "If a future enetx/surf release changes Std()'s shape and returns a client with no Transport, the silent fallback in surf-transport-shared-client would lose the Chrome TLS fingerprint and every MFP request would hit anti-bot with no visible cause. The warning makes the failure mode debuggable.",
+      "files": ["internal/client/client.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
       "id": "cookie-header-not-authorization",
       "summary": "Send the user's cookie payload as Cookie: header, not Authorization:.",
       "reason": "MFP's web routes (/food/diary, /goals, /exercise, etc.) authenticate via cookie. Sending the cookie string as Authorization: causes MFP to treat the request as unauthenticated. The generator default targets bearer-auth; cookie auth needed the explicit override here.",
       "files": ["internal/client/client.go"],
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
+      "id": "dry-run-cookie-label",
+      "summary": "--dry-run prints `Cookie:` (not `Authorization:`) so its output matches the live request shape.",
+      "reason": "The dryRun helper hard-coded `Authorization` as the auth-line label, but cookie-header-not-authorization made the live path send `Cookie:`. A user running --dry-run to diagnose auth failures would see the wrong header and chase the exact bug this PR fixes.",
+      "files": ["internal/client/client.go"]
     },
     {
       "id": "drop-user-agent-override",
@@ -32,6 +45,12 @@
       "files": ["internal/cli/diary_get_day.go", "go.mod", "go.sum"],
       "validated_outcome": "Yesterday's diary returns parsed JSON with real meal entries.",
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
+      "id": "diary-scrape-shared-surf-client",
+      "summary": "Promote the Surf-backed *http.Client in diary_get_day.go to a package-level sync.Once singleton so multi-date reads reuse TLS connections.",
+      "reason": "fetchAuthenticatedHTML previously built a fresh Surf client (and its TLS connection pool) on every call, costing a full TLS handshake per date. The shared client matches how internal/client/client.go's newHTTPClient builds its Surf client once at construction time.",
+      "files": ["internal/cli/diary_get_day.go"]
     },
     {
       "id": "pycookiecheat-www-prefix",
