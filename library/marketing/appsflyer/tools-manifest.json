@@ -1,0 +1,520 @@
+{
+  "api_name": "appsflyer",
+  "base_url": "https://hq1.appsflyer.com",
+  "description": "Mobile measurement partner (MMP) — paid-channel control surface. Pull campaign, cohort, raw, and SKAN data across all media sources, cache locally, query offline.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "APPSFLYER_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "APPSFLYER_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agg_daily",
+      "description": "Daily report — aggregate across all media sources by day. Required: app_id, from, to. Returns array of AggRow.",
+      "method": "GET",
+      "path": "/api/agg-data/export/app/{app_id}/daily_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agg_geo",
+      "description": "Geo report — country breakdown. Required: app_id, from, to. Returns array of AggRow.",
+      "method": "GET",
+      "path": "/api/agg-data/export/app/{app_id}/geo_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agg_geo_by_date",
+      "description": "Geo-by-date — country breakdown with daily granularity. Required: app_id, from, to. Returns array of AggRow.",
+      "method": "GET",
+      "path": "/api/agg-data/export/app/{app_id}/geo_by_date_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agg_partners",
+      "description": "Partners report — media-source breakdown for date range. Required: app_id, from, to. Optional: timezone, currency. Returns array of AggRow.",
+      "method": "GET",
+      "path": "/api/agg-data/export/app/{app_id}/partners_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id (e.g. id123456789 or com.example.app)",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD (inclusive)",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD (inclusive)",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "Override account timezone (e.g. UTC, America/New_York)"
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Override account currency (USD, EUR, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "agg_partners_by_date",
+      "description": "Partners-by-date — daily granularity per media source. Required: app_id, from, to. Returns array of AggRow.",
+      "method": "GET",
+      "path": "/api/agg-data/export/app/{app_id}/partners_by_date_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_list",
+      "description": "List apps registered to the account. Returns array of App.",
+      "method": "GET",
+      "path": "/api/mng/apps",
+      "params": []
+    },
+    {
+      "name": "cohort_data",
+      "description": "Cohort retention + LTV. Body controls cohort length, KPIs, groupings, partial_data. Required: app_id, cohort_type, from, to. Optional: groupings, kpis, filters (plus 2 more). Returns the new CohortResponse.",
+      "method": "POST",
+      "path": "/api/cohorts/v1/data/app/{app_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "cohort_type",
+          "type": "string",
+          "location": "body",
+          "description": "user_acquisition (recommended) or unified",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "groupings",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array string — e.g. ['media_source','campaign']"
+        },
+        {
+          "name": "kpis",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array — e.g. ['users','revenue','roas','retention_rate']"
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object — e.g. {'media_source':['facebook_int']}"
+        },
+        {
+          "name": "per_user",
+          "type": "bool",
+          "location": "body",
+          "description": "Per-user mode (vs aggregated)"
+        },
+        {
+          "name": "partial_data",
+          "type": "bool",
+          "location": "body",
+          "description": "Include rows where cohort hasn't fully aged. Default false."
+        }
+      ]
+    },
+    {
+      "name": "master_report",
+      "description": "Master API V2 — combined groupings + KPIs per request. Required: app_id, from, to. Optional: groupings, kpis. Returns array of MasterRow.",
+      "method": "GET",
+      "path": "/api/master-agg-data/v6/app/{app_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "groupings",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated groupings (af_app_id,media_source,campaign,geo,...)"
+        },
+        {
+          "name": "kpis",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated KPIs (installs,revenue,roas,clicks,...)"
+        }
+      ]
+    },
+    {
+      "name": "raw_in_app_events",
+      "description": "Per-event raw report (CSV). Required: app_id, from, to. Optional: event_name, additional_fields, maximum_rows. Returns array of EventRow.",
+      "method": "GET",
+      "path": "/api/raw-data/export/app/{app_id}/in_app_events_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "event_name",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a single event"
+        },
+        {
+          "name": "additional_fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated additional columns"
+        },
+        {
+          "name": "maximum_rows",
+          "type": "int",
+          "location": "query",
+          "description": "Cap on rows returned (default 200,000)"
+        }
+      ]
+    },
+    {
+      "name": "raw_installs",
+      "description": "Per-install raw report (CSV). Required: app_id, from, to. Optional: additional_fields, maximum_rows. Returns array of InstallRow.",
+      "method": "GET",
+      "path": "/api/raw-data/export/app/{app_id}/installs_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime YYYY-MM-DD or YYYY-MM-DD HH:mm",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime YYYY-MM-DD or YYYY-MM-DD HH:mm",
+          "required": true
+        },
+        {
+          "name": "additional_fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated additional columns (see AppsFlyer raw data field dictionary)"
+        },
+        {
+          "name": "maximum_rows",
+          "type": "int",
+          "location": "query",
+          "description": "Cap on rows returned (default 200,000)"
+        }
+      ]
+    },
+    {
+      "name": "raw_organic_in_app_events",
+      "description": "Organic per-event raw report (CSV). Required: app_id, from, to. Returns array of EventRow.",
+      "method": "GET",
+      "path": "/api/raw-data/export/app/{app_id}/organic_in_app_events_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raw_organic_installs",
+      "description": "Per-install organic raw report (CSV). Required: app_id, from, to. Returns array of InstallRow.",
+      "method": "GET",
+      "path": "/api/raw-data/export/app/{app_id}/organic_installs_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raw_uninstalls",
+      "description": "Per-uninstall raw report (CSV). Required: app_id, from, to. Returns array of UninstallRow.",
+      "method": "GET",
+      "path": "/api/raw-data/export/app/{app_id}/uninstall_events_report/v5",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "skan_data",
+      "description": "SKAN aggregated install-date report. Note: SKAN data lags ~2 days. Required: app_id, from, to. Optional: date_type, groupings, kpis. Returns array of SkanRow.",
+      "method": "GET",
+      "path": "/api/skadnetworks/v1/data/app/{app_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "AppsFlyer app id",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD",
+          "required": true
+        },
+        {
+          "name": "date_type",
+          "type": "string",
+          "location": "query",
+          "description": "install (default) or arrival"
+        },
+        {
+          "name": "groupings",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated groupings (campaign,media_source,country,...)"
+        },
+        {
+          "name": "kpis",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated KPIs (installs,revenue,roas,conv_rate,...)"
+        }
+      ]
+    }
+  ]
+}

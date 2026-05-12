@@ -1,0 +1,51 @@
+version: 2
+project_name: appsflyer-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: appsflyer-pp-cli
+    main: ./cmd/appsflyer-pp-cli
+    binary: appsflyer-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/appsflyer/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: appsflyer-pp-mcp
+    main: ./cmd/appsflyer-pp-mcp
+    binary: appsflyer-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: appsflyer-pp-cli
+    repository:
+      owner: matt-latimer
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Ad-hoc pulls from AppsFlyer's V2 API, rate-budget aware: one facade command for any breakdown, a morning standup..."
+    install: |
+      bin.install "appsflyer-pp-cli"
+      bin.install "appsflyer-pp-mcp"

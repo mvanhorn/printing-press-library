@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T02:45:50.119623Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "appsflyer",
+  "display_name": "AppsFlyer",
+  "cli_name": "appsflyer-pp-cli",
+  "owner": "matt-latimer",
+  "printer": "matt-latimer",
+  "printer_name": "Matt Latimer",
+  "spec_path": "/Users/mattlatimer/printing-press/.runstate/cli-printing-press-9af0a81d/runs/20260511-195926/research/appsflyer-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:00226fcdd79019fe5722484ba1eb29df8b1097b016508cc5f7657cee505ab21b",
+  "run_id": "20260511-195926",
+  "mcp_binary": "appsflyer-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "APPSFLYER_API_TOKEN"
+  ],
+  "auth_description": "AppsFlyer V2 API token. Generate one in Security Center →\nAppsFlyer API tokens. Token is JWT-shaped (>700 chars), account-level,\nlong-lived. Scopes (Master, Cohort, SKAN, Raw Data) depend on\nsubscription — run `appsflyer-pp-cli doctor` to probe.\n\nLoaded from ~/.config/appsflyer-pp-cli/.env (auto-created on first run)\nor from process environment. Process env wins.\n",
+  "novel_features": [
+    {
+      "name": "Yesterday / WTD / MTD standup",
+      "command": "standup",
+      "description": "Cross-app pivot showing yesterday vs week-to-date vs month-to-date ROAS, spend, and installs — optionally grouped by channel-group (social, programmatic, OEM, rewarded)."
+    },
+    {
+      "name": "Ad-hoc pull facade",
+      "command": "pull",
+      "description": "One command, rich flags. Specify date range, media source (canonical or friendly), channel group, campaign, breakdown, metrics, currency, and timezone — the CLI routes to the right underlying AppsFlyer endpoint and applies friendly-name resolution."
+    }
+  ],
+  "category": "marketing",
+  "spec_url": "https://dev.appsflyer.com/hc/reference/api-reference-overview"
+}

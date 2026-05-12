@@ -1,0 +1,181 @@
+{
+  "api_name": "appsflyer",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "ysntony/appsflyer-mcp",
+      "url": "https://github.com/ysntony/appsflyer-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Kachit/appsflyer-sdk-go",
+      "url": "https://github.com/Kachit/appsflyer-sdk-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "singer-io/tap-appsflyer",
+      "url": "https://github.com/singer-io/tap-appsflyer",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fredericojordan/appsflyer-python",
+      "url": "https://github.com/fredericojordan/appsflyer-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T19:59:30Z",
+  "novel_features": [
+    {
+      "name": "Yesterday / WTD / MTD standup",
+      "command": "standup",
+      "description": "Cross-app pivot showing yesterday vs week-to-date vs month-to-date ROAS, spend, and installs \u2014 optionally grouped by channel-group (social, programmatic, OEM, rewarded).",
+      "rationale": "Requires fanning out aggregate pulls across all apps under a tight Pull-API rate budget and grouping by a local channel-group taxonomy AppsFlyer does not provide natively \u2014 neither the dashboard nor a one-shot script combines both today.",
+      "example": "appsflyer-pp-cli standup --app-id id123456 --app-id id654321 --json",
+      "why_it_matters": "Run this every morning to see how the portfolio's paid spend is performing without scrolling N dashboards.",
+      "group": "Morning workflow"
+    },
+    {
+      "name": "Ad-hoc pull facade",
+      "command": "pull",
+      "description": "One command, rich flags. Specify date range, media source (canonical or friendly), channel group, campaign, breakdown, metrics, currency, and timezone \u2014 the CLI routes to the right underlying AppsFlyer endpoint and applies friendly-name resolution.",
+      "rationale": "AppsFlyer's API splits this across Aggregate Pull V2, Master V2, and SKAN endpoints with different path shapes and query params \u2014 a single facade with friendly names and channel-group rollups is not available in any wrapper or dashboard.",
+      "example": "appsflyer-pp-cli pull --app-id id123456 --from 2026-05-04 --to 2026-05-10 --source facebook --breakdown campaign --json",
+      "why_it_matters": "Use this when you have a specific ad-hoc question (e.g. 'how did Facebook campaigns perform last week by campaign?') without thinking about which AppsFlyer endpoint to call.",
+      "group": "Ad-hoc workflow"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Yesterday / WTD / MTD standup",
+      "command": "standup",
+      "description": "Cross-app pivot showing yesterday vs week-to-date vs month-to-date ROAS, spend, and installs \u2014 optionally grouped by channel-group (social, programmatic, OEM, rewarded).",
+      "rationale": "Requires fanning out aggregate pulls across all apps under a tight Pull-API rate budget and grouping by a local channel-group taxonomy AppsFlyer does not provide natively \u2014 neither the dashboard nor a one-shot script combines both today.",
+      "example": "appsflyer-pp-cli standup --app-id id123456 --app-id id654321 --json",
+      "why_it_matters": "Run this every morning to see how the portfolio's paid spend is performing without scrolling N dashboards.",
+      "group": "Morning workflow"
+    },
+    {
+      "name": "Ad-hoc pull facade",
+      "command": "pull",
+      "description": "One command, rich flags. Specify date range, media source (canonical or friendly), channel group, campaign, breakdown, metrics, currency, and timezone \u2014 the CLI routes to the right underlying AppsFlyer endpoint and applies friendly-name resolution.",
+      "rationale": "AppsFlyer's API splits this across Aggregate Pull V2, Master V2, and SKAN endpoints with different path shapes and query params \u2014 a single facade with friendly names and channel-group rollups is not available in any wrapper or dashboard.",
+      "example": "appsflyer-pp-cli pull --app-id id123456 --from 2026-05-04 --to 2026-05-10 --source facebook --breakdown campaign --json",
+      "why_it_matters": "Use this when you have a specific ad-hoc question (e.g. 'how did Facebook campaigns perform last week by campaign?') without thinking about which AppsFlyer endpoint to call.",
+      "group": "Ad-hoc workflow"
+    }
+  ],
+  "narrative": {
+    "display_name": "AppsFlyer",
+    "headline": "Ad-hoc pulls from AppsFlyer's V2 API, rate-budget aware: one facade command for any breakdown, a morning standup across all your apps.",
+    "value_prop": "Two power commands on top of the V2 surface. `pull` gives you a single facade over the Aggregate Pull V2 reports with friendly source names and channel-group rollups. `standup` pivots yesterday / WTD / MTD across all apps in your account under the Pull API daily budget. Built for analysts who want fast answers without thinking about which AppsFlyer endpoint to call. (For Master, Cohort, SKAN, or Raw Data pulls, use the typed `master`, `cohort`, `skan`, and `raw` subcommands directly.)",
+    "auth_narrative": "AppsFlyer V2 uses a single account-level Bearer token (Security Center \u2192 AppsFlyer API tokens). The CLI loads APPSFLYER_API_TOKEN from ~/.config/appsflyer-pp-cli/.env via joho/godotenv; process env wins over the file. Token scopes (Master, Cohort, SKAN, Raw Data) depend on your subscription \u2014 appsflyer-pp-cli doctor probes each family. The CLI also tracks your Pull API daily-call budget (configurable, default 20) so you never blow the cap mid-day.",
+    "quickstart": [
+      {
+        "command": "appsflyer-pp-cli doctor",
+        "comment": "Verify token loaded from .env; probe which report families your subscription entitles; show remaining Pull API budget."
+      },
+      {
+        "command": "appsflyer-pp-cli apps list",
+        "comment": "List AppsFlyer apps in the account \u2014 cached to local store."
+      },
+      {
+        "command": "appsflyer-pp-cli standup --app-id id123456 --app-id id654321 --json",
+        "comment": "Yesterday / WTD / MTD ROAS, spend, installs across all apps."
+      },
+      {
+        "command": "appsflyer-pp-cli pull --app-id id123456 --from 2026-05-04 --to 2026-05-10 --source facebook --breakdown campaign --metrics installs,revenue,roas --json",
+        "comment": "Ad-hoc pull with friendly source names and channel-group support."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 403 on cohort or master reports",
+        "fix": "Your AppsFlyer subscription doesn't entitle that family. Contact your AppsFlyer CSM or run `appsflyer-pp-cli doctor --probe-families --json` to see the per-family breakdown (each probe consumes one daily-budget call)."
+      },
+      {
+        "symptom": "Daily call budget exhausted before end of day",
+        "fix": "Edit `~/.config/appsflyer-pp-cli/config.yaml` and bump `calls_per_day` if your plan allows; otherwise schedule the next sync after midnight UTC."
+      },
+      {
+        "symptom": "Cohort rows missing or marked partial",
+        "fix": "By default `cohort data` excludes partial rows. Pass `--include-partial` to see them."
+      },
+      {
+        "symptom": "ROAS in CSV shows 0.50 instead of 50%",
+        "fix": "AppsFlyer returns percentage metrics as decimals. The CLI's table renderer auto-converts; `--csv` is passthrough \u2014 use `--json` if you want post-conversion floats."
+      },
+      {
+        "symptom": "SKAN data missing for the last 2 days",
+        "fix": "SKAN reports lag ~2 days for postback arrivals; the `skan data` command defaults --to to yesterday - 2d. Override with --to YYYY-MM-DD if you really want the partial window."
+      },
+      {
+        "symptom": "Channel-group flag value not recognized",
+        "fix": "Edit `~/.config/appsflyer-pp-cli/channels.yaml` to add the group; the default mapping covers social, programmatic, OEM, and rewarded."
+      }
+    ],
+    "when_to_use": "Reach for appsflyer-pp-cli when you want a fast answer to a specific paid-acquisition question across one or more of your AppsFlyer apps. The CLI is built for ad-hoc pulls and a daily standup, not full data warehousing \u2014 pair it with Singer/Airbyte/Fivetran if you need nightly EL.",
+    "recipes": [
+      {
+        "title": "Morning standup, agent-friendly subset",
+        "command": "appsflyer-pp-cli standup --app-id id123456 --agent --select apps[].app_id,apps[].yesterday.roas,apps[].wtd.roas,apps[].mtd.roas",
+        "explanation": "Pull the cross-app standup scoped to just the ROAS fields a triage agent needs across three time windows."
+      },
+      {
+        "title": "Last-week campaign performance for one channel",
+        "command": "appsflyer-pp-cli pull --app-id id123456 --from 2026-05-04 --to 2026-05-10 --source facebook --breakdown campaign --metrics installs,revenue,roas --json",
+        "explanation": "Ad-hoc pull with friendly source resolution (facebook \u2192 facebook_int)."
+      },
+      {
+        "title": "Channel-group rollup across the portfolio",
+        "command": "appsflyer-pp-cli pull --app-id id123456 --from 2026-05-04 --to 2026-05-10 --channel-group social --breakdown media_source --metrics installs,revenue --json",
+        "explanation": "Roll up Meta + TikTok + Snap + Reddit + Pinterest + X into one social group using the channels.yaml mapping."
+      },
+      {
+        "title": "Doctor with full diagnostic JSON",
+        "command": "appsflyer-pp-cli doctor --json --probe-families",
+        "explanation": "Returns dotenv path, token fingerprint, remaining Pull API budget, and per-family entitlement (200/401/403) when --probe-families is set (each probe consumes one daily-budget call)."
+      },
+      {
+        "title": "Resolve a friendly source name to canonical",
+        "command": "appsflyer-pp-cli sources resolve tiktok",
+        "explanation": "Maps TikTok \u2192 tiktokglobal_int so you can paste the canonical ID into other tools."
+      }
+    ],
+    "trigger_phrases": [
+      "appsflyer standup",
+      "morning ROAS across my apps",
+      "appsflyer pull",
+      "fetch appsflyer data for last week",
+      "appsflyer raw events",
+      "use appsflyer",
+      "run appsflyer-pp-cli"
+    ]
+  }
+}

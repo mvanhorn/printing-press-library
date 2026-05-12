@@ -1,0 +1,11 @@
+{
+  "run_id": "20260511-195926",
+  "sources": [
+    {
+      "source_name": "appsflyer",
+      "decision": "skip-silent",
+      "reason": "user-provided-spec-shape: catalog entry (appsflyer.yaml) explicitly specifies spec_source=docs / spec_format=custom. Browser-sniff has nothing to add: (a) API requires Bearer token I don't have in-session; user is providing token via .env during Phase 5, not via browser; (b) dashboard is session-cookie-gated, but the dashboard is not the API surface — the V2 API on hq1.appsflyer.com is documented in the dev hub; (c) authoritative enums (metrics, groupings, KPIs, attribution sources, media-source canonical IDs) already captured from the loaded AppsFlyer BETA MCP into research/mcp-ground-truth.md; (d) EU/CN regional hostnames are a deferred follow-up but generation can proceed with hq1.appsflyer.com default. Briefing 'Let's go' + post-briefing instruction 'work without stopping for clarifying questions' authorize the reasonable-call skip; ask-via-AskUserQuestion contract relaxed under that override.",
+      "asked_at": "2026-05-11T19:59:30Z"
+    }
+  ]
+}

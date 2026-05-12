@@ -1,0 +1,12 @@
+{
+  "version": 0,
+  "api_name": "appsflyer",
+  "run_id": "20260511-195926",
+  "scope": "cli-printing-press-9af0a81d",
+  "output_dir": "/Users/mattlatimer/printing-press/.runstate/cli-printing-press-9af0a81d/runs/20260511-195926/working/appsflyer-pp-cli",
+  "working_dir": "/Users/mattlatimer/printing-press/library/appsflyer",
+  "published_dir": "/Users/mattlatimer/printing-press/library/appsflyer",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": null,
+  "spec_path": "/Users/mattlatimer/printing-press/.runstate/cli-printing-press-9af0a81d/runs/20260511-195926/research/appsflyer-spec.yaml"
+}

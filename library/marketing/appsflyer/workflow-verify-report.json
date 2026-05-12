@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/mattlatimer/printing-press/.runstate/cli-printing-press-9af0a81d/runs/20260511-195926/working/appsflyer-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

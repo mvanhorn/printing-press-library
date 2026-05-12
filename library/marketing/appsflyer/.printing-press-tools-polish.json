@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T02:45:06.388955Z",
+  "cli_dir": "/Users/mattlatimer/printing-press/.runstate/cli-printing-press-9af0a81d/runs/20260511-195926/working/appsflyer-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-12T02:45:06.388956Z"
+  }
+}

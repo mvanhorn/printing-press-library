@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "appsflyer-pp-mcp",
+  "display_name": "AppsFlyer",
+  "version": "4.2.2",
+  "description": "AppsFlyer API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/appsflyer-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/appsflyer-pp-mcp",
+      "args": [],
+      "env": {
+        "APPSFLYER_API_TOKEN": "${user_config.appsflyer_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "appsflyer_api_token": {
+      "type": "string",
+      "title": "APPSFLYER_API_TOKEN",
+      "description": "AppsFlyer V2 API token. Generate one in Security Center →\nAppsFlyer API tokens. Token is JWT-shaped (>700 chars), account-level,\nlong-lived. Scopes (Master, Cohort, SKAN, Raw Data) depend on\nsubscription — run `appsflyer-pp-cli doctor` to probe.\n\nLoaded from ~/.config/appsflyer-pp-cli/.env (auto-created on first run)\nor from process environment. Process env wins.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
