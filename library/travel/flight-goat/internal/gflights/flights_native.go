@@ -117,6 +117,11 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	if err != nil {
 		return nil, fmt.Errorf("parsing response: %w", err)
 	}
+	// PATCH(library): Google Flights returns the group total for `--passengers N`;
+	// divide back down so the JSON `price` field is per-seat. Aligns with the
+	// per-person contract documented in the flight-goat agent skill and matches
+	// dates_native.go (which hardcodes 1 adult and therefore has no analogue).
+	applyPerPassengerPrice(flights, opts.Passengers)
 
 	tripTypeName := "ONE_WAY"
 	if tripType == tripTypeRoundTrip {
@@ -471,6 +476,23 @@ func parseOfferLeg(legRaw any) (Leg, bool) {
 		Airline:          Airline{Code: airlineCode, Name: airlineName},
 		FlightNumber:     flightNumber,
 	}, true
+}
+
+// applyPerPassengerPrice rewrites each flight's Price from the group total
+// (what Google Flights' shopping endpoint actually returns when the request
+// carries `--passengers N`) to the per-seat fare. No-op for N <= 1.
+//
+// PATCH(library): Without this, JSON output for any multi-passenger query
+// reported the group total in the `price` field, which agents and humans
+// alike were treating as per-seat — silently inflating per-seat numbers by
+// the passenger count.
+func applyPerPassengerPrice(flights []Flight, passengers int) {
+	if passengers <= 1 {
+		return
+	}
+	for i := range flights {
+		flights[i].Price /= float64(passengers)
+	}
 }
 
 // parseOfferPrice returns the numeric price from the flight row.

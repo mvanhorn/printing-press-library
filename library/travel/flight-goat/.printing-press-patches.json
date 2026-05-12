@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-12",
   "base_run_id": "2026-05-02T22:09:06.820184Z",
   "base_printing_press_version": "3.6.0",
   "upstream_tracking": [
@@ -8,6 +8,17 @@
     "https://github.com/mvanhorn/cli-printing-press/issues/804"
   ],
   "patches": [
+    {
+      "id": "flights-passengers-per-seat-price",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native.go",
+        "internal/gflights/flights_native_test.go"
+      ],
+      "summary": "Divide multi-passenger `flights` results' price by N so JSON `price` is per-seat.",
+      "reason": "Google Flights' shopping endpoint returns the group total when the request carries `--passengers N`; the parser was copying that straight into Flight.Price without dividing, so any multi-pax query silently reported the group total as per-seat. SEA->DCA 2026-10-09 DL786 first: 1 pax = $869, 3 pax was $2,606 (= 3 * $869) — now $868.67 per seat. Aligns with dates_native.go (hardcoded 1 adult) and the documented per-person contract in the agent SKILL.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestApplyPerPassengerPrice -count=1; live cli run for SEA->DCA 2026-10-09 first nonstop, DL: pax=1 -> 869, pax=3 -> 868.67."
+    },
     {
       "id": "293-schedules-date-path-params",
       "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/293",
