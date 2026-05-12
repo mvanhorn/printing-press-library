@@ -9,6 +9,46 @@
   ],
   "patches": [
     {
+      "id": "airport-alias-table",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/airport_alias.go",
+        "internal/gflights/airport_alias_test.go",
+        "internal/gflights/gflights.go",
+        "internal/kayak/kayak.go",
+        "internal/kayak/kayak_test.go"
+      ],
+      "summary": "Remap retired IATA codes (PNH->KTI, REP->SAI) at the request edge of Search/Dates/Kayak Direct; surface the substitution as `airport_remapped` in the response envelope.",
+      "reason": "Phnom Penh's PNH closed September 2025 and was replaced by Techo International (KTI); Siem Reap's REP was replaced by SAI in 2024. Google's GetShoppingResults silently returns an empty payload for retired codes, so `flights SEA PNH ...` returned zero results with no signal that anything was wrong. The remap happens at the public-function boundary; the echoed Query keeps the user's original input, and AirportRemapped is the only signal of the substitution.",
+      "validated_outcome": "go test ./internal/gflights/... ./internal/kayak/... -count=1 (38 tests); live `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` returns flights with `airport_remapped: {destination: {from: PNH, to: KTI}}` and `query.destination: PNH`."
+    },
+    {
+      "id": "google-flights-parser-audit",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native_test.go",
+        "internal/gflights/capture_test.go",
+        "internal/gflights/testdata/sea_kti_2026-12-24_response.json",
+        "internal/gflights/testdata/sea_bkk_2026-12-24_response.json"
+      ],
+      "summary": "Capture two GetShoppingResults fixtures (thin route SEA-KTI, dense route SEA-BKK) and lock in parseOffersResponse behavior with regression tests.",
+      "reason": "An audit triggered by an apparent under-reporting bug for SEA-KTI (returns 2 itineraries when web search suggested many carriers fly the route) confirmed the parser is correct: a recursive deep walk of the SEA-KTI response finds the same 2 rows the parser surfaces, and the dense SEA-BKK response parses all 100 itineraries. The original bug premise was Google-side sparsity for the new KTI airport code (Asian carriers have not yet fully published codeshare data under it), not a parser shortfall.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestParseOffersResponse -count=1; fixtures refresh via `go test -tags capture ./internal/gflights/...`."
+    },
+    {
+      "id": "booking-urls-google-and-airline",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/booking_urls.go",
+        "internal/gflights/booking_urls_test.go",
+        "internal/gflights/gflights.go",
+        "internal/gflights/flights_native.go"
+      ],
+      "summary": "Each Flight result now carries `booking_urls: {google, airline?}` — a Google Flights tfs= protobuf deeplink plus an airline-direct booking URL when the itinerary is operated end-to-end by one of AS/AA/UA/B6/AC/BA.",
+      "reason": "Search results previously left users to re-enter their query on a booking surface. The Google URL encodes the trip type, origin/destination IATA codes, dates, and passenger count into Google's tfs= protobuf parameter so clicking lands on a pre-executed Google Flights search. Codeshare itineraries and carriers outside the curated table omit the airline URL and rely on the Google fallback.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestBuild -count=1 (38 tests); live `flights SEA JFK 2026-07-15 --airlines AS,AA,UA --agent` populates both URLs on every AA-single-carrier result; live `flights SEA LAX --passengers 2` populates only the Google URL for Frontier (F9 not in table)."
+    },
+    {
       "id": "flights-passengers-per-seat-price",
       "upstream_issue": "",
       "files": [
