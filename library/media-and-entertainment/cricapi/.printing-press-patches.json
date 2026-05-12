@@ -8,52 +8,83 @@
       "id": "watch-nocache",
       "summary": "Set c.NoCache = true in the watch command after newClient(), so the 15-30s poll loop bypasses the 5-min HTTP response cache.",
       "reason": "Without this, every poll after the first read returned the cached snapshot and live score changes were invisible until cache expiry. The sync command already uses this pattern; the watch command needs it too. Flagged by Greptile as a P1 functional defect.",
-      "files": ["internal/cli/watch.go"]
+      "files": [
+        "internal/cli/watch.go"
+      ]
     },
     {
       "id": "store-sql-injection",
       "summary": "Quote+escape resourceType in store.ListIDs and allowlist field tokens in store.ResolveByName to block SQL injection through user-influenced resource/field names.",
-      "reason": "Both methods interpolated caller-supplied strings directly into SQL via fmt.Sprintf. Greptile flagged as P1 security. This is a generator-template issue affecting other library CLIs as well — should also be fixed upstream in cli-printing-press templates. Patching here so this PR can land cleanly while the upstream fix propagates.",
-      "files": ["internal/store/store.go"],
-      "deferred_to_upstream": ["Fix the same pattern in the generator template so future CLIs ship without the injection vector."]
+      "reason": "Both methods interpolated caller-supplied strings directly into SQL via fmt.Sprintf. Greptile flagged as P1 security. This is a generator-template issue affecting other library CLIs as well \u2014 should also be fixed upstream in cli-printing-press templates. Patching here so this PR can land cleanly while the upstream fix propagates.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "deferred_to_upstream": [
+        "Fix the same pattern in the generator template so future CLIs ship without the injection vector."
+      ]
     },
     {
       "id": "today-format-exact-match",
       "summary": "Use exact equality in today.go's formatMatches helper. Was strings.Contains, which silently included T20I matches when user passed --format t20.",
       "reason": "Substring matching meant any format that's a prefix/substring of another would match unintended formats. Greptile P1. CricAPI's matchType tokens are short (t20, odi, test, t10, hundred); exact case-insensitive comparison is the correct semantics. Also updated the --format flag help text to drop the misleading 't20i' suggestion since CricAPI returns 't20' for T20I matches.",
-      "files": ["internal/cli/today.go"]
+      "files": [
+        "internal/cli/today.go"
+      ]
     },
     {
       "id": "watchlist-refresh-nocache",
       "summary": "Set c.NoCache = true in watchlist refresh after newClient(), so 'fetch latest info' actually fetches live data instead of returning the 5-min cached snapshot.",
       "reason": "The command's stated purpose is to refresh series info, but without NoCache it silently returned cached data within the 5-min HTTP cache window. Same fix as watch.go and sync.go. Greptile P1.",
-      "files": ["internal/cli/watchlist.go"]
+      "files": [
+        "internal/cli/watchlist.go"
+      ]
     },
     {
       "id": "workflow-archive-offset-pagination",
       "summary": "Switch workflow archive from limit/after pagination (which CricAPI ignores) to offset-based pagination (CricAPI's actual contract). Archive was silently delivering only the first page of every resource.",
-      "reason": "The generator-emitted workflow archive sent params['limit']='100' and params['after']=<last_id>, neither of which CricAPI accepts — the API always returned its default page (~25 items), `len(items) < 100` was immediately true, and the loop exited after one iteration. The fix mirrors sync.go's offset incrementing. Greptile P1. Same root cause as the SQL injection: generator-template assumes a different pagination contract; should also be fixed upstream so future CLIs ship correctly.",
-      "files": ["internal/cli/channel_workflow.go"],
-      "deferred_to_upstream": ["Generator should respect spec-declared pagination params (offset vs limit/after) when emitting workflow archive."]
+      "reason": "The generator-emitted workflow archive sent params['limit']='100' and params['after']=<last_id>, neither of which CricAPI accepts \u2014 the API always returned its default page (~25 items), `len(items) < 100` was immediately true, and the loop exited after one iteration. The fix mirrors sync.go's offset incrementing. Greptile P1. Same root cause as the SQL injection: generator-template assumes a different pagination contract; should also be fixed upstream so future CLIs ship correctly.",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ],
+      "deferred_to_upstream": [
+        "Generator should respect spec-declared pagination params (offset vs limit/after) when emitting workflow archive."
+      ]
     },
     {
       "id": "today-team-nocache",
       "summary": "Set c.NoCache = true in today.go and team.go after newClient(). Both commands are described as fetching live cricket data; without NoCache, a call within the 5-min HTTP cache window would return a stale snapshot.",
       "reason": "Same NoCache bug pattern as watch.go and watchlist refresh, just in two more hand-written commands. Greptile flagged today.go directly (P1); team.go has the identical shape and was patched proactively to prevent another review-fix cycle. Mirrors the pattern sync.go already uses.",
-      "files": ["internal/cli/today.go", "internal/cli/team.go"]
+      "files": [
+        "internal/cli/today.go",
+        "internal/cli/team.go"
+      ]
     },
     {
       "id": "sync-offset-pagination",
       "summary": "Switch sync from limit/after cursor pagination to offset-based pagination (CricAPI's actual contract). sync was silently delivering only the first ~25 items per resource.",
-      "reason": "determinePaginationDefaults returned cursorParam='after' and limitParam='limit', neither of which CricAPI accepts. extractPaginationFromEnvelope could never find a next_cursor field in CricAPI's {data:[...], info:{...}} envelope, so nextCursor was always '' and the loop exited after one page. Now: pagination defaults to offset semantics, the loop skips the limit param entirely when limitParam is empty, and nextCursor is derived from the running consumed-items count. Greptile P1. Same root cause as the workflow archive pagination patch — both should be fixed upstream in cli-printing-press templates so future CLIs ship correct pagination based on the spec-declared contract.",
-      "files": ["internal/cli/sync.go"],
-      "deferred_to_upstream": ["Generator should respect spec-declared pagination params (offset vs limit/after) when emitting sync.go and workflow archive."]
+      "reason": "determinePaginationDefaults returned cursorParam='after' and limitParam='limit', neither of which CricAPI accepts. extractPaginationFromEnvelope could never find a next_cursor field in CricAPI's {data:[...], info:{...}} envelope, so nextCursor was always '' and the loop exited after one page. Now: pagination defaults to offset semantics, the loop skips the limit param entirely when limitParam is empty, and nextCursor is derived from the running consumed-items count. Greptile P1. Same root cause as the workflow archive pagination patch \u2014 both should be fixed upstream in cli-printing-press templates so future CLIs ship correct pagination based on the spec-declared contract.",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "deferred_to_upstream": [
+        "Generator should respect spec-declared pagination params (offset vs limit/after) when emitting sync.go and workflow archive."
+      ]
     },
     {
       "id": "sync-empty-last-page-no-singleton",
       "summary": "Guard upsertSingleObject behind pagesFetched == 0 so an empty last page in offset pagination isn't mis-stored as a bogus singleton row.",
-      "reason": "When a resource's total item count is an exact multiple of pageSize.limit (25), the offset loop fetches one trailing empty page (CricAPI returns {data:[], info:{...}}). The original len(items)==0 branch called upsertSingleObject with the metadata envelope, which has no id/name/uuid field — extractID returned '' and the row got keyed id='<resource>'. On every sync run where the boundary landed perfectly, a bogus row was overwriting itself and inflating totalCount by 1. Greptile P1. Fix: only treat empty response as a singleton when no prior pages were fetched.",
-      "files": ["internal/cli/sync.go"]
+      "reason": "When a resource's total item count is an exact multiple of pageSize.limit (25), the offset loop fetches one trailing empty page (CricAPI returns {data:[], info:{...}}). The original len(items)==0 branch called upsertSingleObject with the metadata envelope, which has no id/name/uuid field \u2014 extractID returned '' and the row got keyed id='<resource>'. On every sync run where the boundary landed perfectly, a bogus row was overwriting itself and inflating totalCount by 1. Greptile P1. Fix: only treat empty response as a singleton when no prior pages were fetched.",
+      "files": [
+        "internal/cli/sync.go"
+      ]
+    },
+    {
+      "id": "team-pagination",
+      "summary": "Paginate /matches in team.go so a team's next fixture is found even when CricAPI returns it past page 1.",
+      "reason": "Single offset=0 call fetched only ~25 items. team pakistan --scope upcoming silently returned nothing when Pakistan's next match was on page 2+, directly contradicting the command's stated purpose. Now: offset-paginated loop with a 20-page safety cap, mirrors sync.go and workflow archive. Greptile P1.",
+      "files": [
+        "internal/cli/team.go"
+      ]
     }
   ]
 }

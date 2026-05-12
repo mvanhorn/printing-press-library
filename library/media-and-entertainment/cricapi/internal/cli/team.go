@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -58,44 +59,72 @@ match list. Answers the natural-language question: "when does Pakistan play next
 			// today.go, watchlist refresh, and sync.go.
 			c.NoCache = true
 
-			// Pull /matches with offset=0; CricAPI returns the broad list there.
+			// PATCH: paginate /matches so we can find a team's next fixture
+			// even when it sits on page 2+. Previously a single offset=0 call
+			// fetched only ~25 items, so `team pakistan --scope upcoming`
+			// would silently return nothing when CricAPI buried Pakistan's
+			// next match beyond the first page. Same offset semantics as
+			// sync.go and workflow archive.
+			const cricAPIPageSize = 25
+			const maxPages = 20 // safety cap: 20 * 25 = 500 matches scanned per query
+
 			path := "/matches"
-			params := map[string]string{"offset": "0"}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "matches", false, path, params, nil)
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
+			out := make([]teamMatch, 0, 16)
+			var prov DataProvenance
+			offset := 0
+			pages := 0
 
-			var items []teamMatch
-			if err := json.Unmarshal(data, &items); err != nil {
-				// Fall back: API may wrap in envelope; try .data
-				var env struct {
-					Data []teamMatch `json:"data"`
+		pageLoop:
+			for pages < maxPages {
+				params := map[string]string{"offset": strconv.Itoa(offset)}
+				data, pageProv, ferr := resolveRead(cmd.Context(), c, flags, "matches", false, path, params, nil)
+				if ferr != nil {
+					return classifyAPIError(ferr, flags)
 				}
-				if jerr := json.Unmarshal(data, &env); jerr == nil {
-					items = env.Data
+				if pages == 0 {
+					prov = pageProv
 				}
-			}
 
-			out := make([]teamMatch, 0, len(items))
-			for _, m := range items {
-				if !teamMatches(m, needle) {
-					continue
-				}
-				switch scope {
-				case "upcoming":
-					if m.Ended {
-						continue
+				var items []teamMatch
+				if jerr := json.Unmarshal(data, &items); jerr != nil {
+					// API may wrap in envelope; try .data
+					var env struct {
+						Data []teamMatch `json:"data"`
 					}
-				case "recent":
-					if !m.Ended {
-						continue
+					if eerr := json.Unmarshal(data, &env); eerr == nil {
+						items = env.Data
 					}
 				}
-				out = append(out, m)
-				if limit > 0 && len(out) >= limit {
+
+				if len(items) == 0 {
 					break
 				}
+
+				for _, m := range items {
+					if !teamMatches(m, needle) {
+						continue
+					}
+					switch scope {
+					case "upcoming":
+						if m.Ended {
+							continue
+						}
+					case "recent":
+						if !m.Ended {
+							continue
+						}
+					}
+					out = append(out, m)
+					if limit > 0 && len(out) >= limit {
+						break pageLoop
+					}
+				}
+
+				if len(items) < cricAPIPageSize {
+					break // last page reached
+				}
+				offset += len(items)
+				pages++
 			}
 
 			printProvenance(cmd, len(out), prov)
