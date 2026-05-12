@@ -32,6 +32,39 @@
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD"
     },
     {
+      "id": "ratelimit-wait-race",
+      "summary": "Hold the AdaptiveLimiter mutex across slot computation in Wait() so concurrent callers serialize through distinct slots.",
+      "reason": "The generated implementation released the lock between reading lastRequest/rate and writing the new lastRequest, so two goroutines computed the same slot, slept identical durations, and fired together — defeating the limiter and tripping go test -race. Verified with go test -race ./internal/cliutil/...",
+      "files": ["internal/cliutil/ratelimit.go"],
+      "validated_outcome": "go test -race ./internal/cliutil/... passes; concurrent Wait() calls now serialize.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-ratelimit-race"
+    },
+    {
+      "id": "query-file-reader",
+      "summary": "Implemented --query-file reading in `corpus build` (one query per line, '#' comments and blank lines skipped); combined with --query flags instead of erroring.",
+      "reason": "The generated stub advertised --query-file in --help and the README but returned 'not yet read (add --query as fallback)' when used. Users following the documented usage saw a confusing error.",
+      "files": ["internal/cli/novel_corpus.go"]
+    },
+    {
+      "id": "auth-refresh-error",
+      "summary": "refreshAccessToken() now returns an actionable error pointing users at TAVILY_API_KEY / `auth set-token` instead of silently letting an expired access_token reach the wire.",
+      "reason": "The generated stub returned nil unconditionally, so an expired access_token in config produced 3 silent 401 retries with no diagnostic. Tavily uses static API keys; OAuth refresh has no upstream template yet.",
+      "files": ["internal/client/client.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-oauth-refresh-template"
+    },
+    {
+      "id": "today-window-local-tz",
+      "summary": "Compute the 'today' window for budget-watch and cost-report from local-calendar midnight via startOfLocalDay() instead of time.Now().Truncate(24h).",
+      "reason": "time.Time.Truncate operates on the absolute instant and snaps to UTC midnight regardless of zone, so 'today' was up to ±12h off for non-UTC users and undercounted same-day spend.",
+      "files": ["internal/cli/novel_budget.go"]
+    },
+    {
+      "id": "store-error-surfacing",
+      "summary": "Log store.Open / InsertSearch / InsertExtract / InsertCredit failures to stderr in the `web` and `extract` commands instead of swallowing them.",
+      "reason": "Silent failures here corrupt downstream offline commands (replay, local-search, corpus gaps, drift-detect, freshness-check) by making them operate on stale data. Disk-full, permission, and SQLite corruption errors are now visible to the user.",
+      "files": ["internal/cli/promoted_web.go", "internal/cli/promoted_extract.go"]
+    },
+    {
       "id": "novel-commands",
       "summary": "Added 14 novel transcendence commands wired in root.go: qna, context, local-search, corpus (build+gaps), drift-detect, budget-watch, cost-report, batch-plan, replay, freshness-check, crawl-resume, research-track, sources-rank.",
       "reason": "These commands leverage the SQLite store to provide capabilities unavailable in any other Tavily client: offline FTS, credit budget management, RAG corpus building, session-based agent replay, and cache freshness management.",

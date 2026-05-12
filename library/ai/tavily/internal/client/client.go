@@ -369,12 +369,19 @@ func (c *Client) authHeader() (string, error) {
 	return c.Config.AuthHeader(), nil
 }
 
+// PATCH: surface an actionable error instead of silently using an expired
+// token. Tavily authenticates with static API keys; OAuth refresh is not
+// wired here. If a user ends up with an expired access_token + refresh_token
+// in their config, they will otherwise hit 3 silent 401 retries with no
+// hint of the cause. Re-implement when the upstream generator gains an
+// OAuth refresh template.
 func (c *Client) refreshAccessToken() error {
 	if c.Config == nil {
 		return nil
 	}
-
-	return nil
+	return fmt.Errorf("access_token in %s expired at %s and OAuth refresh is not supported by tavily-pp-cli; "+
+		"set TAVILY_API_KEY or run `tavily-pp-cli auth set-token <key>` to authenticate with a static API key",
+		c.Config.Path, c.Config.TokenExpiry.Format(time.RFC3339))
 }
 
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from

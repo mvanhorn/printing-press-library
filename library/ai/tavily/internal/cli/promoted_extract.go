@@ -81,10 +81,19 @@ func newExtractPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// PATCH: persist to local store for offline features
-			if st, serr := store.Open(); serr == nil {
-				st.InsertExtract(bodyUrls, string(data), session)
-				st.InsertCredit("extract", 1.0, session)
+			// PATCH: persist to local store for offline features. Surface
+			// open/insert failures to stderr so disk-full, permission, and
+			// SQLite corruption errors do not silently produce a stale view
+			// in `freshness-check` and `corpus gaps`.
+			if st, serr := store.Open(); serr != nil {
+				fmt.Fprintf(os.Stderr, "warning: local store unavailable, results not persisted (offline features will be incomplete): %v\n", serr)
+			} else {
+				if _, ierr := st.InsertExtract(bodyUrls, string(data), session); ierr != nil {
+					fmt.Fprintf(os.Stderr, "warning: persisting extract to local store failed: %v\n", ierr)
+				}
+				if ierr := st.InsertCredit("extract", 1.0, session); ierr != nil {
+					fmt.Fprintf(os.Stderr, "warning: persisting credit to local store failed: %v\n", ierr)
+				}
 				st.Close()
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {

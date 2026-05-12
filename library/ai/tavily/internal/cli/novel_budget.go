@@ -47,8 +47,7 @@ Run once for a snapshot, or combine with watch(1) for continuous monitoring.`,
 				}
 				projectedDaily := ratePerHour * 24
 
-				// Credits used today
-				todaySince := time.Now().Truncate(24 * time.Hour)
+				todaySince := startOfLocalDay(time.Now())
 				todayByEndpoint, err := st.CreditsSince(todaySince)
 				if err != nil {
 					return fmt.Errorf("reading today credits: %w", err)
@@ -136,7 +135,7 @@ time windows (today, week, month, all) and optional session filtering.`,
 			var since time.Time
 			switch window {
 			case "today":
-				since = time.Now().Truncate(24 * time.Hour)
+				since = startOfLocalDay(time.Now())
 			case "week":
 				since = time.Now().AddDate(0, 0, -7)
 			case "month":
@@ -198,4 +197,17 @@ time windows (today, week, month, all) and optional session filtering.`,
 	cmd.Flags().StringVar(&window, "window", "all", "Time window: today, week, month, all")
 	cmd.Flags().StringVar(&session, "session", "", "Filter by session label")
 	return cmd
+}
+
+// startOfLocalDay returns midnight in the caller's local timezone for the
+// calendar day containing t. time.Time.Truncate(24h) operates on absolute
+// time and snaps to UTC midnight, which would slip "today" by up to ±12h
+// for users outside UTC and undercount same-day spend.
+func startOfLocalDay(t time.Time) time.Time {
+	loc := t.Location()
+	if loc == nil {
+		loc = time.Local
+	}
+	t = t.In(loc)
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, loc)
 }

@@ -40,20 +40,26 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	}
 }
 
+// PATCH: claim the next slot under the lock so concurrent Wait() callers
+// serialize through distinct slots instead of all sleeping to the same
+// timestamp and firing simultaneously (defeats the limiter, fails -race).
 func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return
 	}
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+	now := time.Now()
+	if now.Sub(l.lastRequest) < delay {
+		l.lastRequest = l.lastRequest.Add(delay)
+	} else {
+		l.lastRequest = now
 	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
+	sleep := time.Until(l.lastRequest)
 	l.mu.Unlock()
+	if sleep > 0 {
+		time.Sleep(sleep)
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

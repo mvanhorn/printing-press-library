@@ -121,11 +121,20 @@ func newWebPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// PATCH: persist to local store for offline features
-			if st, serr := store.Open(); serr == nil {
+			// PATCH: persist to local store for offline features. Surface
+			// open/insert failures to stderr so disk-full, permission, and
+			// SQLite corruption errors do not silently produce a stale view
+			// in `replay`, `local-search`, `corpus gaps`, and `drift-detect`.
+			if st, serr := store.Open(); serr != nil {
+				fmt.Fprintf(os.Stderr, "warning: local store unavailable, results not persisted (offline features will be incomplete): %v\n", serr)
+			} else {
 				bodyJSON, _ := json.Marshal(body)
-				st.InsertSearch(bodyQuery, string(bodyJSON), string(data), session)
-				st.InsertCredit("search", 1.0, session)
+				if _, ierr := st.InsertSearch(bodyQuery, string(bodyJSON), string(data), session); ierr != nil {
+					fmt.Fprintf(os.Stderr, "warning: persisting search to local store failed: %v\n", ierr)
+				}
+				if ierr := st.InsertCredit("search", 1.0, session); ierr != nil {
+					fmt.Fprintf(os.Stderr, "warning: persisting credit to local store failed: %v\n", ierr)
+				}
 				st.Close()
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {

@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -54,20 +55,19 @@ Pass multiple --query flags or a file of queries (one per line) with --query-fil
 				maxResults = 5
 			}
 
-			// Collect queries
 			allQueries := queries
 			if queryFile != "" {
-				// In a real implementation this reads queryFile line by line
-				// For now flag the missing input
-				if len(allQueries) == 0 {
-					return fmt.Errorf("--query-file %q: not yet read (add --query as fallback)", queryFile)
+				fileQueries, ferr := readQueryFile(queryFile)
+				if ferr != nil {
+					return fmt.Errorf("reading --query-file %q: %w", queryFile, ferr)
 				}
+				allQueries = append(allQueries, fileQueries...)
 			}
 			if len(allQueries) == 0 && len(args) > 0 {
 				allQueries = args
 			}
 			if len(allQueries) == 0 {
-				return fmt.Errorf("required: at least one --query")
+				return fmt.Errorf("required: at least one --query or non-empty --query-file")
 			}
 
 			c, err := flags.newClient()
@@ -295,4 +295,29 @@ sorted by mention frequency — high-frequency URLs are most worth extracting.`,
 // writeFile is a small helper to write a string to a file.
 func writeFile(path, content string) error {
 	return os.WriteFile(path, []byte(content), 0o644)
+}
+
+// readQueryFile loads queries from a file, one per line. Blank lines and
+// lines whose first non-space character is '#' (comment) are skipped so
+// users can annotate their query lists.
+func readQueryFile(path string) ([]string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	var queries []string
+	scanner := bufio.NewScanner(f)
+	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		queries = append(queries, line)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return queries, nil
 }
