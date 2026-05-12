@@ -100,6 +100,14 @@ type homesFlags struct {
 // Stingray sf bucket codes (from internal/cli/apt_comps.go:soldFlagsForMonths):
 //
 //	1=1mo  3=3mo  5=6mo  7=1y  9=2y
+//
+// Codes 2, 4, 6, 8 are observed in the website's 3y combo (1,2,3,5,6,7)
+// but Stingray's docs don't expose their semantic meaning — likely
+// "1mo–3mo span", "3mo–6mo span", etc. interstitial buckets the web UI
+// includes when the user picks a multi-period window. Adding a new
+// --sold-window value built from these requires capturing the matching
+// combo from web traffic (network panel under the date filter) rather
+// than guessing — Stingray rejects guessed unions.
 func soldFlagsFor(window string) string {
 	switch window {
 	case "1mo":
