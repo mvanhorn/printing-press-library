@@ -35,6 +35,12 @@
       "reason": "The generator-emitted workflow archive sent params['limit']='100' and params['after']=<last_id>, neither of which CricAPI accepts — the API always returned its default page (~25 items), `len(items) < 100` was immediately true, and the loop exited after one iteration. The fix mirrors sync.go's offset incrementing. Greptile P1. Same root cause as the SQL injection: generator-template assumes a different pagination contract; should also be fixed upstream so future CLIs ship correctly.",
       "files": ["internal/cli/channel_workflow.go"],
       "deferred_to_upstream": ["Generator should respect spec-declared pagination params (offset vs limit/after) when emitting workflow archive."]
+    },
+    {
+      "id": "today-team-nocache",
+      "summary": "Set c.NoCache = true in today.go and team.go after newClient(). Both commands are described as fetching live cricket data; without NoCache, a call within the 5-min HTTP cache window would return a stale snapshot.",
+      "reason": "Same NoCache bug pattern as watch.go and watchlist refresh, just in two more hand-written commands. Greptile flagged today.go directly (P1); team.go has the identical shape and was patched proactively to prevent another review-fix cycle. Mirrors the pattern sync.go already uses.",
+      "files": ["internal/cli/today.go", "internal/cli/team.go"]
     }
   ]
 }

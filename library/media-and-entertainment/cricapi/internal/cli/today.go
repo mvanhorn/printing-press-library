@@ -29,6 +29,12 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// PATCH: today is described as "Live and about-to-start matches",
+			// so it must read live data. Without NoCache, any call within the
+			// 5-min HTTP cache window would return a stale snapshot — score
+			// changes and status updates would be invisible. Same fix as
+			// watch.go, watchlist refresh, and sync.go.
+			c.NoCache = true
 
 			path := "/currentMatches"
 			params := map[string]string{"offset": "0"}
