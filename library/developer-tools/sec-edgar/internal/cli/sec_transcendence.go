@@ -505,6 +505,12 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// PATCH(greptile P1): the Atom getcurrent URL is constant, so the
+			// client's 5-minute response cache would freeze every poll within
+			// any 5-min window onto the first snapshot — polls 2..N silently
+			// see the same body and emit nothing. A live-streaming command
+			// must never serve from cache.
+			c.NoCache = true
 			ciks, err := loadCIKWatchlist(cikIn, cikCSV)
 			if err != nil {
 				return usageErr(err)
