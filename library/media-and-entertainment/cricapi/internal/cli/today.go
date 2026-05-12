@@ -82,7 +82,7 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 			return printAutoTable(cmd.OutOrStdout(), rows)
 		},
 	}
-	cmd.Flags().StringVar(&formatFilter, "format", "", "Comma-separated formats (t20i,odi,test,t20,t10,hundred)")
+	cmd.Flags().StringVar(&formatFilter, "format", "", "Comma-separated formats (case-insensitive, exact match against CricAPI matchType tokens: t20, odi, test, t10, hundred)")
 	return cmd
 }
 
@@ -101,10 +101,14 @@ func normalizeFormats(s string) []string {
 	return out
 }
 
+// PATCH: exact equality, not substring. Previously strings.Contains made
+// --format t20 silently include T20I (because "t20i" contains "t20"), and
+// --format t would match every format. CricAPI matchType tokens are short
+// and non-overlapping (t20, odi, test, t10, hundred); compare them exactly.
 func formatMatches(matchType string, formats []string) bool {
 	lt := strings.ToLower(matchType)
 	for _, f := range formats {
-		if strings.Contains(lt, f) {
+		if lt == f {
 			return true
 		}
 	}
