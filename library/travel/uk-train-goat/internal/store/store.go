@@ -23,6 +23,11 @@ import (
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
+// safeIdentPattern matches identifiers safe to splice into SQL: leading
+// letter or underscore, then letters / digits / underscores. Used to gate
+// table and JSON-field names that cannot be passed as bound parameters.
+var safeIdentPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
@@ -593,8 +598,7 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{
-}
+var resourceIDFieldOverrides = map[string]string{}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
@@ -730,10 +734,19 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
+// resourceType must be a SQL-safe identifier because table names cannot be
+// bound as query parameters; we reject anything that isn't `[a-zA-Z_][a-zA-Z0-9_]*`
+// and fall back to the parameterised `resources` query.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	var rows *sql.Rows
+	var err error
+	if safeIdentPattern.MatchString(resourceType) {
+		// Try domain table first (tables are named after the resource type)
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	} else {
+		err = fmt.Errorf("unsafe resource type")
+	}
 	if err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
@@ -818,6 +831,12 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// json_extract path components cannot be passed as bound parameters,
+		// so we splice the field name into the SQL string. Validate it as a
+		// safe identifier first to keep the splice from becoming an injection.
+		if !safeIdentPattern.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,

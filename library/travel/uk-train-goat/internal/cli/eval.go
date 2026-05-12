@@ -41,15 +41,15 @@ the grader compares the chosen tool to expected) lands in v0.2 behind the
 EVAL_AGENT_MODEL env var.`,
 		Example: "  uk-train-goat-pp-cli eval --json\n  uk-train-goat-pp-cli eval --threshold 90 --json",
 		Annotations: map[string]string{
-			"mcp:hidden":            "true",
-			"pp:typed-exit-codes":   "0,5",
+			"mcp:hidden":          "true",
+			"pp:typed-exit-codes": "0,5",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
 			}
 			if datasetPath == "" {
-				datasetPath = filepath.Join("internal", "evals", "dataset", "v0.1.yaml")
+				datasetPath = filepath.Join("internal", "evals", "dataset", "v0.1.toml")
 			}
 			fixtures, err := evals.LoadFixtures(datasetPath)
 			if err != nil {
@@ -86,7 +86,7 @@ EVAL_AGENT_MODEL env var.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&datasetPath, "dataset", "", "Path to fixture YAML (default internal/evals/dataset/v0.1.yaml)")
+	cmd.Flags().StringVar(&datasetPath, "dataset", "", "Path to fixture TOML (default internal/evals/dataset/v0.1.toml)")
 	cmd.Flags().Float64Var(&threshold, "threshold", 0, "Minimum pass rate percentage required (default 80)")
 	return cmd
 }

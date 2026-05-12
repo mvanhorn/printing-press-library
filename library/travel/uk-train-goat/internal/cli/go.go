@@ -47,6 +47,9 @@ func newGoCmd(flags *rootFlags) *cobra.Command {
 
 			raw, err := s.Get("saved_route", args[0])
 			if err != nil {
+				return apiErr(err)
+			}
+			if raw == nil {
 				return notFoundErr(fmt.Errorf("no saved route named %q (use `saved add` first)", args[0]))
 			}
 			var route savedRoute

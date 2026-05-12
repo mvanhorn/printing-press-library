@@ -150,7 +150,11 @@ func enrichWithStatus(c *openldbws.Client, journeys []map[string]any) []map[stri
 		}
 		details, err := c.Service(sid)
 		if err != nil || details == nil {
-			j["live_status"] = map[string]any{"error": err.Error()}
+			errMsg := "no details returned"
+			if err != nil {
+				errMsg = err.Error()
+			}
+			j["live_status"] = map[string]any{"error": errMsg}
 			continue
 		}
 		j["live_status"] = map[string]any{
@@ -189,9 +193,9 @@ func recordSearchHistory(flags *rootFlags, from, to, date string) {
 	}
 	defer s.Close()
 	row := map[string]any{
-		"from":      from,
-		"to":        to,
-		"date":      date,
+		"from":       from,
+		"to":         to,
+		"date":       date,
 		"queried_at": time.Now().UTC().Format(time.RFC3339),
 	}
 	data, _ := json.Marshal(row)

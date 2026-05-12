@@ -1,9 +1,9 @@
 # uk-train-goat agent eval dataset v0.1.
 #
-# Despite the .yaml extension, v0.1 ships TOML-shape fixtures (the loader
-# uses go-toml/v2 to avoid adding a YAML dep). The parser keeps the
-# schema described in the design spec (id / prompt / expected / rubric);
-# v0.2 may switch to true YAML once gopkg.in/yaml.v3 is added.
+# v0.1 ships TOML fixtures (the loader uses go-toml/v2 to avoid adding a
+# YAML dependency). The schema mirrors the YAML shape described in the
+# design spec (id / prompt / expected / rubric); v0.2 may switch to true
+# YAML once gopkg.in/yaml.v3 is added.
 #
 # Each fixture asserts: given <prompt>, an LLM agent should pick the
 # typed MCP tool named <expected.tool> with arguments matching

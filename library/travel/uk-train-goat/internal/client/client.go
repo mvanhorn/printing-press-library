@@ -9,6 +9,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -18,8 +20,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/config"
 )
 
 type Client struct {
@@ -31,8 +31,6 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
-
-
 
 // APIError carries HTTP status information for structured exit codes.
 type APIError struct {
@@ -97,7 +95,7 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	if c.Config != nil {
 		key += "|auth_source=" + c.Config.AuthSource
 		if authHeader := c.Config.AuthHeader(); authHeader != "" {
-			authHash := sha256.Sum256([]byte(c.Config.AuthHeader()))
+			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])
 		}
 		if c.Config.Path != "" {
@@ -450,7 +448,6 @@ func sanitizeJSONResponse(body []byte) []byte {
 	}
 	return body
 }
-
 
 // maskToken redacts all but the last 4 characters of a token for safe display.
 func maskToken(token string) string {

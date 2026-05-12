@@ -17,14 +17,14 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-// Fixture is one row in the dataset YAML (we use TOML at parse time
-// for zero new dependencies, but the file is structurally compatible
-// with the YAML schema described in the design spec).
+// Fixture is one row in the dataset TOML; the schema mirrors the YAML
+// shape described in the design spec, so a v0.2 switch to YAML keeps
+// the field names.
 type Fixture struct {
-	ID       string         `toml:"id" json:"id"`
-	Prompt   string         `toml:"prompt" json:"prompt"`
-	Expected ExpectedCall   `toml:"expected" json:"expected"`
-	Rubric   []string       `toml:"rubric" json:"rubric"`
+	ID       string       `toml:"id" json:"id"`
+	Prompt   string       `toml:"prompt" json:"prompt"`
+	Expected ExpectedCall `toml:"expected" json:"expected"`
+	Rubric   []string     `toml:"rubric" json:"rubric"`
 }
 
 // ExpectedCall captures the tool name and partial-args the agent must
@@ -42,7 +42,8 @@ type Dataset struct {
 
 // LoadFixtures reads a fixture file from disk. The file is TOML for now
 // (single dependency we already use); v0.2 may switch to YAML once
-// gopkg.in/yaml.v3 is added to go.mod.
+// gopkg.in/yaml.v3 is added to go.mod, at which point the dataset
+// extension flips alongside the parser.
 func LoadFixtures(path string) ([]Fixture, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
