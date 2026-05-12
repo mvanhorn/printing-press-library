@@ -36,8 +36,9 @@ notifier of choice — desktop alert, SMS gateway, calendar create.`,
   # Stop after 4 hours of polling
   marianatek-pp-cli watch 84212 --interval 30s --max-duration 4h`,
 		Annotations: map[string]string{
-			"pp:novel":      "watch",
-			"mcp:read-only": "true",
+			"pp:novel": "watch",
+			// PATCH(greptile #487): do not mark this MCP tool read-only;
+			// --auto-book can create a reservation.
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -92,17 +93,7 @@ notifier of choice — desktop alert, SMS gateway, calendar create.`,
 						"prev_spots": prevSpots,
 					})
 					if autoBook {
-						resBody := map[string]any{
-							"data": map[string]any{
-								"type": "reservation",
-								"attributes": map[string]any{
-									"class_session_id": classID,
-								},
-							},
-						}
-						if paymentOption != "" {
-							resBody["data"].(map[string]any)["attributes"].(map[string]any)["payment_option_id"] = paymentOption
-						}
+						resBody := newReservationCreateBody(classID, paymentOption, "")
 						body, status, perr := c.Post("/me/reservations", resBody)
 						if perr != nil || status >= 400 {
 							emit("auto_book_failed", map[string]any{

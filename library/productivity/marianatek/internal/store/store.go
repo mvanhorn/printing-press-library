@@ -1551,6 +1551,18 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
 
+// PATCH(ci): dependent-resource sync injects a generic parent_id, while some
+// generated typed tables require resource-specific parent columns.
+func lookupRequiredParentFieldValue(obj map[string]any, snakeKey string) any {
+	if v := lookupFieldValue(obj, snakeKey); v != nil {
+		return v
+	}
+	if v := lookupFieldValue(obj, "parent_id"); v != nil {
+		return v
+	}
+	return ""
+}
+
 // upsertAppVersionMetadatasTx writes the typed-table portion of a app_version_metadatas upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1696,10 +1708,10 @@ func (s *Store) UpsertClasses(data json.RawMessage) error {
 func (s *Store) upsertPaymentOptionsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO payment_options (id, classes_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET classes_id = excluded.classes_id, data = excluded.data, synced_at = excluded.synced_at`,
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET classes_id = excluded.classes_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
-		lookupFieldValue(obj, "classes_id"),
+		lookupRequiredParentFieldValue(obj, "classes_id"),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2031,10 +2043,10 @@ func (s *Store) UpsertLocations(data json.RawMessage) error {
 func (s *Store) upsertAddOnsBuyPageTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO add_ons_buy_page (id, locations_id, data, synced_at, parent_id)
-		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
-		lookupFieldValue(obj, "locations_id"),
+		lookupRequiredParentFieldValue(obj, "locations_id"),
 		string(data),
 		time.Now(),
 		lookupFieldValue(obj, "parent_id"),
@@ -2083,10 +2095,10 @@ func (s *Store) UpsertAddOnsBuyPage(data json.RawMessage) error {
 func (s *Store) upsertBuyPageTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO buy_page (id, locations_id, data, synced_at, parent_id)
-		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
-		lookupFieldValue(obj, "locations_id"),
+		lookupRequiredParentFieldValue(obj, "locations_id"),
 		string(data),
 		time.Now(),
 		lookupFieldValue(obj, "parent_id"),
@@ -2135,10 +2147,10 @@ func (s *Store) UpsertBuyPage(data json.RawMessage) error {
 func (s *Store) upsertCartTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO cart (id, locations_id, data, synced_at, parent_id)
-		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
 		id,
-		lookupFieldValue(obj, "locations_id"),
+		lookupRequiredParentFieldValue(obj, "locations_id"),
 		string(data),
 		time.Now(),
 		lookupFieldValue(obj, "parent_id"),
@@ -2187,10 +2199,10 @@ func (s *Store) UpsertCart(data json.RawMessage) error {
 func (s *Store) upsertLocationsScheduleFiltersTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO locations_schedule_filters (id, locations_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at`,
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET locations_id = excluded.locations_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
-		lookupFieldValue(obj, "locations_id"),
+		lookupRequiredParentFieldValue(obj, "locations_id"),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2504,10 +2516,10 @@ func (s *Store) UpsertRegions(data json.RawMessage) error {
 func (s *Store) upsertRegionsScheduleFiltersTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
 		`INSERT INTO regions_schedule_filters (id, regions_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET regions_id = excluded.regions_id, data = excluded.data, synced_at = excluded.synced_at`,
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(id) DO UPDATE SET regions_id = excluded.regions_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
-		lookupFieldValue(obj, "regions_id"),
+		lookupRequiredParentFieldValue(obj, "regions_id"),
 		string(data),
 		time.Now(),
 	); err != nil {

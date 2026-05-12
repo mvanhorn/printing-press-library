@@ -202,8 +202,8 @@ func newMeReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "reservations-create",
-		Short:       "Create a new reservation for the authenticated user. reservation_type accepts one of three defined values:...",
+		Use:   "reservations-create",
+		Short: "Create a new reservation for the authenticated user. reservation_type accepts one of three defined values:...",
 		Example: strings.Trim(`
   # Book a class with your default payment option
   marianatek-pp-cli me reservations-create \
@@ -911,6 +911,9 @@ func newMeReservationsCreateCmd(flags *rootFlags) *cobra.Command {
 				if bodyWaitlistPosition != 0 {
 					body["waitlist_position"] = bodyWaitlistPosition
 				}
+				// PATCH(greptile #487): send /me/reservations using the JSONAPI
+				// envelope validated by the other booking paths.
+				body = newReservationCreateBodyFromGeneratedBody(body)
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {

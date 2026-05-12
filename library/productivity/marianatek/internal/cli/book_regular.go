@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newBookRegularCmd(flags *rootFlags) *cobra.Command {
@@ -75,20 +75,12 @@ Note: in v0.1 book-regular uses the single tenant the CLI is configured for.`,
 			if err != nil {
 				return err
 			}
-			body := map[string]any{
-				"data": map[string]any{
-					"type": "reservation",
-					"attributes": map[string]any{
-						"class_session_id": candidate.ID,
-					},
-				},
-			}
-			if paymentOption != "" {
-				body["data"].(map[string]any)["attributes"].(map[string]any)["payment_option_id"] = paymentOption
-			}
+			// PATCH(greptile #487): share the JSONAPI reservation body shape
+			// with watch and me reservations-create.
+			body := newReservationCreateBody(candidate.ID, paymentOption, "")
 			respBody, status, err := c.Post("/me/reservations", body)
 			result := map[string]any{
-				"class": candidate,
+				"class":  candidate,
 				"status": status,
 			}
 			if err != nil {

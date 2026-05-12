@@ -81,6 +81,32 @@
       "reason": "Generator emitted a generic example `marianatek-pp-cli me reservations-create --booked-by example-value` based on a server-derived field. Misleading for new users.",
       "files": ["internal/cli/me_reservations-create.go"],
       "change": "Replaced the generic example with three real-world variants: book-with-payment, dry-run preview, and waitlist join. Imported `strings` to use `strings.Trim` per the framework's convention for multi-line examples."
+    },
+    {
+      "id": "marianatek-watch-mcp-write-annotation",
+      "applied_at": "2026-05-12T16:10:35Z",
+      "reason": "`watch --auto-book` posts to `/me/reservations`, so advertising the shell-out MCP tool as read-only can bypass host write confirmation guardrails.",
+      "files": ["internal/cli/watch.go"],
+      "change": "Removed the `mcp:read-only` annotation from `watch` while keeping the command exposed as a novel MCP shell-out tool."
+    },
+    {
+      "id": "marianatek-reservation-jsonapi-body",
+      "applied_at": "2026-05-12T16:10:35Z",
+      "reason": "`watch --auto-book` and `book-regular --auto` used the live-proven JSONAPI reservation body, while `me reservations-create` still sent generated flat/nested fields for the same endpoint.",
+      "files": [
+        "internal/cli/reservation_body.go",
+        "internal/cli/watch.go",
+        "internal/cli/book_regular.go",
+        "internal/cli/me_reservations-create.go"
+      ],
+      "change": "Added a shared reservation body helper that emits `{data:{type:\"reservation\",attributes:{class_session_id,...}}}` and normalized the generated reservations-create body into that envelope."
+    },
+    {
+      "id": "marianatek-dependent-parent-id-fallback",
+      "applied_at": "2026-05-12T16:10:35Z",
+      "reason": "Generated typed store tables declare resource-specific parent columns as NOT NULL, but dependent-resource sync injects the generic `parent_id`; generic generated upsert tests also exercise id-only rows.",
+      "files": ["internal/store/store.go"],
+      "change": "Added a helper that fills required parent columns from the resource-specific field, then `parent_id`, then an empty string fallback so dependent typed upserts do not fail before storing the JSON payload."
     }
   ],
   "upstream_followups": [
