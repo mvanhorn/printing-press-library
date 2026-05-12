@@ -99,6 +99,42 @@ These capabilities aren't available in any other tool for this API.
   orgo cost --workspace prod --since 30d --forecast
   ```
 
+### DOM-aware browser automation (`chrome`)
+
+Drive Chrome inside the Orgo VM at the **DOM level** instead of pixel-based click/screenshot loops. Faster, more reliable, far fewer tokens for any web workflow.
+
+A small Node bridge is shipped embedded in this binary and auto-deploys to `/tmp/orgo-chrome-bridge.js` inside the VM on first call. Subsequent calls reuse it. Bridge auto-redeploys when the CLI is upgraded and ships a new embedded version.
+
+- **`chrome read-page <id> --filter interactive`** — Get the accessibility tree with element refs (`ref_N`). Cheap, fast, the right "seeing" tool for web pages.
+- **`chrome find <id> --query "search bar"`** — Find elements by intent. Returns up to 20 matches with refs.
+- **`chrome click <id> --ref ref_3`** — Click by ref (prefer over `--x`/`--y` coordinates). Resilient to layout shifts.
+- **`chrome form-input <id> --ref ref_7 --value "..."`** — Set form field values directly. No focus-then-type dance.
+- **`chrome evaluate <id> --expression "document.title"`** — JavaScript in the page context. Do not write `return` — just the expression.
+- **`chrome screenshot <id> --out /tmp/page.png`** — Decoded PNG/JPEG straight to disk. Without `--out`, returns base64 inline.
+- **`chrome console <id> --only-errors`** / **`chrome network <id> --url-pattern "/api/"`** — Buffered console + network for in-page debugging.
+
+  _Reach for `chrome` whenever the task is "do something on a web page" — searching, form filling, scraping, scraping-then-acting. Use pixel-based `computers click mouse` / `computers screenshot get` only for native desktop apps or when the page has no useful DOM (canvases, maps, charts)._
+
+  ```bash
+  # Recipe: extract structured data from a page.
+  orgo chrome navigate <id> --url https://news.ycombinator.com
+  orgo chrome read-page <id> --filter interactive --max-chars 20000 --agent
+  orgo chrome evaluate <id> --expression "[...document.querySelectorAll('.titleline a')].map(a => a.textContent).slice(0, 10)" --agent
+
+  # Recipe: log in and grab post-login state.
+  orgo chrome navigate <id> --url https://app.example.com/login
+  orgo chrome find <id> --query "email" --agent
+  orgo chrome form-input <id> --ref ref_2 --value "agent@example.com"
+  orgo chrome form-input <id> --ref ref_3 --value "$EXAMPLE_PASSWORD"
+  orgo chrome find <id> --query "sign in" --agent
+  orgo chrome click <id> --ref ref_5
+  orgo chrome page-text <id> --agent
+  ```
+
+  **VM-direct routing applies.** Add `--vm-from <id>` (or set `ORGO_VM_URL` + `ORGO_VM_TOKEN`) and chrome calls skip the central API the same way `bash`/`click`/`screenshot` do. Measured win for chrome on a sample machine: central ~1.23s avg vs VM-direct steady-state ~0.48s.
+
+  **Full command set:** `navigate`, `tabs`, `new-tab`, `switch-tab`, `read-page`, `find`, `page-text`, `screenshot`, `click`, `type`, `form-input`, `scroll`, `evaluate`, `console`, `network`, `resize`. Every subcommand is auto-registered as an MCP tool (`chrome_navigate`, `chrome_read_page`, …) — one MCP server, both API and browser surfaces.
+
 ## Command Reference
 
 **computers** — Provision and manage virtual computers
