@@ -551,7 +551,9 @@ func extractObjectID(obj map[string]any) string {
 // length and content (common for EDGAR accession numbers and ticker
 // concatenations); a collision silently deletes the prior document's FTS
 // entry via `DELETE FROM resources_fts WHERE rowid = ?` in the upsert
-// path. FNV-1a has dramatically better distribution at the same cost.
+// path. FNV-1a has dramatically better distribution at the same cost
+// (~one extra ns per call) and is the stdlib's standard non-crypto 64-bit
+// hash, so we get this for free without taking on a new dependency.
 func ftsRowID(id string) int64 {
 	h := fnv.New64a()
 	_, _ = h.Write([]byte(id))
