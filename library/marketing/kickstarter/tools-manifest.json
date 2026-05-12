@@ -1,0 +1,208 @@
+{
+  "api_name": "kickstarter",
+  "base_url": "https://www.kickstarter.com",
+  "description": "Every Kickstarter scraper, plus the first programmatic Magazine path and a Surf transport that clears Cloudflare without a paid service. Newly launched campaigns, trending, and editorial in one binary with offline SQLite for compound queries no API exposes.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "creators_get",
+      "description": "Fetch creator profile and project history. Required: username. Optional: format (default: json).",
+      "method": "GET",
+      "path": "/profile/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Creator username (slug)",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (must be json)"
+        }
+      ]
+    },
+    {
+      "name": "discover_list",
+      "description": "Search and discover Kickstarter projects with filters, sort, and pagination. Optional: query, category-id, subcategory-id (plus 6 more).",
+      "method": "GET",
+      "path": "/discover/advanced",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search query",
+          "aliases": [
+            "term",
+            "q"
+          ]
+        },
+        {
+          "name": "category-id",
+          "wire_name": "category_id",
+          "type": "string",
+          "location": "query",
+          "description": "Numeric category id (1=art, 3=comics, 7=design, 12=games, 16=technology, etc.)"
+        },
+        {
+          "name": "subcategory-id",
+          "wire_name": "subcategory_id",
+          "type": "string",
+          "location": "query",
+          "description": "Numeric subcategory id"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: magic, newest, end_date, popularity, most_funded, most_backed"
+        },
+        {
+          "name": "status",
+          "wire_name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Project status filter: live, successful, failed, cancelled, submitted",
+          "aliases": [
+            "state"
+          ]
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Tag slug filter"
+        },
+        {
+          "name": "location-woeid",
+          "wire_name": "woe_id",
+          "type": "string",
+          "location": "query",
+          "description": "Yahoo WOEID location filter"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (must be json)"
+        }
+      ]
+    },
+    {
+      "name": "magazine_get",
+      "description": "Fetch a Magazine article (HTML; parsed for title, author, body, tags). Required: slug.",
+      "method": "GET",
+      "path": "/magazine/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Magazine article slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "magazine_list",
+      "description": "Fetch the Magazine index page (HTML; parsed for article links).",
+      "method": "GET",
+      "path": "/magazine",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "oembed_get",
+      "description": "Fetch oEmbed metadata for a project URL. Required: url.",
+      "method": "GET",
+      "path": "/services/oembed",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Kickstarter project URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Fetch full project detail (creator, rewards, video, funding state). Required: creator, slug. Optional: format (default: json).",
+      "method": "GET",
+      "path": "/projects/{creator}/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "path",
+          "description": "Creator username",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Project slug",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (must be json)"
+        }
+      ]
+    },
+    {
+      "name": "projects_updates",
+      "description": "List creator-posted updates for a project. Required: creator, slug. Optional: format (default: json).",
+      "method": "GET",
+      "path": "/projects/{creator}/{slug}/posts",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "creator",
+          "type": "string",
+          "location": "path",
+          "description": "Creator username",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Project slug",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (must be json)"
+        }
+      ]
+    }
+  ]
+}

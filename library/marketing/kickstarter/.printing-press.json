@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T00:25:52.12Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "kickstarter",
+  "display_name": "Kickstarter",
+  "cli_name": "kickstarter-pp-cli",
+  "owner": "usc-tk",
+  "printer": "usc-tk",
+  "printer_name": "usc-tk",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7b64686101038336f87cd83ca582b3dddcbe3c67a55e702a02cc35e098db8c16",
+  "run_id": "20260511-220650",
+  "category": "marketing",
+  "mcp_binary": "kickstarter-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Latest news roll-up",
+      "command": "latest-news",
+      "description": "Fan out across Discover new-launches, Trending/Most-Funded, and Kickstarter Magazine editorial in one call — single ranked stream of fresh signal."
+    },
+    {
+      "name": "Tech radar",
+      "command": "tech-radar",
+      "description": "Newly launched Technology/Design projects ranked by funding velocity over a time window. Filter to AI/Hardware/Software/Robots subcategories."
+    },
+    {
+      "name": "Funding-rank",
+      "command": "funding-rank",
+      "description": "Rank live projects by funding velocity (% of goal raised per hour-since-launch) over a configurable window."
+    },
+    {
+      "name": "Vertical mapping",
+      "command": "vertical",
+      "description": "Score each project against a named vertical (ai-agents, frontier-ai, smb-saas, geopolitics, aus-tech, india-tech) using keyword + description + tag matching. Stored in vertical_match table for SQL composition."
+    },
+    {
+      "name": "Magazine FTS search",
+      "command": "magazine search",
+      "description": "Full-text search over locally-mirrored Kickstarter Magazine articles (editorial posts from KS staff covering trends, creator spotlights, Maker Monday roll-ups)."
+    },
+    {
+      "name": "Category velocity",
+      "command": "category velocity",
+      "description": "Aggregate launches-per-day and total-pledged-per-day for each top-level category over a time window. Surfaces which categories are accelerating."
+    },
+    {
+      "name": "Diff-since-last-sync",
+      "command": "sync --since-last --diff",
+      "description": "Periodic sync emits only the delta (new + changed projects) since the last successful sync, as JSONL one-per-line."
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+name: kickstarter
+description: "Every Kickstarter scraper, plus the first programmatic Magazine path and a Surf transport that clears Cloudflare without a paid service. Newly launched campaigns, trending, and editorial in one binary with offline SQLite for compound queries no API exposes."
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: browser-chrome
+website_url: "https://www.kickstarter.com"
+category: marketing
+base_url: "https://www.kickstarter.com"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/kickstarter-pp-cli/config.toml"
+
+resources:
+  discover:
+    description: "Public Kickstarter Discover JSON endpoint"
+    endpoints:
+      list:
+        method: GET
+        path: "/discover/advanced"
+        description: "Search and discover Kickstarter projects with filters, sort, and pagination"
+        params:
+          - name: term
+            flag_name: query
+            aliases: [term, q]
+            description: "Free-text search query"
+            in: query
+            required: false
+          - name: category_id
+            flag_name: category-id
+            description: "Numeric category id (1=art, 3=comics, 7=design, 12=games, 16=technology, etc.)"
+            in: query
+            required: false
+          - name: subcategory_id
+            flag_name: subcategory-id
+            description: "Numeric subcategory id"
+            in: query
+            required: false
+          - name: sort
+            description: "Sort order: magic, newest, end_date, popularity, most_funded, most_backed"
+            in: query
+            required: false
+          - name: state
+            flag_name: status
+            aliases: [state]
+            description: "Project status filter: live, successful, failed, cancelled, submitted"
+            in: query
+            required: false
+          - name: tag
+            description: "Tag slug filter"
+            in: query
+            required: false
+          - name: woe_id
+            flag_name: location-woeid
+            description: "Yahoo WOEID location filter"
+            in: query
+            required: false
+          - name: page
+            description: "Page number (1-based)"
+            in: query
+            required: false
+          - name: format
+            description: "Response format (must be json)"
+            in: query
+            required: false
+            default: "json"
+        response:
+          type: json
+          item: object
+  projects:
+    description: "Individual project detail and updates"
+    endpoints:
+      get:
+        method: GET
+        path: "/projects/{creator}/{slug}"
+        description: "Fetch full project detail (creator, rewards, video, funding state)"
+        params:
+          - name: creator
+            description: "Creator username"
+            in: path
+            required: true
+          - name: slug
+            description: "Project slug"
+            in: path
+            required: true
+          - name: format
+            description: "Response format (must be json)"
+            in: query
+            required: false
+            default: "json"
+        response:
+          type: json
+          item: object
+      updates:
+        method: GET
+        path: "/projects/{creator}/{slug}/posts"
+        description: "List creator-posted updates for a project"
+        params:
+          - name: creator
+            description: "Creator username"
+            in: path
+            required: true
+          - name: slug
+            description: "Project slug"
+            in: path
+            required: true
+          - name: format
+            description: "Response format (must be json)"
+            in: query
+            required: false
+            default: "json"
+        response:
+          type: json
+          item: object
+  creators:
+    description: "Creator (user) profile and project history"
+    endpoints:
+      get:
+        method: GET
+        path: "/profile/{username}"
+        description: "Fetch creator profile and project history"
+        params:
+          - name: username
+            description: "Creator username (slug)"
+            in: path
+            required: true
+          - name: format
+            description: "Response format (must be json)"
+            in: query
+            required: false
+            default: "json"
+        response:
+          type: json
+          item: object
+  oembed:
+    description: "Lightweight oEmbed metadata for any Kickstarter project URL"
+    endpoints:
+      get:
+        method: GET
+        path: "/services/oembed"
+        description: "Fetch oEmbed metadata for a project URL"
+        params:
+          - name: url
+            description: "Kickstarter project URL"
+            in: query
+            required: true
+        response:
+          type: json
+          item: object
+  magazine:
+    description: "Kickstarter Magazine editorial articles (HTML)"
+    endpoints:
+      list:
+        method: GET
+        path: "/magazine"
+        description: "Fetch the Magazine index page (HTML; parsed for article links)"
+        response:
+          type: html
+          item: object
+      get:
+        method: GET
+        path: "/magazine/{slug}"
+        description: "Fetch a Magazine article (HTML; parsed for title, author, body, tags)"
+        params:
+          - name: slug
+            description: "Magazine article slug"
+            in: path
+            required: true
+        response:
+          type: html
+          item: object
+
+extra_commands:
+  - name: latest-news
+    description: "Unified roll-up across new launches, trending/most-funded, and Kickstarter Magazine in one call. Built for autonomous-agent ingestion."
+  - name: tech-radar
+    description: "Newly launched Technology/Design projects ranked by funding velocity over a configurable time window. Supports subcategory filters (ai, hardware, software, robots)."
+  - name: funding-rank
+    description: "Rank live projects by funding velocity (% of goal per hour-since-launch) over a window. Identifies breakouts before they hit Trending."
+  - name: vertical
+    args: "<vertical-slug>"
+    description: "Score projects against named verticals (ai-agents, frontier-ai, smb-saas, geopolitics, aus-tech, india-tech). Stored in vertical_match for SQL composition."
+  - name: search
+    args: "<query>"
+    description: "Search locally synced Kickstarter projects via FTS5"
+  - name: trending
+    description: "Current trending projects across Discover (composite of magic + funding velocity)"
+  - name: funded
+    description: "Top-funded projects (all-time or windowed) from synced data"
+  - name: categories
+    description: "List Kickstarter categories and subcategories with their ids"
+  - name: category
+    args: "[velocity|list]"
+    description: "Aggregate launches-per-day and pledged-per-day by category over a time window"
+  - name: project
+    args: "[get|updates|rewards|embed]"
+    description: "Project-scoped subcommands: get detail, list updates, list rewards, fetch oEmbed metadata"
+  - name: creator
+    args: "[get|portfolio]"
+    description: "Creator-scoped subcommands: get profile, list portfolio (every project ever launched)"
+  - name: magazine
+    args: "[list|get|search]"
+    description: "Magazine editorial: list index, fetch article body, FTS search synced articles"
+  - name: sync
+    description: "Sync Discover JSON + Magazine HTML into the local SQLite store. Supports --since-last --diff for delta-only emission as JSONL."
+  - name: export
+    description: "Export synced project + magazine data as JSON, JSONL, or CSV"

@@ -1,0 +1,98 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.kickstarter.com/",
+    "captured_at": "2026-05-11T22:06:50+10:00",
+    "entry_count": 2,
+    "api_entry_count": 2,
+    "noise_entry_count": 0,
+    "host_distribution": {"www.kickstarter.com": 2}
+  },
+  "reachability": {
+    "mode": "browser_http",
+    "confidence": 0.85,
+    "reasons": [
+      "Direct stdlib HTTP returned 403 with cf-mitigated:challenge against / and /discover/advanced",
+      "Surf with Chrome TLS fingerprint returned 200 for both URLs (876-1997ms)",
+      "No clearance cookie or browser sidecar needed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest-json",
+      "confidence": 0.9,
+      "details": {
+        "endpoint_pattern": "/discover/advanced?format=json with category_id/sort/page filters"
+      }
+    },
+    {
+      "label": "html-scrape",
+      "confidence": 0.8,
+      "details": {
+        "endpoint_pattern": "/magazine and /magazine/{slug} return HTML (no JSON endpoint)"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": []
+  },
+  "protections": [
+    {
+      "label": "cloudflare-challenge",
+      "confidence": 0.95,
+      "evidence": ["stdlib HTTP returns 403 with cf-mitigated:challenge header"],
+      "mitigation": "Surf with Chrome TLS fingerprint"
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "label": "discover",
+      "host": "www.kickstarter.com",
+      "method": "GET",
+      "paths": ["/discover/advanced"],
+      "response_format": "json",
+      "auth": "none",
+      "query_params": ["format", "term", "category_id", "subcategory_id", "sort", "state", "tag", "woe_id", "page"]
+    },
+    {
+      "label": "projects",
+      "host": "www.kickstarter.com",
+      "method": "GET",
+      "paths": ["/projects/{creator}/{slug}", "/projects/{creator}/{slug}/posts"],
+      "response_format": "json",
+      "auth": "none",
+      "query_params": ["format"]
+    },
+    {
+      "label": "creators",
+      "host": "www.kickstarter.com",
+      "method": "GET",
+      "paths": ["/profile/{username}"],
+      "response_format": "json",
+      "auth": "none"
+    },
+    {
+      "label": "oembed",
+      "host": "www.kickstarter.com",
+      "method": "GET",
+      "paths": ["/services/oembed"],
+      "response_format": "json",
+      "auth": "none",
+      "query_params": ["url"]
+    },
+    {
+      "label": "magazine",
+      "host": "www.kickstarter.com",
+      "method": "GET",
+      "paths": ["/magazine", "/magazine/{slug}"],
+      "response_format": "html",
+      "auth": "none"
+    }
+  ],
+  "generation_hints": [
+    "Ship Surf with Chrome TLS fingerprint as the default HTTP transport (no chrome cookie import needed; no browser sidecar at runtime)",
+    "Magazine endpoints are HTML-only; emit response_format: html parsers, not JSON unmarshal",
+    "category_id values: 1=art, 3=comics, 6=dance, 7=design, 9=fashion, 10=food, 11=film-video, 12=games, 13=journalism, 14=music, 15=photography, 16=technology, 17=theater, 18=publishing, 26=crafts",
+    "Discover JSON returns a 'projects' array with name, slug, blurb, goal, pledged, backers_count, state, deadline, launched_at, creator (id+name+slug), category (id+name+slug), location"
+  ]
+}

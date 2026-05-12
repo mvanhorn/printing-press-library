@@ -1,0 +1,254 @@
+{
+  "api_name": "kickstarter",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "markolson/kickscraper",
+      "url": "https://github.com/markolson/kickscraper",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 280,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rabidlogic/PyKickstarter",
+      "url": "https://github.com/rabidlogic/PyKickstarter",
+      "language": "Python",
+      "install_method": "",
+      "stars": 50,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mikeminutillo/Kickstarter.Api",
+      "url": "https://github.com/mikeminutillo/Kickstarter.Api",
+      "language": "C#",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gippy/kickstarter-search",
+      "url": "https://github.com/gippy/kickstarter-search",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T22:06:50Z",
+  "novel_features": [
+    {
+      "name": "Latest news roll-up",
+      "command": "latest-news",
+      "description": "Fan out across Discover new-launches, Trending/Most-Funded, and Kickstarter Magazine editorial in one call — single ranked stream of fresh signal.",
+      "rationale": "Multi-surface aggregation requires touching three different Kickstarter properties (Discover JSON, Discover JSON with sort=most_funded, Magazine HTML) and stitching them. No existing tool does this.",
+      "example": "kickstarter-pp-cli latest-news --vertical ai-agents --limit 20 --jsonl",
+      "why_it_matters": "When an agent needs one call for 'what's worth knowing on Kickstarter right now,' this returns the smallest useful payload without the agent having to plan three queries.",
+      "group": "Agent-native aggregation"
+    },
+    {
+      "name": "Tech radar",
+      "command": "tech-radar",
+      "description": "Newly launched Technology/Design projects ranked by funding velocity over a time window. Filter to AI/Hardware/Software/Robots subcategories.",
+      "rationale": "Funding velocity (% funded per hour) requires periodic sync snapshots stored in the local SQLite; Kickstarter's API exposes only current totals, not deltas.",
+      "example": "kickstarter-pp-cli tech-radar --subcategory ai --days 7 --json",
+      "why_it_matters": "Agents tracking emerging tech want 'what's growing fastest,' not 'what's biggest right now.' Local snapshots compute the derivative.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Funding-rank",
+      "command": "funding-rank",
+      "description": "Rank live projects by funding velocity (% of goal raised per hour-since-launch) over a configurable window.",
+      "rationale": "Velocity is a derivative; requires at least two snapshots in the local store. The live API exposes only current pledged amount.",
+      "example": "kickstarter-pp-cli funding-rank --window 24h --category technology --limit 25",
+      "why_it_matters": "Identifies breakouts before they top the charts. Trending lists are lagging indicators; velocity is leading.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Vertical mapping",
+      "command": "vertical",
+      "description": "Score each project against a named vertical (ai-agents, frontier-ai, smb-saas, geopolitics, aus-tech, india-tech) using keyword + description + tag matching. Stored in vertical_match table for SQL composition.",
+      "rationale": "Cross-table classification requires synced data + a scoring table. No API endpoint surfaces 'projects matching topic X with score Y.'",
+      "example": "kickstarter-pp-cli vertical ai-agents --score-threshold 0.6 --since 7d --jsonl",
+      "why_it_matters": "Scout's vertical-mapping stage consumes this directly. One CLI call replaces a query + a downstream classifier.",
+      "group": "Scout pipeline integration"
+    },
+    {
+      "name": "Magazine FTS search",
+      "command": "magazine search",
+      "description": "Full-text search over locally-mirrored Kickstarter Magazine articles (editorial posts from KS staff covering trends, creator spotlights, Maker Monday roll-ups).",
+      "rationale": "Magazine has no public search API and no JSON endpoint — pages are HTML-only. Nobody ships a programmatic Magazine path; mirroring + FTS is unique.",
+      "example": "kickstarter-pp-cli magazine search \"ai\" --limit 10 --json",
+      "why_it_matters": "Magazine articles are KS's own editorial signal about what they amplify. Useful when an agent needs 'editorial coverage' separate from raw project listings.",
+      "group": "Agent-native aggregation"
+    },
+    {
+      "name": "Category velocity",
+      "command": "category velocity",
+      "description": "Aggregate launches-per-day and total-pledged-per-day for each top-level category over a time window. Surfaces which categories are accelerating.",
+      "rationale": "Requires aggregation across launched_at and pledged columns over time; only possible with synced history.",
+      "example": "kickstarter-pp-cli category velocity --window 14d --json",
+      "why_it_matters": "Sector rotation signal. When tech launches double in a week, that's a market shift worth flagging upstream.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Diff-since-last-sync",
+      "command": "sync --since-last --diff",
+      "description": "Periodic sync emits only the delta (new + changed projects) since the last successful sync, as JSONL one-per-line.",
+      "rationale": "Agent-native delta surface. The Kickstarter API doesn't expose a `since` cursor; local store comparison is the only path.",
+      "example": "kickstarter-pp-cli sync --since-last --diff delta --json",
+      "why_it_matters": "Lets Scout's weekly run pull only what's new without re-downloading the entire week's launch corpus.",
+      "group": "Scout pipeline integration"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Latest news roll-up",
+      "command": "latest-news",
+      "description": "Fan out across Discover new-launches, Trending/Most-Funded, and Kickstarter Magazine editorial in one call — single ranked stream of fresh signal.",
+      "rationale": "Multi-surface aggregation requires touching three different Kickstarter properties (Discover JSON, Discover JSON with sort=most_funded, Magazine HTML) and stitching them. No existing tool does this.",
+      "example": "kickstarter-pp-cli latest-news --vertical ai-agents --limit 20 --jsonl",
+      "why_it_matters": "When an agent needs one call for 'what's worth knowing on Kickstarter right now,' this returns the smallest useful payload without the agent having to plan three queries.",
+      "group": "Agent-native aggregation"
+    },
+    {
+      "name": "Tech radar",
+      "command": "tech-radar",
+      "description": "Newly launched Technology/Design projects ranked by funding velocity over a time window. Filter to AI/Hardware/Software/Robots subcategories.",
+      "rationale": "Funding velocity (% funded per hour) requires periodic sync snapshots stored in the local SQLite; Kickstarter's API exposes only current totals, not deltas.",
+      "example": "kickstarter-pp-cli tech-radar --subcategory ai --days 7 --json",
+      "why_it_matters": "Agents tracking emerging tech want 'what's growing fastest,' not 'what's biggest right now.' Local snapshots compute the derivative.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Funding-rank",
+      "command": "funding-rank",
+      "description": "Rank live projects by funding velocity (% of goal raised per hour-since-launch) over a configurable window.",
+      "rationale": "Velocity is a derivative; requires at least two snapshots in the local store. The live API exposes only current pledged amount.",
+      "example": "kickstarter-pp-cli funding-rank --window 24h --category technology --limit 25",
+      "why_it_matters": "Identifies breakouts before they top the charts. Trending lists are lagging indicators; velocity is leading.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Vertical mapping",
+      "command": "vertical",
+      "description": "Score each project against a named vertical (ai-agents, frontier-ai, smb-saas, geopolitics, aus-tech, india-tech) using keyword + description + tag matching. Stored in vertical_match table for SQL composition.",
+      "rationale": "Cross-table classification requires synced data + a scoring table. No API endpoint surfaces 'projects matching topic X with score Y.'",
+      "example": "kickstarter-pp-cli vertical ai-agents --score-threshold 0.6 --since 7d --jsonl",
+      "why_it_matters": "Scout's vertical-mapping stage consumes this directly. One CLI call replaces a query + a downstream classifier.",
+      "group": "Scout pipeline integration"
+    },
+    {
+      "name": "Magazine FTS search",
+      "command": "magazine search",
+      "description": "Full-text search over locally-mirrored Kickstarter Magazine articles (editorial posts from KS staff covering trends, creator spotlights, Maker Monday roll-ups).",
+      "rationale": "Magazine has no public search API and no JSON endpoint — pages are HTML-only. Nobody ships a programmatic Magazine path; mirroring + FTS is unique.",
+      "example": "kickstarter-pp-cli magazine search \"ai\" --limit 10 --json",
+      "why_it_matters": "Magazine articles are KS's own editorial signal about what they amplify. Useful when an agent needs 'editorial coverage' separate from raw project listings.",
+      "group": "Agent-native aggregation"
+    },
+    {
+      "name": "Category velocity",
+      "command": "category velocity",
+      "description": "Aggregate launches-per-day and total-pledged-per-day for each top-level category over a time window. Surfaces which categories are accelerating.",
+      "rationale": "Requires aggregation across launched_at and pledged columns over time; only possible with synced history.",
+      "example": "kickstarter-pp-cli category velocity --window 14d --json",
+      "why_it_matters": "Sector rotation signal. When tech launches double in a week, that's a market shift worth flagging upstream.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Diff-since-last-sync",
+      "command": "sync --since-last --diff",
+      "description": "Periodic sync emits only the delta (new + changed projects) since the last successful sync, as JSONL one-per-line.",
+      "rationale": "Agent-native delta surface. The Kickstarter API doesn't expose a `since` cursor; local store comparison is the only path.",
+      "example": "kickstarter-pp-cli sync --since-last --diff delta --json",
+      "why_it_matters": "Lets Scout's weekly run pull only what's new without re-downloading the entire week's launch corpus.",
+      "group": "Scout pipeline integration"
+    }
+  ],
+  "narrative": {
+    "display_name": "Kickstarter",
+    "headline": "Every Kickstarter scraper, plus the first programmatic Magazine path and a Surf transport that clears Cloudflare without a paid service.",
+    "value_prop": "Surfaces newly launched campaigns, trending projects, and Magazine editorial in one binary. Local SQLite mirror enables compound queries no API exposes — funding velocity, vertical classification, category-rotation signals. Built for agent ingestion, terse JSONL output, Surf-fronted to clear Cloudflare without a clearance cookie.",
+    "auth_narrative": "No authentication required. Public Discover, project detail, and Magazine surfaces work over Surf-Chrome HTTP. The api.kickstarter.com OAuth API is partner-only and not used by this CLI.",
+    "quickstart": [
+      {
+        "command": "kickstarter-pp-cli latest-news --vertical ai-agents --limit 20 --jsonl",
+        "comment": "Unified roll-up of new launches + trending + Magazine, filtered to AI vertical, in agent-ready JSONL."
+      },
+      {
+        "command": "kickstarter-pp-cli tech-radar --subcategory ai --days 7 --json",
+        "comment": "Newly launched AI projects in the last week, ranked by funding velocity."
+      },
+      {
+        "command": "kickstarter-pp-cli discover --category-id 16 --status live --sort newest --json",
+        "comment": "List live Technology projects directly from the public Discover JSON endpoint (no sync required)."
+      },
+      {
+        "command": "kickstarter-pp-cli funding-rank --window 24h --category technology --limit 25",
+        "comment": "Identify breakout projects before they hit the trending list."
+      },
+      {
+        "command": "kickstarter-pp-cli magazine search \"ai\" --limit 10 --json",
+        "comment": "FTS over Kickstarter's own editorial coverage."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results from `latest-news` or any Discover command",
+        "fix": "Re-run with `--verbose` to confirm the Surf-Chrome request returned 200. If status is 403, Cloudflare protection has changed shape; run `printing-press probe-reachability https://www.kickstarter.com/` to confirm runtime mode."
+      },
+      {
+        "symptom": "Funding-velocity is always 0",
+        "fix": "Funding velocity requires at least two synced snapshots. Run `kickstarter-pp-cli sync` at least twice with a gap before invoking `funding-rank` or `tech-radar`."
+      },
+      {
+        "symptom": "Magazine commands return empty",
+        "fix": "Magazine has no JSON endpoint; HTML parser depends on KS's current Magazine template. If they restructure /magazine, re-run with `--debug-html` and file an issue."
+      }
+    ],
+    "when_to_use": "Reach for kickstarter-pp-cli when you need programmatic Kickstarter signal that goes beyond a single-query scrape. The unified roll-up + vertical mapping + funding velocity are tuned for autonomous market-intelligence agents that run on a schedule and want a small, ranked JSONL stream rather than a CSV dump. Skip this CLI for one-off lookups of a known project — the official Kickstarter web UI is faster.",
+    "recipes": [
+      {
+        "title": "Scout weekly ingestion",
+        "command": "kickstarter-pp-cli latest-news --vertical ai-agents --vertical frontier-ai --since 7d --jsonl --select id,name,blurb,pledged,goal,launched_at,creator.name,url",
+        "explanation": "One-shot weekly call producing only the fields Scout ingests."
+      },
+      {
+        "title": "Track a breakout candidate",
+        "command": "kickstarter-pp-cli projects get --creator kickstarter-username --slug project-slug --json --select state,pledged,goal,backers_count,deadline",
+        "explanation": "Pull just the funding-state fields when checking on a specific project."
+      },
+      {
+        "title": "Magazine + Discover stitched",
+        "command": "kickstarter-pp-cli latest-news --include-magazine --json",
+        "explanation": "Magazine editorial sits alongside raw launches in one stream — useful for ranking signals by editorial endorsement."
+      }
+    ],
+    "trigger_phrases": [
+      "kickstarter latest tech launches",
+      "kickstarter trending",
+      "search kickstarter projects",
+      "kickstarter magazine",
+      "kickstarter funding velocity",
+      "kickstarter vertical signal",
+      "use kickstarter",
+      "run kickstarter"
+    ]
+  }
+}
