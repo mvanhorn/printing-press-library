@@ -20,19 +20,89 @@ import (
 // openGranolaCache loads the local cache file. Returns a typed error if
 // the file is missing so commands can surface a helpful message.
 //
-// PATCH(encrypted-cache): pass an empty path to LoadCache so the resolver
-// picks the encrypted sibling (cache-v6.json.enc) when it exists. The
-// previous version pinned to DefaultCachePath() which is the plaintext
-// path - on modern Granola installs the plaintext copy is a stale stub
-// and the real data lives only in the .enc file. ResolveCachePath()
-// returns the path used so the error message stays informative.
+// PATCH(encrypted-cache): two changes vs. the generator-produced version:
+//
+//  1. Pass an empty path to LoadCache so the resolver picks
+//     cache-v6.json.enc when it exists. The previous version pinned to
+//     DefaultCachePath() which is the plaintext path - on modern Granola
+//     installs that file is a stale stub.
+//  2. Backfill cache.Documents from the SQLite store. Granola desktop
+//     moved documents out of the local cache at the same time as the
+//     encryption rollout; sync populates the meetings table from the
+//     API. Without this backfill, every command that reads cache.Documents
+//     directly (show, notes-show, memo, export, tiptap) returns "meeting
+//     not in cache" even when sync has run.
 func openGranolaCache() (*granola.Cache, error) {
 	path, _ := granola.ResolveCachePath()
 	c, err := granola.LoadCache("")
 	if err != nil {
 		return nil, fmt.Errorf("loading Granola cache at %s: %w", path, err)
 	}
+	// Best-effort document backfill; errors logged but not fatal so
+	// commands that only need transcripts/folders still work when the
+	// store is unavailable.
+	_ = backfillDocumentsFromStore(c)
 	return c, nil
+}
+
+// backfillDocumentsFromStore reads rows from the meetings table that
+// sync populated from /v2/get-documents and reconstructs lightweight
+// Document structs into c.Documents. Quietly returns nil if the store
+// does not exist yet (fresh install before first sync) - the caller's
+// behavior on an empty cache.Documents is appropriate in that case.
+func backfillDocumentsFromStore(c *granola.Cache) error {
+	if c == nil {
+		return nil
+	}
+	if c.Documents == nil {
+		c.Documents = map[string]granola.Document{}
+	}
+	if len(c.Documents) > 0 {
+		// Cache already has documents (pre-encryption Granola or test
+		// fixtures); don't shadow them with potentially stale store rows.
+		return nil
+	}
+	ctx := context.Background()
+	s, err := openGranolaStoreRead(ctx)
+	if err != nil || s == nil {
+		return err
+	}
+	defer s.Close()
+
+	rows, err := s.DB().QueryContext(ctx, `
+		SELECT id, title, created_at, updated_at, started_at, ended_at,
+		       workspace_id, deleted_at, notes_markdown, notes_plain,
+		       creation_source, valid_meeting
+		FROM meetings
+	`)
+	if err != nil {
+		return fmt.Errorf("backfill: query meetings: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var d granola.Document
+		var deletedAt, startedAt, endedAt string
+		var validMeeting int
+		_ = startedAt
+		_ = endedAt
+		if err := rows.Scan(
+			&d.ID, &d.Title, &d.CreatedAt, &d.UpdatedAt,
+			&startedAt, &endedAt,
+			&d.WorkspaceID, &deletedAt,
+			&d.NotesMarkdown, &d.NotesPlain,
+			&d.CreationSource, &validMeeting,
+		); err != nil {
+			return fmt.Errorf("backfill: scan meeting: %w", err)
+		}
+		if deletedAt != "" {
+			da := deletedAt
+			d.DeletedAt = &da
+		}
+		d.ValidMeeting = validMeeting != 0
+		c.Documents[d.ID] = d
+	}
+	return rows.Err()
 }
 
 // openGranolaStore opens (or creates) the SQLite store and ensures the
