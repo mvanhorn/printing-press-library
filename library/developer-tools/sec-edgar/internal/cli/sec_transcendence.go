@@ -269,10 +269,14 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 			if windowDays < 1 {
 				windowDays = 1
 			}
-			// Page through EFTS for form=4 in the window.
+			// Page through EFTS for form=4 in the window. EFTS caps deep
+			// pagination, so we stop at efTSMaxFetch and surface truncation
+			// via meta + stderr rather than silently dropping filings.
+			const efTSMaxFetch = 1000
 			hits := []EFTSHit{}
 			from := 0
-			for from < 1000 {
+			totalAvailable := 0
+			for from < efTSMaxFetch {
 				q := EFTSQuery{
 					Forms: []string{"4"},
 					Start: sinceTime.Format("2006-01-02"),
@@ -283,6 +287,7 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 				if err := fetchSECJSON(c, q.URL(), &resp); err != nil {
 					return classifyAPIError(err, flags)
 				}
+				totalAvailable = resp.Hits.Total.Value
 				batch := resp.Flatten()
 				if len(batch) == 0 {
 					break
@@ -292,9 +297,15 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 					break
 				}
 				from += len(batch)
-				if from >= resp.Hits.Total.Value {
+				if from >= totalAvailable {
 					break
 				}
+			}
+			truncated := totalAvailable > from
+			if truncated {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: insider-cluster fetched %d of %d available Form 4 filings in --since=%s; clustering may omit issuers. Narrow --since to reduce truncation.\n",
+					from, totalAvailable, since)
 			}
 			// Group filings by issuer. EFTS Form 4 returns one row per filing
 			// with `ciks` listing every CIK on the filing (issuer + every
@@ -429,7 +440,10 @@ func newInsiderClusterCmd(flags *rootFlags) *cobra.Command {
 				"transaction_code": code,
 				"since":            since,
 				"clusters":         len(rows),
-				"note":             "Threshold is Form 4 filings per issuer within the rolling --within window, not strict distinct-insider count. EFTS does not tag which CIK on a filing is the issuer vs. reporting insider; distinct_filers reports the non-issuer CIKs observed (best-effort, may underreport). Transaction-code filtering (--code P/S/A) is not yet applied to EFTS results.",
+				"fetched":          len(hits),
+				"total_available":  totalAvailable,
+				"truncated":        truncated,
+				"note":             "Threshold is Form 4 filings per issuer within the rolling --within window, not strict distinct-insider count. EFTS does not tag which CIK on a filing is the issuer vs. reporting insider; distinct_filers reports the non-issuer CIKs observed (best-effort, may underreport). Transaction-code filtering (--code P/S/A) is not yet applied to EFTS results. When truncated=true, fetched < total_available — narrow --since.",
 			}
 			return printJSONOrTableWithMeta(cmd, flags, rows, meta)
 		},
