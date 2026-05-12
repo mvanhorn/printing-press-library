@@ -205,6 +205,95 @@ func TestBuildDriftReport_TimestampAlignment(t *testing.T) {
 	}
 }
 
+// TestBuildDriftReport_MonotonicityCheck locks the Greptile P1 #3228229129
+// finding: the chemistry-drift Long description promises "AND the trend
+// is monotonic over the last 5 samples" before flagging drift, but the
+// original buildDriftReport only checked delta>threshold. A single tail
+// outlier should NOT fire drifting=true if the prior samples don't show
+// a sustained directional move — pool-service operators routing dispatch
+// calls on these alerts can't afford false positives from transient spikes.
+func TestBuildDriftReport_MonotonicityCheck(t *testing.T) {
+	dir := t.TempDir()
+	s, err := store.Open(filepath.Join(dir, "store.sqlite"))
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	defer s.Close()
+
+	siteID := 1
+	now := time.Now().UTC().Truncate(time.Second)
+	insert := func(metric string, value float64, ts time.Time) {
+		t.Helper()
+		_, err := s.DB.Exec(
+			`INSERT INTO telemetry_samples (site_msp_system_id, bow_system_id, metric, value_real, sampled_at)
+			 VALUES (?, ?, ?, ?, ?)`,
+			siteID, "10", metric, value, ts.Format(time.RFC3339),
+		)
+		if err != nil {
+			t.Fatalf("insert: %v", err)
+		}
+	}
+
+	// Six prior ORP readings averaging ~700 mV (cluster around baseline),
+	// then a single tail-outlier of 760 mV. baseline = mean of first half =
+	// ~700, delta = 760-700 = 60 > 50 threshold, so trend="up" — but the
+	// SECOND-to-last sample (700) is BELOW the last (760), and the THIRD
+	// (700) is equal to the second, breaking strict monotonicity.
+	insert("orp", 700, now.Add(-7*24*time.Hour))
+	insert("orp", 705, now.Add(-6*24*time.Hour))
+	insert("orp", 695, now.Add(-5*24*time.Hour))
+	insert("orp", 702, now.Add(-4*24*time.Hour))
+	insert("orp", 698, now.Add(-3*24*time.Hour))
+	insert("orp", 700, now.Add(-2*24*time.Hour))
+	insert("orp", 760, now) // single tail outlier — should NOT trip drifting
+
+	report := buildDriftReport(s, siteID, false)
+	var orp *driftMetricReport
+	for i := range report.Metrics {
+		if report.Metrics[i].Metric == "orp" {
+			orp = &report.Metrics[i]
+			break
+		}
+	}
+	if orp == nil {
+		t.Fatalf("orp metric missing from drift report")
+	}
+	// Delta crosses threshold so trend reads "up", but a single tail outlier
+	// against a flat-then-spike pattern is NOT monotonic over the last 5
+	// samples (a single sample IS trivially monotonic; the prior cluster
+	// going down/flat/up breaks it). Verify drifting stays false.
+	if orp.Trend != "up" {
+		t.Errorf("expected trend=up given delta of 60 > 50; got %q", orp.Trend)
+	}
+	if orp.Drifting {
+		t.Errorf("expected drifting=false for non-monotonic tail outlier (samples=%+v); got drifting=true", orp.Samples)
+	}
+
+	// Sanity check: a real sustained drift (5 monotonically-rising samples)
+	// should still trip drifting=true. Wipe and rebuild.
+	if _, err := s.DB.Exec(`DELETE FROM telemetry_samples WHERE metric = 'orp'`); err != nil {
+		t.Fatalf("delete: %v", err)
+	}
+	insert("orp", 700, now.Add(-7*24*time.Hour))
+	insert("orp", 705, now.Add(-6*24*time.Hour))
+	insert("orp", 720, now.Add(-5*24*time.Hour))
+	insert("orp", 735, now.Add(-4*24*time.Hour))
+	insert("orp", 745, now.Add(-3*24*time.Hour))
+	insert("orp", 755, now.Add(-2*24*time.Hour))
+	insert("orp", 770, now)
+
+	report = buildDriftReport(s, siteID, false)
+	for i := range report.Metrics {
+		if report.Metrics[i].Metric == "orp" {
+			orp = &report.Metrics[i]
+			break
+		}
+	}
+	if !orp.Drifting {
+		t.Errorf("expected drifting=true for a sustained monotonic rise (last 5: 735,745,755,770); got false")
+	}
+}
+
 // parseForecastHours pulls the float from a string like
 // "at current rate, exits high (7.80) in 4.8 hours".
 func parseForecastHours(note string) (float64, error) {

@@ -723,6 +723,32 @@ func buildDriftReport(s *store.Store, siteID int, forecast bool) driftReport {
 			trend = "down"
 		}
 		drifting := trend != "stable"
+		// Greptile P1 #3228229129: the command's Long description promises
+		// "AND the trend is monotonic over the last 5 samples" before
+		// flagging drift. Without this check, a single outlier sample at
+		// the tail of the 7-day window (e.g. ORP spikes to 760 mV after
+		// six days averaging 700 mV) trips drifting=true with no actual
+		// sustained trend — and for pool-service operators routing service
+		// calls on these alerts, a transient spike that self-corrects
+		// before the next sync would trigger an unnecessary dispatch.
+		if drifting {
+			tail := values
+			if len(tail) > 5 {
+				tail = tail[len(tail)-5:]
+			}
+			mono := true
+			for i := 1; i < len(tail); i++ {
+				if trend == "up" && tail[i] < tail[i-1] {
+					mono = false
+					break
+				}
+				if trend == "down" && tail[i] > tail[i-1] {
+					mono = false
+					break
+				}
+			}
+			drifting = mono
+		}
 		mr := driftMetricReport{
 			Metric: m.key, CurrentValue: current, BaselineValue: base, Delta: delta,
 			Trend: trend, Drifting: drifting, Samples: len(values),
