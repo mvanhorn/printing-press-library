@@ -48,9 +48,15 @@
     },
     {
       "id": "diary-scrape-shared-surf-client",
-      "summary": "Promote the Surf-backed *http.Client in diary_get_day.go to a package-level sync.Once singleton so multi-date reads reuse TLS connections.",
-      "reason": "fetchAuthenticatedHTML previously built a fresh Surf client (and its TLS connection pool) on every call, costing a full TLS handshake per date. The shared client matches how internal/client/client.go's newHTTPClient builds its Surf client once at construction time.",
+      "summary": "Promote the Surf-backed *http.Client in diary_get_day.go to a package-level sync.Once singleton so multi-date reads reuse TLS connections; extract only Surf's Transport and wrap it in a jar-less *http.Client.",
+      "reason": "fetchAuthenticatedHTML previously built a fresh Surf client (and its TLS connection pool) on every call, costing a full TLS handshake per date. Reusing the full Surf *http.Client (which carries a CookieJar from Impersonate().Chrome()) would have accumulated Set-Cookie responses from MFP and re-sent them alongside the manually-set Cookie: <session> header on subsequent calls, producing duplicate/conflicting cookies. Mirrors newHTTPClient's pattern in internal/client/client.go.",
       "files": ["internal/cli/diary_get_day.go"]
+    },
+    {
+      "id": "drop-html-preferring-accept-header",
+      "summary": "Remove the unconditional Accept: text/html,...,application/json;q=0.9 header from the shared do() function.",
+      "reason": "The shared client is used for both HTML scrape paths and JSON v2 API endpoints. Setting an HTML-preferring Accept header globally would cause any content-negotiating API endpoint (/v2/foods/*, /api/services/reports/*) to return HTML and break JSON parsing. HTML scrape paths set their own Accept where it's actually the target; the Chrome TLS fingerprint (not the Accept header) is what clears MFP's anti-bot.",
+      "files": ["internal/client/client.go"]
     },
     {
       "id": "pycookiecheat-www-prefix",

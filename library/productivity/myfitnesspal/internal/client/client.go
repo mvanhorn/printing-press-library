@@ -248,7 +248,12 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if authHeader != "" {
 			req.Header.Set("Cookie", authHeader)
 		}
-		req.Header.Set("Accept", "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8")
+		// PATCH(local): no shared Accept header here. The shared client is used for both
+		// HTML web routes and JSON v2 API endpoints; a Chrome-style "text/html,...,application/
+		// json;q=0.9" line would cause any content-negotiating API endpoint (/v2/foods/*,
+		// /api/services/reports/*) to respond with HTML and break JSON parsing. The HTML
+		// scrape paths (fetchAuthenticatedHTML) set their own Accept where it's actually
+		// the target.
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)

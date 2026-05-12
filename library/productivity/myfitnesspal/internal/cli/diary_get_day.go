@@ -26,7 +26,11 @@ import (
 // Previously fetchAuthenticatedHTML allocated a fresh Surf client (and its TLS
 // connection pool) on every call, costing a full TLS handshake per date when
 // reading multiple days. The shared client mirrors how internal/client/client.go's
-// newHTTPClient builds its Surf client once at construction time.
+// newHTTPClient builds its client: extract only Surf's Transport (which carries
+// the Chrome TLS fingerprint) and wrap it in a fresh *http.Client without a Jar.
+// A jar would accumulate Set-Cookie responses from MFP and re-send them alongside
+// the manually-set Cookie: <session> header on the next request, producing
+// duplicate/conflicting cookies for the rest of the process lifetime.
 var (
 	diaryHTTPClient     *http.Client
 	diaryHTTPClientOnce sync.Once
@@ -35,8 +39,11 @@ var (
 func sharedDiaryHTTPClient() *http.Client {
 	diaryHTTPClientOnce.Do(func() {
 		surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(30 * time.Second).Build().Unwrap()
-		diaryHTTPClient = surfClient.Std()
-		diaryHTTPClient.Timeout = 30 * time.Second
+		surfStd := surfClient.Std()
+		diaryHTTPClient = &http.Client{
+			Timeout:   30 * time.Second,
+			Transport: surfStd.Transport,
+		}
 	})
 	return diaryHTTPClient
 }
