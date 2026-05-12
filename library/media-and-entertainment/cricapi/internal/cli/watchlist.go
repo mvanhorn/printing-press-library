@@ -234,6 +234,11 @@ func newWatchlistRefreshCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// PATCH: watchlist refresh must read live data. Without NoCache,
+			// any series queried within the 5-min HTTP cache window would
+			// return a stale snapshot — defeating the command's whole purpose
+			// of "fetch latest info." Mirrors the pattern in watch.go and sync.go.
+			c.NoCache = true
 
 			type refreshResult struct {
 				Alias    string          `json:"alias"`

@@ -22,6 +22,12 @@
       "summary": "Use exact equality in today.go's formatMatches helper. Was strings.Contains, which silently included T20I matches when user passed --format t20.",
       "reason": "Substring matching meant any format that's a prefix/substring of another would match unintended formats. Greptile P1. CricAPI's matchType tokens are short (t20, odi, test, t10, hundred); exact case-insensitive comparison is the correct semantics. Also updated the --format flag help text to drop the misleading 't20i' suggestion since CricAPI returns 't20' for T20I matches.",
       "files": ["internal/cli/today.go"]
+    },
+    {
+      "id": "watchlist-refresh-nocache",
+      "summary": "Set c.NoCache = true in watchlist refresh after newClient(), so 'fetch latest info' actually fetches live data instead of returning the 5-min cached snapshot.",
+      "reason": "The command's stated purpose is to refresh series info, but without NoCache it silently returned cached data within the 5-min HTTP cache window. Same fix as watch.go and sync.go. Greptile P1.",
+      "files": ["internal/cli/watchlist.go"]
     }
   ]
 }
