@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/other/redfin/internal/redfin"
 
@@ -31,7 +32,12 @@ its value through verbatim — useful when Stingray adds new codes.`,
 			hf.status = "sold"
 			opts, oerr := optsFromFlags(hf)
 			if oerr != nil {
-				if dryRunOK(flags) {
+				// PATCH(upstream printing-press-library#482): dry-run only
+				// silences the "no region yet" case (helpful for `--help`-
+				// style exploration); validation errors like an invalid
+				// --sold-window value MUST always propagate so typos surface
+				// instead of producing wrong results.
+				if dryRunOK(flags) && strings.Contains(oerr.Error(), "region") {
 					fmt.Fprintln(cmd.ErrOrStderr(), "would GET: /stingray/api/gis (status=sold; region required at runtime)")
 					return nil
 				}

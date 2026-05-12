@@ -62,7 +62,10 @@ func TestSoldFlagsFor_NoBrokenDefault(t *testing.T) {
 
 // TestOptsFromFlags_SoldWindowAndSF covers the precedence rules: --sf
 // wins over --sold-window, --sold-window picks the right code, status
-// other than "sold" leaves SoldFlags empty regardless of either flag.
+// other than "sold" leaves SoldFlags empty regardless of either flag,
+// and a typo (`1yr`, `12mo`, etc.) surfaces a usage error instead of
+// silently resolving to the 3y default. Regression for Greptile P1
+// #3230445517.
 func TestOptsFromFlags_SoldWindowAndSF(t *testing.T) {
 	cases := []struct {
 		name       string
@@ -70,15 +73,24 @@ func TestOptsFromFlags_SoldWindowAndSF(t *testing.T) {
 		soldWindow string
 		sf         string
 		want       string
+		wantErr    bool
 	}{
-		{"for-sale ignores sold-window", "for-sale", "1y", "", ""},
-		{"for-sale ignores raw sf", "for-sale", "", "1,2,3", ""},
-		{"sold default uses 3y combo", "sold", "", "", "1,2,3,5,6,7"},
-		{"sold + 1y window uses single code 7", "sold", "1y", "", "7"},
-		{"sold + 2y window uses single code 9", "sold", "2y", "", "9"},
-		{"sold + raw sf wins over window", "sold", "1y", "1,3", "1,3"},
-		{"sold + raw sf, no window", "sold", "", "9", "9"},
-		{"sold + unknown window falls back to 3y", "sold", "bogus", "", "1,2,3,5,6,7"},
+		{"for-sale ignores valid sold-window value", "for-sale", "1y", "", "", false},
+		{"for-sale ignores raw sf", "for-sale", "", "1,2,3", "", false},
+		{"sold default uses 3y combo", "sold", "", "", "1,2,3,5,6,7", false},
+		{"sold + 1y window uses single code 7", "sold", "1y", "", "7", false},
+		{"sold + 2y window uses single code 9", "sold", "2y", "", "9", false},
+		{"sold + raw sf wins over window", "sold", "1y", "1,3", "1,3", false},
+		{"sold + raw sf, no window", "sold", "", "9", "9", false},
+		{"sold + raw sf, bad window — sf bypasses validation", "sold", "1yr", "1,2,3", "1,2,3", false},
+		// --sold-window is validated regardless of --status: invalid values
+		// surface as usage errors even when the flag is moot for the chosen
+		// status. Better to fail loudly on a typo than to silently ignore.
+		{"for-sale + bad window still errors (flag-level validation)", "for-sale", "bogus", "", "", true},
+		{"sold + typo 1yr returns usage error", "sold", "1yr", "", "", true},
+		{"sold + typo 12mo returns usage error", "sold", "12mo", "", "", true},
+		{"sold + unknown window 5y returns usage error", "sold", "5y", "", "", true},
+		{"sold + bogus window returns usage error", "sold", "bogus", "", "", true},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -90,6 +102,18 @@ func TestOptsFromFlags_SoldWindowAndSF(t *testing.T) {
 				regionType: 6,
 			}
 			opts, err := optsFromFlags(hf)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("expected error for soldWindow=%q, got SoldFlags=%q", tc.soldWindow, opts.SoldFlags)
+				}
+				if !strings.Contains(err.Error(), tc.soldWindow) {
+					t.Errorf("error should name the offending value %q; got: %v", tc.soldWindow, err)
+				}
+				if !strings.Contains(err.Error(), "1mo|3mo|6mo|1y|2y|3y") {
+					t.Errorf("error should list valid values; got: %v", err)
+				}
+				return
+			}
 			if err != nil {
 				t.Fatalf("optsFromFlags: %v", err)
 			}

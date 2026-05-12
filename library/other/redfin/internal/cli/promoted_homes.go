@@ -93,6 +93,21 @@ type homesFlags struct {
 // arguments (code 101)" rejection of the prior hard-coded sf=1,3,5,7,9 default
 // is fixed by mapping --sold-window through this function.
 //
+// validSoldWindows is the closed set of --sold-window values accepted.
+// optsFromFlags validates against this before calling soldFlagsFor so
+// typos like "1yr" surface as usage errors instead of silently
+// resolving to the 3y default. Keep this set in sync with the cases
+// in soldFlagsFor below — both must update together when a new window
+// is added.
+var validSoldWindows = map[string]bool{
+	"1mo": true,
+	"3mo": true,
+	"6mo": true,
+	"1y":  true,
+	"2y":  true,
+	"3y":  true,
+}
+
 // soldFlagsFor maps a CLI-facing --sold-window value to a Stingray
 // "sf" parameter string. Stingray rejects ad-hoc multi-code unions
 // with `Invalid arguments` (resultCode 101) — see issue #482 — so each
@@ -101,6 +116,12 @@ type homesFlags struct {
 // (1,2,3,5,6,7). When users need a different window, --sf passes a raw
 // value through; the default empty window resolves to the 3-year combo,
 // which mirrors what redfin.com fires when you toggle "Sold" on the map.
+//
+// Callers should validate `window` against validSoldWindows before
+// invoking this; the unknown-window fall-through here returns the 3y
+// default defensively so the function is total (no panics on bad
+// input), but optsFromFlags will refuse such input upstream so the
+// fall-through never actually fires in production.
 //
 // Stingray sf bucket codes (from internal/cli/apt_comps.go:soldFlagsForMonths):
 //
@@ -146,6 +167,14 @@ func optsFromFlags(hf *homesFlags) (redfin.SearchOptions, error) {
 	if err != nil {
 		return redfin.SearchOptions{}, err
 	}
+	// PATCH(upstream printing-press-library#482): validate --sold-window
+	// BEFORE region resolution so a typo surfaces even when the user
+	// omits --region-slug/--region-id (which would otherwise short-
+	// circuit with "region required"). --sf is a raw escape hatch and
+	// bypasses this validation by design.
+	if hf.sf == "" && hf.soldWindow != "" && !validSoldWindows[hf.soldWindow] {
+		return redfin.SearchOptions{}, fmt.Errorf("invalid --sold-window %q (one of: 1mo|3mo|6mo|1y|2y|3y)", hf.soldWindow)
+	}
 	regionID := hf.regionID
 	regionType := hf.regionType
 	if hf.regionSlug != "" {
@@ -177,10 +206,10 @@ func optsFromFlags(hf *homesFlags) (redfin.SearchOptions, error) {
 	if statusCode == 7 {
 		// PATCH(upstream printing-press-library#482): replaced hard-coded
 		// "1,3,5,7,9" (Stingray-rejected) with --sf-or-window resolution.
-		// Pick the Stingray sf parameter for the requested sold window.
 		// --sf <raw> wins (escape hatch for power users); else
-		// --sold-window <name> maps to a known-valid code; else default
-		// to the website's 3y combo (1,2,3,5,6,7).
+		// --sold-window <name> maps to a known-valid code (validated at
+		// the top of this function so typos surface even without a
+		// region); else default to the website's 3y combo (1,2,3,5,6,7).
 		switch {
 		case hf.sf != "":
 			soldFlags = hf.sf
