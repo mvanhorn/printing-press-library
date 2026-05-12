@@ -1,5 +1,12 @@
 // Copyright 2026 Granola Printing Press contributors. Licensed under Apache-2.0.
 
+// PATCH(safestorage-package): new package providing two-tier decryption of
+// Granola's encrypted local storage (cache-v6.json.enc, supabase.json.enc,
+// user-preferences.json.enc) that Granola desktop began writing around May
+// 2026. See library/productivity/granola/.printing-press-patches.json
+// patches[1] and library/productivity/granola/internal/granola/safestorage/
+// testdata/scheme.md for the empirical scheme finding.
+
 // Package safestorage decrypts Granola's encrypted local-storage files.
 // Granola desktop (>= ~May 2026) uses a two-tier scheme:
 //

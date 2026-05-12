@@ -12,6 +12,11 @@ metadata:
         - granola-pp-cli
 ---
 
+<!-- // PATCH(skill-doc-auth-rewrite): Auth Setup section rewritten for the
+     encrypted-cache install flow (Keychain prompt on first sync, no API key,
+     D6 read-only refresh). See library/productivity/granola/.printing-press-patches.json
+     patches[6]. -->
+
 # Granola — Printing Press CLI
 
 ## Prerequisites: Install the CLI
