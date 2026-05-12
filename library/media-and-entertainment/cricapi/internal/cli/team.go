@@ -51,6 +51,12 @@ match list. Answers the natural-language question: "when does Pakistan play next
 			if err != nil {
 				return err
 			}
+			// PATCH: team queries fixtures and recent results — both are live
+			// data. Without NoCache, a follow-up `team india` 30 seconds after
+			// `team pakistan` could return stale snapshots if the same series
+			// data was in the 5-min HTTP cache window. Same fix as watch.go,
+			// today.go, watchlist refresh, and sync.go.
+			c.NoCache = true
 
 			// Pull /matches with offset=0; CricAPI returns the broad list there.
 			path := "/matches"
