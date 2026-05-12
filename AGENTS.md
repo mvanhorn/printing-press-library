@@ -88,7 +88,7 @@ The `verify-library-conventions.yml` workflow runs `verify_publish_package.py` o
 
 Every PR against this repo gets an automated review from **Greptile** alongside the verify-* workflows. Greptile posts a top-level summary comment with a **confidence score on a 0-5 scale** (5 = "Production ready", 4 = "Minor polish needed", 3 = "Implementation issues", 2 = "Significant bugs", 0-1 = "Critical problems"), plus inline comments tagged with **P0 / P1 / P2** severity (P0 = must fix before merge, P1 = should fix, P2 = consider fixing) and categorized as Logic / Syntax / Style. Status is shown via 👀 (analyzing) → 👍 (done) or 😕 (failed); Greptile does NOT use GitHub's approve / request-changes flow.
 
-**The bar is resolving every Greptile finding before merge** — the 0-5 score is a confidence signal, not a guarantee, so don't treat the number itself as the gate. 4/5 and 5/5 are both acceptable end states; the score will land in that range naturally once threads are addressed. A 5/5 with open P1s is still not ready; a 4/5 with everything resolved is. Treat every P0 and P1 as blocking; P2s require either a fix or a concrete reply explaining why we're deferring.
+**The bar is resolving every Greptile finding before merge** — the 0-5 score is a confidence signal, not a guarantee, so don't treat the number itself as the gate. 4/5 and 5/5 are both acceptable end states; the score will land in that range naturally once threads are addressed. A 5/5 with open P1s is still not ready; a 4/5 with everything resolved is ready. Treat every P0 and P1 as blocking; P2s require either a fix or a concrete reply explaining why we're deferring.
 
 If you (an agent) opened the PR, you own driving it to ready-to-merge:
 
