@@ -101,44 +101,74 @@ Requires followed_artists to be populated (call 'sync' first or run
 				AlbumType   string `json:"album_type"`
 				URI         string `json:"uri"`
 			}
+			// PATCH (fix-releases-since-pagination):
+			// Paginate /artists/{id}/albums per artist instead of taking the
+			// first page only. Spotify returns albums newest-first, so as soon
+			// as a page's last item is older than `since`, every subsequent
+			// page is older too and we can stop. Without this, any artist with
+			// more than 10 releases in the window silently loses the tail.
+			// limit=10 dodges Spotify's post-2024-11-27 new-app cap on this
+			// endpoint (the documented max=50 returns HTTP 400 "Invalid limit").
 			var releases []release
 			for _, a := range artists {
-				params := map[string]string{
+				cursor := "/artists/" + a.ID + "/albums"
+				cursorParams := map[string]string{
 					"include_groups": includeGroups,
-					"limit":          "20",
+					"limit":          "10",
 				}
-				data, err := c.Get("/artists/"+a.ID+"/albums", params)
-				if err != nil {
-					// Skip artists that 404 etc.; report inline.
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: artist %s skipped: %v\n", a.ID, err)
-					continue
-				}
-				var resp struct {
-					Items []struct {
-						ID          string `json:"id"`
-						Name        string `json:"name"`
-						ReleaseDate string `json:"release_date"`
-						AlbumType   string `json:"album_type"`
-						URI         string `json:"uri"`
-					} `json:"items"`
-				}
-				if err := json.Unmarshal(data, &resp); err != nil {
-					continue
-				}
-				for _, alb := range resp.Items {
-					rd, err := parseSpotifyReleaseDate(alb.ReleaseDate)
-					if err != nil || rd.Before(since) {
-						continue
+			pageLoop:
+				for {
+					data, err := c.Get(cursor, cursorParams)
+					if err != nil {
+						// Skip artists that 404 etc.; report inline.
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: artist %s skipped: %v\n", a.ID, err)
+						break pageLoop
 					}
-					releases = append(releases, release{
-						ID:          alb.ID,
-						Name:        alb.Name,
-						ReleaseDate: alb.ReleaseDate,
-						ArtistID:    a.ID,
-						ArtistName:  a.Name,
-						AlbumType:   alb.AlbumType,
-						URI:         alb.URI,
-					})
+					var resp struct {
+						Items []struct {
+							ID          string `json:"id"`
+							Name        string `json:"name"`
+							ReleaseDate string `json:"release_date"`
+							AlbumType   string `json:"album_type"`
+							URI         string `json:"uri"`
+						} `json:"items"`
+						Next string `json:"next"`
+					}
+					if err := json.Unmarshal(data, &resp); err != nil {
+						break pageLoop
+					}
+					stopEarly := false
+					for _, alb := range resp.Items {
+						rd, err := parseSpotifyReleaseDate(alb.ReleaseDate)
+						if err != nil {
+							continue
+						}
+						if rd.Before(since) {
+							// Newest-first ordering means everything after this
+							// page is older too; finish the current page (it
+							// may contain mixed dates) then stop.
+							stopEarly = true
+							continue
+						}
+						releases = append(releases, release{
+							ID:          alb.ID,
+							Name:        alb.Name,
+							ReleaseDate: alb.ReleaseDate,
+							ArtistID:    a.ID,
+							ArtistName:  a.Name,
+							AlbumType:   alb.AlbumType,
+							URI:         alb.URI,
+						})
+					}
+					if stopEarly || resp.Next == "" {
+						break pageLoop
+					}
+					nextPath, nextParams, err := splitURL(resp.Next)
+					if err != nil {
+						break pageLoop
+					}
+					cursor = nextPath
+					cursorParams = nextParams
 				}
 			}
 

@@ -80,6 +80,12 @@
       "validated_outcome": "TestCliArgsFromMCP_BlocksRootFlags passes; the test's blocked-list (base-url, config, deliver, profile, token) is enforced again."
     },
     {
+      "id": "fix-releases-since-pagination",
+      "summary": "Paginate /artists/{id}/albums in `releases since` with newest-first early-stop instead of taking only the first page.",
+      "reason": "The original call used a hard-coded limit=20 with no pagination, so any followed artist with more than 20 releases (counting singles + EPs + compilations + appears_on) in the window silently lost the tail. Spotify returns albums newest-first by release_date, so the loop can short-circuit as soon as a page's items fall before `since` — no need to walk the full back-catalog. limit=10 matches the post-2024-11-27 new-app cap on this endpoint.",
+      "files": ["internal/cli/transcendence_t5_releases_since.go"]
+    },
+    {
       "id": "add-play-on-device-by-name",
       "summary": "New T13 transcendence command: play-on <device-name> resolves a friendly name against live /me/player/devices and the cached devices_seen table.",
       "reason": "Spotify's playback API only takes opaque device IDs; users have to list devices and copy/paste. play-on closes the loop with name-based resolution backed by the local cache, so devices that aren't currently online (Echo speakers Alexa hasn't woken yet) still surface a typed wake-hint instead of a raw 404. 18 unit tests for the name-resolution precedence (exact > prefix > substring) and the device-type-branched wake hint. mcp:read-only annotation deliberately omitted (mutating); pp:typed-exit-codes='0,2' set so ambiguous/no-match (exit 2) counts as verify pass.",
