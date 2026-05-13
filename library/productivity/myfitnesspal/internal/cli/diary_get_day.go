@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -40,9 +41,21 @@ func sharedDiaryHTTPClient() *http.Client {
 	diaryHTTPClientOnce.Do(func() {
 		surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(30 * time.Second).Build().Unwrap()
 		surfStd := surfClient.Std()
+		surfTransport := surfStd.Transport
+		if surfTransport == nil {
+			// PATCH(local): fail loud instead of silently degrading. Mirrors the
+			// nil-transport guard in internal/client/client.go's newHTTPClient. A nil
+			// transport here means Surf's API changed shape — falling back to
+			// http.DefaultTransport would drop the Chrome TLS fingerprint and every
+			// diary scrape would hit MFP's anti-bot wall with no visible cause.
+			fmt.Fprintln(os.Stderr, "WARNING: Surf transport is nil — Chrome TLS fingerprint unavailable. "+
+				"MFP diary requests will likely be rejected by anti-bot. Falling back to stdlib transport; "+
+				"check the enetx/surf version.")
+			surfTransport = http.DefaultTransport
+		}
 		diaryHTTPClient = &http.Client{
 			Timeout:   30 * time.Second,
-			Transport: surfStd.Transport,
+			Transport: surfTransport,
 		}
 	})
 	return diaryHTTPClient

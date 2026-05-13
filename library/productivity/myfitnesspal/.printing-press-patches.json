@@ -53,6 +53,12 @@
       "files": ["internal/cli/diary_get_day.go"]
     },
     {
+      "id": "diary-surf-transport-nil-loud-warning",
+      "summary": "Emit a loud stderr warning when Surf's underlying *http.Transport is nil in sharedDiaryHTTPClient(), mirroring the existing guard in newHTTPClient.",
+      "reason": "sharedDiaryHTTPClient previously assigned surfStd.Transport without a nil check. If a future enetx/surf release changes Std()'s shape and returns a client with no Transport, the silent fallback would drop the Chrome TLS fingerprint on the diary scrape path and every request would hit MFP's anti-bot wall with no visible cause. Brings the diary path in line with surf-transport-nil-loud-warning in internal/client/client.go.",
+      "files": ["internal/cli/diary_get_day.go"]
+    },
+    {
       "id": "drop-html-preferring-accept-header",
       "summary": "Remove the unconditional Accept: text/html,...,application/json;q=0.9 header from the shared do() function.",
       "reason": "The shared client is used for both HTML scrape paths and JSON v2 API endpoints. Setting an HTML-preferring Accept header globally would cause any content-negotiating API endpoint (/v2/foods/*, /api/services/reports/*) to return HTML and break JSON parsing. HTML scrape paths set their own Accept where it's actually the target; the Chrome TLS fingerprint (not the Accept header) is what clears MFP's anti-bot.",
