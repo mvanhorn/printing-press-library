@@ -1,0 +1,51 @@
+version: 2
+project_name: monday-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: monday-pp-cli
+    main: ./cmd/monday-pp-cli
+    binary: monday-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/monday/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: monday-pp-mcp
+    main: ./cmd/monday-pp-mcp
+    binary: monday-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: monday-pp-cli
+    repository:
+      owner: bobe
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every monday.com feature, plus offline SQL, FTS5 search, typed column-value handling, and bulk edits no other..."
+    install: |
+      bin.install "monday-pp-cli"
+      bin.install "monday-pp-mcp"

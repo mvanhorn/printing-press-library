@@ -1,0 +1,397 @@
+{
+  "api_name": "monday",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "mondaycom/mcp",
+      "url": "https://github.com/mondaycom/mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 401,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@mondaydotcomorg/api",
+      "url": "https://github.com/mondaycom/monday-graphql-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "monday-api-python-sdk",
+      "url": "https://github.com/mondaycom/monday-api-python-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ProdPerfect/monday",
+      "url": "https://github.com/ProdPerfect/monday",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GearPlug/monday-python",
+      "url": "https://github.com/GearPlug/monday-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T15:42:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-board activity since window",
+      "command": "since",
+      "description": "Tail every change across every synced board since a window or timestamp; filter by user, column, or board without burning API points.",
+      "rationale": "Joins the local activity_logs table with a thin API tail-fetch since the cached high-water mark; the web UI's universal Activity view caps at the latest ~50 events and the per-board API requires separate calls per board.",
+      "example": "monday-pp-cli since 2h --board sprint-q3 --json --select item.name,user.name,column.title,value",
+      "why_it_matters": "When an agent needs to answer 'what changed since standup' or 'what did this user touch today' across multiple boards, this is the only command that returns a single ranked stream without N round-trips.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-person workload across boards",
+      "command": "whoami-load",
+      "description": "Per-user open-item count weighted by status and overdue flag, computed across every board the user is assigned on.",
+      "rationale": "SQLite join across items + person-typed column_values + boards + status that no single GraphQL call returns.",
+      "example": "monday-pp-cli whoami-load --board 12345,67890 --json --select person,total,by_status",
+      "why_it_matters": "Answers 'who's overloaded this sprint?' and 'what is my real plate?' in one call instead of filtering each board by Person column.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Status-bottleneck dwell-time analyzer",
+      "command": "bottleneck",
+      "description": "Per-status median and p90 dwell time per item, computed from activity-log transitions on a board.",
+      "rationale": "Reads activity_logs locally and reconstructs per-item status transitions; the API exposes raw activity entries but never the dwell-time aggregation.",
+      "example": "monday-pp-cli bottleneck --board sprint-q3 --column status --json",
+      "why_it_matters": "Surfaces the actual bottleneck status (\"In Review\" sat 9 days p90) when an agent is asked why velocity dropped.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sprint velocity \u0026 slip report",
+      "command": "velocity",
+      "description": "Per-sprint committed / completed / slipped / added-mid-sprint counts, plus per-person delivered, across the last N sprint cycles.",
+      "rationale": "Joins sprint metadata API + local activity log + items; the official sprint summary tool reports headline numbers but not slip or added-mid-sprint.",
+      "example": "monday-pp-cli velocity --board 12345 --json --select current_items_by_status,transitions_into_done",
+      "why_it_matters": "Replaces the \"export to CSV every Friday and run three SQL queries\" loop for engineering managers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Column-schema drift detector",
+      "command": "column-drift",
+      "description": "Reports columns added, removed, renamed, or retyped on a board since the last sync.",
+      "rationale": "Diffs cached boards.columns JSON against a fresh get_board_info response; the polymorphic typed column_values are the central pain point for tooling and a single column-type swap breaks downstream pipelines silently.",
+      "example": "monday-pp-cli column-drift --board sales-pipeline --json",
+      "why_it_matters": "Catches \"someone changed status to dropdown\" before downstream automations break with no warning.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cross-board contextual mentions",
+      "command": "mentions",
+      "description": "FTS5 search across item names, update bodies, doc bodies, and text-typed column values; result rows hydrated with board, group, and owner context.",
+      "rationale": "The base search command finds matches; mentions returns context-rich rows so an agent can answer \"where is Acme Corp mentioned?\" with one call instead of joining N results.",
+      "example": "monday-pp-cli mentions \"Acme Corp\" --board 12345,67890 --updates --json",
+      "why_it_matters": "Cross-board reverse-lookup that the official universal search exposes only in the web UI and never as structured agent output.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pre-flight complexity budget",
+      "command": "complexity-budget",
+      "description": "Predicts the complexity-points cost of a query and the remaining account-minute budget without executing the body.",
+      "rationale": "GraphQL exposes a `complexity { before after reset_in_x_seconds }` field on every operation, but no existing tool surfaces it as a budget probe. Without this, complexity-points are unobservable until the call fails.",
+      "example": "monday-pp-cli complexity-budget --query ./bulk-status.graphql --json",
+      "why_it_matters": "Lets an agent answer \"can I run this bulk read right now?\" before it gets a 429 mid-loop.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Bulk column-value editor with typed dry-run",
+      "command": "bulk-edit",
+      "description": "Read a CSV; validate every cell against the cached typed-column schema; print a unified diff in dry-run; on apply, run change_item_column_values per row with per-row exit codes and resume-on-failure.",
+      "rationale": "The absorbed items-set --stdin command pipes raw values; bulk-edit adds CSV-shaped input, schema validation, and a true diff so the user can stage hundreds of edits safely.",
+      "example": "monday-pp-cli bulk-edit --from updates.csv --column status,owner --dry-run",
+      "why_it_matters": "RevOps integrators currently re-build dry-run themselves in Python every time; this is the safety net that makes Monday a first-class CSV-driven backend.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Mirror \u0026 formula dependency resolver",
+      "command": "resolve",
+      "description": "For a given item or column, walks mirror and formula chains in the local store and prints the source board, source item, source column, and final resolved value.",
+      "rationale": "Mirror columns hide their source; formula columns hide their inputs; the schema knows the linkage but no public tool exposes the chain.",
+      "example": "monday-pp-cli resolve --item 12345 --column mirror_account --json",
+      "why_it_matters": "Answers \"why is this column showing this value?\" without clicking through the source board manually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "External-CSV reconcile",
+      "command": "reconcile",
+      "description": "Joins a local board to an external CSV by a chosen column-value key; emits only-in-monday, only-in-csv, and diff sets.",
+      "rationale": "RevOps glue between Monday and Salesforce/Stripe currently re-implements this in Python every time.",
+      "example": "monday-pp-cli reconcile --against salesforce-export.csv --key sf_account_id --json",
+      "why_it_matters": "Mid-week reconcile becomes a one-liner instead of a script.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Per-board health scorecard",
+      "command": "boards health",
+      "description": "Per-board scorecard: % items with owner, % with due-date, % overdue, % updated in last 7d, count of empty status, count of broken mirror columns.",
+      "rationale": "Pure local store aggregation; the API has no equivalent rollup.",
+      "example": "monday-pp-cli boards health 12345678 --json",
+      "why_it_matters": "Friday status snapshot becomes a single command per board.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Item full-context dump",
+      "command": "context",
+      "description": "For one item-id, returns one JSON blob with the item, every column-value typed, every update, every reply, every linked doc, every asset metadata, every activity log entry, and every mirror source.",
+      "rationale": "A single SQLite join over 8 local tables that no single API call covers; ideal for piping to an LLM as task context.",
+      "example": "monday-pp-cli context 12345 --json",
+      "why_it_matters": "One command to give an agent everything about one item without N round-trips.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-system ID exporter",
+      "command": "cross-ref",
+      "description": "Joins Monday items to whichever column stores their cross-system ID (Linear id, Notion page-id, Slack thread-ts) and emits a structured list ready to pipe into another tool.",
+      "rationale": "Teams that bridge Monday with Linear, Notion, or Slack store the cross-system ID in a column on the Monday item. The local store already has every column value typed; this command makes the join key explicit and the JSON output the contract for downstream CLIs.",
+      "example": "monday-pp-cli cross-ref --board sprint-q3 --link-column linear_id --json",
+      "why_it_matters": "Lets an agent answer 'which Monday items map to which Linear issues?' in one call, then pipe straight into linear-pp-cli without writing glue.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-board activity since window",
+      "command": "since",
+      "description": "Tail every change across every synced board since a window or timestamp; filter by user, column, or board without burning API points.",
+      "rationale": "Joins the local activity_logs table with a thin API tail-fetch since the cached high-water mark; the web UI's universal Activity view caps at the latest ~50 events and the per-board API requires separate calls per board.",
+      "example": "monday-pp-cli since 2h --board sprint-q3 --json --select item.name,user.name,column.title,value",
+      "why_it_matters": "When an agent needs to answer 'what changed since standup' or 'what did this user touch today' across multiple boards, this is the only command that returns a single ranked stream without N round-trips.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-person workload across boards",
+      "command": "whoami-load",
+      "description": "Per-user open-item count weighted by status and overdue flag, computed across every board the user is assigned on.",
+      "rationale": "SQLite join across items + person-typed column_values + boards + status that no single GraphQL call returns.",
+      "example": "monday-pp-cli whoami-load --board 12345,67890 --json --select person,total,by_status",
+      "why_it_matters": "Answers 'who's overloaded this sprint?' and 'what is my real plate?' in one call instead of filtering each board by Person column.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Status-bottleneck dwell-time analyzer",
+      "command": "bottleneck",
+      "description": "Per-status median and p90 dwell time per item, computed from activity-log transitions on a board.",
+      "rationale": "Reads activity_logs locally and reconstructs per-item status transitions; the API exposes raw activity entries but never the dwell-time aggregation.",
+      "example": "monday-pp-cli bottleneck --board sprint-q3 --column status --json",
+      "why_it_matters": "Surfaces the actual bottleneck status (\"In Review\" sat 9 days p90) when an agent is asked why velocity dropped.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sprint velocity \u0026 slip report",
+      "command": "velocity",
+      "description": "Per-sprint committed / completed / slipped / added-mid-sprint counts, plus per-person delivered, across the last N sprint cycles.",
+      "rationale": "Joins sprint metadata API + local activity log + items; the official sprint summary tool reports headline numbers but not slip or added-mid-sprint.",
+      "example": "monday-pp-cli velocity --board 12345 --json --select current_items_by_status,transitions_into_done",
+      "why_it_matters": "Replaces the \"export to CSV every Friday and run three SQL queries\" loop for engineering managers.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Column-schema drift detector",
+      "command": "column-drift",
+      "description": "Reports columns added, removed, renamed, or retyped on a board since the last sync.",
+      "rationale": "Diffs cached boards.columns JSON against a fresh get_board_info response; the polymorphic typed column_values are the central pain point for tooling and a single column-type swap breaks downstream pipelines silently.",
+      "example": "monday-pp-cli column-drift --board sales-pipeline --json",
+      "why_it_matters": "Catches \"someone changed status to dropdown\" before downstream automations break with no warning.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Cross-board contextual mentions",
+      "command": "mentions",
+      "description": "FTS5 search across item names, update bodies, doc bodies, and text-typed column values; result rows hydrated with board, group, and owner context.",
+      "rationale": "The base search command finds matches; mentions returns context-rich rows so an agent can answer \"where is Acme Corp mentioned?\" with one call instead of joining N results.",
+      "example": "monday-pp-cli mentions \"Acme Corp\" --board 12345,67890 --updates --json",
+      "why_it_matters": "Cross-board reverse-lookup that the official universal search exposes only in the web UI and never as structured agent output.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pre-flight complexity budget",
+      "command": "complexity-budget",
+      "description": "Predicts the complexity-points cost of a query and the remaining account-minute budget without executing the body.",
+      "rationale": "GraphQL exposes a `complexity { before after reset_in_x_seconds }` field on every operation, but no existing tool surfaces it as a budget probe. Without this, complexity-points are unobservable until the call fails.",
+      "example": "monday-pp-cli complexity-budget --query ./bulk-status.graphql --json",
+      "why_it_matters": "Lets an agent answer \"can I run this bulk read right now?\" before it gets a 429 mid-loop.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Bulk column-value editor with typed dry-run",
+      "command": "bulk-edit",
+      "description": "Read a CSV; validate every cell against the cached typed-column schema; print a unified diff in dry-run; on apply, run change_item_column_values per row with per-row exit codes and resume-on-failure.",
+      "rationale": "The absorbed items-set --stdin command pipes raw values; bulk-edit adds CSV-shaped input, schema validation, and a true diff so the user can stage hundreds of edits safely.",
+      "example": "monday-pp-cli bulk-edit --from updates.csv --column status,owner --dry-run",
+      "why_it_matters": "RevOps integrators currently re-build dry-run themselves in Python every time; this is the safety net that makes Monday a first-class CSV-driven backend.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Mirror \u0026 formula dependency resolver",
+      "command": "resolve",
+      "description": "For a given item or column, walks mirror and formula chains in the local store and prints the source board, source item, source column, and final resolved value.",
+      "rationale": "Mirror columns hide their source; formula columns hide their inputs; the schema knows the linkage but no public tool exposes the chain.",
+      "example": "monday-pp-cli resolve --item 12345 --column mirror_account --json",
+      "why_it_matters": "Answers \"why is this column showing this value?\" without clicking through the source board manually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "External-CSV reconcile",
+      "command": "reconcile",
+      "description": "Joins a local board to an external CSV by a chosen column-value key; emits only-in-monday, only-in-csv, and diff sets.",
+      "rationale": "RevOps glue between Monday and Salesforce/Stripe currently re-implements this in Python every time.",
+      "example": "monday-pp-cli reconcile --against salesforce-export.csv --key sf_account_id --json",
+      "why_it_matters": "Mid-week reconcile becomes a one-liner instead of a script.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Per-board health scorecard",
+      "command": "boards health",
+      "description": "Per-board scorecard: % items with owner, % with due-date, % overdue, % updated in last 7d, count of empty status, count of broken mirror columns.",
+      "rationale": "Pure local store aggregation; the API has no equivalent rollup.",
+      "example": "monday-pp-cli boards health 12345678 --json",
+      "why_it_matters": "Friday status snapshot becomes a single command per board.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Item full-context dump",
+      "command": "context",
+      "description": "For one item-id, returns one JSON blob with the item, every column-value typed, every update, every reply, every linked doc, every asset metadata, every activity log entry, and every mirror source.",
+      "rationale": "A single SQLite join over 8 local tables that no single API call covers; ideal for piping to an LLM as task context.",
+      "example": "monday-pp-cli context 12345 --json",
+      "why_it_matters": "One command to give an agent everything about one item without N round-trips.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-system ID exporter",
+      "command": "cross-ref",
+      "description": "Joins Monday items to whichever column stores their cross-system ID (Linear id, Notion page-id, Slack thread-ts) and emits a structured list ready to pipe into another tool.",
+      "rationale": "Teams that bridge Monday with Linear, Notion, or Slack store the cross-system ID in a column on the Monday item. The local store already has every column value typed; this command makes the join key explicit and the JSON output the contract for downstream CLIs.",
+      "example": "monday-pp-cli cross-ref --board sprint-q3 --link-column linear_id --json",
+      "why_it_matters": "Lets an agent answer 'which Monday items map to which Linear issues?' in one call, then pipe straight into linear-pp-cli without writing glue.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "monday.com",
+    "headline": "Every monday.com feature, plus offline SQL, FTS5 search, typed column-value handling, and bulk edits no other monday.com tool has.",
+    "value_prop": "Mirrors monday.com's GraphQL API as ~40 typed commands, then transcends with a local SQLite store, FTS5 search across items/updates/docs/columns, complexity-aware retry, and 12 commands that only work because everything is in the store: cross-board activity windows, per-person workload, sprint slip reports, status-bottleneck dwell time, column-schema drift, contextual mentions, complexity-budget pre-flight, typed bulk edits with dry-run, mirror/formula resolution, CSV reconcile, board health, and item full-context dumps.",
+    "auth_narrative": "monday.com requires an API token from your account's Developer page. Set it via `MONDAY_API_TOKEN` and the CLI sends it as the `Authorization` header (no Bearer prefix). Tokens inherit the issuing user's permissions, so private boards your user can't see remain invisible to the CLI.",
+    "quickstart": [
+      {
+        "command": "monday-pp-cli whoami --json",
+        "comment": "Confirm MONDAY_API_TOKEN is set and you're authenticated as the right user."
+      },
+      {
+        "command": "monday-pp-cli doctor",
+        "comment": "Probe auth, reachability, and the current complexity budget so you know how many points the next sync will cost."
+      },
+      {
+        "command": "monday-pp-cli sync --full",
+        "comment": "Pull every workspace, board, group, item, column, update, and activity-log row into the local SQLite mirror."
+      },
+      {
+        "command": "monday-pp-cli search \"Q3 launch\" --board 12345 --json",
+        "comment": "Cross-column search on a board for items whose name (or named column) matches the term."
+      },
+      {
+        "command": "monday-pp-cli since 2h --board sprint-q3 --json",
+        "comment": "What changed in the last two hours on the sprint board, ranked."
+      },
+      {
+        "command": "monday-pp-cli items set 12345 --board 99999 --column status=Done --dry-run",
+        "comment": "Stage a typed column-value edit without sending it; flip --dry-run off to apply."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "ComplexityException on a bulk read",
+        "fix": "Run `monday-pp-cli complexity-budget --query \u003cfile\u003e` first; if predicted points exceed the per-call 5M cap, narrow the field selection or paginate."
+      },
+      {
+        "symptom": "401 / Authentication failed",
+        "fix": "monday.com tokens are sent raw in the `Authorization` header, no Bearer prefix. Re-issue via developer.monday.com -\u003e Developer -\u003e My Tokens and run `monday-pp-cli auth set-token`."
+      },
+      {
+        "symptom": "items list returns 25 rows when the board has thousands",
+        "fix": "items list auto-paginates; if you see only one page check that --limit is not capped, and use `monday-pp-cli sync --board \u003cid\u003e` to land all rows in the local store."
+      },
+      {
+        "symptom": "column_value JSON looks different than yesterday's run",
+        "fix": "An admin probably retyped the column. Run `monday-pp-cli column-drift --board \u003cid\u003e` to see exactly which columns changed shape since last sync."
+      }
+    ],
+    "when_to_use": "Reach for monday-pp-cli when an agent task needs to answer cross-board questions, mutate many items at once with a safe dry-run, or replay activity that the official MCP can't return in a single call. Prefer it over the official MCP when the answer requires joining multiple resources or running offline; prefer the official MCP for one-shot reads of a single resource.",
+    "recipes": [
+      {
+        "title": "Find every item that mentions a customer across all your boards",
+        "command": "monday-pp-cli mentions \"Acme Corp\" --board 12345,67890 --updates --json --select board_name,group_title,item_name,field,snippet",
+        "explanation": "Cross-column substring search over items + (with --updates) recent comment bodies on every supplied board. Output rows include the board name, group title, item name, which field matched, and a context-rich snippet."
+      },
+      {
+        "title": "Replay everything a teammate touched today",
+        "command": "monday-pp-cli since 24h --board 12345,67890 --user-ids 9999 --json --select board_name,activity",
+        "explanation": "Activity-log tail-fetch on the supplied boards, filtered to one user. Each row is a board with its activity_logs array; events include column-value changes, item creates, and moves."
+      },
+      {
+        "title": "Stage a 200-row status update from a Salesforce export",
+        "command": "monday-pp-cli bulk-edit --from sf-export.csv --board 12345 --column status,owner",
+        "explanation": "Reads the CSV, parses each row into a typed column-value plan, and prints what would change without sending. Flip to --apply once the plan looks right."
+      },
+      {
+        "title": "Show me sprint slip from the last four cycles",
+        "command": "monday-pp-cli velocity --board 12345 --json",
+        "explanation": "Combines current per-status item counts with activity-log status transitions over the last few pages: how many items entered Done vs left Done, plus a snapshot of what's where right now."
+      },
+      {
+        "title": "Get every piece of context an LLM might need about one item",
+        "command": "monday-pp-cli context 1234567890 --json",
+        "explanation": "One SQLite join over items + column_values + updates + replies + docs + assets + activity_logs + mirror sources; the agent gets everything in a single call."
+      },
+      {
+        "title": "Bridge Monday items to your Linear board",
+        "command": "monday-pp-cli cross-ref --board sprint-q3 --link-column linear_id --json | jq '.[] | select(.linker != null)'",
+        "explanation": "Joins Monday items to whichever column stores the Linear issue id; the output JSON is the contract for piping into linear-pp-cli without writing glue."
+      }
+    ],
+    "trigger_phrases": [
+      "use monday-pp-cli",
+      "monday cli",
+      "what changed in monday since",
+      "who's overloaded on monday",
+      "monday sprint slip",
+      "monday bulk edit columns",
+      "monday column drift",
+      "monday complexity budget",
+      "find this in monday across boards"
+    ]
+  }
+}

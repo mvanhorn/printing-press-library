@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "monday-pp-mcp",
+  "display_name": "monday.com",
+  "version": "4.2.1",
+  "description": "Operate monday.com from the terminal with a local SQLite mirror, FTS5 search, typed bulk edits, and cross-board analytics that no online tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/monday-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/monday-pp-mcp",
+      "args": [],
+      "env": {
+        "MONDAY_API_TOKEN": "${user_config.monday_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "monday_api_token": {
+      "type": "string",
+      "title": "MONDAY_API_TOKEN",
+      "description": "Sets MONDAY_API_TOKEN for the monday.com MCP server. Get a credential from https://developer.monday.com/api-reference/docs/authentication.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

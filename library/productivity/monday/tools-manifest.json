@@ -1,0 +1,42 @@
+{
+  "api_name": "monday",
+  "base_url": "https://api.monday.com",
+  "description": "Workspaces, folders, boards, groups, items, columns, updates, docs, users, teams, notifications, notetaker meetings, and dev sprints via the monday.com GraphQL API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "MONDAY_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MONDAY_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://developer.monday.com/api-reference/docs/authentication"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_info",
+      "description": "Return account-level information. Returns the Account.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    },
+    {
+      "name": "account_me",
+      "description": "Return the current API user. Returns the User.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T00:43:34.846365Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "monday",
+  "display_name": "monday.com",
+  "cli_name": "monday-pp-cli",
+  "owner": "bobe",
+  "printer_name": "bobe",
+  "spec_path": "/Users/bobe/printing-press/.runstate/peppy-sniffing-taco-02a21c8a/runs/20260509-153529/research/monday-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:cf515662b4feed33db93f97090cf6d5503aed5ec786fc7e9619f5e8c71c0aa31",
+  "run_id": "20260509-153529",
+  "category": "productivity",
+  "description": "Operate monday.com from the terminal with a local SQLite mirror, FTS5 search, typed bulk edits, and cross-board analytics that no online tool ships.",
+  "mcp_binary": "monday-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "2026-04",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "MONDAY_API_TOKEN"
+  ],
+  "auth_key_url": "https://developer.monday.com/api-reference/docs/authentication",
+  "novel_features": [
+    {
+      "name": "Cross-board activity since window",
+      "command": "since",
+      "description": "Tail every change across every synced board since a window or timestamp; filter by user, column, or board without burning API points."
+    },
+    {
+      "name": "Per-person workload across boards",
+      "command": "whoami-load",
+      "description": "Per-user open-item count weighted by status and overdue flag, computed across every board the user is assigned on."
+    },
+    {
+      "name": "Status-bottleneck dwell-time analyzer",
+      "command": "bottleneck",
+      "description": "Per-status median and p90 dwell time per item, computed from activity-log transitions on a board."
+    },
+    {
+      "name": "Sprint velocity & slip report",
+      "command": "velocity",
+      "description": "Per-sprint committed / completed / slipped / added-mid-sprint counts, plus per-person delivered, across the last N sprint cycles."
+    },
+    {
+      "name": "Column-schema drift detector",
+      "command": "column-drift",
+      "description": "Reports columns added, removed, renamed, or retyped on a board since the last sync."
+    },
+    {
+      "name": "Cross-board contextual mentions",
+      "command": "mentions",
+      "description": "FTS5 search across item names, update bodies, doc bodies, and text-typed column values; result rows hydrated with board, group, and owner context."
+    },
+    {
+      "name": "Pre-flight complexity budget",
+      "command": "complexity-budget",
+      "description": "Predicts the complexity-points cost of a query and the remaining account-minute budget without executing the body."
+    },
+    {
+      "name": "Bulk column-value editor with typed dry-run",
+      "command": "bulk-edit",
+      "description": "Read a CSV; validate every cell against the cached typed-column schema; print a unified diff in dry-run; on apply, run change_item_column_values per row with per-row exit codes and resume-on-failure."
+    },
+    {
+      "name": "Mirror & formula dependency resolver",
+      "command": "resolve",
+      "description": "For a given item or column, walks mirror and formula chains in the local store and prints the source board, source item, source column, and final resolved value."
+    },
+    {
+      "name": "External-CSV reconcile",
+      "command": "reconcile",
+      "description": "Joins a local board to an external CSV by a chosen column-value key; emits only-in-monday, only-in-csv, and diff sets."
+    },
+    {
+      "name": "Per-board health scorecard",
+      "command": "boards health",
+      "description": "Per-board scorecard: % items with owner, % with due-date, % overdue, % updated in last 7d, count of empty status, count of broken mirror columns."
+    },
+    {
+      "name": "Item full-context dump",
+      "command": "context",
+      "description": "For one item-id, returns one JSON blob with the item, every column-value typed, every update, every reply, every linked doc, every asset metadata, every activity log entry, and every mirror source."
+    },
+    {
+      "name": "Cross-system ID exporter",
+      "command": "cross-ref",
+      "description": "Joins Monday items to whichever column stores their cross-system ID (Linear id, Notion page-id, Slack thread-ts) and emits a structured list ready to pipe into another tool."
+    }
+  ],
+  "printer": "bobeglz"
+}
