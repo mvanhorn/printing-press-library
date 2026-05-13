@@ -1,7 +1,20 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-13",
   "base_run_id": "2026-04-11T06:12:25Z",
   "base_printing_press_version": "1.2.1",
-  "patches": []
+  "patches": [
+    {
+      "id": "fix-shop-collection-coordinates",
+      "summary": "Omit `coordinates` from ShopCollectionScoped variables when the user has not configured latitude/longitude, instead of sending the invalid {0,0} pair.",
+      "reason": "Reported in #501. Every `search`, `add`, and `cart show` failed at the bootstrap step with `ShopCollectionScoped returned no shops` because the CLI always built `coordinates: {latitude: cfg.Latitude, longitude: cfg.Longitude}` even when both were zero. The Coordinates struct has no omitempty on its float64 fields, so the pointer-with-omitempty on the parent struct never fires when the caller unconditionally allocates the pointer. Instacart's UsersCoordinatesInput rejects {0,0} (it's a point in the Atlantic Ocean, no retailer scope possible), surfacing as a server-side error that the CLI translates to 'no shops'. The local op declares coordinates as optional (no `!`), so omitting it when unset is the correct shape. A new `NewShopCollectionScopedVars` constructor builds the variable bundle with conditional coordinates; both call sites now route through it.",
+      "files": [
+        "internal/instacart/types.go",
+        "internal/instacart/types_test.go",
+        "internal/gql/search.go",
+        "internal/cli/retailers.go"
+      ],
+      "validated_outcome": "Unit tests pin the JSON shape: no `coordinates` key when lat/lng are both zero; coordinates included when at least one is non-zero; addressId omitted when empty."
+    }
+  ]
 }
