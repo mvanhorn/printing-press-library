@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: Add local budget burn-down projection across budgets, categories, and transactions.
@@ -101,7 +101,7 @@ func buildBudgetBurn(ctx context.Context, db *store.Store, start, end time.Time)
 		return nil, err
 	}
 	for _, tx := range txs {
-		if tx.CategoryID == "" || tx.Date.Before(start) || tx.Date.After(end) {
+		if tx.CategoryID == "" || tx.Date.Before(start) || tx.Date.After(end) || !budgetBurnCountsTransaction(tx) {
 			continue
 		}
 		spent[tx.CategoryID] += tx.Amount
@@ -143,6 +143,12 @@ func buildBudgetBurn(ctx context.Context, db *store.Store, start, end time.Time)
 		return results[i].CategoryID < results[j].CategoryID
 	})
 	return results, nil
+}
+
+func budgetBurnCountsTransaction(tx localTransaction) bool {
+	// PATCH: Match Lunch Money's default transaction-list tier so expanded
+	// local stores do not double-count split parents or grouped children.
+	return !tx.IsSplitParent && tx.GroupParentID == ""
 }
 
 func budgetPeriodProgress(start, end time.Time) (int, int, int) {

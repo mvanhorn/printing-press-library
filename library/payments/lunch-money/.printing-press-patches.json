@@ -47,6 +47,16 @@
         "internal/cli/root.go"
       ],
       "validated_outcome": "go test ./... && go build ./... && go vet ./... passed; changed help and JSON smoke checks passed."
+    },
+    {
+      "id": "budget-burn-canonical-transactions",
+      "summary": "Adjusted budget burn spend totals to count Lunch Money's canonical transaction tier only.",
+      "reason": "Expanded local stores can contain both split parents and children or both group parents and children; budget spend should mirror the default API list shape to avoid double-counting.",
+      "files": [
+        "internal/cli/budgets_burn.go",
+        "internal/cli/budgets_burn_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including split/group budget-burn tier coverage."
     }
   ]
 }
