@@ -95,7 +95,11 @@ func (c *Client) Search(ctx context.Context, opts SearchOptions) (*SearchRespons
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", "pointhound-pp-cli")
 
-	c.Limiter.Wait()
+	// PATCH: Scout calls run under Cobra's command context, so rate-limit
+	// waits must be interruptible on SIGINT.
+	if err := c.Limiter.WaitContext(ctx); err != nil {
+		return nil, err
+	}
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("scout: GET %s: %w", endpoint, err)

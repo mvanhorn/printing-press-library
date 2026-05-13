@@ -6,14 +6,16 @@
   "patches": [
     {
       "id": "greptile-review-hardening",
-      "summary": "Address Pointhound review feedback for reachability, batch persistence, cancellation, and JSON-path field validation.",
-      "reason": "The generated CLI needed local hardening so documented behavior, Ctrl-C cancellation, local snapshots, and dynamic SQL path handling match the shipped command surface.",
+      "summary": "Address Pointhound review feedback for reachability, batch persistence, cancellation, cookie extraction, and JSON-path field validation.",
+      "reason": "The generated CLI needed local hardening so documented behavior, Ctrl-C cancellation, safe cookie extraction, local snapshots, and dynamic SQL path handling match the shipped command surface.",
       "files": [
+        "internal/cli/auth.go",
         "internal/client/client.go",
         "internal/cli/data_source.go",
         "internal/cli/helpers.go",
         "internal/cli/novel.go",
         "internal/cliutil/ratelimit.go",
+        "internal/scout/scout.go",
         "internal/store/store.go"
       ],
       "validated_outcome": "go test ./... -count=1"

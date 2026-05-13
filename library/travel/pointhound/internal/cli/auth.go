@@ -492,23 +492,30 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 		}
 	}
 
-	var script string
+	// PATCH: Pass pycookiecheat inputs through environment variables instead
+	// of interpolating user-controlled profile paths into a Python -c string.
+	script := strings.TrimSpace(`
+import json
+import os
+from pycookiecheat import chrome_cookies
+
+url = os.environ["PYCOOKIECHEAT_URL"]
+cookie_file = os.environ.get("PYCOOKIECHEAT_COOKIE_FILE")
+kwargs = {}
+if cookie_file:
+    kwargs["cookie_file"] = cookie_file
+print(json.dumps(chrome_cookies(url, **kwargs)))
+`)
+	env := append(os.Environ(), "PYCOOKIECHEAT_URL=https://"+cleanDomain)
 	if cookiePath != "" {
 		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
 		safePath := filepath.ToSlash(cookiePath)
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
-		)
-	} else {
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
-		)
+		env = append(env, "PYCOOKIECHEAT_COOKIE_FILE="+safePath)
 	}
 
 	var out bytes.Buffer
 	cmd := exec.Command("python3", "-c", script)
+	cmd.Env = env
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
