@@ -39,43 +39,48 @@ The decrypted plaintext is UTF-8 JSON, parseable with no trailing bytes.
 
 ## Test vector
 
-Reproducible test against the live machine that captured this finding:
+Reproducible against any Granola desktop install. The synthetic vectors in
+`fixture-key.bin`, `fixture-cache.enc`, and `fixture-supabase.enc` (this
+directory) cover the round-trip for unit tests. To verify on a real install:
 
 ```
 Keychain entry: service="Granola Safe Storage", account="Granola Key"
 Keychain value (base64): <pull live with `security find-generic-password -s "Granola Safe Storage" -w`>
 
-storage.dek first 32 bytes (hex):
-  76 31 30 cc e1 61 00 49 ec 76 5b 19 bf fa fa a1
-  ab f7 74 29 5b b7 9c 6d a6 24 03 aa 0d db f7 70
+storage.dek prefix (first 3 bytes): ASCII "v10" (Electron safeStorage marker;
+  identical on every Granola install). Remaining bytes are AES-128-CBC
+  ciphertext of a base64-encoded 32-byte DEK, derived per the layer-1 spec
+  above.
 
 After layer-1 unwrap:
-  44-char base64 plaintext, decodes to 32 raw bytes (the DEK)
+  44-char base64 plaintext, decodes to 32 raw bytes (the DEK).
 
-cache-v6.json.enc first 32 bytes (hex):
-  32 07 b2 e3 b2 ea df d1 40 82 72 79 cc 82 1c 6f
-  39 bf dc cc dc 9d 90 40 ab 7d d6 d7 57 80 f2 7e
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^
-  nonce (12 bytes)                  ciphertext start
-
-After layer-2 unwrap of cache-v6.json.enc:
-  ~4 MB JSON. Top-level keys: ["cache"]
-  cache.state has ~68 keys including: transcripts, entities, documentLists,
-  documentListsMetadata, panelTemplates, publicRecipes, featureFlags, workspaceData
+cache-v6.json.enc envelope: nonce(12) || ciphertext || tag(16).
+  After layer-2 (AES-256-GCM with the DEK):
+  UTF-8 JSON, top-level keys ["cache"]; cache.state carries the per-user
+  transcripts/entities/documentLists/etc. surface described below.
 ```
 
-## Cache schema change — separate from encryption
+(Per-install byte dumps and per-user cache counts are intentionally not
+checked in. To inspect your own install, run the Python probes in
+`/Users/<you>/code/granola-pp-encrypted-cache/` or write a one-off Go
+test using the `safestorage.Decrypt` API. See README.md in this directory.)
 
-Empirical probe on 2026-05-12 shows the decrypted cache **no longer contains
-documents at `cache.state.documents`**. The schema present today:
+## Cache schema shape — separate from encryption
 
-- `cache.state.transcripts` — `dict[document_id, [transcript_segment]]` (24 entries)
-- `cache.state.entities` — only `chat_thread` and `chat_message` (216 + 241 entries)
-- `cache.state.documentLists` — folder→[doc_id] mapping (5 folders)
-- `cache.state.documentListsMetadata` — folder metadata (title, members, ...)
-- `cache.state.panelTemplates` — 31 panel templates
-- `cache.state.publicRecipes` — 57 public recipes
-- ... and 60+ smaller state keys
+The decrypted cache **does not contain meeting documents at
+`cache.state.documents`** on modern Granola installs. Granola moved
+documents server-side at approximately the same time as the encryption
+rollout. The cache.state surface present today carries:
+
+- `transcripts` — `dict[document_id, [transcript_segment]]`
+- `entities` — `chat_thread` and `chat_message` dicts (no `document`)
+- `documentLists` — folder → [doc_id] mapping
+- `documentListsMetadata` — folder metadata (title, members, …)
+- `panelTemplates` — panel template definitions
+- `publicRecipes`, `userRecipes`, `sharedRecipes`, `unlistedRecipes`
+- … plus ~60 smaller state keys (`featureFlags`, `workspaceData`,
+  `multiChatState`, etc.).
 
 Documents (meeting metadata + notes + attendees) are **fetched from the network**
 via `https://api.granola.ai/v2/get-documents` and `/v1/get-documents-batch`.

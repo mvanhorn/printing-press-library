@@ -27,17 +27,17 @@ The fix lives in one new package (`safestorage`) and two surgical patches (cache
 
 | File | Path | Plaintext state | Encrypted state |
 |---|---|---|---|
-| Cache | `~/Library/Application Support/Granola/cache-v6.json` | 1.9 KB stub from May 4, `entities: {}` | `cache-v6.json.enc`, 3.8 MB, mtime ~now |
-| Auth | `~/Library/Application Support/Granola/supabase.json` | 2.6 KB, `access_token` expired May 4 15:04 PDT | `supabase.json.enc`, 2.6 KB, mtime ~now |
+| Cache | `~/Library/Application Support/Granola/cache-v6.json` | Small JSON stub frozen at the day Granola began encrypting; `entities: {}` | `cache-v6.json.enc`, multi-MB binary, mtime tracks recent desktop activity |
+| Auth | `~/Library/Application Support/Granola/supabase.json` | Small JSON, last-written `access_token` expired on the same freeze day | `supabase.json.enc`, mtime tracks recent desktop activity |
 
 The CLI's loaders read the plaintext paths unconditionally. Once Granola began encrypting, the plaintext copies froze — they are no longer kept in sync with desktop state.
 
 **Encryption envelope (empirical evidence):**
-- No Chromium `v10`/`v11` magic prefix (verified via `xxd`).
-- `supabase.json.enc` is exactly 28 bytes longer than the known plaintext (2606 → 2634), matching `nonce(12) ‖ ciphertext ‖ tag(16)` AES-GCM exactly.
-- `cache-v6.json.enc` is a multiple of 16 minus the GCM overhead — same envelope hypothesis.
+- No Chromium `v10`/`v11` magic prefix on the cache and supabase files (verified via `xxd`).
+- File-size arithmetic on `supabase.json.enc` vs the known plaintext shape matches `nonce(12) ‖ ciphertext ‖ tag(16)` AES-GCM exactly.
+- `cache-v6.json.enc` has a length consistent with the same envelope.
 - Keychain entry confirmed: `security find-generic-password -s "Granola Safe Storage" -w` returns a 16-byte raw key (value redacted from this document — it is a live credential; fetch fresh from your local Keychain at implementation time).
-- Highest-probability scheme: AES-128-GCM with raw Keychain bytes as the key.
+- Initial hypothesis: AES-128-GCM with raw Keychain bytes as the key. (Refuted at U1 — see safestorage/testdata/scheme.md for the actual two-tier scheme.)
 
 **Scope of impact:**
 - All ~35 CLI commands depend on the local cache or the WorkOS token. Both are blocked.
