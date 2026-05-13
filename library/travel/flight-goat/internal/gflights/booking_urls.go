@@ -202,10 +202,20 @@ func buildAirlineURL(opts SearchOptions, fl Flight) (string, bool) {
 	if !ok {
 		return "", false
 	}
+	// PATCH(greptile P2): enforce the documented mode contract so a future
+	// roundTripOnly/oneWayOnly entry doesn't silently generate URLs for
+	// the unsupported trip type.
+	isRoundTrip := opts.ReturnDate != ""
+	if tmpl.mode == "roundTripOnly" && !isRoundTrip {
+		return "", false
+	}
+	if tmpl.mode == "oneWayOnly" && isRoundTrip {
+		return "", false
+	}
 
 	tripType := "OneWay"
 	tripTypeInt := "1"
-	if opts.ReturnDate != "" {
+	if isRoundTrip {
 		tripType = "RoundTrip"
 		tripTypeInt = "2"
 	}
@@ -223,5 +233,45 @@ func buildAirlineURL(opts SearchOptions, fl Flight) (string, bool) {
 		"{trip_type}", tripType,
 		"{trip_type_int}", tripTypeInt,
 	)
-	return r.Replace(tmpl.urlTemplate), true
+	built := r.Replace(tmpl.urlTemplate)
+	// PATCH(greptile P2): one-way searches leave the {return} placeholder
+	// expanding to an empty string. Carriers without an explicit trip-type
+	// param (B6, BA) treat returnDate=/inboundDate= as round-trip with
+	// missing dates and may default the form to a round-trip search.
+	// Strip query params with empty values so the form sees a clean
+	// one-way query.
+	if !isRoundTrip {
+		built = stripEmptyQueryParams(built)
+	}
+	return built, true
+}
+
+// stripEmptyQueryParams removes query parameters whose value is empty
+// from the URL, preserving order and fragment.
+func stripEmptyQueryParams(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return rawURL
+	}
+	if u.RawQuery == "" {
+		return rawURL
+	}
+	pairs := strings.Split(u.RawQuery, "&")
+	kept := pairs[:0]
+	for _, p := range pairs {
+		if p == "" {
+			continue
+		}
+		eq := strings.IndexByte(p, '=')
+		if eq < 0 {
+			kept = append(kept, p)
+			continue
+		}
+		if eq == len(p)-1 {
+			continue
+		}
+		kept = append(kept, p)
+	}
+	u.RawQuery = strings.Join(kept, "&")
+	return u.String()
 }

@@ -157,6 +157,132 @@ func TestBuildAirlineURLNoLegs(t *testing.T) {
 	}
 }
 
+func TestBuildAirlineURLOneWayStripsEmptyReturnParam(t *testing.T) {
+	opts := SearchOptions{
+		Origin:        "SEA",
+		Destination:   "JFK",
+		DepartureDate: "2026-07-15",
+		Passengers:    1,
+	}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "B6"}}}}
+	got, ok := buildAirlineURL(opts, flight)
+	if !ok {
+		t.Fatal("expected B6 to qualify")
+	}
+	if strings.Contains(got, "return=&") || strings.HasSuffix(got, "return=") {
+		t.Errorf("URL should not contain empty return= param: %s", got)
+	}
+	// Other params should still be present and non-empty.
+	if !strings.Contains(got, "from=SEA") || !strings.Contains(got, "to=JFK") {
+		t.Errorf("expected origin/destination params in: %s", got)
+	}
+}
+
+func TestBuildAirlineURLOneWayStripsEmptyInboundDateBA(t *testing.T) {
+	opts := SearchOptions{
+		Origin:        "SEA",
+		Destination:   "LHR",
+		DepartureDate: "2026-07-15",
+		Passengers:    1,
+	}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "BA"}}}}
+	got, ok := buildAirlineURL(opts, flight)
+	if !ok {
+		t.Fatal("expected BA to qualify")
+	}
+	if strings.Contains(got, "inboundDate=&") || strings.HasSuffix(got, "inboundDate=") {
+		t.Errorf("URL should not contain empty inboundDate= param: %s", got)
+	}
+}
+
+func TestBuildAirlineURLRoundTripKeepsReturnParam(t *testing.T) {
+	opts := SearchOptions{
+		Origin:        "SEA",
+		Destination:   "JFK",
+		DepartureDate: "2026-07-15",
+		ReturnDate:    "2026-07-22",
+		Passengers:    1,
+	}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "B6"}}}}
+	got, ok := buildAirlineURL(opts, flight)
+	if !ok {
+		t.Fatal("expected B6 to qualify")
+	}
+	if !strings.Contains(got, "return=2026-07-22") {
+		t.Errorf("round-trip URL should preserve return param: %s", got)
+	}
+}
+
+func TestBuildAirlineURLModeRoundTripOnlyRejectsOneWay(t *testing.T) {
+	saved := airlineTemplates["TESTRT"]
+	airlineTemplates["TESTRT"] = airlineTemplate{
+		urlTemplate: "https://example.com/?o={origin}&d={destination}&dep={depart}&ret={return}",
+		mode:        "roundTripOnly",
+	}
+	defer func() {
+		if saved.urlTemplate == "" {
+			delete(airlineTemplates, "TESTRT")
+		} else {
+			airlineTemplates["TESTRT"] = saved
+		}
+	}()
+
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "TESTRT"}}}}
+
+	_, ok := buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, flight)
+	if ok {
+		t.Error("roundTripOnly template should reject one-way query")
+	}
+	_, ok = buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01", ReturnDate: "2026-01-08"}, flight)
+	if !ok {
+		t.Error("roundTripOnly template should accept round-trip query")
+	}
+}
+
+func TestBuildAirlineURLModeOneWayOnlyRejectsRoundTrip(t *testing.T) {
+	saved := airlineTemplates["TESTOW"]
+	airlineTemplates["TESTOW"] = airlineTemplate{
+		urlTemplate: "https://example.com/?o={origin}&d={destination}&dep={depart}",
+		mode:        "oneWayOnly",
+	}
+	defer func() {
+		if saved.urlTemplate == "" {
+			delete(airlineTemplates, "TESTOW")
+		} else {
+			airlineTemplates["TESTOW"] = saved
+		}
+	}()
+
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "TESTOW"}}}}
+
+	_, ok := buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01", ReturnDate: "2026-01-08"}, flight)
+	if ok {
+		t.Error("oneWayOnly template should reject round-trip query")
+	}
+	_, ok = buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, flight)
+	if !ok {
+		t.Error("oneWayOnly template should accept one-way query")
+	}
+}
+
+func TestStripEmptyQueryParams(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"https://x.test/?a=1&b=&c=3", "https://x.test/?a=1&c=3"},
+		{"https://x.test/?a=&b=&c=", "https://x.test/"},
+		{"https://x.test/?a=1", "https://x.test/?a=1"},
+		{"https://x.test/", "https://x.test/"},
+		{"https://x.test/?a=1&flag&c=3", "https://x.test/?a=1&flag&c=3"}, // bare flag preserved
+	}
+	for _, tc := range cases {
+		got := stripEmptyQueryParams(tc.in)
+		if got != tc.want {
+			t.Errorf("stripEmptyQueryParams(%q) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}
+
 func TestBuildBookingURLsAlwaysPopulatesGoogle(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 1}
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "HU"}}}} // HU not in table
