@@ -33,6 +33,7 @@ func newExportsWaitCmd(flags *rootFlags) *cobra.Command {
 	var videoIDs []string
 	var timeout time.Duration
 	var pollInterval time.Duration
+	var inboxLimit int
 	cmd := &cobra.Command{
 		Use:     "wait",
 		Short:   "Kick off exports and wait for them to reach a terminal status",
@@ -77,7 +78,7 @@ func newExportsWaitCmd(flags *rootFlags) *cobra.Command {
 				for time.Now().Before(deadline) {
 					time.Sleep(pollInterval)
 					if r.ExportID != "" {
-						if status, url := lookupExportInWebhooks(c, r.ExportID); status != "" {
+						if status, url := lookupExportInWebhooks(c, r.ExportID, inboxLimit); status != "" {
 							r.Status = status
 							r.URL = url
 							if isExportTerminal(status) {
@@ -100,6 +101,7 @@ func newExportsWaitCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringSliceVar(&videoIDs, "video", nil, "Video ID to export (repeatable for batch)")
 	cmd.Flags().DurationVar(&timeout, "timeout", 10*time.Minute, "Maximum time to wait per export")
 	cmd.Flags().DurationVar(&pollInterval, "poll-interval", 5*time.Second, "How often to poll for status")
+	cmd.Flags().IntVar(&inboxLimit, "inbox-limit", 200, "Max webhook messages to scan per poll when looking for the Export ready event. Increase if your workspace generates many other events between the export trigger and completion")
 	return cmd
 }
 
@@ -136,10 +138,20 @@ func isExportTerminal(status string) bool {
 // lookupExportInWebhooks scans the recent webhook inbox for an `Export ready`
 // (or similarly-named) event matching exportID and returns (status, url) when
 // found. Empty status means no matching event yet.
+//
+// inboxLimit caps how many recent messages are scanned per poll. The Tella
+// webhook inbox is a chronological stream; a small cap can miss the
+// `Export ready` event in active workspaces where many unrelated events
+// arrive between the trigger and any subsequent poll. Caller supplies the
+// limit so the user can tune it via --inbox-limit. Floor of 50 keeps a
+// nonsense value (e.g. 0) from producing zero-scan polls.
 func lookupExportInWebhooks(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
-}, exportID string) (string, string) {
-	data, err := c.Get("/v1/webhooks/messages", map[string]string{"limit": "100"})
+}, exportID string, inboxLimit int) (string, string) {
+	if inboxLimit < 50 {
+		inboxLimit = 50
+	}
+	data, err := c.Get("/v1/webhooks/messages", map[string]string{"limit": fmt.Sprintf("%d", inboxLimit)})
 	if err != nil {
 		return "", ""
 	}

@@ -694,3 +694,62 @@ func TestSearch_TypeFilter(t *testing.T) {
 		t.Fatalf("--type nonexistent = %d hits, want 0", len(noneHits))
 	}
 }
+
+// TestResolveByName_RejectsUnsafeFieldNames pins the allowlist guard added
+// to ResolveByName. Crafted field names containing path metacharacters must
+// be skipped silently (treated as a no-match) rather than interpolated into
+// a json_extract Sprintf where they could escape the SQL path expression.
+func TestResolveByName_RejectsUnsafeFieldNames(t *testing.T) {
+	dir := t.TempDir()
+	s, err := Open(filepath.Join(dir, "data.db"))
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	defer s.Close()
+
+	if _, _, err := s.UpsertBatch("videos", []json.RawMessage{
+		json.RawMessage(`{"id":"v-1","name":"hello"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	// Safe field — should match the row by name.
+	got, err := s.ResolveByName("videos", "hello", "name")
+	if err != nil {
+		t.Fatalf("ResolveByName(name): %v", err)
+	}
+	if got != "v-1" {
+		t.Fatalf("ResolveByName(name) = %q, want v-1", got)
+	}
+
+	// Crafted field with quote/path metacharacters — must be rejected
+	// before reaching the json_extract Sprintf, so the function ends up
+	// with zero matched rows and returns the canonical "not found"
+	// error. The injection payload must never produce a v-1 match.
+	unsafe := []string{
+		"name')) UNION SELECT data FROM resources--",
+		"name'.injected",
+		"name; DROP TABLE resources",
+		"name with spaces",
+		"name.subfield",
+		"",
+	}
+	for _, field := range unsafe {
+		got, err := s.ResolveByName("videos", "hello", field)
+		if err == nil {
+			t.Fatalf("ResolveByName(%q) = %q, want error (unsafe field name should produce no match)", field, got)
+		}
+		if got != "" {
+			t.Fatalf("ResolveByName(%q) returned id %q on error path, want empty string", field, got)
+		}
+	}
+
+	// Mixed safe + unsafe still resolves via the safe field only.
+	got, err = s.ResolveByName("videos", "hello", "name'.injected", "name")
+	if err != nil {
+		t.Fatalf("ResolveByName(unsafe+safe): %v", err)
+	}
+	if got != "v-1" {
+		t.Fatalf("ResolveByName(unsafe+safe) = %q, want v-1", got)
+	}
+}

@@ -23,6 +23,19 @@ import (
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
+// safeJSONFieldPattern matches a plain JSON identifier (letter/underscore
+// followed by letters, digits, or underscores). Used to reject crafted
+// values before they reach a json_extract('$.<field>') Sprintf in
+// ResolveByName so the SQL path expression can't be escaped.
+var safeJSONFieldPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
+// isSafeJSONFieldName returns true when field is a plain identifier safe
+// to interpolate into a SQLite json_extract path. Anything containing
+// quotes, dots, brackets, or other path metacharacters is rejected.
+func isSafeJSONFieldName(field string) bool {
+	return safeJSONFieldPattern.MatchString(field)
+}
+
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
@@ -1318,6 +1331,16 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// Defense-in-depth: field is interpolated into a json_extract path
+		// via fmt.Sprintf and cannot be parameterized. No CLI caller passes
+		// user-controlled match fields today, but ResolveByName is a public
+		// Store method and the same injection pattern was already patched
+		// in ListIDs. Reject anything that isn't a plain identifier
+		// ([A-Za-z_][A-Za-z0-9_]*) so a crafted value can't escape the JSON
+		// path expression.
+		if !isSafeJSONFieldName(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
