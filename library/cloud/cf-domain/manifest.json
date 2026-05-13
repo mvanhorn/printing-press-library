@@ -1,0 +1,60 @@
+{
+  "manifest_version": "0.3",
+  "name": "cf-domain-pp-mcp",
+  "display_name": "Cloudflare Registrar Domains",
+  "version": "4.3.0",
+  "description": "Cloudflare Registrar Domains API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cf-domain-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cf-domain-pp-mcp",
+      "args": [],
+      "env": {
+        "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH": "${user_config.cloudflare_registrar_domains_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "cloudflare_registrar_domains_bearer_auth": {
+      "type": "string",
+      "title": "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH",
+      "description": "Sets CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH for the Cloudflare Registrar Domains MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "cloudflare_api_token": {
+      "type": "string",
+      "title": "CLOUDFLARE_API_TOKEN",
+      "description": "Cloudflare API token with Account Registrar Edit permission.",
+      "sensitive": true,
+      "required": true
+    },
+    "account_id": {
+      "type": "string",
+      "title": "ACCOUNT_ID",
+      "description": "Cloudflare account ID used for Registrar requests.",
+      "sensitive": false,
+      "required": true
+    },
+    "cloudflare_account_id": {
+      "type": "string",
+      "title": "CLOUDFLARE_ACCOUNT_ID",
+      "description": "Cloudflare account ID fallback used for Registrar requests.",
+      "sensitive": false,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
