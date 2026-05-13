@@ -4,6 +4,7 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -394,15 +395,22 @@ score and TLD, returns an ordered timeline.`,
 			}
 			results := []DropRow{}
 			for rows.Next() {
-				var fqdn, status, eventsJSON, fetchedAt, tld string
-				var score int
+				var fqdn, status, eventsJSON, fetchedAt string
+				// score/tld come from a LEFT JOIN to domains — NULL when the
+				// fqdn was looked up via `rdap` (writes rdap_records only) and
+				// never went through `check` (which UpsertDomains). Scanning
+				// NULL into plain int/string errors and silently drops the row.
+				var score sql.NullInt64
+				var tld sql.NullString
 				if err := rows.Scan(&fqdn, &status, &eventsJSON, &fetchedAt, &score, &tld); err != nil {
 					continue
 				}
-				if len(tldSet) > 0 && !tldSet[tld] {
+				scoreVal := int(score.Int64)
+				tldVal := tld.String
+				if len(tldSet) > 0 && !tldSet[tldVal] {
 					continue
 				}
-				if score < minScore {
+				if scoreVal < minScore {
 					continue
 				}
 				if eventsJSON == "" || eventsJSON == "[]" {
@@ -451,7 +459,7 @@ score and TLD, returns an ordered timeline.`,
 					continue
 				}
 				results = append(results, DropRow{
-					FQDN: fqdn, TLD: tld, Score: score, Status: status,
+					FQDN: fqdn, TLD: tldVal, Score: scoreVal, Status: status,
 					DropAt: dropAt, DropReason: reason, ExpiresAt: expires,
 				})
 			}

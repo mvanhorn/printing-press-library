@@ -2,9 +2,11 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 	"time"
@@ -298,47 +300,29 @@ func renderCheckTable(cmd *cobra.Command, results []AvailabilityResult) error {
 }
 
 func readNamesFile(path string) ([]string, error) {
+	// Read once into memory so the JSON-vs-plain-text fallback doesn't
+	// double-read the source. For path == "-" (stdin), reopening returned a
+	// fresh io.NopCloser around the same fd, and the discarded json.Decoder's
+	// internal buffer silently swallowed the first ~512 bytes of plain-text
+	// input. Buffering the whole input first removes that footgun.
 	r, err := openFileOrStdin(path)
 	if err != nil {
 		return nil, err
 	}
 	defer r.Close()
-	dec := json.NewDecoder(r)
-	// support either newline-separated or JSON array
-	var arr []string
-	if err := dec.Decode(&arr); err == nil {
-		return arr, nil
-	}
-	// reopen and read line-by-line
-	r2, err := openFileOrStdin(path)
+	data, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
 	}
-	defer r2.Close()
-	out := []string{}
-	buf := make([]byte, 4096)
-	var line strings.Builder
-	for {
-		n, err := r2.Read(buf)
-		if n > 0 {
-			for _, b := range buf[:n] {
-				if b == '\n' {
-					ln := strings.TrimSpace(line.String())
-					if ln != "" && !strings.HasPrefix(ln, "#") {
-						out = append(out, ln)
-					}
-					line.Reset()
-				} else {
-					line.WriteByte(b)
-				}
-			}
-		}
-		if err != nil {
-			break
-		}
+	// Try JSON array first (supports `["a", "b"]` with optional whitespace).
+	var arr []string
+	if jsonErr := json.NewDecoder(bytes.NewReader(data)).Decode(&arr); jsonErr == nil {
+		return arr, nil
 	}
-	if line.Len() > 0 {
-		ln := strings.TrimSpace(line.String())
+	// Plain text: one name per line, # = comment.
+	out := []string{}
+	for _, line := range strings.Split(string(data), "\n") {
+		ln := strings.TrimSpace(line)
 		if ln != "" && !strings.HasPrefix(ln, "#") {
 			out = append(out, ln)
 		}
