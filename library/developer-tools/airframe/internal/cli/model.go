@@ -86,7 +86,13 @@ func runModel(ctx context.Context, raw string, since, until int, state string, l
 	for _, m := range mms {
 		codes = append(codes, m.Code)
 	}
-	events, counts, err := queryEventsByMakeModelCodes(ctx, st.DB(), codes, since, until, state, limit)
+	events, err := queryEventsByMakeModelCodes(ctx, st.DB(), codes, since, until, state, limit)
+	if err != nil {
+		return err
+	}
+	// PATCH: totals come from a separate COUNT(DISTINCT) pass so the breakdown
+	// reflects every matching event in the database, not just the LIMIT window.
+	counts, err := countEventsByMakeModelCodes(ctx, st.DB(), codes, since, until, state)
 	if err != nil {
 		return err
 	}
@@ -148,54 +154,50 @@ func resolveMakeModelCodes(ctx context.Context, db *sql.DB, query string) ([]Mak
 // for FAA-registered tails involved in NTSB events. Events where the only
 // aircraft is non-US (no FAA row, no make_model_code linkage) are missed in
 // v1 — that's a known limitation noted in the dossier output.
-func queryEventsByMakeModelCodes(ctx context.Context, db *sql.DB, codes []string, since, until int, state string, limit int) ([]EventSummaryRow, ModelCounts, error) {
-	placeholders, codeArgs := placeholdersFor(codes)
+//
+// PATCH: dedupes via a `matched` subquery that picks MIN(aircraft_idx) per
+// event so a multi-aircraft event (e.g. mid-air between two matching tails)
+// surfaces exactly once instead of inflating the result set.
+func queryEventsByMakeModelCodes(ctx context.Context, db *sql.DB, codes []string, since, until int, state string, limit int) ([]EventSummaryRow, error) {
+	matchClause, matchArgs := matchedEventSubquery(codes)
+	whereParts := []string{"e.event_id IN (" + matchClause + ")"}
+	args := append([]any{}, matchArgs...)
 
-	whereParts := []string{
-		"(ea.make_model_code IN (" + placeholders + ") OR a.make_model_code IN (" + placeholders + "))",
-	}
-	// Duplicate the code args (one set per IN clause).
-	args := make([]any, 0, len(codeArgs)*2+4)
-	args = append(args, codeArgs...)
-	args = append(args, codeArgs...)
-	if since > 0 {
-		whereParts = append(whereParts, "substr(e.event_date,1,4) >= ?")
-		args = append(args, fmt.Sprintf("%04d", since))
-	}
-	if until > 0 {
-		whereParts = append(whereParts, "substr(e.event_date,1,4) <= ?")
-		args = append(args, fmt.Sprintf("%04d", until))
-	}
-	if state != "" {
-		whereParts = append(whereParts, "e.event_state = ?")
-		args = append(args, strings.ToUpper(state))
-	}
+	args, whereParts = appendEventFilters(args, whereParts, since, until, state)
 
 	q := `SELECT e.event_id, e.event_date, e.event_city, e.event_state, e.highest_injury,
 		e.total_fatal, ea.damage, ea.operator_name, e.phase_of_flight, n.summary
 	FROM events e
-	JOIN event_aircraft ea ON ea.event_id = e.event_id
-	LEFT JOIN aircraft a ON a.registration = ea.registration
+	JOIN event_aircraft ea ON ea.event_id = e.event_id AND ea.aircraft_idx = (
+		SELECT MIN(ea_pick.aircraft_idx)
+		FROM event_aircraft ea_pick
+		LEFT JOIN aircraft a_pick ON a_pick.registration = ea_pick.registration
+		WHERE ea_pick.event_id = e.event_id
+		  AND (ea_pick.make_model_code IN (` + placeholdersOnly(codes) + `)
+		    OR a_pick.make_model_code IN (` + placeholdersOnly(codes) + `))
+	)
 	LEFT JOIN narratives n ON n.event_id = e.event_id
 	WHERE ` + strings.Join(whereParts, " AND ") + `
 	ORDER BY e.event_date DESC
 	LIMIT ?`
+
+	// Pick-subquery needs the code args twice (one per IN clause).
+	args = appendCodeArgs(args, codes, 2)
 	args = append(args, limit)
 
 	rows, err := db.QueryContext(ctx, q, args...)
 	if err != nil {
-		return nil, ModelCounts{}, fmt.Errorf("query events: %w", err)
+		return nil, fmt.Errorf("query events: %w", err)
 	}
 	defer rows.Close()
 
 	var events []EventSummaryRow
-	counts := ModelCounts{}
 	for rows.Next() {
 		var r EventSummaryRow
 		var city, st, inj, damage, oper, phase, summary sql.NullString
 		var fatal sql.NullInt64
 		if err := rows.Scan(&r.EventID, &r.EventDate, &city, &st, &inj, &fatal, &damage, &oper, &phase, &summary); err != nil {
-			return nil, counts, err
+			return nil, err
 		}
 		r.EventCity = nullToPtr(city)
 		r.EventState = nullToPtr(st)
@@ -209,18 +211,84 @@ func queryEventsByMakeModelCodes(ctx context.Context, db *sql.DB, codes []string
 		r.PhaseOfFlight = nullToPtr(phase)
 		r.Summary = nullToPtr(summary)
 		events = append(events, r)
+	}
+	return events, rows.Err()
+}
 
-		counts.Total++
-		switch derefOrEmpty(r.HighestInjury) {
-		case "FATL":
-			counts.Fatal++
-		case "SERS":
-			counts.Serious++
-		default:
-			counts.MinorOrNone++
+// PATCH: countEventsByMakeModelCodes runs a single COUNT(DISTINCT e.event_id)
+// pass without a LIMIT so ModelCounts.Total reflects the full population, then
+// breaks down Fatal/Serious/MinorOrNone with conditional COUNTs in the same
+// query. Without this, totals reported to text/JSON callers were capped at
+// the LIMIT window — misleading for popular models like "Cessna 172".
+func countEventsByMakeModelCodes(ctx context.Context, db *sql.DB, codes []string, since, until int, state string) (ModelCounts, error) {
+	matchClause, matchArgs := matchedEventSubquery(codes)
+	whereParts := []string{"e.event_id IN (" + matchClause + ")"}
+	args := append([]any{}, matchArgs...)
+
+	args, whereParts = appendEventFilters(args, whereParts, since, until, state)
+
+	q := `SELECT
+		COUNT(DISTINCT e.event_id) AS total,
+		COUNT(DISTINCT CASE WHEN e.highest_injury = 'FATL' THEN e.event_id END) AS fatal,
+		COUNT(DISTINCT CASE WHEN e.highest_injury = 'SERS' THEN e.event_id END) AS serious,
+		COUNT(DISTINCT CASE WHEN e.highest_injury IS NULL OR e.highest_injury NOT IN ('FATL','SERS') THEN e.event_id END) AS minor_or_none
+	FROM events e
+	WHERE ` + strings.Join(whereParts, " AND ")
+
+	var c ModelCounts
+	if err := db.QueryRowContext(ctx, q, args...).Scan(&c.Total, &c.Fatal, &c.Serious, &c.MinorOrNone); err != nil {
+		return ModelCounts{}, fmt.Errorf("count events: %w", err)
+	}
+	return c, nil
+}
+
+// matchedEventSubquery returns a SQL fragment (and its bound args) that
+// resolves the set of event_ids with at least one aircraft matching codes via
+// either event_aircraft.make_model_code or the joined aircraft row.
+func matchedEventSubquery(codes []string) (string, []any) {
+	placeholders, codeArgs := placeholdersFor(codes)
+	q := `SELECT ea_match.event_id
+		FROM event_aircraft ea_match
+		LEFT JOIN aircraft a_match ON a_match.registration = ea_match.registration
+		WHERE ea_match.make_model_code IN (` + placeholders + `)
+		   OR a_match.make_model_code IN (` + placeholders + `)`
+	args := make([]any, 0, len(codeArgs)*2)
+	args = append(args, codeArgs...)
+	args = append(args, codeArgs...)
+	return q, args
+}
+
+func appendEventFilters(args []any, whereParts []string, since, until int, state string) ([]any, []string) {
+	if since > 0 {
+		whereParts = append(whereParts, "substr(e.event_date,1,4) >= ?")
+		args = append(args, fmt.Sprintf("%04d", since))
+	}
+	if until > 0 {
+		whereParts = append(whereParts, "substr(e.event_date,1,4) <= ?")
+		args = append(args, fmt.Sprintf("%04d", until))
+	}
+	if state != "" {
+		whereParts = append(whereParts, "e.event_state = ?")
+		args = append(args, strings.ToUpper(state))
+	}
+	return args, whereParts
+}
+
+func placeholdersOnly(items []string) string {
+	parts := make([]string, len(items))
+	for i := range items {
+		parts[i] = "?"
+	}
+	return strings.Join(parts, ",")
+}
+
+func appendCodeArgs(args []any, codes []string, times int) []any {
+	for n := 0; n < times; n++ {
+		for _, c := range codes {
+			args = append(args, c)
 		}
 	}
-	return events, counts, rows.Err()
+	return args
 }
 
 func placeholdersFor(items []string) (string, []any) {

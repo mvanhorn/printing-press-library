@@ -88,6 +88,13 @@ func (s *Store) migrate(ctx context.Context) error {
 	if current > StoreSchemaVersion {
 		return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary", current, StoreSchemaVersion)
 	}
+	// PATCH: skip the write transaction when the schema is already current.
+	// The DDL is all `CREATE … IF NOT EXISTS`, so re-running it is correct —
+	// but it still acquires the SQLite write lock and stamps user_version on
+	// every Open, blocking concurrent readers under WAL contention.
+	if current == StoreSchemaVersion {
+		return nil
+	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {

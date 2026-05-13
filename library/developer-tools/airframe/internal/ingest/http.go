@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 // UserAgent identifies airframe to upstream servers. The FAA Akamai front
@@ -18,6 +19,12 @@ import (
 // gets 403'd. A bare "Mozilla/5.0 airframe-pp-cli/0.1.0" passes; we keep
 // the airframe suffix so admins can still grep their logs.
 const UserAgent = "Mozilla/5.0 airframe-pp-cli/0.1.0"
+
+// PATCH: bound worst-case wall time on a stalled server. http.DefaultClient
+// has Timeout=0 (infinite); FAA/NTSB downloads are ~80–90 MB, so 30 minutes
+// is a generous ceiling on a healthy link and a finite kill-switch on a
+// hung one. The per-request context still controls earlier cancellation.
+var downloadClient = &http.Client{Timeout: 30 * time.Minute}
 
 // conditionalDownload GETs url with optional If-Modified-Since. On 304 it
 // returns (true, "", nil) signaling skip. On 200 it writes the body to dst
@@ -36,7 +43,7 @@ func conditionalDownload(ctx context.Context, url, ifModifiedSince string, dst i
 	if ifModifiedSince != "" {
 		req.Header.Set("If-Modified-Since", ifModifiedSince)
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := downloadClient.Do(req)
 	if err != nil {
 		return false, "", 0, fmt.Errorf("requesting %s: %w", url, err)
 	}
