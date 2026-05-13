@@ -1,0 +1,40 @@
+{
+  "manifest_version": "0.3",
+  "name": "alphavantage-pp-mcp",
+  "display_name": "Alphavantage",
+  "version": "4.5.1",
+  "description": "Alphavantage API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/alphavantage-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/alphavantage-pp-mcp",
+      "args": [],
+      "env": {
+        "ALPHAVANTAGE_API_KEY": "${user_config.alphavantage_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "alphavantage_api_key": {
+      "type": "string",
+      "title": "ALPHAVANTAGE_API_KEY",
+      "description": "Free Alpha Vantage API key. Free tier is 25 requests/day; the CLI tracks quota in a local quota_log.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  },
+  "printer": "lokisbo"
+}

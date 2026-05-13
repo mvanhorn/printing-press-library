@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T01:35:01.631404Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "alphavantage",
+  "display_name": "Alphavantage",
+  "cli_name": "alphavantage-pp-cli",
+  "owner": "ewanchen",
+  "printer_name": "ewanchen",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4fd1e5dd4b537d9acdcdfb2fded3cce9fa620356b9945543d98984657560f476",
+  "run_id": "20260513-083553",
+  "mcp_binary": "alphavantage-pp-mcp",
+  "mcp_tool_count": 116,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ALPHAVANTAGE_API_KEY"
+  ],
+  "auth_key_url": "https://www.alphavantage.co/support/#api-key",
+  "auth_description": "Free Alpha Vantage API key. Free tier is 25 requests/day; the CLI tracks quota in a local quota_log.",
+  "novel_features": [
+    {
+      "name": "Quota status + dry-run plan",
+      "command": "quota status",
+      "description": "See exactly how many of your 25/day Alpha Vantage calls you have left, and preview what a command would burn before running it."
+    },
+    {
+      "name": "News sweep with ticker_sentiment preserved",
+      "command": "news sweep",
+      "description": "Pull NEWS_SENTIMENT for a watchlist in one command; persist articles AND the per-ticker sentiment array every other wrapper drops."
+    },
+    {
+      "name": "Sentiment timeline for a ticker",
+      "command": "news timeline",
+      "description": "Day-by-day mean sentiment + article count for a ticker, computed from local data with zero API calls."
+    },
+    {
+      "name": "FTS5 news search",
+      "command": "news search",
+      "description": "Full-text search across all locally pulled news articles with boolean AND/OR, prefix matching, ranked results."
+    },
+    {
+      "name": "Pre-earnings briefing",
+      "command": "briefing earnings",
+      "description": "One-shot pre-earnings card: upcoming earnings date, recent earnings-topic news, last call transcript highlights, current quote."
+    },
+    {
+      "name": "Movers + sentiment overlay",
+      "command": "movers brief",
+      "description": "Today's top gainers/losers with each ticker's 7d sentiment z-score from the local store."
+    },
+    {
+      "name": "Macro snapshot",
+      "command": "macro snapshot",
+      "description": "Current CPI, Fed Funds Rate, Treasury Yield curve, Unemployment, Nonfarm Payroll in one card."
+    },
+    {
+      "name": "Watchlist sentiment with delta",
+      "command": "watchlist sentiment",
+      "description": "Per-ticker mean sentiment for a named watchlist, with delta-since-last-scan."
+    },
+    {
+      "name": "Compound screen",
+      "command": "screen",
+      "description": "Filter tickers by multi-predicate (min sentiment, earnings within N days, recent insider net-buy) across local tables."
+    },
+    {
+      "name": "Daily pulse bundle",
+      "command": "pulse us",
+      "description": "Designed for /market-pulse: top movers + macro snapshot + watchlist sentiment delta in <=2 API calls."
+    },
+    {
+      "name": "Sync backbone",
+      "command": "sync news",
+      "description": "Pull-once-query-many: hydrate the local store with news, movers, or earnings calendar; incremental cursor avoids re-fetching."
+    }
+  ],
+  "printer": "lokisbo"
+}
