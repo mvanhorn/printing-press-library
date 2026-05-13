@@ -2,6 +2,13 @@
 // Auth model: API user + API key + whitelisted client IP. See
 // https://www.namecheap.com/support/api/intro/ — keys must be enabled and IP
 // must be whitelisted in the Namecheap dashboard.
+//
+// Credential exposure note: Namecheap accepts auth ONLY as URL query parameters
+// (no header-based auth path exists). callAPI therefore appends ApiUser, ApiKey,
+// UserName, and ClientIp to the request URL, which means those values land in
+// Namecheap's server-side access logs and any intermediate proxy logs. There is
+// no in-code mitigation — if an unexpected exposure is suspected, rotate the
+// API key in the Namecheap dashboard.
 package namecheap
 
 import (

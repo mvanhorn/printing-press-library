@@ -989,7 +989,13 @@ func splitCamelCase(s string) []string {
 // printAutoCards renders items as labeled cards — one block per item.
 // Used for complex responses with many fields or nested data.
 func printAutoCards(w io.Writer, items []map[string]any) error {
+	if len(items) == 0 {
+		return nil
+	}
 	headers := prioritizeAllHeaders(items[0])
+	if len(headers) == 0 {
+		return nil
+	}
 
 	// Find the longest header for alignment (from fields we'll actually show)
 	maxLen := 0
@@ -1018,16 +1024,18 @@ func printAutoCards(w io.Writer, items []map[string]any) error {
 		}
 
 		// Remaining fields indented — skip empty, zero, and false values
-		for _, h := range headers[2:] {
-			v := formatCellValue(item[h])
-			if v == "" || v == "false" || v == "0" || v == "[]" || v == "null" {
-				continue
-			}
-			// Multi-line values (nested arrays) start with \n
-			if strings.HasPrefix(v, "\n") {
-				fmt.Fprintf(w, "  %s:%s\n", h, v)
-			} else {
-				fmt.Fprintf(w, "  %-*s  %s\n", maxLen, h+":", v)
+		if len(headers) > 2 {
+			for _, h := range headers[2:] {
+				v := formatCellValue(item[h])
+				if v == "" || v == "false" || v == "0" || v == "[]" || v == "null" {
+					continue
+				}
+				// Multi-line values (nested arrays) start with \n
+				if strings.HasPrefix(v, "\n") {
+					fmt.Fprintf(w, "  %s:%s\n", h, v)
+				} else {
+					fmt.Fprintf(w, "  %-*s  %s\n", maxLen, h+":", v)
+				}
 			}
 		}
 	}

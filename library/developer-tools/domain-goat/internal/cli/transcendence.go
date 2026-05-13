@@ -245,16 +245,17 @@ Default ranker is "combined".`,
 func newBudgetCmd(flags *rootFlags) *cobra.Command {
 	var list string
 	var years, top int
-	var maxRenewal float64
+	var maxAnnualCost float64
 	var availableOnly bool
 	cmd := &cobra.Command{
 		Use:   "budget",
 		Short: "Filter candidates by 5-year true cost (registration + N renewals).",
 		Long: `Surfaces the year-2-jump that registrar UIs hide until checkout.
 Computes total = registration_price + (years - 1) × renewal_price and
-filters to candidates under your ceiling.`,
-		Example: `  domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5
-  domain-goat-pp-cli budget --list brand-sprint --max-renewal 100 --years 5 --top 20 --json`,
+filters to candidates whose amortised annual spend (total / years) is at
+or below --max-annual-cost.`,
+		Example: `  domain-goat-pp-cli budget --list ai-startup --max-annual-cost 50 --years 5
+  domain-goat-pp-cli budget --list brand-sprint --max-annual-cost 100 --years 5 --top 20 --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if list == "" {
@@ -296,7 +297,7 @@ filters to candidates under your ceiling.`,
 					continue
 				}
 				total := p.Registration + float64(years-1)*p.Renewal
-				if maxRenewal > 0 && total > maxRenewal*float64(years) {
+				if maxAnnualCost > 0 && total > maxAnnualCost*float64(years) {
 					continue
 				}
 				rows = append(rows, Row{
@@ -321,7 +322,7 @@ filters to candidates under your ceiling.`,
 	}
 	cmd.Flags().StringVar(&list, "list", "", "Source list name (required)")
 	cmd.Flags().IntVar(&years, "years", 5, "Years of total cost to compute")
-	cmd.Flags().Float64Var(&maxRenewal, "max-renewal", 0, "Cap on average per-year cost over the window (0 = no cap)")
+	cmd.Flags().Float64Var(&maxAnnualCost, "max-annual-cost", 0, "Cap on amortised annual spend = (registration + (years-1)×renewal) / years (0 = no cap)")
 	cmd.Flags().IntVar(&top, "top", 0, "Show top-N cheapest (0 = all)")
 	cmd.Flags().BoolVar(&availableOnly, "available-only", false, "Filter to candidates whose last availability check returned 'available' (run `check` first)")
 	_ = cmd.MarkFlagRequired("list")

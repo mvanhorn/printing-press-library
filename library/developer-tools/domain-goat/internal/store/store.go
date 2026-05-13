@@ -1110,6 +1110,12 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// Pin field to a safe SQL identifier shape before Sprintf interpolation —
+		// matches ListField's defence-in-depth, so a future caller that plumbs
+		// user input through ResolveByName can't smuggle injection via matchFields.
+		if !validIdentifierRE.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,

@@ -107,7 +107,7 @@ These capabilities aren't available in any other tool for this API.
   _Avoid the $12-year-1 / $4,800-renewal trap before falling in love with a name._
 
   ```bash
-  domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5 --available-only
+  domain-goat-pp-cli budget --list ai-startup --max-annual-cost 50 --years 5 --available-only
   ```
 - **`compare`** — One row per domain with score, length, TLD prestige, cross-registrar price, RDAP status, and drop flag.
 
@@ -263,7 +263,7 @@ domain-goat-pp-cli lists show ai-startup --json
 domain-goat-pp-cli shortlist promote --list ai-startup --top 10 --by combined --dest ai-startup-finalists
 
 # 8. Filter candidates by 5-year true cost — surface the year-2 renewal trap.
-domain-goat-pp-cli budget --list ai-startup --years 5 --max-renewal 50 --available-only --top 20
+domain-goat-pp-cli budget --list ai-startup --years 5 --max-annual-cost 50 --available-only --top 20
 
 # 9. Side-by-side comparison with selected fields.
 domain-goat-pp-cli compare kindred.io kindred.ai kindred.studio --json --select status,price,score
