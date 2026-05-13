@@ -214,6 +214,7 @@ Default ranker is "combined".`,
 				rows = rows[:top]
 			}
 			promoted := 0
+			var promoteErrs []map[string]string
 			if err := s.CreateList(cmd.Context(), destList, "Auto-promoted from "+srcList); err != nil {
 				return apiErr(err)
 			}
@@ -224,6 +225,14 @@ Default ranker is "combined".`,
 					Notes: fmt.Sprintf("score=%d combined=%d (by %s)", r.Score, r.CombinedScore, by),
 				}); err == nil {
 					promoted++
+				} else {
+					// Surface per-candidate failures (full DB, ctx cancel,
+					// writeMu contention past deadline) so operators don't see
+					// a silent "promoted < top" with no diagnostic.
+					promoteErrs = append(promoteErrs, map[string]string{
+						"fqdn":  r.FQDN,
+						"error": err.Error(),
+					})
 				}
 			}
 			out := map[string]any{
@@ -232,6 +241,9 @@ Default ranker is "combined".`,
 				"by":       by,
 				"promoted": promoted,
 				"top":      rows,
+			}
+			if len(promoteErrs) > 0 {
+				out["errors"] = promoteErrs
 			}
 			return emitJSON(cmd, flags, out)
 		},
@@ -786,11 +798,18 @@ to look at first for a given seed. Combines:
 				// cancellation, transient SQLite issue), zero the partial counts
 				// instead of reporting a misleadingly low rate.
 				totalAvail, totalCount := 0, 0
-				rows, err := s.Query(`SELECT status FROM domains WHERE tld = ? LIMIT 100`, t.TLD)
-				if err == nil {
+				// Wrap in IIFE so defer rows.Close() runs per iteration on any
+				// exit path (including a hypothetical panic from rows.Scan),
+				// returning the SQL connection to the pool deterministically.
+				func() {
+					rows, qerr := s.Query(`SELECT status FROM domains WHERE tld = ? LIMIT 100`, t.TLD)
+					if qerr != nil {
+						return
+					}
+					defer rows.Close()
 					for rows.Next() {
 						var st string
-						if err := rows.Scan(&st); err == nil {
+						if scanErr := rows.Scan(&st); scanErr == nil {
 							totalCount++
 							if st == "available" || st == "404" {
 								totalAvail++
@@ -800,8 +819,7 @@ to look at first for a given seed. Combines:
 					if rows.Err() != nil {
 						totalAvail, totalCount = 0, 0
 					}
-					rows.Close()
-				}
+				}()
 				if totalCount > 0 {
 					a.HistoricalAvailable = totalAvail * 100 / totalCount
 				}

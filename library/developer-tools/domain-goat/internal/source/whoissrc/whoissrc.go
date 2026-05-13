@@ -29,6 +29,14 @@ type Result struct {
 }
 
 // Lookup performs a WHOIS query.
+//
+// The likexian/whois client is synchronous and offers no context hook, so
+// the actual lookup runs in a goroutine that we cannot cancel directly. We
+// set a per-call SetTimeout(15s) on the dialer so the goroutine terminates
+// promptly when the TCP read deadline fires — without this, ctx.Done()
+// returning would leave the goroutine stranded on an open WHOIS connection
+// until the library's 30s default timeout, which under check --parallel 8
+// against a slow server is ~8× the desirable connection-hold time.
 func Lookup(ctx context.Context, fqdn string) (*Result, error) {
 	if fqdn == "" {
 		return nil, errors.New("empty fqdn")
@@ -40,7 +48,8 @@ func Lookup(ctx context.Context, fqdn string) (*Result, error) {
 	}
 	ch := make(chan queryResult, 1)
 	go func() {
-		raw, err := whois.Whois(fqdn)
+		client := whois.NewClient().SetTimeout(15 * time.Second)
+		raw, err := client.Whois(fqdn)
 		ch <- queryResult{raw: raw, err: err}
 	}()
 
