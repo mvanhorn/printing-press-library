@@ -300,6 +300,52 @@ func TestUpsertBatch_PopulatesTransactionsTable(t *testing.T) {
 	}
 }
 
+func TestUpsertBatch_PopulatesIndexedTransactionUpdatedAt(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, _, err := s.UpsertBatch("transactions", []json.RawMessage{
+		json.RawMessage(`{"id":"test-001","updated_at":"2026-05-03T10:00:00Z"}`),
+		json.RawMessage(`{"id":"test-002","updated_at":"2026-05-04T10:00:00Z"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	var updatedAt string
+	if err := s.DB().QueryRow(`SELECT updated_at FROM transactions WHERE id = ?`, "test-001").Scan(&updatedAt); err != nil {
+		t.Fatalf("read transactions.updated_at: %v", err)
+	}
+	if updatedAt != "2026-05-03T10:00:00Z" {
+		t.Fatalf("updated_at = %q, want %q", updatedAt, "2026-05-03T10:00:00Z")
+	}
+
+	rows, err := s.DB().Query(`EXPLAIN QUERY PLAN SELECT id, data FROM transactions WHERE updated_at >= ? ORDER BY updated_at DESC`, "2026-05-03T00:00:00Z")
+	if err != nil {
+		t.Fatalf("explain changed transactions query: %v", err)
+	}
+	defer rows.Close()
+
+	var details []string
+	for rows.Next() {
+		var id, parent, notUsed int
+		var detail string
+		if err := rows.Scan(&id, &parent, &notUsed, &detail); err != nil {
+			t.Fatalf("scan query plan: %v", err)
+		}
+		details = append(details, detail)
+	}
+	if err := rows.Err(); err != nil {
+		t.Fatalf("iterate query plan: %v", err)
+	}
+	if !strings.Contains(strings.Join(details, "\n"), "idx_transactions_updated_at") {
+		t.Fatalf("query plan does not use idx_transactions_updated_at: %v", details)
+	}
+}
+
 // TestUpsertBatch_PopulatesAttachmentsTable verifies that UpsertBatch
 // dispatches paginated items into both the generic resources table AND the
 // typed attachments table. Regression for issue #268: before the fix, paginated

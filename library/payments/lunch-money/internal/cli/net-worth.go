@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: Add historical net-worth reconstruction from local account and balance-history data.
@@ -178,6 +178,15 @@ func loadNetWorthAccounts(ctx context.Context, db *store.Store) ([]localAccount,
 	}
 	for _, obj := range crypto {
 		if acct := decodeLocalAccount(obj, "crypto_manual", "crypto_manual"); acct.id != "" {
+			accounts = append(accounts, acct)
+		}
+	}
+	cryptoSynced, err := loadResourceObjects(ctx, db, "crypto-synced")
+	if err != nil {
+		return nil, err
+	}
+	for _, obj := range cryptoSynced {
+		if acct := decodeLocalAccount(obj, "crypto_synced", "crypto_synced"); acct.id != "" {
 			accounts = append(accounts, acct)
 		}
 	}

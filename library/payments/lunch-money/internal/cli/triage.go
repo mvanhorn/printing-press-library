@@ -109,7 +109,7 @@ func buildTriageResults(txs []localTransaction, categoryNames map[string]string,
 }
 
 func isUnreviewedForTriage(tx localTransaction) bool {
-	return strings.EqualFold(tx.Status, "unreviewed") || tx.CategoryID == ""
+	return strings.EqualFold(tx.Status, "unreviewed")
 }
 
 func suggestTriageCategory(target localTransaction, txs []localTransaction) (string, float64) {

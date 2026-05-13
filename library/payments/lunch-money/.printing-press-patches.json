@@ -57,6 +57,37 @@
         "internal/cli/budgets_burn_test.go"
       ],
       "validated_outcome": "go test ./internal/cli passes, including split/group budget-burn tier coverage."
+    },
+    {
+      "id": "triage-review-status-boundary",
+      "summary": "Restricted the triage inbox to transactions whose Lunch Money status is unreviewed.",
+      "reason": "Reviewed or cleared transactions can legitimately remain uncategorized; triage should not show them as pending work solely because category_id is empty.",
+      "files": [
+        "internal/cli/triage.go",
+        "internal/cli/triage_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including reviewed/cleared uncategorized exclusions."
+    },
+    {
+      "id": "net-worth-crypto-synced",
+      "summary": "Included crypto-synced accounts when reconstructing historical net worth.",
+      "reason": "Balance-history entries for crypto_synced sources need matching local accounts; otherwise synced exchange positions are dropped from totals.",
+      "files": [
+        "internal/cli/net-worth.go",
+        "internal/cli/net-worth_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including crypto-synced balance-history coverage."
+    },
+    {
+      "id": "transactions-updated-at-index",
+      "summary": "Added and indexed a typed transactions.updated_at column for changed-since queries.",
+      "reason": "Filtering transactions with json_extract(data, '$.updated_at') forces a full table scan; an indexed column keeps changed --since bounded by the updated_at index.",
+      "files": [
+        "internal/cli/changed.go",
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store passes, including query-plan coverage for idx_transactions_updated_at."
     }
   ]
 }

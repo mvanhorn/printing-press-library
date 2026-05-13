@@ -41,7 +41,7 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 2
+const StoreSchemaVersion = 3
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -219,6 +219,7 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "transactions", column: "has_more", decl: "INTEGER"},
 		{table: "transactions", column: "expires_at", decl: "DATETIME"},
 		{table: "transactions", column: "url", decl: "TEXT"},
+		{table: "transactions", column: "updated_at", decl: "TEXT"},
 		{table: "attachments", column: "transactions_id", decl: "TEXT"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
@@ -272,17 +273,19 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		resourcesFTSCreateSQL,
 		`CREATE TABLE IF NOT EXISTS "transactions" (
-			"id" TEXT PRIMARY KEY,
-			"data" JSON NOT NULL,
-			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
-			"error" TEXT,
-			"has_more" INTEGER,
-			"expires_at" DATETIME,
-			"url" TEXT
-		)`,
+				"id" TEXT PRIMARY KEY,
+				"data" JSON NOT NULL,
+				"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+				"updated_at" TEXT,
+				"error" TEXT,
+				"has_more" INTEGER,
+				"expires_at" DATETIME,
+				"url" TEXT
+			)`,
+		`CREATE INDEX IF NOT EXISTS "idx_transactions_updated_at" ON "transactions"("updated_at")`,
 		`CREATE TABLE IF NOT EXISTS "attachments" (
-			"id" TEXT PRIMARY KEY,
-			"transactions_id" TEXT NOT NULL,
+				"id" TEXT PRIMARY KEY,
+				"transactions_id" TEXT NOT NULL,
 			"data" JSON NOT NULL,
 			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
@@ -328,6 +331,11 @@ func (s *Store) migrate(ctx context.Context) error {
 				return fmt.Errorf("migration failed: %w", err)
 			}
 		}
+		if current < 3 {
+			if err := s.backfillTransactionUpdatedAt(ctx, conn); err != nil {
+				return fmt.Errorf("backfilling transaction updated_at: %w", err)
+			}
+		}
 		// Stamp the schema version. On a fresh DB this writes the current
 		// StoreSchemaVersion; on an already-stamped DB this is a no-op
 		// write of the same value.
@@ -339,6 +347,14 @@ func (s *Store) migrate(ctx context.Context) error {
 		}
 		return nil
 	})
+}
+
+func (s *Store) backfillTransactionUpdatedAt(ctx context.Context, conn *sql.Conn) error {
+	_, err := conn.ExecContext(ctx, `UPDATE "transactions"
+		SET "updated_at" = json_extract("data", '$.updated_at')
+		WHERE ("updated_at" IS NULL OR "updated_at" = '')
+			AND json_extract("data", '$.updated_at') IS NOT NULL`)
+	return err
 }
 
 func (s *Store) migrateResourcesCompositeKey(ctx context.Context, conn *sql.Conn) error {
@@ -763,12 +779,13 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 // opening a per-item transaction.
 func (s *Store) upsertTransactionsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO "transactions" ("id", "data", "synced_at", "error", "has_more", "expires_at", "url")
-		 VALUES (?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "error" = excluded."error", "has_more" = excluded."has_more", "expires_at" = excluded."expires_at", "url" = excluded."url"`,
+		`INSERT INTO "transactions" ("id", "data", "synced_at", "updated_at", "error", "has_more", "expires_at", "url")
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "updated_at" = excluded."updated_at", "error" = excluded."error", "has_more" = excluded."has_more", "expires_at" = excluded."expires_at", "url" = excluded."url"`,
 		id,
 		string(data),
 		time.Now(),
+		lookupFieldValue(obj, "updated_at"),
 		lookupFieldValue(obj, "error"),
 		lookupFieldValue(obj, "has_more"),
 		lookupFieldValue(obj, "expires_at"),

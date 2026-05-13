@@ -181,7 +181,7 @@ func parseChangedTypes(raw string) ([]string, error) {
 }
 
 func queryChangedTransactions(ctx context.Context, db *sql.DB, cutoff time.Time, limit int) ([]changedItem, error) {
-	rows, err := db.QueryContext(ctx, `SELECT id, data FROM transactions WHERE json_extract(data, '$.updated_at') >= ? ORDER BY json_extract(data, '$.updated_at') DESC`, cutoff.Format(time.RFC3339))
+	rows, err := db.QueryContext(ctx, `SELECT id, data FROM transactions WHERE updated_at >= ? ORDER BY updated_at DESC`, cutoff.Format(time.RFC3339))
 	if err != nil {
 		return nil, err
 	}
