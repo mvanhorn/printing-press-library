@@ -51,6 +51,12 @@
       "summary": "DELETE pre-1982 events before re-ingesting the ntsb_pre1982 source.",
       "reason": "The PRE1982 branch previously skipped the wipe entirely. Re-running `sync --source ntsb --include-pre1982` after the upstream PRE1982.zip changed left removed rows in place and either silently skipped or PK-collided on modified ones. The targeted DELETE keeps re-ingest idempotent without touching the 1982-present rows owned by the avall source.",
       "files": ["internal/ingest/ntsb.go"]
+    },
+    {
+      "id": "flightgoat-envelope-unwrap",
+      "summary": "Unwrap the standard Printing Press envelope after json.Unmarshal succeeds instead of trying it in an unreachable fallback.",
+      "reason": "json.Unmarshal into map[string]any succeeds for both flat objects and envelope objects, so the original `if err != nil` fallback was unreachable. An envelope response left raw holding {results:...,meta:...} and pickRegistration scanned the wrong layer, always returning ErrNoRegistration.",
+      "files": ["internal/flightgoat/flightgoat.go"]
     }
   ]
 }

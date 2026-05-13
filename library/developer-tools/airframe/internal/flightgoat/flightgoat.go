@@ -86,14 +86,17 @@ func ResolveIdent(ctx context.Context, ident string) (*FlightLookup, error) {
 
 	raw := map[string]any{}
 	if err := json.Unmarshal(stdout.Bytes(), &raw); err != nil {
-		// flight-goat returns either a flat object or an envelope; try the
-		// envelope shape too.
-		var env struct{ Results map[string]any }
-		if err2 := json.Unmarshal(stdout.Bytes(), &env); err2 == nil && env.Results != nil {
-			raw = env.Results
-		} else {
-			return nil, fmt.Errorf("parsing flight-goat output: %w", err)
-		}
+		return nil, fmt.Errorf("parsing flight-goat output: %w", err)
+	}
+	// PATCH: unwrap the standard Printing Press envelope when present.
+	// Previously the code tried a second Unmarshal *only* when the first
+	// failed — but `json.Unmarshal` into map[string]any succeeds for both
+	// flat and envelope shapes, so the fallback was unreachable. An
+	// envelope response would leave `raw` holding {"results":…,"meta":…}
+	// and pickRegistration would search the wrong layer, always returning
+	// ErrNoRegistration.
+	if results, ok := raw["results"].(map[string]any); ok {
+		raw = results
 	}
 
 	registration := pickRegistration(raw)
