@@ -57,6 +57,12 @@
       "summary": "visibility traffic-citations parses citation_snapshots.raw_json and exact-matches URL fields instead of substring-matching the whole blob.",
       "reason": "strings.Contains(string(c.RawJSON), p.URL) attributed citations to the wrong page whenever a short page URL like example.com/blog appeared as a prefix of a longer citation URL (example.com/blog/post-a) or as a substring inside an image src, canonical tag, or author link embedded in the raw JSON. The walker recurses through the parsed JSON and exact-matches normalized URLs, eliminating prefix-and-substring false positives.",
       "files": ["internal/cli/visibility_novel.go"]
+    },
+    {
+      "id": "greptile-10-knowledge-impact-exact-url-match",
+      "summary": "knowledge impact moves the citation-join out of SQL (instr(cs.raw_json, kld.url)) into Go using parsed-JSON URL extraction and exact match.",
+      "reason": "The original SQL used the same raw-blob substring search that PATCH(greptile-9) replaced in visibility traffic-citations. A doc URL like https://example.com/blog would prefix-match unrelated citation URLs (.../blog/post-extended) and also match its own string appearing inside an image src / canonical href / author link embedded in the snapshot blob — both paths inflated cited_doc_count and total_cites, making the 'is this library worth maintaining?' answer unreliable. Fix: pull libraries, library documents, and citation snapshots in three cheap queries; parse each snapshot once into a normalized URL set; exact-match per-library doc URLs against the snapshot's URL set in Go. Same public method signature; identical KnowledgeImpactRow shape.",
+      "files": ["internal/store/store.go"]
     }
   ]
 }

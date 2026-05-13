@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -500,13 +502,13 @@ func (s *Store) TopTrafficPages(ctx context.Context, projectID string, limit int
 // ---------- Documents ----------
 
 type Document struct {
-	ID           string
-	ProjectID    string
-	Kind         string // writer|optimized
-	Title        string
-	UpdatedAt    sql.NullTime
-	RawJSON      json.RawMessage
-	LastSeenAt   time.Time
+	ID         string
+	ProjectID  string
+	Kind       string // writer|optimized
+	Title      string
+	UpdatedAt  sql.NullTime
+	RawJSON    json.RawMessage
+	LastSeenAt time.Time
 }
 
 func (s *Store) UpsertDocument(ctx context.Context, d Document) error {
@@ -614,35 +616,187 @@ type KnowledgeImpactRow struct {
 }
 
 func (s *Store) KnowledgeImpact(ctx context.Context, projectID string) ([]KnowledgeImpactRow, error) {
-	rows, err := s.DB.QueryContext(ctx, `
-		SELECT
-			kl.id,
-			kl.name,
-			(SELECT COUNT(*) FROM knowledge_library_documents kld WHERE kld.library_id = kl.id),
-			(SELECT COUNT(DISTINCT kld.id) FROM knowledge_library_documents kld
-				WHERE kld.library_id = kl.id
-					AND EXISTS (SELECT 1 FROM citation_snapshots cs WHERE cs.project_id = kl.project_id AND instr(cs.raw_json, kld.url) > 0)),
-			COALESCE((SELECT SUM(cs.citation_count) FROM citation_snapshots cs
-				WHERE cs.project_id = kl.project_id
-					AND EXISTS (SELECT 1 FROM knowledge_library_documents kld WHERE kld.library_id = kl.id AND instr(cs.raw_json, kld.url) > 0)
-			), 0)
+	// PATCH(greptile-10): the original SQL used `instr(cs.raw_json, kld.url) > 0`
+	// to detect citation references — the same raw-blob substring match that
+	// PATCH(greptile-9) replaced in visibility traffic-citations. A doc URL
+	// like https://example.com/blog would prefix-match unrelated citation
+	// URLs (.../blog/post-extended) and would also match the doc URL string
+	// appearing inside an image src, canonical href, or author link embedded
+	// in the snapshot blob — both paths inflated cited_doc_count and
+	// total_cites. The fix moves the join into Go: parse each citation
+	// snapshot once, extract the URL-shaped strings, then exact-match
+	// per-library doc URLs against the snapshot's URL set.
+	libRows, err := s.DB.QueryContext(ctx, `
+		SELECT kl.id, kl.name,
+			(SELECT COUNT(*) FROM knowledge_library_documents kld WHERE kld.library_id = kl.id)
 		FROM knowledge_libraries kl
 		WHERE kl.project_id = ?
-		ORDER BY 5 DESC
 	`, projectID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	var out []KnowledgeImpactRow
-	for rows.Next() {
-		var r KnowledgeImpactRow
-		if err := rows.Scan(&r.LibraryID, &r.LibraryName, &r.DocCount, &r.CitedDocCount, &r.TotalCites); err != nil {
+	type libInfo struct {
+		id, name string
+		docCount int
+	}
+	var libs []libInfo
+	for libRows.Next() {
+		var li libInfo
+		if err := libRows.Scan(&li.id, &li.name, &li.docCount); err != nil {
+			libRows.Close()
 			return nil, err
 		}
-		out = append(out, r)
+		libs = append(libs, li)
 	}
-	return out, rows.Err()
+	libRows.Close()
+	if err := libRows.Err(); err != nil {
+		return nil, err
+	}
+	if len(libs) == 0 {
+		return nil, nil
+	}
+
+	docsByLib := make(map[string]map[string]struct{}, len(libs))
+	docRows, err := s.DB.QueryContext(ctx, `
+		SELECT kld.library_id, kld.url
+		FROM knowledge_library_documents kld
+		JOIN knowledge_libraries kl ON kl.id = kld.library_id
+		WHERE kl.project_id = ?
+	`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	for docRows.Next() {
+		var libID, url string
+		if err := docRows.Scan(&libID, &url); err != nil {
+			docRows.Close()
+			return nil, err
+		}
+		n := normalizeCitationURL(url)
+		if n == "" {
+			continue
+		}
+		if docsByLib[libID] == nil {
+			docsByLib[libID] = map[string]struct{}{}
+		}
+		docsByLib[libID][n] = struct{}{}
+	}
+	docRows.Close()
+	if err := docRows.Err(); err != nil {
+		return nil, err
+	}
+
+	snapRows, err := s.DB.QueryContext(ctx, `
+		SELECT cs.raw_json, cs.citation_count
+		FROM citation_snapshots cs
+		WHERE cs.project_id = ?
+	`, projectID)
+	if err != nil {
+		return nil, err
+	}
+	type parsedSnap struct {
+		urls  map[string]struct{}
+		cites int
+	}
+	var snaps []parsedSnap
+	for snapRows.Next() {
+		var raw json.RawMessage
+		var cites int
+		if err := snapRows.Scan(&raw, &cites); err != nil {
+			snapRows.Close()
+			return nil, err
+		}
+		urls := extractCitationURLs(raw)
+		if len(urls) == 0 {
+			continue
+		}
+		snaps = append(snaps, parsedSnap{urls: urls, cites: cites})
+	}
+	snapRows.Close()
+	if err := snapRows.Err(); err != nil {
+		return nil, err
+	}
+
+	out := make([]KnowledgeImpactRow, 0, len(libs))
+	for _, lib := range libs {
+		row := KnowledgeImpactRow{LibraryID: lib.id, LibraryName: lib.name, DocCount: lib.docCount}
+		docs := docsByLib[lib.id]
+		if len(docs) > 0 && len(snaps) > 0 {
+			cited := map[string]struct{}{}
+			for _, sn := range snaps {
+				hit := false
+				for u := range docs {
+					if _, ok := sn.urls[u]; ok {
+						cited[u] = struct{}{}
+						hit = true
+					}
+				}
+				if hit {
+					row.TotalCites += sn.cites
+				}
+			}
+			row.CitedDocCount = len(cited)
+		}
+		out = append(out, row)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].TotalCites > out[j].TotalCites })
+	return out, nil
+}
+
+// normalizeCitationURL lowercases, trims whitespace, and strips a trailing
+// slash so exact comparison is resilient to inconsequential differences.
+// Parallels the helper in internal/cli/visibility_novel.go; duplicated
+// rather than imported because the cli package depends on store, not the
+// other way around.
+func normalizeCitationURL(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	s = strings.TrimRight(s, "/")
+	return strings.ToLower(s)
+}
+
+// extractCitationURLs parses a citation_snapshots.raw_json blob and returns
+// the set of URL-shaped strings it contains, normalized for exact match.
+// Only http(s) strings are extracted; arbitrary string fields (titles,
+// snippets) are ignored so they cannot accidentally match a library
+// document URL.
+func extractCitationURLs(raw json.RawMessage) map[string]struct{} {
+	if len(raw) == 0 {
+		return nil
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		return nil
+	}
+	out := map[string]struct{}{}
+	collectURLs(v, out)
+	return out
+}
+
+func collectURLs(v any, into map[string]struct{}) {
+	switch x := v.(type) {
+	case string:
+		if isLikelyHTTPURL(x) {
+			if n := normalizeCitationURL(x); n != "" {
+				into[n] = struct{}{}
+			}
+		}
+	case map[string]any:
+		for _, vv := range x {
+			collectURLs(vv, into)
+		}
+	case []any:
+		for _, item := range x {
+			collectURLs(item, into)
+		}
+	}
+}
+
+func isLikelyHTTPURL(s string) bool {
+	t := strings.TrimSpace(s)
+	return strings.HasPrefix(t, "http://") || strings.HasPrefix(t, "https://")
 }
 
 // ---------- Usage snapshots ----------
@@ -812,7 +966,7 @@ type SyncDiffRow struct {
 // PATCH(greptile-4): actually execute the per-resource queries that respect
 // `since` instead of discarding them with `_ = q` and returning RowsSince=0.
 // The previous body built the right query map then ran a hard-coded
-// `SELECT '' as project_id, COUNT(*), 0 FROM <table>` for every resource,
+// `SELECT ” as project_id, COUNT(*), 0 FROM <table>` for every resource,
 // which made RowsSince meaningless and `--since` a no-op flag.
 func (s *Store) SyncDiff(ctx context.Context, since time.Time) ([]SyncDiffRow, error) {
 	type queryDef struct {
