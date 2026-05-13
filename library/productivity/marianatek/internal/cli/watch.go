@@ -69,6 +69,7 @@ notifier of choice — desktop alert, SMS gateway, calendar create.`,
 			defer ticker.Stop()
 
 			var prevSpots = -1
+			var retryAutoBook bool
 			enc := json.NewEncoder(cmd.OutOrStdout())
 
 			emit := func(event string, payload map[string]any) {
@@ -78,6 +79,26 @@ notifier of choice — desktop alert, SMS gateway, calendar create.`,
 				_ = enc.Encode(payload)
 			}
 
+			attemptAutoBook := func() bool {
+				resBody := newReservationCreateBody(classID, paymentOption, "")
+				body, status, perr := c.Post("/me/reservations", resBody)
+				if perr != nil || status >= 400 {
+					retryAutoBook = true
+					emit("auto_book_failed", map[string]any{
+						"status": status,
+						"error":  fmt.Sprintf("%v", perr),
+						"body":   string(body),
+					})
+					return false
+				}
+				retryAutoBook = false
+				emit("booked", map[string]any{
+					"status": status,
+					"body":   json.RawMessage(body),
+				})
+				return true
+			}
+
 			tick := func() (bool, error) {
 				data, err := c.Get(path, nil)
 				if err != nil {
@@ -85,35 +106,24 @@ notifier of choice — desktop alert, SMS gateway, calendar create.`,
 					return false, nil
 				}
 				spots := extractSpotsLeft(data)
+				opened := prevSpots != -1 && spots > 0 && prevSpots == 0
 				if prevSpots == -1 {
 					emit("watch_start", map[string]any{"spots_left": spots})
-				} else if spots > 0 && prevSpots == 0 {
+				} else if opened {
 					emit("spot_open", map[string]any{
 						"spots_left": spots,
 						"prev_spots": prevSpots,
 					})
-					if autoBook {
-						resBody := newReservationCreateBody(classID, paymentOption, "")
-						body, status, perr := c.Post("/me/reservations", resBody)
-						if perr != nil || status >= 400 {
-							emit("auto_book_failed", map[string]any{
-								"status": status,
-								"error":  fmt.Sprintf("%v", perr),
-								"body":   string(body),
-							})
-						} else {
-							emit("booked", map[string]any{
-								"status": status,
-								"body":   json.RawMessage(body),
-							})
-							return true, nil
-						}
-					}
 				} else if spots != prevSpots {
 					emit("watch_tick", map[string]any{
 						"spots_left": spots,
 						"prev_spots": prevSpots,
 					})
+				}
+				if spots == 0 {
+					retryAutoBook = false
+				} else if autoBook && (opened || retryAutoBook) && attemptAutoBook() {
+					return true, nil
 				}
 				prevSpots = spots
 				return false, nil
