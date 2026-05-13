@@ -22,6 +22,7 @@ import (
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var sqliteIdentifierPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
@@ -927,10 +928,14 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
-	if err != nil {
+	var rows *sql.Rows
+	var err error
+	if sqliteIdentifierPattern.MatchString(resourceType) {
+		// Try domain table first (tables are named after the resource type). SQLite
+		// cannot bind identifiers, so only interpolate after strict validation.
+		rows, err = s.db.Query(fmt.Sprintf("SELECT id FROM %s", resourceType))
+	}
+	if rows == nil || err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
 		if err != nil {

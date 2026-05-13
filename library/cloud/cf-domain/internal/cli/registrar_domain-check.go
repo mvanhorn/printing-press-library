@@ -18,7 +18,6 @@ func newRegistrarDomainCheckCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "domain-check <account_id>",
-		Aliases:     []string{"create"},
 		Short:       "Real-time domain availability and pricing check. Must be run immediately before registration.",
 		Example:     "  cf-domain-pp-cli registrar domain-check 550e8400-e29b-41d4-a716-446655440000 --domain-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "registrar.domain-check", "pp:method": "POST", "pp:path": "/accounts/{account_id}/registrar/domain-check"},

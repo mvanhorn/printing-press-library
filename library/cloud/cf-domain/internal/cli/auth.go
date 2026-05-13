@@ -33,8 +33,14 @@ func newAuthLoginCmd(_ *rootFlags) *cobra.Command {
 		Short:   "Login with the official Cloudflare cf CLI OAuth flow",
 		Example: "  cf-domain-pp-cli auth login",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// PATCH: delegate interactive OAuth to Cloudflare's official cf CLI, then reuse ~/.cf/config.toml.
-			login := exec.Command("npx", "-y", "cf", "auth", "login")
+			// Delegate interactive OAuth to an already-installed Cloudflare cf CLI,
+			// then reuse ~/.cf/config.toml. Do not invoke npx here: auth login must
+			// not silently install and execute packages from npm.
+			cfPath, err := exec.LookPath("cf")
+			if err != nil {
+				return fmt.Errorf("Cloudflare cf CLI not found in PATH; install it first or use `cf-domain-pp-cli auth set-token <token>` / CLOUDFLARE_API_TOKEN")
+			}
+			login := exec.Command(cfPath, "auth", "login")
 			login.Stdin = os.Stdin
 			login.Stdout = cmd.OutOrStdout()
 			login.Stderr = cmd.ErrOrStderr()
@@ -57,7 +63,7 @@ func newAuthContextCmd(flags *rootFlags) *cobra.Command {
 				}, flags)
 			}
 			if accountID == "" {
-				return fmt.Errorf("no Cloudflare account context found; run `npx -y cf context set --account-id <id>`")
+				return fmt.Errorf("no Cloudflare account context found; run `cf context set --account-id <id>`")
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Account: %s\n", accountID)
 			return nil

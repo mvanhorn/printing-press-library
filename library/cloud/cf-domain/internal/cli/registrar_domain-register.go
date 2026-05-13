@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -14,7 +13,6 @@ import (
 
 func newRegistrarDomainRegisterCmd(flags *rootFlags) *cobra.Command {
 	var bodyDomainName string
-	var stdinBody bool
 	var confirmDomain string
 
 	cmd := &cobra.Command{
@@ -27,16 +25,11 @@ func newRegistrarDomainRegisterCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if !stdinBody {
-				if !cmd.Flags().Changed("domain-name") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "domain-name")
-				}
+			if !cmd.Flags().Changed("domain-name") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "domain-name")
 			}
 			if !flags.dryRun {
-				// PATCH: extra destructive-action gate. --agent implies --yes, so require a typed domain confirmation too.
-				if stdinBody {
-					return fmt.Errorf("domain registration from --stdin is disabled; use --domain-name and --confirm-domain for explicit purchase confirmation")
-				}
+				// Extra destructive-action gate. --agent implies --yes, so require a typed domain confirmation too.
 				if confirmDomain == "" {
 					return fmt.Errorf("refusing to register domain without --confirm-domain %s after a fresh domain-check price review", bodyDomainName)
 				}
@@ -51,22 +44,9 @@ func newRegistrarDomainRegisterCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/accounts/{account_id}/registrar/registrations"
 			path = replacePathParam(path, "account_id", accountID)
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyDomainName != "" {
-					body["domain_name"] = bodyDomainName
-				}
+			body := map[string]any{}
+			if bodyDomainName != "" {
+				body["domain_name"] = bodyDomainName
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
@@ -137,7 +117,6 @@ func newRegistrarDomainRegisterCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyDomainName, "domain-name", "", "Fully qualified domain name to register.")
 	cmd.Flags().StringVar(&confirmDomain, "confirm-domain", "", "Required for live registration: repeat the exact domain after reviewing domain-check price.")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
 }

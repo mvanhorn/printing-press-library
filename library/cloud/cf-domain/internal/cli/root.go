@@ -207,7 +207,7 @@ func resolveAccountID(args []string) (string, error) {
 	if accountID := config.DefaultCloudflareAccountID(); accountID != "" {
 		return accountID, nil
 	}
-	return "", fmt.Errorf("account_id not provided and no ACCOUNT_ID, CLOUDFLARE_ACCOUNT_ID, or cf context account found; run `npx -y cf auth login` then `npx -y cf context set --account-id <id>`")
+	return "", fmt.Errorf("account_id not provided and no ACCOUNT_ID, CLOUDFLARE_ACCOUNT_ID, or cf context account found; run `cf auth login` then `cf context set --account-id <id>`")
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
