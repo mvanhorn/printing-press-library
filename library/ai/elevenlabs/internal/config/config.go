@@ -84,11 +84,9 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// PATCH: Keep api_key auth to one empty-token guard before returning the key.
 	token := c.ElevenlabsApiKey
 	if token == "" {
-		return ""
-	}
-	if c.ElevenlabsApiKey == "" {
 		return ""
 	}
 	return token
@@ -135,6 +133,9 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	// PATCH: Logout must clear persisted API-key credentials as well as OAuth tokens.
+	c.ElevenlabsApiKey = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 

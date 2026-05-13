@@ -6,11 +6,11 @@ package client
 import (
 	"bytes"
 	"crypto/sha256"
-	"github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/internal/config"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/internal/config"
 	"io"
 	"math"
 	"mime/multipart"

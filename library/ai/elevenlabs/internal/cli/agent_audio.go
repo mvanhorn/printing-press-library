@@ -322,7 +322,8 @@ func newDialogueCastCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&language, "language-code", "", "Optional language code")
 	cmd.Flags().StringVar(&outputFormat, "output-format", "mp3_44100_128", "Audio output format")
 	cmd.Flags().StringVar(&out, "out", "", "Audio output path")
-	cmd.Flags().BoolVar(&timestamps, "timestamps", true, "Use the timestamp endpoint and save returned base64 audio")
+	// PATCH: Dialogue cast should use the non-timestamp endpoint unless explicitly requested.
+	cmd.Flags().BoolVar(&timestamps, "timestamps", false, "Use the timestamp endpoint and save returned base64 audio")
 	return cmd
 }
 
