@@ -80,6 +80,12 @@ to print the URL and copy/paste yourself.
 			// SurgegraphToken — that field is the static-token (env / set-token)
 			// slot. Duplicating here meant a stale copy would win over AccessToken
 			// after any future refresh, since AuthHeader() prefers SurgegraphToken.
+			// PATCH(greptile-6): a prior `auth set-token` may have left SurgegraphToken
+			// populated in the config file. config.Load() preserves it, and AuthHeader()
+			// prefers it over AccessToken — so without clearing here, the static token
+			// would win and the OAuth flow would be a no-op from the CLI's perspective.
+			cfg.SurgegraphToken = ""
+			cfg.AuthSource = "config:access_token"
 			if err := saveConfigTOML(cfg); err != nil {
 				return fmt.Errorf("saving credentials: %w", err)
 			}

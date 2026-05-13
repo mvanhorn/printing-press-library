@@ -433,11 +433,23 @@ func newVisibilityTrafficCitationsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// PATCH(greptile-9): parse the citation_snapshots raw JSON and
+			// exact-match URL fields instead of substring-matching the entire
+			// blob. The previous strings.Contains approach attributed citations
+			// to the wrong page whenever a short page URL (e.g. example.com/blog)
+			// appeared as a prefix of an unrelated citation URL
+			// (example.com/blog/post-a) or as a substring inside an image src,
+			// canonical tag, or author link embedded in the raw JSON.
 			result := []row{}
 			for _, p := range pages {
 				r := row{URL: p.URL, AIVisits: p.AIVisits, HumanVisits: p.HumanVisits}
+				target := normalizeCitationURL(p.URL)
+				if target == "" {
+					result = append(result, r)
+					continue
+				}
 				for _, c := range cites {
-					if strings.Contains(string(c.RawJSON), p.URL) {
+					if citationJSONContainsURL(c.RawJSON, target) {
 						r.Citations = append(r.Citations, cite{Domain: c.Domain, Date: c.SnapshotDate})
 					}
 				}
@@ -496,6 +508,55 @@ func sortedKeys(m map[string]map[string]int) []string {
 		}
 	}
 	return out
+}
+
+// normalizeCitationURL lowercases and trims a URL so that exact comparison
+// is resilient to inconsequential casing or trailing-slash differences.
+// Returns "" for empty input so callers can short-circuit.
+func normalizeCitationURL(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return ""
+	}
+	s = strings.TrimRight(s, "/")
+	return strings.ToLower(s)
+}
+
+// citationJSONContainsURL recursively walks a citation_snapshots.raw_json
+// payload and returns true only when some string value exactly matches the
+// (already normalized) target URL. This avoids the false positives that a
+// raw substring search produced when the page URL was a prefix of a longer
+// citation URL or appeared inside an image src / canonical tag / author
+// link embedded in the raw JSON blob.
+func citationJSONContainsURL(raw json.RawMessage, target string) bool {
+	if len(raw) == 0 || target == "" {
+		return false
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		return false
+	}
+	return citationJSONWalk(v, target)
+}
+
+func citationJSONWalk(v any, target string) bool {
+	switch x := v.(type) {
+	case string:
+		return normalizeCitationURL(x) == target
+	case map[string]any:
+		for _, vv := range x {
+			if citationJSONWalk(vv, target) {
+				return true
+			}
+		}
+	case []any:
+		for _, item := range x {
+			if citationJSONWalk(item, target) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func rankMap(counts map[string]int) map[string]int {

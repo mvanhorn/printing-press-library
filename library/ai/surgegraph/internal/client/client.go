@@ -10,6 +10,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/oauth"
 	"io"
 	"math"
 	"net/http"
@@ -17,9 +20,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/ai/surgegraph/internal/oauth"
+	"sync"
 	"time"
 )
 
@@ -31,6 +32,12 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	// PATCH(greptile-8): serialize concurrent OAuth refresh attempts. Fan-out
+	// workers (cliutil.FanoutRun) share one *Client; without this mutex,
+	// simultaneous expired-token requests would race on cfg.AccessToken /
+	// cfg.RefreshToken writes, and most OAuth servers issue single-use refresh
+	// tokens so the second concurrent call would return invalid_grant.
+	refreshMu sync.Mutex
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -363,6 +370,15 @@ func (c *Client) authHeader() (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
+	// PATCH(greptile-8): hold refreshMu across the read-and-maybe-refresh
+	// sequence so concurrent fan-out workers (cliutil.FanoutRun) don't both
+	// observe an expired token and call oauth.Refresh in parallel. Most
+	// authorization servers issue single-use refresh tokens; the second
+	// concurrent call would return 400 invalid_grant. The lock is held only
+	// for field reads + an HTTP call inside refreshAccessToken — fast enough
+	// that other goroutines waiting on it pick up the freshly-rotated token.
+	c.refreshMu.Lock()
+	defer c.refreshMu.Unlock()
 	if c.Config.AccessToken != "" && !c.Config.TokenExpiry.IsZero() && time.Now().After(c.Config.TokenExpiry) && c.Config.RefreshToken != "" {
 		if err := c.refreshAccessToken(); err != nil {
 			return "", err

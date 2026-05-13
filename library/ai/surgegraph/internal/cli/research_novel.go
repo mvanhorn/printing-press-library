@@ -68,21 +68,23 @@ document covers it. Useful for planning a content sprint.
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			docsData, _, err := c.Post("/v1/get_writer_documents", map[string]any{"projectId": projectID})
+			writerDocs, _, err := c.Post("/v1/get_writer_documents", map[string]any{"projectId": projectID})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			topics := extractTopicTreeLeaves(topicData)
-			docs, _ := decodeListArray(docsData)
-			docTitles := []string{}
-			for _, d := range docs {
-				var t struct {
-					Title string `json:"title"`
-				}
-				if json.Unmarshal(d, &t) == nil && t.Title != "" {
-					docTitles = append(docTitles, strings.ToLower(t.Title))
-				}
+			// PATCH(greptile-7): also fetch optimized documents. The command's
+			// short/long descriptions promise "writer/optimized" coverage, so
+			// a topic covered exclusively by a Content Optimizer article must
+			// not be classified as a gap. classifyAPIError is intentionally
+			// not used for the optimizer leg: a project without the optimizer
+			// add-on still has a valid writer-doc result; we don't want to
+			// fail-loud and force users to know which add-ons are active.
+			optimizedDocs, _, optErr := c.Post("/v1/get_optimized_documents", map[string]any{"projectId": projectID})
+			docTitles := collectDocTitles(writerDocs)
+			if optErr == nil {
+				docTitles = append(docTitles, collectDocTitles(optimizedDocs)...)
 			}
+			topics := extractTopicTreeLeaves(topicData)
 			type row struct {
 				Topic    string `json:"topic"`
 				Parent   string `json:"parent,omitempty"`
@@ -450,6 +452,24 @@ func extractDocumentIDs(data json.RawMessage) []string {
 		}
 	}
 	return nil
+}
+
+// collectDocTitles decodes the writer/optimizer documents envelope and
+// returns lowercased non-empty titles. Permissive across schema shapes:
+// supports bare arrays and the common envelope keys handled by
+// decodeListArray.
+func collectDocTitles(data json.RawMessage) []string {
+	rows, _ := decodeListArray(data)
+	out := make([]string, 0, len(rows))
+	for _, d := range rows {
+		var t struct {
+			Title string `json:"title"`
+		}
+		if json.Unmarshal(d, &t) == nil && t.Title != "" {
+			out = append(out, strings.ToLower(t.Title))
+		}
+	}
+	return out
 }
 
 func slugifyTopic(s string) string {

@@ -33,6 +33,30 @@
       "summary": "Respect --window in visibility delta and visibility portfolio by suppressing older snapshots that fall outside the requested window.",
       "reason": "Both commands parsed and validated windowDur then discarded it with `_ = windowDur`. A user asking for `--window 1d` would silently receive a months-old comparison. The fix post-filters the older snapshot from LatestSnapshotPair: if its SnapshotDate is older than windowDur, the pair is reported as single-snapshot with an explanatory note rather than a misleading 'delta'. A future store-side change can replace this with a proper LatestSnapshotPairWithin(since) query, but the user-facing semantics now match the flag's documentation.",
       "files": ["internal/cli/visibility_novel.go"]
+    },
+    {
+      "id": "greptile-6-clear-static-token-on-oauth-login",
+      "summary": "Clear cfg.SurgegraphToken (and re-stamp AuthSource) before saveConfigTOML in auth login.",
+      "reason": "config.Load() preserves any token = \"…\" entry written by a prior `auth set-token`, and AuthHeader() checks SurgegraphToken before AccessToken. Without clearing it on the OAuth-login transition the stale static credential would silently win on the next CLI invocation and the OAuth login would be a no-op from the caller's perspective.",
+      "files": ["internal/cli/auth_login.go"]
+    },
+    {
+      "id": "greptile-7-research-drift-fetch-optimized-docs",
+      "summary": "research drift also fetches /v1/get_optimized_documents and unions the titles with the writer-doc titles before classifying gaps.",
+      "reason": "The command's short/long descriptions promise coverage against both writer and optimized documents, but the implementation only called get_writer_documents. Any topic covered exclusively by a Content Optimizer article was misclassified as a gap, inflating the gap list for any user who relies on the optimizer for content. The optimizer fetch is lenient: a project without the optimizer add-on still produces a valid result via writer docs alone.",
+      "files": ["internal/cli/research_novel.go"]
+    },
+    {
+      "id": "greptile-8-serialize-token-refresh",
+      "summary": "Guard authHeader's read-and-maybe-refresh sequence with a Client-level sync.Mutex so concurrent fan-out workers can't double-refresh.",
+      "reason": "cliutil.FanoutRun runs worker goroutines that share one *client.Client. When the access token is expired at fan-out start, multiple goroutines would simultaneously enter refreshAccessToken and race on cfg.AccessToken / cfg.RefreshToken writes (a Go data race). Worse, most OAuth servers issue single-use refresh tokens: the second concurrent call arrives after rotation and returns 400 invalid_grant, failing every subsequent worker until the user re-runs `auth login`.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "greptile-9-citation-join-exact-url-match",
+      "summary": "visibility traffic-citations parses citation_snapshots.raw_json and exact-matches URL fields instead of substring-matching the whole blob.",
+      "reason": "strings.Contains(string(c.RawJSON), p.URL) attributed citations to the wrong page whenever a short page URL like example.com/blog appeared as a prefix of a longer citation URL (example.com/blog/post-a) or as a substring inside an image src, canonical tag, or author link embedded in the raw JSON. The walker recurses through the parsed JSON and exact-matches normalized URLs, eliminating prefix-and-substring false positives.",
+      "files": ["internal/cli/visibility_novel.go"]
     }
   ]
 }
