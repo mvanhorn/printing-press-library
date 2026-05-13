@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-13T02:39:51.000000000Z",
-  "printing_press_version": "4.2.2",
+  "printing_press_version": "4.5.2",
   "api_name": "airframe",
   "display_name": "airframe",
   "cli_name": "airframe-pp-cli",
