@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/config"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/config"
 )
 
 func newTenantsCmd(flags *rootFlags) *cobra.Command {
@@ -34,10 +34,10 @@ To CREATE a tenant config, run "auth from-browser --tenant <slug> '<cookie>'".`,
 }
 
 type tenantRow struct {
-	Tenant    string `json:"tenant"`
-	BaseURL   string `json:"base_url,omitempty"`
-	Default   bool   `json:"is_default,omitempty"`
-	HasAuth   bool   `json:"has_auth"`
+	Tenant     string `json:"tenant"`
+	BaseURL    string `json:"base_url,omitempty"`
+	Default    bool   `json:"is_default,omitempty"`
+	HasAuth    bool   `json:"has_auth"`
 	ConfigPath string `json:"config_path"`
 }
 
@@ -65,10 +65,14 @@ func newTenantsListCmd(flags *rootFlags) *cobra.Command {
 			rows := make([]tenantRow, 0, len(tenants))
 			for _, t := range tenants {
 				cfg, err := config.LoadTenant(flags.configPath, t)
+				configPath, pathErr := config.TenantConfigPath(t)
+				if pathErr != nil {
+					return pathErr
+				}
 				row := tenantRow{
 					Tenant:     t,
 					Default:    t == defaultTenant,
-					ConfigPath: config.TenantConfigPath(t),
+					ConfigPath: configPath,
 				}
 				if err == nil && cfg != nil {
 					row.BaseURL = cfg.BaseURL
@@ -84,14 +88,17 @@ func newTenantsListCmd(flags *rootFlags) *cobra.Command {
 
 func newTenantsSetDefaultCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-default <tenant>",
-		Short: "Set the default tenant in the root config",
+		Use:     "set-default <tenant>",
+		Short:   "Set the default tenant in the root config",
 		Example: `  marianatek-pp-cli tenants set-default kolmkontrast`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
 				return cmd.Help()
 			}
 			slug := args[0]
+			if err := config.ValidateTenantSlug(slug); err != nil {
+				return usageErr(err)
+			}
 			tenants, _ := config.ListTenants()
 			seen := false
 			for _, t := range tenants {
@@ -115,15 +122,18 @@ func newTenantsSetDefaultCmd(flags *rootFlags) *cobra.Command {
 func newTenantsRemoveCmd(flags *rootFlags) *cobra.Command {
 	var yes bool
 	cmd := &cobra.Command{
-		Use:   "remove <tenant>",
-		Short: "Delete a tenant's config file (does not revoke the token upstream)",
+		Use:     "remove <tenant>",
+		Short:   "Delete a tenant's config file (does not revoke the token upstream)",
 		Example: `  marianatek-pp-cli tenants remove old-studio --yes`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) != 1 {
 				return cmd.Help()
 			}
 			slug := args[0]
-			path := config.TenantConfigPath(slug)
+			path, err := config.TenantConfigPath(slug)
+			if err != nil {
+				return usageErr(err)
+			}
 			if _, err := os.Stat(path); os.IsNotExist(err) {
 				if flags.ignoreMissing {
 					return nil
@@ -146,6 +156,9 @@ func newTenantsRemoveCmd(flags *rootFlags) *cobra.Command {
 // writeRootDefault updates only the `default_tenant` field in the root config,
 // preserving any other settings the user may have placed there.
 func writeRootDefault(configPath, slug string) error {
+	if err := config.ValidateTenantSlug(slug); err != nil {
+		return err
+	}
 	path := configPath
 	if path == "" {
 		path = os.Getenv("MARIANATEK_CONFIG")

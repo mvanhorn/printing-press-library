@@ -74,7 +74,7 @@ marianatek watch 84212 --interval 60s --auto-book --agent
 
 
 # Surface credit packs about to lapse so you don't waste them. Suitable as a weekly cron.
-marianatek expiring --within 30d --agent
+marianatek expiring --within 720h --agent
 
 ```
 
@@ -134,7 +134,7 @@ These capabilities aren't available in any other tool for this API.
   _Pre-empt wasted credits. Run as a weekly cron; if non-empty, the user has action to take._
 
   ```bash
-  marianatek expiring --within 30d --agent
+  marianatek expiring --within 720h --agent
   ```
 
 ### Operations

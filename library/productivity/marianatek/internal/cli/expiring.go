@@ -8,8 +8,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newExpiringCmd(flags *rootFlags) *cobra.Command {
@@ -26,10 +26,10 @@ within the window. The API exposes expires_at per pack but never aggregates
 Run 'marianatek-pp-cli sync --resources me_credits,me_memberships' first to
 populate the local store.`,
 		Example: `  # Anything expiring in the next 30 days
-  marianatek-pp-cli expiring --within 720h
+	  marianatek-pp-cli expiring --within 720h
 
-  # JSON for an agent / cron job
-  marianatek-pp-cli expiring --within 30d --json`,
+	  # JSON for an agent / cron job
+	  marianatek-pp-cli expiring --within 720h --json`,
 		Annotations: map[string]string{
 			"pp:novel":      "expiring",
 			"mcp:read-only": "true",
@@ -80,17 +80,14 @@ populate the local store.`,
 					if t.Before(now) || t.After(deadline) {
 						continue
 					}
-					id, _ := rec["data"].(map[string]any)["id"].(string)
-					if id == "" {
-						id, _ = rec["id"].(string)
-					}
+					id := expiringRecordID(rec)
 					out = append(out, expiringRow{
-						Kind:        kind,
-						ID:          id,
-						Name:        stringAttr(attrs, "name", "title", "product_name"),
-						ExpiresAt:   exp,
-						DaysLeft:    int(t.Sub(now).Hours() / 24),
-						Remaining:   intAttr(attrs, "remaining", "balance", "amount_remaining"),
+						Kind:      kind,
+						ID:        id,
+						Name:      stringAttr(attrs, "name", "title", "product_name"),
+						ExpiresAt: exp,
+						DaysLeft:  int(t.Sub(now).Hours() / 24),
+						Remaining: intAttr(attrs, "remaining", "balance", "amount_remaining"),
 					})
 				}
 			}
@@ -110,6 +107,18 @@ type expiringRow struct {
 	ExpiresAt string `json:"expires_at"`
 	DaysLeft  int    `json:"days_left"`
 	Remaining int    `json:"remaining,omitempty"`
+}
+
+func expiringRecordID(rec map[string]any) string {
+	if data, ok := rec["data"].(map[string]any); ok {
+		if id, ok := data["id"].(string); ok {
+			return id
+		}
+	}
+	if id, ok := rec["id"].(string); ok {
+		return id
+	}
+	return ""
 }
 
 func intAttr(attrs map[string]any, keys ...string) int {

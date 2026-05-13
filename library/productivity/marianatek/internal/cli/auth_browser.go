@@ -10,22 +10,24 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/config"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/config"
 )
 
 // mtCookieBlob is the shape of the JSON stored in
 // `mt.token.https://{tenant}.marianaiframes.com` cookies set on the studio's
 // parent domain (kolmkontrast.com, barrysbootcamp.com, etc.).
 type mtCookieBlob struct {
-	Expires   any            `json:"expires"`
-	TokenData mtCookieToken  `json:"tokenData"`
+	Expires   any           `json:"expires"`
+	TokenData mtCookieToken `json:"tokenData"`
 }
 
 type mtCookieToken struct {
@@ -121,7 +123,7 @@ func readAll(f *os.File) ([]byte, error) {
 			out = append(out, buf[:n]...)
 		}
 		if err != nil {
-			if err.Error() == "EOF" {
+			if errors.Is(err, io.EOF) {
 				return out, nil
 			}
 			return out, err
@@ -144,7 +146,11 @@ func persistOAuthToken(flags *rootFlags, token string) error {
 
 	var configPath string
 	if tenant != "" {
-		configPath = config.TenantConfigPath(tenant)
+		var err error
+		configPath, err = config.TenantConfigPath(tenant)
+		if err != nil {
+			return err
+		}
 	} else {
 		configPath = flags.configPath
 		if configPath == "" {

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newScheduleCmd(flags *rootFlags) *cobra.Command {
@@ -114,8 +114,10 @@ type scheduleFilters struct {
 	Window     time.Duration
 }
 
-// scheduleAcrossTenants makes one live `GET /classes` call per configured
-// tenant and merges results with a "tenant" annotation added in-memory.
+const scheduleTenantMaxPages = 100
+
+// scheduleAcrossTenants pages through live `GET /classes` results for each
+// configured tenant and merges rows with a "tenant" annotation added in-memory.
 // PATCH(retro #marianatek-multi-tenant): live fan-out only; per-tenant local
 // caching is deferred to a future framework increment.
 func scheduleAcrossTenants(cmd *cobra.Command, flags *rootFlags, f scheduleFilters) ([]map[string]any, error) {
@@ -140,28 +142,70 @@ func scheduleAcrossTenants(cmd *cobra.Command, flags *rootFlags, f scheduleFilte
 			out = append(out, map[string]any{"tenant": tenant, "error": err.Error()})
 			continue
 		}
-		data, err := c.Get("/classes", params)
-		if err != nil {
-			out = append(out, map[string]any{"tenant": tenant, "error": err.Error()})
-			continue
-		}
-		var env struct {
-			Results []map[string]any `json:"results"`
-		}
-		if err := json.Unmarshal(data, &env); err != nil {
-			out = append(out, map[string]any{"tenant": tenant, "error": "parse: " + err.Error()})
-			continue
-		}
-		for _, r := range env.Results {
-			if !matchesLiveFilters(r, f) {
-				continue
+		cursor := ""
+		seenCursors := map[string]struct{}{}
+		for page := 0; ; page++ {
+			if page >= scheduleTenantMaxPages {
+				out = append(out, map[string]any{"tenant": tenant, "warning": fmt.Sprintf("stopped after %d schedule pages", scheduleTenantMaxPages)})
+				break
 			}
-			r["tenant"] = tenant
-			out = append(out, r)
+			pageParams := copyScheduleParams(params)
+			if cursor != "" {
+				pageParams["after"] = cursor
+			}
+			data, err := c.Get("/classes", pageParams)
+			if err != nil {
+				out = append(out, map[string]any{"tenant": tenant, "error": err.Error()})
+				break
+			}
+			results, nextCursor, hasMore, err := decodeSchedulePage(data)
+			if err != nil {
+				out = append(out, map[string]any{"tenant": tenant, "error": "parse: " + err.Error()})
+				break
+			}
+			for _, r := range results {
+				if !matchesLiveFilters(r, f) {
+					continue
+				}
+				r["tenant"] = tenant
+				out = append(out, r)
+			}
+			if !hasMore || nextCursor == "" {
+				break
+			}
+			if _, ok := seenCursors[nextCursor]; ok {
+				out = append(out, map[string]any{"tenant": tenant, "warning": "stopped on repeated schedule pagination cursor"})
+				break
+			}
+			seenCursors[nextCursor] = struct{}{}
+			cursor = nextCursor
 		}
 	}
 	sortByStart(out)
 	return out, nil
+}
+
+func decodeSchedulePage(data []byte) ([]map[string]any, string, bool, error) {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return nil, "", false, err
+	}
+	var results []map[string]any
+	if raw, ok := envelope["results"]; ok {
+		if err := json.Unmarshal(raw, &results); err != nil {
+			return nil, "", false, err
+		}
+	}
+	nextCursor, hasMore := extractPaginationFromEnvelope(envelope, "after")
+	return results, nextCursor, hasMore, nil
+}
+
+func copyScheduleParams(params map[string]string) map[string]string {
+	out := make(map[string]string, len(params)+1)
+	for k, v := range params {
+		out[k] = v
+	}
+	return out
 }
 
 func matchesLiveFilters(r map[string]any, f scheduleFilters) bool {

@@ -95,7 +95,7 @@ These capabilities aren't available in any other tool for this API.
   _Pre-empt wasted credits. Run as a weekly cron; if non-empty, the user has action to take._
 
   ```bash
-  marianatek expiring --within 30d --agent
+  marianatek expiring --within 720h --agent
   ```
 
 ### Operations
@@ -258,7 +258,7 @@ Streams NDJSON events. The first --auto-book success emits a confirmed-reservati
 ### List credit packs that expire in the next 30 days
 
 ```bash
-marianatek expiring --within 30d --agent --select tenant,expires_at,remaining,suggested_classes
+marianatek expiring --within 720h --agent --select tenant,expires_at,remaining,suggested_classes
 ```
 
 Joins balance + expiry + candidate class costs. --select trims to the fields an agent uses to recommend an action.

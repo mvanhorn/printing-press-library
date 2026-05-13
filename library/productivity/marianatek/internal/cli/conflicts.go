@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func newConflictsCmd(flags *rootFlags) *cobra.Command {
@@ -89,10 +89,10 @@ type conflictEvent struct {
 }
 
 type conflictPair struct {
-	Kind string         `json:"kind"`
-	A    conflictEvent  `json:"a"`
-	B    conflictEvent  `json:"b"`
-	Gap  string         `json:"gap,omitempty"`
+	Kind string        `json:"kind"`
+	A    conflictEvent `json:"a"`
+	B    conflictEvent `json:"b"`
+	Gap  string        `json:"gap,omitempty"`
 }
 
 func collectReservationEvents(db *store.Store, date time.Time) []conflictEvent {
@@ -147,8 +147,6 @@ func parseICSEvents(path string, date time.Time) ([]conflictEvent, error) {
 		return nil, err
 	}
 	defer f.Close()
-	dayStart := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
-	dayEnd := dayStart.Add(24 * time.Hour)
 	out := []conflictEvent{}
 	scanner := bufio.NewScanner(f)
 	var ev conflictEvent
@@ -160,7 +158,7 @@ func parseICSEvents(path string, date time.Time) ([]conflictEvent, error) {
 			inEvent = true
 			ev = conflictEvent{Source: "ics"}
 		case line == "END:VEVENT":
-			if inEvent && !ev.Start.IsZero() && !ev.Start.Before(dayStart) && ev.Start.Before(dayEnd) {
+			if inEvent && !ev.Start.IsZero() && sameCalendarDate(ev.Start, date) {
 				if ev.End.IsZero() {
 					ev.End = ev.Start.Add(time.Hour)
 				}
@@ -183,17 +181,44 @@ func parseICSDate(line string) time.Time {
 	if colon == -1 {
 		return time.Time{}
 	}
+	prop := line[:colon]
 	val := line[colon+1:]
-	for _, layout := range []string{
-		"20060102T150405Z",
-		"20060102T150405",
-		"20060102",
-	} {
-		if t, err := time.Parse(layout, val); err == nil {
+	if strings.HasSuffix(val, "Z") {
+		if t, err := time.Parse("20060102T150405Z", val); err == nil {
+			return t
+		}
+	}
+	loc := time.UTC
+	if tzid := icsParam(prop, "TZID"); tzid != "" {
+		loaded, err := time.LoadLocation(tzid)
+		if err != nil {
+			return time.Time{}
+		}
+		loc = loaded
+	}
+	for _, layout := range []string{"20060102T150405", "20060102"} {
+		if t, err := time.ParseInLocation(layout, val, loc); err == nil {
 			return t
 		}
 	}
 	return time.Time{}
+}
+
+func icsParam(prop, name string) string {
+	for _, part := range strings.Split(prop, ";")[1:] {
+		key, value, ok := strings.Cut(part, "=")
+		if !ok || !strings.EqualFold(key, name) {
+			continue
+		}
+		return strings.Trim(value, `"`)
+	}
+	return ""
+}
+
+func sameCalendarDate(t, date time.Time) bool {
+	local := t.In(t.Location())
+	y, m, d := local.Date()
+	return y == date.Year() && m == date.Month() && d == date.Day()
 }
 
 func detectConflicts(events []conflictEvent, buffer time.Duration) []conflictPair {

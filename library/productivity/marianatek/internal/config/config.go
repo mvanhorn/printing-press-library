@@ -36,9 +36,10 @@ type Config struct {
 // PATCH(retro #marianatek-multi-tenant): Mariana Tek uses per-brand subdomains
 // ({tenant}.marianatek.com) and a single user routinely belongs to multiple
 // studios. LoadTenant resolves the active tenant from:
-//   1. explicit `tenant` arg (from --tenant flag)
-//   2. MARIANATEK_TENANT env var
-//   3. root config.toml `default_tenant` field
+//  1. explicit `tenant` arg (from --tenant flag)
+//  2. MARIANATEK_TENANT env var
+//  3. root config.toml `default_tenant` field
+//
 // When a tenant is resolved, it loads `~/.config/marianatek-pp-cli/tenants/<slug>.toml`
 // and merges over the root config so tenant credentials win over shared defaults.
 // When no tenant resolves, falls back to Load(configPath) for legacy single-tenant
@@ -60,7 +61,10 @@ func LoadTenant(configPath, tenant string) (*Config, error) {
 		return root, nil
 	}
 	// Load tenant-specific file
-	tenantPath := tenantConfigPath(tenant)
+	tenantPath, err := tenantConfigPath(tenant)
+	if err != nil {
+		return nil, err
+	}
 	data, err := os.ReadFile(tenantPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -82,16 +86,34 @@ func LoadTenant(configPath, tenant string) (*Config, error) {
 	return &tenantCfg, nil
 }
 
+// ValidateTenantSlug rejects filesystem traversal and non-subdomain tenant
+// names before they are used to construct per-tenant config paths.
+func ValidateTenantSlug(tenant string) error {
+	if tenant == "" {
+		return fmt.Errorf("tenant slug cannot be empty")
+	}
+	for _, r := range tenant {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			continue
+		}
+		return fmt.Errorf("invalid tenant slug %q: use only letters, digits, hyphen, or underscore", tenant)
+	}
+	return nil
+}
+
 // tenantConfigPath returns the canonical per-tenant TOML path. Centralized so
 // LoadTenant, the tenants subcommand, and auth_browser all agree.
-func tenantConfigPath(tenant string) string {
+func tenantConfigPath(tenant string) (string, error) {
+	if err := ValidateTenantSlug(tenant); err != nil {
+		return "", err
+	}
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "marianatek-pp-cli", "tenants", tenant+".toml")
+	return filepath.Join(home, ".config", "marianatek-pp-cli", "tenants", tenant+".toml"), nil
 }
 
 // TenantConfigPath is the exported form (the cli package needs to read/write
 // these files from auth_browser and the tenants subcommand).
-func TenantConfigPath(tenant string) string { return tenantConfigPath(tenant) }
+func TenantConfigPath(tenant string) (string, error) { return tenantConfigPath(tenant) }
 
 // ListTenants returns the slugs of every per-tenant TOML found on disk.
 func ListTenants() ([]string, error) {
@@ -113,7 +135,11 @@ func ListTenants() ([]string, error) {
 		if filepath.Ext(name) != ".toml" {
 			continue
 		}
-		out = append(out, name[:len(name)-len(".toml")])
+		slug := name[:len(name)-len(".toml")]
+		if ValidateTenantSlug(slug) != nil {
+			continue
+		}
+		out = append(out, slug)
 	}
 	return out, nil
 }
