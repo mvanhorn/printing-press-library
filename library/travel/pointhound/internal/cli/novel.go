@@ -21,6 +21,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/enetx/g"
@@ -28,6 +29,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/protobuf"
 	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/scout"
 	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/store"
@@ -817,6 +819,7 @@ func newBatchCmd(flags *rootFlags) *cobra.Command {
 	var cabin string
 	var passengers int
 	var throttle time.Duration
+	var concurrency int
 
 	cmd := &cobra.Command{
 		Use:   "batch",
@@ -849,34 +852,47 @@ compare-transfer, calendar).
 				MinPoints  int    `json:"minPoints"`
 				Error      string `json:"error,omitempty"`
 			}
+			limiter := newBatchThrottle(throttle)
+			// PATCH: Use bounded fan-out so batch matches its documented parallel behavior.
+			fanoutRows, fanoutErrs := cliutil.FanoutRun(cmd.Context(), ids,
+				func(sid string) string { return sid },
+				func(ctx context.Context, sid string) (result, error) {
+					if err := limiter.Wait(ctx); err != nil {
+						return result{SearchID: sid, Error: err.Error()}, nil
+					}
+					extra := map[string]string{
+						"cabins":     emptyDefault(cabin, "economy"),
+						"passengers": fmt.Sprintf("%d", passengers),
+					}
+					offers, err := fetchOffers(ctx, flags, sid, extra)
+					r := result{SearchID: sid, OfferCount: len(offers)}
+					if err != nil {
+						r.Error = err.Error()
+					} else {
+						best := int(^uint(0) >> 1)
+						for _, o := range offers {
+							if o.PricePoints > 0 && o.PricePoints < best {
+								best = o.PricePoints
+							}
+						}
+						if best == int(^uint(0)>>1) {
+							best = 0
+						}
+						r.MinPoints = best
+					}
+					return r, nil
+				},
+				cliutil.WithConcurrency(concurrency),
+			)
+			cliutil.FanoutReportErrors(os.Stderr, fanoutErrs)
 			// Initialize as empty slice so JSON output is "[]" not "null" on
 			// dry-run or when every search session returns zero offers.
 			rows := []result{}
-			for i, sid := range ids {
-				if i > 0 && throttle > 0 {
-					time.Sleep(throttle)
-				}
-				extra := map[string]string{
-					"cabins":     emptyDefault(cabin, "economy"),
-					"passengers": fmt.Sprintf("%d", passengers),
-				}
-				offers, err := fetchOffers(cmd.Context(), flags, sid, extra)
-				r := result{SearchID: sid, OfferCount: len(offers)}
-				if err != nil {
-					r.Error = err.Error()
-				} else {
-					best := int(^uint(0) >> 1)
-					for _, o := range offers {
-						if o.PricePoints > 0 && o.PricePoints < best {
-							best = o.PricePoints
-						}
-					}
-					if best == int(^uint(0)>>1) {
-						best = 0
-					}
-					r.MinPoints = best
-				}
-				rows = append(rows, r)
+			for _, r := range fanoutRows {
+				rows = append(rows, r.Value)
+			}
+			for _, err := range fanoutErrs {
+				rows = append(rows, result{SearchID: err.Source, Error: err.Err.Error()})
 			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !humanFriendly) {
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
@@ -894,8 +910,56 @@ compare-transfer, calendar).
 	cmd.Flags().StringVar(&searchIDs, "search-ids", "", "Comma-separated list of ofs_* search ids.")
 	cmd.Flags().StringVar(&cabin, "cabin", "", "Cabin class filter for all searches.")
 	cmd.Flags().IntVar(&passengers, "passengers", 1, "Passenger count for all searches.")
+	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Maximum concurrent offer fetches.")
 	cmd.Flags().DurationVar(&throttle, "throttle", time.Second, "Wait between requests to avoid rate limits.")
 	return cmd
+}
+
+type batchThrottle struct {
+	interval time.Duration
+	mu       sync.Mutex
+	next     time.Time
+}
+
+func newBatchThrottle(interval time.Duration) *batchThrottle {
+	return &batchThrottle{interval: interval}
+}
+
+func (t *batchThrottle) Wait(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if t == nil || t.interval <= 0 {
+		return nil
+	}
+
+	t.mu.Lock()
+	now := time.Now()
+	start := now
+	if t.next.After(now) {
+		start = t.next
+	}
+	t.next = start.Add(t.interval)
+	t.mu.Unlock()
+
+	if delay := time.Until(start); delay > 0 {
+		return sleepContext(ctx, delay)
+	}
+	return ctx.Err()
+}
+
+func sleepContext(ctx context.Context, d time.Duration) error {
+	if d <= 0 {
+		return ctx.Err()
+	}
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 // ---------- calendar ----------
@@ -1080,10 +1144,12 @@ login --chrome' first so the CLI can replay cf_clearance + ph_session cookies.
 				for _, d := range ds {
 					for _, m := range ms {
 						if cellIndex > 0 && cookiesConfigured {
-							time.Sleep(time.Second)
+							if err := sleepContext(cmd.Context(), time.Second); err != nil {
+								return err
+							}
 						}
 						cellIndex++
-						cell := runTopDealsMatrixCell(c, strings.ToUpper(o), strings.ToUpper(d), m, cabin, cabinCode, cookiesConfigured)
+						cell := runTopDealsMatrixCell(cmd.Context(), c, strings.ToUpper(o), strings.ToUpper(d), m, cabin, cabinCode, cookiesConfigured)
 						if cell.Status == "ok" {
 							successful++
 						} else {
@@ -1137,7 +1203,7 @@ type topDealsMatrixCell struct {
 	Note     string `json:"note,omitempty"`
 }
 
-func runTopDealsMatrixCell(c *client.Client, origin, dest, month, cabin string, cabinCode int, cookiesConfigured bool) topDealsMatrixCell {
+func runTopDealsMatrixCell(ctx context.Context, c *client.Client, origin, dest, month, cabin string, cabinCode int, cookiesConfigured bool) topDealsMatrixCell {
 	cell := topDealsMatrixCell{
 		Origin: strings.ToUpper(strings.TrimSpace(origin)),
 		Dest:   strings.ToUpper(strings.TrimSpace(dest)),
@@ -1177,7 +1243,8 @@ func runTopDealsMatrixCell(c *client.Client, origin, dest, month, cabin string, 
 	if c.Config != nil {
 		cookieHeader = c.Config.AuthHeader()
 	}
-	body, status, err := postFlightsViaSurf(context.Background(), cell.URL, cookieHeader)
+	// PATCH: Propagate Cobra's command context into the Cloudflare-gated POST path.
+	body, status, err := postFlightsViaSurf(ctx, cell.URL, cookieHeader)
 	if err != nil {
 		cell.Status = "error"
 		cell.Error = fmt.Sprintf("surf POST failed: %v", err)

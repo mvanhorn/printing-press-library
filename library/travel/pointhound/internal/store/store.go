@@ -1101,6 +1101,13 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 	if IsUUID(input) {
 		return input, nil
 	}
+	for _, field := range matchFields {
+		// PATCH: ResolveByName also interpolates field into a JSON path, so
+		// it needs the same identifier guard ListField applies.
+		if !validIdentifierRE.MatchString(field) {
+			return "", fmt.Errorf("ResolveByName: invalid field name %q (must match %s)", field, validIdentifierRE.String())
+		}
+	}
 
 	var matches []string
 	for _, field := range matchFields {

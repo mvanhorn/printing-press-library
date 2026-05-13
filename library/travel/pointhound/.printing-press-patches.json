@@ -5,15 +5,14 @@
   "base_printing_press_version": "4.4.0",
   "patches": [
     {
-      "id": "top-deals-matrix-camofox-executor",
-      "summary": "Add an opt-in camofox-browser executor for top-deals-matrix search-create requests.",
-      "reason": "Pointhound's Cloudflare clearance can be bound to a real browser TLS handshake, so the Surf replay path may receive 403 while a local stealth Firefox tab can complete the challenge naturally.",
+      "id": "greptile-review-hardening",
+      "summary": "Address Pointhound review feedback for batch fan-out, matrix cancellation, and JSON-path field validation.",
+      "reason": "The generated CLI needed local hardening so documented parallel behavior, Ctrl-C cancellation, and dynamic SQL path handling match the shipped command surface.",
       "files": [
         "internal/cli/novel.go",
-        "internal/camofox/client.go",
-        "internal/camofox/client_test.go"
+        "internal/store/store.go"
       ],
-      "validated_outcome": "go test ./internal/camofox/... -count=1 -v"
+      "validated_outcome": "go test ./... -count=1"
     }
   ]
 }
