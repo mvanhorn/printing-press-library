@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/evals"
@@ -48,12 +47,20 @@ EVAL_AGENT_MODEL env var.`,
 			if dryRunOK(flags) {
 				return nil
 			}
+			var (
+				fixtures []evals.Fixture
+				err      error
+			)
 			if datasetPath == "" {
-				datasetPath = filepath.Join("internal", "evals", "dataset", "v0.1.toml")
-			}
-			fixtures, err := evals.LoadFixtures(datasetPath)
-			if err != nil {
-				return fmt.Errorf("loading fixtures from %s: %w", datasetPath, err)
+				fixtures, err = evals.LoadDefaultFixtures()
+				if err != nil {
+					return fmt.Errorf("loading embedded fixtures: %w", err)
+				}
+			} else {
+				fixtures, err = evals.LoadFixtures(datasetPath)
+				if err != nil {
+					return fmt.Errorf("loading fixtures from %s: %w", datasetPath, err)
+				}
 			}
 
 			// Build the registered-command set for structural validation.
@@ -86,7 +93,7 @@ EVAL_AGENT_MODEL env var.`,
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&datasetPath, "dataset", "", "Path to fixture TOML (default internal/evals/dataset/v0.1.toml)")
+	cmd.Flags().StringVar(&datasetPath, "dataset", "", "Path to fixture TOML on disk (default: dataset embedded into the binary)")
 	cmd.Flags().Float64Var(&threshold, "threshold", 0, "Minimum pass rate percentage required (default 80)")
 	return cmd
 }

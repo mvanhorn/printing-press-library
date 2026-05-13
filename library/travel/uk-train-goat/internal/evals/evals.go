@@ -11,11 +11,15 @@
 package evals
 
 import (
+	_ "embed"
 	"fmt"
 	"os"
 
 	"github.com/pelletier/go-toml/v2"
 )
+
+//go:embed dataset/v0.1.toml
+var defaultDatasetBytes []byte
 
 // Fixture is one row in the dataset TOML; the schema mirrors the YAML
 // shape described in the design spec, so a v0.2 switch to YAML keeps
@@ -52,6 +56,16 @@ func LoadFixtures(path string) ([]Fixture, error) {
 	var ds Dataset
 	if err := toml.Unmarshal(data, &ds); err != nil {
 		return nil, fmt.Errorf("parsing fixtures (%s): %w", path, err)
+	}
+	return ds.Fixtures, nil
+}
+
+// LoadDefaultFixtures parses the dataset embedded into the binary at build
+// time, so `eval` works for installed binaries run from any directory.
+func LoadDefaultFixtures() ([]Fixture, error) {
+	var ds Dataset
+	if err := toml.Unmarshal(defaultDatasetBytes, &ds); err != nil {
+		return nil, fmt.Errorf("parsing embedded fixtures: %w", err)
 	}
 	return ds.Fixtures, nil
 }
