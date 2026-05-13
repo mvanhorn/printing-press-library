@@ -431,16 +431,23 @@ A 404 response is treated as "available"; 2xx as "taken"; other codes as unknown
 			out := make([]SocialResult, 0, len(profiles))
 			c := &http.Client{Timeout: 6 * time.Second}
 			for _, p := range profiles {
-				req, _ := http.NewRequestWithContext(cmd.Context(), http.MethodHead, p.URL, nil)
-				req.Header.Set("User-Agent", "Mozilla/5.0 domain-goat-pp-cli/1.0")
-				resp, err := c.Do(req)
 				r := SocialResult{Platform: p.Name, URL: p.URL}
-				if err != nil {
-					r.Note = err.Error()
+				// NewRequestWithContext parses p.URL; a handle with URL-unsafe
+				// characters (e.g. a space) makes req nil. Surface the parse
+				// error on the result row instead of dereferencing nil.
+				req, reqErr := http.NewRequestWithContext(cmd.Context(), http.MethodHead, p.URL, nil)
+				if reqErr != nil {
+					r.Note = reqErr.Error()
 				} else {
-					r.Status = resp.StatusCode
-					r.Available = resp.StatusCode == 404
-					resp.Body.Close()
+					req.Header.Set("User-Agent", "Mozilla/5.0 domain-goat-pp-cli/1.0")
+					resp, err := c.Do(req)
+					if err != nil {
+						r.Note = err.Error()
+					} else {
+						r.Status = resp.StatusCode
+						r.Available = resp.StatusCode == 404
+						resp.Body.Close()
+					}
 				}
 				if handle == "" {
 					r.Available = false
