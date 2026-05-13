@@ -57,7 +57,7 @@ func Load(configPath string) (*Config, error) {
 		cfg.AuthSource = "env:MONDAY_API_TOKEN"
 	}
 
-	// Label config-file-derived credentials so doctor can distinguish
+	// PATCH: label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
 	// this, users who saved via set-token without an env var see a blank
 	// auth_source and can't tell whether their config is being picked up.
@@ -83,11 +83,9 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// PATCH: monday.com API-key auth is stored in the api_token config slot.
 	token := c.MondayApiToken
 	if token == "" {
-		return ""
-	}
-	if c.MondayApiToken == "" {
 		return ""
 	}
 	return token
@@ -115,7 +113,7 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
-// SaveCredential persists a single API credential to the field that
+// PATCH: SaveCredential persists a single API credential to the field that
 // AuthHeader() consults for api_key auth. Writing to AccessToken (the
 // bearer slot) would silently no-op since AuthHeader() reads the env-var-
 // derived field, not AccessToken, when Auth.Type == "api_key".
@@ -131,9 +129,15 @@ func (c *Config) SaveCredential(token string) error {
 }
 
 func (c *Config) ClearTokens() error {
+	// PATCH: logout must clear every persisted auth slot, including the
+	// monday.com api_token field used by api_key auth.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.MondayApiToken = ""
 	return c.save()
 }
 

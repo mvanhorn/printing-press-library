@@ -10,6 +10,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/monday/internal/store"
 )
 
+// PATCH: hydrate the local SQLite mirror from monday.com GraphQL resources.
 type mondayGraphQLSyncClient interface {
 	GraphQL(string, map[string]any) (json.RawMessage, error)
 	RateLimit() float64

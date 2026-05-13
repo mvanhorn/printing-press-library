@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-12",
+  "applied_at": "2026-05-13",
   "base_run_id": "20260509-153529",
   "base_printing_press_version": "4.2.1",
   "patches": [
@@ -8,7 +8,9 @@
       "id": "doctor-config-auth-env-status",
       "summary": "Treat saved config credentials as satisfying doctor env-var availability.",
       "reason": "monday-pp-cli auth set-token stores MONDAY_API_TOKEN in config, so doctor should not keep reporting the env var as missing after auth is configured.",
-      "files": ["internal/cli/doctor.go"],
+      "files": [
+        "internal/cli/doctor.go"
+      ],
       "validated_outcome": "doctor reports env_vars OK after auth set-token, and whoami/boards list succeed against monday.com.",
       "upstream_issue": ""
     },
@@ -22,6 +24,36 @@
         "internal/cli/extras.go"
       ],
       "validated_outcome": "sync populated workspaces, boards, users, teams, docs, items, columns, groups, updates, and activity_logs into ~/.local/share/monday-pp-cli/data.db; sql now returns local counts from resources.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "api-key-auth-config-slots",
+      "summary": "Persist, read, and clear monday.com API-key auth from the api_token config slot.",
+      "reason": "The generated auth skeleton included OAuth/bearer-token slots, but this CLI authenticates with MONDAY_API_TOKEN; logout must remove the persisted api_token as well as legacy auth slots.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "config tests verify auth logout clears api_token and legacy persisted auth fields.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "deterministic-cache-keys",
+      "summary": "Sort GET params before deriving cache keys.",
+      "reason": "Go map iteration order is randomized, so identical multi-param GET requests could otherwise hash to different cache files.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "client tests verify cacheKey hashes params in sorted order.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "api-key-auth-no-oauth-refresh",
+      "summary": "Disable the generated OAuth refresh branch for monday.com API-key auth.",
+      "reason": "This printed CLI uses non-expiring monday.com API tokens and had no token endpoint; keeping the generated refresh body made the refresh path dead code.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "go test ./... passes with the unreachable refresh branch removed.",
       "upstream_issue": ""
     }
   ]
