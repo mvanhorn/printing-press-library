@@ -101,6 +101,14 @@
         "internal/cache/cache.go"
       ],
       "validated_outcome": "Live-verified end-to-end on the printer's account: heater enable Gas --bow Pool fires heater 4; heater enable Gas --bow Spa fires heater 10 (separate physical heater). sweep --json reports chemistry_verdict:not_equipped/priority:0 instead of the bug-state unknown/1. TestBuildRequest_SortedOrder, TestChemistryVerdict_MixedDirections, TestChemistryVerdict_SameDirection all pass."
+    },
+    {
+      "id": "fix-ready-by-dry-run-dead-code",
+      "summary": "Drop the unreachable dryRunOK early-return in ready-by so the heat-curve calculation runs and the dry_run plan reaches the user.",
+      "reason": "Caught by greptile review on PR #431 (post-rebase): the dryRunOK guard at the top of ready-by short-circuited before the heat-curve math, making the inner if flags.dryRun report-dry_run branch (and the Long description s promise of a start time + projected heat curve preview) unreachable dead code. Removing the early return lets cloud reads (telemetry, mspconfig) + calculation always run; the writes (SetHeaterEnable, SetHeaterTemp) remain gated by the existing if flags.dryRun { ... } else { /* writes */ } block.",
+      "files": [
+        "internal/cli/transcendence.go"
+      ]
     }
   ]
 }

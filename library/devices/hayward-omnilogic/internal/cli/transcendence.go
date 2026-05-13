@@ -261,9 +261,15 @@ actually enabling the heater.`,
 			if err != nil {
 				return usageErr(err)
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
+			// PATCH (fix-ready-by-dry-run-dead-code): the dryRunOK early-return
+			// here used to bail before the heat-curve calculation ran, making
+			// the dry-run `report` block at the bottom of this function (and the
+			// Long description's promise of a "start time and projected heat
+			// curve") unreachable dead code. Drop the early return so the cloud
+			// reads + calculation always execute; the writes (SetHeaterEnable +
+			// SetHeaterTemp) are gated below by `if flags.dryRun { ... } else {
+			// /* writes */ }`. Mirrors the command-log --replay pattern noted in
+			// the greptile review on PR #431.
 			if err := requireCredsUnlessDryRun(flags); err != nil {
 				return classifyOmnilogicError(err)
 			}
