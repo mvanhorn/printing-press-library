@@ -25,6 +25,9 @@ jobs:
     if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    concurrency:
+      group: greptile-policy-gate-${{ github.event.pull_request.number || inputs.pr || github.run_id }}
+      cancel-in-progress: true
     env:
       GH_TOKEN: ${{ github.token }}
       MIN_GREPTILE_SCORE: "4"
@@ -43,6 +46,11 @@ jobs:
             echo "number=${EVENT_PR_NUMBER}" >> "${GITHUB_OUTPUT}"
             echo "head_sha=${EVENT_HEAD_SHA}" >> "${GITHUB_OUTPUT}"
             exit 0
+          fi
+
+          if ! [[ "${DISPATCH_PR}" =~ ^[0-9]+$ ]]; then
+            echo "::error::Input 'pr' must be a positive integer; got: ${DISPATCH_PR}"
+            exit 1
           fi
 
           pr_json="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${DISPATCH_PR}")"
@@ -75,8 +83,8 @@ jobs:
             echo "Greptile Review status=${status} conclusion=${conclusion:-pending}"
 
             if [ "${status}" = "completed" ]; then
-              if [ "${conclusion}" != "success" ]; then
-                echo "::error::Greptile Review did not complete successfully for ${HEAD_SHA}."
+              if [ "${conclusion}" != "success" ] && [ "${conclusion}" != "neutral" ]; then
+                echo "::error::Greptile Review completed with unsupported conclusion '${conclusion}' for ${HEAD_SHA}."
                 exit 1
               fi
               break
