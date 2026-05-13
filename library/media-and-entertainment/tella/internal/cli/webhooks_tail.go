@@ -69,6 +69,12 @@ func newWebhooksTailCmd(flags *rootFlags) *cobra.Command {
 			for _, m := range messages {
 				_ = enc.Encode(m)
 			}
+			// --follow=false: NDJSON single-shot. Same exit contract as
+			// tail.go's --follow guard; --once already covered the
+			// envelope-shaped single shot above.
+			if !follow {
+				return nil
+			}
 			for {
 				select {
 				case <-sig:
@@ -93,8 +99,7 @@ func newWebhooksTailCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().DurationVar(&interval, "interval", 5*time.Second, "Polling interval")
 	cmd.Flags().BoolVar(&once, "once", false, "Take a single inbox snapshot and exit")
-	cmd.Flags().BoolVar(&follow, "follow", true, "Keep running and stream new messages (default true)")
-	_ = follow // semantic alias for default behavior; --once takes precedence
+	cmd.Flags().BoolVar(&follow, "follow", true, "Keep running and stream new messages (set --follow=false to emit the initial snapshot as NDJSON and exit)")
 	return cmd
 }
 
