@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260511-212436",
+  "base_printing_press_version": "4.4.0",
+  "patches": [
+    {
+      "id": "top-deals-matrix-camofox-executor",
+      "summary": "Add an opt-in camofox-browser executor for top-deals-matrix search-create requests.",
+      "reason": "Pointhound's Cloudflare clearance can be bound to a real browser TLS handshake, so the Surf replay path may receive 403 while a local stealth Firefox tab can complete the challenge naturally.",
+      "files": [
+        "internal/cli/novel.go",
+        "internal/camofox/client.go",
+        "internal/camofox/client_test.go"
+      ],
+      "validated_outcome": "go test ./internal/camofox/... -count=1 -v"
+    }
+  ]
+}
