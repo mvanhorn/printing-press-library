@@ -2,11 +2,14 @@
 package cli
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -164,7 +167,13 @@ func readBatchCSV(path, bodyTemplate string) ([]batchPlanRow, error) {
 	for {
 		rec, err := r.Read()
 		if err != nil {
-			break
+			// PATCH: distinguish normal EOF from real read/parse errors.
+			// Surfaced by Greptile P1 in PR #417 review. Bird-specific
+			// compound command — not in any generator template.
+			if errors.Is(err, io.EOF) {
+				break
+			}
+			return nil, fmt.Errorf("reading CSV row %d: %w", len(rows)+1, err)
 		}
 		if len(rec) == 0 {
 			continue
@@ -189,7 +198,15 @@ func applyTemplate(tmpl string, header, rec []string) string {
 }
 
 func newBatchID() string {
-	return "batch_" + time.Now().UTC().Format("20060102_150405")
+	// PATCH: suffix 4 random hex bytes so concurrent send-batch invocations
+	// within the same second produce distinct batch IDs. Surfaced by
+	// Greptile P2 in PR #417 review. Bird-specific compound command —
+	// not in any generator template.
+	buf := make([]byte, 4)
+	if _, err := rand.Read(buf); err != nil {
+		buf = []byte{0, 0, 0, 0}
+	}
+	return "batch_" + time.Now().UTC().Format("20060102_150405") + "_" + hex.EncodeToString(buf)
 }
 
 func rowIdempotencyKey(batchID, recipient, body string) string {
