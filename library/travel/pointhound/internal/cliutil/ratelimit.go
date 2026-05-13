@@ -4,6 +4,7 @@
 package cliutil
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"net/http"
@@ -41,19 +42,42 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 }
 
 func (l *AdaptiveLimiter) Wait() {
+	_ = l.WaitContext(context.Background())
+}
+
+// PATCH: Give callers a cancellable rate-limit wait so command contexts can
+// interrupt both proactive pacing and retry backoff.
+func (l *AdaptiveLimiter) WaitContext(ctx context.Context) error {
 	if l == nil {
-		return
+		return ctx.Err()
 	}
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
 	elapsed := time.Since(l.lastRequest)
 	l.mu.Unlock()
 	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+		if err := sleepContext(ctx, delay-elapsed); err != nil {
+			return err
+		}
 	}
 	l.mu.Lock()
 	l.lastRequest = time.Now()
 	l.mu.Unlock()
+	return ctx.Err()
+}
+
+func sleepContext(ctx context.Context, d time.Duration) error {
+	if d <= 0 {
+		return ctx.Err()
+	}
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {

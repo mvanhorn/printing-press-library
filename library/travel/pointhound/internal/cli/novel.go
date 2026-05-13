@@ -149,6 +149,31 @@ func fetchOffers(ctx context.Context, flags *rootFlags, searchID string, extra m
 	return env.Data, nil
 }
 
+// PATCH: Batch is documented as snapshotting fetched offers, so persist the
+// exact offer records after each fetch rather than relying only on best-effort
+// write-through cache behavior.
+func persistOffers(db *store.Store, offers []rawOffer) (int, error) {
+	if len(offers) == 0 {
+		return 0, nil
+	}
+	items := make([]json.RawMessage, 0, len(offers))
+	for _, offer := range offers {
+		item, err := json.Marshal(offer)
+		if err != nil {
+			return 0, fmt.Errorf("encoding offer for store: %w", err)
+		}
+		items = append(items, item)
+	}
+	stored, extractFailures, err := db.UpsertBatch("offers", items)
+	if err != nil {
+		return stored, fmt.Errorf("storing offers: %w", err)
+	}
+	if extractFailures > 0 {
+		return stored, fmt.Errorf("storing offers: %d offer(s) missing ids", extractFailures)
+	}
+	return stored, nil
+}
+
 // ---------- explore-deal-rating ----------
 
 func newExploreDealRatingCmd(flags *rootFlags) *cobra.Command {
@@ -439,18 +464,23 @@ the search-ids flag to consider multiple destinations at once.
 							continue
 						}
 						eff := int(float64(o.PricePoints) / ratio)
+						if eff > have {
+							continue
+						}
+						// PATCH: Pick the cheapest affordable transfer, not the cheapest
+						// transfer overall, so alternate balances can still make an offer reachable.
 						if eff < best.EffectivePoints {
 							best = row{
 								offerSummary:    o.summary(),
 								EarnProgram:     to.EarnProgram.Name,
 								TransferRatio:   to.TotalTransferRatio,
 								EffectivePoints: eff,
-								WithinBalance:   eff <= have,
+								WithinBalance:   true,
 							}
 							found = true
 						}
 					}
-					if found && best.WithinBalance {
+					if found {
 						rows = append(rows, best)
 					}
 				}
@@ -849,9 +879,15 @@ compare-transfer, calendar).
 			type result struct {
 				SearchID   string `json:"searchId"`
 				OfferCount int    `json:"offerCount"`
+				Stored     int    `json:"stored"`
 				MinPoints  int    `json:"minPoints"`
 				Error      string `json:"error,omitempty"`
 			}
+			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("pointhound-pp-cli"))
+			if err != nil {
+				return fmt.Errorf("opening local store: %w", err)
+			}
+			defer db.Close()
 			limiter := newBatchThrottle(throttle)
 			// PATCH: Use bounded fan-out so batch matches its documented parallel behavior.
 			fanoutRows, fanoutErrs := cliutil.FanoutRun(cmd.Context(), ids,
@@ -879,6 +915,11 @@ compare-transfer, calendar).
 							best = 0
 						}
 						r.MinPoints = best
+						stored, err := persistOffers(db, offers)
+						r.Stored = stored
+						if err != nil {
+							r.Error = err.Error()
+						}
 					}
 					return r, nil
 				},
@@ -898,9 +939,9 @@ compare-transfer, calendar).
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
 			tw := newTabWriter(cmd.OutOrStdout())
-			fmt.Fprintln(tw, "SEARCH_ID\tOFFERS\tMIN_POINTS\tERROR")
+			fmt.Fprintln(tw, "SEARCH_ID\tOFFERS\tSTORED\tMIN_POINTS\tERROR")
 			for _, r := range rows {
-				fmt.Fprintf(tw, "%s\t%d\t%d\t%s\n", r.SearchID, r.OfferCount, r.MinPoints, r.Error)
+				fmt.Fprintf(tw, "%s\t%d\t%d\t%d\t%s\n", r.SearchID, r.OfferCount, r.Stored, r.MinPoints, r.Error)
 			}
 			_ = tw.Flush()
 			return nil
