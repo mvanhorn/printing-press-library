@@ -29,9 +29,10 @@ func newPlaylistsMergeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "merge <src-1> <src-2> [...] --into <dest>",
 		Short: "Merge multiple playlists into one with dedupe",
-		Long: `Reads source playlists' tracks, dedupes, and POSTs them to the destination
-playlist. Without --apply (a future flag — currently always dry-plan first),
-prints the planned operation as JSON without mutating.`,
+		Long: `Reads source playlists' tracks, dedupes, orders them per --order, and POSTs
+them to --into in 100-track chunks. Mutates the destination on every run.
+Pass the global --dry-run flag to preview the planned operation as JSON
+without writing anything.`,
 		Example: "  spotify-pp-cli playlists merge 37i9dQZF1DXcBWIGoYBM5M 37i9dQZF1DX0XUsuxWHRQd --into 1xL2KvJlHWXKxLrYrmEZ7K",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {

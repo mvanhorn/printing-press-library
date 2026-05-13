@@ -157,13 +157,16 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
-			// Apply: snapshot-aware DELETE /playlists/{id}/tracks
+			// Apply: snapshot-aware DELETE /playlists/{id}/tracks. The
+			// tracks + snapshot_id payload is required by Spotify and goes
+			// in the JSON body (not the URL). The original c.Delete call
+			// silently dropped the body, leaving every --apply as a no-op
+			// against the API.
 			body := map[string]any{
 				"tracks":      toRemove,
 				"snapshot_id": pl.SnapshotID,
 			}
-			_, _, err = c.Delete("/playlists/" + playlistID + "/tracks")
-			_ = body
+			_, _, err = c.DeleteWithBody("/playlists/"+playlistID+"/tracks", body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

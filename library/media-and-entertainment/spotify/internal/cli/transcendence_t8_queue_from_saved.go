@@ -2,10 +2,14 @@
 
 // T8 — Agent-friendly queue-from-saved.
 //
-//	queue from-saved [--limit N] [--artist <id>] [--playlist <id>]
+//	queue from-saved [--limit N]
 //
-// Selects N rows from local saved_tracks (optional filters), POSTs each
-// URI to /me/player/queue. Surfaces 403 PREMIUM_REQUIRED cleanly.
+// Selects the N most recently saved tracks from local saved_tracks and
+// POSTs each URI to /me/player/queue. Surfaces 403 PREMIUM_REQUIRED
+// cleanly. Per-artist and per-playlist filters are not yet implemented;
+// the saved_tracks schema is (user_id, track_id, saved_at) and does not
+// carry artist or playlist linkage. Adding filters requires a join
+// against a tracks-cache table populated by sync.
 
 package cli
 
@@ -27,10 +31,8 @@ func newQueueCmd(flags *rootFlags) *cobra.Command {
 
 func newQueueFromSavedCmd(flags *rootFlags) *cobra.Command {
 	var limit int
-	var artistFilter string
-	var playlistFilter string
 	cmd := &cobra.Command{
-		Use:     "from-saved [--limit N] [--artist <id>] [--playlist <id>]",
+		Use:     "from-saved [--limit N]",
 		Short:   "Queue N tracks from your saved library (Premium only — playback writes need Premium)",
 		Example: "  spotify-pp-cli queue from-saved --limit 10",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -72,8 +74,6 @@ func newQueueFromSavedCmd(flags *rootFlags) *cobra.Command {
 					"dry_run":     true,
 					"would_queue": plan,
 					"would_count": len(plan),
-					"artist":      artistFilter,
-					"playlist":    playlistFilter,
 				}, flags)
 			}
 			if len(plan) == 0 {
@@ -102,7 +102,5 @@ func newQueueFromSavedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 10, "Max tracks to queue")
-	cmd.Flags().StringVar(&artistFilter, "artist", "", "Filter saved tracks by artist ID (not yet implemented)")
-	cmd.Flags().StringVar(&playlistFilter, "playlist", "", "Filter to tracks also in playlist ID (not yet implemented)")
 	return cmd
 }

@@ -95,12 +95,12 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Agent-native playback
-- **`queue from-saved`** — Pick N tracks from your saved library (optionally filtered by artist or playlist origin) and queue them in one command.
+- **`queue from-saved`** — Pick the N most recently saved tracks from your library and queue them in one command.
 
-  _Use this when an agent should 'queue something from my chillout saved tracks' or 'queue 10 more from this artist' without resorting to URI manipulation._
+  _Use this when an agent should "queue 10 more from my saved tracks" without resorting to URI manipulation. Per-artist and per-playlist filters are not yet implemented; the saved_tracks schema does not carry artist or playlist linkage and adding it requires a join against a tracks-cache table._
 
   ```bash
-  spotify-pp-cli queue from-saved --limit 10 --artist 0OdUWJ0sBjDrqHygGUXeCF
+  spotify-pp-cli queue from-saved --limit 10
   ```
 - **`play-on`** — Start playback on a device referenced by friendly name (e.g. "family room") instead of opaque device IDs. Resolves against both the live `/me/player/devices` list and the locally cached `devices_seen` table populated by `sync-extras`.
 

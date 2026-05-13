@@ -159,6 +159,14 @@ func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json
 	return c.do("DELETE", path, nil, nil, headers)
 }
 
+// DeleteWithBody sends a DELETE with a JSON body. Spotify's snapshot-aware
+// playlist-track removal (DELETE /playlists/{id}/tracks) and a few similar
+// endpoints across vendor APIs put structured data in the request body,
+// not in query params. RFC 9110 allows it but most clients omit the path.
+func (c *Client) DeleteWithBody(path string, body any) (json.RawMessage, int, error) {
+	return c.do("DELETE", path, nil, body, nil)
+}
+
 func (c *Client) Put(path string, body any) (json.RawMessage, int, error) {
 	return c.do("PUT", path, nil, body, nil)
 }
@@ -368,7 +376,13 @@ func (c *Client) authHeader() (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
-	if c.Config.AccessToken != "" && !c.Config.TokenExpiry.IsZero() && time.Now().After(c.Config.TokenExpiry) && c.Config.RefreshToken != "" {
+	// Refresh 60s before expiry, not at expiry. A token that's valid at
+	// authHeader() time can still expire mid-flight on a slow request
+	// (large sync batch, paginated walk). The buffer trades one extra
+	// refresh per session for elimination of mid-request 401s, which
+	// the client doesn't retry on.
+	const refreshBuffer = 60 * time.Second
+	if c.Config.AccessToken != "" && !c.Config.TokenExpiry.IsZero() && time.Now().Add(refreshBuffer).After(c.Config.TokenExpiry) && c.Config.RefreshToken != "" {
 		if err := c.refreshAccessToken(); err != nil {
 			return "", err
 		}

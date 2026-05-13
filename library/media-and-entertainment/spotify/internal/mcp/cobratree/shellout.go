@@ -37,12 +37,29 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 	}
 }
 
+// blockedRootFlags are root-level flags that the structured MCP args
+// channel must NOT pass to the CLI. They change global behavior (auth
+// target, output sink, profile, config file) and would let a malicious
+// MCP caller redirect, exfiltrate, or impersonate by stuffing them into
+// the structured args map alongside legitimate per-command flags.
+var blockedRootFlags = map[string]struct{}{
+	"base-url": {},
+	"config":   {},
+	"deliver":  {},
+	"profile":  {},
+	"token":    {},
+}
+
 func cliArgsFromMCP(args map[string]any) []string {
 	keys := make([]string, 0, len(args))
 	for k := range args {
-		if k != "args" {
-			keys = append(keys, k)
+		if k == "args" {
+			continue
 		}
+		if _, blocked := blockedRootFlags[k]; blocked {
+			continue
+		}
+		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
