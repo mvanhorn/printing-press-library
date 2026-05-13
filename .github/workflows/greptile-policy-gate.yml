@@ -69,7 +69,7 @@ jobs:
           deadline=$((SECONDS + 600))
           greptile_check=""
           while [ "${SECONDS}" -lt "${deadline}" ]; do
-            checks_json="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs")"
+            checks_json="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100&check_name=Greptile+Review")"
             greptile_check="$(jq -c '[.check_runs[] | select(.app.slug == "greptile-apps" and .name == "Greptile Review")] | .[0] // empty' <<<"${checks_json}")"
 
             if [ -z "${greptile_check}" ]; then
