@@ -348,22 +348,35 @@ func newWatchRemoveCmd(flags *rootFlags) *cobra.Command {
 }
 
 func newWatchRunCmd(flags *rootFlags) *cobra.Command {
+	var force bool
 	cmd := &cobra.Command{
 		Use:   "run",
-		Short: "Re-check every watched domain via RDAP and update last-status.",
+		Short: "Re-check watched domains whose cadence has elapsed (use --force to re-check all).",
+		Long: `Re-checks each watched domain via RDAP and updates last_status.
+
+By default only domains whose last_run_at + cadence_hours has elapsed
+are re-checked, so wiring 'watch run' into a cron tick honours the
+per-domain cadence configured via 'watch add --cadence N'. Pass --force
+to re-check every watched domain regardless of cadence (useful for
+ad-hoc manual runs or initial backfill).`,
 		Example: `  domain-goat-pp-cli watch run
-  domain-goat-pp-cli watch run --json`,
+  domain-goat-pp-cli watch run --force --json`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				return emitJSON(cmd, flags, map[string]any{"dry_run": true})
+				return emitJSON(cmd, flags, map[string]any{"dry_run": true, "force": force})
 			}
 			s, err := openStore(cmd.Context())
 			if err != nil {
 				return err
 			}
 			defer s.Close()
-			watches, err := s.ListWatches(cmd.Context())
+			var watches []store.WatchRow
+			if force {
+				watches, err = s.ListWatches(cmd.Context())
+			} else {
+				watches, err = s.ListDueWatches(cmd.Context())
+			}
 			if err != nil {
 				return apiErr(err)
 			}
@@ -394,5 +407,6 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 			return emitJSON(cmd, flags, out)
 		},
 	}
+	cmd.Flags().BoolVar(&force, "force", false, "Re-check every watched domain regardless of cadence_hours")
 	return cmd
 }

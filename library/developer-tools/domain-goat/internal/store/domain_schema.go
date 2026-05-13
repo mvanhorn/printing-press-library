@@ -530,6 +530,32 @@ func (s *Store) ListWatches(ctx context.Context) ([]WatchRow, error) {
 	return out, rows.Err()
 }
 
+// ListDueWatches returns watches whose cadence has elapsed since the last
+// run — i.e. last_run_at is NULL or last_run_at + cadence_hours <= now.
+// Used by `watch run` so users wiring it into a cron tick honour the
+// per-domain cadence rather than re-checking every domain on every tick.
+func (s *Store) ListDueWatches(ctx context.Context) ([]WatchRow, error) {
+	rows, err := s.db.QueryContext(ctx, `
+		SELECT fqdn, cadence_hours, COALESCE(last_run_at, ''), last_status, alert_channel
+		FROM watches
+		WHERE last_run_at IS NULL
+		   OR datetime(last_run_at, '+' || cadence_hours || ' hours') <= datetime('now')
+		ORDER BY fqdn`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []WatchRow
+	for rows.Next() {
+		var w WatchRow
+		if err := rows.Scan(&w.FQDN, &w.CadenceHours, &w.LastRunAt, &w.LastStatus, &w.AlertChannel); err != nil {
+			return nil, err
+		}
+		out = append(out, w)
+	}
+	return out, rows.Err()
+}
+
 // RemoveWatch deletes a watch entry.
 func (s *Store) RemoveWatch(ctx context.Context, fqdn string) error {
 	s.writeMu.Lock()
