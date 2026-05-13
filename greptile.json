@@ -1,4 +1,6 @@
 {
+  "statusCheck": true,
+  "triggerOnUpdates": true,
   "customContext": {
     "files": [
       {
