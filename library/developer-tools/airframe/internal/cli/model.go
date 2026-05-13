@@ -161,8 +161,17 @@ func resolveMakeModelCodes(ctx context.Context, db *sql.DB, query string) ([]Mak
 func queryEventsByMakeModelCodes(ctx context.Context, db *sql.DB, codes []string, since, until int, state string, limit int) ([]EventSummaryRow, error) {
 	matchClause, matchArgs := matchedEventSubquery(codes)
 	whereParts := []string{"e.event_id IN (" + matchClause + ")"}
-	args := append([]any{}, matchArgs...)
 
+	// PATCH: args MUST be appended in the same left-to-right order their
+	// placeholders appear in the SQL below. The pick-subquery in the JOIN
+	// comes first (two IN clauses → 2N placeholders), then the match
+	// subquery inside the WHERE (another 2N), then the since/until/state
+	// filters, then LIMIT. Reversing pick and match args silently bound
+	// filter values to code placeholders whenever a filter was active,
+	// returning zero results (Greptile P1 on 5e763246).
+	args := make([]any, 0, len(codes)*4+4)
+	args = appendCodeArgs(args, codes, 2)
+	args = append(args, matchArgs...)
 	args, whereParts = appendEventFilters(args, whereParts, since, until, state)
 
 	q := `SELECT e.event_id, e.event_date, e.event_city, e.event_state, e.highest_injury,
@@ -181,8 +190,6 @@ func queryEventsByMakeModelCodes(ctx context.Context, db *sql.DB, codes []string
 	ORDER BY e.event_date DESC
 	LIMIT ?`
 
-	// Pick-subquery needs the code args twice (one per IN clause).
-	args = appendCodeArgs(args, codes, 2)
 	args = append(args, limit)
 
 	rows, err := db.QueryContext(ctx, q, args...)
