@@ -271,10 +271,16 @@ func TestUpsertBatch_PopulatesPlaylistsVideosTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// Each fixture carries the parent FK (playlists_id) so the typed
+	// upsert satisfies the NOT NULL constraint. Asserting the column
+	// value below pins the bind order: regression coverage for the
+	// argument-order bug where the JSON blob accidentally filled the
+	// parent_id slot and the column was never checked.
+	const parentID = "pl_test_parent"
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "playlists_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-002", "playlists_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-003", "playlists_id": "` + parentID + `"}`),
 	}
 	if _, _, err := s.UpsertBatch("playlists_videos", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -298,6 +304,18 @@ func TestUpsertBatch_PopulatesPlaylistsVideosTable(t *testing.T) {
 	if typed != len(items) {
 		t.Fatalf("playlists_videos count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
+
+	// Parent-FK assertion: the typed-upsert bind order must have placed
+	// the fixture's playlists_id value in the playlists_id column, not
+	// the data JSON blob. This is the assertion that would have caught
+	// the original argument-order bug.
+	var gotParent string
+	if err := db.QueryRow(`SELECT playlists_id FROM playlists_videos WHERE id = ?`, "test-001").Scan(&gotParent); err != nil {
+		t.Fatalf("read playlists_id: %v", err)
+	}
+	if gotParent != parentID {
+		t.Fatalf("playlists_id = %q, want %q (parent-FK column must hold the fixture's parent id, not the data blob)", gotParent, parentID)
+	}
 }
 
 // TestUpsertBatch_PopulatesClipsTable verifies that UpsertBatch
@@ -313,10 +331,14 @@ func TestUpsertBatch_PopulatesClipsTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// Each fixture carries the parent FK (videos_id) so the typed
+	// upsert satisfies the NOT NULL constraint. Asserting the column
+	// value below pins the bind order.
+	const parentID = "vid_test_parent"
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-002", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-003", "videos_id": "` + parentID + `"}`),
 	}
 	if _, _, err := s.UpsertBatch("clips", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -340,6 +362,15 @@ func TestUpsertBatch_PopulatesClipsTable(t *testing.T) {
 	if typed != len(items) {
 		t.Fatalf("clips count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
+
+	// Parent-FK assertion: pins the typed-upsert bind order.
+	var gotParent string
+	if err := db.QueryRow(`SELECT videos_id FROM clips WHERE id = ?`, "test-001").Scan(&gotParent); err != nil {
+		t.Fatalf("read videos_id: %v", err)
+	}
+	if gotParent != parentID {
+		t.Fatalf("videos_id = %q, want %q (parent-FK column must hold the fixture's parent id, not the data blob)", gotParent, parentID)
+	}
 }
 
 // TestUpsertBatch_PopulatesCollaboratorsTable verifies that UpsertBatch
@@ -355,10 +386,14 @@ func TestUpsertBatch_PopulatesCollaboratorsTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// Each fixture carries the parent FK (videos_id) so the typed
+	// upsert satisfies the NOT NULL constraint. Asserting the column
+	// value below pins the bind order.
+	const parentID = "vid_test_parent"
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-002", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-003", "videos_id": "` + parentID + `"}`),
 	}
 	if _, _, err := s.UpsertBatch("collaborators", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -382,6 +417,15 @@ func TestUpsertBatch_PopulatesCollaboratorsTable(t *testing.T) {
 	if typed != len(items) {
 		t.Fatalf("collaborators count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
+
+	// Parent-FK assertion: pins the typed-upsert bind order.
+	var gotParent string
+	if err := db.QueryRow(`SELECT videos_id FROM collaborators WHERE id = ?`, "test-001").Scan(&gotParent); err != nil {
+		t.Fatalf("read videos_id: %v", err)
+	}
+	if gotParent != parentID {
+		t.Fatalf("videos_id = %q, want %q (parent-FK column must hold the fixture's parent id, not the data blob)", gotParent, parentID)
+	}
 }
 
 // TestUpsertBatch_PopulatesDuplicateTable verifies that UpsertBatch
@@ -397,10 +441,14 @@ func TestUpsertBatch_PopulatesDuplicateTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// Each fixture carries the parent FK (videos_id) so the typed
+	// upsert satisfies the NOT NULL constraint. Asserting the column
+	// value below pins the bind order.
+	const parentID = "vid_test_parent"
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-002", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-003", "videos_id": "` + parentID + `"}`),
 	}
 	if _, _, err := s.UpsertBatch("duplicate", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -424,6 +472,15 @@ func TestUpsertBatch_PopulatesDuplicateTable(t *testing.T) {
 	if typed != len(items) {
 		t.Fatalf("duplicate count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
+
+	// Parent-FK assertion: pins the typed-upsert bind order.
+	var gotParent string
+	if err := db.QueryRow(`SELECT videos_id FROM duplicate WHERE id = ?`, "test-001").Scan(&gotParent); err != nil {
+		t.Fatalf("read videos_id: %v", err)
+	}
+	if gotParent != parentID {
+		t.Fatalf("videos_id = %q, want %q (parent-FK column must hold the fixture's parent id, not the data blob)", gotParent, parentID)
+	}
 }
 
 // TestUpsertBatch_PopulatesExportsTable verifies that UpsertBatch
@@ -439,10 +496,14 @@ func TestUpsertBatch_PopulatesExportsTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// Each fixture carries the parent FK (videos_id) so the typed
+	// upsert satisfies the NOT NULL constraint. Asserting the column
+	// value below pins the bind order.
+	const parentID = "vid_test_parent"
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-002", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-003", "videos_id": "` + parentID + `"}`),
 	}
 	if _, _, err := s.UpsertBatch("exports", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -466,6 +527,15 @@ func TestUpsertBatch_PopulatesExportsTable(t *testing.T) {
 	if typed != len(items) {
 		t.Fatalf("exports count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
+
+	// Parent-FK assertion: pins the typed-upsert bind order.
+	var gotParent string
+	if err := db.QueryRow(`SELECT videos_id FROM exports WHERE id = ?`, "test-001").Scan(&gotParent); err != nil {
+		t.Fatalf("read videos_id: %v", err)
+	}
+	if gotParent != parentID {
+		t.Fatalf("videos_id = %q, want %q (parent-FK column must hold the fixture's parent id, not the data blob)", gotParent, parentID)
+	}
 }
 
 // TestUpsertBatch_PopulatesThumbnailTable verifies that UpsertBatch
@@ -481,10 +551,14 @@ func TestUpsertBatch_PopulatesThumbnailTable(t *testing.T) {
 	}
 	defer s.Close()
 
+	// Each fixture carries the parent FK (videos_id) so the typed
+	// upsert satisfies the NOT NULL constraint. Asserting the column
+	// value below pins the bind order.
+	const parentID = "vid_test_parent"
 	items := []json.RawMessage{
-		json.RawMessage(`{"id": "test-001"}`),
-		json.RawMessage(`{"id": "test-002"}`),
-		json.RawMessage(`{"id": "test-003"}`),
+		json.RawMessage(`{"id": "test-001", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-002", "videos_id": "` + parentID + `"}`),
+		json.RawMessage(`{"id": "test-003", "videos_id": "` + parentID + `"}`),
 	}
 	if _, _, err := s.UpsertBatch("thumbnail", items); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -507,6 +581,15 @@ func TestUpsertBatch_PopulatesThumbnailTable(t *testing.T) {
 	}
 	if typed != len(items) {
 		t.Fatalf("thumbnail count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
+	}
+
+	// Parent-FK assertion: pins the typed-upsert bind order.
+	var gotParent string
+	if err := db.QueryRow(`SELECT videos_id FROM thumbnail WHERE id = ?`, "test-001").Scan(&gotParent); err != nil {
+		t.Fatalf("read videos_id: %v", err)
+	}
+	if gotParent != parentID {
+		t.Fatalf("videos_id = %q, want %q (parent-FK column must hold the fixture's parent id, not the data blob)", gotParent, parentID)
 	}
 }
 

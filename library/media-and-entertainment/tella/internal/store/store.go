@@ -669,9 +669,9 @@ func (s *Store) upsertPlaylistsVideosTx(tx *sql.Tx, id string, obj map[string]an
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET playlists_id = excluded.playlists_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "playlists_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "playlists_id"),
 	); err != nil {
 		return fmt.Errorf("insert into playlists_videos: %w", err)
 	}
@@ -720,9 +720,9 @@ func (s *Store) upsertClipsTx(tx *sql.Tx, id string, obj map[string]any, data js
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET videos_id = excluded.videos_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "videos_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "videos_id"),
 	); err != nil {
 		return fmt.Errorf("insert into clips: %w", err)
 	}
@@ -771,9 +771,9 @@ func (s *Store) upsertCollaboratorsTx(tx *sql.Tx, id string, obj map[string]any,
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET videos_id = excluded.videos_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "videos_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "videos_id"),
 	); err != nil {
 		return fmt.Errorf("insert into collaborators: %w", err)
 	}
@@ -822,9 +822,9 @@ func (s *Store) upsertDuplicateTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET videos_id = excluded.videos_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "videos_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "videos_id"),
 	); err != nil {
 		return fmt.Errorf("insert into duplicate: %w", err)
 	}
@@ -873,9 +873,9 @@ func (s *Store) upsertExportsTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET videos_id = excluded.videos_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "videos_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "videos_id"),
 	); err != nil {
 		return fmt.Errorf("insert into exports: %w", err)
 	}
@@ -924,9 +924,9 @@ func (s *Store) upsertThumbnailTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET videos_id = excluded.videos_id, data = excluded.data, synced_at = excluded.synced_at`,
 		id,
+		lookupFieldValue(obj, "videos_id"),
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "videos_id"),
 	); err != nil {
 		return fmt.Errorf("insert into thumbnail: %w", err)
 	}
@@ -1196,6 +1196,24 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
+	// Defense-in-depth: this method composes resourceType into the SQL
+	// table-name slot via fmt.Sprintf. All current callers route through
+	// syncResourcePath, which whitelists three resources, but a future
+	// caller could bypass that. Reject anything not in the schema.
+	allowedResourceTables := map[string]bool{
+		"playlists_videos": true,
+		"clips":            true,
+		"collaborators":    true,
+		"duplicate":        true,
+		"exports":          true,
+		"thumbnail":        true,
+		"webhooks":         true,
+		"transcripts":      true,
+		"resources":        true,
+	}
+	if !allowedResourceTables[resourceType] {
+		return nil, fmt.Errorf("ListIDs: invalid resourceType %q", resourceType)
+	}
 	// Try domain table first (tables are named after the resource type)
 	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
 	rows, err := s.db.Query(query)

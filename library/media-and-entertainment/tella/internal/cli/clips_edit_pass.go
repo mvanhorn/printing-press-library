@@ -121,20 +121,43 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 				"applied":     false,
 			}
 			if apply {
-				applied := 0
+				type failure struct {
+					VideoID string `json:"video_id"`
+					ClipID  string `json:"clip_id"`
+					Op      string `json:"op"`
+					Error   string `json:"error"`
+				}
+				succeeded := 0
+				failed := 0
+				failures := []failure{}
 				for _, p := range plans {
 					for _, o := range p.Ops {
+						var postErr error
 						switch o.Op {
 						case "remove-fillers":
-							_, _, _ = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/remove-fillers", p.VideoID, p.ClipID), map[string]any{})
+							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/remove-fillers", p.VideoID, p.ClipID), map[string]any{})
 						case "cut":
-							_, _, _ = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), o.Args)
+							_, _, postErr = c.Post(fmt.Sprintf("/v1/videos/%s/clips/%s/cut", p.VideoID, p.ClipID), o.Args)
 						}
-						applied++
+						if postErr != nil {
+							failed++
+							failures = append(failures, failure{
+								VideoID: p.VideoID,
+								ClipID:  p.ClipID,
+								Op:      o.Op,
+								Error:   postErr.Error(),
+							})
+							continue
+						}
+						succeeded++
 					}
 				}
 				result["applied"] = true
-				result["applied_ops"] = applied
+				result["applied_ops"] = succeeded
+				result["failed_ops"] = failed
+				if len(failures) > 0 {
+					result["failures"] = failures
+				}
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
