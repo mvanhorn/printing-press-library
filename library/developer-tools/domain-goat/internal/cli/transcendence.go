@@ -781,7 +781,10 @@ to look at first for a given seed. Combines:
 				}
 				// Suffix semantics
 				a.SuffixHit = strings.HasSuffix(seed, t.TLD)
-				// Historical availability — sample at most 100 domains per tld
+				// Historical availability — sample at most 100 domains per tld.
+				// Best-effort estimate: if the cursor errors mid-scan (context
+				// cancellation, transient SQLite issue), zero the partial counts
+				// instead of reporting a misleadingly low rate.
 				totalAvail, totalCount := 0, 0
 				rows, err := s.Query(`SELECT status FROM domains WHERE tld = ? LIMIT 100`, t.TLD)
 				if err == nil {
@@ -793,6 +796,9 @@ to look at first for a given seed. Combines:
 								totalAvail++
 							}
 						}
+					}
+					if rows.Err() != nil {
+						totalAvail, totalCount = 0, 0
 					}
 					rows.Close()
 				}
