@@ -19,8 +19,10 @@ var (
 	flagSelect string
 )
 
-// Execute runs the CLI.
-func Execute() error {
+// RootCmd builds the Cobra root command tree. Exposed separately from
+// Execute so the MCP server (internal/mcp) can walk the tree without
+// running it.
+func RootCmd() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:          "airframe-pp-cli",
 		Short:        "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology.",
@@ -43,7 +45,12 @@ func Execute() error {
 	rootCmd.AddCommand(newDoctorCmd())
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	return rootCmd.Execute()
+	return rootCmd
+}
+
+// Execute runs the CLI.
+func Execute() error {
+	return RootCmd().Execute()
 }
 
 // ExitCode extracts a process exit code from an error returned by Execute.
