@@ -114,6 +114,7 @@ func (c *Client) SetHeaterTemp(mspSystemID, poolID, heaterID, tempF int) (*Comma
 //
 // Field order matches the Python wrapper's dict insertion order verbatim,
 // because Hayward's .NET handler is also order-sensitive.
+// PATCH (fix-vsp-pump-ison-type-overload): send IsOn as dataType=int (0-100 speed) — Hayward overloads IsOn on SetUIEquipmentCmd, there is no separate Speed param. Field order matches the Python wrapper insertion order because the .NET handler is order-sensitive.
 func (c *Client) SetPumpSpeed(mspSystemID, poolID, pumpID, speed int) (*CommandResult, error) {
 	ordered := []orderedParam{
 		{"MspSystemID", "int", mspSystemID},

@@ -47,6 +47,7 @@ func ResolveHeater(cfg *MspConfig, name string) (poolID, heaterID int, heater He
 // pattern means a single heater can appear under both Pool and Spa BoWs
 // with identical name, so callers need a way to constrain by BoW name when
 // disambiguating. Empty bowFilter matches any BoW.
+// PATCH (fix-heater-bow-and-resolver): BoW-aware resolver added so BOW_SHARED_EQUIPMENT ('Gas' under both Pool and Spa) is disambiguable via --bow on heater enable/disable/set-temp.
 func ResolveHeaterInBoW(cfg *MspConfig, name, bowFilter string) (poolID, heaterID int, heater Heater, err error) {
 	type match struct {
 		poolID   int

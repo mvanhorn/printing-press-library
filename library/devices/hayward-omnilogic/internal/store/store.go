@@ -35,6 +35,7 @@ func Open(path string) (*Store, error) {
 	// The store holds telemetry history, chemistry readings, equipment
 	// topology, the command audit log, and alarm history — at least as
 	// sensitive as the response cache, so use 0o700 / 0o600 for parity.
+	// PATCH (fix-store-permissions-p1): 0o700 dir + 0o600 file (chmod after open) so local non-owner users cannot dump telemetry, chemistry, equipment topology, command log, or alarm history.
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return nil, fmt.Errorf("creating store dir: %w", err)
 	}

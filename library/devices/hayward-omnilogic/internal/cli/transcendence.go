@@ -398,6 +398,7 @@ func parseArrivalTime(s string) (time.Time, error) {
 // delta, place startAt days in the past, and silently fire the heater on
 // bogus data. We reject non-positive readings explicitly with a hint that
 // adapts to the operator's capability config.
+// PATCH (fix-ready-by-sentinel-rejection): reject Hayward -1 / 0 water-temp sentinels with a capability-aware actionable error instead of computing a wildly negative delta and silently firing the heater.
 func pickWaterTempForReadyBy(tele *omnilogic.Telemetry, caps store.SiteCapabilities) (int, error) {
 	var current int
 	gotReading := false
@@ -649,6 +650,7 @@ type driftMetricReport struct {
 	Samples       int     `json:"samples_considered"`
 }
 
+// PATCH (fix-chemistry-drift-monotonicity-and-sentinels): enforce 5-sample monotonicity, filter -1 sentinels at read-time, align forecast timestamps with the filtered samples slice.
 func buildDriftReport(s *store.Store, siteID int, forecast bool) driftReport {
 	r := driftReport{GeneratedAt: time.Now().UTC()}
 	metrics := []struct {
@@ -865,6 +867,7 @@ Not a Hayward API field — only the store can compute this.`,
 
 // ---------- command log ----------
 
+// PATCH (fix-command-log-replay): wire --replay <id> + dispatcher to every persisted Set* op and drop the mcp:read-only annotation because the replay path dispatches live equipment-control calls.
 func newCommandLogCmd(flags *rootFlags) *cobra.Command {
 	var sinceStr string
 	var limit int
@@ -1003,13 +1006,13 @@ func runReplay(cmd *cobra.Command, flags *rootFlags, s *store.Store, id int) err
 	// Dry-run preview path: don't issue the call, describe what would happen.
 	if flags.dryRun {
 		preview := map[string]any{
-			"replay_of":     id,
-			"would_call":    op,
-			"target":        target,
-			"params":        params,
+			"replay_of":          id,
+			"would_call":         op,
+			"target":             target,
+			"params":             params,
 			"site_msp_system_id": siteID,
-			"dispatch":      dispatchDescription(op, params),
-			"dry_run":       true,
+			"dispatch":           dispatchDescription(op, params),
+			"dry_run":            true,
 		}
 		return printJSONFiltered(cmd.OutOrStdout(), preview, flags)
 	}
@@ -1537,6 +1540,7 @@ func mustQuerySnapshotBefore(s *store.Store, site int, before time.Time) *omnilo
 // by service techs or by other app users" — anything reconfigurable in
 // the MSP config qualifies. Limiting the diff to heaters left half the
 // equipment tree outside the function's documented surface.
+// PATCH (fix-schedule-diff-coverage): walk pumps, lights, relays (per-BoW and backyard), and chlorinator alongside heaters so service-tech edits to any reconfigurable surface are flagged.
 func diffMspConfigs(a, b *omnilogic.MspConfig) []map[string]any {
 	var changes []map[string]any
 	bowsA := bowsByID(a)

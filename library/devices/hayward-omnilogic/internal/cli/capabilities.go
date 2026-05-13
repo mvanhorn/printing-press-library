@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH (feat-per-site-sensor-capabilities): per-site sensor capability config (get/set/clear) backed by site_capabilities table (schema v2). Lets chemistry/status/telemetry/sweep distinguish 'sensor missing entirely' from 'sensor offline right now' so absent sensors do not false-positive verdicts.
 func newCapabilitiesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "capabilities",
@@ -45,9 +46,9 @@ chemistry sensors equipped" when no row exists for a site.`,
 func newCapabilitiesGetCmd(flags *rootFlags) *cobra.Command {
 	var siteID int
 	cmd := &cobra.Command{
-		Use:     "get",
-		Short:   "Show the configured sensor capabilities for a site (or every site when --msp-system-id is omitted).",
-		Example: "  hayward-omnilogic-pp-cli capabilities get --json",
+		Use:         "get",
+		Short:       "Show the configured sensor capabilities for a site (or every site when --msp-system-id is omitted).",
+		Example:     "  hayward-omnilogic-pp-cli capabilities get --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -218,16 +219,16 @@ func newCapabilitiesClearCmd(flags *rootFlags) *cobra.Command {
 // agents reading the output know whether the row is operator-blessed or
 // the default fallback.
 type capabilitiesView struct {
-	SiteMspSystemID int                       `json:"site_msp_system_id"`
-	Configured      bool                      `json:"configured"`
-	HasPHSensor     bool                      `json:"has_ph_sensor"`
-	HasORPSensor    bool                      `json:"has_orp_sensor"`
-	HasSaltSensor   bool                      `json:"has_salt_sensor"`
-	TempNeedsFlow   bool                      `json:"temp_needs_flow"`
-	ConfiguredAt    string                    `json:"configured_at,omitempty"`
-	Notes           string                    `json:"notes,omitempty"`
+	SiteMspSystemID int                        `json:"site_msp_system_id"`
+	Configured      bool                       `json:"configured"`
+	HasPHSensor     bool                       `json:"has_ph_sensor"`
+	HasORPSensor    bool                       `json:"has_orp_sensor"`
+	HasSaltSensor   bool                       `json:"has_salt_sensor"`
+	TempNeedsFlow   bool                       `json:"temp_needs_flow"`
+	ConfiguredAt    string                     `json:"configured_at,omitempty"`
+	Notes           string                     `json:"notes,omitempty"`
 	Effective       *capabilitiesViewEffective `json:"effective,omitempty"`
-	Note            string                    `json:"note,omitempty"`
+	Note            string                     `json:"note,omitempty"`
 }
 
 type capabilitiesViewEffective struct {
