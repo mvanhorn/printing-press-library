@@ -56,7 +56,7 @@ These capabilities aren't available in any other tool for this API.
   _Avoid the $12-year-1 / $4,800-renewal trap before falling in love with a name._
 
   ```bash
-  domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5 --available-only
+  domain-goat-pp-cli budget --list ai-startup --max-annual-cost 50 --years 5 --available-only
   ```
 - **`compare`** — One row per domain with score, length, TLD prestige, cross-registrar price, RDAP status, and drop flag.
 
@@ -198,7 +198,7 @@ Two weeks of upcoming drops, score-filtered, agent-narrow output.
 ### Five-year true-cost shortlist
 
 ```bash
-domain-goat-pp-cli budget --list ai-startup --max-renewal 50 --years 5 --agent --select fqdn,total_5yr,renewal_price
+domain-goat-pp-cli budget --list ai-startup --max-annual-cost 50 --years 5 --agent --select fqdn,total_5yr,renewal_price
 ```
 
 Cuts the $12-year-1 / $4,800-renewal trap before you fall in love with a name.
