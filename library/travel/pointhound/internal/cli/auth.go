@@ -6,19 +6,23 @@ package cli
 import (
 	"bufio"
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/config"
 	"runtime"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/config"
+	"github.com/spf13/cobra"
+
+	_ "modernc.org/sqlite"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -230,10 +234,6 @@ func discoverChromeProfiles(domain string) ([]chromeProfile, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := exec.LookPath("sqlite3"); err != nil {
-		return nil, fmt.Errorf("sqlite3 not found")
-	}
-
 	entries, err := os.ReadDir(dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read Chrome data directory: %w", err)
@@ -321,14 +321,16 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
-	out, err := exec.Command("sqlite3", tmpPath, query).Output()
+	db, err := sql.Open("sqlite", tmpPath)
 	if err != nil {
 		return 0
 	}
+	defer db.Close()
 
 	count := 0
-	fmt.Sscanf(strings.TrimSpace(string(out)), "%d", &count)
+	if err := db.QueryRow("SELECT COUNT(*) FROM cookies WHERE host_key LIKE ?", domainPattern).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 

@@ -191,7 +191,7 @@ with --metro to group multi-airport cities (e.g. NYC -> JFK/LGA/EWR) and
 			if minRating != "" {
 				filtered := results[:0]
 				for _, r := range results {
-					if strings.EqualFold(r.DealRating, minRating) {
+					if dealRatingAtLeast(r.DealRating, minRating) {
 						filtered = append(filtered, r)
 					}
 				}
@@ -227,10 +227,22 @@ with --metro to group multi-airport cities (e.g. NYC -> JFK/LGA/EWR) and
 		},
 	}
 	cmd.Flags().StringVar(&metro, "metro", "", "Metro or city name (e.g. NYC, 'san francisco').")
-	cmd.Flags().StringVar(&minRating, "min-rating", "high", "Only show airports with this dealRating ('high' or 'low').")
+	cmd.Flags().StringVar(&minRating, "min-rating", "high", "Only show airports with at least this dealRating ('high' or 'low').")
 	cmd.Flags().IntVar(&limit, "limit", 15, "Maximum results from Scout (1-50).")
 	cmd.Flags().BoolVar(&trackedOnly, "tracked-only", true, "Only show airports Pointhound actively tracks.")
 	return cmd
+}
+
+func dealRatingAtLeast(rating, minimum string) bool {
+	minimum = strings.TrimSpace(minimum)
+	if minimum == "" {
+		return true
+	}
+	minWeight := dealWeight(minimum)
+	if minWeight == 0 {
+		return strings.EqualFold(rating, minimum)
+	}
+	return dealWeight(rating) >= minWeight
 }
 
 // ---------- compare-transfer ----------
@@ -542,17 +554,18 @@ func normalizeProgramKey(identifier, name string) string {
 // ---------- watch / drift ----------
 
 type watchRecord struct {
-	ID           string       `json:"id"`
-	Origin       string       `json:"origin"`
-	Destination  string       `json:"destination"`
-	Date         string       `json:"date"`
-	Cabin        string       `json:"cabin"`
-	Passengers   int          `json:"passengers"`
-	SearchID     string       `json:"searchId"`
-	CreatedAt    string       `json:"createdAt"`
-	LastSnapshot snapshotData `json:"lastSnapshot"`
-	LastRunAt    string       `json:"lastRunAt"`
-	LastExitCode int          `json:"lastExitCode"`
+	ID               string        `json:"id"`
+	Origin           string        `json:"origin"`
+	Destination      string        `json:"destination"`
+	Date             string        `json:"date"`
+	Cabin            string        `json:"cabin"`
+	Passengers       int           `json:"passengers"`
+	SearchID         string        `json:"searchId"`
+	CreatedAt        string        `json:"createdAt"`
+	PreviousSnapshot *snapshotData `json:"previousSnapshot,omitempty"`
+	LastSnapshot     snapshotData  `json:"lastSnapshot"`
+	LastRunAt        string        `json:"lastRunAt"`
+	LastExitCode     int           `json:"lastExitCode"`
 }
 
 type snapshotData struct {
@@ -623,17 +636,23 @@ Designed for cron:
 			if prev != nil {
 				_ = json.Unmarshal(prev, &prior)
 			}
+			var previousSnapshot *snapshotData
+			if prior.LastSnapshot.CapturedAt != "" || len(prior.LastSnapshot.Offers) > 0 {
+				previous := prior.LastSnapshot
+				previousSnapshot = &previous
+			}
 			rec := watchRecord{
-				ID:           watchID,
-				Origin:       origin,
-				Destination:  dest,
-				Date:         date,
-				Cabin:        cabin,
-				Passengers:   passengers,
-				SearchID:     searchID,
-				CreatedAt:    firstNonEmpty(prior.CreatedAt, snap.CapturedAt),
-				LastSnapshot: snap,
-				LastRunAt:    snap.CapturedAt,
+				ID:               watchID,
+				Origin:           origin,
+				Destination:      dest,
+				Date:             date,
+				Cabin:            cabin,
+				Passengers:       passengers,
+				SearchID:         searchID,
+				CreatedAt:        firstNonEmpty(prior.CreatedAt, snap.CapturedAt),
+				PreviousSnapshot: previousSnapshot,
+				LastSnapshot:     snap,
+				LastRunAt:        snap.CapturedAt,
 			}
 			diff := computeDiff(prior.LastSnapshot.Offers, snap.Offers)
 			out := map[string]any{
@@ -668,7 +687,7 @@ Designed for cron:
 				}
 			}
 			if rec.LastExitCode == 2 {
-				os.Exit(2)
+				flags.exitCode = 2
 			}
 			return nil
 		},
@@ -766,18 +785,22 @@ twice on this route.
 			if err := json.Unmarshal(raw, &rec); err != nil {
 				return err
 			}
-			out := map[string]any{
-				"watchId":    watchID,
-				"lastRunAt":  rec.LastRunAt,
-				"diff":       computeDiff(rec.LastSnapshot.Offers, rec.LastSnapshot.Offers), // baseline diff = unchanged
-				"offerCount": len(rec.LastSnapshot.Offers),
+			if rec.PreviousSnapshot == nil {
+				return fmt.Errorf("watch %s has no previous snapshot yet (run `pointhound-pp-cli watch ...` at least twice)", watchID)
 			}
-			// For real drift, we'd need historical snapshots; v1 surfaces the latest snapshot.
+			diff := computeDiff(rec.PreviousSnapshot.Offers, rec.LastSnapshot.Offers)
+			out := map[string]any{
+				"watchId":            watchID,
+				"previousCapturedAt": rec.PreviousSnapshot.CapturedAt,
+				"lastRunAt":          rec.LastRunAt,
+				"diff":               diff,
+				"offerCount":         len(rec.LastSnapshot.Offers),
+			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !humanFriendly) {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "watch %s last ran at %s with %d offers (exit %d).\nDeeper drift requires a series of watch runs.\n",
-				watchID, rec.LastRunAt, len(rec.LastSnapshot.Offers), rec.LastExitCode)
+			fmt.Fprintf(cmd.OutOrStdout(), "watch %s drift from %s to %s: %d new, %d cheaper, %d disappeared, %d unchanged.\n",
+				watchID, rec.PreviousSnapshot.CapturedAt, rec.LastRunAt, len(diff.New), len(diff.Cheaper), len(diff.Disappeared), diff.Unchanged)
 			return nil
 		},
 	}

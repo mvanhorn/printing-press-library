@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/pointhound/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -39,6 +39,7 @@ type rootFlags struct {
 	rateLimit     float64
 	dataSource    string
 	freshnessMeta any
+	exitCode      int
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -74,6 +75,9 @@ func Execute() error {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}
+	}
+	if err == nil && flags.exitCode != 0 {
+		os.Exit(flags.exitCode)
 	}
 	return err
 }

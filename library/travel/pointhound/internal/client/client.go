@@ -380,7 +380,7 @@ func (c *Client) refreshAccessToken() error {
 		return nil
 	}
 
-	return nil
+	return fmt.Errorf("stored Pointhound token has expired and automatic refresh is not implemented; run `pointhound-pp-cli auth login --chrome` to refresh your browser session")
 }
 
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from
