@@ -1,0 +1,3399 @@
+name: alphavantage
+description: "Every Alpha Vantage feature, plus local SQLite cache, FTS5 news search, and quota-aware planning no other Alpha Vantage tool has."
+version: "0.1.0"
+base_url: "https://www.alphavantage.co"
+health_check_path: "/query?function=MARKET_STATUS"
+
+auth:
+  type: api_key
+  header: apikey
+  in: query
+  format: "{token}"
+  env_vars:
+    - ALPHAVANTAGE_API_KEY
+  key_url: "https://www.alphavantage.co/support/#api-key"
+  description: "Free Alpha Vantage API key. Free tier is 25 requests/day; the CLI tracks quota in a local quota_log."
+  verify_path: "/query?function=MARKET_STATUS"
+
+config:
+  format: toml
+  path: "~/.config/alphavantage-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  quote:
+    description: "Latest stock quotes and bulk realtime quotes"
+    endpoints:
+      get:
+        method: GET
+        path: "/query"
+        description: "Latest price and volume for a single ticker (GLOBAL_QUOTE)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: GLOBAL_QUOTE
+            description: "Alpha Vantage function (defaults to GLOBAL_QUOTE)"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker (e.g., AAPL, NVDA, MSFT)"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format (json or csv)"
+        response:
+          type: object
+      bulk:
+        method: GET
+        path: "/query"
+        description: "Realtime quotes for up to 100 US symbols (premium tier)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: REALTIME_BULK_QUOTES
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated tickers up to 100 (e.g., AAPL,MSFT,NVDA)"
+        response:
+          type: object
+
+  series:
+    description: "Stock time series (intraday, daily, weekly, monthly)"
+    endpoints:
+      intraday:
+        method: GET
+        path: "/query"
+        description: "Intraday OHLCV time series at 1/5/15/30/60-min intervals (premium for full 20y history)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TIME_SERIES_INTRADAY
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: 5min
+            description: "Time interval (1min, 5min, 15min, 30min, 60min)"
+          - name: adjusted
+            type: bool
+            required: false
+            default: true
+            description: "Adjust for splits/dividends"
+          - name: extended_hours
+            type: bool
+            required: false
+            default: true
+            description: "Include pre/post-market data"
+          - name: month
+            type: string
+            required: false
+            default: ""
+            description: "Specific month in YYYY-MM (for historical slicing)"
+          - name: outputsize
+            type: string
+            required: false
+            default: compact
+            description: "compact (last 100 datapoints) or full (entire history)"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format (json or csv)"
+        response:
+          type: object
+      daily:
+        method: GET
+        path: "/query"
+        description: "Daily OHLCV time series (20+ years; --adjusted requires premium)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TIME_SERIES_DAILY
+            description: "Alpha Vantage function (TIME_SERIES_DAILY or TIME_SERIES_DAILY_ADJUSTED)"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: adjusted
+            type: bool
+            required: false
+            default: false
+            description: "If true, requests TIME_SERIES_DAILY_ADJUSTED (premium)"
+          - name: outputsize
+            type: string
+            required: false
+            default: compact
+            description: "compact (last 100 datapoints) or full (entire history)"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format (json or csv)"
+        response:
+          type: object
+      weekly:
+        method: GET
+        path: "/query"
+        description: "Weekly OHLCV time series (--adjusted adds dividend events)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TIME_SERIES_WEEKLY
+            description: "Alpha Vantage function (TIME_SERIES_WEEKLY or TIME_SERIES_WEEKLY_ADJUSTED)"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: adjusted
+            type: bool
+            required: false
+            default: false
+            description: "If true, requests TIME_SERIES_WEEKLY_ADJUSTED"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format (json or csv)"
+        response:
+          type: object
+      monthly:
+        method: GET
+        path: "/query"
+        description: "Monthly OHLCV time series (--adjusted adds dividend events)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TIME_SERIES_MONTHLY
+            description: "Alpha Vantage function (TIME_SERIES_MONTHLY or TIME_SERIES_MONTHLY_ADJUSTED)"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: adjusted
+            type: bool
+            required: false
+            default: false
+            description: "If true, requests TIME_SERIES_MONTHLY_ADJUSTED"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format (json or csv)"
+        response:
+          type: object
+
+  tickers:
+    description: "Ticker symbol search (SYMBOL_SEARCH)"
+    endpoints:
+      lookup:
+        method: GET
+        path: "/query"
+        description: "Search for tickers by keywords with match scoring (SYMBOL_SEARCH)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: SYMBOL_SEARCH
+            description: "Alpha Vantage function"
+          - name: keywords
+            type: string
+            required: true
+            positional: true
+            description: "Search keywords (e.g., 'apple', 'tesla')"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format (json or csv)"
+        response:
+          type: object
+
+  market:
+    description: "Global market status"
+    endpoints:
+      status:
+        method: GET
+        path: "/query"
+        description: "Open/close status for major global equity markets (MARKET_STATUS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MARKET_STATUS
+            description: "Alpha Vantage function"
+        response:
+          type: object
+
+  options:
+    description: "Options chain data (premium for realtime; HISTORICAL_OPTIONS free with limits)"
+    endpoints:
+      realtime:
+        method: GET
+        path: "/query"
+        description: "Realtime US options chain with Greeks and IV (REALTIME_OPTIONS, premium)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: REALTIME_OPTIONS
+            description: "Alpha Vantage function (REALTIME_OPTIONS or with --fmv REALTIME_OPTIONS_FMV)"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Underlying ticker"
+          - name: contract
+            type: string
+            required: false
+            default: ""
+            description: "Specific contract symbol (filters chain)"
+          - name: require_greeks
+            type: bool
+            required: false
+            default: false
+            description: "Require Greeks/IV in response"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      historical:
+        method: GET
+        path: "/query"
+        description: "Historical options chain (HISTORICAL_OPTIONS, 15+ years)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HISTORICAL_OPTIONS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Underlying ticker"
+          - name: date
+            type: string
+            required: false
+            default: ""
+            description: "Date in YYYY-MM-DD (default: latest available)"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+
+  news:
+    description: "News & sentiment (NEWS_SENTIMENT)"
+    endpoints:
+      sentiment:
+        method: GET
+        path: "/query"
+        description: "Live and historical market news with per-ticker sentiment scores (NEWS_SENTIMENT)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: NEWS_SENTIMENT
+            description: "Alpha Vantage function"
+          - name: tickers
+            type: string
+            required: false
+            default: ""
+            description: "Comma-separated tickers (e.g., AAPL,MSFT,NVDA)"
+          - name: topics
+            type: string
+            required: false
+            default: ""
+            description: "Comma-separated topics (technology, earnings, ipo, mergers_and_acquisitions, financial_markets, economy_fiscal, economy_monetary, economy_macro, energy_transportation, finance, life_sciences, manufacturing, real_estate, retail_wholesale, blockchain)"
+          - name: time_from
+            type: string
+            required: false
+            default: ""
+            description: "Lower bound, format YYYYMMDDTHHMM (e.g., 20260101T0000)"
+          - name: time_to
+            type: string
+            required: false
+            default: ""
+            description: "Upper bound, format YYYYMMDDTHHMM"
+          - name: sort
+            type: string
+            required: false
+            default: LATEST
+            description: "Sort order: LATEST | EARLIEST | RELEVANCE"
+          - name: limit
+            type: int
+            required: false
+            default: 50
+            description: "Max items (1-1000)"
+        response:
+          type: object
+
+  earnings:
+    description: "Earnings call transcripts (EARNINGS_CALL_TRANSCRIPT)"
+    endpoints:
+      transcript:
+        method: GET
+        path: "/query"
+        description: "Earnings call transcript with LLM-generated speaker sentiment"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: EARNINGS_CALL_TRANSCRIPT
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: quarter
+            type: string
+            required: false
+            default: ""
+            description: "Quarter in YYYYQN format (e.g., 2025Q4)"
+        response:
+          type: object
+
+  movers:
+    description: "Top gainers, losers, and most active (TOP_GAINERS_LOSERS)"
+    endpoints:
+      top:
+        method: GET
+        path: "/query"
+        description: "Top 20 gainers, losers, and most actively traded US tickers"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TOP_GAINERS_LOSERS
+            description: "Alpha Vantage function"
+        response:
+          type: object
+
+  insider:
+    description: "Insider transactions (Form 4 filings)"
+    endpoints:
+      transactions:
+        method: GET
+        path: "/query"
+        description: "Latest and historical insider transactions for a ticker (INSIDER_TRANSACTIONS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: INSIDER_TRANSACTIONS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+
+  institutional:
+    description: "Institutional ownership (13F)"
+    endpoints:
+      holdings:
+        method: GET
+        path: "/query"
+        description: "Institutional holdings for a ticker (INSTITUTIONAL_HOLDINGS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: INSTITUTIONAL_HOLDINGS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+
+  windows:
+    description: "Advanced analytics over fixed or sliding windows (ANALYTICS_FIXED_WINDOW / ANALYTICS_SLIDING_WINDOW)"
+    endpoints:
+      fixed:
+        method: GET
+        path: "/query"
+        description: "Fixed-window analytics: MEAN/STDDEV/CORRELATION across multiple tickers (ANALYTICS_FIXED_WINDOW)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ANALYTICS_FIXED_WINDOW
+            description: "Alpha Vantage function"
+          - name: SYMBOLS
+            flag_name: tickers
+            aliases: [symbols]
+            type: string
+            required: true
+            description: "Comma-separated tickers (e.g., AAPL,MSFT,IBM)"
+          - name: RANGE
+            flag_name: range
+            type: string
+            required: false
+            default: full
+            description: "Time range (full, 1day, 1week, 1month, 3month, 1year, etc.)"
+          - name: INTERVAL
+            flag_name: interval
+            type: string
+            required: false
+            default: DAILY
+            description: "Interval: 1min, 5min, 15min, 30min, 60min, DAILY, WEEKLY, MONTHLY"
+          - name: OHLC
+            flag_name: ohlc
+            type: string
+            required: false
+            default: close
+            description: "Price field: open, high, low, close"
+          - name: CALCULATIONS
+            flag_name: calculations
+            type: string
+            required: false
+            default: MEAN
+            description: "Comma-separated calculations: MIN, MAX, MEAN, MEDIAN, CUMULATIVE_RETURN, VARIANCE, STDDEV, MAX_DRAWDOWN, HISTOGRAM, AUTOCORRELATION, COVARIANCE, CORRELATION"
+        response:
+          type: object
+      sliding:
+        method: GET
+        path: "/query"
+        description: "Sliding-window analytics across multiple tickers (ANALYTICS_SLIDING_WINDOW)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ANALYTICS_SLIDING_WINDOW
+            description: "Alpha Vantage function"
+          - name: SYMBOLS
+            flag_name: tickers
+            aliases: [symbols]
+            type: string
+            required: true
+            description: "Comma-separated tickers"
+          - name: RANGE
+            flag_name: range
+            type: string
+            required: false
+            default: full
+            description: "Time range"
+          - name: INTERVAL
+            flag_name: interval
+            type: string
+            required: false
+            default: DAILY
+            description: "Interval"
+          - name: OHLC
+            flag_name: ohlc
+            type: string
+            required: false
+            default: close
+            description: "Price field"
+          - name: WINDOW_SIZE
+            flag_name: window-size
+            type: int
+            required: false
+            default: 20
+            description: "Sliding window size in datapoints"
+          - name: CALCULATIONS
+            flag_name: calculations
+            type: string
+            required: false
+            default: MEAN
+            description: "Calculations (see fixed)"
+        response:
+          type: object
+
+  fundamentals:
+    description: "Company fundamentals (overview, statements, dividends, splits, ETFs)"
+    endpoints:
+      overview:
+        method: GET
+        path: "/query"
+        description: "Company profile, ratios, and metrics (COMPANY_OVERVIEW)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: OVERVIEW
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      income:
+        method: GET
+        path: "/query"
+        description: "Annual and quarterly income statements (INCOME_STATEMENT)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: INCOME_STATEMENT
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      balance:
+        method: GET
+        path: "/query"
+        description: "Annual and quarterly balance sheets (BALANCE_SHEET)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: BALANCE_SHEET
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      cashflow:
+        method: GET
+        path: "/query"
+        description: "Annual and quarterly cash flow statements (CASH_FLOW)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CASH_FLOW
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      earnings:
+        method: GET
+        path: "/query"
+        description: "Historical earnings (EPS) data (EARNINGS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: EARNINGS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      earnings-estimates:
+        method: GET
+        path: "/query"
+        description: "Projected earnings estimates (EARNINGS_ESTIMATES)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: EARNINGS_ESTIMATES
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      dividends:
+        method: GET
+        path: "/query"
+        description: "Historical dividend payments (DIVIDENDS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DIVIDENDS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      splits:
+        method: GET
+        path: "/query"
+        description: "Stock split history (SPLITS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: SPLITS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      shares:
+        method: GET
+        path: "/query"
+        description: "Outstanding share count (SHARES_OUTSTANDING)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: SHARES_OUTSTANDING
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+        response:
+          type: object
+      listings:
+        method: GET
+        path: "/query"
+        description: "Listing/delisting status snapshot (LISTING_STATUS, CSV)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: LISTING_STATUS
+            description: "Alpha Vantage function"
+          - name: date
+            type: string
+            required: false
+            default: ""
+            description: "Snapshot date in YYYY-MM-DD"
+          - name: state
+            type: string
+            required: false
+            default: active
+            description: "active or delisted"
+          - name: datatype
+            type: string
+            required: false
+            default: csv
+            description: "Response format (csv native for this endpoint)"
+        response:
+          type: object
+      etf:
+        method: GET
+        path: "/query"
+        description: "ETF profile and holdings (ETF_PROFILE)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ETF_PROFILE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "ETF ticker (e.g., SPY, QQQ)"
+        response:
+          type: object
+
+  calendar:
+    description: "Earnings and IPO calendars"
+    endpoints:
+      earnings:
+        method: GET
+        path: "/query"
+        description: "Earnings calendar for next 3/6/12 months (EARNINGS_CALENDAR, CSV)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: EARNINGS_CALENDAR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: false
+            default: ""
+            description: "Optional ticker filter"
+          - name: horizon
+            type: string
+            required: false
+            default: 3month
+            description: "3month, 6month, or 12month"
+          - name: datatype
+            type: string
+            required: false
+            default: csv
+            description: "Response format (csv native)"
+        response:
+          type: object
+      ipo:
+        method: GET
+        path: "/query"
+        description: "IPO calendar for the next 3 months (IPO_CALENDAR, CSV)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: IPO_CALENDAR
+            description: "Alpha Vantage function"
+          - name: datatype
+            type: string
+            required: false
+            default: csv
+            description: "Response format (csv native)"
+        response:
+          type: object
+
+  fx:
+    description: "Foreign exchange rates"
+    endpoints:
+      intraday:
+        method: GET
+        path: "/query"
+        description: "Intraday FX (FX_INTRADAY, premium for full history)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: FX_INTRADAY
+            description: "Alpha Vantage function"
+          - name: from_symbol
+            type: string
+            required: true
+            positional: true
+            description: "From currency code (e.g., USD)"
+          - name: to_symbol
+            type: string
+            required: true
+            positional: true
+            description: "To currency code (e.g., JPY)"
+          - name: interval
+            type: string
+            required: false
+            default: 5min
+            description: "Interval (1min, 5min, 15min, 30min, 60min)"
+          - name: outputsize
+            type: string
+            required: false
+            default: compact
+            description: "compact or full"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      daily:
+        method: GET
+        path: "/query"
+        description: "Daily FX rates (FX_DAILY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: FX_DAILY
+            description: "Alpha Vantage function"
+          - name: from_symbol
+            type: string
+            required: true
+            positional: true
+            description: "From currency code"
+          - name: to_symbol
+            type: string
+            required: true
+            positional: true
+            description: "To currency code"
+          - name: outputsize
+            type: string
+            required: false
+            default: compact
+            description: "compact or full"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      weekly:
+        method: GET
+        path: "/query"
+        description: "Weekly FX rates (FX_WEEKLY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: FX_WEEKLY
+            description: "Alpha Vantage function"
+          - name: from_symbol
+            type: string
+            required: true
+            positional: true
+            description: "From currency code"
+          - name: to_symbol
+            type: string
+            required: true
+            positional: true
+            description: "To currency code"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      monthly:
+        method: GET
+        path: "/query"
+        description: "Monthly FX rates (FX_MONTHLY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: FX_MONTHLY
+            description: "Alpha Vantage function"
+          - name: from_symbol
+            type: string
+            required: true
+            positional: true
+            description: "From currency code"
+          - name: to_symbol
+            type: string
+            required: true
+            positional: true
+            description: "To currency code"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+
+  crypto:
+    description: "Cryptocurrency exchange rates and time series"
+    endpoints:
+      rate:
+        method: GET
+        path: "/query"
+        description: "Realtime exchange rate between two currencies, crypto or fiat (CURRENCY_EXCHANGE_RATE)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CURRENCY_EXCHANGE_RATE
+            description: "Alpha Vantage function"
+          - name: from_currency
+            type: string
+            required: true
+            positional: true
+            description: "From currency (e.g., BTC)"
+          - name: to_currency
+            type: string
+            required: true
+            positional: true
+            description: "To currency (e.g., USD)"
+        response:
+          type: object
+      intraday:
+        method: GET
+        path: "/query"
+        description: "Intraday crypto time series (DIGITAL_CURRENCY_INTRADAY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CRYPTO_INTRADAY
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Crypto symbol (e.g., BTC, ETH)"
+          - name: market
+            type: string
+            required: false
+            default: USD
+            description: "Quote market (e.g., USD, EUR, CNY)"
+          - name: interval
+            type: string
+            required: false
+            default: 5min
+            description: "Interval (1min, 5min, 15min, 30min, 60min)"
+          - name: outputsize
+            type: string
+            required: false
+            default: compact
+            description: "compact or full"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      daily:
+        method: GET
+        path: "/query"
+        description: "Daily crypto time series (DIGITAL_CURRENCY_DAILY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DIGITAL_CURRENCY_DAILY
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Crypto symbol"
+          - name: market
+            type: string
+            required: false
+            default: USD
+            description: "Quote market"
+        response:
+          type: object
+      weekly:
+        method: GET
+        path: "/query"
+        description: "Weekly crypto time series (DIGITAL_CURRENCY_WEEKLY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DIGITAL_CURRENCY_WEEKLY
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Crypto symbol"
+          - name: market
+            type: string
+            required: false
+            default: USD
+            description: "Quote market"
+        response:
+          type: object
+      monthly:
+        method: GET
+        path: "/query"
+        description: "Monthly crypto time series (DIGITAL_CURRENCY_MONTHLY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DIGITAL_CURRENCY_MONTHLY
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Crypto symbol"
+          - name: market
+            type: string
+            required: false
+            default: USD
+            description: "Quote market"
+        response:
+          type: object
+
+  commodities:
+    description: "Commodity prices (WTI, Brent, gas, metals, agriculture)"
+    endpoints:
+      wti:
+        method: GET
+        path: "/query"
+        description: "West Texas Intermediate crude oil (WTI)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: WTI
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "daily, weekly, or monthly"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      brent:
+        method: GET
+        path: "/query"
+        description: "Brent crude oil"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: BRENT
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "daily, weekly, or monthly"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      natural-gas:
+        method: GET
+        path: "/query"
+        description: "Henry Hub natural gas spot"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: NATURAL_GAS
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "daily, weekly, or monthly"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "Response format"
+        response:
+          type: object
+      copper:
+        method: GET
+        path: "/query"
+        description: "Global copper price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: COPPER
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      aluminum:
+        method: GET
+        path: "/query"
+        description: "Global aluminum price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ALUMINUM
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      wheat:
+        method: GET
+        path: "/query"
+        description: "Global wheat price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: WHEAT
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      corn:
+        method: GET
+        path: "/query"
+        description: "Global corn price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CORN
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      cotton:
+        method: GET
+        path: "/query"
+        description: "Global cotton price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: COTTON
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      sugar:
+        method: GET
+        path: "/query"
+        description: "Global sugar price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: SUGAR
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      coffee:
+        method: GET
+        path: "/query"
+        description: "Global coffee price"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: COFFEE
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+      gold-silver-spot:
+        method: GET
+        path: "/query"
+        description: "Live gold and silver spot prices (GOLD_SILVER_SPOT)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: GOLD_SILVER_SPOT
+            description: "Alpha Vantage function"
+        response:
+          type: object
+      gold-silver-history:
+        method: GET
+        path: "/query"
+        description: "Historical gold and silver prices (GOLD_SILVER_HISTORY)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: GOLD_SILVER_HISTORY
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "daily, weekly, or monthly"
+        response:
+          type: object
+      all:
+        method: GET
+        path: "/query"
+        description: "All commodities at once (ALL_COMMODITIES)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ALL_COMMODITIES
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly, quarterly, or annual"
+        response:
+          type: object
+
+  econ:
+    description: "Economic indicators (GDP, CPI, Fed Funds, Treasury, unemployment)"
+    endpoints:
+      real-gdp:
+        method: GET
+        path: "/query"
+        description: "Real Gross Domestic Product (REAL_GDP)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: REAL_GDP
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: quarterly
+            description: "quarterly or annual"
+        response:
+          type: object
+      real-gdp-per-capita:
+        method: GET
+        path: "/query"
+        description: "Real GDP per capita (REAL_GDP_PER_CAPITA)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: REAL_GDP_PER_CAPITA
+            description: "Alpha Vantage function"
+        response:
+          type: object
+      treasury-yield:
+        method: GET
+        path: "/query"
+        description: "US Treasury yield rates (TREASURY_YIELD)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TREASURY_YIELD
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "daily, weekly, or monthly"
+          - name: maturity
+            type: string
+            required: false
+            default: 10year
+            description: "Maturity: 3month, 2year, 5year, 7year, 10year, 30year"
+        response:
+          type: object
+      federal-funds-rate:
+        method: GET
+        path: "/query"
+        description: "Federal funds rate (FEDERAL_FUNDS_RATE)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: FEDERAL_FUNDS_RATE
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "daily, weekly, or monthly"
+        response:
+          type: object
+      cpi:
+        method: GET
+        path: "/query"
+        description: "Consumer Price Index (CPI)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CPI
+            description: "Alpha Vantage function"
+          - name: interval
+            type: string
+            required: false
+            default: monthly
+            description: "monthly or semiannual"
+        response:
+          type: object
+      inflation:
+        method: GET
+        path: "/query"
+        description: "US inflation rate (INFLATION, annual)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: INFLATION
+            description: "Alpha Vantage function"
+        response:
+          type: object
+      retail-sales:
+        method: GET
+        path: "/query"
+        description: "US retail sales (RETAIL_SALES, monthly)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: RETAIL_SALES
+            description: "Alpha Vantage function"
+        response:
+          type: object
+      durables:
+        method: GET
+        path: "/query"
+        description: "US durable goods orders (DURABLES, monthly)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DURABLES
+            description: "Alpha Vantage function"
+        response:
+          type: object
+      unemployment:
+        method: GET
+        path: "/query"
+        description: "US unemployment rate (UNEMPLOYMENT, monthly)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: UNEMPLOYMENT
+            description: "Alpha Vantage function"
+        response:
+          type: object
+      nonfarm-payroll:
+        method: GET
+        path: "/query"
+        description: "US nonfarm payroll (NONFARM_PAYROLL, monthly)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: NONFARM_PAYROLL
+            description: "Alpha Vantage function"
+        response:
+          type: object
+
+  query:
+    description: "Raw query escape hatch: call any Alpha Vantage function directly"
+    endpoints:
+      raw:
+        method: GET
+        path: "/query"
+        description: "Pass-through to any Alpha Vantage function with arbitrary params"
+        params:
+          - name: function
+            type: string
+            required: true
+            description: "Any Alpha Vantage function name (e.g., REALTIME_OPTIONS, ANALYTICS_FIXED_WINDOW)"
+          - name: symbol
+            type: string
+            required: false
+            default: ""
+            description: "Symbol if applicable"
+          - name: tickers
+            type: string
+            required: false
+            default: ""
+            description: "Tickers if applicable"
+          - name: interval
+            type: string
+            required: false
+            default: ""
+            description: "Interval if applicable"
+          - name: outputsize
+            type: string
+            required: false
+            default: ""
+            description: "compact or full"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+
+  indicator:
+    description: "Technical indicators (SMA, EMA, RSI, MACD, BBANDS, 40+ more)"
+    endpoints:
+      sma:
+        method: GET
+        path: "/query"
+        description: "SMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: SMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ema:
+        method: GET
+        path: "/query"
+        description: "EMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: EMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      wma:
+        method: GET
+        path: "/query"
+        description: "WMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: WMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      dema:
+        method: GET
+        path: "/query"
+        description: "DEMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DEMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      tema:
+        method: GET
+        path: "/query"
+        description: "TEMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TEMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      trima:
+        method: GET
+        path: "/query"
+        description: "TRIMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TRIMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      kama:
+        method: GET
+        path: "/query"
+        description: "KAMA technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: KAMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      t3:
+        method: GET
+        path: "/query"
+        description: "T3 technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: T3
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points to compute (e.g., 20, 50, 200)"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      mama:
+        method: GET
+        path: "/query"
+        description: "MESA Adaptive Moving Average (MAMA)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MAMA
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: fastlimit
+            type: float
+            required: false
+            default: 0.01
+            description: "Fast limit (default 0.01)"
+          - name: slowlimit
+            type: float
+            required: false
+            default: 0.01
+            description: "Slow limit (default 0.01)"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      vwap:
+        method: GET
+        path: "/query"
+        description: "Volume Weighted Average Price (VWAP, intraday only)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: VWAP
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: 5min
+            description: "1min, 5min, 15min, 30min, 60min"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      macd:
+        method: GET
+        path: "/query"
+        description: "Moving Average Convergence/Divergence (MACD)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MACD
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "close, open, high, low"
+          - name: fastperiod
+            type: int
+            required: false
+            default: 12
+            description: "Fast period (default 12)"
+          - name: slowperiod
+            type: int
+            required: false
+            default: 26
+            description: "Slow period (default 26)"
+          - name: signalperiod
+            type: int
+            required: false
+            default: 9
+            description: "Signal period (default 9)"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      macdext:
+        method: GET
+        path: "/query"
+        description: "MACD with controllable MA types (MACDEXT)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MACDEXT
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: fastperiod
+            type: int
+            required: false
+            default: 12
+            description: "Fast period"
+          - name: slowperiod
+            type: int
+            required: false
+            default: 26
+            description: "Slow period"
+          - name: signalperiod
+            type: int
+            required: false
+            default: 9
+            description: "Signal period"
+          - name: fastmatype
+            type: int
+            required: false
+            default: 0
+            description: "Fast MA type 0-8"
+          - name: slowmatype
+            type: int
+            required: false
+            default: 0
+            description: "Slow MA type 0-8"
+          - name: signalmatype
+            type: int
+            required: false
+            default: 0
+            description: "Signal MA type 0-8"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      stoch:
+        method: GET
+        path: "/query"
+        description: "Stochastic oscillator (STOCH)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: STOCH
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: fastkperiod
+            type: int
+            required: false
+            default: 5
+            description: "Fast %K period"
+          - name: slowkperiod
+            type: int
+            required: false
+            default: 3
+            description: "Slow %K period"
+          - name: slowdperiod
+            type: int
+            required: false
+            default: 3
+            description: "Slow %D period"
+          - name: slowkmatype
+            type: int
+            required: false
+            default: 0
+            description: "Slow %K MA type"
+          - name: slowdmatype
+            type: int
+            required: false
+            default: 0
+            description: "Slow %D MA type"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      stochf:
+        method: GET
+        path: "/query"
+        description: "Stochastic fast (STOCHF)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: STOCHF
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: fastkperiod
+            type: int
+            required: false
+            default: 5
+            description: "Fast %K period"
+          - name: fastdperiod
+            type: int
+            required: false
+            default: 3
+            description: "Fast %D period"
+          - name: fastdmatype
+            type: int
+            required: false
+            default: 0
+            description: "Fast %D MA type"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      stochrsi:
+        method: GET
+        path: "/query"
+        description: "Stochastic RSI (STOCHRSI)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: STOCHRSI
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points for RSI calculation"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: fastkperiod
+            type: int
+            required: false
+            default: 5
+            description: "Fast %K period"
+          - name: fastdperiod
+            type: int
+            required: false
+            default: 3
+            description: "Fast %D period"
+          - name: fastdmatype
+            type: int
+            required: false
+            default: 0
+            description: "Fast %D MA type"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      rsi:
+        method: GET
+        path: "/query"
+        description: "RSI technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: RSI
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      cci:
+        method: GET
+        path: "/query"
+        description: "CCI technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CCI
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      cmo:
+        method: GET
+        path: "/query"
+        description: "CMO technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: CMO
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      roc:
+        method: GET
+        path: "/query"
+        description: "ROC technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ROC
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      rocr:
+        method: GET
+        path: "/query"
+        description: "ROCR technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ROCR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      mfi:
+        method: GET
+        path: "/query"
+        description: "MFI technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MFI
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      trix:
+        method: GET
+        path: "/query"
+        description: "TRIX technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TRIX
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      willr:
+        method: GET
+        path: "/query"
+        description: "WILLR technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: WILLR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      mom:
+        method: GET
+        path: "/query"
+        description: "MOM technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MOM
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      bop:
+        method: GET
+        path: "/query"
+        description: "BOP technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: BOP
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      dx:
+        method: GET
+        path: "/query"
+        description: "DX technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: DX
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      adx:
+        method: GET
+        path: "/query"
+        description: "ADX technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ADX
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      adxr:
+        method: GET
+        path: "/query"
+        description: "ADXR technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ADXR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      aroon:
+        method: GET
+        path: "/query"
+        description: "AROON technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: AROON
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      aroonosc:
+        method: GET
+        path: "/query"
+        description: "AROONOSC technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: AROONOSC
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      minus-di:
+        method: GET
+        path: "/query"
+        description: "MINUS_DI technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MINUS_DI
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      plus-di:
+        method: GET
+        path: "/query"
+        description: "PLUS_DI technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: PLUS_DI
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      minus-dm:
+        method: GET
+        path: "/query"
+        description: "MINUS_DM technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MINUS_DM
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      plus-dm:
+        method: GET
+        path: "/query"
+        description: "PLUS_DM technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: PLUS_DM
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      midpoint:
+        method: GET
+        path: "/query"
+        description: "MIDPOINT technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MIDPOINT
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      midprice:
+        method: GET
+        path: "/query"
+        description: "MIDPRICE technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: MIDPRICE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      trange:
+        method: GET
+        path: "/query"
+        description: "TRANGE technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: TRANGE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      atr:
+        method: GET
+        path: "/query"
+        description: "ATR technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ATR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      natr:
+        method: GET
+        path: "/query"
+        description: "NATR technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: NATR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 14
+            description: "Number of data points"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      apo:
+        method: GET
+        path: "/query"
+        description: "APO technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: APO
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: fastperiod
+            type: int
+            required: false
+            default: 12
+            description: "Fast period"
+          - name: slowperiod
+            type: int
+            required: false
+            default: 26
+            description: "Slow period"
+          - name: matype
+            type: int
+            required: false
+            default: 0
+            description: "MA type 0-8"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ppo:
+        method: GET
+        path: "/query"
+        description: "PPO technical indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: PPO
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: fastperiod
+            type: int
+            required: false
+            default: 12
+            description: "Fast period"
+          - name: slowperiod
+            type: int
+            required: false
+            default: 26
+            description: "Slow period"
+          - name: matype
+            type: int
+            required: false
+            default: 0
+            description: "MA type 0-8"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ultosc:
+        method: GET
+        path: "/query"
+        description: "Ultimate Oscillator (ULTOSC)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ULTOSC
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: timeperiod1
+            type: int
+            required: false
+            default: 7
+            description: "Period 1"
+          - name: timeperiod2
+            type: int
+            required: false
+            default: 14
+            description: "Period 2"
+          - name: timeperiod3
+            type: int
+            required: false
+            default: 28
+            description: "Period 3"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      bbands:
+        method: GET
+        path: "/query"
+        description: "Bollinger Bands (BBANDS)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: BBANDS
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: time_period
+            type: int
+            required: false
+            default: 20
+            description: "Number of data points"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: nbdevup
+            type: int
+            required: false
+            default: 2
+            description: "Upper std dev multiplier"
+          - name: nbdevdn
+            type: int
+            required: false
+            default: 2
+            description: "Lower std dev multiplier"
+          - name: matype
+            type: int
+            required: false
+            default: 0
+            description: "MA type 0-8"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      sar:
+        method: GET
+        path: "/query"
+        description: "Parabolic SAR (SAR)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: SAR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: acceleration
+            type: float
+            required: false
+            default: 0.02
+            description: "Acceleration factor"
+          - name: maximum
+            type: float
+            required: false
+            default: 0.2
+            description: "Max acceleration"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ad:
+        method: GET
+        path: "/query"
+        description: "Chaikin A/D Line (AD)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: AD
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      adosc:
+        method: GET
+        path: "/query"
+        description: "Chaikin A/D Oscillator (ADOSC)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: ADOSC
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: fastperiod
+            type: int
+            required: false
+            default: 3
+            description: "Fast period"
+          - name: slowperiod
+            type: int
+            required: false
+            default: 10
+            description: "Slow period"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      obv:
+        method: GET
+        path: "/query"
+        description: "On Balance Volume (OBV)"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: OBV
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ht-trendline:
+        method: GET
+        path: "/query"
+        description: "HT_TRENDLINE Hilbert transform indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HT_TRENDLINE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ht-sine:
+        method: GET
+        path: "/query"
+        description: "HT_SINE Hilbert transform indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HT_SINE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ht-trendmode:
+        method: GET
+        path: "/query"
+        description: "HT_TRENDMODE Hilbert transform indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HT_TRENDMODE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ht-dcperiod:
+        method: GET
+        path: "/query"
+        description: "HT_DCPERIOD Hilbert transform indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HT_DCPERIOD
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ht-dcphase:
+        method: GET
+        path: "/query"
+        description: "HT_DCPHASE Hilbert transform indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HT_DCPHASE
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object
+      ht-phasor:
+        method: GET
+        path: "/query"
+        description: "HT_PHASOR Hilbert transform indicator"
+        params:
+          - name: function
+            type: string
+            required: false
+            default: HT_PHASOR
+            description: "Alpha Vantage function"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Stock ticker"
+          - name: interval
+            type: string
+            required: false
+            default: daily
+            description: "Time interval"
+          - name: series_type
+            type: string
+            required: false
+            default: close
+            description: "Price series"
+          - name: datatype
+            type: string
+            required: false
+            default: json
+            description: "json or csv"
+        response:
+          type: object

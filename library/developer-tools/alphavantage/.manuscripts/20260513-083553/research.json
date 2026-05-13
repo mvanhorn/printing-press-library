@@ -1,0 +1,380 @@
+{
+  "api_name": "alphavantage",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "alpha_vantage_mcp",
+      "url": "https://github.com/alphavantage/alpha_vantage_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 106,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "portfoliotree/alphavantage",
+      "url": "https://github.com/portfoliotree/alphavantage",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 70,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "RomelTorres/alpha_vantage",
+      "url": "https://github.com/RomelTorres/alpha_vantage",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ashleydavis/alpha-vantage-cli",
+      "url": "https://github.com/ashleydavis/alpha-vantage-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "berlinbra/alpha-vantage-mcp",
+      "url": "https://github.com/berlinbra/alpha-vantage-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "matteoantoci/mcp-alphavantage",
+      "url": "https://github.com/matteoantoci/mcp-alphavantage",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "calvernaz/alphavantage",
+      "url": "https://github.com/calvernaz/alphavantage",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T00:42:00Z",
+  "novel_features": [
+    {
+      "name": "Quota status + dry-run plan",
+      "command": "quota status",
+      "description": "See exactly how many of your 25/day Alpha Vantage calls you have left, and preview what a command would burn before running it.",
+      "rationale": "Requires a local quota_log table written by the API client. Every other wrapper silently fails on the 200-with-Note rate-limit shape (RomelTorres #125, finance-quote #130, TradingAgents #305).",
+      "example": "alphavantage-pp-cli quota status --json",
+      "why_it_matters": "Reach for this before any deep-dive or watchlist sweep — burning your 25/day in one fan-out leaves the rest of the session blind. The CLI tracks every call locally, so agents can plan with confidence.",
+      "group": "Quota discipline"
+    },
+    {
+      "name": "News sweep with ticker_sentiment preserved",
+      "command": "news sweep",
+      "description": "Pull NEWS_SENTIMENT for a watchlist in one command; persist articles AND the per-ticker sentiment array every other wrapper drops.",
+      "rationale": "Every existing wrapper discards the ticker_sentiment[] array (per-article, per-ticker relevance + sentiment_score) which is the highest-information field in Alpha Vantage's entire API. We persist it to SQLite and FTS5-index titles + summaries.",
+      "example": "alphavantage-pp-cli news sweep --watchlist us-core --json",
+      "why_it_matters": "When users ask 'which of my watchlist tickers has the strongest negative swing this week,' this is the only tool that can answer locally — without re-burning quota or losing the per-ticker breakdown.",
+      "group": "News + sentiment"
+    },
+    {
+      "name": "Sentiment timeline for a ticker",
+      "command": "news timeline",
+      "description": "Day-by-day mean sentiment + article count for a ticker, computed from local data with zero API calls.",
+      "rationale": "Pure SQL aggregation over the local ticker_sentiment table. Reconstructs a sentiment timeline that no single AV call gives.",
+      "example": "alphavantage-pp-cli news timeline NVDA --days 30 --json",
+      "why_it_matters": "Use this in /stock-deep-dive to answer 'how has sentiment evolved for this ticker' without burning a single API call on already-pulled data.",
+      "group": "News + sentiment"
+    },
+    {
+      "name": "FTS5 news search",
+      "command": "news search",
+      "description": "Full-text search across all locally pulled news articles with boolean AND/OR, prefix matching, ranked results.",
+      "rationale": "SQLite FTS5 virtual table over articles.title + summary + topics. Joins back to ticker_sentiment for context. No re-fetch needed.",
+      "example": "alphavantage-pp-cli news search \"tariff AND TSMC\" --from 2026-02-01 --json",
+      "why_it_matters": "Find the article that drove a sentiment spike weeks later without burning any quota. Especially useful for research and journalism workflows.",
+      "group": "News + sentiment"
+    },
+    {
+      "name": "Pre-earnings briefing",
+      "command": "briefing earnings",
+      "description": "One-shot pre-earnings card: upcoming earnings date, recent earnings-topic news, last call transcript highlights, current quote.",
+      "rationale": "Orchestrates EARNINGS_CALENDAR + EARNINGS + NEWS_SENTIMENT(topic=earnings, ticker filter) + GLOBAL_QUOTE + EARNINGS_CALL_TRANSCRIPT in one command. Uses local cache where fresh.",
+      "example": "alphavantage-pp-cli briefing earnings AAPL --json",
+      "why_it_matters": "Replaces 5 separate API calls + manual joining with one query. Ideal pre-print research for portfolio decisions.",
+      "group": "Cross-source briefings"
+    },
+    {
+      "name": "Movers + sentiment overlay",
+      "command": "movers brief",
+      "description": "Today's top gainers/losers with each ticker's 7d sentiment z-score from the local store.",
+      "rationale": "TOP_GAINERS_LOSERS API call LEFT JOIN local ticker_sentiment aggregated per ticker. Reveals whether moves are sentiment-driven or sentiment-free.",
+      "example": "alphavantage-pp-cli movers brief --side gainers --enrich sentiment --json",
+      "why_it_matters": "Pre-market intel: distinguish 'top gainer with strong recent positive sentiment' from 'top gainer with negative sentiment' (potential reversal).",
+      "group": "Cross-source briefings"
+    },
+    {
+      "name": "Macro snapshot",
+      "command": "macro snapshot",
+      "description": "Current CPI, Fed Funds Rate, Treasury Yield curve, Unemployment, Nonfarm Payroll in one card.",
+      "rationale": "Joins 5 economic-indicator endpoints with indicator-natural TTL caching (CPI monthly, etc.) so daily reruns cost 0 API calls after first.",
+      "example": "alphavantage-pp-cli macro snapshot --json",
+      "why_it_matters": "Daily macro context for /market-pulse in two API calls or fewer. Saves quota for ticker-level work.",
+      "group": "Cross-source briefings"
+    },
+    {
+      "name": "Watchlist sentiment with delta",
+      "command": "watchlist sentiment",
+      "description": "Per-ticker mean sentiment for a named watchlist, with delta-since-last-scan.",
+      "rationale": "Named persisted watchlists × ticker_sentiment history. Reads prior scan timestamp from sync_log; reports change for each ticker.",
+      "example": "alphavantage-pp-cli watchlist sentiment --name us-core --json",
+      "why_it_matters": "Weekly Sunday-night ritual: 'which of my 12 names shifted sentiment most this week' in one read.",
+      "group": "Watchlist intelligence"
+    },
+    {
+      "name": "Compound screen",
+      "command": "screen",
+      "description": "Filter tickers by multi-predicate (min sentiment, earnings within N days, recent insider net-buy) across local tables.",
+      "rationale": "Multi-predicate SQL across local ticker_sentiment (aggregated) + earnings_calendar + insider_transactions. No single API call expresses this.",
+      "example": "alphavantage-pp-cli screen --watchlist us-core --sentiment-min 0.2 --has-earnings-in 14d --insider-net-buy --json",
+      "why_it_matters": "Surface 'high-conviction setups' in a watchlist without external screeners. Uses only local data after sync.",
+      "group": "Watchlist intelligence"
+    },
+    {
+      "name": "Daily pulse bundle",
+      "command": "pulse us",
+      "description": "Designed for /market-pulse: top movers + macro snapshot + watchlist sentiment delta in \u003c=2 API calls.",
+      "rationale": "Explicit quota-aware orchestration: TOP_GAINERS_LOSERS (1 call cached daily) + macro snapshot (0 calls after first) + incremental watchlist news sync. Drops a full /market-pulse run from 10+ calls to \u003c=2.",
+      "example": "alphavantage-pp-cli pulse us --json",
+      "why_it_matters": "Run /market-pulse every weekday morning without exhausting the 25/day quota by lunch. The quota strategy IS the feature.",
+      "group": "Quota discipline"
+    },
+    {
+      "name": "Sync backbone",
+      "command": "sync news",
+      "description": "Pull-once-query-many: hydrate the local store with news, movers, or earnings calendar; incremental cursor avoids re-fetching.",
+      "rationale": "Incremental cursor (time_published for news, date for movers, quarter for fundamentals) stored in sync_log. Every other transcendence row depends on this existing.",
+      "example": "alphavantage-pp-cli sync news --watchlist us-core --since last --json",
+      "why_it_matters": "One burn of N calls hydrates the local store; the next 100 reads cost zero quota. The backbone for every other novel feature.",
+      "group": "Sync infrastructure"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quota status + dry-run plan",
+      "command": "quota status",
+      "description": "See exactly how many of your 25/day Alpha Vantage calls you have left, and preview what a command would burn before running it.",
+      "rationale": "Requires a local quota_log table written by the API client. Every other wrapper silently fails on the 200-with-Note rate-limit shape (RomelTorres #125, finance-quote #130, TradingAgents #305).",
+      "example": "alphavantage-pp-cli quota status --json",
+      "why_it_matters": "Reach for this before any deep-dive or watchlist sweep — burning your 25/day in one fan-out leaves the rest of the session blind. The CLI tracks every call locally, so agents can plan with confidence.",
+      "group": "Quota discipline"
+    },
+    {
+      "name": "News sweep with ticker_sentiment preserved",
+      "command": "news sweep",
+      "description": "Pull NEWS_SENTIMENT for a watchlist in one command; persist articles AND the per-ticker sentiment array every other wrapper drops.",
+      "rationale": "Every existing wrapper discards the ticker_sentiment[] array (per-article, per-ticker relevance + sentiment_score) which is the highest-information field in Alpha Vantage's entire API. We persist it to SQLite and FTS5-index titles + summaries.",
+      "example": "alphavantage-pp-cli news sweep --watchlist us-core --json",
+      "why_it_matters": "When users ask 'which of my watchlist tickers has the strongest negative swing this week,' this is the only tool that can answer locally — without re-burning quota or losing the per-ticker breakdown.",
+      "group": "News + sentiment"
+    },
+    {
+      "name": "Sentiment timeline for a ticker",
+      "command": "news timeline",
+      "description": "Day-by-day mean sentiment + article count for a ticker, computed from local data with zero API calls.",
+      "rationale": "Pure SQL aggregation over the local ticker_sentiment table. Reconstructs a sentiment timeline that no single AV call gives.",
+      "example": "alphavantage-pp-cli news timeline NVDA --days 30 --json",
+      "why_it_matters": "Use this in /stock-deep-dive to answer 'how has sentiment evolved for this ticker' without burning a single API call on already-pulled data.",
+      "group": "News + sentiment"
+    },
+    {
+      "name": "FTS5 news search",
+      "command": "news search",
+      "description": "Full-text search across all locally pulled news articles with boolean AND/OR, prefix matching, ranked results.",
+      "rationale": "SQLite FTS5 virtual table over articles.title + summary + topics. Joins back to ticker_sentiment for context. No re-fetch needed.",
+      "example": "alphavantage-pp-cli news search \"tariff AND TSMC\" --from 2026-02-01 --json",
+      "why_it_matters": "Find the article that drove a sentiment spike weeks later without burning any quota. Especially useful for research and journalism workflows.",
+      "group": "News + sentiment"
+    },
+    {
+      "name": "Pre-earnings briefing",
+      "command": "briefing earnings",
+      "description": "One-shot pre-earnings card: upcoming earnings date, recent earnings-topic news, last call transcript highlights, current quote.",
+      "rationale": "Orchestrates EARNINGS_CALENDAR + EARNINGS + NEWS_SENTIMENT(topic=earnings, ticker filter) + GLOBAL_QUOTE + EARNINGS_CALL_TRANSCRIPT in one command. Uses local cache where fresh.",
+      "example": "alphavantage-pp-cli briefing earnings AAPL --json",
+      "why_it_matters": "Replaces 5 separate API calls + manual joining with one query. Ideal pre-print research for portfolio decisions.",
+      "group": "Cross-source briefings"
+    },
+    {
+      "name": "Movers + sentiment overlay",
+      "command": "movers brief",
+      "description": "Today's top gainers/losers with each ticker's 7d sentiment z-score from the local store.",
+      "rationale": "TOP_GAINERS_LOSERS API call LEFT JOIN local ticker_sentiment aggregated per ticker. Reveals whether moves are sentiment-driven or sentiment-free.",
+      "example": "alphavantage-pp-cli movers brief --side gainers --enrich sentiment --json",
+      "why_it_matters": "Pre-market intel: distinguish 'top gainer with strong recent positive sentiment' from 'top gainer with negative sentiment' (potential reversal).",
+      "group": "Cross-source briefings"
+    },
+    {
+      "name": "Macro snapshot",
+      "command": "macro snapshot",
+      "description": "Current CPI, Fed Funds Rate, Treasury Yield curve, Unemployment, Nonfarm Payroll in one card.",
+      "rationale": "Joins 5 economic-indicator endpoints with indicator-natural TTL caching (CPI monthly, etc.) so daily reruns cost 0 API calls after first.",
+      "example": "alphavantage-pp-cli macro snapshot --json",
+      "why_it_matters": "Daily macro context for /market-pulse in two API calls or fewer. Saves quota for ticker-level work.",
+      "group": "Cross-source briefings"
+    },
+    {
+      "name": "Watchlist sentiment with delta",
+      "command": "watchlist sentiment",
+      "description": "Per-ticker mean sentiment for a named watchlist, with delta-since-last-scan.",
+      "rationale": "Named persisted watchlists × ticker_sentiment history. Reads prior scan timestamp from sync_log; reports change for each ticker.",
+      "example": "alphavantage-pp-cli watchlist sentiment --name us-core --json",
+      "why_it_matters": "Weekly Sunday-night ritual: 'which of my 12 names shifted sentiment most this week' in one read.",
+      "group": "Watchlist intelligence"
+    },
+    {
+      "name": "Compound screen",
+      "command": "screen",
+      "description": "Filter tickers by multi-predicate (min sentiment, earnings within N days, recent insider net-buy) across local tables.",
+      "rationale": "Multi-predicate SQL across local ticker_sentiment (aggregated) + earnings_calendar + insider_transactions. No single API call expresses this.",
+      "example": "alphavantage-pp-cli screen --watchlist us-core --sentiment-min 0.2 --has-earnings-in 14d --insider-net-buy --json",
+      "why_it_matters": "Surface 'high-conviction setups' in a watchlist without external screeners. Uses only local data after sync.",
+      "group": "Watchlist intelligence"
+    },
+    {
+      "name": "Daily pulse bundle",
+      "command": "pulse us",
+      "description": "Designed for /market-pulse: top movers + macro snapshot + watchlist sentiment delta in \u003c=2 API calls.",
+      "rationale": "Explicit quota-aware orchestration: TOP_GAINERS_LOSERS (1 call cached daily) + macro snapshot (0 calls after first) + incremental watchlist news sync. Drops a full /market-pulse run from 10+ calls to \u003c=2.",
+      "example": "alphavantage-pp-cli pulse us --json",
+      "why_it_matters": "Run /market-pulse every weekday morning without exhausting the 25/day quota by lunch. The quota strategy IS the feature.",
+      "group": "Quota discipline"
+    },
+    {
+      "name": "Sync backbone",
+      "command": "sync news",
+      "description": "Pull-once-query-many: hydrate the local store with news, movers, or earnings calendar; incremental cursor avoids re-fetching.",
+      "rationale": "Incremental cursor (time_published for news, date for movers, quarter for fundamentals) stored in sync_log. Every other transcendence row depends on this existing.",
+      "example": "alphavantage-pp-cli sync news --watchlist us-core --since last --json",
+      "why_it_matters": "One burn of N calls hydrates the local store; the next 100 reads cost zero quota. The backbone for every other novel feature.",
+      "group": "Sync infrastructure"
+    }
+  ],
+  "narrative": {
+    "display_name": "Alpha Vantage",
+    "headline": "Every Alpha Vantage function, plus a local SQLite cache and quota-aware planning no other AV tool has.",
+    "value_prop": "Wraps all 106 Alpha Vantage functions (stocks, news sentiment, fundamentals, FX, crypto, commodities, economics, 45 technical indicators) and adds the local store + cross-call workflows wrappers cannot. The 25/day free-tier quota is the design constraint, not an afterthought: every call logs to local quota_log, `quota plan` previews call-cost before execution, and `pulse us` hydrates a full daily snapshot in two API calls or fewer.",
+    "auth_narrative": "Set `ALPHAVANTAGE_API_KEY` (or alias `ALPHA_VANTAGE_API_KEY`) in your env. Free key from https://www.alphavantage.co/support/#api-key. Free tier is 25 requests/day, but the CLI is built around that: one good `sync news` burn hydrates the local store and the next 100 reads cost zero quota. Use `doctor` to verify the key works and see remaining budget.",
+    "quickstart": [
+      {
+        "command": "alphavantage-pp-cli doctor",
+        "comment": "Confirm your API key works and see how many of today's 25 calls you've used."
+      },
+      {
+        "command": "alphavantage-pp-cli quota plan news sweep --tickers NVDA,AAPL,MSFT",
+        "comment": "Preview a command's quota cost BEFORE running it — critical on the free tier."
+      },
+      {
+        "command": "alphavantage-pp-cli news sweep --tickers NVDA,AAPL,MSFT --json",
+        "comment": "Pull NEWS_SENTIMENT for 3 tickers in one shot. Articles + ticker_sentiment[] arrays land in local SQLite."
+      },
+      {
+        "command": "alphavantage-pp-cli news timeline NVDA --days 30 --json",
+        "comment": "Now query the local store for 30-day sentiment trend. Zero API cost."
+      },
+      {
+        "command": "alphavantage-pp-cli news search \"AI agent\" --tickers NVDA --json",
+        "comment": "FTS5 search across pulled articles. Still zero API cost."
+      },
+      {
+        "command": "alphavantage-pp-cli movers brief --side gainers --enrich sentiment --json",
+        "comment": "Today's top gainers with their 7d sentiment z-score from local data."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`{\"Information\": \"...rate limit...\"}` or `{\"Note\": \"...\"}` in response",
+        "fix": "You hit the 25/day cap. Run `alphavantage-pp-cli quota status --json` to confirm. Wait for the reset (00:00 UTC) or query the local store instead — `news timeline`, `news search`, `screen`, `watchlist sentiment` all read locally."
+      },
+      {
+        "symptom": "Commands return empty data without error",
+        "fix": "Likely the silent rate-limit case — older wrapper bug. Run `alphavantage-pp-cli doctor --json` to verify and force-surface the response shape."
+      },
+      {
+        "symptom": "API key in `ALPHA_VANTAGE_API_KEY` not picked up",
+        "fix": "The CLI reads `ALPHAVANTAGE_API_KEY` first; `ALPHA_VANTAGE_API_KEY` is the alias. Either works; check `alphavantage-pp-cli doctor` for which one resolved."
+      },
+      {
+        "symptom": "Premium-only endpoint returns nothing on free tier",
+        "fix": "REALTIME_OPTIONS, REALTIME_BULK_QUOTES, TIME_SERIES_INTRADAY require premium. Use `query function=PREMIUM_FUNCTION ...` to confirm AV's exact response."
+      }
+    ],
+    "when_to_use": "Use this CLI any time the workflow involves Alpha Vantage's news sentiment, top movers, earnings calendar, or technical indicators. The killer use case is sentiment-aware research: combine news sweep with the local FTS5 store and you can answer 'how did sentiment on NVDA evolve before its last earnings spike?' without re-burning quota. Pair with `/stock-deep-dive` and `/market-pulse` from the broader stock-toolkit; the `pulse us` command is purpose-built for the morning briefing.",
+    "recipes": [
+      {
+        "title": "Pre-earnings sentiment + transcript check",
+        "command": "alphavantage-pp-cli briefing earnings AAPL --json --select symbol,upcoming_earnings_date,recent_articles_count,sentiment_7d_mean,last_transcript_highlights",
+        "explanation": "One command joins EARNINGS_CALENDAR, NEWS_SENTIMENT, and EARNINGS_CALL_TRANSCRIPT for a ticker. Use --select to narrow the response."
+      },
+      {
+        "title": "Top gainers minus low-sentiment names",
+        "command": "alphavantage-pp-cli movers brief --side gainers --enrich sentiment --agent --select results.ticker,results.change_percentage,results.sentiment_7d_z_score",
+        "explanation": "Pre-market intel: today's gainers ranked alongside their local sentiment z-score. Drop names with negative sentiment z (potential reversal)."
+      },
+      {
+        "title": "Watchlist sentiment delta since last scan",
+        "command": "alphavantage-pp-cli watchlist sentiment --name us-core --agent",
+        "explanation": "Reads named watchlist + recent ticker_sentiment history; reports per-ticker mean + change vs prior scan. Sunday-night ritual."
+      },
+      {
+        "title": "Compound screen: high-sentiment with upcoming earnings",
+        "command": "alphavantage-pp-cli screen --watchlist us-core --sentiment-min 0.2 --has-earnings-in 14d --agent",
+        "explanation": "Multi-predicate SQL across local tables. Surface high-conviction setups without external screeners."
+      },
+      {
+        "title": "Local FTS5 search for theme exposure",
+        "command": "alphavantage-pp-cli news search \"\\\\bdata center\\\\b OR cloud\" --tickers NVDA,AMD --from 2026-04-01 --agent --select results.title,results.url,results.ticker_sentiment",
+        "explanation": "Find articles mentioning a theme across pulled sentiment data. Regex word boundaries (\\\\b) match whole words. Zero API cost."
+      }
+    ],
+    "trigger_phrases": [
+      "alphavantage",
+      "alpha vantage",
+      "news sentiment X",
+      "sentiment for X",
+      "AV news",
+      "top movers",
+      "top gainers losers",
+      "X 情感分析",
+      "X 新闻情感",
+      "市场情绪",
+      "use alphavantage"
+    ]
+  }
+}

@@ -1,0 +1,4036 @@
+{
+  "api_name": "alphavantage",
+  "base_url": "https://www.alphavantage.co",
+  "description": "Every Alpha Vantage feature, plus local SQLite cache, FTS5 news search, and quota-aware planning no other Alpha Vantage tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey",
+    "format": "{ALPHAVANTAGE_API_KEY}",
+    "in": "query",
+    "env_vars": [
+      "ALPHAVANTAGE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ALPHAVANTAGE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.alphavantage.co/support/#api-key"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "calendar_earnings",
+      "description": "Earnings calendar for next 3/6/12 months (EARNINGS_CALENDAR, CSV). Optional: function (default: EARNINGS_CALENDAR), symbol, horizon (default: 3month) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Optional ticker filter"
+        },
+        {
+          "name": "horizon",
+          "type": "string",
+          "location": "query",
+          "description": "3month, 6month, or 12month"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (csv native)"
+        }
+      ]
+    },
+    {
+      "name": "calendar_ipo",
+      "description": "IPO calendar for the next 3 months (IPO_CALENDAR, CSV). Optional: function (default: IPO_CALENDAR), datatype (default: csv).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (csv native)"
+        }
+      ]
+    },
+    {
+      "name": "commodities_all",
+      "description": "All commodities at once (ALL_COMMODITIES). Optional: function (default: ALL_COMMODITIES), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_aluminum",
+      "description": "Global aluminum price. Optional: function (default: ALUMINUM), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_brent",
+      "description": "Brent crude oil. Optional: function (default: BRENT), interval (default: monthly), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "daily, weekly, or monthly"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "commodities_coffee",
+      "description": "Global coffee price. Optional: function (default: COFFEE), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_copper",
+      "description": "Global copper price. Optional: function (default: COPPER), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_corn",
+      "description": "Global corn price. Optional: function (default: CORN), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_cotton",
+      "description": "Global cotton price. Optional: function (default: COTTON), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_gold-silver-history",
+      "description": "Historical gold and silver prices (GOLD_SILVER_HISTORY). Optional: function (default: GOLD_SILVER_HISTORY), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "daily, weekly, or monthly"
+        }
+      ]
+    },
+    {
+      "name": "commodities_gold-silver-spot",
+      "description": "Live gold and silver spot prices (GOLD_SILVER_SPOT). Optional: function (default: GOLD_SILVER_SPOT).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "commodities_natural-gas",
+      "description": "Henry Hub natural gas spot. Optional: function (default: NATURAL_GAS), interval (default: monthly), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "daily, weekly, or monthly"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "commodities_sugar",
+      "description": "Global sugar price. Optional: function (default: SUGAR), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_wheat",
+      "description": "Global wheat price. Optional: function (default: WHEAT), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly, quarterly, or annual"
+        }
+      ]
+    },
+    {
+      "name": "commodities_wti",
+      "description": "West Texas Intermediate crude oil (WTI). Optional: function (default: WTI), interval (default: monthly), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "daily, weekly, or monthly"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "crypto_daily",
+      "description": "Daily crypto time series (DIGITAL_CURRENCY_DAILY). Required: symbol. Optional: function (default: DIGITAL_CURRENCY_DAILY), market (default: USD).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Quote market"
+        }
+      ]
+    },
+    {
+      "name": "crypto_intraday",
+      "description": "Intraday crypto time series (DIGITAL_CURRENCY_INTRADAY). Required: symbol. Optional: function (default: CRYPTO_INTRADAY), market (default: USD), interval (default: 5min) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol (e.g., BTC, ETH)",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Quote market (e.g., USD, EUR, CNY)"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Interval (1min, 5min, 15min, 30min, 60min)"
+        },
+        {
+          "name": "outputsize",
+          "type": "string",
+          "location": "query",
+          "description": "compact or full"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "crypto_monthly",
+      "description": "Monthly crypto time series (DIGITAL_CURRENCY_MONTHLY). Required: symbol. Optional: function (default: DIGITAL_CURRENCY_MONTHLY), market (default: USD).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Quote market"
+        }
+      ]
+    },
+    {
+      "name": "crypto_rate",
+      "description": "Realtime exchange rate between two currencies, crypto or fiat (CURRENCY_EXCHANGE_RATE). Required: from_currency, to_currency. Optional: function (default: CURRENCY_EXCHANGE_RATE).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "from_currency",
+          "type": "string",
+          "location": "path",
+          "description": "From currency (e.g., BTC)",
+          "required": true
+        },
+        {
+          "name": "to_currency",
+          "type": "string",
+          "location": "path",
+          "description": "To currency (e.g., USD)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "crypto_weekly",
+      "description": "Weekly crypto time series (DIGITAL_CURRENCY_WEEKLY). Required: symbol. Optional: function (default: DIGITAL_CURRENCY_WEEKLY), market (default: USD).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Crypto symbol",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Quote market"
+        }
+      ]
+    },
+    {
+      "name": "earnings_transcript",
+      "description": "Earnings call transcript with LLM-generated speaker sentiment. Required: symbol. Optional: function (default: EARNINGS_CALL_TRANSCRIPT), quarter.",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "quarter",
+          "type": "string",
+          "location": "query",
+          "description": "Quarter in YYYYQN format (e.g., 2025Q4)"
+        }
+      ]
+    },
+    {
+      "name": "econ_cpi",
+      "description": "Consumer Price Index (CPI). Optional: function (default: CPI), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "monthly or semiannual"
+        }
+      ]
+    },
+    {
+      "name": "econ_durables",
+      "description": "US durable goods orders (DURABLES, monthly). Optional: function (default: DURABLES).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "econ_federal-funds-rate",
+      "description": "Federal funds rate (FEDERAL_FUNDS_RATE). Optional: function (default: FEDERAL_FUNDS_RATE), interval (default: monthly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "daily, weekly, or monthly"
+        }
+      ]
+    },
+    {
+      "name": "econ_inflation",
+      "description": "US inflation rate (INFLATION, annual). Optional: function (default: INFLATION).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "econ_nonfarm-payroll",
+      "description": "US nonfarm payroll (NONFARM_PAYROLL, monthly). Optional: function (default: NONFARM_PAYROLL).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "econ_real-gdp",
+      "description": "Real Gross Domestic Product (REAL_GDP). Optional: function (default: REAL_GDP), interval (default: quarterly).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "quarterly or annual"
+        }
+      ]
+    },
+    {
+      "name": "econ_real-gdp-per-capita",
+      "description": "Real GDP per capita (REAL_GDP_PER_CAPITA). Optional: function (default: REAL_GDP_PER_CAPITA).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "econ_retail-sales",
+      "description": "US retail sales (RETAIL_SALES, monthly). Optional: function (default: RETAIL_SALES).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "econ_treasury-yield",
+      "description": "US Treasury yield rates (TREASURY_YIELD). Optional: function (default: TREASURY_YIELD), interval (default: daily), maturity (default: 10year).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "daily, weekly, or monthly"
+        },
+        {
+          "name": "maturity",
+          "type": "string",
+          "location": "query",
+          "description": "Maturity: 3month, 2year, 5year, 7year, 10year, 30year"
+        }
+      ]
+    },
+    {
+      "name": "econ_unemployment",
+      "description": "US unemployment rate (UNEMPLOYMENT, monthly). Optional: function (default: UNEMPLOYMENT).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_balance",
+      "description": "Annual and quarterly balance sheets (BALANCE_SHEET). Required: symbol. Optional: function (default: BALANCE_SHEET).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_cashflow",
+      "description": "Annual and quarterly cash flow statements (CASH_FLOW). Required: symbol. Optional: function (default: CASH_FLOW).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_dividends",
+      "description": "Historical dividend payments (DIVIDENDS). Required: symbol. Optional: function (default: DIVIDENDS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_earnings",
+      "description": "Historical earnings (EPS) data (EARNINGS). Required: symbol. Optional: function (default: EARNINGS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_earnings-estimates",
+      "description": "Projected earnings estimates (EARNINGS_ESTIMATES). Required: symbol. Optional: function (default: EARNINGS_ESTIMATES).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_etf",
+      "description": "ETF profile and holdings (ETF_PROFILE). Required: symbol. Optional: function (default: ETF_PROFILE).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "ETF ticker (e.g., SPY, QQQ)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_income",
+      "description": "Annual and quarterly income statements (INCOME_STATEMENT). Required: symbol. Optional: function (default: INCOME_STATEMENT).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_listings",
+      "description": "Listing/delisting status snapshot (LISTING_STATUS, CSV). Optional: function (default: LISTING_STATUS), date, state (default: active) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYY-MM-DD"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "active or delisted"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (csv native for this endpoint)"
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_overview",
+      "description": "Company profile, ratios, and metrics (COMPANY_OVERVIEW). Required: symbol. Optional: function (default: OVERVIEW).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_shares",
+      "description": "Outstanding share count (SHARES_OUTSTANDING). Required: symbol. Optional: function (default: SHARES_OUTSTANDING).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fundamentals_splits",
+      "description": "Stock split history (SPLITS). Required: symbol. Optional: function (default: SPLITS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fx_daily",
+      "description": "Daily FX rates (FX_DAILY). Required: from_symbol, to_symbol. Optional: function (default: FX_DAILY), outputsize (default: compact), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "from_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "From currency code",
+          "required": true
+        },
+        {
+          "name": "to_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "To currency code",
+          "required": true
+        },
+        {
+          "name": "outputsize",
+          "type": "string",
+          "location": "query",
+          "description": "compact or full"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "fx_intraday",
+      "description": "Intraday FX (FX_INTRADAY, premium for full history). Required: from_symbol, to_symbol. Optional: function (default: FX_INTRADAY), interval (default: 5min), outputsize (default: compact) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "from_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "From currency code (e.g., USD)",
+          "required": true
+        },
+        {
+          "name": "to_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "To currency code (e.g., JPY)",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Interval (1min, 5min, 15min, 30min, 60min)"
+        },
+        {
+          "name": "outputsize",
+          "type": "string",
+          "location": "query",
+          "description": "compact or full"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "fx_monthly",
+      "description": "Monthly FX rates (FX_MONTHLY). Required: from_symbol, to_symbol. Optional: function (default: FX_MONTHLY), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "from_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "From currency code",
+          "required": true
+        },
+        {
+          "name": "to_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "To currency code",
+          "required": true
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "fx_weekly",
+      "description": "Weekly FX rates (FX_WEEKLY). Required: from_symbol, to_symbol. Optional: function (default: FX_WEEKLY), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "from_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "From currency code",
+          "required": true
+        },
+        {
+          "name": "to_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "To currency code",
+          "required": true
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ad",
+      "description": "Chaikin A/D Line (AD). Required: symbol. Optional: function (default: AD), interval (default: daily), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_adosc",
+      "description": "Chaikin A/D Oscillator (ADOSC). Required: symbol. Optional: function (default: ADOSC), interval (default: daily), fastperiod (default: 3) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "fastperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast period"
+        },
+        {
+          "name": "slowperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow period"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_adx",
+      "description": "ADX technical indicator. Required: symbol. Optional: function (default: ADX), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_adxr",
+      "description": "ADXR technical indicator. Required: symbol. Optional: function (default: ADXR), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_apo",
+      "description": "APO technical indicator. Required: symbol. Optional: function (default: APO), interval (default: daily), series_type (default: close) (plus 4 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "fastperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast period"
+        },
+        {
+          "name": "slowperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow period"
+        },
+        {
+          "name": "matype",
+          "type": "int",
+          "location": "query",
+          "description": "MA type 0-8"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_aroon",
+      "description": "AROON technical indicator. Required: symbol. Optional: function (default: AROON), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_aroonosc",
+      "description": "AROONOSC technical indicator. Required: symbol. Optional: function (default: AROONOSC), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_atr",
+      "description": "ATR technical indicator. Required: symbol. Optional: function (default: ATR), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_bbands",
+      "description": "Bollinger Bands (BBANDS). Required: symbol. Optional: function (default: BBANDS), interval (default: daily), time_period (default: 20) (plus 5 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "nbdevup",
+          "type": "int",
+          "location": "query",
+          "description": "Upper std dev multiplier"
+        },
+        {
+          "name": "nbdevdn",
+          "type": "int",
+          "location": "query",
+          "description": "Lower std dev multiplier"
+        },
+        {
+          "name": "matype",
+          "type": "int",
+          "location": "query",
+          "description": "MA type 0-8"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_bop",
+      "description": "BOP technical indicator. Required: symbol. Optional: function (default: BOP), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_cci",
+      "description": "CCI technical indicator. Required: symbol. Optional: function (default: CCI), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_cmo",
+      "description": "CMO technical indicator. Required: symbol. Optional: function (default: CMO), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_dema",
+      "description": "DEMA technical indicator. Required: symbol. Optional: function (default: DEMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_dx",
+      "description": "DX technical indicator. Required: symbol. Optional: function (default: DX), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ema",
+      "description": "EMA technical indicator. Required: symbol. Optional: function (default: EMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ht-dcperiod",
+      "description": "HT_DCPERIOD Hilbert transform indicator. Required: symbol. Optional: function (default: HT_DCPERIOD), interval (default: daily), series_type (default: close) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ht-dcphase",
+      "description": "HT_DCPHASE Hilbert transform indicator. Required: symbol. Optional: function (default: HT_DCPHASE), interval (default: daily), series_type (default: close) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ht-phasor",
+      "description": "HT_PHASOR Hilbert transform indicator. Required: symbol. Optional: function (default: HT_PHASOR), interval (default: daily), series_type (default: close) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ht-sine",
+      "description": "HT_SINE Hilbert transform indicator. Required: symbol. Optional: function (default: HT_SINE), interval (default: daily), series_type (default: close) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ht-trendline",
+      "description": "HT_TRENDLINE Hilbert transform indicator. Required: symbol. Optional: function (default: HT_TRENDLINE), interval (default: daily), series_type (default: close) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ht-trendmode",
+      "description": "HT_TRENDMODE Hilbert transform indicator. Required: symbol. Optional: function (default: HT_TRENDMODE), interval (default: daily), series_type (default: close) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_kama",
+      "description": "KAMA technical indicator. Required: symbol. Optional: function (default: KAMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_macd",
+      "description": "Moving Average Convergence/Divergence (MACD). Required: symbol. Optional: function (default: MACD), interval (default: daily), series_type (default: close) (plus 4 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "fastperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast period (default 12)"
+        },
+        {
+          "name": "slowperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow period (default 26)"
+        },
+        {
+          "name": "signalperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Signal period (default 9)"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_macdext",
+      "description": "MACD with controllable MA types (MACDEXT). Required: symbol. Optional: function (default: MACDEXT), interval (default: daily), series_type (default: close) (plus 7 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "fastperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast period"
+        },
+        {
+          "name": "slowperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow period"
+        },
+        {
+          "name": "signalperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Signal period"
+        },
+        {
+          "name": "fastmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Fast MA type 0-8"
+        },
+        {
+          "name": "slowmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Slow MA type 0-8"
+        },
+        {
+          "name": "signalmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Signal MA type 0-8"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_mama",
+      "description": "MESA Adaptive Moving Average (MAMA). Required: symbol. Optional: function (default: MAMA), interval (default: daily), series_type (default: close) (plus 3 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "fastlimit",
+          "type": "float",
+          "location": "query",
+          "description": "Fast limit (default 0.01)"
+        },
+        {
+          "name": "slowlimit",
+          "type": "float",
+          "location": "query",
+          "description": "Slow limit (default 0.01)"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_mfi",
+      "description": "MFI technical indicator. Required: symbol. Optional: function (default: MFI), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_midpoint",
+      "description": "MIDPOINT technical indicator. Required: symbol. Optional: function (default: MIDPOINT), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_midprice",
+      "description": "MIDPRICE technical indicator. Required: symbol. Optional: function (default: MIDPRICE), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_minus-di",
+      "description": "MINUS_DI technical indicator. Required: symbol. Optional: function (default: MINUS_DI), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_minus-dm",
+      "description": "MINUS_DM technical indicator. Required: symbol. Optional: function (default: MINUS_DM), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_mom",
+      "description": "MOM technical indicator. Required: symbol. Optional: function (default: MOM), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_natr",
+      "description": "NATR technical indicator. Required: symbol. Optional: function (default: NATR), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_obv",
+      "description": "On Balance Volume (OBV). Required: symbol. Optional: function (default: OBV), interval (default: daily), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_plus-di",
+      "description": "PLUS_DI technical indicator. Required: symbol. Optional: function (default: PLUS_DI), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_plus-dm",
+      "description": "PLUS_DM technical indicator. Required: symbol. Optional: function (default: PLUS_DM), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ppo",
+      "description": "PPO technical indicator. Required: symbol. Optional: function (default: PPO), interval (default: daily), series_type (default: close) (plus 4 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "fastperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast period"
+        },
+        {
+          "name": "slowperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow period"
+        },
+        {
+          "name": "matype",
+          "type": "int",
+          "location": "query",
+          "description": "MA type 0-8"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_roc",
+      "description": "ROC technical indicator. Required: symbol. Optional: function (default: ROC), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_rocr",
+      "description": "ROCR technical indicator. Required: symbol. Optional: function (default: ROCR), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_rsi",
+      "description": "RSI technical indicator. Required: symbol. Optional: function (default: RSI), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_sar",
+      "description": "Parabolic SAR (SAR). Required: symbol. Optional: function (default: SAR), interval (default: daily), acceleration (default: 0.02) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "acceleration",
+          "type": "float",
+          "location": "query",
+          "description": "Acceleration factor"
+        },
+        {
+          "name": "maximum",
+          "type": "float",
+          "location": "query",
+          "description": "Max acceleration"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_sma",
+      "description": "SMA technical indicator. Required: symbol. Optional: function (default: SMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_stoch",
+      "description": "Stochastic oscillator (STOCH). Required: symbol. Optional: function (default: STOCH), interval (default: daily), fastkperiod (default: 5) (plus 5 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "fastkperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %K period"
+        },
+        {
+          "name": "slowkperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow %K period"
+        },
+        {
+          "name": "slowdperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Slow %D period"
+        },
+        {
+          "name": "slowkmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Slow %K MA type"
+        },
+        {
+          "name": "slowdmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Slow %D MA type"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_stochf",
+      "description": "Stochastic fast (STOCHF). Required: symbol. Optional: function (default: STOCHF), interval (default: daily), fastkperiod (default: 5) (plus 3 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "fastkperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %K period"
+        },
+        {
+          "name": "fastdperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %D period"
+        },
+        {
+          "name": "fastdmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %D MA type"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_stochrsi",
+      "description": "Stochastic RSI (STOCHRSI). Required: symbol. Optional: function (default: STOCHRSI), interval (default: daily), time_period (default: 14) (plus 5 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points for RSI calculation"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "fastkperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %K period"
+        },
+        {
+          "name": "fastdperiod",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %D period"
+        },
+        {
+          "name": "fastdmatype",
+          "type": "int",
+          "location": "query",
+          "description": "Fast %D MA type"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_t3",
+      "description": "T3 technical indicator. Required: symbol. Optional: function (default: T3), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_tema",
+      "description": "TEMA technical indicator. Required: symbol. Optional: function (default: TEMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_trange",
+      "description": "TRANGE technical indicator. Required: symbol. Optional: function (default: TRANGE), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_trima",
+      "description": "TRIMA technical indicator. Required: symbol. Optional: function (default: TRIMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_trix",
+      "description": "TRIX technical indicator. Required: symbol. Optional: function (default: TRIX), interval (default: daily), time_period (default: 14) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "Price series"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_ultosc",
+      "description": "Ultimate Oscillator (ULTOSC). Required: symbol. Optional: function (default: ULTOSC), interval (default: daily), timeperiod1 (default: 7) (plus 3 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "timeperiod1",
+          "type": "int",
+          "location": "query",
+          "description": "Period 1"
+        },
+        {
+          "name": "timeperiod2",
+          "type": "int",
+          "location": "query",
+          "description": "Period 2"
+        },
+        {
+          "name": "timeperiod3",
+          "type": "int",
+          "location": "query",
+          "description": "Period 3"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_vwap",
+      "description": "Volume Weighted Average Price (VWAP, intraday only). Required: symbol. Optional: function (default: VWAP), interval (default: 5min), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_willr",
+      "description": "WILLR technical indicator. Required: symbol. Optional: function (default: WILLR), interval (default: daily), time_period (default: 14) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "indicator_wma",
+      "description": "WMA technical indicator. Required: symbol. Optional: function (default: WMA), interval (default: daily), time_period (default: 20) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "1min, 5min, 15min, 30min, 60min, daily, weekly, monthly"
+        },
+        {
+          "name": "time_period",
+          "type": "int",
+          "location": "query",
+          "description": "Number of data points to compute (e.g., 20, 50, 200)"
+        },
+        {
+          "name": "series_type",
+          "type": "string",
+          "location": "query",
+          "description": "close, open, high, low"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "insider_transactions",
+      "description": "Latest and historical insider transactions for a ticker (INSIDER_TRANSACTIONS). Required: symbol. Optional: function (default: INSIDER_TRANSACTIONS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "institutional_holdings",
+      "description": "Institutional holdings for a ticker (INSTITUTIONAL_HOLDINGS). Required: symbol. Optional: function (default: INSTITUTIONAL_HOLDINGS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_status",
+      "description": "Open/close status for major global equity markets (MARKET_STATUS). Optional: function (default: MARKET_STATUS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "movers_top",
+      "description": "Top 20 gainers, losers, and most actively traded US tickers. Optional: function (default: TOP_GAINERS_LOSERS).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        }
+      ]
+    },
+    {
+      "name": "news_sentiment",
+      "description": "Live and historical market news with per-ticker sentiment scores (NEWS_SENTIMENT). Optional: function (default: NEWS_SENTIMENT), tickers, topics (plus 4 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "tickers",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated tickers (e.g., AAPL,MSFT,NVDA)"
+        },
+        {
+          "name": "topics",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated topics (technology, earnings, ipo, mergers_and_acquisitions, financial_markets, economy_fiscal, economy_monetary, economy_macro, energy_transportation, finance, life_sciences, manufacturing, real_estate, retail_wholesale, blockchain)"
+        },
+        {
+          "name": "time_from",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound, format YYYYMMDDTHHMM (e.g., 20260101T0000)"
+        },
+        {
+          "name": "time_to",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound, format YYYYMMDDTHHMM"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: LATEST | EARLIEST | RELEVANCE"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max items (1-1000)"
+        }
+      ]
+    },
+    {
+      "name": "options_historical",
+      "description": "Historical options chain (HISTORICAL_OPTIONS, 15+ years). Required: symbol. Optional: function (default: HISTORICAL_OPTIONS), date, datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Underlying ticker",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date in YYYY-MM-DD (default: latest available)"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "options_realtime",
+      "description": "Realtime US options chain with Greeks and IV (REALTIME_OPTIONS, premium). Required: symbol. Optional: function (default: REALTIME_OPTIONS), contract, require_greeks (default: false) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function (REALTIME_OPTIONS or with --fmv REALTIME_OPTIONS_FMV)"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Underlying ticker",
+          "required": true
+        },
+        {
+          "name": "contract",
+          "type": "string",
+          "location": "query",
+          "description": "Specific contract symbol (filters chain)"
+        },
+        {
+          "name": "require_greeks",
+          "type": "bool",
+          "location": "query",
+          "description": "Require Greeks/IV in response"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "query_raw",
+      "description": "Pass-through to any Alpha Vantage function with arbitrary params. Required: function. Optional: symbol, tickers, interval (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Any Alpha Vantage function name (e.g., REALTIME_OPTIONS, ANALYTICS_FIXED_WINDOW)",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Symbol if applicable"
+        },
+        {
+          "name": "tickers",
+          "type": "string",
+          "location": "query",
+          "description": "Tickers if applicable"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Interval if applicable"
+        },
+        {
+          "name": "outputsize",
+          "type": "string",
+          "location": "query",
+          "description": "compact or full"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "json or csv"
+        }
+      ]
+    },
+    {
+      "name": "quote_bulk",
+      "description": "Realtime quotes for up to 100 US symbols (premium tier). Required: symbol. Optional: function (default: REALTIME_BULK_QUOTES).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated tickers up to 100 (e.g., AAPL,MSFT,NVDA)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "quote_get",
+      "description": "Latest price and volume for a single ticker (GLOBAL_QUOTE). Required: symbol. Optional: function (default: GLOBAL_QUOTE), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function (defaults to GLOBAL_QUOTE)"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker (e.g., AAPL, NVDA, MSFT)",
+          "required": true
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json or csv)"
+        }
+      ]
+    },
+    {
+      "name": "series_daily",
+      "description": "Daily OHLCV time series (20+ years; --adjusted requires premium). Required: symbol. Optional: function (default: TIME_SERIES_DAILY), adjusted (default: false), outputsize (default: compact) (plus 1 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function (TIME_SERIES_DAILY or TIME_SERIES_DAILY_ADJUSTED)"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "adjusted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, requests TIME_SERIES_DAILY_ADJUSTED (premium)"
+        },
+        {
+          "name": "outputsize",
+          "type": "string",
+          "location": "query",
+          "description": "compact (last 100 datapoints) or full (entire history)"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json or csv)"
+        }
+      ]
+    },
+    {
+      "name": "series_intraday",
+      "description": "Intraday OHLCV time series at 1/5/15/30/60-min intervals (premium for full 20y history). Required: symbol. Optional: function (default: TIME_SERIES_INTRADAY), interval (default: 5min), adjusted (default: true) (plus 4 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Time interval (1min, 5min, 15min, 30min, 60min)"
+        },
+        {
+          "name": "adjusted",
+          "type": "bool",
+          "location": "query",
+          "description": "Adjust for splits/dividends"
+        },
+        {
+          "name": "extended_hours",
+          "type": "bool",
+          "location": "query",
+          "description": "Include pre/post-market data"
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "query",
+          "description": "Specific month in YYYY-MM (for historical slicing)"
+        },
+        {
+          "name": "outputsize",
+          "type": "string",
+          "location": "query",
+          "description": "compact (last 100 datapoints) or full (entire history)"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json or csv)"
+        }
+      ]
+    },
+    {
+      "name": "series_monthly",
+      "description": "Monthly OHLCV time series (--adjusted adds dividend events). Required: symbol. Optional: function (default: TIME_SERIES_MONTHLY), adjusted (default: false), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function (TIME_SERIES_MONTHLY or TIME_SERIES_MONTHLY_ADJUSTED)"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "adjusted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, requests TIME_SERIES_MONTHLY_ADJUSTED"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json or csv)"
+        }
+      ]
+    },
+    {
+      "name": "series_weekly",
+      "description": "Weekly OHLCV time series (--adjusted adds dividend events). Required: symbol. Optional: function (default: TIME_SERIES_WEEKLY), adjusted (default: false), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function (TIME_SERIES_WEEKLY or TIME_SERIES_WEEKLY_ADJUSTED)"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Stock ticker",
+          "required": true
+        },
+        {
+          "name": "adjusted",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, requests TIME_SERIES_WEEKLY_ADJUSTED"
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json or csv)"
+        }
+      ]
+    },
+    {
+      "name": "tickers_lookup",
+      "description": "Search for tickers by keywords with match scoring (SYMBOL_SEARCH). Required: keywords. Optional: function (default: SYMBOL_SEARCH), datatype (default: json).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "path",
+          "description": "Search keywords (e.g., 'apple', 'tesla')",
+          "required": true
+        },
+        {
+          "name": "datatype",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json or csv)"
+        }
+      ]
+    },
+    {
+      "name": "windows_fixed",
+      "description": "Fixed-window analytics: MEAN/STDDEV/CORRELATION across multiple tickers (ANALYTICS_FIXED_WINDOW). Required: tickers. Optional: function (default: ANALYTICS_FIXED_WINDOW), range (default: full), interval (default: DAILY) (plus 2 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "tickers",
+          "wire_name": "SYMBOLS",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated tickers (e.g., AAPL,MSFT,IBM)",
+          "required": true,
+          "aliases": [
+            "symbols"
+          ]
+        },
+        {
+          "name": "range",
+          "wire_name": "RANGE",
+          "type": "string",
+          "location": "query",
+          "description": "Time range (full, 1day, 1week, 1month, 3month, 1year, etc.)"
+        },
+        {
+          "name": "interval",
+          "wire_name": "INTERVAL",
+          "type": "string",
+          "location": "query",
+          "description": "Interval: 1min, 5min, 15min, 30min, 60min, DAILY, WEEKLY, MONTHLY"
+        },
+        {
+          "name": "ohlc",
+          "wire_name": "OHLC",
+          "type": "string",
+          "location": "query",
+          "description": "Price field: open, high, low, close"
+        },
+        {
+          "name": "calculations",
+          "wire_name": "CALCULATIONS",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated calculations: MIN, MAX, MEAN, MEDIAN, CUMULATIVE_RETURN, VARIANCE, STDDEV, MAX_DRAWDOWN, HISTOGRAM, AUTOCORRELATION, COVARIANCE, CORRELATION"
+        }
+      ]
+    },
+    {
+      "name": "windows_sliding",
+      "description": "Sliding-window analytics across multiple tickers (ANALYTICS_SLIDING_WINDOW). Required: tickers. Optional: function (default: ANALYTICS_SLIDING_WINDOW), range (default: full), interval (default: DAILY) (plus 3 more).",
+      "method": "GET",
+      "path": "/query",
+      "params": [
+        {
+          "name": "function",
+          "type": "string",
+          "location": "query",
+          "description": "Alpha Vantage function"
+        },
+        {
+          "name": "tickers",
+          "wire_name": "SYMBOLS",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated tickers",
+          "required": true,
+          "aliases": [
+            "symbols"
+          ]
+        },
+        {
+          "name": "range",
+          "wire_name": "RANGE",
+          "type": "string",
+          "location": "query",
+          "description": "Time range"
+        },
+        {
+          "name": "interval",
+          "wire_name": "INTERVAL",
+          "type": "string",
+          "location": "query",
+          "description": "Interval"
+        },
+        {
+          "name": "ohlc",
+          "wire_name": "OHLC",
+          "type": "string",
+          "location": "query",
+          "description": "Price field"
+        },
+        {
+          "name": "window-size",
+          "wire_name": "WINDOW_SIZE",
+          "type": "int",
+          "location": "query",
+          "description": "Sliding window size in datapoints"
+        },
+        {
+          "name": "calculations",
+          "wire_name": "CALCULATIONS",
+          "type": "string",
+          "location": "query",
+          "description": "Calculations (see fixed)"
+        }
+      ]
+    }
+  ]
+}
