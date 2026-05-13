@@ -12,7 +12,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -29,10 +28,13 @@ func newPlaylistsMergeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "merge <src-1> <src-2> [...] --into <dest>",
 		Short: "Merge multiple playlists into one with dedupe",
-		Long: `Reads source playlists' tracks, dedupes, orders them per --order, and POSTs
-them to --into in 100-track chunks. Mutates the destination on every run.
-Pass the global --dry-run flag to preview the planned operation as JSON
-without writing anything.`,
+		Long: `Reads source playlists' tracks (paginated), dedupes across sources via
+--dedupe-by, orders them per --order, and writes the result to --into.
+The first chunk uses PUT /playlists/{id}/tracks which REPLACES the
+destination's current contents; subsequent chunks (for merges > 100
+tracks) append. Re-running with the same sources produces the same
+destination state (idempotent); switching sources cleanly replaces.
+Pass the global --dry-run flag to preview without writing.`,
 		Example: "  spotify-pp-cli playlists merge 37i9dQZF1DXcBWIGoYBM5M 37i9dQZF1DX0XUsuxWHRQd --into 1xL2KvJlHWXKxLrYrmEZ7K",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {
@@ -74,32 +76,18 @@ without writing anything.`,
 				AddedAt string
 				Name    string
 			}
+			// Paginate each source via /playlists/{id}/tracks so playlists
+			// with more than 100 tracks contribute their full contents to
+			// the merge (the embedded tracks field on GET /playlists/{id}
+			// caps at 100 and would silently drop the tail).
 			var plan []trackEntry
 			for _, src := range args {
 				srcID := bareID(src)
-				data, err := c.Get("/playlists/"+srcID, nil)
+				_, _, _, items, err := fetchFullPlaylist(c, srcID)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
-				var pl struct {
-					Tracks struct {
-						Items []struct {
-							AddedAt string `json:"added_at"`
-							Track   struct {
-								ID          string `json:"id"`
-								URI         string `json:"uri"`
-								Name        string `json:"name"`
-								ExternalIDs struct {
-									ISRC string `json:"isrc"`
-								} `json:"external_ids"`
-							} `json:"track"`
-						} `json:"items"`
-					} `json:"tracks"`
-				}
-				if err := json.Unmarshal(data, &pl); err != nil {
-					return fmt.Errorf("decoding source playlist %s: %w", srcID, err)
-				}
-				for _, item := range pl.Tracks.Items {
+				for _, item := range items {
 					plan = append(plan, trackEntry{
 						URI:     item.Track.URI,
 						ID:      item.Track.ID,
@@ -145,16 +133,35 @@ without writing anything.`,
 				}
 			}
 
-			// POST in chunks of 100.
+			// Write to destination in 100-track chunks. The first chunk uses
+			// PUT /playlists/{id}/tracks which REPLACES the destination's
+			// existing contents — otherwise re-running merge silently doubles
+			// the destination because POST only appends. Subsequent chunks
+			// use POST to append. Net effect: re-running with the same sources
+			// produces the same destination state (idempotent), and switching
+			// sources cleanly replaces.
 			const chunkSize = 100
 			added := 0
+			if len(uris) == 0 {
+				// Nothing to write; explicit empty PUT clears the destination
+				// so re-running with empty sources also stays idempotent.
+				_, _, err := c.Put("/playlists/"+destPlaylist+"/tracks", map[string]any{"uris": []string{}})
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+			}
 			for i := 0; i < len(uris); i += chunkSize {
 				end := i + chunkSize
 				if end > len(uris) {
 					end = len(uris)
 				}
 				body := map[string]any{"uris": uris[i:end]}
-				_, _, err := c.Post("/playlists/"+destPlaylist+"/tracks", body)
+				var err error
+				if i == 0 {
+					_, _, err = c.Put("/playlists/"+destPlaylist+"/tracks", body)
+				} else {
+					_, _, err = c.Post("/playlists/"+destPlaylist+"/tracks", body)
+				}
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}

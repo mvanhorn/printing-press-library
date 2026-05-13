@@ -47,6 +47,61 @@ func openTranscendenceStore(ctx context.Context) (*store.Store, error) {
 	return db, nil
 }
 
+// playlistTrackItem mirrors a row from /playlists/{id}/tracks. Defined once
+// so the three commands that consume full playlist contents (T1 diff,
+// T2 dedupe, T3 merge) share a single track shape.
+type playlistTrackItem struct {
+	AddedAt string `json:"added_at"`
+	AddedBy struct {
+		ID string `json:"id"`
+	} `json:"added_by"`
+	Track struct {
+		ID      string `json:"id"`
+		URI     string `json:"uri"`
+		Name    string `json:"name"`
+		Artists []struct {
+			Name string `json:"name"`
+		} `json:"artists"`
+		ExternalIDs struct {
+			ISRC string `json:"isrc"`
+		} `json:"external_ids"`
+	} `json:"track"`
+}
+
+// fetchFullPlaylist returns a playlist's metadata + every track row,
+// paginating /playlists/{id}/tracks to bypass the 100-item embed cap on
+// GET /playlists/{id}. Calls one metadata fetch (with ?fields= to keep
+// the payload small) and one paginated /tracks fetch. Both commands
+// that snapshot a playlist (T1, T2) and the source-walking pass in T3
+// route through here so the truncation cannot recur per call-site.
+func fetchFullPlaylist(c *client.Client, playlistID string) (id, name, snapshotID string, items []playlistTrackItem, err error) {
+	metaData, err := c.Get("/playlists/"+playlistID+"?fields=id,name,snapshot_id", nil)
+	if err != nil {
+		return "", "", "", nil, err
+	}
+	var meta struct {
+		ID         string `json:"id"`
+		Name       string `json:"name"`
+		SnapshotID string `json:"snapshot_id"`
+	}
+	if err := json.Unmarshal(metaData, &meta); err != nil {
+		return "", "", "", nil, fmt.Errorf("decoding playlist metadata: %w", err)
+	}
+
+	raw, err := fetchAllPaged(c, "/playlists/"+playlistID+"/tracks", map[string]string{"limit": "50"}, 0)
+	if err != nil {
+		return meta.ID, meta.Name, meta.SnapshotID, nil, fmt.Errorf("paginating /playlists/%s/tracks: %w", playlistID, err)
+	}
+	items = make([]playlistTrackItem, 0, len(raw))
+	for _, r := range raw {
+		var item playlistTrackItem
+		if json.Unmarshal(r, &item) == nil {
+			items = append(items, item)
+		}
+	}
+	return meta.ID, meta.Name, meta.SnapshotID, items, nil
+}
+
 // fetchAllPaged repeatedly hits a Spotify list endpoint following `next`
 // cursors until exhausted or `limit` items collected. Returns the merged
 // `items` array as raw JSON.

@@ -5,7 +5,7 @@
   "api_name": "spotify",
   "display_name": "Spotify Web",
   "cli_name": "spotify-pp-cli",
-  "owner": "rob-coco",
+  "owner": "sonallux",
   "printer": "rob-coco",
   "printer_name": "Rob Zehner",
   "spec_path": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260512-184940/research/spotify-openapi.yml",

@@ -11,7 +11,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -62,38 +61,18 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/playlists/"+playlistID, nil)
+			// Paginate /playlists/{id}/tracks to avoid the 100-item embed cap
+			// on GET /playlists/{id}; otherwise we silently dedupe only the
+			// first 100 tracks of any larger playlist.
+			plID, _, snapshotID, items, err := fetchFullPlaylist(c, playlistID)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			var pl struct {
-				ID         string `json:"id"`
-				SnapshotID string `json:"snapshot_id"`
-				Tracks     struct {
-					Items []struct {
-						AddedAt string `json:"added_at"`
-						Track   struct {
-							ID      string `json:"id"`
-							URI     string `json:"uri"`
-							Name    string `json:"name"`
-							Artists []struct {
-								Name string `json:"name"`
-							} `json:"artists"`
-							ExternalIDs struct {
-								ISRC string `json:"isrc"`
-							} `json:"external_ids"`
-						} `json:"track"`
-					} `json:"items"`
-				} `json:"tracks"`
-			}
-			if err := json.Unmarshal(data, &pl); err != nil {
-				return fmt.Errorf("decoding playlist: %w", err)
-			}
 			now := time.Now().UTC()
-			for i, item := range pl.Tracks.Items {
+			for i, item := range items {
 				addedAt, _ := time.Parse(time.RFC3339, item.AddedAt)
 				_ = db.InsertPlaylistSnapshotTrack(
-					pl.ID, pl.SnapshotID, now, i,
+					plID, snapshotID, now, i,
 					item.Track.ID, item.Track.URI, item.Track.Name, item.Track.ExternalIDs.ISRC,
 					addedAt, "",
 				)
@@ -108,7 +87,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 				Name string `json:"name"`
 			}
 			groups := map[string][]trackRow{}
-			for i, item := range pl.Tracks.Items {
+			for i, item := range items {
 				var key string
 				switch byMode {
 				case "isrc":
@@ -145,7 +124,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 
 			out := map[string]any{
 				"playlist_id":  playlistID,
-				"snapshot_id":  pl.SnapshotID,
+				"snapshot_id":  snapshotID,
 				"by":           byMode,
 				"dupe_sets":    len(dupes),
 				"removed":      0,
@@ -164,7 +143,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 			// against the API.
 			body := map[string]any{
 				"tracks":      toRemove,
-				"snapshot_id": pl.SnapshotID,
+				"snapshot_id": snapshotID,
 			}
 			_, _, err = c.DeleteWithBody("/playlists/"+playlistID+"/tracks", body)
 			if err != nil {

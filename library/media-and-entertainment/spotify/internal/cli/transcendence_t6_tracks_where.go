@@ -65,9 +65,21 @@ func computeTracksWhere(db storeQueryer, trackID string) (*tracksWhereResult, er
 		TopSnapshots: []map[string]any{},
 	}
 
-	// Playlists.
-	rows, err := db.Query(`SELECT DISTINCT playlist_id, snapshot_id, position
-		FROM playlist_snapshot_tracks WHERE track_id = ? ORDER BY playlist_id, captured_at DESC`, trackID)
+	// Playlists. Return one row per playlist — the position from the
+	// most recent snapshot of that playlist that contains this track.
+	// The previous query was `SELECT DISTINCT ... ORDER BY captured_at DESC`
+	// which SQLite applies in the wrong order (ORDER BY before DISTINCT),
+	// so a track in 10 historical snapshots of the same playlist
+	// produced 10 rows in undefined order. The correlated subquery
+	// filters to the latest captured_at per playlist for this track.
+	rows, err := db.Query(`SELECT playlist_id, snapshot_id, position
+		FROM playlist_snapshot_tracks t1
+		WHERE track_id = ?
+		  AND captured_at = (
+			SELECT MAX(captured_at) FROM playlist_snapshot_tracks t2
+			WHERE t2.playlist_id = t1.playlist_id AND t2.track_id = ?
+		  )
+		ORDER BY playlist_id`, trackID, trackID)
 	if err != nil {
 		return nil, err
 	}

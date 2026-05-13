@@ -12,7 +12,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"time"
@@ -56,47 +55,26 @@ First-time call records the snapshot and reports "baseline" with zero changes.`,
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/playlists/"+playlistID, nil)
+			// Snapshot the full playlist contents. fetchFullPlaylist paginates
+			// /playlists/{id}/tracks instead of relying on the 100-item embed
+			// cap on GET /playlists/{id}, which would silently truncate the
+			// diff baseline for any playlist over 100 tracks.
+			plID, _, snapshotID, items, err := fetchFullPlaylist(c, playlistID)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			var pl struct {
-				ID         string `json:"id"`
-				Name       string `json:"name"`
-				SnapshotID string `json:"snapshot_id"`
-				Tracks     struct {
-					Items []struct {
-						AddedAt string `json:"added_at"`
-						AddedBy struct {
-							ID string `json:"id"`
-						} `json:"added_by"`
-						Track struct {
-							ID          string `json:"id"`
-							URI         string `json:"uri"`
-							Name        string `json:"name"`
-							ExternalIDs struct {
-								ISRC string `json:"isrc"`
-							} `json:"external_ids"`
-						} `json:"track"`
-					} `json:"items"`
-				} `json:"tracks"`
-			}
-			if err := json.Unmarshal(data, &pl); err != nil {
-				return fmt.Errorf("decoding playlist: %w", err)
-			}
 
-			// Record the snapshot before doing the diff.
 			now := time.Now().UTC()
-			for i, item := range pl.Tracks.Items {
+			for i, item := range items {
 				addedAt, _ := time.Parse(time.RFC3339, item.AddedAt)
 				_ = db.InsertPlaylistSnapshotTrack(
-					pl.ID, pl.SnapshotID, now, i,
+					plID, snapshotID, now, i,
 					item.Track.ID, item.Track.URI, item.Track.Name, item.Track.ExternalIDs.ISRC,
 					addedAt, item.AddedBy.ID,
 				)
 			}
 
-			result, err := computePlaylistDiff(db.DB(), pl.ID, pl.SnapshotID, againstSnapshot)
+			result, err := computePlaylistDiff(db.DB(), plID, snapshotID, againstSnapshot)
 			if err != nil {
 				return err
 			}
