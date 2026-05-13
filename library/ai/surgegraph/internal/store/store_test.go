@@ -356,6 +356,68 @@ func TestExtractCitationURLs(t *testing.T) {
 	}
 }
 
+// TestSyncDiffHonorsSince pins PATCH(greptile-4): the per-resource
+// since-aware queries must actually execute, not be discarded with
+// `_ = since`. The previous implementation hardcoded RowsSince=0 for every
+// row, making `sync diff --since X` a silent no-op.
+//
+// We use far-past vs far-future cutoffs so the test does not depend on
+// sqlite's 1-second CURRENT_TIMESTAMP resolution or on the modernc.org
+// driver's specific time.Time bind format: any reasonable implementation
+// must count the row when since is the zero time, and exclude it when
+// since is in the future. If `_ = since` were still in place both calls
+// would return 0 and the test would fail.
+func TestSyncDiffHonorsSince(t *testing.T) {
+	st := mustOpen(t)
+	ctx := context.Background()
+
+	if err := st.UpsertCitationSnapshot(ctx, CitationSnapshot{
+		ProjectID: "p1", SnapshotDate: "2026-05-13", Domain: "example.com",
+		CitationCount: 5, URLCount: 1, RawJSON: json.RawMessage(`{}`),
+	}); err != nil {
+		t.Fatalf("UpsertCitationSnapshot: %v", err)
+	}
+
+	find := func(rows []SyncDiffRow) *SyncDiffRow {
+		for i := range rows {
+			if rows[i].Resource == "citation_snapshots" && rows[i].ProjectID == "p1" {
+				return &rows[i]
+			}
+		}
+		return nil
+	}
+
+	pastRows, err := st.SyncDiff(ctx, time.Time{})
+	if err != nil {
+		t.Fatalf("SyncDiff(zero): %v", err)
+	}
+	past := find(pastRows)
+	if past == nil {
+		t.Fatalf("citation_snapshots row missing for zero since: %+v", pastRows)
+	}
+	if past.RowsTotal != 1 {
+		t.Errorf("RowsTotal (zero since): want 1, got %d", past.RowsTotal)
+	}
+	if past.RowsSince != 1 {
+		t.Errorf("RowsSince (zero since): want 1, got %d — PATCH(greptile-4) regressed if 0", past.RowsSince)
+	}
+
+	futureRows, err := st.SyncDiff(ctx, time.Now().UTC().Add(1*time.Hour))
+	if err != nil {
+		t.Fatalf("SyncDiff(future): %v", err)
+	}
+	future := find(futureRows)
+	if future == nil {
+		t.Fatalf("citation_snapshots row missing for future since: %+v", futureRows)
+	}
+	if future.RowsTotal != 1 {
+		t.Errorf("RowsTotal (future since): want 1, got %d", future.RowsTotal)
+	}
+	if future.RowsSince != 0 {
+		t.Errorf("RowsSince (future since): want 0, got %d — since cutoff not applied", future.RowsSince)
+	}
+}
+
 func TestNormalizeCitationURL(t *testing.T) {
 	cases := []struct {
 		in, want string
