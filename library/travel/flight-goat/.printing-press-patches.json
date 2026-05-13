@@ -9,6 +9,31 @@
   ],
   "patches": [
     {
+      "id": "google-flights-tfs-schema-fix",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/booking_urls.go",
+        "internal/gflights/booking_urls_test.go"
+      ],
+      "summary": "Replace the broken hand-rolled tfs= protobuf encoding with the canonical schema from krisukox/google-flights-api url.proto (tripType=19, Location nested at 13/14, Travelers repeated enum at 8, base64.RawURLEncoding, curr+hl URL params).",
+      "reason": "The previous encoding used invented field numbers and produced URLs that landed on the Google Flights homepage instead of executing the search. Schema confirmed by fetching url.proto directly. Browser-verified two emitted URLs (SEA-LHR one-way and SEA-PNH round-trip 4-pax with PNH->KTI remap) both load the search results page.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestBuildGoogleFlightsURL -count=1; live `flights SEA LHR 2026-06-15 --agent` and `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` emit Google URLs that open to the search results page."
+    },
+    {
+      "id": "airline-booking-urls-expanded",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/booking_urls.go",
+        "internal/gflights/booking_urls_test.go",
+        "internal/gflights/gflights.go",
+        "internal/gflights/testdata/airline_url_captures.md",
+        "SKILL.md"
+      ],
+      "summary": "Expand airlineTemplates from 6 to 35 carriers, add kind field (prefill vs landing) classifying each per testdata/airline_url_captures.md, restructure BookingURLs as {primary, primary_kind, airline_url, airline_kind, google_url} so consumers know what UI text to render.",
+      "reason": "PR #512 shipped a 6-entry airline table with only US-major carriers, leaving international searches (the Cambodia query was the proximate trigger) with no airline-direct link. Research found that only ~4 carriers (DL, LH, LX, WN) have documented prefill patterns; the rest run SPAs that hold search state client-side. The new kind field captures this honestly so agents can render Book on Delta vs Open Condor booking vs View on Google Flights based on what the URL actually does. BREAKING CHANGE for any PR #512 consumer: field names changed from {google, airline} to {google_url, airline_url, ...}.",
+      "validated_outcome": "go test ./internal/gflights/... -count=1 (49 tests); live `flights SEA LAX 2026-07-15 --airlines DL --agent` returns flights with primary pointing at delta.com prefill URL; live `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` returns flights with primary pointing at a working Google Flights search (codeshare itinerary)."
+    },
+    {
       "id": "airport-alias-table",
       "upstream_issue": "",
       "files": [

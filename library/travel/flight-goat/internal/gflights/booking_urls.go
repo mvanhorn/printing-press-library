@@ -32,25 +32,49 @@ import (
 	"google.golang.org/protobuf/encoding/protowire"
 )
 
-// BookingURLs lives on Flight. Google is always populated for valid queries;
-// Airline is populated only when the itinerary qualifies.
+// BookingURLs lives on Flight and carries one-tap handoff URLs.
+//
+// Primary is the recommended single URL for one-tap UX; PrimaryKind tells the
+// agent or UI what to call it: "Book on Delta" (prefill), "Open Delta booking"
+// (landing), "View on Google Flights" (search).
+//
+// AirlineURL and AirlineKind are populated only when the itinerary qualifies
+// (single-carrier operator in airlineTemplates). GoogleURL is always
+// populated and points at a Google Flights search that executes on visit.
 type BookingURLs struct {
-	Google  string `json:"google"`
-	Airline string `json:"airline,omitempty"`
+	Primary      string `json:"primary"`
+	PrimaryKind  string `json:"primary_kind"`
+	AirlineURL   string `json:"airline_url,omitempty"`
+	AirlineKind  string `json:"airline_kind,omitempty"`
+	GoogleURL    string `json:"google_url"`
 }
+
+// PrimaryKind values: "prefill" and "landing" are airline-direct; "search"
+// is the Google Flights fallback.
+const (
+	primaryKindPrefill = "prefill"
+	primaryKindLanding = "landing"
+	primaryKindSearch  = "search"
+)
 
 const googleFlightsSearchBase = "https://www.google.com/travel/flights/search"
 
-// buildBookingURLs composes the per-flight booking URLs. The opts argument
-// carries the user's original query (origin/destination/dates/pax). The
-// flight argument supplies the operating airline(s) to decide whether a
-// direct airline link is appropriate.
+// buildBookingURLs composes the per-flight booking URLs. Always populates
+// Primary and GoogleURL; populates AirlineURL+AirlineKind only when the
+// itinerary qualifies for an airline-direct link. Primary preference:
+// airline (any kind) over google search.
 func buildBookingURLs(opts SearchOptions, fl Flight) BookingURLs {
+	googleURL := buildGoogleFlightsURL(opts)
 	out := BookingURLs{
-		Google: buildGoogleFlightsURL(opts),
+		GoogleURL:   googleURL,
+		Primary:     googleURL,
+		PrimaryKind: primaryKindSearch,
 	}
-	if airlineURL, ok := buildAirlineURL(opts, fl); ok {
-		out.Airline = airlineURL
+	if airlineURL, kind, ok := buildAirlineURL(opts, fl); ok {
+		out.AirlineURL = airlineURL
+		out.AirlineKind = kind
+		out.Primary = airlineURL
+		out.PrimaryKind = kind
 	}
 	return out
 }
@@ -169,84 +193,140 @@ func encodeLocation(iata string) []byte {
 }
 
 // airlineTemplate maps an IATA airline code to a deeplink template plus
-// flags for which substitutions the carrier accepts.
+// metadata about what kind of URL it produces.
+//
+// kind classifies the URL's behavior when visited:
+//
+//	prefill — URL params survive page load and pre-fill the booking form.
+//	          User clicks once and sees results ready.
+//	landing — URL lands the user on the carrier's booking entry; route
+//	          and dates may not pre-fill. Still a one-tap improvement
+//	          since the user already chose this airline.
+//
+// See testdata/airline_url_captures.md for the source of truth on each entry.
 type airlineTemplate struct {
-	// URL with placeholders {origin}, {destination}, {depart}, {return}, {pax}.
 	urlTemplate string
+	kind        string // "prefill" or "landing"
 	// roundTripOnly templates omit themselves for one-way; oneWayOnly the opposite.
 	// Empty means "supports both".
 	mode string
 }
 
-// airlineTemplates is a curated set of carrier booking-search-form URLs.
-// Each entry was constructed from live carrier sites and the patterns the
-// search forms emit when submitted. Patterns drift; when one breaks, the
-// fix is one line and the Google fallback continues to serve users.
+// airlineTemplates is a curated set of carrier booking URLs. Each entry is
+// classified prefill or landing per testdata/airline_url_captures.md.
+//
+// Patterns drift; when one breaks, recapture by visiting the carrier's site
+// and updating both the map and the captures log. The Google fallback in
+// buildGoogleFlightsURL continues to serve users when any entry is broken.
 var airlineTemplates = map[string]airlineTemplate{
-	// Alaska Airlines — standard alaskaair.com booking form.
-	"AS": {
-		urlTemplate: "https://www.alaskaair.com/planbook?from={origin}&to={destination}&departureDate={depart}&returnDate={return}&adults={pax}&tripType={trip_type}",
+	// ---- prefill (params survive and pre-fill the form) ----
+
+	// Delta — directly observable URL params.
+	"DL": {
+		urlTemplate: "https://www.delta.com/flightsearch/book-a-flight?tripType={trip_type_dl}&originCity={origin}&destinationCity={destination}&departureDate={depart}&returnDate={return}&paxCount={pax}",
+		kind:        "prefill",
 	},
-	// American Airlines — aa.com search-flights endpoint.
-	"AA": {
-		urlTemplate: "https://www.aa.com/booking/find-flights?from={origin}&to={destination}&departDate={depart}&returnDate={return}&adultPassengerCount={pax}&type={trip_type}",
+	// Southwest — param names from mobile.southwest.com URL bar.
+	"WN": {
+		urlTemplate: "https://www.southwest.com/air/booking/?originationAirportCode={origin}&destinationAirportCode={destination}&departureDate={depart}&returnDate={return}&adultPassengersCount={pax}&tripType={trip_type_wn}",
+		kind:        "prefill",
 	},
-	// United Airlines — united.com flight search.
-	"UA": {
-		urlTemplate: "https://www.united.com/en/us/fsr/choose-flights?f={origin}&t={destination}&d={depart}&r={return}&px={pax}&tt={trip_type_int}&sc=7&taxng=1&clm=7",
+	// Lufthansa — officially documented at developer.lufthansa.com.
+	"LH": {
+		urlTemplate: "https://www.lufthansa.com/deeplink/partner?airlineCode=LH&originCode={origin}&destinationCode={destination}&travelDate={depart}&returnDate={return}&travelers=adult={pax}",
+		kind:        "prefill",
 	},
-	// JetBlue — jetblue.com booking entry.
-	"B6": {
-		urlTemplate: "https://www.jetblue.com/booking/flights?from={origin}&to={destination}&depart={depart}&return={return}&isMultiCity=false&noOfRoute=1&adults={pax}",
+	// Swiss — same Lufthansa Group spec, airlineCode=LX.
+	"LX": {
+		urlTemplate: "https://www.lufthansa.com/deeplink/partner?airlineCode=LX&originCode={origin}&destinationCode={destination}&travelDate={depart}&returnDate={return}&travelers=adult={pax}",
+		kind:        "prefill",
 	},
-	// Air Canada — aircanada.com flight finder.
-	"AC": {
-		urlTemplate: "https://www.aircanada.com/aco/en_us/aco-booking-flights/flight-search?orgCity1={origin}&destCity1={destination}&date1={depart}&date2={return}&numAdults={pax}",
-	},
-	// British Airways — britishairways.com flight search.
-	"BA": {
-		urlTemplate: "https://www.britishairways.com/travel/fx/public/en_us?eId=120001&depAirport={origin}&arrAirport={destination}&outboundDate={depart}&inboundDate={return}&adults={pax}",
-	},
+
+	// ---- landing (URL lands user on carrier's booking surface) ----
+
+	"AS": {urlTemplate: "https://www.alaskaair.com/search/flights?O={origin}&D={destination}&OD={depart}&RD={return}&A={pax}", kind: "landing"},
+	"AA": {urlTemplate: "https://www.aa.com/booking/find-flights?from={origin}&to={destination}&departDate={depart}&returnDate={return}&adultPassengerCount={pax}&type={trip_type}", kind: "landing"},
+	"UA": {urlTemplate: "https://www.united.com/en/us/fsr/choose-flights?f={origin}&t={destination}&d={depart}&r={return}&px={pax}&tt={trip_type_int}&sc=7&taxng=1&clm=7", kind: "landing"},
+	"B6": {urlTemplate: "https://www.jetblue.com/booking/flights?from={origin}&to={destination}&depart={depart}&return={return}&isMultiCity=false&noOfRoute=1&adults={pax}", kind: "landing"},
+	"F9": {urlTemplate: "https://booking.flyfrontier.com/", kind: "landing"},
+	"AC": {urlTemplate: "https://www.aircanada.com/aco/en_us/aco-booking-flights/flight-search?orgCity1={origin}&destCity1={destination}&date1={depart}&date2={return}&numAdults={pax}", kind: "landing"},
+	"BA": {urlTemplate: "https://www.britishairways.com/travel/fx/public/en_us?eId=120001&depAirport={origin}&arrAirport={destination}&outboundDate={depart}&inboundDate={return}&adults={pax}", kind: "landing"},
+	"AF": {urlTemplate: "https://wwws.airfrance.us/", kind: "landing"},
+	"KL": {urlTemplate: "https://www.klm.com/en-us/flights", kind: "landing"},
+	"IB": {urlTemplate: "https://www.iberia.com/us/flight-search-engine/", kind: "landing"},
+	"VS": {urlTemplate: "https://www.virginatlantic.com/en-US", kind: "landing"},
+	"SK": {urlTemplate: "https://www.flysas.com/en", kind: "landing"},
+	"AY": {urlTemplate: "https://www.finnair.com/us/en", kind: "landing"},
+	"EI": {urlTemplate: "https://www.aerlingus.com/html/dashboard.html", kind: "landing"},
+	"DE": {urlTemplate: "https://www.condor.com/us/", kind: "landing"},
+	"EK": {urlTemplate: "https://www.emirates.com/english/book/", kind: "landing"},
+	"QR": {urlTemplate: "https://booking.qatarairways.com/nsp/views/deepLinkLoader.xhtml", kind: "landing"},
+	"EY": {urlTemplate: "https://www.etihad.com/en-us/book", kind: "landing"},
+	"SQ": {urlTemplate: "https://www.singaporeair.com/en_UK/us/home", kind: "landing"},
+	"BR": {urlTemplate: "https://booking.evaair.com/flyeva/eva/b2c/booking-online.aspx?lang=en-us", kind: "landing"},
+	"CX": {urlTemplate: "https://www.cathaypacific.com/cx/en_US.html", kind: "landing"},
+	"KE": {urlTemplate: "https://www.koreanair.com/booking/search", kind: "landing"},
+	"NH": {urlTemplate: "https://www.ana.co.jp/en/us/plan-book/", kind: "landing"},
+	"JL": {urlTemplate: "https://www.jal.co.jp/jp/en/inter/booking/", kind: "landing"},
+	"TG": {urlTemplate: "https://www.thaiairways.com/en/book/booking.page", kind: "landing"},
+	"PG": {urlTemplate: "https://www.bangkokair.com/flight/booking", kind: "landing"},
+	"HU": {urlTemplate: "https://www.hainanairlines.com/US/US/Search", kind: "landing"},
+	"CI": {urlTemplate: "https://www.china-airlines.com/us/en/booking/book-flights", kind: "landing"},
+	"OZ": {urlTemplate: "https://flyasiana.com/C/US/EN/index", kind: "landing"},
+	"JX": {urlTemplate: "https://www.starlux-airlines.com/en-US/booking/book-flight/search-a-flight", kind: "landing"},
+	"ET": {urlTemplate: "https://www.ethiopianairlines.com/us/book/booking/flight", kind: "landing"},
 }
 
+// airlineKindPrefill and airlineKindLanding are the two valid values for
+// airlineTemplate.kind and BookingURLs.AirlineKind / PrimaryKind.
+const (
+	airlineKindPrefill = "prefill"
+	airlineKindLanding = "landing"
+)
+
 // buildAirlineURL returns an airline-direct URL when the itinerary
-// qualifies. Qualification: all legs operated by a single carrier in
-// airlineTemplates. Codeshare flights, regional carriers outside the
-// table, and itineraries with mixed operators omit the airline URL
-// (the Google fallback always populates).
-func buildAirlineURL(opts SearchOptions, fl Flight) (string, bool) {
+// qualifies. Returns (url, kind, ok) where kind is "prefill" or "landing".
+// Qualification: all legs operated by a single carrier in airlineTemplates.
+// Codeshare flights, regional carriers outside the table, and itineraries
+// with mixed operators return ("", "", false). The Google fallback in
+// buildGoogleFlightsURL always populates regardless.
+func buildAirlineURL(opts SearchOptions, fl Flight) (string, string, bool) {
 	if len(fl.Legs) == 0 {
-		return "", false
+		return "", "", false
 	}
 	first := strings.ToUpper(fl.Legs[0].Airline.Code)
 	if first == "" {
-		return "", false
+		return "", "", false
 	}
 	for _, leg := range fl.Legs[1:] {
 		if !strings.EqualFold(leg.Airline.Code, first) {
-			return "", false
+			return "", "", false
 		}
 	}
 	tmpl, ok := airlineTemplates[first]
 	if !ok {
-		return "", false
+		return "", "", false
 	}
 	// PATCH(greptile P2): enforce the documented mode contract so a future
 	// roundTripOnly/oneWayOnly entry doesn't silently generate URLs for
 	// the unsupported trip type.
 	isRoundTrip := opts.ReturnDate != ""
 	if tmpl.mode == "roundTripOnly" && !isRoundTrip {
-		return "", false
+		return "", "", false
 	}
 	if tmpl.mode == "oneWayOnly" && isRoundTrip {
-		return "", false
+		return "", "", false
 	}
 
 	tripType := "OneWay"
 	tripTypeInt := "1"
+	tripTypeDL := "ONE_WAY"
+	tripTypeWN := "oneway"
 	if isRoundTrip {
 		tripType = "RoundTrip"
 		tripTypeInt = "2"
+		tripTypeDL = "ROUND_TRIP"
+		tripTypeWN = "roundtrip"
 	}
 	pax := opts.Passengers
 	if pax < 1 {
@@ -261,18 +341,18 @@ func buildAirlineURL(opts SearchOptions, fl Flight) (string, bool) {
 		"{pax}", fmt.Sprintf("%d", pax),
 		"{trip_type}", tripType,
 		"{trip_type_int}", tripTypeInt,
+		"{trip_type_dl}", tripTypeDL,
+		"{trip_type_wn}", tripTypeWN,
 	)
 	built := r.Replace(tmpl.urlTemplate)
 	// PATCH(greptile P2): one-way searches leave the {return} placeholder
-	// expanding to an empty string. Carriers without an explicit trip-type
-	// param (B6, BA) treat returnDate=/inboundDate= as round-trip with
-	// missing dates and may default the form to a round-trip search.
-	// Strip query params with empty values so the form sees a clean
-	// one-way query.
+	// expanding to an empty string. Strip query params with empty values
+	// so carrier forms without an explicit trip-type indicator (B6, BA, etc.)
+	// see a clean one-way query.
 	if !isRoundTrip {
 		built = stripEmptyQueryParams(built)
 	}
-	return built, true
+	return built, tmpl.kind, true
 }
 
 // stripEmptyQueryParams removes query parameters whose value is empty
