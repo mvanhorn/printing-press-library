@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: Add local recurring-item miss audit by joining expected items to transactions.
@@ -174,7 +174,7 @@ func recurringHasTransaction(txs []localTransaction, recurringID, payee string, 
 	var lastSeen time.Time
 	lastSeenString := ""
 	for _, tx := range txs {
-		matches := tx.RecurringID == recurringID || recurringPayeeAmountMatch(tx, payee, amount)
+		matches := recurringTransactionMatches(tx, recurringID, payee, amount)
 		if !matches {
 			continue
 		}
@@ -187,6 +187,13 @@ func recurringHasTransaction(txs []localTransaction, recurringID, payee string, 
 		}
 	}
 	return false, lastSeenString
+}
+
+func recurringTransactionMatches(tx localTransaction, recurringID, payee string, amount float64) bool {
+	if tx.RecurringID != "" {
+		return tx.RecurringID == recurringID
+	}
+	return recurringPayeeAmountMatch(tx, payee, amount)
 }
 
 func recurringPayeeAmountMatch(tx localTransaction, payee string, amount float64) bool {
