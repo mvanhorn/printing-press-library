@@ -393,13 +393,19 @@ func (s *Store) AddCandidate(ctx context.Context, c CandidateRow) error {
 	if c.Killed {
 		killed = 1
 	}
+	// Sticky-kill: once killed=1, AddCandidate can only re-affirm — never
+	// silently revive. Previously, ON CONFLICT set killed=excluded.killed
+	// unconditionally, so shortlist promote (which always passes killed=0)
+	// would resurrect a candidate the user had explicitly killed via
+	// `lists kill`. Reviving a killed candidate requires a dedicated
+	// revive path; AddCandidate is for inserts and metadata refresh.
 	_, err := s.db.ExecContext(ctx, `
 		INSERT INTO candidates (list_name, fqdn, notes, tags, killed, kill_reason, added_at, updated_at)
 		VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
 		ON CONFLICT(list_name, fqdn) DO UPDATE SET
 			notes=CASE WHEN excluded.notes != '' THEN excluded.notes ELSE candidates.notes END,
 			tags=CASE WHEN excluded.tags != '' THEN excluded.tags ELSE candidates.tags END,
-			killed=excluded.killed,
+			killed=CASE WHEN excluded.killed = 1 THEN 1 ELSE candidates.killed END,
 			kill_reason=CASE WHEN excluded.kill_reason != '' THEN excluded.kill_reason ELSE candidates.kill_reason END,
 			updated_at=datetime('now')
 	`, c.ListName, strings.ToLower(c.FQDN), c.Notes, c.Tags, killed, c.KillReason)

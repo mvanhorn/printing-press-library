@@ -383,15 +383,24 @@ score and TLD, returns an ordered timeline.`,
 			now := time.Now().UTC()
 			until := now.AddDate(0, 0, days)
 
-			// query rdap_records: latest per fqdn, parse events_json for expiration / pendingDelete events
+			// Latest RDAP row per fqdn. Window function (ROW_NUMBER) tiebreaks
+			// on rowid so two writes within the same second (datetime('now')
+			// has 1-second resolution) collapse to one row instead of emitting
+			// the same fqdn twice in the timeline output.
 			rows, err := s.Query(`
-				SELECT r.fqdn, r.status, r.events_json, r.fetched_at, d.score, d.tld
-				FROM rdap_records r
-				INNER JOIN (
-					SELECT fqdn, MAX(fetched_at) AS mft FROM rdap_records GROUP BY fqdn
-				) latest ON r.fqdn = latest.fqdn AND r.fetched_at = latest.mft
-				LEFT JOIN domains d ON d.fqdn = r.fqdn
-				ORDER BY r.fqdn`)
+				WITH latest AS (
+					SELECT fqdn, status, events_json, fetched_at,
+					       ROW_NUMBER() OVER (
+					           PARTITION BY fqdn
+					           ORDER BY fetched_at DESC, rowid DESC
+					       ) AS rn
+					FROM rdap_records
+				)
+				SELECT l.fqdn, l.status, l.events_json, l.fetched_at, d.score, d.tld
+				FROM latest l
+				LEFT JOIN domains d ON d.fqdn = l.fqdn
+				WHERE l.rn = 1
+				ORDER BY l.fqdn`)
 			if err != nil {
 				return apiErr(err)
 			}
@@ -708,7 +717,11 @@ and returns the precise UTC window the domain will become re-available.`,
 				"redemption_event": redemption,
 				"pending_delete":   pendingDelete,
 			}
-			// 5-day pending delete RFC grace
+			// Preference order: pendingDelete (most precise) → redemption (next
+			// most precise; ~30d redemption + 5d pendingDelete grace remains)
+			// → expiration (least precise; auto-renew grace is registrar
+			// policy, treated as 0 here). Each ladder rung is "estimated"
+			// vs the registry's actual drop time and should be refreshed.
 			var bidStart, bidEnd time.Time
 			var basis string
 			if pendingDelete != "" {
@@ -717,6 +730,14 @@ and returns the precise UTC window the domain will become re-available.`,
 					bidStart = t.AddDate(0, 0, 5)
 					bidEnd = bidStart.Add(48 * time.Hour)
 					basis = "pendingDelete+5d"
+				}
+			} else if redemption != "" {
+				t, err := time.Parse(time.RFC3339, redemption)
+				if err == nil {
+					// redemption period (~30d) → pendingDelete (5d) → drop
+					bidStart = t.AddDate(0, 0, 35)
+					bidEnd = bidStart.Add(48 * time.Hour)
+					basis = "redemption+35d (estimated; verify with later RDAP refresh)"
 				}
 			} else if expiration != "" {
 				t, err := time.Parse(time.RFC3339, expiration)
@@ -733,7 +754,7 @@ and returns the precise UTC window the domain will become re-available.`,
 				out["basis"] = basis
 				out["hours_until_start"] = int(time.Until(bidStart).Hours())
 			} else {
-				out["error"] = "no expiration or pendingDelete event found"
+				out["error"] = "no expiration, redemption, or pendingDelete event found"
 			}
 			return emitJSON(cmd, flags, out)
 		},
