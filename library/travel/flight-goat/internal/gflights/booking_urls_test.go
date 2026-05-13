@@ -25,9 +25,13 @@ func TestBuildGoogleFlightsURLOneWay(t *testing.T) {
 	if !strings.HasPrefix(got, "https://www.google.com/travel/flights/search?tfs=") {
 		t.Fatalf("unexpected prefix: %s", got)
 	}
-	tripType, slices, pax := decodeTfs(t, got)
-	if tripType != 1 {
-		t.Errorf("trip type = %d, want 1", tripType)
+	if !strings.Contains(got, "&curr=USD") || !strings.Contains(got, "&hl=en") {
+		t.Errorf("expected &curr=USD&hl=en suffix; got %s", got)
+	}
+	tripType, slices, pax, class := decodeTfs(t, got)
+	// In Google Flights' protobuf schema, ONE_WAY = 2 (ROUND_TRIP = 1).
+	if tripType != googleTripTypeOneWay {
+		t.Errorf("trip type = %d, want %d (one-way)", tripType, googleTripTypeOneWay)
 	}
 	if len(slices) != 1 {
 		t.Fatalf("slices = %d, want 1", len(slices))
@@ -36,7 +40,10 @@ func TestBuildGoogleFlightsURLOneWay(t *testing.T) {
 		t.Errorf("slice mismatch: %+v", slices[0])
 	}
 	if pax != 1 {
-		t.Errorf("pax = %d, want 1", pax)
+		t.Errorf("pax (Traveler enum count) = %d, want 1", pax)
+	}
+	if class != googleClassEconomy {
+		t.Errorf("class = %d, want %d (economy)", class, googleClassEconomy)
 	}
 }
 
@@ -49,9 +56,9 @@ func TestBuildGoogleFlightsURLRoundTripMultiPax(t *testing.T) {
 		Passengers:    4,
 	}
 	got := buildGoogleFlightsURL(opts)
-	tripType, slices, pax := decodeTfs(t, got)
-	if tripType != 2 {
-		t.Errorf("trip type = %d, want 2 (round-trip)", tripType)
+	tripType, slices, pax, _ := decodeTfs(t, got)
+	if tripType != googleTripTypeRoundTrip {
+		t.Errorf("trip type = %d, want %d (round-trip)", tripType, googleTripTypeRoundTrip)
 	}
 	if len(slices) != 2 {
 		t.Fatalf("slices = %d, want 2", len(slices))
@@ -64,7 +71,7 @@ func TestBuildGoogleFlightsURLRoundTripMultiPax(t *testing.T) {
 		t.Errorf("return slice mismatch: %+v", ret)
 	}
 	if pax != 4 {
-		t.Errorf("pax = %d, want 4", pax)
+		t.Errorf("pax (Traveler enum count) = %d, want 4", pax)
 	}
 }
 
@@ -78,7 +85,7 @@ func TestBuildGoogleFlightsURLEmptyOriginYieldsEmpty(t *testing.T) {
 func TestBuildGoogleFlightsURLZeroPaxDefaultsToOne(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 0}
 	got := buildGoogleFlightsURL(opts)
-	_, _, pax := decodeTfs(t, got)
+	_, _, pax, _ := decodeTfs(t, got)
 	if pax != 1 {
 		t.Errorf("pax = %d, want 1 (default)", pax)
 	}
@@ -313,7 +320,11 @@ type decodedSlice struct {
 	origin, dest, date string
 }
 
-func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice, pax int) {
+// decodeTfs decodes the tfs= protobuf using the canonical schema from
+// krisukox/google-flights-api url.proto. Outer fields: 3 (Flight, repeated),
+// 8 (Traveler enum, repeated — count = passenger count), 9 (Class enum),
+// 19 (TripType enum).
+func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice, pax int, class int) {
 	t.Helper()
 	u, err := url.Parse(urlStr)
 	if err != nil {
@@ -323,7 +334,7 @@ func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice
 	if tfs == "" {
 		t.Fatal("tfs param missing")
 	}
-	pb, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(tfs)
+	pb, err := base64.RawURLEncoding.DecodeString(tfs)
 	if err != nil {
 		t.Fatalf("decode base64: %v", err)
 	}
@@ -334,26 +345,29 @@ func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice
 		}
 		pb = pb[tagLen:]
 		switch field {
-		case 2:
-			if wireType != protowire.VarintType {
-				t.Fatalf("field 2 wire type = %d, want varint", wireType)
-			}
-			v, n := protowire.ConsumeVarint(pb)
-			tripType = int(v)
-			pb = pb[n:]
 		case 3:
 			if wireType != protowire.BytesType {
 				t.Fatalf("field 3 wire type = %d, want bytes", wireType)
 			}
 			data, n := protowire.ConsumeBytes(pb)
 			pb = pb[n:]
-			slices = append(slices, decodeSliceBytes(t, data))
-		case 4:
+			slices = append(slices, decodeFlightSlice(t, data))
+		case 8:
+			if wireType != protowire.VarintType {
+				t.Fatalf("field 8 wire type = %d, want varint", wireType)
+			}
+			_, n := protowire.ConsumeVarint(pb)
+			pax++
+			pb = pb[n:]
+		case 9:
 			v, n := protowire.ConsumeVarint(pb)
-			pax = int(v)
+			class = int(v)
+			pb = pb[n:]
+		case 19:
+			v, n := protowire.ConsumeVarint(pb)
+			tripType = int(v)
 			pb = pb[n:]
 		default:
-			// Skip unknown fields.
 			n := protowire.ConsumeFieldValue(field, wireType, pb)
 			if n < 0 {
 				t.Fatalf("consume unknown field: %d", n)
@@ -361,29 +375,35 @@ func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice
 			pb = pb[n:]
 		}
 	}
-	return tripType, slices, pax
+	return tripType, slices, pax, class
 }
 
-func decodeSliceBytes(t *testing.T, data []byte) decodedSlice {
+// decodeFlightSlice decodes a Flight message: field 2 (date string),
+// field 13 (origin Location, repeated — first only), field 14 (destination
+// Location, repeated — first only).
+func decodeFlightSlice(t *testing.T, data []byte) decodedSlice {
 	t.Helper()
 	var s decodedSlice
 	for len(data) > 0 {
 		field, wireType, tagLen := protowire.ConsumeTag(data)
 		data = data[tagLen:]
 		switch field {
-		case 2, 6:
-			inner, n := protowire.ConsumeBytes(data)
-			data = data[n:]
-			iata := decodeAirportObject(t, inner)
-			if field == 2 {
-				s.origin = iata
-			} else {
-				s.dest = iata
-			}
-		case 13:
+		case 2:
 			str, n := protowire.ConsumeBytes(data)
 			data = data[n:]
 			s.date = string(str)
+		case 13:
+			inner, n := protowire.ConsumeBytes(data)
+			data = data[n:]
+			if s.origin == "" {
+				s.origin = decodeLocation(t, inner)
+			}
+		case 14:
+			inner, n := protowire.ConsumeBytes(data)
+			data = data[n:]
+			if s.dest == "" {
+				s.dest = decodeLocation(t, inner)
+			}
 		default:
 			n := protowire.ConsumeFieldValue(field, wireType, data)
 			data = data[n:]
@@ -392,12 +412,14 @@ func decodeSliceBytes(t *testing.T, data []byte) decodedSlice {
 	return s
 }
 
-func decodeAirportObject(t *testing.T, data []byte) string {
+// decodeLocation reads the Location sub-message: field 1 (LocationType, skipped),
+// field 2 (IATA name string — what we return).
+func decodeLocation(t *testing.T, data []byte) string {
 	t.Helper()
 	for len(data) > 0 {
 		field, wireType, tagLen := protowire.ConsumeTag(data)
 		data = data[tagLen:]
-		if field == 2 {
+		if field == 2 && wireType == protowire.BytesType {
 			str, _ := protowire.ConsumeBytes(data)
 			return string(str)
 		}

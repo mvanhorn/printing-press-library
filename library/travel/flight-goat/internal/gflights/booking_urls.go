@@ -55,85 +55,114 @@ func buildBookingURLs(opts SearchOptions, fl Flight) BookingURLs {
 	return out
 }
 
-// buildGoogleFlightsURL constructs the tfs= deeplink. The protobuf shape is:
+// buildGoogleFlightsURL constructs the tfs= deeplink against Google Flights'
+// documented protobuf schema. The canonical .proto lives at
+// https://github.com/krisukox/google-flights-api/blob/main/flights/internal/urlpb/url.proto
 //
-//	field 2 (varint): trip type — 1=one-way, 2=round-trip
-//	field 3 (length-delimited, repeated): travel slice {
-//	    field 2 (length-delimited, message): origin {
-//	        field 2 (length-delimited, string): IATA code
-//	    }
-//	    field 6 (length-delimited, message): destination {
-//	        field 2 (length-delimited, string): IATA code
-//	    }
-//	    field 13 (length-delimited, string): YYYY-MM-DD
+//	message Url {
+//	    repeated Flight flight = 3;
+//	    repeated Traveler travelers = 8;   // one enum value per passenger
+//	    Class class = 9;                    // 1=economy
+//	    TripType tripType = 19;             // 1=round-trip, 2=one-way
 //	}
-//	field 4 (varint): adults
+//	message Flight {
+//	    string date = 2;                    // YYYY-MM-DD
+//	    optional Stops stops = 5;
+//	    repeated Location srcLocations = 13;
+//	    repeated Location dstLocations = 14;
+//	}
+//	message Location {
+//	    LocationType type = 1;              // 1=AIRPORT
+//	    string name = 2;                    // IATA code
+//	}
 //
-// The shape is the minimum Google needs to land a working search. Cabin
-// class and additional filters are intentionally omitted — they default
-// to the standard "any class" search, which is the right thing for a
-// "view in Google Flights" handoff.
+// Base64: URL-safe, no padding. URL params: tfs, curr, hl.
+//
+// Round-trip emits two Flight messages with origin and destination swapped on
+// the return slice. The travelers field is repeated; emit one enum entry per
+// passenger (NOT a count). Class defaults to ECONOMY (1).
 func buildGoogleFlightsURL(opts SearchOptions) string {
 	if opts.Origin == "" || opts.Destination == "" || opts.DepartureDate == "" {
 		return ""
 	}
 
-	tripType := 1 // one-way
+	tripType := googleTripTypeOneWay
 	if opts.ReturnDate != "" {
-		tripType = 2
+		tripType = googleTripTypeRoundTrip
+	}
+	pax := opts.Passengers
+	if pax < 1 {
+		pax = 1
 	}
 
 	var pb []byte
-	pb = protowire.AppendTag(pb, 2, protowire.VarintType)
-	pb = protowire.AppendVarint(pb, uint64(tripType))
 
-	outbound := encodeTravelSlice(opts.Origin, opts.Destination, opts.DepartureDate)
+	outbound := encodeFlightSlice(opts.Origin, opts.Destination, opts.DepartureDate)
 	pb = protowire.AppendTag(pb, 3, protowire.BytesType)
 	pb = protowire.AppendVarint(pb, uint64(len(outbound)))
 	pb = append(pb, outbound...)
 
 	if opts.ReturnDate != "" {
-		inbound := encodeTravelSlice(opts.Destination, opts.Origin, opts.ReturnDate)
+		inbound := encodeFlightSlice(opts.Destination, opts.Origin, opts.ReturnDate)
 		pb = protowire.AppendTag(pb, 3, protowire.BytesType)
 		pb = protowire.AppendVarint(pb, uint64(len(inbound)))
 		pb = append(pb, inbound...)
 	}
 
-	pax := opts.Passengers
-	if pax < 1 {
-		pax = 1
+	for i := 0; i < pax; i++ {
+		pb = protowire.AppendTag(pb, 8, protowire.VarintType)
+		pb = protowire.AppendVarint(pb, uint64(googleTravelerAdult))
 	}
-	pb = protowire.AppendTag(pb, 4, protowire.VarintType)
-	pb = protowire.AppendVarint(pb, uint64(pax))
 
-	tfs := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(pb)
-	return fmt.Sprintf("%s?tfs=%s&hl=en", googleFlightsSearchBase, tfs)
+	pb = protowire.AppendTag(pb, 9, protowire.VarintType)
+	pb = protowire.AppendVarint(pb, uint64(googleClassEconomy))
+
+	pb = protowire.AppendTag(pb, 19, protowire.VarintType)
+	pb = protowire.AppendVarint(pb, uint64(tripType))
+
+	tfs := base64.RawURLEncoding.EncodeToString(pb)
+	return fmt.Sprintf("%s?tfs=%s&curr=USD&hl=en", googleFlightsSearchBase, tfs)
 }
 
-func encodeTravelSlice(origin, destination, date string) []byte {
+// Google Flights protobuf enum values, matching krisukox url.proto.
+const (
+	googleTripTypeRoundTrip = 1
+	googleTripTypeOneWay    = 2
+
+	googleTravelerAdult = 1
+
+	googleClassEconomy = 1
+
+	googleLocationTypeAirport = 1
+)
+
+// encodeFlightSlice builds the inner Flight message: date string at field 2,
+// origin Location at field 13 (repeated), destination Location at field 14.
+func encodeFlightSlice(origin, destination, date string) []byte {
 	var slice []byte
 
-	// Origin airport object: field 2, message containing IATA at field 2.
-	originMsg := encodeAirportObject(origin)
 	slice = protowire.AppendTag(slice, 2, protowire.BytesType)
-	slice = protowire.AppendVarint(slice, uint64(len(originMsg)))
-	slice = append(slice, originMsg...)
-
-	// Destination airport object: field 6.
-	destMsg := encodeAirportObject(destination)
-	slice = protowire.AppendTag(slice, 6, protowire.BytesType)
-	slice = protowire.AppendVarint(slice, uint64(len(destMsg)))
-	slice = append(slice, destMsg...)
-
-	// Date string at field 13.
-	slice = protowire.AppendTag(slice, 13, protowire.BytesType)
 	slice = protowire.AppendString(slice, date)
+
+	originLoc := encodeLocation(origin)
+	slice = protowire.AppendTag(slice, 13, protowire.BytesType)
+	slice = protowire.AppendVarint(slice, uint64(len(originLoc)))
+	slice = append(slice, originLoc...)
+
+	destLoc := encodeLocation(destination)
+	slice = protowire.AppendTag(slice, 14, protowire.BytesType)
+	slice = protowire.AppendVarint(slice, uint64(len(destLoc)))
+	slice = append(slice, destLoc...)
 
 	return slice
 }
 
-func encodeAirportObject(iata string) []byte {
+// encodeLocation builds the Location sub-message: LocationType at field 1
+// (1=AIRPORT), IATA name string at field 2.
+func encodeLocation(iata string) []byte {
 	var msg []byte
+	msg = protowire.AppendTag(msg, 1, protowire.VarintType)
+	msg = protowire.AppendVarint(msg, uint64(googleLocationTypeAirport))
 	msg = protowire.AppendTag(msg, 2, protowire.BytesType)
 	msg = protowire.AppendString(msg, strings.ToUpper(iata))
 	return msg
