@@ -1,157 +1,522 @@
 name: redfin
-description: Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends.
-cli_description: "Search Redfin homes from the terminal with offline sync, ranking, diff, sold comps, and market trends."
-version: "0.1.0"
-kind: synthetic
-spec_source: sniffed
-http_transport: browser-chrome
-website_url: "https://www.redfin.com"
-category: other
-base_url: "https://www.redfin.com"
+display_name: Redfin
+description: Property search, market data, and investment analysis via Redfin's unofficial stingray API
+version: "1.0"
+base_url: https://www.redfin.com/stingray
 
 auth:
   type: none
 
-config:
-  format: toml
-  path: "~/.config/redfin-pp-cli/config.toml"
+headers:
+  User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+  Accept: "application/json, text/plain, */*"
 
-cache:
-  enabled: true
+response_prefix: "{}&&"
+
+rate_limiting:
+  strategy: adaptive
+  default_delay_ms: 1000
+  retry_on: [429]
+  max_retries: 3
 
 resources:
-  homes:
-    description: "Search Redfin homes for sale via the internal Stingray /api/gis JSON endpoint."
+  listings:
+    description: Property search and location autocomplete
     endpoints:
       list:
         method: GET
-        path: "/stingray/api/gis"
-        description: "Run a Stingray gis search and return parsed listing rows from the JSON map payload. Strip the {}&& CSRF prefix before decoding."
+        path: /api/gis
+        description: Search properties by geographic filters
         params:
-          - name: region_id
+          - name: al
             type: integer
-            required: false
-            positional: false
-            description: "Redfin region ID (numeric). Find it by inspecting a redfin.com/city/<id>/... URL or via `region resolve`."
-            default: 30772
+            description: Include assessment and loan data (1=yes)
+            default: "1"
+          - name: market
+            type: string
+            description: Market/city name for context
+          - name: region_id
+            type: string
+            description: Numeric region identifier from location-autocomplete
           - name: region_type
             type: integer
-            required: false
-            positional: false
-            description: "Redfin region type code: 6=city, 1=zip, 2=state, 4=metro, 11=neighborhood."
-            default: 6
-            enum: [1, 2, 4, 5, 6, 11, 12, 13, 14, 19]
+            description: Region type code (2=zip, 6=city, 5=county, 11=neighborhood, 1=country)
           - name: status
             type: integer
-            required: false
-            positional: false
-            description: "Listing status: 1=active for-sale, 7=sold, 9=pending, 130=coming-soon. Compose with --sf for sold."
-            default: 1
+            description: Listing status (1=active, 8=sold, 9=all)
+            default: "1"
+          - name: min_price
+            type: integer
+            description: Minimum list price in dollars
+          - name: max_price
+            type: integer
+            description: Maximum list price in dollars
+          - name: num_beds
+            type: integer
+            description: Minimum number of bedrooms
+          - name: max_num_beds
+            type: integer
+            description: Maximum number of bedrooms
+          - name: num_baths
+            type: number
+            description: Minimum number of bathrooms
+          - name: min_listing_approx_size
+            type: integer
+            description: Minimum square footage
+          - name: max_listing_approx_size
+            type: integer
+            description: Maximum square footage
+          - name: min_year_built
+            type: integer
+            description: Minimum year built
+          - name: max_year_built
+            type: integer
+            description: Maximum year built
+          - name: uipt
+            type: string
+            description: Property type (1=house, 2=condo, 3=townhouse, 4=multi-family, 5=land, 6=other)
+          - name: sf
+            type: string
+            description: Feature flags comma-separated (1=has_garage, 4=has_pool, 5=has_basement)
+          - name: hoa
+            type: integer
+            description: Max HOA fee in dollars (0 = no HOA)
           - name: num_homes
             type: integer
-            required: false
-            positional: false
-            description: "Number of homes to return per page (max 350)."
-            default: 50
+            description: Number of results per page
+            default: "350"
           - name: page_number
             type: integer
-            required: false
-            positional: false
-            description: "1-indexed page number."
-            default: 1
-        response:
-          type: text
-          item: string
-        response_format: json
-  market:
-    description: "Aggregate market trends for a region (median sale price, days on market, supply, list-to-sale ratio) over a window."
-    endpoints:
-      trends:
+            description: Page number for pagination
+            default: "1"
+          - name: ord
+            type: string
+            description: Sort order (days-on-redfin-asc, price-asc, price-desc, newest)
+          - name: v
+            type: integer
+            description: API version
+            default: "8"
+
+      autocomplete:
         method: GET
-        path: "/stingray/api/region/{region_type}/{region_id}/{period_months}/aggregate-trends"
-        description: "Fetch aggregate-trends JSON for one region and period (months)."
+        path: /do/location-autocomplete
+        description: Autocomplete a location string to get region_id and region_type
         params:
+          - name: location
+            type: string
+            description: Partial city, zip, address, or neighborhood name
+            required: true
+          - name: v
+            type: integer
+            description: API version
+            default: "2"
+
+      csv:
+        method: GET
+        path: /api/gis-csv
+        description: Download search results as CSV
+        params:
+          - name: region_id
+            type: string
+            description: Region identifier
+            required: true
           - name: region_type
             type: integer
+            description: Region type code
             required: true
-            positional: false
-            path_param: true
-            description: "Region type code (6=city, 1=zip, 2=state, 4=metro, 11=neighborhood)."
-            default: 6
-          - name: region_id
+          - name: status
             type: integer
-            required: true
-            positional: false
-            path_param: true
-            description: "Numeric region ID."
-            default: 30772
-          - name: period_months
+            description: Listing status
+            default: "1"
+          - name: uipt
+            type: string
+            description: Property type filter
+          - name: num_homes
             type: integer
-            required: true
-            positional: false
-            path_param: true
-            description: "Window in months (typical: 12 or 24)."
-            default: 24
-        response:
-          type: text
-          item: string
-        response_format: json
-  listing:
-    description: "Fetch full listing detail by combining initialInfo, aboveTheFold, and belowTheFold Stingray calls."
+            description: Max results
+            default: "350"
+
+  properties:
+    description: Property details and history
     endpoints:
-      initial:
+      initial_info:
         method: GET
-        path: "/stingray/api/home/details/initialInfo"
-        description: "First Stingray call for a listing — returns the canonical listingId and propertyId from the URL path."
+        path: /api/home/details/initialInfo
+        description: Get listing ID and basic property data from a Redfin URL path
         params:
           - name: path
             type: string
+            description: Redfin property URL path (e.g. /CA/San-Francisco/123-Main-St-94110/home/12345)
             required: true
-            positional: false
-            description: "URL path of the listing (e.g. /TX/Austin/123-Main-St-78704/home/12345)."
-            default: "/TX/Austin/example/home/12345"
-        response:
-          type: text
-          item: string
-        response_format: json
 
-extra_commands:
-  - name: homes
-    description: "Search Redfin for-sale homes by city, beds, baths, price, etc."
-  - name: sold
-    description: "Search Redfin sold homes by city + filters (delegates to homes with status=sold)."
-  - name: listing
-    args: "<url-or-path>"
-    description: "Fetch full listing detail (initialInfo + aboveTheFold + belowTheFold combined)."
-  - name: region
-    description: "Region tools: resolve a city/zip to a Redfin region_id."
-  - name: feed
-    description: "Tail Redfin's RSS feeds: new listings, updated listings."
-  - name: sync-search
-    args: "<saved-search>"
-    description: "Run a saved search and snapshot results into the local store."
-  - name: watch
-    args: "<saved-search>"
-    description: "Diff the latest sync against the previous: NEW / REMOVED / PRICE-CHANGED / STATUS-CHANGED listings."
-  - name: rank
-    description: "Rank synced listings by ratio metrics — $/sqft (optionally net of HOA), $/bed."
-  - name: compare
-    args: "<url-or-id...>"
-    description: "Pivot 2-8 listings into a wide table — one column per listing — with $/sqft, AVM delta, school ratings."
-  - name: comps
-    args: "<subject-url>"
-    description: "Pull sold comps for a subject listing within a radius, sqft tolerance, and recency window."
-  - name: drops
-    description: "List active listings whose price dropped by N% in a window OR whose DOM exceeds a threshold."
-  - name: market
-    args: "<region-slug>"
-    description: "Single-region snapshot: counts, medians, DOM, % drops, plus trends call."
-  - name: summary
-    args: "<region-slug>"
-    description: "Neighborhood market summary: active/pending/sold-90d counts, medians, DOM, % drops."
-  - name: trends
-    description: "Multi-region aggregate-trends overlay; emits tidy table (region × month × metric)."
-  - name: appreciation
-    description: "Rank child neighborhoods under a metro by YoY median-sale % change."
-  - name: export
-    description: "Bulk export past Redfin's 350-row gis-csv cap by slicing price bands and deduping on URL."
+      above_fold:
+        method: GET
+        path: /api/home/details/aboveTheFold
+        description: Primary property details including price, beds, baths, photos
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID (from initial_info)
+            required: true
+            flag_name: listing-id
+          - name: accessLevel
+            type: integer
+            default: "1"
+
+      below_fold:
+        method: GET
+        path: /api/home/details/belowTheFold
+        description: Full property details including MLS data, price history, and amenities
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+          - name: accessLevel
+            type: integer
+            default: "1"
+
+      info_panel:
+        method: GET
+        path: /api/home/details/v1/aboveTheFold
+        description: Compact property summary panel
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      activity:
+        method: GET
+        path: /api/home/details/activityInfo
+        description: Listing status history and activity changes
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      page_tags:
+        method: GET
+        path: /api/home/details/v1/pagetagsinfo
+        description: Page metadata tags for a property
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+
+      comments:
+        method: GET
+        path: /api/home/details/propertyCommentsInfo
+        description: Public comments on a property listing
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      parcel:
+        method: GET
+        path: /api/home/details/propertyParcelInfo
+        description: Property parcel and lot information
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      seller_data:
+        method: GET
+        path: /api/home/details/claimedHomeSellerData
+        description: Seller information for claimed homes
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      cost_ownership:
+        method: GET
+        path: /do/api/costOfHomeOwnershipDetails
+        description: Monthly cost breakdown including mortgage, taxes, insurance, HOA
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      floor_plans:
+        method: GET
+        path: /api/home/details/floorplans
+        description: Floor plans for rental properties
+        params:
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            required: true
+            flag_name: listing-id
+
+      tour_dates:
+        method: GET
+        path: /do/tourlist/getDatePickerData
+        description: Available tour dates and times
+        params:
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            required: true
+            flag_name: listing-id
+
+      hood_photos:
+        method: GET
+        path: /api/home/details/hood-photos
+        description: Neighborhood street photos
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+
+      building:
+        method: GET
+        path: /api/building/details-page/v1
+        description: Condo building details and HOA information
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+
+      primary_region:
+        method: GET
+        path: /api/home/details/primaryRegionInfo
+        description: Primary region context for a property
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+
+  valuation:
+    description: Automated valuation and price history
+    endpoints:
+      avm:
+        method: GET
+        path: /api/home/details/avm
+        description: Current automated valuation model (AVM) estimate
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      avm_history:
+        method: GET
+        path: /api/home/details/avmHistoricalData
+        description: Historical AVM price trend data
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      owner_estimate:
+        method: GET
+        path: /api/home/details/owner-estimate
+        description: Owner-provided or derived valuation estimate
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+
+      rental_estimate:
+        method: GET
+        path: /api/home/details/rentalEstimate
+        description: Estimated rental value for a property
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+  neighborhood:
+    description: Neighborhood data, schools, commute, and lifestyle scores
+    endpoints:
+      stats:
+        method: GET
+        path: /api/home/details/neighborhoodStats/statsInfo
+        description: Walk Score, Bike Score, and Transit Score for a property location
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      schools:
+        method: GET
+        path: /api/home/details/moreResourcesInfo
+        description: Nearby schools, parks, shopping, and amenities
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      commute:
+        method: GET
+        path: /api/home/details/commute/commuteInfo
+        description: Commute time estimates for drive, transit, and bike
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+  comparables:
+    description: Comparable active and sold properties
+    endpoints:
+      similar_listings:
+        method: GET
+        path: /api/home/details/similars/listings
+        description: Currently active similar listings
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      similar_sold:
+        method: GET
+        path: /api/home/details/similars/solds
+        description: Recently sold comparable properties
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+      nearby_homes:
+        method: GET
+        path: /api/home/details/nearbyhomes
+        description: Properties in the immediate neighborhood
+        params:
+          - name: propertyId
+            type: string
+            description: Redfin property ID
+            required: true
+            flag_name: property-id
+          - name: listingId
+            type: string
+            description: Redfin listing ID
+            flag_name: listing-id
+
+  market:
+    description: Regional market statistics
+    endpoints:
+      region_stats:
+        method: GET
+        path: /api/region/shared-region-info
+        description: Market-level statistics for a region
+        params:
+          - name: region_id
+            type: string
+            description: Region identifier
+            required: true
+            flag_name: region-id
+          - name: region_type
+            type: integer
+            description: Region type code
+            required: true
+            flag_name: region-type
+          - name: tz
+            type: string
+            description: Timezone
+            default: America/Los_Angeles
+

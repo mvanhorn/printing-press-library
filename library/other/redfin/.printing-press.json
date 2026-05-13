@@ -1,70 +1,59 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-05T02:12:47.431728Z",
-  "printing_press_version": "3.8.0",
+  "generated_at": "2026-05-13T04:13:05.510296Z",
+  "printing_press_version": "4.5.2",
   "api_name": "redfin",
   "display_name": "Redfin",
   "cli_name": "redfin-pp-cli",
-  "printer": "rderwin",
-  "printer_name": "rderwin",
+  "owner": "user",
+  "spec_path": "/Users/jarvis/printing-press/.runstate/printing-press-skills-1f937f71/runs/20260512-205152/research/redfin-spec.yaml",
   "spec_format": "internal",
-  "spec_checksum": "sha256:b3bd1d6d2195efc401d2679e5da6fbde774c990a3d1ae536a8ff489799847313",
-  "run_id": "20260504-175601",
-  "description": "Search Redfin homes from the terminal with offline sync, ranking, diff, sold comps, and market trends.",
+  "spec_checksum": "sha256:7ff184ecbcf9e40dc1f87a01bec339db4a29c46615ae33ea1180b58c312eff70",
+  "run_id": "20260512-205152",
   "mcp_binary": "redfin-pp-mcp",
-  "mcp_tool_count": 3,
+  "mcp_tool_count": 29,
+  "mcp_public_tool_count": 29,
   "mcp_ready": "full",
+  "api_version": "1.0",
   "auth_type": "none",
+  "printer": "das8terman",
+  "printer_name": "user",
   "novel_features": [
     {
-      "name": "Saved-search watch with diff",
-      "command": "watch",
-      "description": "Re-run a saved gis search and surface what's NEW, REMOVED, PRICE-CHANGED, or STATUS-CHANGED since the last sync."
+      "command": "diff",
+      "description": "Change detection across sync snapshots"
     },
     {
-      "name": "$/sqft net-HOA ranking",
-      "command": "rank",
-      "description": "Rank synced listings by price-per-sqft, with optional HOA-fee subtraction over a 5-year horizon."
+      "command": "watchlist check",
+      "description": "Named search with change digest"
     },
     {
-      "name": "Side-by-side compare",
-      "command": "compare",
-      "description": "Pull 2-8 listings through the combined Stingray detail endpoint and emit aligned columnar output (price, $/sqft, beds, baths, lot, year, schools, AVM delta, last sale, taxes)."
+      "command": "comp-score",
+      "description": "Ranked comparables by price-per-sqft similarity"
     },
     {
-      "name": "Sold-comp recipe",
-      "command": "comps",
-      "description": "For a subject listing, derive a circular polygon from --radius, run a sold-status search, filter by --sqft-tol and --bed-match, return the ranked comp set."
+      "command": "price-trend",
+      "description": "Weekly time series for price, DOM, inventory"
     },
     {
-      "name": "Stale + price-drop scan",
-      "command": "drops",
-      "description": "List active listings whose price dropped by N% in a window, OR whose days-on-market exceed a threshold."
+      "command": "deal-score",
+      "description": "Price drop \u00d7 DOM ranking for motivated sellers"
     },
     {
-      "name": "Multi-region union ranking",
-      "command": "rank",
-      "description": "Union synced listings across multiple region slugs and rank across the entire set, deduped by listing URL."
+      "command": "seller-pulse",
+      "description": "Seller-angle market snapshot"
     },
     {
-      "name": "Trends overlay across regions",
-      "command": "trends",
-      "description": "Pull aggregate-trends for N regions and emit one tidy long table (region × month × metric) over a window."
+      "command": "market-heat",
+      "description": "Region ranking by heat score"
     },
     {
-      "name": "Bulk export past the 350 cap",
-      "command": "export",
-      "description": "Slice the price space into bands, page-walk gis-csv per band until each returns under 350 rows, dedupe on listing URL, emit one CSV/JSON."
+      "command": "dom-distribution",
+      "description": "Days-on-market bucket distribution"
     },
     {
-      "name": "Neighborhood market summary",
-      "command": "summary",
-      "description": "Single command: active count, pending count, sold-90d count, median list, median sold, median DOM, median $/sqft, % with price drops, plus a trends snapshot."
-    },
-    {
-      "name": "Region appreciation ranker",
-      "command": "appreciation",
-      "description": "For all child neighborhoods under a parent metro, call aggregate-trends and rank by YoY median-sale % change."
+      "command": "matrix",
+      "description": "Cross-dimensional pivot table for zip \u00d7 property type"
     }
   ]
 }

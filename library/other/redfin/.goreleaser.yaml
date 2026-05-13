@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: redfin-pp-cli
     repository:
-      owner: rderwin
+      owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Search Redfin homes for sale via internal Stingray endpoints, sync to local SQLite, and run workflows the website doesn't expose — saved-search diff, $/sqft net-HOA ranking, sold comps, multi-region trends."
+    description: "Every Redfin property, market stat, and price history — synced locally, queryable offline, and built for agents."
     install: |
       bin.install "redfin-pp-cli"
       bin.install "redfin-pp-mcp"

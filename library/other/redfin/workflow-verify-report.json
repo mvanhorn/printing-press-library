@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/toriniku/printing-press/library/redfin",
+  "dir": "\u003ccli-dir\u003e/redfin-pp-cli",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

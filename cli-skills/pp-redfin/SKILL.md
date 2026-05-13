@@ -1,11 +1,15 @@
 ---
 name: pp-redfin
-description: "Stingray-backed Redfin CLI with the workflows the website can't do — saved-search diff, sold-price trends, $/sqft ranking, and offline SQL. Trigger phrases: `find homes for sale in <city>`, `watch redfin listings for <area>`, `rank houses by price per square foot`, `pull sold comps for <address>`, `compare these redfin listings`, `use redfin-pp-cli`, `run redfin`."
-author: "rderwin"
+description: "Every Redfin property, market stat, and price history — synced locally, queryable offline, and built for agents. Trigger phrases: `search redfin listings`, `check redfin prices`, `pull comps for this property`, `what changed in my saved search`, `is the market hot in this zip`, `track price trends for a neighborhood`, `use redfin`, `run redfin`."
+author: "user"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
-metadata: '{"openclaw":{"requires":{"bins":["redfin-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-cli@latest","bins":["redfin-pp-cli"],"label":"Install via go install"}]}}'
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - redfin-pp-cli
 ---
 
 # Redfin — Printing Press CLI
@@ -21,19 +25,15 @@ This skill drives the `redfin-pp-cli` binary. **You must verify the CLI is insta
 2. Verify: `redfin-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-cli@latest
-```
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Search homes for sale via Redfin's internal Stingray endpoints from the terminal, sync results to a local SQLite store, and run the workflows the website never built: diff a saved search week-over-week with `watch`, rank by $/sqft net of HOA with `rank`, pull sold comps for a subject property with `comps`, surface price drops or stale listings with `drops`, and overlay market trends across multiple cities with `trends`. Every command is `--json` / `--select`-shaped so an agent can pipe the output without burning context.
+The only Redfin CLI that accumulates sync history into a local SQLite store, so you can track price trends over time, diff what changed since last Tuesday, and rank deals by price drop × days on market — without re-fetching from the API every time. Beats the inactive Python library and the $5/1000-event Apify MCP servers on every dimension: free, fast, composable, and agent-native.
 
 ## When to Use This CLI
 
-Use this CLI when an agent or human needs structured Redfin data and needs the workflows the website itself doesn't expose: cross-region diffs over time, $/sqft rankings net of HOA, sold-comp recipes for a subject property, market-trends overlays across cities, and digest-style summaries. Reach for it for buyer comparison-shopping, investor screening across multiple zips, relocator city comparisons, and buyer's-agent comp pulls. Skip it for one-off browsing — the redfin.com website is fine for that.
+Use this CLI when you need to track Redfin property data over time, compare markets, or compute insights that require accumulating multiple data points (price trends, DOM distributions, deal scoring). The local SQLite store makes it especially useful for agents that need to answer 'what changed?' or 'which market is hottest?' without hitting the API repeatedly. For one-off lookups of a single property, the live search and property-detail commands work without syncing first.
 
 ## When Not to Use This CLI
 
@@ -43,145 +43,124 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 
 These capabilities aren't available in any other tool for this API.
 
-### Time-series intelligence
-- **`watch`** — Re-run a saved gis search and surface what's NEW, REMOVED, PRICE-CHANGED, or STATUS-CHANGED since the last sync.
+### Local state that compounds
 
-  _Pick this when an agent is tracking a buyer's shortlist over time and needs a reproducible 'what changed' digest._
+- **`diff`** — See exactly what changed in a saved search or region since your last sync — new listings, price drops, and status changes as structured JSON.
 
-  ```bash
-  redfin-pp-cli watch austin-3br --since 7d --json
-  ```
-- **`drops`** — List active listings whose price dropped by N% in a window, OR whose days-on-market exceed a threshold.
-
-  _Pick this when timing the market or surfacing lowball candidates before tour scheduling._
+  _Use when you need to know what changed in a market without re-running a full search; the answer is instant from local data._
 
   ```bash
-  redfin-pp-cli drops --region-id 30772 --region-type 6 --since 7d --min-pct 3 --dom-min 30 --json
+  redfin-pp-cli diff --region 94110 --since 2026-05-05 --json
   ```
+- **`watchlist check`** — Save named search criteria and check for new listings, price drops, or status changes since your last look.
 
-### Local-store math
-- **`rank`** — Rank synced listings by price-per-sqft, with optional HOA-fee subtraction over a 5-year horizon.
-
-  _Pick this when value-per-dollar is the goal and HOA-heavy condos must compete fairly against single-family._
+  _Use when monitoring specific markets for a buyer or seller; produces actionable deltas instead of full result sets._
 
   ```bash
-  redfin-pp-cli rank --by price-per-sqft --net-hoa --region-id 30772 --region-type 6 --json --limit 25
+  redfin-pp-cli watchlist check sf-condos --json --select address,price,price_delta,status
   ```
+- **`price-trend`** — Pull median price, days on market, and inventory as a time series for any zip code across your accumulated sync history.
 
-### Shortlist workflows
-- **`compare`** — Pull 2-8 listings through the combined Stingray detail endpoint and emit aligned columnar output (price, $/sqft, beds, baths, lot, year, schools, AVM delta, last sale, taxes).
-
-  _Pick this when narrowing a shortlist; the wide table makes school-rating and AVM-delta differences obvious._
+  _Use when an agent or analyst needs historical market trajectory; Redfin's UI shows only a three-month sparkline with no exportable data._
 
   ```bash
-  redfin-pp-cli compare <your-listing-url> <another-listing-url> --json
+  redfin-pp-cli price-trend --zip 94110 --weeks 12 --field median_price --json
   ```
-- **`comps`** — For a subject listing, derive a circular polygon from --radius, run a sold-status search, filter by --sqft-tol and --bed-match, return the ranked comp set.
+- **`market-heat`** — Rank all synced zip codes and neighborhoods from hottest to coldest by price velocity, inventory compression, and DOM delta.
 
-  _Pick this when an agent needs to pull comparable sales for a buyer offer; collapses 20 minutes of polygon-clicking into one command._
+  _Use when comparing markets for investment or relocation decisions; the ranking only exists after syncing multiple regions._
 
   ```bash
-  redfin-pp-cli comps <your-listing-url> --radius 0.5 --sqft-tol 15 --months 6 --bed-match --json
+  redfin-pp-cli market-heat --weeks 8 --sort price_velocity --top 10 --json --agent
   ```
+- **`matrix`** — Compare median price, DOM, and inventory across a grid of zip codes and property types in a single pivot table -- the ITA Matrix for real estate.
 
-### Cross-market joins
-- **`rank`** — Union synced listings across multiple region slugs and rank across the entire set, deduped by listing URL.
-
-  _Pick this when an agent needs a single ranked feed across multiple metros without writing a fan-out loop._
+  _Use when comparing markets across multiple property types simultaneously; surfaces the cross-dimensional pattern that normally requires dozens of separate searches._
 
   ```bash
-  redfin-pp-cli rank --regions 30772,30773,30774 --by price-per-sqft --beds-min 3 --price-max 600000 --json --limit 25
+  redfin-pp-cli matrix --zips 94110,94112,94103 --types condo,sfr --field median_price --json --agent --select zip,property_type,median_price,dom,inventory
   ```
-- **`trends`** — Pull aggregate-trends for N regions and emit one tidy long table (region × month × metric) over a window.
 
-  _Pick this when a relocator is comparing cities and needs the medians overlaid on the same axis._
+### Agent-native plumbing
+
+- **`comp-score`** — Rank recently sold comparables for a property by price-per-sqft similarity and recency, outputting a scored JSON list agents can act on.
+
+  _Use when valuing a property; replaces a three-tool manual workflow (browser + spreadsheet + Python) with a single composable command._
 
   ```bash
-  redfin-pp-cli trends --regions 30743,18028,30739 --metric median-sale --period 24 --json
+  redfin-pp-cli comp-score YOUR_PROPERTY --months 6 --beds 2 --baths 2 --json
   ```
+- **`deal-score`** — Score and rank active listings in a region by combining recent price drops with days-on-market to surface the most motivated-seller opportunities.
 
-### Bulk extraction
-- **`export`** — Slice the price space into bands, page-walk gis-csv per band until each returns under 350 rows, dedupe on listing URL, emit one CSV/JSON.
-
-  _Pick this when you need every comp for a year, not the first 350 sorted by relevance._
+  _Use when an investor or buyer wants to surface underpriced listings without manual spreadsheet analysis._
 
   ```bash
-  redfin-pp-cli export --region-slug "city/30772/TX/Austin" --status sold --year 2024 --csv > austin-sold-2024.csv
+  redfin-pp-cli deal-score --region 94110 --max-price 900000 --min-dom 30 --min-drop-pct 3 --json --agent
   ```
+- **`seller-pulse`** — Get a seller-oriented market snapshot: inventory trend, DOM trend, list-to-prior-sale ratio, and percentage of listings with price drops.
 
-### Aggregations
-- **`summary`** — Single command: active count, pending count, sold-90d count, median list, median sold, median DOM, median $/sqft, % with price drops, plus a trends snapshot.
-
-  _Pick this when an agent needs the one-shot snapshot of a market for a buyer brief._
+  _Use when an agent or seller needs to know whether market conditions favor listing now or waiting._
 
   ```bash
-  redfin-pp-cli summary 30772:6 --json
+  redfin-pp-cli seller-pulse --zip 94110 --weeks 4 --json
   ```
-- **`appreciation`** — For all child neighborhoods under a parent metro, call aggregate-trends and rank by YoY median-sale % change.
+- **`dom-distribution`** — Show the days-on-market distribution for active listings in a zip code — what percentage are fresh (0-7d), recent (8-30d), stale (31-90d), or old (90+d).
 
-  _Pick this when a relocator or investor needs the 'where in this metro is hottest' answer._
+  _Use when assessing whether a market has fresh inventory (competitive) or stale listings (buyer's market); key signal for offer strategy._
 
   ```bash
-  redfin-pp-cli appreciation --parent "city/30772/TX/Austin" --period 12 --json --limit 10
+  redfin-pp-cli dom-distribution --zip 94110 --json
   ```
-
-## HTTP Transport
-
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
-
-## Discovery Signals
-
-This CLI was generated with browser-observed traffic context.
-- Capture coverage: 0 API entries from 0 total network entries
-- Protocols: stingray-json-api (95% confidence)
-- Generation hints: Strip the {}&& CSRF prefix from every Stingray JSON response before decoding, Use Surf with Chrome TLS fingerprint at runtime (UsesBrowserHTTPTransport), Conservative rate limit: 1 req/s default with adaptive backoff on 429, Stingray is geo-restricted to US IPs; doctor command should warn non-US users, Region IDs are visible in redfin.com URL paths (e.g., /city/30772/TX/Austin); region type 6=city, 1=zip, 11=neighborhood
-- Candidate command ideas: homes — Stingray gis search is the primary entry point; listing — Listing detail composes initialInfo + aboveTheFold + belowTheFold; market — aggregate-trends endpoint exposes neighborhood medians
-- Caveats: csrf-prefix: Stingray JSON responses are prefixed with the literal bytes '{}&&' as CSRF prevention. Generated client must strip them before json.Unmarshal.; geo-restricted: Stingray endpoints are US-only. Non-US callers will get 403 regardless of TLS fingerprint.
 
 ## Command Reference
 
-**homes** — Search Redfin homes for sale via the internal Stingray /api/gis JSON endpoint.
+**comparables** — Comparable active and sold properties
 
-- `redfin-pp-cli homes` — Run a Stingray gis search and return parsed listing rows from the JSON map payload. Strip the {}&& CSRF prefix...
+- `redfin-pp-cli comparables nearby_homes` — Properties in the immediate neighborhood
+- `redfin-pp-cli comparables similar_listings` — Currently active similar listings
+- `redfin-pp-cli comparables similar_sold` — Recently sold comparable properties
 
-**listing** — Fetch full listing detail by combining initialInfo, aboveTheFold, and belowTheFold Stingray calls.
+**listings** — Property search and location autocomplete
 
-- `redfin-pp-cli listing` — First Stingray call for a listing — returns the canonical listingId and propertyId from the URL path.
+- `redfin-pp-cli listings autocomplete` — Autocomplete a location string to get region_id and region_type
+- `redfin-pp-cli listings csv` — Download search results as CSV
+- `redfin-pp-cli listings list` — Search properties by geographic filters
 
-**market** — Aggregate market trends for a region (median sale price, days on market, supply, list-to-sale ratio) over a window.
+**market** — Regional market statistics
 
-- `redfin-pp-cli market` — Fetch aggregate-trends JSON for one region and period (months).
+- `redfin-pp-cli market` — Market-level statistics for a region
 
+**neighborhood** — Neighborhood data, schools, commute, and lifestyle scores
 
-**Hand-written commands**
+- `redfin-pp-cli neighborhood commute` — Commute time estimates for drive, transit, and bike
+- `redfin-pp-cli neighborhood schools` — Nearby schools, parks, shopping, and amenities
+- `redfin-pp-cli neighborhood stats` — Walk Score, Bike Score, and Transit Score for a property location
 
-- `redfin-pp-cli homes` — Search Redfin for-sale homes by city, beds, baths, price, etc.
-- `redfin-pp-cli sold` — Search Redfin sold homes by city + filters (delegates to homes with status=sold).
-- `redfin-pp-cli listing <url-or-path>` — Fetch full listing detail (initialInfo + aboveTheFold + belowTheFold combined).
-- `redfin-pp-cli region` — Region tools: resolve a city/zip to a Redfin region_id.
-- `redfin-pp-cli feed` — Tail Redfin's RSS feeds: new listings, updated listings.
-- `redfin-pp-cli sync-search <saved-search>` — Run a saved search and snapshot results into the local store.
-- `redfin-pp-cli watch <saved-search>` — Diff the latest sync against the previous: NEW / REMOVED / PRICE-CHANGED / STATUS-CHANGED listings.
-- `redfin-pp-cli rank` — Rank synced listings by ratio metrics — $/sqft (optionally net of HOA), $/bed.
-- `redfin-pp-cli compare <url-or-id...>` — Pivot 2-8 listings into a wide table — one column per listing — with $/sqft, AVM delta, school ratings.
-- `redfin-pp-cli comps <subject-url>` — Pull sold comps for a subject listing within a radius, sqft tolerance, and recency window.
-- `redfin-pp-cli drops` — List active listings whose price dropped by N% in a window OR whose DOM exceeds a threshold.
-- `redfin-pp-cli market <region-slug>` — Single-region snapshot: counts, medians, DOM, % drops, plus trends call.
-- `redfin-pp-cli summary <region-slug>` — Neighborhood market summary: active/pending/sold-90d counts, medians, DOM, % drops.
-- `redfin-pp-cli trends` — Multi-region aggregate-trends overlay; emits tidy table (region × month × metric).
-- `redfin-pp-cli appreciation` — Rank child neighborhoods under a metro by YoY median-sale % change.
-- `redfin-pp-cli export` — Bulk export past Redfin's 350-row gis-csv cap by slicing price bands and deduping on URL.
+**properties** — Property details and history
 
+- `redfin-pp-cli properties above_fold` — Primary property details including price, beds, baths, photos
+- `redfin-pp-cli properties activity` — Listing status history and activity changes
+- `redfin-pp-cli properties below_fold` — Full property details including MLS data, price history, and amenities
+- `redfin-pp-cli properties building` — Condo building details and HOA information
+- `redfin-pp-cli properties comments` — Public comments on a property listing
+- `redfin-pp-cli properties cost_ownership` — Monthly cost breakdown including mortgage, taxes, insurance, HOA
+- `redfin-pp-cli properties floor_plans` — Floor plans for rental properties
+- `redfin-pp-cli properties hood_photos` — Neighborhood street photos
+- `redfin-pp-cli properties info_panel` — Compact property summary panel
+- `redfin-pp-cli properties initial_info` — Get listing ID and basic property data from a Redfin URL path
+- `redfin-pp-cli properties page_tags` — Page metadata tags for a property
+- `redfin-pp-cli properties parcel` — Property parcel and lot information
+- `redfin-pp-cli properties primary_region` — Primary region context for a property
+- `redfin-pp-cli properties seller_data` — Seller information for claimed homes
+- `redfin-pp-cli properties tour_dates` — Available tour dates and times
 
-## Freshness Contract
+**valuation** — Automated valuation and price history
 
-This printed CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, those paths check `sync_state` and may run a bounded refresh before reading local data. `--data-source local` never refreshes. `--data-source live` reads the API and does not mutate the local store. Set `REDFIN_NO_AUTO_REFRESH=1` to skip the freshness hook without changing source selection.
+- `redfin-pp-cli valuation avm` — Current automated valuation model (AVM) estimate
+- `redfin-pp-cli valuation avm_history` — Historical AVM price trend data
+- `redfin-pp-cli valuation owner_estimate` — Owner-provided or derived valuation estimate
+- `redfin-pp-cli valuation rental_estimate` — Estimated rental value for a property
 
-Covered paths:
-
-- `redfin-pp-cli homes`
-
-When JSON output uses the generated provenance envelope, freshness metadata appears at `meta.freshness`. Treat it as current-cache freshness for the covered command path, not a guarantee of complete historical backfill or API-specific enrichment.
 
 ### Finding the right command
 
@@ -196,45 +175,45 @@ redfin-pp-cli which "<capability in your own words>"
 ## Recipes
 
 
-### Three-metro relocator overlay
+### Find price-dropped deals in a neighborhood
 
 ```bash
-redfin-pp-cli trends --regions 30743,18028,30739 --metric median-sale --period 24 --json --select rows.region,rows.month,rows.value
+redfin-pp-cli deal-score --region 94110 --min-dom 30 --min-drop-pct 3 --max-price 900000 --json --agent --select address,price,dom,price_drop_pct,deal_rank
 ```
 
-Pulls aggregate-trends for all three metros over the same 24-month window, joins them into one tidy long table for export — the overlay Redfin's UI never produces.
+Surfaces listings where price dropped 3%+ AND have been sitting 30+ days — both signals for motivated sellers.
 
-### Buyer's-agent comp pull in one command
+### Compare market conditions across zip codes
 
 ```bash
-redfin-pp-cli comps <your-listing-url> --radius 0.5 --sqft-tol 15 --months 6 --bed-match --json
+redfin-pp-cli market-heat --weeks 8 --sort price_velocity --top 10 --json --agent --select zip,median_price,price_velocity,dom_delta,inventory_compression
 ```
 
-Resolves the subject listing, derives a 0.5-mile circle, pulls sold homes in the last 6 months matching beds and within 15% sqft, returns the ranked comp set ready for a buyer offer brief.
+Ranks synced markets from hottest to coolest by price velocity; requires at least two sync runs per region.
 
-### Investor screen across 5 zips
+### Check what changed in a watchlist since yesterday
 
 ```bash
-redfin-pp-cli rank --regions 30772,30773,30774,30775,30776 --by price-per-sqft --net-hoa --beds-min 3 --price-max 600000 --status for-sale --json --limit 25
+redfin-pp-cli watchlist check sf-condos --since 24h --json --select address,price,price_delta,status,days_on_market
 ```
 
-Unions synced searches across 5 Austin zips and ranks the full union by net-HOA $/sqft. Filter narrows to investor screen criteria; result is a single ranked feed Redfin cannot produce.
+Returns only listings that are new, dropped in price, or went pending since the last check — no full result set to parse.
 
-### Weekly diff for a saved search
+### Run comps on a property before an offer
 
 ```bash
-redfin-pp-cli watch austin-3br --since 7d --json --select new_listings.url,new_listings.price,price_changed.url,price_changed.delta_pct
+redfin-pp-cli comp-score YOUR_PROPERTY --months 6 --beds 2 --baths 1 --json --agent --select address,sold_price,price_per_sqft,ppsqft_delta,days_since_sold,similarity_rank
 ```
 
-Composes the watch result with --select to emit only the columns the agent needs — agents can drop straight into a weekly buyer email without extra parsing.
+Ranks nearby sold comps by combined recency and price-per-sqft match; the --select flag narrows the output for agent context budget.
 
-### Bulk pull sold homes for 2024
+### Seller timing check for a zip code
 
 ```bash
-redfin-pp-cli export --region-slug "city/30772/TX/Austin" --status sold --year 2024 --csv > austin-sold-2024.csv
+redfin-pp-cli seller-pulse --zip 94110 --weeks 4 --json --agent
 ```
 
-Slices the price space into bands, page-walks gis-csv per band, dedupes on listing URL across bands, emits a single CSV that exceeds Redfin's 350-row cap.
+Returns inventory_delta, dom_trend, pct_with_price_drop, and list_to_prior_sale_ratio as a seller-angle snapshot.
 
 ## Auth Setup
 
@@ -250,7 +229,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  redfin-pp-cli homes --agent --select id,name,status
+  redfin-pp-cli listings list --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -302,7 +281,7 @@ A profile is a saved set of flag values, reused across invocations. Use it when 
 
 ```
 redfin-pp-cli profile save briefing --json
-redfin-pp-cli --profile briefing homes
+redfin-pp-cli --profile briefing listings list
 redfin-pp-cli profile list --json
 redfin-pp-cli profile show briefing
 redfin-pp-cli profile delete briefing --yes
@@ -331,15 +310,13 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-1. Install the MCP server:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-mcp@latest
-   ```
-2. Register with Claude Code:
-   ```bash
-   claude mcp add redfin-pp-mcp -- redfin-pp-mcp
-   ```
-3. Verify: `claude mcp list`
+Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
+
+```bash
+claude mcp add redfin-pp-mcp -- redfin-pp-mcp
+```
+
+Verify: `claude mcp list`
 
 ## Direct Use
 
