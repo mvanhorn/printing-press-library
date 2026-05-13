@@ -26,6 +26,11 @@ type SyncState struct {
 	LastDecryptErrorMsg  string    `json:"last_decrypt_error_msg,omitempty"`
 	LastTokenSource      string    `json:"last_token_source,omitempty"`
 	LastDocumentsFetched int       `json:"last_documents_fetched,omitempty"`
+	// LastHydrateErrorMsg carries an error from the /v2/get-documents API
+	// hydration step, distinct from decrypt failures. The two have different
+	// remediation paths (auth/network vs. Keychain) and should not be
+	// surfaced through a single field.
+	LastHydrateErrorMsg string `json:"last_hydrate_error_msg,omitempty"`
 }
 
 // DecryptStatus enum (string-typed to keep the JSON stable).

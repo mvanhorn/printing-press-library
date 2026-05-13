@@ -185,25 +185,38 @@ type GetDocumentsResponse struct {
 // internal API paginates; the caller is responsible for offset/limit
 // management.
 func (c *InternalClient) GetDocuments(limit, offset int, includePanel bool) ([]Document, error) {
+	env, err := c.GetDocumentsPage(limit, offset, includePanel)
+	if err != nil {
+		return nil, err
+	}
+	return env.Docs, nil
+}
+
+// GetDocumentsPage calls /v2/get-documents and returns the full
+// response envelope including pagination flags (HasMore, NextCursor).
+// Callers that page through the endpoint should prefer this method so
+// they can terminate on has_more=false rather than guessing from
+// returned-row count. Both response shapes Granola ships (bare array
+// and wrapped {docs:[]}) are handled; bare-array responses surface as
+// HasMore=false because the bare shape carries no pagination metadata.
+func (c *InternalClient) GetDocumentsPage(limit, offset int, includePanel bool) (GetDocumentsResponse, error) {
 	if limit <= 0 {
 		limit = 100
 	}
 	body := GetDocumentsRequest{Limit: limit, Offset: offset, IncludeLastViewedPanel: includePanel}
 	raw, err := c.post("/v2/get-documents", body)
 	if err != nil {
-		return nil, err
+		return GetDocumentsResponse{}, err
 	}
-	// Granola has shipped two response shapes: a bare array and the
-	// wrapped {docs:[]} envelope. Try the envelope first.
 	var env GetDocumentsResponse
 	if err := json.Unmarshal(raw, &env); err == nil && env.Docs != nil {
-		return env.Docs, nil
+		return env, nil
 	}
 	var arr []Document
 	if err := json.Unmarshal(raw, &arr); err == nil {
-		return arr, nil
+		return GetDocumentsResponse{Docs: arr}, nil
 	}
-	return nil, fmt.Errorf("granola get-documents: unrecognized response shape: %s", truncate(string(raw), 200))
+	return GetDocumentsResponse{}, fmt.Errorf("granola get-documents: unrecognized response shape: %s", truncate(string(raw), 200))
 }
 
 // GetDocumentsBatch calls /v1/get-documents-batch with the given ids.

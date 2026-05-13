@@ -96,7 +96,7 @@ The hydration is idempotent: re-running replaces every row.`,
 				LastDocumentsFetched: docsFetched,
 			}
 			if hydrateErr != nil {
-				state.LastDecryptErrorMsg = hydrateErr.Error()
+				state.LastHydrateErrorMsg = hydrateErr.Error()
 			}
 			if writeErr := granola.WriteSyncState(state); writeErr != nil {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to write sync state: %v\n", writeErr)

@@ -56,16 +56,19 @@ func TestHydrateDocumentsFromAPI_Pagination(t *testing.T) {
 	calls := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls++
-		// First call returns a full page (100 docs), second returns 1, signaling done.
+		// First call returns a full page (100 docs) with has_more=true; second
+		// returns 1 doc with has_more=false signaling end-of-stream.
 		var docs []map[string]any
+		hasMore := false
 		if calls == 1 {
 			for i := 0; i < 100; i++ {
 				docs = append(docs, map[string]any{"id": fmt.Sprintf("p1-%d", i)})
 			}
+			hasMore = true
 		} else {
 			docs = []map[string]any{{"id": "p2-0"}}
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs})
+		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs, "has_more": hasMore})
 	}))
 	defer srv.Close()
 
@@ -85,6 +88,41 @@ func TestHydrateDocumentsFromAPI_Pagination(t *testing.T) {
 	}
 	if calls != 2 {
 		t.Errorf("expected 2 API calls, got %d", calls)
+	}
+}
+
+// TestHydrateDocumentsFromAPI_FullPageNoHasMore covers the precise scenario
+// Greptile flagged: a wrapped envelope returning exactly DefaultDocumentsPageSize
+// rows with has_more=false (or absent) must stop without a follow-up round-trip.
+func TestHydrateDocumentsFromAPI_FullPageNoHasMore(t *testing.T) {
+	calls := 0
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		var docs []map[string]any
+		for i := 0; i < 100; i++ {
+			docs = append(docs, map[string]any{"id": fmt.Sprintf("only-%d", i)})
+		}
+		// has_more explicitly false even though page is exactly full.
+		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs, "has_more": false})
+	}))
+	defer srv.Close()
+
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "test-token")
+	ResetTokenCache()
+	defer ResetTokenCache()
+	client, _ := NewInternalClient()
+	client.SetBaseURL(srv.URL)
+	cache := &Cache{Documents: map[string]Document{}}
+
+	n, err := HydrateDocumentsFromAPI(cache, client)
+	if err != nil {
+		t.Fatalf("HydrateDocumentsFromAPI: %v", err)
+	}
+	if n != 100 {
+		t.Errorf("expected 100 docs from single page, got %d", n)
+	}
+	if calls != 1 {
+		t.Errorf("expected 1 API call (no extra round-trip), got %d", calls)
 	}
 }
 

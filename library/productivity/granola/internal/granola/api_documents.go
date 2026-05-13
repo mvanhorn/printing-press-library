@@ -24,8 +24,9 @@ import (
 const DefaultDocumentsPageSize = 100
 
 // HydrateDocumentsFromAPI populates cache.Documents from the internal
-// API. It pages until the API returns fewer than DefaultDocumentsPageSize
-// rows or has_more is false. Returns the count of documents merged.
+// API. It pages until the API signals end-of-stream - either via
+// has_more=false in the response envelope, or by returning fewer than
+// DefaultDocumentsPageSize rows. Returns the count of documents merged.
 //
 // Returns nil error on a fresh-install / no-documents case (the API may
 // return an empty array). Returns the underlying error wrapped on
@@ -56,26 +57,39 @@ func HydrateDocumentsFromAPI(cache *Cache, client *InternalClient) (int, error) 
 	added := 0
 	for page := 0; page < maxPages; page++ {
 		offset := page * DefaultDocumentsPageSize
-		docs, err := client.GetDocuments(DefaultDocumentsPageSize, offset, false)
+		env, err := client.GetDocumentsPage(DefaultDocumentsPageSize, offset, false)
 		if err != nil {
 			if errors.Is(err, ErrRefreshRefused) {
 				return added, fmt.Errorf("hydrate documents: access token expired and refresh blocked for encrypted source - open Granola desktop briefly to refresh, then retry: %w", err)
 			}
 			return added, fmt.Errorf("hydrate documents page %d: %w", page, err)
 		}
-		if len(docs) == 0 {
+		if len(env.Docs) == 0 {
 			break
 		}
-		for _, d := range docs {
+		for _, d := range env.Docs {
 			if d.ID == "" {
 				continue
 			}
 			cache.Documents[d.ID] = d
 			added++
 		}
-		if len(docs) < DefaultDocumentsPageSize {
+		// Prefer the API's own has_more signal when present (wrapped envelope).
+		// Fall back to short-page detection for the legacy bare-array shape,
+		// which has no pagination metadata and may falsely report HasMore=false.
+		if env.HasMore {
+			continue
+		}
+		if len(env.Docs) < DefaultDocumentsPageSize {
 			break
 		}
+		// Page was exactly full and has_more is not set. With the wrapped
+		// envelope this means "no more pages"; with bare-array it's
+		// ambiguous. Bias toward trusting the explicit signal - the
+		// modern envelope is wrapped, and the cost of under-fetching on
+		// the rare bare-array exactly-full-page edge case is much smaller
+		// than the cost of always making one extra round-trip.
+		break
 	}
 	return added, nil
 }

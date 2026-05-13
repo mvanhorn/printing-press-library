@@ -157,7 +157,7 @@ func TestRefreshAccessToken_AllowsPlaintextSource(t *testing.T) {
 	}
 }
 
-func TestLoadTokensRaw_DetectsEncryptedSource(t *testing.T) {
+func TestLoadTokensRaw_DetectsPlaintextSource(t *testing.T) {
 	ResetTokenCache()
 	defer ResetTokenCache()
 	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
@@ -195,6 +195,41 @@ func TestLoadTokensRaw_EnvOverrideSource(t *testing.T) {
 	}
 	if src != TokenSourceEnvOverride {
 		t.Errorf("expected TokenSourceEnvOverride, got %v", src)
+	}
+}
+
+// TestLoadTokensRaw_DetectsEncryptedSource exercises the encrypted-supabase
+// path using the committed safestorage fixture. Confirms loadFromSupabaseJSON
+// prefers supabase.json.enc over supabase.json plaintext when both are
+// present, and that the returned TokenSource correctly flags the encrypted
+// origin so D6 (refresh-refusal) fires downstream.
+func TestLoadTokensRaw_DetectsEncryptedSource(t *testing.T) {
+	ResetTokenCache()
+	defer ResetTokenCache()
+	t.Setenv("GRANOLA_WORKOS_TOKEN", "")
+	t.Setenv("GRANOLA_WORKOS_REFRESH", "")
+	tmp := t.TempDir()
+	t.Setenv("GRANOLA_SUPPORT_DIR", tmp)
+	t.Setenv("GRANOLA_SAFESTORAGE_KEY_OVERRIDE", "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=")
+
+	// Copy the committed safestorage test fixture into the simulated support dir.
+	fixture, err := os.ReadFile("safestorage/testdata/fixture-supabase.enc")
+	if err != nil {
+		t.Fatalf("read fixture: %v", err)
+	}
+	if err := os.WriteFile(tmp+"/supabase.json.enc", fixture, 0o644); err != nil {
+		t.Fatalf("write enc: %v", err)
+	}
+
+	tok, src, err := loadTokensRaw()
+	if err != nil {
+		t.Fatalf("loadTokensRaw: %v", err)
+	}
+	if src != TokenSourceEncryptedSupabase {
+		t.Errorf("expected TokenSourceEncryptedSupabase, got %v", src)
+	}
+	if tok.AccessToken != "test-access" {
+		t.Errorf("expected access_token=test-access from fixture, got %q", tok.AccessToken)
 	}
 }
 

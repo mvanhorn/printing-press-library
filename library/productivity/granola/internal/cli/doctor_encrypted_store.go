@@ -68,6 +68,10 @@ func collectEncryptedStoreReport(report map[string]any) {
 		if state.LastDocumentsFetched > 0 {
 			report["encrypted_store_documents_fetched"] = state.LastDocumentsFetched
 		}
+		if state.LastHydrateErrorMsg != "" {
+			report["encrypted_store_hydrate_error"] = state.LastHydrateErrorMsg
+			report["encrypted_store_hint"] = "Decrypt succeeded; document hydration from /v2/get-documents failed (auth or network). Cached transcripts/folders/recipes are still usable; meetings list may be stale."
+		}
 	case granola.DecryptStatusFailed:
 		msg := "ERROR last sync failed to decrypt"
 		if state.LastDecryptErrorClass != "" {
