@@ -65,7 +65,11 @@ func newGeocodingPromotedCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(fmt.Errorf("reading geocoding response: %w", readErr))
 			}
 			if resp.StatusCode >= 400 {
-				return apiErr(fmt.Errorf("geocoding API returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 200)))
+				// Preserve the typed exit-code contract — 404 → exit 3,
+				// 401/403 → exit 4, 429 → exit 7 — instead of forcing every
+				// non-2xx to apiErr (exit 5). classifyAPIError reads the
+				// "HTTP <N>" substring from the message.
+				return classifyAPIError(fmt.Errorf("geocoding API returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 200)))
 			}
 			data := json.RawMessage(body)
 			prov := DataProvenance{Source: "live"}
