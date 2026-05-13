@@ -76,6 +76,7 @@ Pass the global --dry-run flag to preview without writing.`,
 				AddedAt string
 				Name    string
 			}
+			// PATCH (fix-playlist-track-pagination, fix-merge-replace-and-paginate):
 			// Paginate each source via /playlists/{id}/tracks so playlists
 			// with more than 100 tracks contribute their full contents to
 			// the merge (the embedded tracks field on GET /playlists/{id}
@@ -133,6 +134,7 @@ Pass the global --dry-run flag to preview without writing.`,
 				}
 			}
 
+			// PATCH (fix-merge-replace-and-paginate):
 			// Write to destination in 100-track chunks. The first chunk uses
 			// PUT /playlists/{id}/tracks which REPLACES the destination's
 			// existing contents — otherwise re-running merge silently doubles

@@ -265,6 +265,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newQueueCmd(flags))    // T8 queue from-saved
 	rootCmd.AddCommand(newDiscoverCmd(flags)) // T9-T12 discover ...
 	rootCmd.AddCommand(newSyncExtrasCmd(flags))
+	// PATCH (add-play-on-device-by-name): register T13 play-on alongside the other transcendence commands.
 	rootCmd.AddCommand(newPlayOnCmd(flags)) // play-on <device-name>: resolve via devices_seen cache + live
 
 	return rootCmd

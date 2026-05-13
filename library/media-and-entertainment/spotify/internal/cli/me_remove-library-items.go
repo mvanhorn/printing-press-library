@@ -29,6 +29,7 @@ func newMeRemoveLibraryItemsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH (fix-library-uris-as-query-param):
 			// Spec declares `uris` as a query parameter, not a body field
 			// (DELETE /me/library?uris=spotify:track:abc,spotify:album:xyz).
 			path := "/me/library?uris=" + url.QueryEscape(flagUris)

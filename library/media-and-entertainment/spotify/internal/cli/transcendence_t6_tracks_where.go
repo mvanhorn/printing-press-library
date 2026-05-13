@@ -65,6 +65,7 @@ func computeTracksWhere(db storeQueryer, trackID string) (*tracksWhereResult, er
 		TopSnapshots: []map[string]any{},
 	}
 
+	// PATCH (fix-tracks-where-distinct-sql):
 	// Playlists. Return one row per playlist — the position from the
 	// most recent snapshot of that playlist that contains this track.
 	// The previous query was `SELECT DISTINCT ... ORDER BY captured_at DESC`

@@ -36,6 +36,7 @@ func newMeSaveLibraryItemsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH (fix-library-uris-as-query-param):
 			// Spec declares `uris` as a query parameter, not a body field
 			// (PUT /me/library?uris=spotify:track:abc,spotify:album:xyz).
 			// Resolve the uris source (flag wins; --stdin reads a JSON body

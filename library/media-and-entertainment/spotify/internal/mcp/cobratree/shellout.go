@@ -37,6 +37,7 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 	}
 }
 
+// PATCH (fix-mcp-shellout-blocked-flags):
 // blockedRootFlags are root-level flags that the structured MCP args
 // channel must NOT pass to the CLI. They change global behavior (auth
 // target, output sink, profile, config file) and would let a malicious

@@ -61,6 +61,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 			if err != nil {
 				return err
 			}
+			// PATCH (fix-playlist-track-pagination):
 			// Paginate /playlists/{id}/tracks to avoid the 100-item embed cap
 			// on GET /playlists/{id}; otherwise we silently dedupe only the
 			// first 100 tracks of any larger playlist.
@@ -136,6 +137,7 @@ With --apply, calls Spotify's remove-tracks endpoint with a snapshot guard.`,
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
+			// PATCH (fix-dedupe-snapshot-aware-delete):
 			// Apply: snapshot-aware DELETE /playlists/{id}/tracks. The
 			// tracks + snapshot_id payload is required by Spotify and goes
 			// in the JSON body (not the URL). The original c.Delete call

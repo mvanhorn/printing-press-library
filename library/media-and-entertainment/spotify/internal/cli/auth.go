@@ -98,6 +98,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 		Use:   "login",
 		Short: "Authenticate via OAuth2",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// PATCH (fix-auth-loopback-and-dry-run):
 			// Short-circuit dry-run / verify-env BEFORE arg validation so
 			// shipcheck can probe the command shape without credentials.
 			if dryRunOK(flags) || cliutil.IsVerifyEnv() {

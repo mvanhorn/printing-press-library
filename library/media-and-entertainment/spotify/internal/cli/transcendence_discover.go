@@ -264,6 +264,7 @@ playlists become the graph substrate instead.`,
 			}
 			_ = json.Unmarshal(artistData, &artist)
 
+			// PATCH (fix-discover-spotify-new-app-limit-caps):
 			// Step 2: search public playlists by name. Spotify's
 			// post-2024-11-27 new-app constraint caps limit at ~10 on
 			// /search (the documented max of 50 returns "Invalid limit"

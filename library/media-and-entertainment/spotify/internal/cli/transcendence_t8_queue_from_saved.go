@@ -10,6 +10,10 @@
 // the saved_tracks schema is (user_id, track_id, saved_at) and does not
 // carry artist or playlist linkage. Adding filters requires a join
 // against a tracks-cache table populated by sync.
+//
+// PATCH (fix-queue-from-saved-remove-unimplemented-flags): the --artist
+// and --playlist flags were removed in this print; they were registered
+// but never referenced in the SQL query and misled callers.
 
 package cli
 

@@ -55,6 +55,7 @@ First-time call records the snapshot and reports "baseline" with zero changes.`,
 			if err != nil {
 				return err
 			}
+			// PATCH (fix-playlist-track-pagination):
 			// Snapshot the full playlist contents. fetchFullPlaylist paginates
 			// /playlists/{id}/tracks instead of relying on the 100-item embed
 			// cap on GET /playlists/{id}, which would silently truncate the

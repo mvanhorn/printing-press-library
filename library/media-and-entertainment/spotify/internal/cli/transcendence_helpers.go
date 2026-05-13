@@ -68,6 +68,7 @@ type playlistTrackItem struct {
 	} `json:"track"`
 }
 
+// PATCH (fix-playlist-track-pagination):
 // fetchFullPlaylist returns a playlist's metadata + every track row,
 // paginating /playlists/{id}/tracks to bypass the 100-item embed cap on
 // GET /playlists/{id}. Calls one metadata fetch (with ?fields= to keep

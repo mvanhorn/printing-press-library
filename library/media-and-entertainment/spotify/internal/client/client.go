@@ -159,6 +159,7 @@ func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json
 	return c.do("DELETE", path, nil, nil, headers)
 }
 
+// PATCH (fix-dedupe-snapshot-aware-delete):
 // DeleteWithBody sends a DELETE with a JSON body. Spotify's snapshot-aware
 // playlist-track removal (DELETE /playlists/{id}/tracks) and a few similar
 // endpoints across vendor APIs put structured data in the request body,
@@ -376,6 +377,7 @@ func (c *Client) authHeader() (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
+	// PATCH (fix-token-refresh-buffer):
 	// Refresh 60s before expiry, not at expiry. A token that's valid at
 	// authHeader() time can still expire mid-flight on a slow request
 	// (large sync batch, paginated walk). The buffer trades one extra
