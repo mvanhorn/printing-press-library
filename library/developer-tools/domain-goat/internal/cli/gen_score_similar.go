@@ -162,6 +162,16 @@ func newGenSuggestCmd(flags *rootFlags) *cobra.Command {
 				}
 				rows = append(rows, row)
 			}
+			// Sort by score BEFORE the availability filter so that the
+			// availableOnly loop's `count` early-exit returns the top N
+			// highest-scoring available domains rather than the first N
+			// alphabetical ones (gen.Generate emits its candidates in
+			// alphabetical FQDN order).
+			if includeScore {
+				sort.Slice(rows, func(i, j int) bool {
+					return rows[i].Score.Total > rows[j].Score.Total
+				})
+			}
 			// availability filter (optional, slow — only when explicitly requested)
 			if availableOnly {
 				ctx, cancel := context.WithTimeout(cmd.Context(), 90*time.Second)
@@ -183,11 +193,6 @@ func newGenSuggestCmd(flags *rootFlags) *cobra.Command {
 					filtered = append(filtered, r)
 				}
 				rows = filtered
-			} else if includeScore {
-				// sort by score desc
-				sort.Slice(rows, func(i, j int) bool {
-					return rows[i].Score.Total > rows[j].Score.Total
-				})
 			}
 			if maxRenewal > 0 {
 				// If the store can't open we MUST return — silently skipping
