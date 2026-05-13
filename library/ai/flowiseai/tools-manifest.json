@@ -1,0 +1,1612 @@
+{
+  "api_name": "flowiseai",
+  "base_url": "http://localhost:3000/api/v1",
+  "description": "FlowiseAI is an open-source visual builder and REST runtime for LLM chatflows, AI agents, and RAG pipelines. This CLI gives an agent (or a human) the single binary needed to drive a self-hosted or Flowise Cloud instance: list and manage chatflows, run predictions with streaming, ingest documents into RAG document stores, replay any prediction by chatId, and audit responses against the source documents they cited.\nAuthentication uses a bearer token (instance-level API key via `FLOWISE_API_KEY`); the base URL points at your Flowise host (via `FLOWISE_BASE_URL`, default `http://localhost:3000`).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "FLOWISE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FLOWISE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "assistants_create",
+      "description": "Create a new assistant with the provided details. Optional: createdDate, credential, details (plus 3 more). Returns the new Assistant.",
+      "method": "POST",
+      "path": "/assistants",
+      "params": [
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Created date"
+        },
+        {
+          "name": "credential",
+          "type": "string",
+          "location": "body",
+          "description": "Credential"
+        },
+        {
+          "name": "details",
+          "type": "object",
+          "location": "body",
+          "description": "Details"
+        },
+        {
+          "name": "iconSrc",
+          "type": "string",
+          "location": "body",
+          "description": "Icon src"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Updated date"
+        }
+      ]
+    },
+    {
+      "name": "assistants_delete",
+      "description": "Delete an assistant by ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/assistants/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Assistant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assistants_get-by-id",
+      "description": "Retrieve a specific assistant by ID. Required: id. Returns the Assistant.",
+      "method": "GET",
+      "path": "/assistants/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Assistant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assistants_list",
+      "description": "Retrieve a list of all assistants. Returns array of Assistant.",
+      "method": "GET",
+      "path": "/assistants",
+      "params": []
+    },
+    {
+      "name": "assistants_update",
+      "description": "Update the details of an existing assistant. Required: id. Optional: createdDate, credential, details (plus 2 more). Returns the updated Assistant.",
+      "method": "PUT",
+      "path": "/assistants/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Assistant ID",
+          "required": true
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Created date"
+        },
+        {
+          "name": "credential",
+          "type": "string",
+          "location": "body",
+          "description": "Credential"
+        },
+        {
+          "name": "details",
+          "type": "object",
+          "location": "body",
+          "description": "Details"
+        },
+        {
+          "name": "iconSrc",
+          "type": "string",
+          "location": "body",
+          "description": "Icon src"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Updated date"
+        }
+      ]
+    },
+    {
+      "name": "attachments_create",
+      "description": "Return contents of the files in plain string format. Required: chatflowId, chatId, files. Optional: base64 (default: false). Returns array of CreateAttachmentResponse.",
+      "method": "POST",
+      "path": "/attachments/{chatflowId}/{chatId}",
+      "params": [
+        {
+          "name": "chatflowId",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        },
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "path",
+          "description": "Chat ID",
+          "required": true
+        },
+        {
+          "name": "base64",
+          "type": "bool",
+          "location": "body",
+          "description": "Return contents of the files in base64 format"
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files to be uploaded",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chatflows_create",
+      "description": "Create a new chatflow with the provided details. Optional: analytic, apiConfig, apikeyid (plus 11 more). Returns the new Chatflow.",
+      "method": "POST",
+      "path": "/chatflows",
+      "params": [
+        {
+          "name": "analytic",
+          "type": "string",
+          "location": "body",
+          "description": "Analytic"
+        },
+        {
+          "name": "apiConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Api config"
+        },
+        {
+          "name": "apikeyid",
+          "type": "string",
+          "location": "body",
+          "description": "Apikeyid"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "chatbotConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Chatbot config"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Created date"
+        },
+        {
+          "name": "deployed",
+          "type": "bool",
+          "location": "body",
+          "description": "Deployed"
+        },
+        {
+          "name": "flowData",
+          "type": "string",
+          "location": "body",
+          "description": "Flow data"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "isPublic",
+          "type": "bool",
+          "location": "body",
+          "description": "Is public"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "speechToText",
+          "type": "string",
+          "location": "body",
+          "description": "Speech to text"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Updated date"
+        }
+      ]
+    },
+    {
+      "name": "chatflows_delete",
+      "description": "Delete a chatflow by ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/chatflows/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chatflows_get-by-api-key",
+      "description": "Retrieve a chatflow using an API key. Required: apikey. Returns the Chatflow.",
+      "method": "GET",
+      "path": "/chatflows/apikey/{apikey}",
+      "params": [
+        {
+          "name": "apikey",
+          "type": "string",
+          "location": "path",
+          "description": "API key associated with the chatflow",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chatflows_get-by-id",
+      "description": "Retrieve a specific chatflow by ID. Required: id. Returns the Chatflow.",
+      "method": "GET",
+      "path": "/chatflows/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "chatflows_list",
+      "description": "Retrieve a list of all chatflows. Returns array of Chatflow.",
+      "method": "GET",
+      "path": "/chatflows",
+      "params": []
+    },
+    {
+      "name": "chatflows_update",
+      "description": "Update the details of an existing chatflow. Required: id. Optional: analytic, apiConfig, apikeyid (plus 10 more). Returns the updated Chatflow.",
+      "method": "PUT",
+      "path": "/chatflows/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        },
+        {
+          "name": "analytic",
+          "type": "string",
+          "location": "body",
+          "description": "Analytic"
+        },
+        {
+          "name": "apiConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Api config"
+        },
+        {
+          "name": "apikeyid",
+          "type": "string",
+          "location": "body",
+          "description": "Apikeyid"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Category"
+        },
+        {
+          "name": "chatbotConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Chatbot config"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Created date"
+        },
+        {
+          "name": "deployed",
+          "type": "bool",
+          "location": "body",
+          "description": "Deployed"
+        },
+        {
+          "name": "flowData",
+          "type": "string",
+          "location": "body",
+          "description": "Flow data"
+        },
+        {
+          "name": "isPublic",
+          "type": "bool",
+          "location": "body",
+          "description": "Is public"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "speechToText",
+          "type": "string",
+          "location": "body",
+          "description": "Speech to text"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Updated date"
+        }
+      ]
+    },
+    {
+      "name": "chatmessage_get-all-chat-messages",
+      "description": "Retrieve all chat messages for a specific chatflow. Required: id. Optional: chatType, order, chatId (plus 6 more). Returns array of ChatMessage.",
+      "method": "GET",
+      "path": "/chatmessage/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        },
+        {
+          "name": "chatType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by chat type"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by chat ID"
+        },
+        {
+          "name": "memoryType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by memory type"
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by session ID"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by start date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by end date"
+        },
+        {
+          "name": "feedback",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by feedback"
+        },
+        {
+          "name": "feedbackType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by feedback type. Only applicable if feedback is true"
+        }
+      ]
+    },
+    {
+      "name": "chatmessage_remove-all-chat-messages",
+      "description": "Delete all chat messages for a specific chatflow. Required: id. Optional: chatId, memoryType, sessionId (plus 5 more). Destructive.",
+      "method": "DELETE",
+      "path": "/chatmessage/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        },
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by chat ID"
+        },
+        {
+          "name": "memoryType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by memory type"
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by session ID"
+        },
+        {
+          "name": "chatType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by chat type"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by start date"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by end date"
+        },
+        {
+          "name": "feedbackType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by feedback type"
+        },
+        {
+          "name": "hardDelete",
+          "type": "bool",
+          "location": "query",
+          "description": "If hardDelete is true, messages will be deleted from the third party service as well"
+        }
+      ]
+    },
+    {
+      "name": "document-store_create",
+      "description": "Creates a new document store with the provided details. Optional: createdDate, description, embeddingConfig (plus 8 more). Returns the new DocumentStore.",
+      "method": "POST",
+      "path": "/document-store/store",
+      "params": [
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the document store was created"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the document store"
+        },
+        {
+          "name": "embeddingConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration for the embedding, stored as JSON string"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the document store"
+        },
+        {
+          "name": "loaders",
+          "type": "string",
+          "location": "body",
+          "description": "Loaders associated with the document store, stored as JSON string"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the document store"
+        },
+        {
+          "name": "recordManagerConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration for the record manager, stored as JSON string"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the document store"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the document store was last updated"
+        },
+        {
+          "name": "vectorStoreConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration for the vector store, stored as JSON string"
+        },
+        {
+          "name": "whereUsed",
+          "type": "string",
+          "location": "body",
+          "description": "Places where the document store is used, stored as JSON string"
+        }
+      ]
+    },
+    {
+      "name": "document-store_delete",
+      "description": "Deletes a document store by its ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/document-store/store/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_delete-file-chunk",
+      "description": "Delete a specific chunk from a document loader. Required: storeId, loaderId, chunkId. Destructive.",
+      "method": "DELETE",
+      "path": "/document-store/chunks/{storeId}/{loaderId}/{chunkId}",
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "loaderId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Loader ID",
+          "required": true
+        },
+        {
+          "name": "chunkId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Chunk ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_delete-loader-from",
+      "description": "Delete specific document loader and associated chunks from document store. This does not delete data from vector store. Required: storeId, loaderId. Destructive.",
+      "method": "DELETE",
+      "path": "/document-store/loader/{storeId}/{loaderId}",
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "loaderId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Loader ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_delete-vector-store-from-store",
+      "description": "Only data that were upserted with Record Manager will be deleted from vector store. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/document-store/vectorstore/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_edit-file-chunk",
+      "description": "Updates a specific chunk from a document loader. Required: storeId, loaderId, chunkId. Optional: metadata, pageContent. Returns the updated DocumentStoreFileChunkPagedResponse.",
+      "method": "PUT",
+      "path": "/document-store/chunks/{storeId}/{loaderId}/{chunkId}",
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "loaderId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Loader ID",
+          "required": true
+        },
+        {
+          "name": "chunkId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Chunk ID",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "pageContent",
+          "type": "string",
+          "location": "body",
+          "description": "Page content"
+        }
+      ]
+    },
+    {
+      "name": "document-store_get-all",
+      "description": "Retrieves a list of all document stores. Returns array of DocumentStore.",
+      "method": "GET",
+      "path": "/document-store/store",
+      "params": []
+    },
+    {
+      "name": "document-store_get-by-id",
+      "description": "Retrieves details of a specific document store by its ID. Required: id. Returns the DocumentStore.",
+      "method": "GET",
+      "path": "/document-store/store/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_get-file-chunks",
+      "description": "Get chunks from a specific document loader within a document store. Required: storeId, loaderId, pageNo. Returns the DocumentStoreFileChunkPagedResponse.",
+      "method": "GET",
+      "path": "/document-store/chunks/{storeId}/{loaderId}/{pageNo}",
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "loaderId",
+          "type": "string",
+          "location": "path",
+          "description": "Document loader ID",
+          "required": true
+        },
+        {
+          "name": "pageNo",
+          "type": "string",
+          "location": "path",
+          "description": "Pagination number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_query-vector-store",
+      "description": "Retrieval query for the upserted chunks. Required: query, storeId. Returns the new DocumentStoreQueryVectorStoreResponse.",
+      "method": "POST",
+      "path": "/document-store/vectorstore/query",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query to search for",
+          "required": true
+        },
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "body",
+          "description": "Document Store ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "document-store_refresh-document",
+      "description": "Re-process and upsert all existing documents in document store. Required: id. Optional: items. Returns array of VectorUpsertResponse.",
+      "method": "POST",
+      "path": "/document-store/refresh/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        }
+      ]
+    },
+    {
+      "name": "document-store_update",
+      "description": "Updates the details of a specific document store by its ID. Required: id. Optional: createdDate, description, embeddingConfig (plus 7 more). Returns the updated DocumentStore.",
+      "method": "PUT",
+      "path": "/document-store/store/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the document store was created"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the document store"
+        },
+        {
+          "name": "embeddingConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration for the embedding, stored as JSON string"
+        },
+        {
+          "name": "loaders",
+          "type": "string",
+          "location": "body",
+          "description": "Loaders associated with the document store, stored as JSON string"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the document store"
+        },
+        {
+          "name": "recordManagerConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration for the record manager, stored as JSON string"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the document store"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the document store was last updated"
+        },
+        {
+          "name": "vectorStoreConfig",
+          "type": "string",
+          "location": "body",
+          "description": "Configuration for the vector store, stored as JSON string"
+        },
+        {
+          "name": "whereUsed",
+          "type": "string",
+          "location": "body",
+          "description": "Places where the document store is used, stored as JSON string"
+        }
+      ]
+    },
+    {
+      "name": "document-store_upsert-document",
+      "description": "Upsert document to document store. Required: id. Optional: createNewDocStore, docId, docStore (plus 7 more). Returns the new VectorUpsertResponse.",
+      "method": "POST",
+      "path": "/document-store/upsert/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Document Store ID",
+          "required": true
+        },
+        {
+          "name": "createNewDocStore",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to create a new document store"
+        },
+        {
+          "name": "docId",
+          "type": "string",
+          "location": "body",
+          "description": "Document ID within the store. If provided, existing configuration from the document will be used for the new document"
+        },
+        {
+          "name": "docStore",
+          "type": "object",
+          "location": "body",
+          "description": "Only when createNewDocStore is true, pass in the new document store configuration"
+        },
+        {
+          "name": "embedding",
+          "type": "object",
+          "location": "body",
+          "description": "Embedding"
+        },
+        {
+          "name": "loader",
+          "type": "object",
+          "location": "body",
+          "description": "Loader"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata associated with the document"
+        },
+        {
+          "name": "recordManager",
+          "type": "object",
+          "location": "body",
+          "description": "Record manager"
+        },
+        {
+          "name": "replaceExisting",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to replace existing document loader with the new upserted chunks. However this does not delete the existing embeddings in the vector store"
+        },
+        {
+          "name": "splitter",
+          "type": "object",
+          "location": "body",
+          "description": "Splitter"
+        },
+        {
+          "name": "vectorStore",
+          "type": "object",
+          "location": "body",
+          "description": "Vector store"
+        }
+      ]
+    },
+    {
+      "name": "flowiseai-feedback_create-chat-message-for-chatflow",
+      "description": "Create new feedback for a specific chat flow. Optional: chatId, chatflowid, content (plus 4 more). Returns the new ChatMessageFeedback.",
+      "method": "POST",
+      "path": "/feedback",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the chat"
+        },
+        {
+          "name": "chatflowid",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the chat flow"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Feedback content"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the feedback was created"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the feedback"
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the message"
+        },
+        {
+          "name": "rating",
+          "type": "string",
+          "location": "body",
+          "description": "Rating for the message"
+        }
+      ]
+    },
+    {
+      "name": "flowiseai-feedback_get-all-chat-message",
+      "description": "List all chat message feedbacks for a chatflow. Required: id. Optional: chatId, sortOrder (default: asc), startDate (plus 1 more). Returns array of ChatMessageFeedback.",
+      "method": "GET",
+      "path": "/feedback/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        },
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "query",
+          "description": "Chat ID to filter feedbacks (optional)"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order of feedbacks (optional)"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter feedbacks starting from this date (optional)"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter feedbacks up to this date (optional)"
+        }
+      ]
+    },
+    {
+      "name": "flowiseai-feedback_update-chat-message-for-chatflow",
+      "description": "Update chat message feedback. Required: id. Optional: chatId, chatflowid, content (plus 3 more). Returns the updated ChatMessageFeedback.",
+      "method": "PUT",
+      "path": "/feedback/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chat Message Feedback ID",
+          "required": true
+        },
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the chat"
+        },
+        {
+          "name": "chatflowid",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the chat flow"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Feedback content"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the feedback was created"
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the message"
+        },
+        {
+          "name": "rating",
+          "type": "string",
+          "location": "body",
+          "description": "Rating for the message"
+        }
+      ]
+    },
+    {
+      "name": "leads_create",
+      "description": "Create a new lead associated with a specific chatflow. Optional: chatId, chatflowid, createdDate (plus 4 more). Returns the new Lead.",
+      "method": "POST",
+      "path": "/leads",
+      "params": [
+        {
+          "name": "chatId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the chat session the lead is associated with"
+        },
+        {
+          "name": "chatflowid",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the chatflow the lead is associated with"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the lead was created"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the lead"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the lead"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the lead"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number of the lead"
+        }
+      ]
+    },
+    {
+      "name": "leads_get-all-for-chatflow",
+      "description": "Retrieve all leads associated with a specific chatflow. Required: id. Returns array of Lead.",
+      "method": "GET",
+      "path": "/leads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ping_server",
+      "description": "Ping the server to check if it is running.",
+      "method": "GET",
+      "path": "/ping",
+      "params": []
+    },
+    {
+      "name": "prediction_create",
+      "description": "Send a message to your flow and receive an AI-generated response. This is the primary endpoint for interacting with your flows and assistants. **Authentication**: API key may be required depending on flow settings. Required: id. Optional: form, history, humanInput (plus 4 more). Returns the new PredictionCreateResponse.",
+      "method": "POST",
+      "path": "/prediction/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Flow ID - the unique identifier of your flow",
+          "required": true
+        },
+        {
+          "name": "form",
+          "type": "object",
+          "location": "body",
+          "description": "The form object to send to the flow (alternative to question for Agentflow V2)"
+        },
+        {
+          "name": "history",
+          "type": "array",
+          "location": "body",
+          "description": "Previous conversation messages for context"
+        },
+        {
+          "name": "humanInput",
+          "type": "object",
+          "location": "body",
+          "description": "Return human feedback and resume execution from a stopped checkpoint"
+        },
+        {
+          "name": "overrideConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Override flow configuration and pass variables at runtime"
+        },
+        {
+          "name": "question",
+          "type": "string",
+          "location": "body",
+          "description": "The question/message to send to the flow"
+        },
+        {
+          "name": "streaming",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable streaming responses for real-time output"
+        },
+        {
+          "name": "uploads",
+          "type": "array",
+          "location": "body",
+          "description": "Files to upload (images, audio, documents, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "tools_create",
+      "description": "Create a new tool. Optional: color, createdDate, description (plus 6 more). Returns the new Tool.",
+      "method": "POST",
+      "path": "/tools",
+      "params": [
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color associated with the tool"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the tool was created"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the tool"
+        },
+        {
+          "name": "func",
+          "type": "string",
+          "location": "body",
+          "description": "Functionality description or code associated with the tool"
+        },
+        {
+          "name": "iconSrc",
+          "type": "string",
+          "location": "body",
+          "description": "Source URL for the tool's icon"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the tool"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the tool"
+        },
+        {
+          "name": "schema",
+          "type": "string",
+          "location": "body",
+          "description": "JSON schema associated with the tool"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the tool was last updated"
+        }
+      ]
+    },
+    {
+      "name": "tools_delete",
+      "description": "Delete a specific tool by ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/tools/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tool ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tools_get-all",
+      "description": "Retrieve a list of all tools. Returns array of Tool.",
+      "method": "GET",
+      "path": "/tools",
+      "params": []
+    },
+    {
+      "name": "tools_get-by-id",
+      "description": "Retrieve a specific tool by ID. Required: id. Returns the Tool.",
+      "method": "GET",
+      "path": "/tools/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tool ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tools_update",
+      "description": "Update a specific tool by ID. Required: id. Optional: color, createdDate, description (plus 5 more). Returns the updated Tool.",
+      "method": "PUT",
+      "path": "/tools/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Tool ID",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Color associated with the tool"
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the tool was created"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the tool"
+        },
+        {
+          "name": "func",
+          "type": "string",
+          "location": "body",
+          "description": "Functionality description or code associated with the tool"
+        },
+        {
+          "name": "iconSrc",
+          "type": "string",
+          "location": "body",
+          "description": "Source URL for the tool's icon"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the tool"
+        },
+        {
+          "name": "schema",
+          "type": "string",
+          "location": "body",
+          "description": "JSON schema associated with the tool"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the tool was last updated"
+        }
+      ]
+    },
+    {
+      "name": "upsert-history_get-all",
+      "description": "Retrieve all upsert history records with optional filters. Required: id. Optional: order (default: ASC), startDate, endDate. Returns array of UpsertHistoryResponse.",
+      "method": "GET",
+      "path": "/upsert-history/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID to filter records by",
+          "required": true
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order of the results (ascending or descending)"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records from this start date (inclusive)"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Filter records until this end date (inclusive)"
+        }
+      ]
+    },
+    {
+      "name": "upsert-history_patch-delete",
+      "description": "Soft delete upsert history records by IDs. Optional: ids. Partial update.",
+      "method": "PATCH",
+      "path": "/upsert-history/{id}",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "List of upsert history record IDs to delete"
+        }
+      ]
+    },
+    {
+      "name": "variables_create",
+      "description": "Create a new variable. Optional: createdDate, id, name (plus 3 more). Returns the new Variable.",
+      "method": "POST",
+      "path": "/variables",
+      "params": [
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the variable was created"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier for the variable"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the variable"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the variable (e.g., string, number)"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the variable was last updated"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value of the variable"
+        }
+      ]
+    },
+    {
+      "name": "variables_delete",
+      "description": "Delete a specific variable by ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/variables/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Variable ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "variables_get-all",
+      "description": "Retrieve a list of all variables. Returns array of Variable.",
+      "method": "GET",
+      "path": "/variables",
+      "params": []
+    },
+    {
+      "name": "variables_update",
+      "description": "Update a specific variable by ID. Required: id. Optional: createdDate, name, type (plus 2 more). Returns the updated Variable.",
+      "method": "PUT",
+      "path": "/variables/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Variable ID",
+          "required": true
+        },
+        {
+          "name": "createdDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the variable was created"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the variable"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the variable (e.g., string, number)"
+        },
+        {
+          "name": "updatedDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time when the variable was last updated"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value of the variable"
+        }
+      ]
+    },
+    {
+      "name": "vector_upsert",
+      "description": "Upsert vector embeddings of documents in a chatflow. Required: id. Optional: overrideConfig, stopNodeId. Returns the new VectorUpsertResponse.",
+      "method": "POST",
+      "path": "/vector/upsert/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Chatflow ID",
+          "required": true
+        },
+        {
+          "name": "overrideConfig",
+          "type": "object",
+          "location": "body",
+          "description": "The configuration to override the default vector upsert settings (optional)"
+        },
+        {
+          "name": "stopNodeId",
+          "type": "string",
+          "location": "body",
+          "description": "In cases when you have multiple vector store nodes, you can specify the node ID to store the vectors"
+        }
+      ]
+    }
+  ]
+}

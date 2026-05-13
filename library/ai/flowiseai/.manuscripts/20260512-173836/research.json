@@ -1,0 +1,325 @@
+{
+  "api_name": "flowiseai",
+  "novelty_score": 10,
+  "alternatives": [
+    {
+      "name": "MilesP46/FlowiseAI-MCP",
+      "url": "https://github.com/MilesP46/FlowiseAI-MCP",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 35,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "matthewhand/mcp-flowise",
+      "url": "https://github.com/matthewhand/mcp-flowise",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "wksbx/flowise-mcp-server",
+      "url": "https://github.com/wksbx/flowise-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "FlowiseAI/FlowiseSDK",
+      "url": "https://github.com/FlowiseAI/FlowiseSDK",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T22:43:07Z",
+  "novel_features": [
+    {
+      "name": "Newsletter compose",
+      "command": "newsletter compose",
+      "description": "Author a multi-section newsletter by fanning out across N chatflows in one command — perfect for an agent assembling a weekly market report.",
+      "rationale": "No single Flowise endpoint composes multi-section output; requires an orchestrator that loops through prediction calls and concatenates results with chatId provenance recorded locally.",
+      "example": "flowiseai-pp-cli newsletter compose --plan newsletter.yml --out draft.md --json",
+      "why_it_matters": "Reach for this when an agent needs to assemble a structured multi-section document from several specialized chatflows in one shot.",
+      "group": "Compound workflows"
+    },
+    {
+      "name": "Predict batch fan-out",
+      "command": "predict batch",
+      "description": "Run a chatflow against a CSV or NDJSON of questions concurrently and stream back NDJSON results.",
+      "rationale": "Flowise has no batch endpoint; agents must hand-roll concurrency. We do it locally with a worker pool that preserves chatIds for replay.",
+      "example": "flowiseai-pp-cli predict batch abc123 --input listings.csv --concurrency 4 --out results.ndjson --agent",
+      "why_it_matters": "Reach for this when fanning a single chatflow across many inputs (per-listing summaries, per-neighborhood briefs, bulk Q\u0026A).",
+      "group": "Compound workflows"
+    },
+    {
+      "name": "Docstore folder ingest",
+      "command": "docstore ingest",
+      "description": "Walk a folder of source material and ingest every matching file into a document store in one call, then trigger vector indexing.",
+      "rationale": "Two real API endpoints (`/document-store/upsert/{id}` and `/vector/upsert/{id}`) plus a filepath walker — no single competitor wraps both with the file-walk pattern an agent actually wants.",
+      "example": "flowiseai-pp-cli docstore ingest store-xyz ./mls-exports --pattern '*.pdf' --vector-upsert --json",
+      "why_it_matters": "Reach for this when fresh source material arrives in a folder and an agent needs it indexed without writing glue code.",
+      "group": "Compound workflows"
+    },
+    {
+      "name": "Cross-prediction FTS search",
+      "command": "predict search",
+      "description": "Full-text search across every recorded prediction with filters on time window, cited document store, used tool, and chatflow.",
+      "rationale": "Flowise's chat-history endpoint is per-chatflow only; FTS5 + JSON1 over the local store unlocks audit queries no single API call supports.",
+      "example": "flowiseai-pp-cli predict search 'mortgage rate' --since 7d --used-tool SendGrid --json --select chatId,text",
+      "why_it_matters": "Reach for this when auditing what an agent generated, debugging a hallucination, or filtering predictions by which tools or sources they invoked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Newsletter audit report",
+      "command": "newsletter audit",
+      "description": "Per-chatId audit report joining predictions, chat messages, and upsert history; CSV-friendly for compliance archives.",
+      "rationale": "Cross-table join no single API call exposes; pivots time-window slices on what was generated, what RAG it cited, and which tools fired.",
+      "example": "flowiseai-pp-cli newsletter audit --since 7d --format csv \u003e audit.csv",
+      "why_it_matters": "Reach for this at compliance review time or after a newsletter run to verify every section's provenance.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "RAG corpus drift report",
+      "command": "docstore drift",
+      "description": "Show which document stores got new content this week and which chatflows reference each store.",
+      "rationale": "Flowise's `upsert-history` IS the change cursor; the dependency parse comes from cached `flowData` JSON — neither end has a single endpoint that joins them.",
+      "example": "flowiseai-pp-cli docstore drift --since 7d --json",
+      "why_it_matters": "Reach for this when investigating why a chatflow's responses changed — drift in the corpus is often the cause.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Prediction replay",
+      "command": "predict replay",
+      "description": "Re-fire a prior prediction by chatId; optionally diff the new response against the recorded one.",
+      "rationale": "Replay requires the original question and chatflowId resolved from chatId — Flowise doesn't expose that mapping endpoint; we use the local prediction store.",
+      "example": "flowiseai-pp-cli predict replay cm12345 --diff --json",
+      "why_it_matters": "Reach for this to recover from a failed agent run or to compare current chatflow output against a known-good baseline.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Predict resume (HITL)",
+      "command": "predict resume",
+      "description": "Resume a suspended AgentFlow V2 run by chatId with a structured `humanInput` payload.",
+      "rationale": "Flowise's AgentFlow V2 supports HITL via `humanInput`; resolving the chatflowId from a chatId requires the local cache.",
+      "example": "flowiseai-pp-cli predict resume cm67890 --input '{\"type\":\"proceed\",\"feedback\":\"Approved by Sam\"}'",
+      "why_it_matters": "Reach for this when a chatflow paused awaiting human approval and an agent needs to drive the resume.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chatflow dependency graph",
+      "command": "chatflow deps",
+      "description": "Show every tool, assistant, variable, and document store referenced by a chatflow; flag missing references.",
+      "rationale": "Parses cached `flowData` JSON locally — the API returns the blob but never extracts the dependency edges.",
+      "example": "flowiseai-pp-cli chatflow deps abc123 --json --show-overrides",
+      "why_it_matters": "Reach for this before deleting or reviewing a chatflow to know what depends on it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale chatflow finder",
+      "command": "chatflow stale",
+      "description": "List chatflows not updated in N days, sortable by staleness.",
+      "rationale": "Flowise's list endpoint doesn't filter by updatedDate; local cache makes this a single SQL query.",
+      "example": "flowiseai-pp-cli chatflow stale --days 60 --json",
+      "why_it_matters": "Reach for this during housekeeping to find flows that are likely safe to delete.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Newsletter compose",
+      "command": "newsletter compose",
+      "description": "Author a multi-section newsletter by fanning out across N chatflows in one command — perfect for an agent assembling a weekly market report.",
+      "rationale": "No single Flowise endpoint composes multi-section output; requires an orchestrator that loops through prediction calls and concatenates results with chatId provenance recorded locally.",
+      "example": "flowiseai-pp-cli newsletter compose --plan newsletter.yml --out draft.md --json",
+      "why_it_matters": "Reach for this when an agent needs to assemble a structured multi-section document from several specialized chatflows in one shot.",
+      "group": "Compound workflows"
+    },
+    {
+      "name": "Predict batch fan-out",
+      "command": "predict batch",
+      "description": "Run a chatflow against a CSV or NDJSON of questions concurrently and stream back NDJSON results.",
+      "rationale": "Flowise has no batch endpoint; agents must hand-roll concurrency. We do it locally with a worker pool that preserves chatIds for replay.",
+      "example": "flowiseai-pp-cli predict batch abc123 --input listings.csv --concurrency 4 --out results.ndjson --agent",
+      "why_it_matters": "Reach for this when fanning a single chatflow across many inputs (per-listing summaries, per-neighborhood briefs, bulk Q\u0026A).",
+      "group": "Compound workflows"
+    },
+    {
+      "name": "Docstore folder ingest",
+      "command": "docstore ingest",
+      "description": "Walk a folder of source material and ingest every matching file into a document store in one call, then trigger vector indexing.",
+      "rationale": "Two real API endpoints (`/document-store/upsert/{id}` and `/vector/upsert/{id}`) plus a filepath walker — no single competitor wraps both with the file-walk pattern an agent actually wants.",
+      "example": "flowiseai-pp-cli docstore ingest store-xyz ./mls-exports --pattern '*.pdf' --vector-upsert --json",
+      "why_it_matters": "Reach for this when fresh source material arrives in a folder and an agent needs it indexed without writing glue code.",
+      "group": "Compound workflows"
+    },
+    {
+      "name": "Cross-prediction FTS search",
+      "command": "predict search",
+      "description": "Full-text search across every recorded prediction with filters on time window, cited document store, used tool, and chatflow.",
+      "rationale": "Flowise's chat-history endpoint is per-chatflow only; FTS5 + JSON1 over the local store unlocks audit queries no single API call supports.",
+      "example": "flowiseai-pp-cli predict search 'mortgage rate' --since 7d --used-tool SendGrid --json --select chatId,text",
+      "why_it_matters": "Reach for this when auditing what an agent generated, debugging a hallucination, or filtering predictions by which tools or sources they invoked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Newsletter audit report",
+      "command": "newsletter audit",
+      "description": "Per-chatId audit report joining predictions, chat messages, and upsert history; CSV-friendly for compliance archives.",
+      "rationale": "Cross-table join no single API call exposes; pivots time-window slices on what was generated, what RAG it cited, and which tools fired.",
+      "example": "flowiseai-pp-cli newsletter audit --since 7d --format csv \u003e audit.csv",
+      "why_it_matters": "Reach for this at compliance review time or after a newsletter run to verify every section's provenance.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "RAG corpus drift report",
+      "command": "docstore drift",
+      "description": "Show which document stores got new content this week and which chatflows reference each store.",
+      "rationale": "Flowise's `upsert-history` IS the change cursor; the dependency parse comes from cached `flowData` JSON — neither end has a single endpoint that joins them.",
+      "example": "flowiseai-pp-cli docstore drift --since 7d --json",
+      "why_it_matters": "Reach for this when investigating why a chatflow's responses changed — drift in the corpus is often the cause.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Prediction replay",
+      "command": "predict replay",
+      "description": "Re-fire a prior prediction by chatId; optionally diff the new response against the recorded one.",
+      "rationale": "Replay requires the original question and chatflowId resolved from chatId — Flowise doesn't expose that mapping endpoint; we use the local prediction store.",
+      "example": "flowiseai-pp-cli predict replay cm12345 --diff --json",
+      "why_it_matters": "Reach for this to recover from a failed agent run or to compare current chatflow output against a known-good baseline.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Predict resume (HITL)",
+      "command": "predict resume",
+      "description": "Resume a suspended AgentFlow V2 run by chatId with a structured `humanInput` payload.",
+      "rationale": "Flowise's AgentFlow V2 supports HITL via `humanInput`; resolving the chatflowId from a chatId requires the local cache.",
+      "example": "flowiseai-pp-cli predict resume cm67890 --input '{\"type\":\"proceed\",\"feedback\":\"Approved by Sam\"}'",
+      "why_it_matters": "Reach for this when a chatflow paused awaiting human approval and an agent needs to drive the resume.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chatflow dependency graph",
+      "command": "chatflow deps",
+      "description": "Show every tool, assistant, variable, and document store referenced by a chatflow; flag missing references.",
+      "rationale": "Parses cached `flowData` JSON locally — the API returns the blob but never extracts the dependency edges.",
+      "example": "flowiseai-pp-cli chatflow deps abc123 --json --show-overrides",
+      "why_it_matters": "Reach for this before deleting or reviewing a chatflow to know what depends on it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale chatflow finder",
+      "command": "chatflow stale",
+      "description": "List chatflows not updated in N days, sortable by staleness.",
+      "rationale": "Flowise's list endpoint doesn't filter by updatedDate; local cache makes this a single SQL query.",
+      "example": "flowiseai-pp-cli chatflow stale --days 60 --json",
+      "why_it_matters": "Reach for this during housekeeping to find flows that are likely safe to delete.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Flowise",
+    "headline": "Drives a Flowise REST instance from the shell: run chatflows, compose multi-section newsletters, ingest folders into RAG document stores, replay and audit prior predictions.",
+    "value_prop": "FlowiseAI gives you a visual builder and a REST runtime for chatflows, assistants, and RAG. This CLI is the single binary that lets an agent (or a human) drive that runtime end-to-end: compose a multi-section newsletter, ingest a folder of source material, replay any prediction by chatId, and audit every response against the source documents it cited.",
+    "auth_narrative": "Set FLOWISE_API_KEY to your instance's bearer token and FLOWISE_BASE_URL to your Flowise host (e.g. http://localhost:3000 or https://cloud.flowiseai.com). Use `flowiseai-pp-cli auth set-token \u003ckey\u003e` to persist the token in the local config and `flowiseai-pp-cli auth status` to confirm it's wired.",
+    "quickstart": [
+      {
+        "command": "flowiseai-pp-cli ping --json",
+        "comment": "Confirm host + auth are wired."
+      },
+      {
+        "command": "flowiseai-pp-cli doctor --json",
+        "comment": "Verify auth, host, and local store path are all wired correctly."
+      },
+      {
+        "command": "flowiseai-pp-cli chatflows list --json --select id,name,deployed",
+        "comment": "See what chatflows are deployed on this instance."
+      },
+      {
+        "command": "flowiseai-pp-cli predict abc123 --question \"Summarize this week's listings\" --json --select text,chatId",
+        "comment": "Send a question to a chatflow and capture the response + chatId."
+      },
+      {
+        "command": "flowiseai-pp-cli newsletter compose --plan newsletter.yml --out draft.md",
+        "comment": "Fan out across the plan's section chatflows and assemble the draft."
+      },
+      {
+        "command": "flowiseai-pp-cli predict search 'mortgage rate' --since 7d --json --select chatId,text",
+        "comment": "Search every recorded prediction full-text for a topic."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Confirm FLOWISE_API_KEY is set; some chatflows require a per-flow key - fetch it via `chatflows get-by-api-key \u003ckey\u003e` and re-export FLOWISE_API_KEY to that value, or persist with `auth set-token \u003ckey\u003e`."
+      },
+      {
+        "symptom": "Connection refused",
+        "fix": "Set FLOWISE_BASE_URL to your Flowise host (default http://localhost:3000). Confirm the host is reachable with `flowiseai-pp-cli ping`."
+      },
+      {
+        "symptom": "predict returns empty text with sourceDocuments populated",
+        "fix": "The chatflow ran retrieval but didn't get to LLM generation. Check overrideConfig for prompt template misconfiguration; pass --explain-config via `chatflow deps --show-overrides`."
+      },
+      {
+        "symptom": "Newsletter compose section returns 404 on chatflowId",
+        "fix": "Run `flowiseai-pp-cli sync` to refresh local cache, then `chatflows list --json --select id,name` and grep client-side to confirm the flow name maps to the right id."
+      }
+    ],
+    "when_to_use": "Reach for flowiseai-pp-cli when an agent needs to drive a Flowise instance from a shell — composing newsletters, batch-running predictions across a list, ingesting a folder of RAG source material, replaying a prior prediction for audit, or searching across recorded predictions full-text. It is the only Flowise client that ships compound workflows alongside full REST coverage.",
+    "recipes": [
+      {
+        "title": "Compose a realtor newsletter from a plan",
+        "command": "flowiseai-pp-cli newsletter compose --plan plans/weekly.yml --out drafts/$(date +%F).md --json --select sections.chatId,sections.text",
+        "explanation": "Plans declare section name + chatflowId + question + overrideConfig; the CLI fans out and writes the assembled draft plus a JSON manifest of every chatId for downstream audit."
+      },
+      {
+        "title": "Ingest a folder of MLS exports",
+        "command": "flowiseai-pp-cli docstore ingest store-realtor-data ./mls-exports --pattern '*.pdf' --vector-upsert --json",
+        "explanation": "Walks the folder, uploads each PDF via multipart, then triggers vector indexing; records one upsert-history row per file for the drift report."
+      },
+      {
+        "title": "Audit last week's newsletter run",
+        "command": "flowiseai-pp-cli newsletter audit --since 7d --format csv \u003e audit.csv",
+        "explanation": "CSV-formatted join of predictions, chat messages, and upsert history; one row per chatId with the cited document count and tools invoked."
+      },
+      {
+        "title": "Search recorded predictions for tool usage",
+        "command": "flowiseai-pp-cli predict search 'sendgrid' --since 30d --json --select chatId,text,usedTools",
+        "explanation": "FTS5 over local predictions store with JSON1 filter on usedTools; ideal for finding every time the agent dispatched an email."
+      },
+      {
+        "title": "Resume a paused AgentFlow V2 run",
+        "command": "flowiseai-pp-cli predict resume cm67890 --input '{\"type\":\"proceed\",\"feedback\":\"Approved by Sam\"}'",
+        "explanation": "Looks up the chatflowId from the chatId in local cache and re-fires the prediction with humanInput populated to continue past the HITL checkpoint."
+      }
+    ],
+    "trigger_phrases": [
+      "send a Flowise prediction",
+      "run a chatflow",
+      "compose a newsletter with Flowise",
+      "ingest documents into a Flowise document store",
+      "audit Flowise predictions",
+      "use flowiseai-pp-cli",
+      "drive my Flowise instance"
+    ]
+  }
+}

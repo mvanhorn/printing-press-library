@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T23:57:58.5102278Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "flowiseai",
+  "display_name": "Flowiseai",
+  "cli_name": "flowiseai-pp-cli",
+  "owner": "daanvicetonice",
+  "printer_name": "Daniel Larson",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:98eb21e75097681d60723a7e587daafd25f108b618473e76de889b4a66e3b49b",
+  "run_id": "20260512-173836",
+  "mcp_binary": "flowiseai-pp-mcp",
+  "mcp_tool_count": 46,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "FLOWISE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Newsletter compose",
+      "command": "newsletter compose",
+      "description": "Author a multi-section newsletter by fanning out across N chatflows in one command — perfect for an agent assembling a weekly market report."
+    },
+    {
+      "name": "Predict batch fan-out",
+      "command": "predict batch",
+      "description": "Run a chatflow against a CSV or NDJSON of questions concurrently and stream back NDJSON results."
+    },
+    {
+      "name": "Docstore folder ingest",
+      "command": "docstore ingest",
+      "description": "Walk a folder of source material and ingest every matching file into a document store in one call, then trigger vector indexing."
+    },
+    {
+      "name": "Cross-prediction FTS search",
+      "command": "predict search",
+      "description": "Full-text search across every recorded prediction with filters on time window, cited document store, used tool, and chatflow."
+    },
+    {
+      "name": "Newsletter audit report",
+      "command": "newsletter audit",
+      "description": "Per-chatId audit report joining predictions, chat messages, and upsert history; CSV-friendly for compliance archives."
+    },
+    {
+      "name": "RAG corpus drift report",
+      "command": "docstore drift",
+      "description": "Show which document stores got new content this week and which chatflows reference each store."
+    },
+    {
+      "name": "Prediction replay",
+      "command": "predict replay",
+      "description": "Re-fire a prior prediction by chatId; optionally diff the new response against the recorded one."
+    },
+    {
+      "name": "Predict resume (HITL)",
+      "command": "predict resume",
+      "description": "Resume a suspended AgentFlow V2 run by chatId with a structured `humanInput` payload."
+    },
+    {
+      "name": "Chatflow dependency graph",
+      "command": "chatflow deps",
+      "description": "Show every tool, assistant, variable, and document store referenced by a chatflow; flag missing references."
+    },
+    {
+      "name": "Stale chatflow finder",
+      "command": "chatflow stale",
+      "description": "List chatflows not updated in N days, sortable by staleness."
+    }
+  ],
+  "printer": "daanvicetonice"
+}
