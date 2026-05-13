@@ -190,22 +190,28 @@ func newGenSuggestCmd(flags *rootFlags) *cobra.Command {
 				})
 			}
 			if maxRenewal > 0 {
+				// If the store can't open we MUST return — silently skipping
+				// the filter would hand the user every candidate including the
+				// ones whose Porkbun renewal exceeds their stated budget. The
+				// user passed --max-renewal as a hard ceiling; we honour it or
+				// we error out, but we never silently relax it.
 				s, err := openStore(cmd.Context())
-				if err == nil {
-					defer s.Close()
-					filtered := make([]SuggestRow, 0, len(rows))
-					for _, r := range rows {
-						p, _ := s.PricingForFQDN(cmd.Context(), r.FQDN)
-						if p == nil || p.Renewal == 0 {
-							continue
-						}
-						if p.Renewal > maxRenewal {
-							continue
-						}
-						filtered = append(filtered, r)
-					}
-					rows = filtered
+				if err != nil {
+					return apiErr(fmt.Errorf("--max-renewal requires the local store: %w", err))
 				}
+				defer s.Close()
+				filtered := make([]SuggestRow, 0, len(rows))
+				for _, r := range rows {
+					p, _ := s.PricingForFQDN(cmd.Context(), r.FQDN)
+					if p == nil || p.Renewal == 0 {
+						continue
+					}
+					if p.Renewal > maxRenewal {
+						continue
+					}
+					filtered = append(filtered, r)
+				}
+				rows = filtered
 			}
 			if count > 0 && len(rows) > count {
 				rows = rows[:count]
