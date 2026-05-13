@@ -839,21 +839,24 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		// the override is empty OR the override field is absent on this
 		// particular item (response shape mismatches happen even when the
 		// spec declares x-resource-id).
+		// idStr (not `s`) — naming the local string avoids shadowing the
+		// *Store receiver so any future store-method call inside these blocks
+		// resolves correctly instead of erroring on a string.
 		var id string
 		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
 			if v := lookupFieldValue(obj, override); v != nil {
-				s := fmt.Sprintf("%v", v)
-				if s != "" && s != "<nil>" {
-					id = s
+				idStr := fmt.Sprintf("%v", v)
+				if idStr != "" && idStr != "<nil>" {
+					id = idStr
 				}
 			}
 		}
 		if id == "" {
 			for _, key := range genericIDFieldFallbacks {
 				if v := lookupFieldValue(obj, key); v != nil {
-					s := fmt.Sprintf("%v", v)
-					if s != "" && s != "<nil>" {
-						id = s
+					idStr := fmt.Sprintf("%v", v)
+					if idStr != "" && idStr != "<nil>" {
+						id = idStr
 						break
 					}
 				}

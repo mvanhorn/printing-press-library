@@ -28,9 +28,11 @@ func FQDN(in string) (string, error) {
 }
 
 // SplitTLD returns (label, tld) from a normalized FQDN. For "example.co.uk"
-// it returns ("example", "co.uk") when "co.uk" is detected as a multi-label
-// public suffix — for now we use a simple last-dot split which works for
-// the common .com/.io/.ai/.app/.dev TLDs the CLI targets.
+// it returns ("example", "co.uk") — a first-dot split (strings.Index, not
+// LastIndex) so the leftmost label is isolated and everything to the right
+// (including any ccSLD) becomes the TLD. Works correctly for the common
+// .com/.io/.ai/.app/.dev TLDs the CLI targets; multi-label public suffixes
+// (e.g. .co.uk) are handled as-is without a public-suffix-list lookup.
 func SplitTLD(fqdn string) (label, tld string) {
 	idx := strings.Index(fqdn, ".")
 	if idx < 0 {
