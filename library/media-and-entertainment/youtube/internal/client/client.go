@@ -90,9 +90,16 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
+	// Map iteration order is randomized in Go; sort keys so identical
+	// (path, params) pairs always hash to the same cache file.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	for _, k := range keys {
+		key += k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
@@ -345,9 +352,15 @@ func (c *Client) authHeader() (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
-	if c.Config.AccessToken != "" && !c.Config.TokenExpiry.IsZero() && time.Now().After(c.Config.TokenExpiry) && c.Config.RefreshToken != "" {
-		if err := c.refreshAccessToken(); err != nil {
-			return "", err
+	// Treat a zero expiry as "expiry unknown → assume expired". Older token
+	// files written before ExpiresIn was persisted have TokenExpiry.IsZero();
+	// refusing to refresh them strands the caller on a stale access token.
+	if c.Config.AccessToken != "" && c.Config.RefreshToken != "" {
+		expired := c.Config.TokenExpiry.IsZero() || time.Now().After(c.Config.TokenExpiry)
+		if expired {
+			if err := c.refreshAccessToken(); err != nil {
+				return "", err
+			}
 		}
 	}
 	return c.Config.AuthHeader(), nil

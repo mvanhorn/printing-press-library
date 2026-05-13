@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,6 +15,13 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
+
+// flagNamePattern matches cobra flag names (the part after `--`).
+// MCP clients can name arbitrary tool arguments, and each non-"args" key
+// gets rendered as `--<key> <value>` and passed to the companion CLI.
+// Without validation, a client could send keys like "config /etc/passwd"
+// or "" that smuggle additional flags into the spawned process.
+var flagNamePattern = regexp.MustCompile(`^[a-z][a-z0-9-]*$`)
 
 func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.ToolHandlerFunc {
 	lookupPath, lookupErr := cliPath()
@@ -26,7 +34,15 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 		finalArgs := append([]string{}, prefixArgs...)
 		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
-			finalArgs = append(finalArgs, splitShellArgs(raw)...)
+			// Raw passthrough is positional-only: each token that begins
+			// with `-` is rejected so an MCP client cannot smuggle flags
+			// like --config or --credentials-file through the args blob.
+			for _, tok := range splitShellArgs(raw) {
+				if strings.HasPrefix(tok, "-") {
+					return mcplib.NewToolResultError(fmt.Sprintf("flag-like token %q is not permitted in the args blob; pass it as a named MCP argument instead", tok)), nil
+				}
+				finalArgs = append(finalArgs, tok)
+			}
 		}
 		cmd := exec.CommandContext(ctx, lookupPath, finalArgs...)
 		out, err := cmd.CombinedOutput()
@@ -40,9 +56,17 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 func cliArgsFromMCP(args map[string]any) []string {
 	keys := make([]string, 0, len(args))
 	for k := range args {
-		if k != "args" {
-			keys = append(keys, k)
+		// "args" is the reserved raw-passthrough slot, handled by the
+		// caller. Any other key must look like a cobra flag name; keys
+		// that don't match (whitespace, leading dash, empty string, etc.)
+		// are dropped silently rather than rendered as additional flags.
+		if k == "args" {
+			continue
 		}
+		if !flagNamePattern.MatchString(k) {
+			continue
+		}
+		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
