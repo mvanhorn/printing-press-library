@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -141,12 +140,10 @@ func readCloudflareOAuthToken() string {
 	if err != nil {
 		return ""
 	}
-	// PATCH: refresh the official cf OAuth token before reuse when it is expired/stale.
+	// Never refresh here: Load runs on ordinary CLI startup, so launching external
+	// commands from this path would create silent network/code-execution side effects.
 	if isCloudflareOAuthExpired(data) {
-		_ = exec.Command("npx", "-y", "cf", "auth", "whoami").Run()
-		if refreshed, readErr := os.ReadFile(path); readErr == nil {
-			data = refreshed
-		}
+		return ""
 	}
 	m := regexp.MustCompile(`(?m)^access_token\s*=\s*"([^"]+)"`).FindSubmatch(data)
 	if len(m) != 2 {
@@ -186,6 +183,9 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	c.AccessToken = accessToken
 	c.RefreshToken = refreshToken
 	c.TokenExpiry = expiry
+	// Do not persist env/cf-derived bearer credentials when saving explicit tokens.
+	c.CloudflareRegistrarDomainsBearerAuth = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 
@@ -193,6 +193,10 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.CloudflareRegistrarDomainsBearerAuth = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 

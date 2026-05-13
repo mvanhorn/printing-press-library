@@ -5,12 +5,13 @@ package client
 
 import (
 	"bytes"
-	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/config"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -365,8 +366,7 @@ func (c *Client) refreshAccessToken() error {
 	if c.Config == nil {
 		return nil
 	}
-
-	return nil
+	return errors.New("Cloudflare OAuth token is expired and automatic refresh is not supported; run cf-domain-pp-cli auth login again or set CLOUDFLARE_API_TOKEN")
 }
 
 // sanitizeJSONResponse strips known JSONP/XSSI prefixes and UTF-8 BOM from

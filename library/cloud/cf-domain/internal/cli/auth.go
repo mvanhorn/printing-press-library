@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/config"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/internal/config"
 	"github.com/spf13/cobra"
 	"os"
 	"os/exec"
@@ -195,6 +195,9 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			// Identify which (if any) auth env var is still exported so the
 			// JSON envelope and the human prose can both surface it.
 			envStillSet := ""
+			if envStillSet == "" && os.Getenv("CLOUDFLARE_API_TOKEN") != "" {
+				envStillSet = "CLOUDFLARE_API_TOKEN"
+			}
 			if envStillSet == "" && os.Getenv("CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH") != "" {
 				envStillSet = "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH"
 			}
