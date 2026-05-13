@@ -75,22 +75,17 @@ func HydrateDocumentsFromAPI(cache *Cache, client *InternalClient) (int, error) 
 			cache.Documents[d.ID] = d
 			added++
 		}
-		// Prefer the API's own has_more signal when present (wrapped envelope).
-		// Fall back to short-page detection for the legacy bare-array shape,
-		// which has no pagination metadata and may falsely report HasMore=false.
-		if env.HasMore {
-			continue
-		}
+		// Pagination termination: short-page detection only.
+		// Granola's /v2/get-documents response envelope declares a
+		// has_more field in its OpenAPI shape but does not actually emit
+		// it in practice (verified empirically against the live API;
+		// only `docs` and `deleted` are present). Trusting env.HasMore
+		// here would terminate after page 1 because the zero value is
+		// false. Until Granola starts emitting has_more, the only
+		// reliable end-of-stream signal is a short page.
 		if len(env.Docs) < DefaultDocumentsPageSize {
 			break
 		}
-		// Page was exactly full and has_more is not set. With the wrapped
-		// envelope this means "no more pages"; with bare-array it's
-		// ambiguous. Bias toward trusting the explicit signal - the
-		// modern envelope is wrapped, and the cost of under-fetching on
-		// the rare bare-array exactly-full-page edge case is much smaller
-		// than the cost of always making one extra round-trip.
-		break
 	}
 	// If we exited via the for-condition rather than a break, the API
 	// kept signaling more documents past maxPages. Surface this so the

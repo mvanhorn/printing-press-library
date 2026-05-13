@@ -56,19 +56,18 @@ func TestHydrateDocumentsFromAPI_Pagination(t *testing.T) {
 	calls := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls++
-		// First call returns a full page (100 docs) with has_more=true; second
-		// returns 1 doc with has_more=false signaling end-of-stream.
+		// First call returns a full page (100 docs); second returns 1 (short
+		// page signals end-of-stream, since Granola's API doesn't emit
+		// has_more in practice).
 		var docs []map[string]any
-		hasMore := false
 		if calls == 1 {
 			for i := 0; i < 100; i++ {
 				docs = append(docs, map[string]any{"id": fmt.Sprintf("p1-%d", i)})
 			}
-			hasMore = true
 		} else {
 			docs = []map[string]any{{"id": "p2-0"}}
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs, "has_more": hasMore})
+		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs})
 	}))
 	defer srv.Close()
 
@@ -91,19 +90,28 @@ func TestHydrateDocumentsFromAPI_Pagination(t *testing.T) {
 	}
 }
 
-// TestHydrateDocumentsFromAPI_FullPageNoHasMore covers the precise scenario
-// Greptile flagged: a wrapped envelope returning exactly DefaultDocumentsPageSize
-// rows with has_more=false (or absent) must stop without a follow-up round-trip.
-func TestHydrateDocumentsFromAPI_FullPageNoHasMore(t *testing.T) {
+// TestHydrateDocumentsFromAPI_FullPageWithoutHasMore documents the
+// real-world Granola API behavior: the /v2/get-documents wrapped
+// envelope omits has_more entirely, so the hydrate loop must continue
+// past every full page even when env.HasMore is the false zero-value.
+// This test reproduces the production bug where trusting has_more=false
+// terminated the loop after a single page of 100 documents.
+func TestHydrateDocumentsFromAPI_FullPageWithoutHasMore(t *testing.T) {
 	calls := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		calls++
 		var docs []map[string]any
-		for i := 0; i < 100; i++ {
-			docs = append(docs, map[string]any{"id": fmt.Sprintf("only-%d", i)})
+		// First two pages are exactly full with no has_more; third is short.
+		count := 100
+		if calls == 3 {
+			count = 47
 		}
-		// has_more explicitly false even though page is exactly full.
-		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs, "has_more": false})
+		idPrefix := fmt.Sprintf("p%d", calls)
+		for i := 0; i < count; i++ {
+			docs = append(docs, map[string]any{"id": fmt.Sprintf("%s-%d", idPrefix, i)})
+		}
+		// Note absence of has_more / next_cursor / cursor - matches real Granola.
+		_ = json.NewEncoder(w).Encode(map[string]any{"docs": docs})
 	}))
 	defer srv.Close()
 
@@ -118,11 +126,11 @@ func TestHydrateDocumentsFromAPI_FullPageNoHasMore(t *testing.T) {
 	if err != nil {
 		t.Fatalf("HydrateDocumentsFromAPI: %v", err)
 	}
-	if n != 100 {
-		t.Errorf("expected 100 docs from single page, got %d", n)
+	if n != 247 {
+		t.Errorf("expected 247 docs (100+100+47), got %d", n)
 	}
-	if calls != 1 {
-		t.Errorf("expected 1 API call (no extra round-trip), got %d", calls)
+	if calls != 3 {
+		t.Errorf("expected 3 API calls (continue past full pages without has_more), got %d", calls)
 	}
 }
 
