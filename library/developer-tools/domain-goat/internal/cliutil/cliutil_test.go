@@ -673,6 +673,29 @@ func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	}
 }
 
+// Regression: N concurrent goroutines must stack their slots, not all observe
+// the same stale lastRequest, sleep equally, and fire simultaneously.
+func TestAdaptiveLimiter_WaitPacesConcurrentCallers(t *testing.T) {
+	l := NewAdaptiveLimiter(10.0) // 100ms slots
+	l.Wait()                      // prime — first slot fires immediately
+	const n = 5
+	var wg sync.WaitGroup
+	wg.Add(n)
+	start := time.Now()
+	for i := 0; i < n; i++ {
+		go func() {
+			defer wg.Done()
+			l.Wait()
+		}()
+	}
+	wg.Wait()
+	elapsed := time.Since(start)
+	// n stacked slots at 100ms each = ~500ms; allow 20% scheduler slack.
+	if elapsed < 400*time.Millisecond {
+		t.Errorf("%d concurrent Wait() calls took %v, want >= 400ms (pacing race regressed)", n, elapsed)
+	}
+}
+
 func TestRateLimitError_ErrorMessage(t *testing.T) {
 	cases := []struct {
 		name string

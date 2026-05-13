@@ -44,16 +44,27 @@ func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return
 	}
+	// Reserve a slot atomically: advance lastRequest while holding the lock
+	// so concurrent callers each get a slot pushed one `delay` further into
+	// the future. Sleeping outside the lock keeps the critical section short.
+	// The previous implementation read lastRequest, released the lock, then
+	// re-acquired it to write `time.Now()` — N parallel goroutines all read
+	// the same stale value, slept the same duration, and fired together,
+	// defeating the per-session pacing.
 	l.mu.Lock()
 	delay := time.Duration(float64(time.Second) / l.rate)
-	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
-	if elapsed < delay {
-		time.Sleep(delay - elapsed)
+	now := time.Now()
+	nextAllowed := l.lastRequest.Add(delay)
+	if now.Before(nextAllowed) {
+		l.lastRequest = nextAllowed
+	} else {
+		l.lastRequest = now
 	}
-	l.mu.Lock()
-	l.lastRequest = time.Now()
+	sleepUntil := l.lastRequest
 	l.mu.Unlock()
+	if wait := time.Until(sleepUntil); wait > 0 {
+		time.Sleep(wait)
+	}
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {
