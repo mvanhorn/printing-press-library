@@ -700,13 +700,15 @@ func (s *Store) KnowledgeImpact(ctx context.Context, projectID string) ([]Knowle
 	}
 	var snaps []parsedSnap
 	for snapRows.Next() {
-		var raw json.RawMessage
+		// modernc.org/sqlite returns TEXT columns as Go string; scan into a
+		// string and convert, matching the pattern used by CitationRanksSince.
+		var raw string
 		var cites int
 		if err := snapRows.Scan(&raw, &cites); err != nil {
 			snapRows.Close()
 			return nil, err
 		}
-		urls := extractCitationURLs(raw)
+		urls := extractCitationURLs(json.RawMessage(raw))
 		if len(urls) == 0 {
 			continue
 		}
