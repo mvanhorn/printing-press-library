@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/cli"
 )
 
 func main() {

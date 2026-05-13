@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cli.version={{ .Version }}
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64

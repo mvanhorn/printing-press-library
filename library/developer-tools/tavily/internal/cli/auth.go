@@ -9,8 +9,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

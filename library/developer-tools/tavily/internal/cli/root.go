@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/config"
 )
 
 var version = "1.0.0"

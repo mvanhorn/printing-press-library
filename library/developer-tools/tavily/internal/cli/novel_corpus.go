@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/store"
 )
 
 // newCorpusCmd creates the parent `corpus` command group.

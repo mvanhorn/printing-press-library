@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/mcp"
 )
 
 func main() {

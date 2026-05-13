@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/ai/tavily
+module github.com/mvanhorn/printing-press-library/library/developer-tools/tavily
 
 go 1.26.3
 

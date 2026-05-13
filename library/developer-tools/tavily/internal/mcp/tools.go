@@ -14,11 +14,11 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/mcp/cobratree"
 )
 
 // RegisterTools registers all API operations as MCP tools.

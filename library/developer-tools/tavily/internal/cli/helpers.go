@@ -13,7 +13,7 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"github.com/mvanhorn/printing-press-library/library/ai/tavily/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/tavily/internal/cliutil"
 	"text/tabwriter"
 	"unicode"
 )
