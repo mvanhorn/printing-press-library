@@ -77,16 +77,24 @@ func cliArgsFromMCP(args map[string]any) []string {
 	return out
 }
 
-// splitShellArgs whitespace-splits with double-quoted-token preservation.
+// splitShellArgs whitespace-splits with quoted-token preservation.
+//
+// PATCH: extended to recognize single quotes symmetrically with double
+// quotes. MCP callers commonly pass multi-word values via single quoting
+// (e.g. `--make 'Cessna 172'`); the previous implementation split on the
+// inner space and turned one argument into two. `quote` tracks the opener
+// so a `"` inside `'…'` (and vice versa) is treated as a literal.
 func splitShellArgs(s string) []string {
 	var tokens []string
 	var cur []rune
-	inQuote := false
+	var quote rune
 	for _, r := range s {
 		switch {
-		case r == '"':
-			inQuote = !inQuote
-		case (r == ' ' || r == '\t') && !inQuote:
+		case quote == 0 && (r == '"' || r == '\''):
+			quote = r
+		case quote != 0 && r == quote:
+			quote = 0
+		case (r == ' ' || r == '\t') && quote == 0:
 			if len(cur) > 0 {
 				tokens = append(tokens, string(cur))
 				cur = cur[:0]

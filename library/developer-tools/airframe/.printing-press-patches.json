@@ -27,6 +27,30 @@
       "summary": "Skip the migration write transaction when PRAGMA user_version already equals StoreSchemaVersion.",
       "reason": "Every Open was acquiring the SQLite write lock and re-executing all schemaV1 DDL plus a user_version stamp, blocking concurrent readers for no schema change.",
       "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "sync-validate-source",
+      "summary": "Reject unknown --source values with a clear error before opening the store.",
+      "reason": "A typo like `--source both` previously fell through both switch blocks, ran VACUUM, and emitted sync_done — leaving the user believing the store was fresh when nothing was ingested.",
+      "files": ["internal/cli/sync.go"]
+    },
+    {
+      "id": "fts-build-tx",
+      "summary": "Run all DROP/CREATE/INSERT statements in BuildFTS inside a single transaction.",
+      "reason": "A mid-step failure (OOM, disk full, ctx cancel) used to leave one FTS table created-but-empty and the other absent, with HasFTS() returning true and `airframe search` yielding zero hits. The transactional rebuild is atomic.",
+      "files": ["internal/store/fts.go"]
+    },
+    {
+      "id": "shellout-single-quote",
+      "summary": "Extend splitShellArgs to recognize single-quoted tokens symmetrically with double-quoted ones.",
+      "reason": "MCP callers commonly pass multi-word arguments via single quoting (e.g. `--make 'Cessna 172'`); the original tokenizer split on the inner space and produced malformed CLI invocations.",
+      "files": ["internal/mcp/cobratree/shellout.go"]
+    },
+    {
+      "id": "ntsb-pre1982-idempotent",
+      "summary": "DELETE pre-1982 events before re-ingesting the ntsb_pre1982 source.",
+      "reason": "The PRE1982 branch previously skipped the wipe entirely. Re-running `sync --source ntsb --include-pre1982` after the upstream PRE1982.zip changed left removed rows in place and either silently skipped or PK-collided on modified ones. The targeted DELETE keeps re-ingest idempotent without touching the 1982-present rows owned by the avall source.",
+      "files": ["internal/ingest/ntsb.go"]
     }
   ]
 }

@@ -177,14 +177,27 @@ func syncOneNTSBSource(ctx context.Context, st *store.Store, source, url string,
 		}
 	}()
 
-	// On the avall source we wipe; on PRE1982 we leave the existing rows
-	// alone (avall rows are 1982-present, PRE1982 rows are pre-1982 — they
+	// On the avall source we wipe; on PRE1982 we delete only the pre-1982
+	// slice (avall rows are 1982-present, PRE1982 rows are pre-1982 — they
 	// don't overlap). PRE1982 is opt-in so this only runs by request.
+	//
+	// PATCH: previously the PRE1982 branch skipped the wipe entirely, which
+	// meant re-running `sync --source ntsb --include-pre1982` after the
+	// upstream file changed left deleted rows in place and either silently
+	// skipped or PK-collided on modified rows. The targeted DELETE keeps
+	// re-ingest idempotent without touching the 1982-present rows owned by
+	// the avall source. The FK cascades on event_aircraft + narratives
+	// (declared in schemaV1 with ON DELETE CASCADE; _foreign_keys=ON is
+	// set in the open DSN) clean up the child rows.
 	if source == NTSBAvallSource {
 		for _, tbl := range []string{"events", "event_aircraft", "narratives"} {
 			if _, err := tx.ExecContext(ctx, "DELETE FROM "+tbl); err != nil {
 				return result, fmt.Errorf("clearing %s: %w", tbl, err)
 			}
+		}
+	} else if source == NTSBPre1982Source {
+		if _, err := tx.ExecContext(ctx, "DELETE FROM events WHERE event_date < '1982-01-01'"); err != nil {
+			return result, fmt.Errorf("clearing pre-1982 events: %w", err)
 		}
 	}
 

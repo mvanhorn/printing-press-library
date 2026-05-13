@@ -71,6 +71,16 @@ func runSync(cmd *cobra.Command, f syncFlags) error {
 		f.source = "all"
 	}
 
+	// PATCH: reject unknown --source values before opening the store.
+	// Without this, a typo like `--source both` silently fell through both
+	// switch blocks, ran VACUUM, and emitted `sync_done` — leaving the user
+	// believing the store was fresh when nothing was actually ingested.
+	switch f.source {
+	case "faa", "ntsb", "all":
+	default:
+		return fmt.Errorf("invalid --source %q (want one of: faa, ntsb, all)", f.source)
+	}
+
 	dbPath := flagDBPath
 	if dbPath == "" {
 		dbPath = store.DefaultDBPath()

@@ -12,6 +12,11 @@ import (
 // when --with-fts is passed. The contentless FTS pattern (`content=”`)
 // is intentional: we want a standalone search index that we can rebuild
 // from scratch every sync without triggers gluing it to the source tables.
+//
+// PATCH: all DDL + INSERT statements run inside a single transaction so the
+// rebuild is atomic. A mid-step failure (OOM, disk full, ctx cancel) used to
+// leave one FTS table created-but-empty and the other absent, with HasFTS()
+// returning true and `airframe search` yielding zero results.
 func (s *Store) BuildFTS(ctx context.Context, progress func(string)) error {
 	s.Lock()
 	defer s.Unlock()
@@ -19,6 +24,12 @@ func (s *Store) BuildFTS(ctx context.Context, progress func(string)) error {
 	if progress == nil {
 		progress = func(string) {}
 	}
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin FTS rebuild tx: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
 
 	stmts := []string{
 		`DROP TABLE IF EXISTS aircraft_fts`,
@@ -33,13 +44,13 @@ func (s *Store) BuildFTS(ctx context.Context, progress func(string)) error {
 		)`,
 	}
 	for _, stmt := range stmts {
-		if _, err := s.db.ExecContext(ctx, stmt); err != nil {
+		if _, err := tx.ExecContext(ctx, stmt); err != nil {
 			return fmt.Errorf("FTS schema: %w\n%s", err, stmt)
 		}
 	}
 
 	progress("aircraft_fts_populate")
-	if _, err := s.db.ExecContext(ctx, `INSERT INTO aircraft_fts (registration, owner_name, manufacturer, model)
+	if _, err := tx.ExecContext(ctx, `INSERT INTO aircraft_fts (registration, owner_name, manufacturer, model)
 		SELECT a.registration, COALESCE(a.owner_name,''),
 		       COALESCE(mm.manufacturer,''), COALESCE(mm.model,'')
 		FROM aircraft a LEFT JOIN make_model mm ON mm.code = a.make_model_code`); err != nil {
@@ -47,20 +58,23 @@ func (s *Store) BuildFTS(ctx context.Context, progress func(string)) error {
 	}
 
 	progress("narratives_fts_populate")
-	if _, err := s.db.ExecContext(ctx, `INSERT INTO narratives_fts (event_id, event_date, summary)
+	if _, err := tx.ExecContext(ctx, `INSERT INTO narratives_fts (event_id, event_date, summary)
 		SELECT n.event_id, COALESCE(e.event_date,''), COALESCE(n.summary,'')
 		FROM narratives n LEFT JOIN events e ON e.event_id = n.event_id`); err != nil {
 		return fmt.Errorf("populate narratives_fts: %w", err)
 	}
 
 	progress("fts_optimize")
-	if _, err := s.db.ExecContext(ctx, `INSERT INTO aircraft_fts(aircraft_fts) VALUES('optimize')`); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO aircraft_fts(aircraft_fts) VALUES('optimize')`); err != nil {
 		return fmt.Errorf("optimize aircraft_fts: %w", err)
 	}
-	if _, err := s.db.ExecContext(ctx, `INSERT INTO narratives_fts(narratives_fts) VALUES('optimize')`); err != nil {
+	if _, err := tx.ExecContext(ctx, `INSERT INTO narratives_fts(narratives_fts) VALUES('optimize')`); err != nil {
 		return fmt.Errorf("optimize narratives_fts: %w", err)
 	}
 
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit FTS rebuild: %w", err)
+	}
 	return nil
 }
 
