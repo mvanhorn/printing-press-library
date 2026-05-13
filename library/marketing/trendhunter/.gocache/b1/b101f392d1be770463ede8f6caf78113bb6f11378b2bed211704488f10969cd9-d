@@ -1,0 +1,7 @@
+# test log
+open testdata/th-tech.html
+open testdata/th-popular.html
+open testdata/th-scoreboard.html
+open testdata/th-results.html
+open testdata/th-trend.html
+open testdata/th-rss-tech.xml

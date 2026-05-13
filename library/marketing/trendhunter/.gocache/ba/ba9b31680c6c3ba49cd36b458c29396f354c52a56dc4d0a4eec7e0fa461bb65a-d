@@ -1,0 +1,3 @@
+./compat.go
+./thstore.go
+./thstore_test.go

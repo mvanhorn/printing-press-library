@@ -1,0 +1,8 @@
+./extractnumber.go
+./fanout.go
+./probe.go
+./ratelimit.go
+./text.go
+./verifyenv.go
+./cliutil_test.go
+./extractnumber_test.go
