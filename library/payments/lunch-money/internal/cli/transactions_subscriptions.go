@@ -76,7 +76,7 @@ func newTransactionsSubscriptionsCmd(flags *rootFlags) *cobra.Command {
 func buildSubscriptionResults(txs []localTransaction, minOccurrences int, suspectedOnly bool) []subscriptionResult {
 	groups := map[string][]localTransaction{}
 	for _, tx := range txs {
-		if tx.PayeeNormalized == "" || tx.Date.IsZero() {
+		if tx.PayeeNormalized == "" || tx.Date.IsZero() || !subscriptionCountsTransaction(tx) {
 			continue
 		}
 		groups[tx.PayeeNormalized] = append(groups[tx.PayeeNormalized], tx)
@@ -122,6 +122,10 @@ func buildSubscriptionResults(txs []localTransaction, minOccurrences int, suspec
 		return results[i].LastSeen > results[j].LastSeen
 	})
 	return results
+}
+
+func subscriptionCountsTransaction(tx localTransaction) bool {
+	return tx.SplitParentID == "" && tx.GroupParentID == ""
 }
 
 func groupHasRecurring(group []localTransaction) bool {

@@ -88,6 +88,16 @@
         "internal/store/upsert_batch_test.go"
       ],
       "validated_outcome": "go test ./internal/store passes, including query-plan coverage for idx_transactions_updated_at."
+    },
+    {
+      "id": "subscription-cadence-logical-transactions",
+      "summary": "Filtered split and group child rows out of subscription cadence grouping.",
+      "reason": "Split/group children create same-day duplicate merchant rows that distort inter-charge gaps and can hide real subscriptions.",
+      "files": [
+        "internal/cli/transactions_subscriptions.go",
+        "internal/cli/transactions_subscriptions_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including split/group child subscription cadence coverage."
     }
   ]
 }
