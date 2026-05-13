@@ -634,3 +634,63 @@ func TestUpsertBatch_PopulatesWebhooksTable(t *testing.T) {
 		t.Fatalf("webhooks count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
 }
+
+// TestSearch_TypeFilter pins the --type filter semantics: passing a non-empty
+// resourceType narrows the FTS lookup to that type. Regression for the
+// previously-silent --type flag.
+func TestSearch_TypeFilter(t *testing.T) {
+	dir := t.TempDir()
+	s, err := Open(filepath.Join(dir, "data.db"))
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	defer s.Close()
+
+	// Two resources of different types, same searchable content.
+	if _, _, err := s.UpsertBatch("videos", []json.RawMessage{
+		json.RawMessage(`{"id":"v-1","name":"Mario clone demo"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch videos: %v", err)
+	}
+	if _, _, err := s.UpsertBatch("playlists", []json.RawMessage{
+		json.RawMessage(`{"id":"p-1","name":"Mario clone collection"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch playlists: %v", err)
+	}
+
+	// No filter -> both rows match.
+	allHits, err := s.Search("Mario", "", 50)
+	if err != nil {
+		t.Fatalf("Search unfiltered: %v", err)
+	}
+	if len(allHits) != 2 {
+		t.Fatalf("unfiltered search = %d hits, want 2", len(allHits))
+	}
+
+	// --type videos -> just the video.
+	vidHits, err := s.Search("Mario", "videos", 50)
+	if err != nil {
+		t.Fatalf("Search videos: %v", err)
+	}
+	if len(vidHits) != 1 {
+		t.Fatalf("--type videos = %d hits, want 1", len(vidHits))
+	}
+
+	// --type playlists -> just the playlist.
+	plHits, err := s.Search("Mario", "playlists", 50)
+	if err != nil {
+		t.Fatalf("Search playlists: %v", err)
+	}
+	if len(plHits) != 1 {
+		t.Fatalf("--type playlists = %d hits, want 1", len(plHits))
+	}
+
+	// --type bogus -> zero hits.
+	noneHits, err := s.Search("Mario", "nonexistent", 50)
+	if err != nil {
+		t.Fatalf("Search nonexistent: %v", err)
+	}
+	if len(noneHits) != 0 {
+		t.Fatalf("--type nonexistent = %d hits, want 0", len(noneHits))
+	}
+}

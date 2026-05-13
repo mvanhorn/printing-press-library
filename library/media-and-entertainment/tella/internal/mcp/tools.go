@@ -239,13 +239,16 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
+	// Optional --type-style filter; empty means search across all resources.
+	resourceType, _ := args["resource_type"].(string)
+
 	db, err := store.OpenReadOnly(dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
 	defer db.Close()
 
-	results, err := db.Search(query, limit)
+	results, err := db.Search(query, resourceType, limit)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}

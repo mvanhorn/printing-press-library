@@ -131,12 +131,13 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
-			// Default and per-type both delegate to db.Search; the store layer
-			// handles cross-table FTS lookup. Previously the case "" branch
-			// created an unused `seen` map and left results nil, so every plain
-			// `search "<query>"` invocation returned zero results.
+			// db.Search handles the cross-table FTS lookup and applies the
+			// optional --type filter at the store layer (empty resourceType
+			// = no filter). Previously the case "" branch created an unused
+			// `seen` map and left results nil; the `default:` branch dropped
+			// resourceType on the floor so `--type` was silently ignored.
 			var results []json.RawMessage
-			results, err = db.Search(query, limit)
+			results, err = db.Search(query, resourceType, limit)
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
 			}

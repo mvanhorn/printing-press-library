@@ -569,18 +569,35 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 	return results, rows.Err()
 }
 
-func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
+// Search runs an FTS5 query against the resources table. When resourceType
+// is non-empty, results are filtered to that type so the CLI's --type flag
+// (and any caller passing a filter) actually narrows the result set.
+func (s *Store) Search(query string, resourceType string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
-	rows, err := s.db.Query(
-		`SELECT r.data FROM resources r
-		 JOIN resources_fts f ON r.id = f.id
-		 WHERE resources_fts MATCH ?
-		 ORDER BY rank
-		 LIMIT ?`,
-		query, limit,
-	)
+	var rows *sql.Rows
+	var err error
+	if resourceType == "" {
+		rows, err = s.db.Query(
+			`SELECT r.data FROM resources r
+			 JOIN resources_fts f ON r.id = f.id
+			 WHERE resources_fts MATCH ?
+			 ORDER BY rank
+			 LIMIT ?`,
+			query, limit,
+		)
+	} else {
+		rows, err = s.db.Query(
+			`SELECT r.data FROM resources r
+			 JOIN resources_fts f ON r.id = f.id
+			 WHERE resources_fts MATCH ?
+			   AND r.resource_type = ?
+			 ORDER BY rank
+			 LIMIT ?`,
+			query, resourceType, limit,
+		)
+	}
 	if err != nil {
 		return nil, err
 	}
