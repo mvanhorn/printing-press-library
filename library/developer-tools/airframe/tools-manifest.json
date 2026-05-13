@@ -1,0 +1,10 @@
+{
+  "api_name": "airframe",
+  "description": "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology.",
+  "mcp_ready": "none",
+  "http_transport": "none",
+  "auth": {
+    "type": "none",
+    "env_vars": []
+  }
+}

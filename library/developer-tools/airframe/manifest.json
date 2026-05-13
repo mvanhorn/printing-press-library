@@ -1,0 +1,19 @@
+{
+  "manifest_version": "0.3",
+  "name": "airframe-pp-cli",
+  "display_name": "airframe",
+  "version": "4.2.2",
+  "description": "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology. Offline-first SQLite, no API key required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
