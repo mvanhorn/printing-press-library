@@ -131,16 +131,12 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
+			// Default and per-type both delegate to db.Search; the store layer
+			// handles cross-table FTS lookup. Previously the case "" branch
+			// created an unused `seen` map and left results nil, so every plain
+			// `search "<query>"` invocation returned zero results.
 			var results []json.RawMessage
-			switch resourceType {
-			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
-				seen := make(map[string]bool)
-				_ = seen // prevent unused error when no FTS tables exist
-			default:
-				// Unrecognized type — fall back to generic search
-				results, err = db.Search(query, limit)
-			}
+			results, err = db.Search(query, limit)
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
 			}

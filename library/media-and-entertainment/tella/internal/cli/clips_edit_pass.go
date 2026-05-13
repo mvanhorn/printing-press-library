@@ -64,8 +64,17 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			minSilence, _ := time.ParseDuration(trimSilencesGT)
-			minSilenceMS := int(minSilence / time.Millisecond)
+			// Reject invalid --trim-silences-gt values loudly rather than
+			// silently skipping the silence-trim step (which is what the
+			// _ discard used to do for anything that wasn't a Go duration).
+			var minSilenceMS int
+			if trimSilencesGT != "" {
+				minSilence, parseErr := time.ParseDuration(trimSilencesGT)
+				if parseErr != nil {
+					return usageErr(fmt.Errorf("invalid --trim-silences-gt value %q: must be a Go duration (e.g. 1s, 500ms): %w", trimSilencesGT, parseErr))
+				}
+				minSilenceMS = int(minSilence / time.Millisecond)
+			}
 
 			videoIDs, err := listPlaylistVideoIDs(c, playlistID)
 			if err != nil {
