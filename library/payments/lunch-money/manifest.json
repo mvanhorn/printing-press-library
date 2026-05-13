@@ -1,0 +1,71 @@
+{
+  "manifest_version": "0.3",
+  "name": "lunch-money-pp-mcp",
+  "display_name": "Lunch Money",
+  "version": "4.5.2",
+  "description": "Lunch Money API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lunch-money-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lunch-money-pp-mcp",
+      "args": [],
+      "env": {
+        "LUNCHMONEY_ACCESS_TOKEN": "${user_config.lunchmoney_access_token}",
+        "LUNCHMONEY_API_KEY": "${user_config.lunchmoney_api_key}",
+        "LUNCHMONEY_API_TOKEN": "${user_config.lunchmoney_api_token}",
+        "LUNCHMONEY_TOKEN": "${user_config.lunchmoney_token}",
+        "LUNCH_MONEY_API_KEY": "${user_config.lunch_money_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "lunch_money_api_key": {
+      "type": "string",
+      "title": "LUNCH_MONEY_API_KEY",
+      "description": "Sets LUNCH_MONEY_API_KEY for the Lunch Money MCP server. Get a credential from https://my.lunchmoney.app/developers.",
+      "sensitive": true,
+      "required": true
+    },
+    "lunchmoney_access_token": {
+      "type": "string",
+      "title": "LUNCHMONEY_ACCESS_TOKEN",
+      "description": "Sets LUNCHMONEY_ACCESS_TOKEN for the Lunch Money MCP server. Get a credential from https://my.lunchmoney.app/developers.",
+      "sensitive": true,
+      "required": true
+    },
+    "lunchmoney_api_key": {
+      "type": "string",
+      "title": "LUNCHMONEY_API_KEY",
+      "description": "Sets LUNCHMONEY_API_KEY for the Lunch Money MCP server. Get a credential from https://my.lunchmoney.app/developers.",
+      "sensitive": true,
+      "required": true
+    },
+    "lunchmoney_api_token": {
+      "type": "string",
+      "title": "LUNCHMONEY_API_TOKEN",
+      "description": "Sets LUNCHMONEY_API_TOKEN for the Lunch Money MCP server. Get a credential from https://my.lunchmoney.app/developers.",
+      "sensitive": true,
+      "required": true
+    },
+    "lunchmoney_token": {
+      "type": "string",
+      "title": "LUNCHMONEY_TOKEN",
+      "description": "Sets LUNCHMONEY_TOKEN for the Lunch Money MCP server. Get a credential from https://my.lunchmoney.app/developers.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "local-transcendence-commands",
+      "summary": "Added seven read-only local SQLite audit commands for triage, net worth, subscriptions, duplicates, stale accounts, recurring misses, and budget burn.",
+      "reason": "The research manifest lists these novel local-join features as Lunch Money CLI differentiators, but the generator only emitted spec-derived API commands.",
+      "files": [
+        "internal/cli/accounts.go",
+        "internal/cli/budgets.go",
+        "internal/cli/budgets_burn.go",
+        "internal/cli/net-worth.go",
+        "internal/cli/recurring-items.go",
+        "internal/cli/recurring_missing.go",
+        "internal/cli/root.go",
+        "internal/cli/transactions.go",
+        "internal/cli/transactions_duplicates.go",
+        "internal/cli/transactions_subscriptions.go",
+        "internal/cli/transcendence_helpers.go",
+        "internal/cli/transcendence_helpers_test.go",
+        "internal/cli/triage.go"
+      ],
+      "validated_outcome": "go test ./internal/cli and go build ./... passed after adding the commands."
+    },
+    {
+      "id": "transactions-retag",
+      "summary": "Added a transactions retag command that previews local matches and bulk-updates category or tag changes.",
+      "reason": "The generated endpoint commands expose raw transaction updates, but the CLI needs a higher-level local-search workflow for safe bulk retagging.",
+      "files": [
+        "internal/cli/transactions.go",
+        "internal/cli/transactions_retag.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... passed; transactions retag --help shows the requested flags."
+    },
+    {
+      "id": "changed-local-triage",
+      "summary": "Added a changed command that lists locally synced records updated since a cutoff.",
+      "reason": "Agents need an offline morning-triage affordance that summarizes what changed in the SQLite store after sync.",
+      "files": [
+        "internal/cli/changed.go",
+        "internal/cli/changed_helpers.go",
+        "internal/cli/changed_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./... && go build ./... && go vet ./... passed; changed help and JSON smoke checks passed."
+    }
+  ]
+}
