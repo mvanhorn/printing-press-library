@@ -1,3 +1,4 @@
+// PATCH: hand-authored novel-feature file. See .printing-press-patches.json patch id "novel-series-extremum".
 package cli
 
 import (

@@ -79,6 +79,9 @@ func Load(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
+// PATCH: removed unreachable second `if c.BlsApiKey == ""` check after
+// the earlier token-empty guard. Found by Greptile P2 review on PR #505.
+// See .printing-press-patches.json patch id "config-authheader-dead-code".
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal

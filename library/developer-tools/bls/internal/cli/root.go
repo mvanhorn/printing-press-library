@@ -228,6 +228,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
+	// PATCH: hand-authored AddCommand registrations for the four
+	// top-level novel parent commands. Generator emits root.go from the
+	// spec only; transcendence commands must be wired here explicitly.
+	// See .printing-press-patches.json patch id "cli-root-novel-wiring".
 	rootCmd.AddCommand(newSnapshotCmd(flags))
 	rootCmd.AddCommand(newReleasesCmd(flags))
 	rootCmd.AddCommand(newFootnotesCmd(flags))

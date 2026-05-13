@@ -2,6 +2,7 @@
 // emits a generic SQLite scaffold (resources, series, surveys, FTS); these
 // tables hold the curated catalog, release calendar, and observation cache
 // that power the transcendence features.
+// PATCH: hand-authored novel-feature file. See .printing-press-patches.json patch id "novel-blsstore".
 package cli
 
 import (

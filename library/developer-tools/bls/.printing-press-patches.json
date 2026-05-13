@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-125748",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "store-bls-id-field-typed-upsert",
+      "files": ["internal/store/store.go"],
+      "summary": "Add extractBLSResourceID helper and route UpsertSeries / UpsertSurveys through it so the spec-declared id_field (seriesID, survey_abbreviation) is honored by typed dispatch.",
+      "reason": "Generator's typed UpsertSeries/UpsertSurveys ignore the spec-declared id_field and only consult the generic extractObjectID lookup list (id, Id, ID, uuid, slug, name). BLS records use seriesID / survey_abbreviation, neither of which is in the generic list, so sync errored with 'missing id for series' / 'missing id for surveys' on every record. The helper also recognises the client's {\"dry_run\": true} sentinel so sync --dry-run preview commits a no-op instead of failing the assertion."
+    },
+    {
+      "id": "config-authheader-dead-code",
+      "files": ["internal/config/config.go"],
+      "summary": "Remove the unreachable second `if c.BlsApiKey == \"\"` check in AuthHeader().",
+      "reason": "After the earlier `if token == \"\"` guard returns, token is guaranteed non-empty (it equals c.BlsApiKey). The second check is dead code. Found by Greptile P2 review on PR #505."
+    },
+    {
+      "id": "series-batch-ids-csv-and-body-auth",
+      "files": ["internal/cli/series_batch.go"],
+      "summary": "Accept comma-separated --ids (in addition to JSON array) and route the body through the shared injectRegistrationKey helper so config-file auth populates registrationkey on POST.",
+      "reason": "Two patches in one file. (1) Generator emits `json.Unmarshal([]byte(s), ...)` for array-typed body fields, so `--ids CUUR0000SA0,LNS14000000` failed with 'parsing --ids JSON: invalid character C'. Comma-split is the form documented in --help. (2) Generator placed registrationkey in the query string (in:query auth), but BLS only honors the registration key in the JSON body for POSTs — the query-string version is silently treated as unauthenticated, capping the call to the 3-series 10-year unauth tier and dropping calculations/annualaverage/catalog/aspects. The shared helper also consults config.Load() so users who authenticated via `bls-pp-cli auth set-token` get the registered tier."
+    },
+    {
+      "id": "client-cache-key-separator",
+      "files": ["internal/client/client.go"],
+      "summary": "Prefix each k=v entry in cacheKey with `&` so the concatenation cannot collide across different param maps.",
+      "reason": "Without a separator, {a=b, cd=ef} and {ab=cd, e=f} produce the same concatenation. BLS's current param shapes don't collide, but the separator removes the entire class of risk. Found by Greptile P2 review on PR #505. Worth filing as a generator-side retro candidate since the same client.go pattern is templated into every printed CLI."
+    },
+    {
+      "id": "cli-root-novel-wiring",
+      "files": ["internal/cli/root.go"],
+      "summary": "Register the four top-level novel commands (snapshot, releases, footnotes, inflation) on rootCmd.",
+      "reason": "Generator's force-regen merges preserved novel files but the AddCommand calls in root.go are emitted from the spec only. Without these explicit registrations the four transcendence parent commands would not appear in the CLI tree."
+    },
+    {
+      "id": "cli-series-novel-wiring",
+      "files": ["internal/cli/series.go"],
+      "summary": "Register the three novel `series` subcommands (search, extremum, compare-sa) on the spec-emitted series parent.",
+      "reason": "Same root cause as cli-root-novel-wiring: the generator emits series.go from the spec, which only knows about the spec-declared series.get/batch/popular endpoints. Hand-added subcommands must be registered explicitly to appear under `series`."
+    },
+    {
+      "id": "novel-blsstore",
+      "files": ["internal/cli/blsstore.go"],
+      "summary": "BLS-specific store package: series_catalog + series_catalog_fts (FTS5) tables, bls_releases table, observations cache table, seed functions populating series_catalog from the embedded blsdata.Catalog() and bls_releases from blsdata.ReleaseCalendar(), the openBLSStore wrapper, cacheObservations, and the injectRegistrationKey body-auth helper.",
+      "reason": "Hand-authored novel infrastructure. The generator's generic store covers `resources`, `series`, and `surveys` tables but not the BLS-specific FTS-indexed series catalog, the curated release calendar, or the observations cache that powers `series extremum`. injectRegistrationKey is the body-auth helper used by every BLS POST command (see series-batch-ids-csv-and-body-auth, novel-snapshot-macro, novel-inflation-adjust, novel-series-compare-sa). cacheObservations now logs per-row insert failures to stderr per Greptile P2 review on PR #505 so series extremum doesn't silently scan an incomplete cache."
+    },
+    {
+      "id": "novel-blsdata-package",
+      "files": [
+        "internal/blsdata/catalog.go",
+        "internal/blsdata/footnotes.go",
+        "internal/blsdata/snapshot.go",
+        "internal/blsdata/releases.go",
+        "internal/blsdata/sa_decoder.go"
+      ],
+      "summary": "Embedded curated static reference data marked `// pp:novel-static-reference`: ~120 BLS series in the most-used surveys (CPI, CES, CPS, JOLTS, PPI, ECI, productivity, LAUS, AP), the 27-code BLS footnote table, the 15-series macro snapshot indicator list, the 2026 BLS release calendar (Employment Situation, CPI, JOLTS, PPI, ECI, Productivity), and the position-3 seasonal-adjustment ID decoder.",
+      "reason": "BLS publishes no series-search endpoint; the curated catalog seeds the local FTS5 index so `series search` works without scraping the Akamai-walled flat-file mirror at download.bls.gov. The release calendar is HTML-only on bls.gov; the locally-curated table is the only programmatic surface. Footnote codes appear on every observation but their plain-English text lives only in BLS's per-survey flat files. The SA decoder exploits the BLS-specific position-3 encoding to derive the SA/NSA variant pair from any compatible series ID."
+    },
+    {
+      "id": "novel-series-search",
+      "files": ["internal/cli/series_search.go"],
+      "summary": "FTS5 search over the locally-synced series catalog with --survey/--area/--item/--adjust filters and bm25 ranking biased toward U.S.-area headlines when no --area is supplied.",
+      "reason": "Transcendence command. BLS has no public series-search endpoint; every Python and R wrapper leaves discovery to the user. FTS5 over the embedded catalog (seeded from blsdata.Catalog()) makes 'find me the series ID for Los Angeles CPI all items' tractable from the terminal. Punctuation tokens are double-quoted before being passed to FTS5 so queries like 'U-3' no longer crash SQLite with 'no such column: 3'."
+    },
+    {
+      "id": "novel-snapshot-macro",
+      "files": ["internal/cli/snapshot.go"],
+      "summary": "`snapshot macro` — single-call POST that batch-fetches the 15-series macro indicator set from blsdata.MacroSnapshot() with calculations:true and aligns the response back into the curated order.",
+      "reason": "Transcendence command. Combines a curated cross-survey indicator set (CPI components, U-3, labor force, payrolls, JOLTS openings, PPI, ECI, productivity) with BLS's server-side YoY/MoM calculations in one tidy frame. Replaces the analyst dashboard that today requires opening FRED and pasting 15 series IDs into a notebook."
+    },
+    {
+      "id": "novel-releases-next",
+      "files": ["internal/cli/releases.go"],
+      "summary": "`releases next [--survey ...] [--within ...] [--watch]` — query the locally-curated 2026 BLS release calendar by survey and time window.",
+      "reason": "Transcendence command. BLS publishes the release calendar only as HTML behind Akamai. The local bls_releases table (seeded by blsdata.ReleaseCalendar()) turns it into a queryable surface and survives shutdown reshuffles. Survey filter accepts friendly aliases ('CPI', 'employment', 'JOLTS', etc.) that normalise to the two-letter BLS abbreviation."
+    },
+    {
+      "id": "novel-footnotes-decode",
+      "files": ["internal/cli/footnotes.go"],
+      "summary": "`footnotes decode <code...>` and `footnotes list` — local join over the BLS footnote table.",
+      "reason": "Transcendence command. The live API returns footnote codes (single letters like P for preliminary, R for revised, C for corrected) but never the explanations. The local table joins codes to plain-English text. `decode` returns non-zero when no supplied codes are recognised so error-path verification sees a usage error rather than empty rows."
+    },
+    {
+      "id": "novel-series-extremum",
+      "files": ["internal/cli/series_extremum.go"],
+      "summary": "`series extremum <id> [--since <year>]` — max / min / latest-rank / percentile-rank over the observations cache, with live fallback when the cache is empty for the requested window.",
+      "reason": "Transcendence command. BLS returns a window of values, never extrema. Local SQL over the observations cache (populated by sync and by previous live fetches via cacheObservations) answers 'is this the highest unemployment rate since 1990' in one call. Live fallback is provenance-tagged so the user knows whether they're reading cache or live."
+    },
+    {
+      "id": "novel-series-compare-sa",
+      "files": ["internal/cli/series_compare_sa.go"],
+      "summary": "`series compare-sa <id>` — emits SA and NSA variants of the same series in one batch call, aligned by (year, period).",
+      "reason": "Transcendence command. Decodes position 3 of the packed BLS series ID via blsdata.CompareAdjustmentIDs to derive the SA/NSA pair, batch-fetches both, and joins them locally. Surveys without a documented SA/NSA toggle (e.g. AP) return a non-zero usage error rather than fabricating an ID the API would reject."
+    },
+    {
+      "id": "novel-inflation-adjust",
+      "files": ["internal/cli/inflation.go"],
+      "summary": "`inflation adjust --amount N --from-year YYYY --to-year YYYY [--index CPI-U|CPI-W]` — convert a dollar amount between two years using annual-average CPI.",
+      "reason": "Absorbed feature (blscrapeR's inflation_adjust) implemented as a single POST with annualaverage:true. Surfaces a clear error when the window exceeds the BLS 20-year-per-request cap so users see 'pick a window <=20 years or chain two calls' instead of a confusing empty result."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Typed UpsertSeries/UpsertSurveys should consult spec id_field",
+      "reason": "Generator's typed Upsert templates use a hardcoded extractObjectID lookup list (id/Id/ID/uuid/slug/name) instead of the per-resource IDField that sync.go already plumbs through extractID. Any API whose primary key field isn't in the generic list (BLS uses seriesID and survey_abbreviation) hits 'missing id for <resource>' on every record."
+    },
+    {
+      "summary": "Generator-emitted client.go cache key should join params with a delimiter",
+      "reason": "The same unseparated `k=v` concatenation pattern lives in `internal/generator/templates/client.go.tmpl` and is templated into every printed CLI. Fixing it here means every future print inherits the collision-safe form without per-CLI patches."
+    },
+    {
+      "summary": "BLS-shaped auth: api_key in:query is wrong for POST",
+      "reason": "BLS's API only honors the registration key when it's in the JSON body for POSTs. The query-string placement is accepted by the gateway but treated as unauthenticated, silently demoting registered-tier features. The generator currently only supports header / query placement; a `body` placement (or an api_key+body fallback for `in:query` when method=POST) would let `injectRegistrationKey`-style helpers disappear into the template."
+    },
+    {
+      "summary": "Force-regen AddCommand preservation for novel parents and novel subcommands of spec-emitted parents",
+      "reason": "The generator's preservation manifest correctly preserves novel files (15 preserved on the first regen, 17 on the second once the `// pp:novel-static-reference` markers landed) but historically reverted hand-added `AddCommand` calls in root.go and resource parent files like series.go. The most recent regen reported '7 AddCommand calls' preserved, so this may already be fixed — worth verifying with a clean re-print."
+    },
+    {
+      "summary": "Generator GET handlers should classify BLS-shaped success-with-error envelopes",
+      "reason": "BLS returns HTTP 200 with `{\"status\":\"REQUEST_SUCCEEDED\",\"message\":[\"Invalid Series ...\"]}` for unknown IDs. The generated GET handler exits 0 because the HTTP layer succeeded, which fails dogfood's error_path tests on `series get __INVALID__` and `surveys get __INVALID__`. Either generic body-error classification or a spec-driven `response_error_path` would close this."
+    }
+  ]
+}

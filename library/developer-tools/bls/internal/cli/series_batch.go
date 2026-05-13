@@ -55,6 +55,12 @@ func newSeriesBatchCmd(flags *rootFlags) *cobra.Command {
 			} else {
 				body = map[string]any{}
 				if bodySeriesid != "" {
+					// PATCH: accept comma-separated --ids in addition to a JSON
+					// array. Generator emits json.Unmarshal for array-typed body
+					// params, so the documented `--ids CUUR0000SA0,LNS14000000`
+					// form failed with 'parsing --ids JSON: invalid character C'.
+					// See .printing-press-patches.json patch id
+					// "series-batch-ids-csv-and-body-auth".
 					// Accept both a JSON array ('["CUUR...","LNS..."]') and a
 					// comma-separated string ("CUUR...,LNS...").
 					trimmed := strings.TrimSpace(bodySeriesid)

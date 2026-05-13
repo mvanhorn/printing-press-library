@@ -1,3 +1,4 @@
+// PATCH: hand-authored novel-feature file. See .printing-press-patches.json patch id "novel-series-compare-sa".
 package cli
 
 import (

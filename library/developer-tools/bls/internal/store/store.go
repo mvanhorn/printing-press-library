@@ -688,6 +688,13 @@ func extractObjectID(obj map[string]any) string {
 	return ""
 }
 
+// PATCH: hand-authored typed-Upsert id resolver. Generator's typed
+// UpsertSeries/UpsertSurveys (below) only consult the generic
+// extractObjectID lookup list (id/Id/ID/uuid/slug/name); BLS records
+// key on seriesID and survey_abbreviation, neither of which match,
+// so sync errored with 'missing id for <resource>' on every record.
+// See .printing-press-patches.json patch id "store-bls-id-field-typed-upsert".
+//
 // extractBLSResourceID resolves a BLS-specific primary key (e.g. seriesID,
 // survey_abbreviation) before falling back to the generic extractObjectID
 // list. Returns "__dry_run__" for the client's dry-run sentinel so sync

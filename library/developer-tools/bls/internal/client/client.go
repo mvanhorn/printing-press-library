@@ -107,10 +107,12 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	}
 	sort.Strings(paramKeys)
 	for _, k := range paramKeys {
-		// Use & as a delimiter so {a=b, cd=ef} and {ab=cd, e=f} (which
-		// collapse to the same concatenation without a separator) hash
-		// to distinct keys. BLS param shapes don't currently collide,
-		// but the separator removes the class of risk entirely.
+		// PATCH: prefix each k=v with & so the concatenation cannot
+		// collide across different param maps. Found by Greptile P2
+		// review on PR #505. Same pattern lives in the generator's
+		// client.go template — filed as a retro candidate.
+		// See .printing-press-patches.json patch id
+		// "client-cache-key-separator".
 		key += "&" + k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))

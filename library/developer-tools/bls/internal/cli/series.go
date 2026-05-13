@@ -16,6 +16,11 @@ func newSeriesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newSeriesBatchCmd(flags))
 	cmd.AddCommand(newSeriesGetCmd(flags))
 	cmd.AddCommand(newSeriesPopularCmd(flags))
+	// PATCH: hand-authored AddCommand registrations for the three novel
+	// `series` subcommands. Generator emits series.go from the spec
+	// only (which knows about get/batch/popular); novel subcommands of
+	// a spec-emitted parent must be wired here explicitly.
+	// See .printing-press-patches.json patch id "cli-series-novel-wiring".
 	cmd.AddCommand(newSeriesSearchCmd(flags))
 	cmd.AddCommand(newSeriesExtremumCmd(flags))
 	cmd.AddCommand(newSeriesCompareSACmd(flags))

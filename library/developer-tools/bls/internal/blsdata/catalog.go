@@ -2,6 +2,7 @@
 // does not expose: the most-popular series catalog, the release calendar,
 // footnote codes, the seasonal-adjustment decoder, and the macro snapshot
 // indicator list. Marked `// pp:novel-static-reference`.
+// PATCH: hand-authored novel-feature file. See .printing-press-patches.json patch id "novel-blsdata-package".
 package blsdata
 
 // pp:novel-static-reference
