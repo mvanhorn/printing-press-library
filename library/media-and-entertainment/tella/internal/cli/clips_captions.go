@@ -30,6 +30,12 @@ func newClipsCaptionsCmd(flags *rootFlags) *cobra.Command {
 			if videoID == "" {
 				return usageErr(fmt.Errorf("--video <id> is required"))
 			}
+			// Validate --format up front so a typo doesn't waste an API
+			// round-trip on a transcript that can't be rendered.
+			format = strings.ToLower(format)
+			if format != "srt" && format != "vtt" {
+				return usageErr(fmt.Errorf("unsupported --format %q: must be srt or vtt", format))
+			}
 			clipID := args[0]
 			c, err := flags.newClient()
 			if err != nil {
@@ -43,7 +49,6 @@ func newClipsCaptionsCmd(flags *rootFlags) *cobra.Command {
 			if len(cues) == 0 {
 				return apiErr(fmt.Errorf("no timed cues found in transcript"))
 			}
-			format = strings.ToLower(format)
 			out := cmd.OutOrStdout()
 			switch format {
 			case "vtt":
@@ -54,7 +59,7 @@ func newClipsCaptionsCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintln(out, cue.Text)
 					fmt.Fprintln(out)
 				}
-			default:
+			case "srt":
 				for i, cue := range cues {
 					fmt.Fprintln(out, i+1)
 					fmt.Fprintf(out, "%s --> %s\n", formatTimestamp(cue.StartMS, false), formatTimestamp(cue.EndMS, false))

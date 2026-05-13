@@ -78,6 +78,13 @@ native streaming instead of polling.`,
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
 
+			// --follow=false: single-poll mode. Exit after the initial fetch
+			// without entering the ticker loop. Documented in the flag's
+			// help text; previously the flag was registered but never read.
+			if !follow {
+				return nil
+			}
+
 			for {
 				select {
 				case <-sig:
