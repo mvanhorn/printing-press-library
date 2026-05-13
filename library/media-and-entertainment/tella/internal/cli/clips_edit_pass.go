@@ -181,13 +181,10 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 // listPlaylistVideoIDs returns every video ID belonging to a playlist by
 // querying `GET /v1/videos?playlistId=<id>`. Tella's playlist GET returns
 // only a count under `videos`, not an array, so the membership listing has
-// to come from the videos endpoint.
+// to come from the videos endpoint. Pages through the cursor so larger
+// workspaces don't silently drop videos past the first page.
 func listPlaylistVideoIDs(c *client.Client, playlistID string) ([]string, error) {
-	data, err := c.Get("/v1/videos", map[string]string{"playlistId": playlistID})
-	if err != nil {
-		return nil, err
-	}
-	return extractIDs(data, "videos"), nil
+	return paginatedListIDs(c, "/v1/videos", map[string]string{"playlistId": playlistID}, "videos")
 }
 
 type silenceRange struct {

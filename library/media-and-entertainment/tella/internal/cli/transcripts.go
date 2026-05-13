@@ -165,11 +165,79 @@ func listAllVideoIDs(c *client.Client, max int) ([]string, error) {
 }
 
 func listClipIDs(c *client.Client, videoID string) ([]string, error) {
-	data, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips", videoID), nil)
-	if err != nil {
-		return nil, err
+	return paginatedListIDs(c, fmt.Sprintf("/v1/videos/%s/clips", videoID), nil, "clips")
+}
+
+// paginatedListIDs walks the cursor-paged Tella response for a list endpoint
+// and accumulates `id` strings across every page. Without this helper, the
+// edit-pass family silently processed only the first API page on workspaces
+// that exceeded the default page size — `total_clips` reflected the
+// truncated count and the user got no warning. Uses the same extractPageItems
+// envelope/cursor logic that sync.go uses, with a sticky-cursor guard and a
+// 100-page hard cap (10k items at the default page size) so a misbehaving
+// API can't burn unbounded calls.
+//
+// Caller passes a narrow Get-only interface so unit tests can stub the
+// transport without standing up an httptest server.
+func paginatedListIDs(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, arrayKey string) ([]string, error) {
+	pageDefaults := determinePaginationDefaults()
+	cursorParam := pageDefaults.cursorParam
+	limitParam := pageDefaults.limitParam
+
+	query := map[string]string{}
+	for k, v := range params {
+		query[k] = v
 	}
-	return extractIDs(data, "clips"), nil
+	query[limitParam] = fmt.Sprintf("%d", pageDefaults.limit)
+
+	const maxPages = 100
+	var ids []string
+	var cursor, lastCursor string
+	for page := 0; page < maxPages; page++ {
+		if cursor != "" {
+			query[cursorParam] = cursor
+		} else {
+			delete(query, cursorParam)
+		}
+
+		data, err := c.Get(path, query)
+		if err != nil {
+			return nil, err
+		}
+
+		items, nextCursor, hasMore := extractPageItems(data, cursorParam)
+
+		// Per-page ID extraction. extractPageItems hands us
+		// []json.RawMessage; decode each one into an object to pull
+		// `id`. Fall back to extractIDs for the (rare) case where the
+		// page came back in an unrecognized envelope shape and items
+		// is empty — better to surface the first page than nothing.
+		if len(items) > 0 {
+			for _, raw := range items {
+				var obj map[string]any
+				if err := json.Unmarshal(raw, &obj); err != nil {
+					continue
+				}
+				if id, ok := obj["id"].(string); ok && id != "" {
+					ids = append(ids, id)
+				}
+			}
+		} else if page == 0 {
+			ids = append(ids, extractIDs(data, arrayKey)...)
+		}
+
+		if !hasMore || nextCursor == "" {
+			break
+		}
+		if nextCursor == lastCursor {
+			break
+		}
+		lastCursor = nextCursor
+		cursor = nextCursor
+	}
+	return ids, nil
 }
 
 // extractIDs pulls "id" fields out of a JSON response that is either a bare
