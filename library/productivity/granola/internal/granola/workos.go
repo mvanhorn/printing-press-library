@@ -380,9 +380,16 @@ var workosLimiter = cliutil.NewAdaptiveLimiter(2.0)
 // supabase.json and stored-accounts.json paths still allow refresh
 // (legacy / rarely populated, not the canonical desktop store).
 func RefreshAccessToken(refreshToken string) (RefreshAccessTokenResponse, error) {
-	if CurrentTokenSource() == TokenSourceEncryptedSupabase {
+	// Hold tokenMu across the D6 check so a concurrent loadTokensRaw cannot
+	// flip cachedSource to TokenSourceEncryptedSupabase between the read and
+	// the network call. Single-CLI-invocation processes don't see this race
+	// in practice; long-running agents that call sync concurrently would.
+	tokenMu.Lock()
+	if cachedSource == TokenSourceEncryptedSupabase {
+		tokenMu.Unlock()
 		return RefreshAccessTokenResponse{}, ErrRefreshRefused
 	}
+	tokenMu.Unlock()
 	body, _ := json.Marshal(map[string]string{
 		"client_id":     WorkOSClientID,
 		"grant_type":    "refresh_token",

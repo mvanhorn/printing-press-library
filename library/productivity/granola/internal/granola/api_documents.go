@@ -55,7 +55,8 @@ func HydrateDocumentsFromAPI(cache *Cache, client *InternalClient) (int, error) 
 
 	const maxPages = 200 // hard cap to avoid runaway loops if API misbehaves
 	added := 0
-	for page := 0; page < maxPages; page++ {
+	page := 0
+	for ; page < maxPages; page++ {
 		offset := page * DefaultDocumentsPageSize
 		env, err := client.GetDocumentsPage(DefaultDocumentsPageSize, offset, false)
 		if err != nil {
@@ -90,6 +91,12 @@ func HydrateDocumentsFromAPI(cache *Cache, client *InternalClient) (int, error) 
 		// the rare bare-array exactly-full-page edge case is much smaller
 		// than the cost of always making one extra round-trip.
 		break
+	}
+	// If we exited via the for-condition rather than a break, the API
+	// kept signaling more documents past maxPages. Surface this so the
+	// caller sees the truncation rather than silently under-reporting.
+	if page == maxPages {
+		return added, fmt.Errorf("hydrate documents: hit page cap (%d pages * %d per page = %d documents); some documents may be missing - re-run sync or raise maxPages", maxPages, DefaultDocumentsPageSize, added)
 	}
 	return added, nil
 }

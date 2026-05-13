@@ -180,10 +180,3 @@ func parseKeyOverride(s string) ([]byte, error) {
 	}
 	return raw, nil
 }
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
