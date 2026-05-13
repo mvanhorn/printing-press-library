@@ -1,5 +1,8 @@
 // Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
 
+// PATCH(library): tests for the airport-alias-table patch (Kayak side).
+// See kayak.go for the production code.
+
 package kayak
 
 import (

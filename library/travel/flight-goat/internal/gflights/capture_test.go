@@ -2,6 +2,9 @@
 
 //go:build capture
 
+// PATCH(library): build-tagged capture helpers for the google-flights-parser-audit
+// patch. Refreshes the testdata/*.json fixtures from live Google responses.
+//
 // Build-tagged helpers that hit Google live to refresh testdata fixtures.
 // Not run in normal CI — invoke explicitly:
 //
