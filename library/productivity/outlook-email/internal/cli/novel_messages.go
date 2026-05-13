@@ -130,6 +130,25 @@ func myAddress(db *sql.DB) (string, error) {
 	return "", nil
 }
 
+// safeOrderByExprs is the closed allowlist of ORDER BY expressions loadMessages
+// may emit. Every novel-command caller picks from this set; an empty or
+// unrecognized value falls back to received_date_time DESC. Keeping this list
+// explicit blocks any future caller from passing user- or config-derived
+// strings into the concatenated SQL.
+var safeOrderByExprs = map[string]struct{}{
+	"received_date_time DESC": {},
+	"received_date_time ASC":  {},
+	"sent_date_time DESC":     {},
+	"sent_date_time ASC":      {},
+}
+
+func safeOrderBy(order string) string {
+	if _, ok := safeOrderByExprs[order]; ok {
+		return order
+	}
+	return "received_date_time DESC"
+}
+
 // loadMessages runs a parameterized SQL query against the messages table,
 // pushing every set field of `f` into the WHERE clause. Time predicates are
 // rendered as `received_date_time >= ?` using ISO-8601 strings — that's the
@@ -211,10 +230,8 @@ func loadMessages(ctx context.Context, db *sql.DB, f loadMessagesFilter) ([]mess
 		args = append(args, fargs...)
 	}
 
-	order := f.OrderBy
-	if order == "" {
-		order = "received_date_time DESC"
-	}
+	// PATCH: validate OrderBy against an allowlist before concatenating into SQL — every current caller passes a hardcoded literal, but the allowlist closes the future risk of a config- or user-derived value reaching this string.
+	order := safeOrderBy(f.OrderBy)
 	limit := ""
 	if f.Limit > 0 {
 		limit = fmt.Sprintf(" LIMIT %d", f.Limit)

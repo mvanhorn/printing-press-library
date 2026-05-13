@@ -96,10 +96,11 @@ The window accepts:
 				return apiErr(err)
 			}
 			totalCount := len(rows)
+			// PATCH: compute groups across the full result set BEFORE --top truncation; otherwise the groups map silently disagrees with total_count.
+			grouped := groupSince(rows, groupBy)
 			if top > 0 && len(rows) > top {
 				rows = rows[:top]
 			}
-			grouped := groupSince(rows, groupBy)
 			out := map[string]any{
 				"window_start": cutoff.UTC().Format(time.RFC3339),
 				"total_count":  totalCount,

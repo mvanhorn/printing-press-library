@@ -89,13 +89,13 @@ join possible.
 			if windowStart.IsZero() {
 				windowStart = cutoff.AddDate(-1, 0, 0) // up to one year back of sent mail
 			}
-			isTrue := false
+			// PATCH: drop redundant ExcludeDrafts:true (IsDraft=&false already adds the more restrictive `is_draft = 0`) and rename the misnamed `isTrue` to `isFalse`.
+			isFalse := false
 			rows, err := loadMessages(ctx, st.DB(), loadMessagesFilter{
 				SentAfter:  windowStart,
 				SentBefore: cutoff,
-				IsDraft:    &isTrue, // exclude drafts: from.address may not match me yet
+				IsDraft:    &isFalse, // exclude drafts: from.address may not match me yet
 				Senders:    []string{me},
-				ExcludeDrafts: true,
 				OrderBy:    "sent_date_time DESC",
 			})
 			if err != nil {
