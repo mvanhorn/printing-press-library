@@ -62,6 +62,17 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("opening database (read-only): %w", err)
 	}
 	db.SetMaxOpenConns(2)
+
+	var current int
+	if err := db.QueryRow(`PRAGMA user_version`).Scan(&current); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("reading schema version: %w", err)
+	}
+	if current > StoreSchemaVersion {
+		db.Close()
+		return nil, fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary", current, StoreSchemaVersion)
+	}
+
 	return &Store{db: db, path: dbPath}, nil
 }
 

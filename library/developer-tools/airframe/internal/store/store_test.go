@@ -4,8 +4,10 @@ package store
 
 import (
 	"context"
+	"database/sql"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -86,6 +88,63 @@ func TestListSyncMetaEmpty(t *testing.T) {
 	}
 	if len(rows) != 0 {
 		t.Fatalf("expected 0 rows, got %d", len(rows))
+	}
+}
+
+// TestOpenReadOnlyRejectsNewerSchema verifies that OpenReadOnly returns the
+// upgrade-the-CLI error when the database's user_version exceeds
+// StoreSchemaVersion, instead of silently returning a Store that would emit
+// raw SQLite errors on every query.
+func TestOpenReadOnlyRejectsNewerSchema(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "data.db")
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	s.Close()
+
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("raw open: %v", err)
+	}
+	if _, err := db.Exec(`PRAGMA user_version = 999`); err != nil {
+		t.Fatalf("bump user_version: %v", err)
+	}
+	db.Close()
+
+	if _, err := OpenReadOnly(dbPath); err == nil {
+		t.Fatal("OpenReadOnly succeeded against a newer-schema DB; want version error")
+	} else if !strings.Contains(err.Error(), "upgrade the CLI binary") {
+		t.Fatalf("OpenReadOnly error = %v; want substring 'upgrade the CLI binary'", err)
+	}
+}
+
+// TestOpenReadOnlySameVersionSucceeds verifies the happy path: a fresh
+// same-version DB still opens read-only without error.
+func TestOpenReadOnlySameVersionSucceeds(t *testing.T) {
+	dir := t.TempDir()
+	dbPath := filepath.Join(dir, "data.db")
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	s.Close()
+
+	s2, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("OpenReadOnly on same-version DB: %v", err)
+	}
+	defer s2.Close()
+
+	v, err := s2.SchemaVersion(context.Background())
+	if err != nil {
+		t.Fatalf("SchemaVersion: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("schema version = %d, want %d", v, StoreSchemaVersion)
 	}
 }
 

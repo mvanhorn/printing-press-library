@@ -57,6 +57,12 @@
       "summary": "Unwrap the standard Printing Press envelope after json.Unmarshal succeeds instead of trying it in an unreachable fallback.",
       "reason": "json.Unmarshal into map[string]any succeeds for both flat objects and envelope objects, so the original `if err != nil` fallback was unreachable. An envelope response left raw holding {results:...,meta:...} and pickRegistration scanned the wrong layer, always returning ErrNoRegistration.",
       "files": ["internal/flightgoat/flightgoat.go"]
+    },
+    {
+      "id": "store-readonly-version-guard",
+      "summary": "OpenReadOnly checks PRAGMA user_version and returns the upgrade-CLI error when the stored schema exceeds StoreSchemaVersion.",
+      "reason": "OpenWithContext routed through migrate() which surfaces a friendly 'database schema version N is newer than supported version M; upgrade the CLI binary' error, but OpenReadOnly skipped the check entirely. All six read commands (tail, owner, model, event, search, flight) flow through OpenReadOnly, so a user running `sync` with a newer binary and then a read with an older binary would hit raw SQLite column-binding errors instead of the actionable upgrade message. The patch mirrors migrate()'s version-mismatch error in OpenReadOnly without a write transaction; the StoreSchemaVersion code comment that promises 'checked on every open' is now actually true.",
+      "files": ["internal/store/store.go", "internal/store/store_test.go"]
     }
   ]
 }
