@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "hubspot-pp-mcp",
+  "display_name": "HubSpot",
+  "version": "4.5.0",
+  "description": "CRM contacts API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hubspot-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hubspot-pp-mcp",
+      "args": [],
+      "env": {
+        "HUBSPOT_OAUTH2": "${user_config.hubspot_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "hubspot_oauth2": {
+      "type": "string",
+      "title": "HUBSPOT_OAUTH2",
+      "description": "Sets HUBSPOT_OAUTH2 for the HubSpot MCP server. Get a credential from https://developers.hubspot.com/docs/methods/crm-properties/crm-properties-overview.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

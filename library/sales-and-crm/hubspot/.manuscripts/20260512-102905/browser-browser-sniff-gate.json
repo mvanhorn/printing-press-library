@@ -1,0 +1,11 @@
+{
+  "run_id": "20260512-102905",
+  "sources": [
+    {
+      "source_name": "hubspot",
+      "decision": "skip-silent",
+      "reason": "official OpenAPI specs at HubSpot/HubSpot-public-api-spec-collection cover all 14 resources in scope (contacts, deals, companies, leads, owners, properties, pipelines, lists, associations, calls, emails, meetings, notes, tasks). No gaps requiring browser-sniff or crowd-sniff.",
+      "asked_at": "2026-05-12T14:51:57Z"
+    }
+  ]
+}

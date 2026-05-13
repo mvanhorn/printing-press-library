@@ -1,0 +1,356 @@
+{
+  "api_name": "hubspot",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "shinzo-labs/hubspot-mcp",
+      "url": "https://github.com/shinzo-labs/hubspot-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dipankar/hubspot-cli",
+      "url": "https://github.com/dipankar/hubspot-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 35,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "baryhuang/mcp-hubspot",
+      "url": "https://github.com/baryhuang/mcp-hubspot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lkm1developer/hubspot-mcp-server",
+      "url": "https://github.com/lkm1developer/hubspot-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "open-cli-collective/hubspot-cli",
+      "url": "https://github.com/open-cli-collective/hubspot-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "silverbackstudio/hubspot-tools",
+      "url": "https://github.com/silverbackstudio/hubspot-tools",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "HubSpot/hubspot-api-nodejs",
+      "url": "https://github.com/HubSpot/hubspot-api-nodejs",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "HubSpot/hubspot-api-python",
+      "url": "https://github.com/HubSpot/hubspot-api-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T14:51:57Z",
+  "novel_features": [
+    {
+      "name": "Stale leads",
+      "command": "stale-leads",
+      "description": "Surface contacts in a given lifecycle stage with no engagement for N days, ranked by days-since-last-touch.",
+      "rationale": "Joins contacts and all five engagement tables in the local SQLite mirror — no single HubSpot endpoint returns this; competing CLIs need at least four API calls to compute it.",
+      "example": "hubspot-pp-cli stale-leads --stage leadqualified --days 14 --agent",
+      "why_it_matters": "When an agent is asked 'which leads need a call this week?', this returns the ranked answer in one tool call instead of orchestrating contacts.search + per-contact engagement fetches.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Pipeline health",
+      "command": "pipeline-health",
+      "description": "Every deal by stage with age-in-stage, weighted value (amount × stage probability), and days since last engagement.",
+      "rationale": "Multiplies deal amount by `pipelines.stages.probability` — the canonical HubSpot weighted-value primitive — and joins engagement recency, all from the local mirror. HubSpot's own UI splits this across three filtered views.",
+      "example": "hubspot-pp-cli pipeline-health --agent --select rows.dealId,rows.stage,rows.weighted_value,rows.days_since_touch",
+      "why_it_matters": "The Monday pipeline review in one tool call — agents asked 'where is the pipeline stuck?' get a stage-ranked answer with weighted value attached.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Recent intake",
+      "command": "recent-intake",
+      "description": "New contacts in the last N hours with full source attribution: original-source, latest-source, UTM medium, UTM campaign.",
+      "rationale": "Projects the full `hs_analytics_source*` and `utm_*` property family into a single row — service-specific content that no competing CLI surfaces as one command.",
+      "example": "hubspot-pp-cli recent-intake --hours 24 --source apollo --agent",
+      "why_it_matters": "Answers 'what landed overnight and where did it come from?' without burning 4+ API calls per lead and without re-implementing the source-attribution property tree.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Dedup check",
+      "command": "dedup",
+      "description": "Find clustered duplicate contacts by normalized email, e164 phone, or registrable company domain.",
+      "rationale": "Local SQLite `GROUP BY` over normalized keys — replaces per-lead API probing that today burns most of an hourly automation flow's rate-limit budget.",
+      "example": "hubspot-pp-cli dedup --key email --threshold strict --agent",
+      "why_it_matters": "Bulk dedup answer for n8n flows or agents staging Apollo enrichment — one local query versus N×3 round-trips.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Closed Won handoff",
+      "command": "closed-won-handoff",
+      "description": "Every contact whose deal closed Won in the window, with full property bundle and associated company/engagement summary, in ClickUp-import shape.",
+      "rationale": "Joins property-history transitions, the association graph, and the full property bundle, then serializes for a downstream system. No competing tool offers a cross-system handoff primitive.",
+      "example": "hubspot-pp-cli closed-won-handoff --since 7d --format clickup",
+      "why_it_matters": "Bridges the architectural rule 'pre-sale lives in HubSpot, post-sale lives elsewhere' in one command — agents performing weekly handoff stop hand-stitching the bundle.",
+      "group": "Cross-system bridges"
+    },
+    {
+      "name": "Engagement decay",
+      "command": "engagement-decay",
+      "description": "Rank contacts whose recent engagement frequency dropped vs the prior window.",
+      "rationale": "Two-window comparison of call+email+meeting+note+task counts per contact, computed entirely from the local mirror. Impossible from any single API call.",
+      "example": "hubspot-pp-cli engagement-decay --days 30 --window 7 --agent --select rows.contactId,rows.prev_count,rows.curr_count,rows.delta",
+      "why_it_matters": "Surfaces leads going cold before they go silent — agents can flag at-risk contacts proactively.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Lead trace",
+      "command": "lead-trace",
+      "description": "Walk associations from a contact through its deals, companies, and engagement timeline; emit one composite JSON.",
+      "rationale": "Local SQLite graph traversal across the associations join table — competitor MCPs expose the atomic `get_associations` call but require an agent to orchestrate the walk and pay the token cost.",
+      "example": "hubspot-pp-cli lead-trace 12345 --agent",
+      "why_it_matters": "Single-call lead triage: 'tell me everything about this contact' returns the full neighborhood in one shot instead of 5+ chained calls.",
+      "group": "Cross-entity graph"
+    },
+    {
+      "name": "UTM cohort",
+      "command": "utm-cohort",
+      "description": "Cohort rollup by UTM campaign: size, percent at each pipeline stage, percent Closed Won, average deal amount.",
+      "rationale": "Cross-table aggregation joining contacts to deals on owner-association and grouping by UTM property — no competing tool surfaces source-attribution cohort math.",
+      "example": "hubspot-pp-cli utm-cohort --campaign google-maps-realtors --agent",
+      "why_it_matters": "Answers 'did source X actually convert?' in one call when an agent is deciding which intake channel to scale.",
+      "group": "Source attribution"
+    },
+    {
+      "name": "Daily digest",
+      "command": "digest",
+      "description": "Composite Monday-morning rollup: new contacts, deals advanced, deals closed, stalest leads, recent intake — one command, one JSON object.",
+      "rationale": "Composes the local-mirror queries that power stale-leads, pipeline-health, and recent-intake into one composite call. Trades token count for completeness.",
+      "example": "hubspot-pp-cli digest --since 24h --agent",
+      "why_it_matters": "The Monday-morning ritual as a single tool call — agents performing daily standup intelligence get the full snapshot without orchestrating four separate queries.",
+      "group": "Pre-sale compound queries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Stale leads",
+      "command": "stale-leads",
+      "description": "Surface contacts in a given lifecycle stage with no engagement for N days, ranked by days-since-last-touch.",
+      "rationale": "Joins contacts and all five engagement tables in the local SQLite mirror — no single HubSpot endpoint returns this; competing CLIs need at least four API calls to compute it.",
+      "example": "hubspot-pp-cli stale-leads --stage leadqualified --days 14 --agent",
+      "why_it_matters": "When an agent is asked 'which leads need a call this week?', this returns the ranked answer in one tool call instead of orchestrating contacts.search + per-contact engagement fetches.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Pipeline health",
+      "command": "pipeline-health",
+      "description": "Every deal by stage with age-in-stage, weighted value (amount × stage probability), and days since last engagement.",
+      "rationale": "Multiplies deal amount by `pipelines.stages.probability` — the canonical HubSpot weighted-value primitive — and joins engagement recency, all from the local mirror. HubSpot's own UI splits this across three filtered views.",
+      "example": "hubspot-pp-cli pipeline-health --agent --select rows.dealId,rows.stage,rows.weighted_value,rows.days_since_touch",
+      "why_it_matters": "The Monday pipeline review in one tool call — agents asked 'where is the pipeline stuck?' get a stage-ranked answer with weighted value attached.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Recent intake",
+      "command": "recent-intake",
+      "description": "New contacts in the last N hours with full source attribution: original-source, latest-source, UTM medium, UTM campaign.",
+      "rationale": "Projects the full `hs_analytics_source*` and `utm_*` property family into a single row — service-specific content that no competing CLI surfaces as one command.",
+      "example": "hubspot-pp-cli recent-intake --hours 24 --source apollo --agent",
+      "why_it_matters": "Answers 'what landed overnight and where did it come from?' without burning 4+ API calls per lead and without re-implementing the source-attribution property tree.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Dedup check",
+      "command": "dedup",
+      "description": "Find clustered duplicate contacts by normalized email, e164 phone, or registrable company domain.",
+      "rationale": "Local SQLite `GROUP BY` over normalized keys — replaces per-lead API probing that today burns most of an hourly automation flow's rate-limit budget.",
+      "example": "hubspot-pp-cli dedup --key email --threshold strict --agent",
+      "why_it_matters": "Bulk dedup answer for n8n flows or agents staging Apollo enrichment — one local query versus N×3 round-trips.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Closed Won handoff",
+      "command": "closed-won-handoff",
+      "description": "Every contact whose deal closed Won in the window, with full property bundle and associated company/engagement summary, in ClickUp-import shape.",
+      "rationale": "Joins property-history transitions, the association graph, and the full property bundle, then serializes for a downstream system. No competing tool offers a cross-system handoff primitive.",
+      "example": "hubspot-pp-cli closed-won-handoff --since 7d --format clickup",
+      "why_it_matters": "Bridges the architectural rule 'pre-sale lives in HubSpot, post-sale lives elsewhere' in one command — agents performing weekly handoff stop hand-stitching the bundle.",
+      "group": "Cross-system bridges"
+    },
+    {
+      "name": "Engagement decay",
+      "command": "engagement-decay",
+      "description": "Rank contacts whose recent engagement frequency dropped vs the prior window.",
+      "rationale": "Two-window comparison of call+email+meeting+note+task counts per contact, computed entirely from the local mirror. Impossible from any single API call.",
+      "example": "hubspot-pp-cli engagement-decay --days 30 --window 7 --agent --select rows.contactId,rows.prev_count,rows.curr_count,rows.delta",
+      "why_it_matters": "Surfaces leads going cold before they go silent — agents can flag at-risk contacts proactively.",
+      "group": "Pre-sale compound queries"
+    },
+    {
+      "name": "Lead trace",
+      "command": "lead-trace",
+      "description": "Walk associations from a contact through its deals, companies, and engagement timeline; emit one composite JSON.",
+      "rationale": "Local SQLite graph traversal across the associations join table — competitor MCPs expose the atomic `get_associations` call but require an agent to orchestrate the walk and pay the token cost.",
+      "example": "hubspot-pp-cli lead-trace 12345 --agent",
+      "why_it_matters": "Single-call lead triage: 'tell me everything about this contact' returns the full neighborhood in one shot instead of 5+ chained calls.",
+      "group": "Cross-entity graph"
+    },
+    {
+      "name": "UTM cohort",
+      "command": "utm-cohort",
+      "description": "Cohort rollup by UTM campaign: size, percent at each pipeline stage, percent Closed Won, average deal amount.",
+      "rationale": "Cross-table aggregation joining contacts to deals on owner-association and grouping by UTM property — no competing tool surfaces source-attribution cohort math.",
+      "example": "hubspot-pp-cli utm-cohort --campaign google-maps-realtors --agent",
+      "why_it_matters": "Answers 'did source X actually convert?' in one call when an agent is deciding which intake channel to scale.",
+      "group": "Source attribution"
+    },
+    {
+      "name": "Daily digest",
+      "command": "digest",
+      "description": "Composite Monday-morning rollup: new contacts, deals advanced, deals closed, stalest leads, recent intake — one command, one JSON object.",
+      "rationale": "Composes the local-mirror queries that power stale-leads, pipeline-health, and recent-intake into one composite call. Trades token count for completeness.",
+      "example": "hubspot-pp-cli digest --since 24h --agent",
+      "why_it_matters": "The Monday-morning ritual as a single tool call — agents performing daily standup intelligence get the full snapshot without orchestrating four separate queries.",
+      "group": "Pre-sale compound queries"
+    }
+  ],
+  "narrative": {
+    "display_name": "HubSpot",
+    "headline": "Every HubSpot CRM endpoint, plus a local SQLite mirror that answers compound pre-sale queries (stale leads, pipeline health, recent intake, dedup, Closed Won handoff, engagement decay) no other HubSpot tool returns in one call. Read-focused.",
+    "value_prop": "A read-focused HubSpot CLI built for agents and automation flows. Every CRM object lives in a local SQLite cache after the first sync, so stale-lead, pipeline-health, recent-intake, dedup, Closed Won handoff, and engagement-decay queries become single-call commands instead of multi-step API orchestration. Outputs default to compact JSON so token cost stays predictable across thousands of agent invocations.",
+    "auth_narrative": "Authenticate with a HubSpot private app token. Create the app at https://app.hubspot.com/private-apps, grant read scopes for contacts, deals, companies, leads, owners, properties, lists, associations, and engagements, then export `HUBSPOT_TOKEN`. No OAuth, no callback handshake — single bearer token, scoped per private app.",
+    "quickstart": [
+      {
+        "command": "hubspot-pp-cli doctor",
+        "comment": "Confirm the token is valid and the scopes cover the resources you sync."
+      },
+      {
+        "command": "hubspot-pp-cli pipelines-crm get-v3-pipelines-object-type-get-all contacts --agent",
+        "comment": "Smoke test the live API by fetching the contact lifecycle pipeline. Then run `hubspot-pp-cli sync` to populate the local SQLite mirror for compound queries."
+      },
+      {
+        "command": "hubspot-pp-cli stale-leads --days 14 --agent",
+        "comment": "First pre-sale compound query: leads in the default qualified stage untouched for two weeks."
+      },
+      {
+        "command": "hubspot-pp-cli pipeline-health --agent --select rows.dealId,rows.stage,rows.weighted_value",
+        "comment": "Monday pipeline review in one call — only the fields an agent needs."
+      },
+      {
+        "command": "hubspot-pp-cli closed-won-handoff --since 7d --format clickup",
+        "comment": "End-of-week handoff bundle in ClickUp-import shape."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports `INVALID_AUTHENTICATION`",
+        "fix": "Confirm `HUBSPOT_TOKEN` is exported and starts with `pat-` (private app token). OAuth tokens are not supported."
+      },
+      {
+        "symptom": "`stale-leads` returns empty after sync",
+        "fix": "The `--stage` flag matches HubSpot internal names like `leadqualified`, not display labels. List real stage names with `hubspot-pp-cli sql \"SELECT DISTINCT json_extract(data,'$.properties.lifecyclestage') AS stage FROM crm WHERE stage IS NOT NULL\"`."
+      },
+      {
+        "symptom": "Sync stops mid-page with `RATE_LIMIT_EXCEEDED`",
+        "fix": "The built-in adaptive limiter backs off automatically. Rerun with `--concurrency 2` to stay below the burst ceiling on a low-tier portal."
+      },
+      {
+        "symptom": "`recent-intake` shows contacts but no UTM properties",
+        "fix": "Inspect the synced properties with `hubspot-pp-cli sql \"SELECT json_extract(data,'$.properties') FROM crm LIMIT 1\"`; if utm_* fields are missing, your private app token lacks the property-read scope."
+      },
+      {
+        "symptom": "`dedup` clusters look wrong",
+        "fix": "Phone normalization assumes US/CA E.164. Pass `--key email` or `--key domain` to switch the cluster key, and re-run `sync --resources contacts --full` if the cache was built before this version."
+      },
+      {
+        "symptom": "A `\u003cresource\u003e-crm` write command returns `403`",
+        "fix": "Expected. This CLI is designed for read-only pre-sale workflows; mutate via the official HubSpot UI or MCP. Grant write scopes on your private app token only when you understand the blast radius."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to answer pre-sale HubSpot questions ('which leads are stale', 'which deals are stuck', 'who landed overnight', 'are these duplicates') in one tool call instead of orchestrating the official HubSpot MCP's many small tools. The local SQLite mirror means lookups, filters, and joins happen offline at near-zero token cost, and only sync commands talk to HubSpot. Skip this CLI for Marketing Hub email sends, CMS, forms, workflow creation, or any post-Closed-Won customer record — those live in other systems.",
+    "recipes": [
+      {
+        "title": "Find this week's stale leads, just the fields you need",
+        "command": "hubspot-pp-cli stale-leads --stage leadqualified --days 14 --agent --select rows.contactId,rows.email,rows.days_since_touch,rows.last_engagement_type",
+        "explanation": "Narrowed projection over a deeply-nested response keeps the per-call token cost flat regardless of how many leads come back."
+      },
+      {
+        "title": "Monday pipeline rollup as a single tool call",
+        "command": "hubspot-pp-cli pipeline-health --agent --select rows.stage,rows.dealId,rows.dealname,rows.weighted_value,rows.age_in_stage_days",
+        "explanation": "Combines deal amounts with stage probability into a one-shot weighted view. Agents asked 'where is revenue stuck?' get a stage-ranked answer in one call."
+      },
+      {
+        "title": "Dedup an Apollo batch without burning rate limit",
+        "command": "hubspot-pp-cli dedup --key email --threshold strict --agent",
+        "explanation": "Local GROUP BY over the synced mirror returns duplicate clusters in milliseconds. Replaces the per-lead API probe that today burns most of an hourly flow's daily budget."
+      },
+      {
+        "title": "Closed Won handoff bundle to ClickUp",
+        "command": "hubspot-pp-cli closed-won-handoff --since 7d --format clickup",
+        "explanation": "Joins property-history transitions with the association graph and serializes the full bundle in import-ready shape — bridges the 'pre-sale in HubSpot, post-sale elsewhere' rule in one command."
+      },
+      {
+        "title": "Daily digest for the Monday standup",
+        "command": "hubspot-pp-cli digest --since 24h --agent",
+        "explanation": "One JSON object: new contacts, deals advanced, deals closed, top-5 stalest, top-5 newest intake. Composes the hot pre-sale queries into a single tool call."
+      }
+    ],
+    "trigger_phrases": [
+      "show stale HubSpot leads",
+      "check the HubSpot pipeline",
+      "who landed in HubSpot overnight",
+      "dedup HubSpot contacts",
+      "closed-won handoff to ClickUp",
+      "hubspot daily digest",
+      "use hubspot-pp-cli",
+      "run hubspot"
+    ]
+  }
+}

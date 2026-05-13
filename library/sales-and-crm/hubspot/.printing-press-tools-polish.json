@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-13T00:49:14.990061Z",
+  "cli_dir": "/Users/jay/printing-press/.runstate/cli-printing-press-15f43b3c/runs/20260512-102905/working/hubspot-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-13T00:49:14.990062Z"
+  }
+}

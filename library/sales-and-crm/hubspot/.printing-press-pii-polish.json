@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-13T22:55:19.356146Z",
+  "cli_dir": "/tmp/printing-press/publish/hubspot-VwFA6s/package/library/sales-and-crm/hubspot",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 236,
+      "column": 409,
+      "matched_span": "jon@website.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Verbatim documentation snippet from HubSpot's Contacts API: an example URL path `/crm/v3/objects/contacts/jon@website.com?idProperty=email` rendered inline in the README description for the `patch-v3-objects-contacts-contact-id-update` command — copied from HubSpot's own published API docs (info.description) to teach how `idProperty=email` works. Not a real customer email."
+    }
+  ],
+  "findings_count_before": 1
+}

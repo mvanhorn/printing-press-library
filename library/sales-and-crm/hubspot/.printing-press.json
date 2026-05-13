@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T00:50:59.923935Z",
+  "printing_press_version": "4.5.0",
+  "api_name": "hubspot",
+  "display_name": "HubSpot",
+  "cli_name": "hubspot-pp-cli",
+  "owner": "simplepathmedia",
+  "printer": "simplepathmedia",
+  "printer_name": "simplepathmedia",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8027e5daef4a2ae5e38dad3e505033bdf44e28535d0a93741cfe4f6d15751868",
+  "run_id": "20260512-102905",
+  "catalog_entry": "hubspot",
+  "category": "sales-and-crm",
+  "description": "CRM contacts API",
+  "mcp_binary": "hubspot-pp-mcp",
+  "mcp_tool_count": 172,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HUBSPOT_OAUTH2"
+  ],
+  "auth_key_url": "https://developers.hubspot.com/docs/methods/crm-properties/crm-properties-overview",
+  "novel_features": [
+    {
+      "name": "Stale leads",
+      "command": "stale-leads",
+      "description": "Surface contacts in a given lifecycle stage with no engagement for N days, ranked by days-since-last-touch."
+    },
+    {
+      "name": "Pipeline health",
+      "command": "pipeline-health",
+      "description": "Every deal by stage with age-in-stage, weighted value (amount × stage probability), and days since last engagement."
+    },
+    {
+      "name": "Recent intake",
+      "command": "recent-intake",
+      "description": "New contacts in the last N hours with full source attribution: original-source, latest-source, UTM medium, UTM campaign."
+    },
+    {
+      "name": "Dedup check",
+      "command": "dedup",
+      "description": "Find clustered duplicate contacts by normalized email, e164 phone, or registrable company domain."
+    },
+    {
+      "name": "Closed Won handoff",
+      "command": "closed-won-handoff",
+      "description": "Every contact whose deal closed Won in the window, with full property bundle and associated company/engagement summary, in ClickUp-import shape."
+    },
+    {
+      "name": "Engagement decay",
+      "command": "engagement-decay",
+      "description": "Rank contacts whose recent engagement frequency dropped vs the prior window."
+    },
+    {
+      "name": "Lead trace",
+      "command": "lead-trace",
+      "description": "Walk associations from a contact through its deals, companies, and engagement timeline; emit one composite JSON."
+    },
+    {
+      "name": "UTM cohort",
+      "command": "utm-cohort",
+      "description": "Cohort rollup by UTM campaign: size, percent at each pipeline stage, percent Closed Won, average deal amount."
+    },
+    {
+      "name": "Daily digest",
+      "command": "digest",
+      "description": "Composite Monday-morning rollup: new contacts, deals advanced, deals closed, stalest leads, recent intake — one command, one JSON object."
+    }
+  ]
+}
