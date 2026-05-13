@@ -40,6 +40,7 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	}
 }
 
+// PATCH(ratelimit-concurrent-slot-reservation): advance lastRequest atomically inside the lock and sleep outside it; previous read-then-sleep-then-write pattern let N parallel goroutines all read the same stale lastRequest, sleep identically, and fire together — defeating per-session pacing under check --parallel 8.
 func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return

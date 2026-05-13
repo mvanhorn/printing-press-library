@@ -299,6 +299,7 @@ func renderCheckTable(cmd *cobra.Command, results []AvailabilityResult) error {
 	return tw.Flush()
 }
 
+// PATCH(check-stdin-buffered-read): readNamesFile reads all input into a single []byte before JSON vs plain-text branching — opening stdin twice silently truncated piped plain-text because the json.Decoder buffered ~512 bytes internally.
 func readNamesFile(path string) ([]string, error) {
 	// Read once into memory so the JSON-vs-plain-text fallback doesn't
 	// double-read the source. For path == "-" (stdin), reopening returned a

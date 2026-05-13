@@ -162,6 +162,7 @@ func newGenSuggestCmd(flags *rootFlags) *cobra.Command {
 				}
 				rows = append(rows, row)
 			}
+			// PATCH(gen-suggest-score-sort-before-filter): sort by score BEFORE the --available-only RDAP loop so the count early-exit returns the top-N highest-scoring available domains, not the first-N alphabetically. gen.Generate emits candidates alphabetically; the prior order biased --include-score=true users to first-N-alphabetical rather than top-N-by-score.
 			// Sort by score BEFORE the availability filter so that the
 			// availableOnly loop's `count` early-exit returns the top N
 			// highest-scoring available domains rather than the first N
@@ -195,6 +196,7 @@ func newGenSuggestCmd(flags *rootFlags) *cobra.Command {
 				rows = filtered
 			}
 			if maxRenewal > 0 {
+				// PATCH(gen-suggest-max-renewal-strict): return an error when openStore fails instead of silently dropping the filter. The previous `if err == nil` wrapper returned every candidate unfiltered when the store couldn't open — users got results that violated their --max-renewal ceiling.
 				// If the store can't open we MUST return — silently skipping
 				// the filter would hand the user every candidate including the
 				// ones whose Porkbun renewal exceeds their stated budget. The
@@ -443,6 +445,7 @@ A 404 response is treated as "available"; 2xx as "taken"; other codes as unknown
 			c := &http.Client{Timeout: 6 * time.Second}
 			for _, p := range profiles {
 				r := SocialResult{Platform: p.Name, URL: p.URL}
+				// PATCH(socials-request-error-handling): capture http.NewRequestWithContext error, record it on the result row, and skip the request instead of dereferencing nil req. URL-unsafe handles previously made url.Parse fail and req.Header.Set panicked on the next line.
 				// NewRequestWithContext parses p.URL; a handle with URL-unsafe
 				// characters (e.g. a space) makes req nil. Surface the parse
 				// error on the result row instead of dereferencing nil.

@@ -681,6 +681,7 @@ func extractObjectID(obj map[string]any) string {
 	return ""
 }
 
+// PATCH(store-fts-hash-and-identifier-validation): ftsRowID's polynomial hash had non-trivial collision risk for (scope, id) pairs — on collision DELETE WHERE rowid=? silently evicted an unrelated FTS row; ResolveByName matchFields also needed the same validIdentifierRE guard ListField uses to close a future SQL-injection trap.
 // ftsRowID derives a deterministic rowid from a string ID for use with FTS5.
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.

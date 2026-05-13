@@ -379,6 +379,7 @@ type CandidateRow struct {
 	AddedAt    string `json:"added_at,omitempty"`
 }
 
+// PATCH(store-sticky-kill-and-receiver-shadow): AddCandidate ON CONFLICT preserves killed=1 (sticky-kill) so shortlist promote can't silently revive killed candidates; UpsertBatch local 's' was renamed to 'idStr' so it stops shadowing the *Store receiver.
 // AddCandidate inserts a candidate into a list (creating the list if absent).
 func (s *Store) AddCandidate(ctx context.Context, c CandidateRow) error {
 	if c.ListName == "" {

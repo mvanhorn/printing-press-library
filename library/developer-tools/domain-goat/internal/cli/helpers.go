@@ -986,6 +986,7 @@ func splitCamelCase(s string) []string {
 	return segments
 }
 
+// PATCH(cli-output-bounds-guard): early-return on 0 headers and guard headers[2:] with len>2 — prioritizeAllHeaders can return <2 entries which used to panic with 'slice bounds out of range' (surfaced by Greptile).
 // printAutoCards renders items as labeled cards — one block per item.
 // Used for complex responses with many fields or nested data.
 func printAutoCards(w io.Writer, items []map[string]any) error {

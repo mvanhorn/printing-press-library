@@ -214,6 +214,7 @@ Default ranker is "combined".`,
 				rows = rows[:top]
 			}
 			promoted := 0
+			// PATCH(shortlist-promote-error-surfacing): collect per-candidate AddCandidate failures under `errors` in the output map; previously errors were swallowed so operators saw `promoted < top` with no diagnostic on DB-full / ctx-cancel / writeMu-contention.
 			var promoteErrs []map[string]string
 			if err := s.CreateList(cmd.Context(), destList, "Auto-promoted from "+srcList); err != nil {
 				return apiErr(err)
@@ -260,6 +261,7 @@ func newBudgetCmd(flags *rootFlags) *cobra.Command {
 	var years, top int
 	var maxAnnualCost float64
 	var availableOnly bool
+	// PATCH(cli-flag-rename-max-annual-cost): renamed budget's --max-renewal → --max-annual-cost. The flag actually caps amortised annual spend (total/years), not raw renewal price. gen suggest's --max-renewal is unchanged because it correctly caps raw renewal.
 	cmd := &cobra.Command{
 		Use:   "budget",
 		Short: "Filter candidates by 5-year true cost (registration + N renewals).",
@@ -383,6 +385,7 @@ score and TLD, returns an ordered timeline.`,
 			now := time.Now().UTC()
 			until := now.AddDate(0, 0, days)
 
+			// PATCH(drops-timeline-null-scan-and-dedup): scan score/tld as sql.NullInt64/NullString so rdap-only domains (no row in `domains`) aren't silently dropped; ROW_NUMBER() window replaces the MAX(fetched_at) join because 1-second SQLite resolution let two same-second writes both match and the domain appeared twice.
 			// Latest RDAP row per fqdn. Window function (ROW_NUMBER) tiebreaks
 			// on rowid so two writes within the same second (datetime('now')
 			// has 1-second resolution) collapse to one row instead of emitting
@@ -658,6 +661,7 @@ only no-auth source for this comparison.`,
 	return cmd
 }
 
+// PATCH(drop-bid-window-redemption-fallback): fall through pendingDelete → redemption → expiration when computing the bid window; redemption-only domains (active 30-day grace) now estimate redemption+35d instead of erroring.
 func newDropBidWindowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "drop-bid-window <domain>",
@@ -819,6 +823,7 @@ to look at first for a given seed. Combines:
 				// cancellation, transient SQLite issue), zero the partial counts
 				// instead of reporting a misleadingly low rate.
 				totalAvail, totalCount := 0, 0
+				// PATCH(transcendence-rows-err-and-defer): IIFE around the inner SELECT...LIMIT 100 with defer rows.Close() and rows.Err() — missing rows.Err() let a mid-scan cursor error produce a misleadingly low historical-availability rate; missing defer would have leaked a SQL connection on panic.
 				// Wrap in IIFE so defer rows.Close() runs per iteration on any
 				// exit path (including a hypothetical panic from rows.Scan),
 				// returning the SQL connection to the pool deterministically.

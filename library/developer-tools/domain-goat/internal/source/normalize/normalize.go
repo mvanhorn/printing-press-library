@@ -27,6 +27,7 @@ func FQDN(in string) (string, error) {
 	return ascii, nil
 }
 
+// PATCH(normalize-doc-comment-direction): doc-only — clarified that SplitTLD uses strings.Index (first dot), not last-dot; the prior comment said "last-dot split" and could mislead future readers debugging ccSLD edge cases.
 // SplitTLD returns (label, tld) from a normalized FQDN. For "example.co.uk"
 // it returns ("example", "co.uk") — a first-dot split (strings.Index, not
 // LastIndex) so the leftmost label is isolated and everything to the right

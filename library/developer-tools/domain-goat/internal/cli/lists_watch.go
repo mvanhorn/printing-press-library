@@ -347,6 +347,7 @@ func newWatchRemoveCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// PATCH(watch-cadence-enforcement): default to Store.ListDueWatches (cadence-gated WHERE clause); --force falls back to ListWatches. Without this, watch run iterated every domain on every cron tick regardless of cadence_hours, making the cadence configuration a no-op for cron users.
 func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 	var force bool
 	cmd := &cobra.Command{

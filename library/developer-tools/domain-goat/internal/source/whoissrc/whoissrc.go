@@ -28,6 +28,7 @@ type Result struct {
 	Source      string          `json:"source"`
 }
 
+// PATCH(whois-goroutine-bounded): per-call whois.NewClient().SetTimeout(15s) so the goroutine terminates on TCP deadline rather than the library's 30s default; likexian/whois has no ctx hook, so without this the goroutine could be stranded on an open WHOIS socket for ~30s after the outer ctx returned.
 // Lookup performs a WHOIS query.
 //
 // The likexian/whois client is synchronous and offers no context hook, so

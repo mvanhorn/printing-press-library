@@ -11,6 +11,8 @@
 // API key in the Namecheap dashboard.
 package namecheap
 
+// PATCH(namecheap-credentials-doc): doc-only — see package doc above. Namecheap accepts auth ONLY as URL query params (no header path), so credentials land in server-side access logs and any intermediate proxy logs; dashboard key rotation is the only mitigation for suspected exposure.
+
 import (
 	"context"
 	"encoding/xml"
