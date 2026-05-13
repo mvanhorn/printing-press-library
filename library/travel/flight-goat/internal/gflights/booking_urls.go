@@ -39,8 +39,9 @@ import (
 // (landing), "View on Google Flights" (search).
 //
 // AirlineURL and AirlineKind are populated only when the itinerary qualifies
-// (single-carrier operator in airlineTemplates). GoogleURL is always
-// populated and points at a Google Flights search that executes on visit.
+// (single-carrier operator in airlineTemplates). GoogleURL and Primary are
+// populated for any valid query (Origin, Destination, DepartureDate all
+// non-empty); buildBookingURLs returns a zero value otherwise.
 type BookingURLs struct {
 	Primary      string `json:"primary"`
 	PrimaryKind  string `json:"primary_kind"`
@@ -59,12 +60,15 @@ const (
 
 const googleFlightsSearchBase = "https://www.google.com/travel/flights/search"
 
-// buildBookingURLs composes the per-flight booking URLs. Always populates
-// Primary and GoogleURL; populates AirlineURL+AirlineKind only when the
-// itinerary qualifies for an airline-direct link. Primary preference:
-// airline (any kind) over google search.
+// buildBookingURLs composes the per-flight booking URLs. Returns a zero
+// value for degenerate queries (missing Origin / Destination / DepartureDate)
+// so SKILL.md's "always populated" contract on Primary and GoogleURL holds
+// for any non-zero return. Primary preference: airline (any kind) over google.
 func buildBookingURLs(opts SearchOptions, fl Flight) BookingURLs {
 	googleURL := buildGoogleFlightsURL(opts)
+	if googleURL == "" {
+		return BookingURLs{}
+	}
 	out := BookingURLs{
 		GoogleURL:   googleURL,
 		Primary:     googleURL,
@@ -224,64 +228,66 @@ var airlineTemplates = map[string]airlineTemplate{
 	// Delta — directly observable URL params.
 	"DL": {
 		urlTemplate: "https://www.delta.com/flightsearch/book-a-flight?tripType={trip_type_dl}&originCity={origin}&destinationCity={destination}&departureDate={depart}&returnDate={return}&paxCount={pax}",
-		kind:        "prefill",
+		kind:        airlineKindPrefill,
 	},
 	// Southwest — param names from mobile.southwest.com URL bar.
 	"WN": {
 		urlTemplate: "https://www.southwest.com/air/booking/?originationAirportCode={origin}&destinationAirportCode={destination}&departureDate={depart}&returnDate={return}&adultPassengersCount={pax}&tripType={trip_type_wn}",
-		kind:        "prefill",
+		kind:        airlineKindPrefill,
 	},
 	// Lufthansa — officially documented at developer.lufthansa.com.
 	"LH": {
 		urlTemplate: "https://www.lufthansa.com/deeplink/partner?airlineCode=LH&originCode={origin}&destinationCode={destination}&travelDate={depart}&returnDate={return}&travelers=adult={pax}",
-		kind:        "prefill",
+		kind:        airlineKindPrefill,
 	},
 	// Swiss — same Lufthansa Group spec, airlineCode=LX.
 	"LX": {
 		urlTemplate: "https://www.lufthansa.com/deeplink/partner?airlineCode=LX&originCode={origin}&destinationCode={destination}&travelDate={depart}&returnDate={return}&travelers=adult={pax}",
-		kind:        "prefill",
+		kind:        airlineKindPrefill,
 	},
 
 	// ---- landing (URL lands user on carrier's booking surface) ----
 
-	"AS": {urlTemplate: "https://www.alaskaair.com/search/flights?O={origin}&D={destination}&OD={depart}&RD={return}&A={pax}", kind: "landing"},
-	"AA": {urlTemplate: "https://www.aa.com/booking/find-flights?from={origin}&to={destination}&departDate={depart}&returnDate={return}&adultPassengerCount={pax}&type={trip_type}", kind: "landing"},
-	"UA": {urlTemplate: "https://www.united.com/en/us/fsr/choose-flights?f={origin}&t={destination}&d={depart}&r={return}&px={pax}&tt={trip_type_int}&sc=7&taxng=1&clm=7", kind: "landing"},
-	"B6": {urlTemplate: "https://www.jetblue.com/booking/flights?from={origin}&to={destination}&depart={depart}&return={return}&isMultiCity=false&noOfRoute=1&adults={pax}", kind: "landing"},
-	"F9": {urlTemplate: "https://booking.flyfrontier.com/", kind: "landing"},
-	"AC": {urlTemplate: "https://www.aircanada.com/aco/en_us/aco-booking-flights/flight-search?orgCity1={origin}&destCity1={destination}&date1={depart}&date2={return}&numAdults={pax}", kind: "landing"},
-	"BA": {urlTemplate: "https://www.britishairways.com/travel/fx/public/en_us?eId=120001&depAirport={origin}&arrAirport={destination}&outboundDate={depart}&inboundDate={return}&adults={pax}", kind: "landing"},
-	"AF": {urlTemplate: "https://wwws.airfrance.us/", kind: "landing"},
-	"KL": {urlTemplate: "https://www.klm.com/en-us/flights", kind: "landing"},
-	"IB": {urlTemplate: "https://www.iberia.com/us/flight-search-engine/", kind: "landing"},
-	"VS": {urlTemplate: "https://www.virginatlantic.com/en-US", kind: "landing"},
-	"SK": {urlTemplate: "https://www.flysas.com/en", kind: "landing"},
-	"AY": {urlTemplate: "https://www.finnair.com/us/en", kind: "landing"},
-	"EI": {urlTemplate: "https://www.aerlingus.com/html/dashboard.html", kind: "landing"},
-	"DE": {urlTemplate: "https://www.condor.com/us/", kind: "landing"},
-	"EK": {urlTemplate: "https://www.emirates.com/english/book/", kind: "landing"},
-	"QR": {urlTemplate: "https://booking.qatarairways.com/nsp/views/deepLinkLoader.xhtml", kind: "landing"},
-	"EY": {urlTemplate: "https://www.etihad.com/en-us/book", kind: "landing"},
-	"SQ": {urlTemplate: "https://www.singaporeair.com/en_UK/us/home", kind: "landing"},
-	"BR": {urlTemplate: "https://booking.evaair.com/flyeva/eva/b2c/booking-online.aspx?lang=en-us", kind: "landing"},
-	"CX": {urlTemplate: "https://www.cathaypacific.com/cx/en_US.html", kind: "landing"},
-	"KE": {urlTemplate: "https://www.koreanair.com/booking/search", kind: "landing"},
-	"NH": {urlTemplate: "https://www.ana.co.jp/en/us/plan-book/", kind: "landing"},
-	"JL": {urlTemplate: "https://www.jal.co.jp/jp/en/inter/booking/", kind: "landing"},
-	"TG": {urlTemplate: "https://www.thaiairways.com/en/book/booking.page", kind: "landing"},
-	"PG": {urlTemplate: "https://www.bangkokair.com/flight/booking", kind: "landing"},
-	"HU": {urlTemplate: "https://www.hainanairlines.com/US/US/Search", kind: "landing"},
-	"CI": {urlTemplate: "https://www.china-airlines.com/us/en/booking/book-flights", kind: "landing"},
-	"OZ": {urlTemplate: "https://flyasiana.com/C/US/EN/index", kind: "landing"},
-	"JX": {urlTemplate: "https://www.starlux-airlines.com/en-US/booking/book-flight/search-a-flight", kind: "landing"},
-	"ET": {urlTemplate: "https://www.ethiopianairlines.com/us/book/booking/flight", kind: "landing"},
+	"AS": {urlTemplate: "https://www.alaskaair.com/search/flights?O={origin}&D={destination}&OD={depart}&RD={return}&A={pax}", kind: airlineKindLanding},
+	"AA": {urlTemplate: "https://www.aa.com/booking/find-flights?from={origin}&to={destination}&departDate={depart}&returnDate={return}&adultPassengerCount={pax}&type={trip_type}", kind: airlineKindLanding},
+	"UA": {urlTemplate: "https://www.united.com/en/us/fsr/choose-flights?f={origin}&t={destination}&d={depart}&r={return}&px={pax}&tt={trip_type_int}&sc=7&taxng=1&clm=7", kind: airlineKindLanding},
+	"B6": {urlTemplate: "https://www.jetblue.com/booking/flights?from={origin}&to={destination}&depart={depart}&return={return}&isMultiCity=false&noOfRoute=1&adults={pax}", kind: airlineKindLanding},
+	"F9": {urlTemplate: "https://booking.flyfrontier.com/", kind: airlineKindLanding},
+	"AC": {urlTemplate: "https://www.aircanada.com/aco/en_us/aco-booking-flights/flight-search?orgCity1={origin}&destCity1={destination}&date1={depart}&date2={return}&numAdults={pax}", kind: airlineKindLanding},
+	"BA": {urlTemplate: "https://www.britishairways.com/travel/fx/public/en_us?eId=120001&depAirport={origin}&arrAirport={destination}&outboundDate={depart}&inboundDate={return}&adults={pax}", kind: airlineKindLanding},
+	"AF": {urlTemplate: "https://wwws.airfrance.us/", kind: airlineKindLanding},
+	"KL": {urlTemplate: "https://www.klm.com/en-us/flights", kind: airlineKindLanding},
+	"IB": {urlTemplate: "https://www.iberia.com/us/flight-search-engine/", kind: airlineKindLanding},
+	"VS": {urlTemplate: "https://www.virginatlantic.com/en-US", kind: airlineKindLanding},
+	"SK": {urlTemplate: "https://www.flysas.com/en", kind: airlineKindLanding},
+	"AY": {urlTemplate: "https://www.finnair.com/us/en", kind: airlineKindLanding},
+	"EI": {urlTemplate: "https://www.aerlingus.com/html/dashboard.html", kind: airlineKindLanding},
+	"DE": {urlTemplate: "https://www.condor.com/us/", kind: airlineKindLanding},
+	"EK": {urlTemplate: "https://www.emirates.com/english/book/", kind: airlineKindLanding},
+	"QR": {urlTemplate: "https://booking.qatarairways.com/nsp/views/deepLinkLoader.xhtml", kind: airlineKindLanding},
+	"EY": {urlTemplate: "https://www.etihad.com/en-us/book", kind: airlineKindLanding},
+	"SQ": {urlTemplate: "https://www.singaporeair.com/en_UK/us/home", kind: airlineKindLanding},
+	"BR": {urlTemplate: "https://booking.evaair.com/flyeva/eva/b2c/booking-online.aspx?lang=en-us", kind: airlineKindLanding},
+	"CX": {urlTemplate: "https://www.cathaypacific.com/cx/en_US.html", kind: airlineKindLanding},
+	"KE": {urlTemplate: "https://www.koreanair.com/booking/search", kind: airlineKindLanding},
+	"NH": {urlTemplate: "https://www.ana.co.jp/en/us/plan-book/", kind: airlineKindLanding},
+	"JL": {urlTemplate: "https://www.jal.co.jp/jp/en/inter/booking/", kind: airlineKindLanding},
+	"TG": {urlTemplate: "https://www.thaiairways.com/en/book/booking.page", kind: airlineKindLanding},
+	"PG": {urlTemplate: "https://www.bangkokair.com/flight/booking", kind: airlineKindLanding},
+	"HU": {urlTemplate: "https://www.hainanairlines.com/US/US/Search", kind: airlineKindLanding},
+	"CI": {urlTemplate: "https://www.china-airlines.com/us/en/booking/book-flights", kind: airlineKindLanding},
+	"OZ": {urlTemplate: "https://flyasiana.com/C/US/EN/index", kind: airlineKindLanding},
+	"JX": {urlTemplate: "https://www.starlux-airlines.com/en-US/booking/book-flight/search-a-flight", kind: airlineKindLanding},
+	"ET": {urlTemplate: "https://www.ethiopianairlines.com/us/book/booking/flight", kind: airlineKindLanding},
 }
 
-// airlineKindPrefill and airlineKindLanding are the two valid values for
-// airlineTemplate.kind and BookingURLs.AirlineKind / PrimaryKind.
+// airlineKind* alias the matching primaryKind* constants so airlineTemplate.kind
+// and BookingURLs.AirlineKind / PrimaryKind share one source of truth.
+// PATCH(greptile P2): single set of string values prevents callers and tests
+// from accidentally mixing two parallel const blocks.
 const (
-	airlineKindPrefill = "prefill"
-	airlineKindLanding = "landing"
+	airlineKindPrefill = primaryKindPrefill
+	airlineKindLanding = primaryKindLanding
 )
 
 // buildAirlineURL returns an airline-direct URL when the itinerary
