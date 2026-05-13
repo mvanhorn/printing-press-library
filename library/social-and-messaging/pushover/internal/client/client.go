@@ -9,13 +9,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/pushover/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/pushover/internal/config"
 	"io"
 	"math"
 	"net/http"
 	"os"
 	"path/filepath"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/pushover/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/pushover/internal/config"
 	"sort"
 	"strings"
 	"time"
@@ -93,8 +93,9 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
 		key += "|auth_source=" + c.Config.AuthSource
+		// PATCH: PR #511 review cleanup avoids redundant AuthHeader calls in cache-key hashing.
 		if authHeader := c.Config.AuthHeader(); authHeader != "" {
-			authHash := sha256.Sum256([]byte(c.Config.AuthHeader()))
+			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])
 		}
 		if c.Config.Path != "" {
@@ -129,7 +130,8 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
 	os.MkdirAll(c.cacheDir, 0o755)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	// PATCH: PR #511 security hardening writes cached user data owner-only.
+	os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read

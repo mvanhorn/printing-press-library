@@ -3,7 +3,14 @@
 
 package client
 
-import "testing"
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/pushover/internal/config"
+)
 
 func TestRedactSensitiveJSON(t *testing.T) {
 	input := map[string]any{
@@ -28,5 +35,36 @@ func TestRedactSensitiveJSON(t *testing.T) {
 	nested := output["nested"].([]any)[0].(map[string]any)
 	if nested["client_secret"] == "secret123456" {
 		t.Fatal("nested secret was not redacted")
+	}
+}
+
+func TestWriteCacheUsesOwnerOnlyPermissions(t *testing.T) {
+	// PATCH: PR #511 review hardening verifies cached user data is owner-only.
+	c := New(&config.Config{BaseURL: "https://api.pushover.net"}, 0, 0)
+	c.cacheDir = t.TempDir()
+
+	c.writeCache("/1/messages.json", map[string]string{"token": "secret"}, json.RawMessage(`{"status":1}`))
+
+	var cacheFiles []string
+	if err := filepath.WalkDir(c.cacheDir, func(path string, entry os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !entry.IsDir() {
+			cacheFiles = append(cacheFiles, path)
+		}
+		return nil
+	}); err != nil {
+		t.Fatalf("walk cache dir: %v", err)
+	}
+	if len(cacheFiles) != 1 {
+		t.Fatalf("cache files = %d, want 1", len(cacheFiles))
+	}
+	info, err := os.Stat(cacheFiles[0])
+	if err != nil {
+		t.Fatalf("stat cache file: %v", err)
+	}
+	if got := info.Mode().Perm(); got != 0o600 {
+		t.Fatalf("cache file permissions = %o, want 600", got)
 	}
 }

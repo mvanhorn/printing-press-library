@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "pr511-client-cache-hardening",
+      "summary": "Harden the generated HTTP cache after PR review.",
+      "reason": "GET cache responses can contain user-scoped Pushover data, so cache files must be owner-only; the review also identified a redundant AuthHeader read in the cache key path.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/dryrun_test.go"
+      ],
+      "validated_outcome": "go test ./internal/client -run TestWriteCacheUsesOwnerOnlyPermissions -count=1 confirms cache files are written 0600; publish-package verifier passes locally."
+    }
+  ]
+}
