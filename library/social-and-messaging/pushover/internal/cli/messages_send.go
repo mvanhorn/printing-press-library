@@ -86,11 +86,18 @@ func newMessagesSendCmd(flags *rootFlags) *cobra.Command {
 				if bodyDevice != "" {
 					body["device"] = bodyDevice
 				}
-				if bodyHtml != false {
-					body["html"] = bodyHtml
+				// PATCH(pr511-bool-flags-as-int): Pushover's /1/messages.json encodes
+				// binary on/off as integer 1, not JSON true. Sending bool true was
+				// silently dropping HTML / monospace formatting and the encrypted-
+				// payload flag (notify's path already does this correctly). Including
+				// `encrypted` here even though Greptile only flagged html / monospace —
+				// same defect class, same line shape, and a wrong encrypted=true would
+				// make Pushover treat an encrypted body as plaintext.
+				if bodyHtml {
+					body["html"] = 1
 				}
-				if bodyMonospace != false {
-					body["monospace"] = bodyMonospace
+				if bodyMonospace {
+					body["monospace"] = 1
 				}
 				if bodyPriority != 0 {
 					body["priority"] = bodyPriority
@@ -116,8 +123,8 @@ func newMessagesSendCmd(flags *rootFlags) *cobra.Command {
 				if bodyAttachmentType != "" {
 					body["attachment_type"] = bodyAttachmentType
 				}
-				if bodyEncrypted != false {
-					body["encrypted"] = bodyEncrypted
+				if bodyEncrypted {
+					body["encrypted"] = 1
 				}
 				if bodyRetry != 0 {
 					body["retry"] = bodyRetry
