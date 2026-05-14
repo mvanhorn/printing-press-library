@@ -1,0 +1,2834 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/users",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/users",
+      "description": "A paginated list of users associated with this account.\n\n @example_request\n   curl https://<canvas>/api/v1/accounts/self/users?search_term=<search value> \\\n      -X GET \\\n      -H 'Authorization: Bearer <token>'",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List users in account",
+          "notes": "A paginated list of users associated with this account.\n\n @example_request\n   curl https://<canvas>/api/v1/accounts/self/users?search_term=<search value> \\\n      -X GET \\\n      -H 'Authorization: Bearer <token>'",
+          "nickname": "list_users_in_account",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial name or full ID of the users to match and return in the\nresults list. Must be at least 3 characters.\n\nNote that the API will prefer matching on canonical user ID if the ID has\na numeric form. It will only search against other fields if non-numeric\nin form, or if the numeric value doesn't yield any matches. Queries by\nadministrative users will search on SIS ID, Integration ID, login ID,\nname, or email address",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "enrollment_type",
+              "description": "When set, only return users enrolled with the specified course-level base role.\nThis can be a base role type of 'student', 'teacher',\n'ta', 'observer', or 'designer'.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "The column to sort results by. For efficiency, use +id+ if you intend to retrieve\nmany pages of results. In the future, other sort options may be rate-limited\nafter 50 pages.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "username",
+                "email",
+                "sis_id",
+                "integration_id",
+                "last_login",
+                "id"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "The order to sort the given column by.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "include_deleted_users",
+              "description": "When set to true and used with an account context, returns users who have deleted\npseudonyms for the context",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "uuids",
+              "description": "When set, only return users with the specified UUIDs. UUIDs after the first 100\nare ignored.",
+              "type": "Array",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/activity_stream",
+      "description": "Returns the current user's global activity stream, paginated.\n\nThere are many types of objects that can be returned in the activity\nstream. All object types have the same basic set of shared attributes:\n  !!!javascript\n  {\n    'created_at': '2011-07-13T09:12:00Z',\n    'updated_at': '2011-07-25T08:52:41Z',\n    'id': 1234,\n    'title': 'Stream Item Subject',\n    'message': 'This is the body text of the activity stream item. It is plain-text, and can be multiple paragraphs.',\n    'type': 'DiscussionTopic|Conversation|Message|Submission|Conference|Collaboration|AssessmentRequest...',\n    'read_state': false,\n    'context_type': 'course', // course|group\n    'course_id': 1,\n    'group_id': null,\n    'html_url': \"http://...\" // URL to the Canvas web UI for this stream item\n  }\n\nIn addition, each item type has its own set of attributes available.\n\nDiscussionTopic:\n\n  !!!javascript\n  {\n    'type': 'DiscussionTopic',\n    'discussion_topic_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': true,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor DiscussionTopic, the message is truncated at 4kb.\n\nAnnouncement:\n\n  !!!javascript\n  {\n    'type': 'Announcement',\n    'announcement_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': null,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor Announcement, the message is truncated at 4kb.\n\nConversation:\n\n  !!!javascript\n  {\n    'type': 'Conversation',\n    'conversation_id': 1234,\n    'private': false,\n    'participant_count': 3,\n  }\n\nMessage:\n\n  !!!javascript\n  {\n    'type': 'Message',\n    'message_id': 1234,\n    'notification_category': 'Assignment Graded'\n  }\n\nSubmission:\n\nReturns an {api:Submissions:Submission Submission} with its Course and Assignment data.\n\nConference:\n\n  !!!javascript\n  {\n    'type': 'Conference',\n    'web_conference_id': 1234\n  }\n\nCollaboration:\n\n  !!!javascript\n  {\n    'type': 'Collaboration',\n    'collaboration_id': 1234\n  }\n\nAssessmentRequest:\n\n  !!!javascript\n  {\n    'type': 'AssessmentRequest',\n    'assessment_request_id': 1234\n  }",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List the activity stream",
+          "notes": "Returns the current user's global activity stream, paginated.\n\nThere are many types of objects that can be returned in the activity\nstream. All object types have the same basic set of shared attributes:\n  !!!javascript\n  {\n    'created_at': '2011-07-13T09:12:00Z',\n    'updated_at': '2011-07-25T08:52:41Z',\n    'id': 1234,\n    'title': 'Stream Item Subject',\n    'message': 'This is the body text of the activity stream item. It is plain-text, and can be multiple paragraphs.',\n    'type': 'DiscussionTopic|Conversation|Message|Submission|Conference|Collaboration|AssessmentRequest...',\n    'read_state': false,\n    'context_type': 'course', // course|group\n    'course_id': 1,\n    'group_id': null,\n    'html_url': \"http://...\" // URL to the Canvas web UI for this stream item\n  }\n\nIn addition, each item type has its own set of attributes available.\n\nDiscussionTopic:\n\n  !!!javascript\n  {\n    'type': 'DiscussionTopic',\n    'discussion_topic_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': true,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor DiscussionTopic, the message is truncated at 4kb.\n\nAnnouncement:\n\n  !!!javascript\n  {\n    'type': 'Announcement',\n    'announcement_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': null,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor Announcement, the message is truncated at 4kb.\n\nConversation:\n\n  !!!javascript\n  {\n    'type': 'Conversation',\n    'conversation_id': 1234,\n    'private': false,\n    'participant_count': 3,\n  }\n\nMessage:\n\n  !!!javascript\n  {\n    'type': 'Message',\n    'message_id': 1234,\n    'notification_category': 'Assignment Graded'\n  }\n\nSubmission:\n\nReturns an {api:Submissions:Submission Submission} with its Course and Assignment data.\n\nConference:\n\n  !!!javascript\n  {\n    'type': 'Conference',\n    'web_conference_id': 1234\n  }\n\nCollaboration:\n\n  !!!javascript\n  {\n    'type': 'Collaboration',\n    'collaboration_id': 1234\n  }\n\nAssessmentRequest:\n\n  !!!javascript\n  {\n    'type': 'AssessmentRequest',\n    'assessment_request_id': 1234\n  }",
+          "nickname": "list_activity_stream_self",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "only_active_courses",
+              "description": "If true, will only return objects for courses the user is actively participating in",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/activity_stream",
+      "description": "Returns the current user's global activity stream, paginated.\n\nThere are many types of objects that can be returned in the activity\nstream. All object types have the same basic set of shared attributes:\n  !!!javascript\n  {\n    'created_at': '2011-07-13T09:12:00Z',\n    'updated_at': '2011-07-25T08:52:41Z',\n    'id': 1234,\n    'title': 'Stream Item Subject',\n    'message': 'This is the body text of the activity stream item. It is plain-text, and can be multiple paragraphs.',\n    'type': 'DiscussionTopic|Conversation|Message|Submission|Conference|Collaboration|AssessmentRequest...',\n    'read_state': false,\n    'context_type': 'course', // course|group\n    'course_id': 1,\n    'group_id': null,\n    'html_url': \"http://...\" // URL to the Canvas web UI for this stream item\n  }\n\nIn addition, each item type has its own set of attributes available.\n\nDiscussionTopic:\n\n  !!!javascript\n  {\n    'type': 'DiscussionTopic',\n    'discussion_topic_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': true,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor DiscussionTopic, the message is truncated at 4kb.\n\nAnnouncement:\n\n  !!!javascript\n  {\n    'type': 'Announcement',\n    'announcement_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': null,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor Announcement, the message is truncated at 4kb.\n\nConversation:\n\n  !!!javascript\n  {\n    'type': 'Conversation',\n    'conversation_id': 1234,\n    'private': false,\n    'participant_count': 3,\n  }\n\nMessage:\n\n  !!!javascript\n  {\n    'type': 'Message',\n    'message_id': 1234,\n    'notification_category': 'Assignment Graded'\n  }\n\nSubmission:\n\nReturns an {api:Submissions:Submission Submission} with its Course and Assignment data.\n\nConference:\n\n  !!!javascript\n  {\n    'type': 'Conference',\n    'web_conference_id': 1234\n  }\n\nCollaboration:\n\n  !!!javascript\n  {\n    'type': 'Collaboration',\n    'collaboration_id': 1234\n  }\n\nAssessmentRequest:\n\n  !!!javascript\n  {\n    'type': 'AssessmentRequest',\n    'assessment_request_id': 1234\n  }",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List the activity stream",
+          "notes": "Returns the current user's global activity stream, paginated.\n\nThere are many types of objects that can be returned in the activity\nstream. All object types have the same basic set of shared attributes:\n  !!!javascript\n  {\n    'created_at': '2011-07-13T09:12:00Z',\n    'updated_at': '2011-07-25T08:52:41Z',\n    'id': 1234,\n    'title': 'Stream Item Subject',\n    'message': 'This is the body text of the activity stream item. It is plain-text, and can be multiple paragraphs.',\n    'type': 'DiscussionTopic|Conversation|Message|Submission|Conference|Collaboration|AssessmentRequest...',\n    'read_state': false,\n    'context_type': 'course', // course|group\n    'course_id': 1,\n    'group_id': null,\n    'html_url': \"http://...\" // URL to the Canvas web UI for this stream item\n  }\n\nIn addition, each item type has its own set of attributes available.\n\nDiscussionTopic:\n\n  !!!javascript\n  {\n    'type': 'DiscussionTopic',\n    'discussion_topic_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': true,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor DiscussionTopic, the message is truncated at 4kb.\n\nAnnouncement:\n\n  !!!javascript\n  {\n    'type': 'Announcement',\n    'announcement_id': 1234,\n    'total_root_discussion_entries': 5,\n    'require_initial_post': true,\n    'user_has_posted': null,\n    'root_discussion_entries': {\n      ...\n    }\n  }\n\nFor Announcement, the message is truncated at 4kb.\n\nConversation:\n\n  !!!javascript\n  {\n    'type': 'Conversation',\n    'conversation_id': 1234,\n    'private': false,\n    'participant_count': 3,\n  }\n\nMessage:\n\n  !!!javascript\n  {\n    'type': 'Message',\n    'message_id': 1234,\n    'notification_category': 'Assignment Graded'\n  }\n\nSubmission:\n\nReturns an {api:Submissions:Submission Submission} with its Course and Assignment data.\n\nConference:\n\n  !!!javascript\n  {\n    'type': 'Conference',\n    'web_conference_id': 1234\n  }\n\nCollaboration:\n\n  !!!javascript\n  {\n    'type': 'Collaboration',\n    'collaboration_id': 1234\n  }\n\nAssessmentRequest:\n\n  !!!javascript\n  {\n    'type': 'AssessmentRequest',\n    'assessment_request_id': 1234\n  }",
+          "nickname": "list_activity_stream_activity_stream",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "only_active_courses",
+              "description": "If true, will only return objects for courses the user is actively participating in",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/activity_stream/summary",
+      "description": "Returns a summary of the current user's global activity stream.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Activity stream summary",
+          "notes": "Returns a summary of the current user's global activity stream.",
+          "nickname": "activity_stream_summary",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "only_active_courses",
+              "description": "If true, will only return objects for courses the user is actively participating in",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/todo",
+      "description": "A paginated list of the current user's list of todo items.\n\nThere is a limit to the number of items returned.\n\nThe `ignore` and `ignore_permanently` URLs can be used to update the user's\npreferences on what items will be displayed.\nPerforming a DELETE request against the `ignore` URL will hide that item\nfrom future todo item requests, until the item changes.\nPerforming a DELETE request against the `ignore_permanently` URL will hide\nthat item forever.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List the TODO items",
+          "notes": "A paginated list of the current user's list of todo items.\n\nThere is a limit to the number of items returned.\n\nThe `ignore` and `ignore_permanently` URLs can be used to update the user's\npreferences on what items will be displayed.\nPerforming a DELETE request against the `ignore` URL will hide that item\nfrom future todo item requests, until the item changes.\nPerforming a DELETE request against the `ignore_permanently` URL will hide\nthat item forever.",
+          "nickname": "list_todo_items",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "\"ungraded_quizzes\":: Optionally include ungraded quizzes (such as practice quizzes and surveys) in the list.\n                     These will be returned under a +quiz+ key instead of an +assignment+ key in response elements.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "ungraded_quizzes"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/todo_item_count",
+      "description": "Counts of different todo items such as the number of assignments needing grading as well as the number of assignments needing submitting.\n\nThere is a limit to the number of todo items this endpoint will count.\nIt will only look at the first 100 todo items for the user. If the user has more than 100 todo items this count may not be reliable.\nThe largest reliable number for both counts is 100.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List counts for todo items",
+          "notes": "Counts of different todo items such as the number of assignments needing grading as well as the number of assignments needing submitting.\n\nThere is a limit to the number of todo items this endpoint will count.\nIt will only look at the first 100 todo items for the user. If the user has more than 100 todo items this count may not be reliable.\nThe largest reliable number for both counts is 100.",
+          "nickname": "list_counts_for_todo_items",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "\"ungraded_quizzes\":: Optionally include ungraded quizzes (such as practice quizzes and surveys) in the list.\n                     These will be returned under a +quiz+ key instead of an +assignment+ key in response elements.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "ungraded_quizzes"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/upcoming_events",
+      "description": "A paginated list of the current user's upcoming events.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List upcoming assignments, calendar events",
+          "notes": "A paginated list of the current user's upcoming events.",
+          "nickname": "list_upcoming_assignments_calendar_events",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/missing_submissions",
+      "description": "A paginated list of past-due assignments for which the student does not have a submission.\nThe user sending the request must either be the student, an admin or a parent observer using the parent app",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Missing Submissions",
+          "notes": "A paginated list of past-due assignments for which the student does not have a submission.\nThe user sending the request must either be the student, an admin or a parent observer using the parent app",
+          "nickname": "list_missing_submissions",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "the student's ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "observed_user_id",
+              "description": "Return missing submissions for the given observed user. Must be accompanied by course_ids[].\nThe user making the request must be observing the observed user in all the courses specified by\ncourse_ids[].",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "\"planner_overrides\":: Optionally include the assignment's associated planner override, if it exists, for the current user.\n                      These will be returned under a +planner_override+ key\n\"course\":: Optionally include the assignments' courses",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "planner_overrides",
+                "course"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "filter",
+              "description": "\"submittable\":: Only return assignments that the current user can submit (i.e. filter out locked assignments)\n\"current_grading_period\":: Only return missing assignments that are in the current grading period",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "submittable",
+                "current_grading_period"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "course_ids",
+              "description": "Optionally restricts the list of past-due assignments to only those associated with the specified\ncourse IDs. Required if observed_user_id is passed.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Assignment"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/activity_stream/{id}",
+      "description": "Hide the given stream item.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Hide a stream item",
+          "notes": "Hide the given stream item.",
+          "nickname": "hide_stream_item",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/activity_stream",
+      "description": "Hide all stream items for the user",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Hide all stream items",
+          "notes": "Hide all stream items for the user",
+          "nickname": "hide_all_stream_items",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/files",
+      "description": "Upload a file to the user's personal files section.\n\nThis API endpoint is the first step in uploading a file to a user's files.\nSee the {file:file.file_uploads.html File Upload Documentation} for details on\nthe file upload workflow.\n\nNote that typically users will only be able to upload files to their\nown files section. Passing a user_id of +self+ is an easy shortcut\nto specify the current user.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Upload a file",
+          "notes": "Upload a file to the user's personal files section.\n\nThis API endpoint is the first step in uploading a file to a user's files.\nSee the {file:file.file_uploads.html File Upload Documentation} for details on\nthe file upload workflow.\n\nNote that typically users will only be able to upload files to their\nown files section. Passing a user_id of +self+ is an easy shortcut\nto specify the current user.",
+          "nickname": "upload_file",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}",
+      "description": "Shows details for user.\n\nAlso includes an attribute \"permissions\", a non-comprehensive list of permissions for the user.\nExample:\n  !!!javascript\n  \"permissions\": {\n   \"can_update_name\": true, // Whether the user can update their name.\n   \"can_update_avatar\": false, // Whether the user can update their avatar.\n   \"limit_parent_app_web_access\": false // Whether the user can interact with Canvas web from the Canvas Parent app.\n  }",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show user details",
+          "notes": "Shows details for user.\n\nAlso includes an attribute \"permissions\", a non-comprehensive list of permissions for the user.\nExample:\n  !!!javascript\n  \"permissions\": {\n   \"can_update_name\": true, // Whether the user can update their name.\n   \"can_update_avatar\": false, // Whether the user can update their avatar.\n   \"limit_parent_app_web_access\": false // Whether the user can interact with Canvas web from the Canvas Parent app.\n  }",
+          "nickname": "show_user_details",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Array of additional information to include on the user record.\n\"locale\", \"avatar_url\", \"permissions\", \"email\", and \"effective_locale\"\nwill always be returned",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "uuid",
+                "last_login"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/users",
+      "description": "Create and return a new user and pseudonym for an account.\n\n[DEPRECATED (for self-registration only)] If you don't have the \"Modify\nlogin details for users\" permission, but self-registration is enabled\non the account, you can still use this endpoint to register new users.\nCertain fields will be required, and others will be ignored (see below).",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a user",
+          "notes": "Create and return a new user and pseudonym for an account.\n\n[DEPRECATED (for self-registration only)] If you don't have the \"Modify\nlogin details for users\" permission, but self-registration is enabled\non the account, you can still use this endpoint to register new users.\nCertain fields will be required, and others will be ignored (see below).",
+          "nickname": "create_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[name]",
+              "description": "The full name of the user. This name will be used by teacher for grading.\nRequired if this is a self-registration.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[short_name]",
+              "description": "User's name as it will be displayed in discussions, messages, and comments.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[sortable_name]",
+              "description": "User's name as used to sort alphabetically in lists.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[time_zone]",
+              "description": "The time zone for the user. Allowed time zones are\n{http://www.iana.org/time-zones IANA time zones} or friendlier\n{http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html Ruby on Rails time zones}.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[locale]",
+              "description": "The user's preferred language, from the list of languages Canvas supports.\nThis is in RFC-5646 format.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[terms_of_use]",
+              "description": "Whether the user accepts the terms of use. Required if this is a\nself-registration and this canvas instance requires users to accept\nthe terms (on by default).\n\nIf this is true, it will mark the user as having accepted the terms of use.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[skip_registration]",
+              "description": "Automatically mark the user as registered.\n\nIf this is true, it is recommended to set <tt>\"pseudonym[send_confirmation]\"</tt> to true as well.\nOtherwise, the user will not receive any messages about their account creation.\n\nThe users communication channel confirmation can be skipped by setting\n<tt>\"communication_channel[skip_confirmation]\"</tt> to true as well.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[unique_id]",
+              "description": "User's login ID. If this is a self-registration, it must be a valid\nemail address.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[password]",
+              "description": "User's password. Cannot be set during self-registration.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[sis_user_id]",
+              "description": "SIS ID for the user's account. To set this parameter, the caller must be\nable to manage SIS permissions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[integration_id]",
+              "description": "Integration ID for the login. To set this parameter, the caller must be able to\nmanage SIS permissions. The Integration ID is a secondary\nidentifier useful for more complex SIS integrations.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[send_confirmation]",
+              "description": "Send user notification of account creation if true.\nAutomatically set to true during self-registration.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[force_self_registration]",
+              "description": "Send user a self-registration style email if true.\nSetting it means the users will get a notification asking them\nto \"complete the registration process\" by clicking it, setting\na password, and letting them in.  Will only be executed on\nif the user does not need admin approval.\nDefaults to false unless explicitly provided.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[authentication_provider_id]",
+              "description": "The authentication provider this login is associated with. Logins\nassociated with a specific provider can only be used with that provider.\nLegacy providers (LDAP, CAS, SAML) will search for logins associated with\nthem, or unassociated logins. New providers will only search for logins\nexplicitly associated with them. This can be the integer ID of the\nprovider, or the type of the provider (in which case, it will find the\nfirst matching provider).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "communication_channel[type]",
+              "description": "The communication channel type, e.g. 'email' or 'sms'.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "communication_channel[address]",
+              "description": "The communication channel address, e.g. the user's email address.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "communication_channel[confirmation_url]",
+              "description": "Only valid for account admins. If true, returns the new user account\nconfirmation URL in the response.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "communication_channel[skip_confirmation]",
+              "description": "Only valid for site admins and account admins making requests; If true, the channel is\nautomatically validated and no confirmation email or SMS is sent.\nOtherwise, the user must respond to a confirmation message to confirm the\nchannel.\n\nIf this is true, it is recommended to set <tt>\"pseudonym[send_confirmation]\"</tt> to true as well.\nOtherwise, the user will not receive any messages about their account creation.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "force_validations",
+              "description": "If true, validations are performed on the newly created user (and their associated pseudonym)\neven if the request is made by a privileged user like an admin. When set to false,\nor not included in the request parameters, any newly created users are subject to\nvalidations unless the request is made by a user with a 'manage_user_logins' right.\nIn which case, certain validations such as 'require_acceptance_of_terms' and\n'require_presence_of_name' are not enforced. Use this parameter to return helpful json\nerrors while building users with an admin request.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "enable_sis_reactivation",
+              "description": "When true, will first try to re-activate a deleted user with matching sis_user_id if possible.\nThis is commonly done with +user[skip_registration]+ and +communication_channel[skip_confirmation]+\nso that the default communication_channel is also restored.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "destination",
+              "description": "If you're setting the password for the newly created user, you can provide this param\nwith a valid URL pointing into this Canvas installation, and the response will include\na destination field that's a URL that you can redirect a browser to and have the newly\ncreated user automatically logged in. The URL is only valid for a short time, and must\nmatch the domain this request is directed to, and be for a well-formed path that Canvas\ncan recognize.",
+              "type": "URL",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "initial_enrollment_type",
+              "description": "`observer` if doing a self-registration with a pairing code. This allows setting the\npassword during user creation.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pairing_code[code]",
+              "description": "If provided and valid, will link the new user as an observer to the student's whose\npairing code is given.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/self_registration",
+      "description": "Self register and return a new user and pseudonym for an account.\n\nIf self-registration is enabled on the account, you can use this\nendpoint to self register new users.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "[DEPRECATED] Self register a user",
+          "notes": "Self register and return a new user and pseudonym for an account.\n\nIf self-registration is enabled on the account, you can use this\nendpoint to self register new users.",
+          "nickname": "deprecated_self_register_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[name]",
+              "description": "The full name of the user. This name will be used by teacher for grading.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[short_name]",
+              "description": "User's name as it will be displayed in discussions, messages, and comments.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[sortable_name]",
+              "description": "User's name as used to sort alphabetically in lists.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[time_zone]",
+              "description": "The time zone for the user. Allowed time zones are\n{http://www.iana.org/time-zones IANA time zones} or friendlier\n{http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html Ruby on Rails time zones}.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[locale]",
+              "description": "The user's preferred language, from the list of languages Canvas supports.\nThis is in RFC-5646 format.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[terms_of_use]",
+              "description": "Whether the user accepts the terms of use.",
+              "type": "boolean",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pseudonym[unique_id]",
+              "description": "User's login ID. Must be a valid email address.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "communication_channel[type]",
+              "description": "The communication channel type, e.g. 'email' or 'sms'.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "communication_channel[address]",
+              "description": "The communication channel address, e.g. the user's email address.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/settings",
+      "description": "Update an existing user's settings.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Update user settings.",
+          "notes": "Update an existing user's settings.",
+          "nickname": "update_user_settings",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "manual_mark_as_read",
+              "description": "If true, require user to manually mark discussion posts as read (don't\nauto-mark as read).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "release_notes_badge_disabled",
+              "description": "If true, hide the badge for new release notes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "collapse_global_nav",
+              "description": "If true, the user's page loads with the global navigation collapsed",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "collapse_course_nav",
+              "description": "If true, the user's course pages will load with the course navigation\ncollapsed.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "hide_dashcard_color_overlays",
+              "description": "If true, images on course cards will be presented without being tinted\nto match the course color.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "comment_library_suggestions_enabled",
+              "description": "If true, suggestions within the comment library will be shown.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "elementary_dashboard_disabled",
+              "description": "If true, will display the user's preferred class Canvas dashboard\nview instead of the canvas for elementary view.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "widget_dashboard_user_preference",
+              "description": "If true, enables the widget dashboard for the user. Only applies\nwhen the widget_dashboard feature is enabled at the account level.\nDefaults to true when the feature becomes available.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "widget_dashboard_dark_mode",
+              "description": "If true, enables the dark color theme for the widget dashboard.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/colors",
+      "description": "Returns all custom colors that have been saved for a user.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get custom colors",
+          "notes": "Returns all custom colors that have been saved for a user.",
+          "nickname": "get_custom_colors",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/colors/{asset_string}",
+      "description": "Returns the custom colors that have been saved for a user for a given context.\n\nThe asset_string parameter should be in the format 'context_id', for example\n'course_42'.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get custom color",
+          "notes": "Returns the custom colors that have been saved for a user for a given context.\n\nThe asset_string parameter should be in the format 'context_id', for example\n'course_42'.",
+          "nickname": "get_custom_color",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "asset_string",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/colors/{asset_string}",
+      "description": "Updates a custom color for a user for a given context.  This allows\ncolors for the calendar and elsewhere to be customized on a user basis.\n\nThe asset string parameter should be in the format 'context_id', for example\n'course_42'",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update custom color",
+          "notes": "Updates a custom color for a user for a given context.  This allows\ncolors for the calendar and elsewhere to be customized on a user basis.\n\nThe asset string parameter should be in the format 'context_id', for example\n'course_42'",
+          "nickname": "update_custom_color",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "asset_string",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "hexcode",
+              "description": "The hexcode of the color to set for the context, if you choose to pass the\nhexcode as a query parameter rather than in the request body you should\nNOT include the '#' unless you escape it first.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/text_editor_preference",
+      "description": "Updates a user's default choice for text editor.  This allows\nthe Choose an Editor propmts to preload the user's preference.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update text editor preference",
+          "notes": "Updates a user's default choice for text editor.  This allows\nthe Choose an Editor propmts to preload the user's preference.",
+          "nickname": "update_text_editor_preference",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "text_editor_preference",
+              "description": "The identifier for the editor.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "block_editor",
+                "rce",
+                ""
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/files_ui_version_preference",
+      "description": "Updates a user's default choice for files UI version. This allows\nthe files UI to preload the user's preference.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update files UI version preference",
+          "notes": "Updates a user's default choice for files UI version. This allows\nthe files UI to preload the user's preference.",
+          "nickname": "update_files_ui_version_preference",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "files_ui_version",
+              "description": "The identifier for the files UI version.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "v1",
+                "v2"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/dashboard_positions",
+      "description": "Returns all dashboard positions that have been saved for a user.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get dashboard positions",
+          "notes": "Returns all dashboard positions that have been saved for a user.",
+          "nickname": "get_dashboard_positions",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/dashboard_positions",
+      "description": "Updates the dashboard positions for a user for a given context.  This allows\npositions for the dashboard cards and elsewhere to be customized on a per\nuser basis.\n\nThe asset string parameter should be in the format 'context_id', for example\n'course_42'",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update dashboard positions",
+          "notes": "Updates the dashboard positions for a user for a given context.  This allows\npositions for the dashboard cards and elsewhere to be customized on a per\nuser basis.\n\nThe asset string parameter should be in the format 'context_id', for example\n'course_42'",
+          "nickname": "update_dashboard_positions",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}",
+      "description": "Modify an existing user. To modify a user's login, see the documentation for logins.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Edit a user",
+          "notes": "Modify an existing user. To modify a user's login, see the documentation for logins.",
+          "nickname": "edit_user",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[name]",
+              "description": "The full name of the user. This name will be used by teacher for grading.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[short_name]",
+              "description": "User's name as it will be displayed in discussions, messages, and comments.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[sortable_name]",
+              "description": "User's name as used to sort alphabetically in lists.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[time_zone]",
+              "description": "The time zone for the user. Allowed time zones are\n{http://www.iana.org/time-zones IANA time zones} or friendlier\n{http://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html Ruby on Rails time zones}.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[email]",
+              "description": "The default email address of the user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[locale]",
+              "description": "The user's preferred language, from the list of languages Canvas supports.\nThis is in RFC-5646 format.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[avatar][token]",
+              "description": "A unique representation of the avatar record to assign as the user's\ncurrent avatar. This token can be obtained from the user avatars endpoint.\nThis supersedes the +user[avatar][url]+ argument, and if both are included\nthe url will be ignored. Note: this is an internal representation and is\nsubject to change without notice. It should be consumed with this api\nendpoint and used in the user update endpoint, and should not be\nconstructed by the client.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[avatar][url]",
+              "description": "To set the user's avatar to point to an external url, do not include a\ntoken and instead pass the url here. Warning: For maximum compatibility,\nplease use 128 px square images.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[avatar][state]",
+              "description": "To set the state of user's avatar. Only valid for account administrator.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "none",
+                "submitted",
+                "approved",
+                "locked",
+                "reported",
+                "re_reported"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "user[title]",
+              "description": "Sets a title on the user profile. (See {api:ProfileController#settings Get user profile}.)\nProfiles must be enabled on the root account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[bio]",
+              "description": "Sets a bio on the user profile. (See {api:ProfileController#settings Get user profile}.)\nProfiles must be enabled on the root account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[pronunciation]",
+              "description": "Sets name pronunciation on the user profile. (See {api:ProfileController#settings Get user profile}.)\nProfiles and name pronunciation must be enabled on the root account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[pronouns]",
+              "description": "Sets pronouns on the user profile.\nPassing an empty string will empty the user's pronouns\nOnly Available Pronouns set on the root account are allowed\nAdding and changing pronouns must be enabled on the root account.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user[event]",
+              "description": "Suspends or unsuspends all logins for this user that the calling user\nhas permission to",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "suspend",
+                "unsuspend"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "override_sis_stickiness",
+              "description": "Default is true. If false, any fields containing “sticky” changes will not be updated.\nSee SIS CSV Format documentation for information on which fields can have SIS stickiness",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/sessions",
+      "description": "Terminates all sessions for a user. This includes all browser-based\nsessions and all access tokens, including manually generated ones.\nThe user can immediately re-authenticate to access Canvas again if\nthey have the current credentials. All integrations will need to\nbe re-authorized.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Terminate all user sessions",
+          "notes": "Terminates all sessions for a user. This includes all browser-based\nsessions and all access tokens, including manually generated ones.\nThe user can immediately re-authenticate to access Canvas again if\nthey have the current credentials. All integrations will need to\nbe re-authorized.",
+          "nickname": "terminate_all_user_sessions",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/mobile_sessions",
+      "description": "Permanently expires any active mobile sessions, forcing them to re-authorize.\n\nThe route that takes a user id will expire mobile sessions for that user.\nThe route that doesn't take a user id will expire mobile sessions for *all* users\nin the institution (except for account administrators if +skip_admins+ is given).",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Log users out of all mobile apps",
+          "notes": "Permanently expires any active mobile sessions, forcing them to re-authorize.\n\nThe route that takes a user id will expire mobile sessions for that user.\nThe route that doesn't take a user id will expire mobile sessions for *all* users\nin the institution (except for account administrators if +skip_admins+ is given).",
+          "nickname": "log_users_out_of_all_mobile_apps_mobile_sessions",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "skip_admins",
+              "description": "If true, will not expire mobile sessions for account administrators.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/mobile_sessions",
+      "description": "Permanently expires any active mobile sessions, forcing them to re-authorize.\n\nThe route that takes a user id will expire mobile sessions for that user.\nThe route that doesn't take a user id will expire mobile sessions for *all* users\nin the institution (except for account administrators if +skip_admins+ is given).",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Log users out of all mobile apps",
+          "notes": "Permanently expires any active mobile sessions, forcing them to re-authorize.\n\nThe route that takes a user id will expire mobile sessions for that user.\nThe route that doesn't take a user id will expire mobile sessions for *all* users\nin the institution (except for account administrators if +skip_admins+ is given).",
+          "nickname": "log_users_out_of_all_mobile_apps_id",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "skip_admins",
+              "description": "If true, will not expire mobile sessions for account administrators.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/merge_into/{destination_user_id}",
+      "description": "Merge a user into another user.\nTo merge users, the caller must have permissions to manage both users. This\nshould be considered irreversible. This will delete the user and move all\nthe data into the destination user.\n\nUser merge details and caveats:\nThe from_user is the user that was deleted in the user_merge process.\nThe destination_user is the user that remains, that is being split.\n\nAvatars:\nWhen both users have avatars, only the destination_users avatar will remain.\nWhen one user has an avatar, it will end up on the destination_user.\n\nTerms of Use:\nIf either user has accepted terms of use, it will be be left as accepted.\n\nCommunication Channels:\nAll unique communication channels moved to the destination_user.\nAll notification preferences are moved to the destination_user.\n\nEnrollments:\nAll unique enrollments are moved to the destination_user.\nWhen there is an enrollment that would end up making it so that a user would\nbe observing themselves, the enrollment is not moved over.\nEverything that is tied to the from_user at the course level relating to the\nenrollment is also moved to the destination_user.\n\nSubmissions:\nAll submissions are moved to the destination_user. If there are enrollments\nfor both users in the same course, we prefer submissions that have grades\nthen submissions that have work in them, and if there are no grades or no\nwork, they are not moved.\n\nOther notes:\nAccess Tokens are moved on merge.\nConversations are moved on merge.\nFavorites are moved on merge.\nCourses will commonly use LTI tools. LTI tools reference the user with IDs\nthat are stored on a user object. Merging users deletes one user and moves\nall records from the deleted user to the destination_user. These IDs are\nkept for all enrollments, group_membership, and account_users for the\nfrom_user at the time of the merge. When the destination_user launches an\nLTI tool from a course that used to be the from_user's, it doesn't appear as\na new user to the tool provider. Instead it will send the stored ids. The\ndestination_user's LTI IDs remain as they were for the courses that they\noriginally had. Future enrollments for the destination_user will use the IDs\nthat are on the destination_user object. LTI IDs that are kept and tracked\nper context include lti_context_id, lti_id and uuid. APIs that return the\nLTI ids will return the one for the context that it is called for, except\nfor the user uuid. The user UUID will display the destination_users uuid,\nand when getting the uuid from an api that is in a context that was\nrecorded from a merge event, an additional attribute is added as past_uuid.\n\nWhen finding users by SIS ids in different accounts the\ndestination_account_id is required.\n\nThe account can also be identified by passing the domain in destination_account_id.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Merge user into another user",
+          "notes": "Merge a user into another user.\nTo merge users, the caller must have permissions to manage both users. This\nshould be considered irreversible. This will delete the user and move all\nthe data into the destination user.\n\nUser merge details and caveats:\nThe from_user is the user that was deleted in the user_merge process.\nThe destination_user is the user that remains, that is being split.\n\nAvatars:\nWhen both users have avatars, only the destination_users avatar will remain.\nWhen one user has an avatar, it will end up on the destination_user.\n\nTerms of Use:\nIf either user has accepted terms of use, it will be be left as accepted.\n\nCommunication Channels:\nAll unique communication channels moved to the destination_user.\nAll notification preferences are moved to the destination_user.\n\nEnrollments:\nAll unique enrollments are moved to the destination_user.\nWhen there is an enrollment that would end up making it so that a user would\nbe observing themselves, the enrollment is not moved over.\nEverything that is tied to the from_user at the course level relating to the\nenrollment is also moved to the destination_user.\n\nSubmissions:\nAll submissions are moved to the destination_user. If there are enrollments\nfor both users in the same course, we prefer submissions that have grades\nthen submissions that have work in them, and if there are no grades or no\nwork, they are not moved.\n\nOther notes:\nAccess Tokens are moved on merge.\nConversations are moved on merge.\nFavorites are moved on merge.\nCourses will commonly use LTI tools. LTI tools reference the user with IDs\nthat are stored on a user object. Merging users deletes one user and moves\nall records from the deleted user to the destination_user. These IDs are\nkept for all enrollments, group_membership, and account_users for the\nfrom_user at the time of the merge. When the destination_user launches an\nLTI tool from a course that used to be the from_user's, it doesn't appear as\na new user to the tool provider. Instead it will send the stored ids. The\ndestination_user's LTI IDs remain as they were for the courses that they\noriginally had. Future enrollments for the destination_user will use the IDs\nthat are on the destination_user object. LTI IDs that are kept and tracked\nper context include lti_context_id, lti_id and uuid. APIs that return the\nLTI ids will return the one for the context that it is called for, except\nfor the user uuid. The user UUID will display the destination_users uuid,\nand when getting the uuid from an api that is in a context that was\nrecorded from a merge event, an additional attribute is added as past_uuid.\n\nWhen finding users by SIS ids in different accounts the\ndestination_account_id is required.\n\nThe account can also be identified by passing the domain in destination_account_id.",
+          "nickname": "merge_user_into_another_user_destination_user_id",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "destination_user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/merge_into/accounts/{destination_account_id}/users/{destination_user_id}",
+      "description": "Merge a user into another user.\nTo merge users, the caller must have permissions to manage both users. This\nshould be considered irreversible. This will delete the user and move all\nthe data into the destination user.\n\nUser merge details and caveats:\nThe from_user is the user that was deleted in the user_merge process.\nThe destination_user is the user that remains, that is being split.\n\nAvatars:\nWhen both users have avatars, only the destination_users avatar will remain.\nWhen one user has an avatar, it will end up on the destination_user.\n\nTerms of Use:\nIf either user has accepted terms of use, it will be be left as accepted.\n\nCommunication Channels:\nAll unique communication channels moved to the destination_user.\nAll notification preferences are moved to the destination_user.\n\nEnrollments:\nAll unique enrollments are moved to the destination_user.\nWhen there is an enrollment that would end up making it so that a user would\nbe observing themselves, the enrollment is not moved over.\nEverything that is tied to the from_user at the course level relating to the\nenrollment is also moved to the destination_user.\n\nSubmissions:\nAll submissions are moved to the destination_user. If there are enrollments\nfor both users in the same course, we prefer submissions that have grades\nthen submissions that have work in them, and if there are no grades or no\nwork, they are not moved.\n\nOther notes:\nAccess Tokens are moved on merge.\nConversations are moved on merge.\nFavorites are moved on merge.\nCourses will commonly use LTI tools. LTI tools reference the user with IDs\nthat are stored on a user object. Merging users deletes one user and moves\nall records from the deleted user to the destination_user. These IDs are\nkept for all enrollments, group_membership, and account_users for the\nfrom_user at the time of the merge. When the destination_user launches an\nLTI tool from a course that used to be the from_user's, it doesn't appear as\na new user to the tool provider. Instead it will send the stored ids. The\ndestination_user's LTI IDs remain as they were for the courses that they\noriginally had. Future enrollments for the destination_user will use the IDs\nthat are on the destination_user object. LTI IDs that are kept and tracked\nper context include lti_context_id, lti_id and uuid. APIs that return the\nLTI ids will return the one for the context that it is called for, except\nfor the user uuid. The user UUID will display the destination_users uuid,\nand when getting the uuid from an api that is in a context that was\nrecorded from a merge event, an additional attribute is added as past_uuid.\n\nWhen finding users by SIS ids in different accounts the\ndestination_account_id is required.\n\nThe account can also be identified by passing the domain in destination_account_id.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Merge user into another user",
+          "notes": "Merge a user into another user.\nTo merge users, the caller must have permissions to manage both users. This\nshould be considered irreversible. This will delete the user and move all\nthe data into the destination user.\n\nUser merge details and caveats:\nThe from_user is the user that was deleted in the user_merge process.\nThe destination_user is the user that remains, that is being split.\n\nAvatars:\nWhen both users have avatars, only the destination_users avatar will remain.\nWhen one user has an avatar, it will end up on the destination_user.\n\nTerms of Use:\nIf either user has accepted terms of use, it will be be left as accepted.\n\nCommunication Channels:\nAll unique communication channels moved to the destination_user.\nAll notification preferences are moved to the destination_user.\n\nEnrollments:\nAll unique enrollments are moved to the destination_user.\nWhen there is an enrollment that would end up making it so that a user would\nbe observing themselves, the enrollment is not moved over.\nEverything that is tied to the from_user at the course level relating to the\nenrollment is also moved to the destination_user.\n\nSubmissions:\nAll submissions are moved to the destination_user. If there are enrollments\nfor both users in the same course, we prefer submissions that have grades\nthen submissions that have work in them, and if there are no grades or no\nwork, they are not moved.\n\nOther notes:\nAccess Tokens are moved on merge.\nConversations are moved on merge.\nFavorites are moved on merge.\nCourses will commonly use LTI tools. LTI tools reference the user with IDs\nthat are stored on a user object. Merging users deletes one user and moves\nall records from the deleted user to the destination_user. These IDs are\nkept for all enrollments, group_membership, and account_users for the\nfrom_user at the time of the merge. When the destination_user launches an\nLTI tool from a course that used to be the from_user's, it doesn't appear as\na new user to the tool provider. Instead it will send the stored ids. The\ndestination_user's LTI IDs remain as they were for the courses that they\noriginally had. Future enrollments for the destination_user will use the IDs\nthat are on the destination_user object. LTI IDs that are kept and tracked\nper context include lti_context_id, lti_id and uuid. APIs that return the\nLTI ids will return the one for the context that it is called for, except\nfor the user uuid. The user UUID will display the destination_users uuid,\nand when getting the uuid from an api that is in a context that was\nrecorded from a merge event, an additional attribute is added as past_uuid.\n\nWhen finding users by SIS ids in different accounts the\ndestination_account_id is required.\n\nThe account can also be identified by passing the domain in destination_account_id.",
+          "nickname": "merge_user_into_another_user_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "destination_account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "destination_user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "User"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/split",
+      "description": "Merged users cannot be fully restored to their previous state, but this will\nattempt to split as much as possible to the previous state.\nTo split a merged user, the caller must have permissions to manage all of\nthe users logins. If there are multiple users that have been merged into one\nuser it will split each merge into a separate user.\nA split can only happen within 180 days of a user merge. A user merge deletes\nthe previous user and may be permanently deleted. In this scenario we create\na new user object and proceed to move as much as possible to the new user.\nThe user object will not have preserved the name or settings from the\nprevious user. Some items may have been deleted during a user_merge that\ncannot be restored, and/or the data has become stale because of other\nchanges to the objects since the time of the user_merge.\n\nSplit users details and caveats:\n\nThe from_user is the user that was deleted in the user_merge process.\nThe destination_user is the user that remains, that is being split.\n\nAvatars:\nWhen both users had avatars, both will be remain.\nWhen from_user had an avatar and destination_user did not have an avatar,\nthe destination_user's avatar will be deleted if it still matches what was\nthere are the time of the merge.\nIf the destination_user's avatar was changed at anytime after the merge, it\nwill remain on the destination user.\nIf the from_user had an avatar it will be there after split.\n\nTerms of Use:\nIf from_user had not accepted terms of use, they will be prompted again\nto accept terms of use after the split.\nIf the destination_user had not accepted terms of use, hey will be prompted\nagain to accept terms of use after the split.\nIf neither user had accepted the terms of use, but since the time of the\nmerge had accepted, both will be prompted to accept terms of use.\nIf both had accepted terms of use, this will remain.\n\nCommunication Channels:\nAll communication channels are restored to what they were prior to the\nmerge. If a communication channel was added after the merge, it will remain\non the destination_user.\nNotification preferences remain with the communication channels.\n\nEnrollments:\nAll enrollments from the time of the merge will be moved back to where they\nwere. Enrollments created since the time of the merge that were created by\nsis_import will go to the user that owns that sis_id used for the import.\nOther new enrollments will remain on the destination_user.\nEverything that is tied to the destination_user at the course level relating\nto an enrollment is moved to the from_user. When both users are in the same\ncourse prior to merge this can cause some unexpected items to move.\n\nSubmissions:\nUnlike other items tied to a course, submissions are explicitly recorded to\navoid problems with grades.\nAll submissions were moved are restored to the spot prior to merge.\nAll submission that were created in a course that was moved in enrollments\nare moved over to the from_user.\n\nOther notes:\nAccess Tokens are moved back on split.\nConversations are moved back on split.\nFavorites that existing at the time of merge are moved back on split.\nLTI ids are restored to how they were prior to merge.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Split merged users into separate users",
+          "notes": "Merged users cannot be fully restored to their previous state, but this will\nattempt to split as much as possible to the previous state.\nTo split a merged user, the caller must have permissions to manage all of\nthe users logins. If there are multiple users that have been merged into one\nuser it will split each merge into a separate user.\nA split can only happen within 180 days of a user merge. A user merge deletes\nthe previous user and may be permanently deleted. In this scenario we create\na new user object and proceed to move as much as possible to the new user.\nThe user object will not have preserved the name or settings from the\nprevious user. Some items may have been deleted during a user_merge that\ncannot be restored, and/or the data has become stale because of other\nchanges to the objects since the time of the user_merge.\n\nSplit users details and caveats:\n\nThe from_user is the user that was deleted in the user_merge process.\nThe destination_user is the user that remains, that is being split.\n\nAvatars:\nWhen both users had avatars, both will be remain.\nWhen from_user had an avatar and destination_user did not have an avatar,\nthe destination_user's avatar will be deleted if it still matches what was\nthere are the time of the merge.\nIf the destination_user's avatar was changed at anytime after the merge, it\nwill remain on the destination user.\nIf the from_user had an avatar it will be there after split.\n\nTerms of Use:\nIf from_user had not accepted terms of use, they will be prompted again\nto accept terms of use after the split.\nIf the destination_user had not accepted terms of use, hey will be prompted\nagain to accept terms of use after the split.\nIf neither user had accepted the terms of use, but since the time of the\nmerge had accepted, both will be prompted to accept terms of use.\nIf both had accepted terms of use, this will remain.\n\nCommunication Channels:\nAll communication channels are restored to what they were prior to the\nmerge. If a communication channel was added after the merge, it will remain\non the destination_user.\nNotification preferences remain with the communication channels.\n\nEnrollments:\nAll enrollments from the time of the merge will be moved back to where they\nwere. Enrollments created since the time of the merge that were created by\nsis_import will go to the user that owns that sis_id used for the import.\nOther new enrollments will remain on the destination_user.\nEverything that is tied to the destination_user at the course level relating\nto an enrollment is moved to the from_user. When both users are in the same\ncourse prior to merge this can cause some unexpected items to move.\n\nSubmissions:\nUnlike other items tied to a course, submissions are explicitly recorded to\navoid problems with grades.\nAll submissions were moved are restored to the spot prior to merge.\nAll submission that were created in a course that was moved in enrollments\nare moved over to the from_user.\n\nOther notes:\nAccess Tokens are moved back on split.\nConversations are moved back on split.\nFavorites that existing at the time of merge are moved back on split.\nLTI ids are restored to how they were prior to merge.",
+          "nickname": "split_merged_users_into_separate_users",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/pandata_events_token",
+      "description": "Returns a jwt auth and props token that can be used to send events to\nPandata.\n\nNOTE: This is currently only available to the mobile developer keys.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Get a Pandata Events jwt token and its expiration date",
+          "notes": "Returns a jwt auth and props token that can be used to send events to\nPandata.\n\nNOTE: This is currently only available to the mobile developer keys.",
+          "nickname": "get_pandata_events_jwt_token_and_its_expiration_date",
+          "parameters": [
+            {
+              "paramType": "form",
+              "name": "app_key",
+              "description": "The pandata events appKey for this mobile app",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{id}/graded_submissions",
+      "description": "Returns a list of the user's most recently graded submissions.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a users most recently graded submissions",
+          "notes": "Returns a list of the user's most recently graded submissions.",
+          "nickname": "get_users_most_recently_graded_submissions",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Associations to include with the group",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "assignment"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "only_current_enrollments",
+              "description": "Returns submissions for only currently active enrollments",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "only_published_assignments",
+              "description": "Returns submissions for only published assignments",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Submission"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/profile",
+      "description": "Returns user profile data, including user id, name, and profile pic.\n\nWhen requesting the profile for the user accessing the API, the user's\ncalendar feed URL and LTI user id will be returned as well.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get user profile",
+          "notes": "Returns user profile data, including user id, name, and profile pic.\n\nWhen requesting the profile for the user accessing the API, the user's\ncalendar feed URL and LTI user id will be returned as well.",
+          "nickname": "get_user_profile",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Array of additional information to include.\n\n\"links\":: include the user's profile links in the response\n          as an array of objects with +url+ and +title+ fields\n\"user_services\":: include names and links for the user's connected services\n\"uuid\":: include the user's uuid in the response",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "links",
+                "user_services",
+                "uuid"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Profile"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/avatars",
+      "description": "A paginated list of the possible user avatar options that can be set with the user update endpoint. The response will be an array of avatar records. If the 'type' field is 'attachment', the record will include all the normal attachment json fields; otherwise it will include only the 'url' and 'display_name' fields. Additionally, all records will include a 'type' field and a 'token' field. The following explains each field in more detail\ntype:: [\"gravatar\"|\"attachment\"|\"no_pic\"] The type of avatar record, for categorization purposes.\nurl:: The url of the avatar\ntoken:: A unique representation of the avatar record which can be used to set the avatar with the user update endpoint. Note: this is an internal representation and is subject to change without notice. It should be consumed with this api endpoint and used in the user update endpoint, and should not be constructed by the client.\ndisplay_name:: A textual description of the avatar record\nid:: ['attachment' type only] the internal id of the attachment\ncontent-type:: ['attachment' type only] the content-type of the attachment\nfilename:: ['attachment' type only] the filename of the attachment\nsize:: ['attachment' type only] the size of the attachment",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List avatar options",
+          "notes": "A paginated list of the possible user avatar options that can be set with the user update endpoint. The response will be an array of avatar records. If the 'type' field is 'attachment', the record will include all the normal attachment json fields; otherwise it will include only the 'url' and 'display_name' fields. Additionally, all records will include a 'type' field and a 'token' field. The following explains each field in more detail\ntype:: [\"gravatar\"|\"attachment\"|\"no_pic\"] The type of avatar record, for categorization purposes.\nurl:: The url of the avatar\ntoken:: A unique representation of the avatar record which can be used to set the avatar with the user update endpoint. Note: this is an internal representation and is subject to change without notice. It should be consumed with this api endpoint and used in the user update endpoint, and should not be constructed by the client.\ndisplay_name:: A textual description of the avatar record\nid:: ['attachment' type only] the internal id of the attachment\ncontent-type:: ['attachment' type only] the content-type of the attachment\nfilename:: ['attachment' type only] the filename of the attachment\nsize:: ['attachment' type only] the size of the attachment",
+          "nickname": "list_avatar_options",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Avatar"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/page_views",
+      "description": "Return a paginated list of the user's page view history in json format,\nsimilar to the available CSV download. Page views are returned in\ndescending order, newest to oldest.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List user page views",
+          "notes": "Return a paginated list of the user's page view history in json format,\nsimilar to the available CSV download. Page views are returned in\ndescending order, newest to oldest.",
+          "nickname": "list_user_page_views",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "start_time",
+              "description": "The beginning of the time range from which you want page views.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "end_time",
+              "description": "The end of the time range from which you want page views.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "PageView"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/page_views/query",
+      "description": "Initiates an asynchronous query for user page views data within a specified date range.\nThis method enqueues a background job to process the page views query and returns\na polling URL that can be used to check the query status and retrieve results when ready.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "BETA - Initiate page views query",
+          "notes": "Initiates an asynchronous query for user page views data within a specified date range.\nThis method enqueues a background job to process the page views query and returns\na polling URL that can be used to check the query status and retrieve results when ready.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+          "nickname": "beta_initiate_page_views_query",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "The start date for the page views query in YYYY-MM-DD format. Must be the first day of a month.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "The end date for the page views query in YYYY-MM-DD format. Must be the first day of a month and after start_date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "results_format",
+              "description": "The desired format for the query results. Supported formats: \"csv\", \"jsonl\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AsyncQueryResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/page_views/query/{query_id}",
+      "description": "Checks the status of a previously initiated page views query. Returns the current\nprocessing status and provides a result URL when the query is complete.\n\nThe query may fail with status \"failed\" and error_code\n\"RESULT_SIZE_LIMIT_EXCEEDED\" if the result exceeds 500 MB.\nIf this happens, narrow the date range or query smaller\ntime intervals.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "BETA - Poll query status",
+          "notes": "Checks the status of a previously initiated page views query. Returns the current\nprocessing status and provides a result URL when the query is complete.\n\nThe query may fail with status \"failed\" and error_code\n\"RESULT_SIZE_LIMIT_EXCEEDED\" if the result exceeds 500 MB.\nIf this happens, narrow the date range or query smaller\ntime intervals.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+          "nickname": "beta_poll_query_status",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "query_id",
+              "description": "The UUID of the query to check status for",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AsyncQueryStatusResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/page_views/query/{query_id}/results",
+      "description": "Retrieves the results of a completed page views query. Returns the data in the\nformat specified when the query was initiated (CSV or JSON). The response may\nbe compressed with gzip encoding.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.\n\nNote: PageView payloads use two types of identifiers: globalId and localId. Global identifier is equal to (shardId*10000000000000)+localId.\nPlease note our global identifiers might change if your Canvas instance goes through shard migration process, in this case your current\nshardId in the global identifier will change to a new shardId. Local identifiers do not change after shard migration and stay unique in the\ncontext of the Canvas account. The following fields in the PageView payload are global identifiers: `links_user`, `links_context`, `links_asset`,\n`links_real_user`, `links_account`, `developer_key_id`, `asset_user_access_id`.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "BETA - Get query results",
+          "notes": "Retrieves the results of a completed page views query. Returns the data in the\nformat specified when the query was initiated (CSV or JSON). The response may\nbe compressed with gzip encoding.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.\n\nNote: PageView payloads use two types of identifiers: globalId and localId. Global identifier is equal to (shardId*10000000000000)+localId.\nPlease note our global identifiers might change if your Canvas instance goes through shard migration process, in this case your current\nshardId in the global identifier will change to a new shardId. Local identifiers do not change after shard migration and stay unique in the\ncontext of the Canvas account. The following fields in the PageView payload are global identifiers: `links_user`, `links_context`, `links_asset`,\n`links_real_user`, `links_account`, `developer_key_id`, `asset_user_access_id`.",
+          "nickname": "beta_get_query_results",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "query_id",
+              "description": "The UUID of the completed query to retrieve results for",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "QueryResultsResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/page_views/query",
+      "description": "Initiates an asynchronous query for page views data across multiple users.\nThis method enqueues a background job to process the batch page views query and returns\na polling URL that can be used to check the query status and retrieve results when ready.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "BETA - Initiate batch page views query",
+          "notes": "Initiates an asynchronous query for page views data across multiple users.\nThis method enqueues a background job to process the batch page views query and returns\na polling URL that can be used to check the query status and retrieve results when ready.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+          "nickname": "beta_initiate_batch_page_views_query",
+          "parameters": [
+            {
+              "paramType": "form",
+              "name": "user_ids",
+              "description": "Array of user IDs to query page views for. Must contain at least one user ID. Duplicate user IDs are not allowed.",
+              "type": "Array",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "start_date",
+              "description": "The start date for the page views query in YYYY-MM-DD format. Must be the first day of a month.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "end_date",
+              "description": "The end date for the page views query in YYYY-MM-DD format. Must be the first day of a month and after start_date.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "results_format",
+              "description": "The desired format for the query results. Supported formats: \"csv\", \"jsonl\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AsyncQueryResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/page_views/query/{query_id}",
+      "description": "Checks the status of a previously initiated batch page views query. Returns the current\nprocessing status and provides a result URL when the query is complete.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "BETA - Poll batch query status",
+          "notes": "Checks the status of a previously initiated batch page views query. Returns the current\nprocessing status and provides a result URL when the query is complete.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+          "nickname": "beta_poll_batch_query_status",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "query_id",
+              "description": "The UUID of the query to check status for",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "AsyncQueryStatusResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/page_views/query/{query_id}/results",
+      "description": "Retrieves the results of a completed batch page views query. Returns the data in the\nformat specified when the query was initiated (CSV or JSON). The response may\nbe compressed with gzip encoding.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "BETA - Get batch query results",
+          "notes": "Retrieves the results of a completed batch page views query. Returns the data in the\nformat specified when the query was initiated (CSV or JSON). The response may\nbe compressed with gzip encoding.\n\nAs this is a beta endpoint, it is subject to change or removal at any time without the standard notice periods outlined in the API policy.",
+          "nickname": "beta_get_batch_query_results",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "query_id",
+              "description": "The UUID of the completed query to retrieve results for",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "QueryResultsResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/custom_data",
+      "description": "Store arbitrary user data as JSON.\n\nArbitrary JSON data can be stored for a User.\nA typical scenario would be an external site/service that registers users in Canvas\nand wants to capture additional info about them.  The part of the URL that follows\n+/custom_data/+ defines the scope of the request, and it reflects the structure of\nthe JSON data to be stored or retrieved.\n\nThe value +self+ may be used for +user_id+ to store data associated with the calling user.\nIn order to access another user's custom data, you must be an account administrator with\npermission to manage users.\n\nA namespace parameter, +ns+, is used to prevent custom_data collisions between\ndifferent apps.  This parameter is required for all custom_data requests.\n\nA request with Content-Type multipart/form-data or Content-Type\napplication/x-www-form-urlencoded can only be used to store strings.\n\nExample PUT with multipart/form-data data:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/telephone' \\\n    -X PUT \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -F 'data=555-1234' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"555-1234\"\n  }\n\nSubscopes (or, generated scopes) can also be specified by passing values to\n+data+[+subscope+].\n\nExample PUT specifying subscopes:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/body/measurements' \\\n    -X PUT \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -F 'data[waist]=32in' \\\n    -F 'data[inseam]=34in' \\\n    -F 'data[chest]=40in' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"chest\": \"40in\",\n      \"waist\": \"32in\",\n      \"inseam\": \"34in\"\n    }\n  }\n\nFollowing such a request, subsets of the stored data to be retrieved directly from a subscope.\n\nExample {api:UsersController#get_custom_data GET} from a generated scope\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/body/measurements/chest' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"40in\"\n  }\n\nIf you want to store more than just strings (i.e. numbers, arrays, hashes, true, false,\nand/or null), you must make a request with Content-Type application/json as in the following\nexample.\n\nExample PUT with JSON data:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -H 'Content-Type: application/json' \\\n    -X PUT \\\n    -d '{\n          \"ns\": \"com.my-organization.canvas-app\",\n          \"data\": {\n            \"a-number\": 6.02e23,\n            \"a-bool\": true,\n            \"a-string\": \"true\",\n            \"a-hash\": {\"a\": {\"b\": \"ohai\"}},\n            \"an-array\": [1, \"two\", null, false]\n          }\n        }' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"a-number\": 6.02e+23,\n      \"a-bool\": true,\n      \"a-string\": \"true\",\n      \"a-hash\": {\n        \"a\": {\n          \"b\": \"ohai\"\n        }\n      },\n      \"an-array\": [1, \"two\", null, false]\n    }\n  }\n\nIf the data is an Object (as it is in the above example), then subsets of the data can\nbe accessed by including the object's (possibly nested) keys in the scope of a GET request.\n\nExample {api:UsersController#get_custom_data GET} with a generated scope:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/a-hash/a/b' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"ohai\"\n  }\n\n\nOn success, this endpoint returns an object containing the data that was stored.\n\nResponds with status code 200 if the scope already contained data, and it was overwritten\nby the data specified in the request.\n\nResponds with status code 201 if the scope was previously empty, and the data specified\nin the request was successfully stored there.\n\nResponds with status code 400 if the namespace parameter, +ns+, is missing or invalid, or if\nthe +data+ parameter is missing.\n\nResponds with status code 409 if the requested scope caused a conflict and data was not stored.\nThis happens when storing data at the requested scope would cause data at an outer scope\nto be lost.  e.g., if +/custom_data+ was +{\"fashion_app\": {\"hair\": \"blonde\"}}+, but\nyou tried to +`PUT /custom_data/fashion_app/hair/style -F data=buzz`+, then for the request\nto succeed,the value of +/custom_data/fashion_app/hair+ would have to become a hash, and its\nold string value would be lost.  In this situation, an error object is returned with the\nfollowing format:\n\n  !!!javascript\n  {\n    \"message\": \"write conflict for custom_data hash\",\n    \"conflict_scope\": \"fashion_app/hair\",\n    \"type_at_conflict\": \"String\",\n    \"value_at_conflict\": \"blonde\"\n  }",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Store custom data",
+          "notes": "Store arbitrary user data as JSON.\n\nArbitrary JSON data can be stored for a User.\nA typical scenario would be an external site/service that registers users in Canvas\nand wants to capture additional info about them.  The part of the URL that follows\n+/custom_data/+ defines the scope of the request, and it reflects the structure of\nthe JSON data to be stored or retrieved.\n\nThe value +self+ may be used for +user_id+ to store data associated with the calling user.\nIn order to access another user's custom data, you must be an account administrator with\npermission to manage users.\n\nA namespace parameter, +ns+, is used to prevent custom_data collisions between\ndifferent apps.  This parameter is required for all custom_data requests.\n\nA request with Content-Type multipart/form-data or Content-Type\napplication/x-www-form-urlencoded can only be used to store strings.\n\nExample PUT with multipart/form-data data:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/telephone' \\\n    -X PUT \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -F 'data=555-1234' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"555-1234\"\n  }\n\nSubscopes (or, generated scopes) can also be specified by passing values to\n+data+[+subscope+].\n\nExample PUT specifying subscopes:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/body/measurements' \\\n    -X PUT \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -F 'data[waist]=32in' \\\n    -F 'data[inseam]=34in' \\\n    -F 'data[chest]=40in' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"chest\": \"40in\",\n      \"waist\": \"32in\",\n      \"inseam\": \"34in\"\n    }\n  }\n\nFollowing such a request, subsets of the stored data to be retrieved directly from a subscope.\n\nExample {api:UsersController#get_custom_data GET} from a generated scope\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/body/measurements/chest' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"40in\"\n  }\n\nIf you want to store more than just strings (i.e. numbers, arrays, hashes, true, false,\nand/or null), you must make a request with Content-Type application/json as in the following\nexample.\n\nExample PUT with JSON data:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -H 'Content-Type: application/json' \\\n    -X PUT \\\n    -d '{\n          \"ns\": \"com.my-organization.canvas-app\",\n          \"data\": {\n            \"a-number\": 6.02e23,\n            \"a-bool\": true,\n            \"a-string\": \"true\",\n            \"a-hash\": {\"a\": {\"b\": \"ohai\"}},\n            \"an-array\": [1, \"two\", null, false]\n          }\n        }' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"a-number\": 6.02e+23,\n      \"a-bool\": true,\n      \"a-string\": \"true\",\n      \"a-hash\": {\n        \"a\": {\n          \"b\": \"ohai\"\n        }\n      },\n      \"an-array\": [1, \"two\", null, false]\n    }\n  }\n\nIf the data is an Object (as it is in the above example), then subsets of the data can\nbe accessed by including the object's (possibly nested) keys in the scope of a GET request.\n\nExample {api:UsersController#get_custom_data GET} with a generated scope:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/a-hash/a/b' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"ohai\"\n  }\n\n\nOn success, this endpoint returns an object containing the data that was stored.\n\nResponds with status code 200 if the scope already contained data, and it was overwritten\nby the data specified in the request.\n\nResponds with status code 201 if the scope was previously empty, and the data specified\nin the request was successfully stored there.\n\nResponds with status code 400 if the namespace parameter, +ns+, is missing or invalid, or if\nthe +data+ parameter is missing.\n\nResponds with status code 409 if the requested scope caused a conflict and data was not stored.\nThis happens when storing data at the requested scope would cause data at an outer scope\nto be lost.  e.g., if +/custom_data+ was +{\"fashion_app\": {\"hair\": \"blonde\"}}+, but\nyou tried to +`PUT /custom_data/fashion_app/hair/style -F data=buzz`+, then for the request\nto succeed,the value of +/custom_data/fashion_app/hair+ would have to become a hash, and its\nold string value would be lost.  In this situation, an error object is returned with the\nfollowing format:\n\n  !!!javascript\n  {\n    \"message\": \"write conflict for custom_data hash\",\n    \"conflict_scope\": \"fashion_app/hair\",\n    \"type_at_conflict\": \"String\",\n    \"value_at_conflict\": \"blonde\"\n  }",
+          "nickname": "store_custom_data",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "ns",
+              "description": "The namespace under which to store the data.  This should be something other\nCanvas API apps aren't likely to use, such as a reverse DNS for your organization.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "data",
+              "description": "The data you want to store for the user, at the specified scope.  If the data is\ncomposed of (possibly nested) JSON objects, scopes will be generated for the (nested)\nkeys (see examples).",
+              "type": "JSON",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/custom_data",
+      "description": "Load custom user data.\n\nArbitrary JSON data can be stored for a User.  This API call\nretrieves that data for a (optional) given scope.\nSee {api:UsersController#set_custom_data Store Custom Data} for details and\nexamples.\n\nOn success, this endpoint returns an object containing the data that was requested.\n\nResponds with status code 400 if the namespace parameter, +ns+, is missing or invalid,\nor if the specified scope does not contain any data.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Load custom data",
+          "notes": "Load custom user data.\n\nArbitrary JSON data can be stored for a User.  This API call\nretrieves that data for a (optional) given scope.\nSee {api:UsersController#set_custom_data Store Custom Data} for details and\nexamples.\n\nOn success, this endpoint returns an object containing the data that was requested.\n\nResponds with status code 400 if the namespace parameter, +ns+, is missing or invalid,\nor if the specified scope does not contain any data.",
+          "nickname": "load_custom_data",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "ns",
+              "description": "The namespace from which to retrieve the data.  This should be something other\nCanvas API apps aren't likely to use, such as a reverse DNS for your organization.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/{user_id}/custom_data",
+      "description": "Delete custom user data.\n\nArbitrary JSON data can be stored for a User.  This API call\ndeletes that data for a given scope.  Without a scope, all custom_data is deleted.\nSee {api:UsersController#set_custom_data Store Custom Data} for details and\nexamples of storage and retrieval.\n\nAs an example, we'll store some data, then delete a subset of it.\n\nExample {api:UsersController#set_custom_data PUT} with valid JSON data:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -X PUT \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -F 'data[fruit][apple]=so tasty' \\\n    -F 'data[fruit][kiwi]=a bit sour' \\\n    -F 'data[veggies][root][onion]=tear-jerking' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"fruit\": {\n        \"apple\": \"so tasty\",\n        \"kiwi\": \"a bit sour\"\n      },\n      \"veggies\": {\n        \"root\": {\n          \"onion\": \"tear-jerking\"\n        }\n      }\n    }\n  }\n\nExample DELETE:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/fruit/kiwi' \\\n    -X DELETE \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"a bit sour\"\n  }\n\nExample {api:UsersController#get_custom_data GET} following the above DELETE:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"fruit\": {\n        \"apple\": \"so tasty\"\n      },\n      \"veggies\": {\n        \"root\": {\n          \"onion\": \"tear-jerking\"\n        }\n      }\n    }\n  }\n\nNote that hashes left empty after a DELETE will get removed from the custom_data store.\nFor example, following the previous commands, if we delete /custom_data/veggies/root/onion,\nthen the entire /custom_data/veggies scope will be removed.\n\nExample DELETE that empties a parent scope:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/veggies/root/onion' \\\n    -X DELETE \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"tear-jerking\"\n  }\n\nExample {api:UsersController#get_custom_data GET} following the above DELETE:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"fruit\": {\n        \"apple\": \"so tasty\"\n      }\n    }\n  }\n\nOn success, this endpoint returns an object containing the data that was deleted.\n\nResponds with status code 400 if the namespace parameter, +ns+, is missing or invalid,\nor if the specified scope does not contain any data.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete custom data",
+          "notes": "Delete custom user data.\n\nArbitrary JSON data can be stored for a User.  This API call\ndeletes that data for a given scope.  Without a scope, all custom_data is deleted.\nSee {api:UsersController#set_custom_data Store Custom Data} for details and\nexamples of storage and retrieval.\n\nAs an example, we'll store some data, then delete a subset of it.\n\nExample {api:UsersController#set_custom_data PUT} with valid JSON data:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -X PUT \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -F 'data[fruit][apple]=so tasty' \\\n    -F 'data[fruit][kiwi]=a bit sour' \\\n    -F 'data[veggies][root][onion]=tear-jerking' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"fruit\": {\n        \"apple\": \"so tasty\",\n        \"kiwi\": \"a bit sour\"\n      },\n      \"veggies\": {\n        \"root\": {\n          \"onion\": \"tear-jerking\"\n        }\n      }\n    }\n  }\n\nExample DELETE:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/fruit/kiwi' \\\n    -X DELETE \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"a bit sour\"\n  }\n\nExample {api:UsersController#get_custom_data GET} following the above DELETE:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"fruit\": {\n        \"apple\": \"so tasty\"\n      },\n      \"veggies\": {\n        \"root\": {\n          \"onion\": \"tear-jerking\"\n        }\n      }\n    }\n  }\n\nNote that hashes left empty after a DELETE will get removed from the custom_data store.\nFor example, following the previous commands, if we delete /custom_data/veggies/root/onion,\nthen the entire /custom_data/veggies scope will be removed.\n\nExample DELETE that empties a parent scope:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data/veggies/root/onion' \\\n    -X DELETE \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": \"tear-jerking\"\n  }\n\nExample {api:UsersController#get_custom_data GET} following the above DELETE:\n  curl 'https://<canvas>/api/v1/users/<user_id>/custom_data' \\\n    -X GET \\\n    -F 'ns=com.my-organization.canvas-app' \\\n    -H 'Authorization: Bearer <token>'\n\nResponse:\n  !!!javascript\n  {\n    \"data\": {\n      \"fruit\": {\n        \"apple\": \"so tasty\"\n      }\n    }\n  }\n\nOn success, this endpoint returns an object containing the data that was deleted.\n\nResponds with status code 400 if the namespace parameter, +ns+, is missing or invalid,\nor if the specified scope does not contain any data.",
+          "nickname": "delete_custom_data",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "user_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "ns",
+              "description": "The namespace from which to delete the data.  This should be something other\nCanvas API apps aren't likely to use, such as a reverse DNS for your organization.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/course_nicknames",
+      "description": "Returns all course nicknames you have set.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List course nicknames",
+          "notes": "Returns all course nicknames you have set.",
+          "nickname": "list_course_nicknames",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "CourseNickname"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/course_nicknames/{course_id}",
+      "description": "Returns the nickname for a specific course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get course nickname",
+          "notes": "Returns the nickname for a specific course.",
+          "nickname": "get_course_nickname",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CourseNickname"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/course_nicknames/{course_id}",
+      "description": "Set a nickname for the given course. This will replace the course's name\nin output of API calls you make subsequently, as well as in selected\nplaces in the Canvas web user interface.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Set course nickname",
+          "notes": "Set a nickname for the given course. This will replace the course's name\nin output of API calls you make subsequently, as well as in selected\nplaces in the Canvas web user interface.",
+          "nickname": "set_course_nickname",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "nickname",
+              "description": "The nickname to set.  It must be non-empty and shorter than 60 characters.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CourseNickname"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/course_nicknames/{course_id}",
+      "description": "Remove the nickname for the given course.\nSubsequent course API calls will return the actual name for the course.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Remove course nickname",
+          "notes": "Remove the nickname for the given course.\nSubsequent course API calls will return the actual name for the course.",
+          "nickname": "remove_course_nickname",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "CourseNickname"
+        }
+      ]
+    },
+    {
+      "path": "/v1/users/self/course_nicknames",
+      "description": "Remove all stored course nicknames.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Clear course nicknames",
+          "notes": "Remove all stored course nicknames.",
+          "nickname": "clear_course_nicknames",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "UserDisplay": {
+      "id": "UserDisplay",
+      "description": "This mini-object is used for secondary user responses, when we just want to provide enough information to display a user.",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the user.",
+          "example": 2,
+          "type": "integer",
+          "format": "int64"
+        },
+        "short_name": {
+          "description": "A short name the user has selected, for use in conversations or other less formal places through the site.",
+          "example": "Shelly",
+          "type": "string"
+        },
+        "avatar_image_url": {
+          "description": "If avatars are enabled, this field will be included and contain a url to retrieve the user's avatar.",
+          "example": "https://en.gravatar.com/avatar/d8cb8c8cd40ddf0cd05241443a591868?s=80&r=g",
+          "type": "string"
+        },
+        "html_url": {
+          "description": "URL to access user, either nested to a context or directly.",
+          "example": "https://school.instructure.com/courses/:course_id/users/:user_id",
+          "type": "string"
+        }
+      }
+    },
+    "AnonymousUserDisplay": {
+      "id": "AnonymousUserDisplay",
+      "description": "This mini-object is returned in place of UserDisplay when returning student data for anonymous assignments, and includes an anonymous ID to identify a user within the scope of a single assignment.",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "anonymous_id": {
+          "description": "A unique short ID identifying this user within the scope of a particular assignment.",
+          "example": "xn29Q",
+          "type": "string"
+        },
+        "avatar_image_url": {
+          "description": "A URL to retrieve a generic avatar.",
+          "example": "https://en.gravatar.com/avatar/d8cb8c8cd40ddf0cd05241443a591868?s=80&r=g",
+          "type": "string"
+        },
+        "display_name": {
+          "description": "The anonymized display name for the student.",
+          "example": "Student 2",
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "id": "User",
+      "description": "A Canvas user, e.g. a student, teacher, administrator, observer, etc.",
+      "required": [
+        "id"
+      ],
+      "deprecated": false,
+      "deprecation_description": "",
+      "properties": {
+        "id": {
+          "description": "The ID of the user.",
+          "example": 2,
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "The name of the user.",
+          "example": "Sheldon Cooper",
+          "type": "string"
+        },
+        "sortable_name": {
+          "description": "The name of the user that is should be used for sorting groups of users, such as in the gradebook.",
+          "example": "Cooper, Sheldon",
+          "type": "string"
+        },
+        "last_name": {
+          "description": "The last name of the user.",
+          "example": "Cooper",
+          "type": "string"
+        },
+        "first_name": {
+          "description": "The first name of the user.",
+          "example": "Sheldon",
+          "type": "string"
+        },
+        "short_name": {
+          "description": "A short name the user has selected, for use in conversations or other less formal places through the site.",
+          "example": "Shelly",
+          "type": "string"
+        },
+        "sis_user_id": {
+          "description": "The SIS ID associated with the user.  This field is only included if the user came from a SIS import and has permissions to view SIS information.",
+          "example": "SHEL93921",
+          "type": "string"
+        },
+        "sis_import_id": {
+          "description": "The id of the SIS import.  This field is only included if the user came from a SIS import and has permissions to manage SIS information.",
+          "example": "18",
+          "type": "integer",
+          "format": "int64"
+        },
+        "integration_id": {
+          "description": "The integration_id associated with the user.  This field is only included if the user came from a SIS import and has permissions to view SIS information.",
+          "example": "ABC59802",
+          "type": "string"
+        },
+        "login_id": {
+          "description": "The unique login id for the user.  This is what the user uses to log in to Canvas.",
+          "example": "sheldon@caltech.example.com",
+          "type": "string"
+        },
+        "avatar_url": {
+          "description": "If avatars are enabled, this field will be included and contain a url to retrieve the user's avatar.",
+          "example": "https://en.gravatar.com/avatar/d8cb8c8cd40ddf0cd05241443a591868?s=80&r=g",
+          "type": "string"
+        },
+        "avatar_state": {
+          "description": "Optional: If avatars are enabled and caller is admin, this field can be requested and will contain the current state of the user's avatar.",
+          "example": "approved",
+          "type": "string"
+        },
+        "enrollments": {
+          "description": "Optional: This field can be requested with certain API calls, and will return a list of the users active enrollments. See the List enrollments API for more details about the format of these records.",
+          "type": "array",
+          "items": {
+            "$ref": "Enrollment"
+          }
+        },
+        "email": {
+          "description": "Optional: This field can be requested with certain API calls, and will return the users primary email address.",
+          "example": "sheldon@caltech.example.com",
+          "type": "string"
+        },
+        "locale": {
+          "description": "Optional: This field can be requested with certain API calls, and will return the users locale in RFC 5646 format.",
+          "example": "tlh",
+          "type": "string"
+        },
+        "last_login": {
+          "description": "Optional: This field is only returned in certain API calls, and will return a timestamp representing the last time the user logged in to canvas.",
+          "example": "2012-05-30T17:45:25Z",
+          "type": "string",
+          "format": "date-time"
+        },
+        "time_zone": {
+          "description": "Optional: This field is only returned in certain API calls, and will return the IANA time zone name of the user's preferred timezone.",
+          "example": "America/Denver",
+          "type": "string"
+        },
+        "bio": {
+          "description": "Optional: The user's bio.",
+          "example": "I like the Muppets.",
+          "type": "string"
+        },
+        "pronouns": {
+          "description": "Optional: This field is only returned if pronouns are enabled, and will return the pronouns of the user.",
+          "example": "he/him",
+          "type": "string"
+        }
+      }
+    },
+    "Profile": {
+      "id": "Profile",
+      "description": "Profile details for a Canvas user.",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the user.",
+          "example": 1234,
+          "type": "integer"
+        },
+        "name": {
+          "description": "Sample User",
+          "example": "Sample User",
+          "type": "string"
+        },
+        "short_name": {
+          "description": "Sample User",
+          "example": "Sample User",
+          "type": "string"
+        },
+        "sortable_name": {
+          "description": "user, sample",
+          "example": "user, sample",
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "bio": {
+          "type": "string"
+        },
+        "pronunciation": {
+          "description": "Name pronunciation",
+          "example": "Sample name pronunciation",
+          "type": "string"
+        },
+        "primary_email": {
+          "description": "sample_user@example.com",
+          "example": "sample_user@example.com",
+          "type": "string"
+        },
+        "login_id": {
+          "description": "sample_user@example.com",
+          "example": "sample_user@example.com",
+          "type": "string"
+        },
+        "sis_user_id": {
+          "description": "sis1",
+          "example": "sis1",
+          "type": "string"
+        },
+        "lti_user_id": {
+          "type": "string"
+        },
+        "avatar_url": {
+          "description": "The avatar_url can change over time, so we recommend not caching it for more than a few hours",
+          "example": "..url..",
+          "type": "string"
+        },
+        "calendar": {
+          "$ref": "CalendarLink"
+        },
+        "time_zone": {
+          "description": "Optional: This field is only returned in certain API calls, and will return the IANA time zone name of the user's preferred timezone.",
+          "example": "America/Denver",
+          "type": "string"
+        },
+        "locale": {
+          "description": "The users locale.",
+          "type": "string"
+        },
+        "k5_user": {
+          "description": "Optional: Whether or not the user is a K5 user. This field is nil if the user settings are not for the user making the request.",
+          "example": true,
+          "type": "boolean"
+        },
+        "use_classic_font_in_k5": {
+          "description": "Optional: Whether or not the user should see the classic font on the dashboard. Only applies if k5_user is true. This field is nil if the user settings are not for the user making the request.",
+          "example": false,
+          "type": "boolean"
+        }
+      }
+    },
+    "Avatar": {
+      "id": "Avatar",
+      "description": "Possible avatar for a user.",
+      "required": [
+        "type",
+        "url",
+        "token",
+        "display_name"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "type": {
+          "description": "['gravatar'|'attachment'|'no_pic'] The type of avatar record, for categorization purposes.",
+          "example": "gravatar",
+          "type": "string"
+        },
+        "url": {
+          "description": "The url of the avatar",
+          "example": "https://secure.gravatar.com/avatar/2284...",
+          "type": "string"
+        },
+        "token": {
+          "description": "A unique representation of the avatar record which can be used to set the avatar with the user update endpoint. Note: this is an internal representation and is subject to change without notice. It should be consumed with this api endpoint and used in the user update endpoint, and should not be constructed by the client.",
+          "example": "<opaque_token>",
+          "type": "string"
+        },
+        "display_name": {
+          "description": "A textual description of the avatar record.",
+          "example": "user, sample",
+          "type": "string"
+        },
+        "id": {
+          "description": "['attachment' type only] the internal id of the attachment",
+          "example": 12,
+          "type": "integer"
+        },
+        "content-type": {
+          "description": "['attachment' type only] the content-type of the attachment.",
+          "example": "image/jpeg",
+          "type": "string"
+        },
+        "filename": {
+          "description": "['attachment' type only] the filename of the attachment",
+          "example": "profile.jpg",
+          "type": "string"
+        },
+        "size": {
+          "description": "['attachment' type only] the size of the attachment",
+          "example": 32649,
+          "type": "integer"
+        }
+      }
+    },
+    "PageView": {
+      "id": "PageView",
+      "description": "The record of a user page view access in Canvas",
+      "required": [
+        "id"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "A UUID representing the page view.  This is also the unique request id",
+          "example": "3e246700-e305-0130-51de-02e33aa501ef",
+          "type": "string",
+          "format": "uuid"
+        },
+        "app_name": {
+          "description": "If the request is from an API request, the app that generated the access token",
+          "example": "Canvas for iOS",
+          "type": "string"
+        },
+        "url": {
+          "description": "The URL requested",
+          "example": "https://canvas.instructure.com/conversations",
+          "type": "string"
+        },
+        "context_type": {
+          "description": "The type of context for the request",
+          "example": "Course",
+          "type": "string"
+        },
+        "asset_type": {
+          "description": "The type of asset in the context for the request, if any",
+          "example": "Discussion",
+          "type": "string"
+        },
+        "controller": {
+          "description": "The rails controller that handled the request",
+          "example": "discussions",
+          "type": "string"
+        },
+        "action": {
+          "description": "The rails action that handled the request",
+          "example": "index",
+          "type": "string"
+        },
+        "contributed": {
+          "description": "This field is deprecated, and will always be false",
+          "example": "false",
+          "type": "boolean"
+        },
+        "interaction_seconds": {
+          "description": "An approximation of how long the user spent on the page, in seconds",
+          "example": "7.21",
+          "type": "number"
+        },
+        "created_at": {
+          "description": "When the request was made",
+          "example": "2013-10-01T19:49:47Z",
+          "type": "datetime",
+          "format": "iso8601"
+        },
+        "user_request": {
+          "description": "A flag indicating whether the request was user-initiated, or automatic (such as an AJAX call). Not available in history CSV.",
+          "example": "true",
+          "type": "boolean"
+        },
+        "render_time": {
+          "description": "How long the response took to render, in seconds. Not available in history CSV.",
+          "example": "0.369",
+          "type": "number"
+        },
+        "user_agent": {
+          "description": "The user-agent of the browser or program that made the request",
+          "example": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/536.30.1 (KHTML, like Gecko) Version/6.0.5 Safari/536.30.1",
+          "type": "string"
+        },
+        "participated": {
+          "description": "True if the request counted as participating, such as submitting homework",
+          "example": "false",
+          "type": "boolean"
+        },
+        "http_method": {
+          "description": "The HTTP method such as GET or POST",
+          "example": "GET",
+          "type": "string"
+        },
+        "remote_ip": {
+          "description": "The origin IP address of the request",
+          "example": "173.194.46.71",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "The session identifier for the user session that made the request",
+          "example": "b4f5c8e0-e2f3-0130-51e0-02e33aa501ef",
+          "type": "string",
+          "format": "uuid"
+        },
+        "developer_key_id": {
+          "description": "The ID of the developer key that authorized the API request, if applicable",
+          "example": "42",
+          "type": "number"
+        },
+        "asset_user_access_id": {
+          "description": "The ID of the asset (e.g. an assignment) associated with this page view, if applicable",
+          "example": "9876",
+          "type": "number"
+        },
+        "links": {
+          "description": "The page view links to define the relationships",
+          "$ref": "PageViewLinks",
+          "example": {
+            "user": 1234,
+            "account": 1234
+          }
+        }
+      }
+    },
+    "PageViewLinks": {
+      "id": "PageViewLinks",
+      "description": "The links of a page view access in Canvas",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "user": {
+          "description": "The ID of the user for this page view",
+          "example": "1234",
+          "type": "integer",
+          "format": "int64"
+        },
+        "context": {
+          "description": "The ID of the context for the request (course id if context_type is Course, etc)",
+          "example": "1234",
+          "type": "integer",
+          "format": "int64"
+        },
+        "asset": {
+          "description": "The ID of the asset for the request, if any. Not available in history CSV.",
+          "example": "1234",
+          "type": "integer",
+          "format": "int64"
+        },
+        "real_user": {
+          "description": "The ID of the actual user who made this request, if the request was made by a user who was masquerading",
+          "example": "1234",
+          "type": "integer",
+          "format": "int64"
+        },
+        "account": {
+          "description": "The ID of the account context for this page view",
+          "example": "1234",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "AsyncApiErrorResponse": {
+      "id": "AsyncApiErrorResponse",
+      "description": "Error response structure returned by the API when validation or processing failures occur",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "errors": {
+          "description": "Array of error messages describing what went wrong with the request",
+          "example": [
+            "start_date and end_date must be the first day of the month",
+            "end_date must be after start_date",
+            "end_date cannot be in a future month",
+            "The requested data cannot be older than %d months"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "AsyncQueryResponse": {
+      "id": "AsyncQueryResponse",
+      "description": "Response returned when successfully initiating a page views query",
+      "required": [
+        "poll_url"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "poll_url": {
+          "description": "URL endpoint to poll for query status updates",
+          "example": "/api/v1/users/123/page_views/query/550e8400-e29b-41d4-a716-446655440000",
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "AsyncQueryStatusResponse": {
+      "id": "AsyncQueryStatusResponse",
+      "description": "Response containing the current status of a page views query",
+      "required": [
+        "query_id",
+        "status",
+        "format"
+      ],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "query_id": {
+          "description": "The UUID of the query being polled",
+          "example": "550e8400-e29b-41d4-a716-446655440000",
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "description": "Current processing status of the query",
+          "example": "finished",
+          "type": "string",
+          "enum": [
+            "queued",
+            "processing",
+            "finished",
+            "failed"
+          ]
+        },
+        "format": {
+          "description": "The format that results will be returned in",
+          "example": "csv",
+          "type": "string",
+          "enum": [
+            "csv",
+            "json"
+          ]
+        },
+        "results_url": {
+          "description": "URL to retrieve query results. Only present when status is 'finished'",
+          "example": "/api/v1/users/123/page_views/query/550e8400-e29b-41d4-a716-446655440000/results",
+          "type": "string",
+          "format": "uri"
+        },
+        "error_code": {
+          "description": "Error code indicating the reason for query failure, if applicable",
+          "example": "RESULT_SIZE_LIMIT_EXCEEDED",
+          "type": "string"
+        }
+      }
+    },
+    "AsyncQueryResultsResponse": {
+      "id": "AsyncQueryResultsResponse",
+      "description": "File download response containing page views query results",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "content": {
+          "description": "The query results data in the requested format (CSV or JSON)",
+          "type": "string",
+          "format": "binary"
+        },
+        "filename": {
+          "description": "Suggested filename for the downloaded results",
+          "example": "550e8400-e29b-41d4-a716-446655440000.csv",
+          "type": "string"
+        },
+        "content_type": {
+          "description": "MIME type of the response content",
+          "example": "text/csv",
+          "type": "string",
+          "enum": [
+            "text/csv",
+            "application/jsonl"
+          ]
+        },
+        "content_encoding": {
+          "description": "Content encoding if the response is compressed",
+          "example": "gzip",
+          "type": "string"
+        }
+      }
+    },
+    "CourseNickname": {
+      "id": "CourseNickname",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "course_id": {
+          "description": "the ID of the course",
+          "example": 88,
+          "type": "integer"
+        },
+        "name": {
+          "description": "the actual name of the course",
+          "example": "S1048576 DPMS1200 Intro to Newtonian Mechanics",
+          "type": "string"
+        },
+        "nickname": {
+          "description": "the calling user's nickname for the course",
+          "example": "Physics",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

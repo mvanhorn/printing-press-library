@@ -1,0 +1,656 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/outcome_results",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/outcome_results",
+      "description": "Gets the outcome results for users and outcomes in the specified context.\n\nused in sLMGB",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get outcome results",
+          "notes": "Gets the outcome results for users and outcomes in the specified context.\n\nused in sLMGB",
+          "nickname": "get_outcome_results",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "user_ids",
+              "description": "If specified, only the users whose ids are given will be included in the\nresults. SIS ids can be used, prefixed by \"sis_user_id:\".\nIt is an error to specify an id for a user who is not a student in\nthe context.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "outcome_ids",
+              "description": "If specified, only the outcomes whose ids are given will be included in the\nresults. it is an error to specify an id for an outcome which is not linked\nto the context.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "[String, \"alignments\"|\"outcomes\"|\"outcomes.alignments\"|\"outcome_groups\"|\"outcome_links\"|\"outcome_paths\"|\"users\"]\nSpecify additional collections to be side loaded with the result.\n\"alignments\" includes only the alignments referenced by the returned\nresults.\n\"outcomes.alignments\" includes all alignments referenced by outcomes in the\ncontext.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "include_hidden",
+              "description": "If true, results that are hidden from the learning mastery gradebook and student rollup\nscores will be included",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/assign_outcome_order",
+      "description": "Saves the ordering of outcomes in LMGB for a user",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Set outcome ordering for LMGB",
+          "notes": "Saves the ordering of outcomes in LMGB for a user",
+          "nickname": "set_outcome_ordering_for_lmgb",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_rollups",
+      "description": "Gets the outcome rollups for the users and outcomes in the specified\ncontext.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get outcome result rollups",
+          "notes": "Gets the outcome rollups for the users and outcomes in the specified\ncontext.",
+          "nickname": "get_outcome_result_rollups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "aggregate",
+              "description": "If specified, instead of returning one rollup for each user, all the user\nrollups will be combined into one rollup for the course that will contain\nthe average (or median, see below) rollup score for each outcome.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "course"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "aggregate_stat",
+              "description": "If aggregate rollups requested, then this value determines what\nstatistic is used for the aggregate. Defaults to \"mean\" if this value\nis not specified.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "mean",
+                "median"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "user_ids",
+              "description": "If specified, only the users whose ids are given will be included in the\nresults or used in an aggregate result. it is an error to specify an id\nfor a user who is not a student in the context",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "outcome_ids",
+              "description": "If specified, only the outcomes whose ids are given will be included in the\nresults. it is an error to specify an id for an outcome which is not linked\nto the context.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "[String, \"courses\"|\"outcomes\"|\"outcomes.alignments\"|\"outcome_groups\"|\"outcome_links\"|\"outcome_paths\"|\"users\"]\nSpecify additional collections to be side loaded with the result.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Specify additional values to exclude.\n\"missing_user_rollups\" excludes rollups for users without results.\n\"missing_outcome_results\" excludes outcomes without results.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "missing_user_rollups",
+                "missing_outcome_results",
+                ""
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "sort_by",
+              "description": "If specified, sorts outcome result rollups. \"student\" sorting will sort\nby a user's sortable name. \"outcome\" sorting will sort by the given outcome's\nrollup score. The latter requires specifying the \"sort_outcome_id\" parameter.\nBy default, the sort order is ascending.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "student",
+                "outcome"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "sort_outcome_id",
+              "description": "If outcome sorting requested, then this determines which outcome to use\nfor rollup score sorting.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort_order",
+              "description": "If sorting requested, then this allows changing the default sort order of\nascending to descending.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "add_defaults",
+              "description": "If defaults are requested, then color and mastery level defaults will be\nadded to outcome ratings in the rollup. This will only take effect if\nthe Account Level Mastery Scales FF is DISABLED",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "contributing_scores",
+              "description": "**DEPRECATED**: This parameter is deprecated. Use the separate\nGET /api/v1/courses/:course_id/outcomes/:outcome_id/contributing_scores\nendpoint instead to fetch contributing scores for a specific outcome.\nIf contributing scores are requested, then each individual outcome score will\nalso include all graded artifacts that contributed to the outcome score",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcomes/{outcome_id}/contributing_scores",
+      "description": "Gets the contributing scores for a specific outcome and set of users.\nContributing scores are the individual assignment/quiz scores that\ncontributed to the outcome score for each user.\n\nReturns all alignments for the outcome in the course context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get contributing scores",
+          "notes": "Gets the contributing scores for a specific outcome and set of users.\nContributing scores are the individual assignment/quiz scores that\ncontributed to the outcome score for each user.\n\nReturns all alignments for the outcome in the course context.",
+          "nickname": "get_contributing_scores",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "outcome_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "user_ids",
+              "description": "If specified, only the users whose ids are given will be included in the\nresults. It is an error to specify an id for a user who is not a student in\nthe context.",
+              "type": "array",
+              "format": "int64",
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "only_assignment_alignments",
+              "description": "If specified, only assignment alignments will be included in the results.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "show_unpublished_assignments",
+              "description": "If true, unpublished assignments will be included in the results. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/outcome_mastery_distribution",
+      "description": "Returns the distribution of student scores across mastery levels for all outcomes.\nThis endpoint fetches data for ALL students (not paginated) to provide accurate\ndistribution statistics for charts and analytics.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get mastery distribution",
+          "notes": "Returns the distribution of student scores across mastery levels for all outcomes.\nThis endpoint fetches data for ALL students (not paginated) to provide accurate\ndistribution statistics for charts and analytics.",
+          "nickname": "get_mastery_distribution",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Optionally restrict which results are included:\n- \"missing_user_rollups\": exclude students without any scores\n- \"missing_outcome_results\": exclude outcomes without any results",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "outcome_ids",
+              "description": "Optionally restrict to specific outcome IDs",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "student_ids",
+              "description": "Optionally restrict to specific student IDs. If not provided, all students will be included.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Optionally include additional data:\n- \"alignment_distributions\": include contributing score distributions for alignments",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "only_assignment_alignments",
+              "description": "If true and alignment_distributions is included, only include assignment alignments. Default: false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "show_unpublished_assignments",
+              "description": "If true, include unpublished assignments in alignment distributions. Default: false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "add_defaults",
+              "description": "If defaults are requested, then color and mastery level defaults will be\nadded to outcome ratings in the result. This will only take effect if\nthe Account Level Mastery Scales FF is DISABLED",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "MasteryDistributionResponse"
+        }
+      ]
+    },
+    {
+      "path": "/v1/enqueue_outcome_rollup_calculation",
+      "description": "",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Enqueue a delayed Outcome Rollup Calculation Job",
+          "notes": "",
+          "nickname": "enqueue_delayed_outcome_rollup_calculation_job",
+          "parameters": [
+            {
+              "paramType": "form",
+              "name": "course_id",
+              "description": "The course ID for the rollup job",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "student_uuid",
+              "description": "The student UUID for the rollup job. If provided, calculates for specific student.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RollupJob"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "OutcomeResult": {
+      "id": "OutcomeResult",
+      "description": "A student's result for an outcome",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "example": "42",
+          "type": "integer",
+          "description": "A unique identifier for this result"
+        },
+        "score": {
+          "example": 6,
+          "type": "integer",
+          "description": "The student's score"
+        },
+        "submitted_or_assessed_at": {
+          "example": "2013-02-01T00:00:00-06:00",
+          "type": "datetime",
+          "description": "The datetime the resulting OutcomeResult was submitted at, or absent that, when it was assessed."
+        },
+        "links": {
+          "example": {
+            "user": "3",
+            "learning_outcome": "97",
+            "alignment": "53"
+          },
+          "type": "object",
+          "description": "Unique identifiers of objects associated with this result"
+        },
+        "percent": {
+          "example": "0.65",
+          "type": "number",
+          "description": "score's percent of maximum points possible for outcome, scaled to reflect any custom mastery levels that differ from the learning outcome"
+        }
+      }
+    },
+    "OutcomeRollupScoreLinks": {
+      "id": "OutcomeRollupScoreLinks",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "outcome": {
+          "description": "The id of the related outcome",
+          "example": 42,
+          "type": "integer"
+        }
+      }
+    },
+    "OutcomeRollupScore": {
+      "id": "OutcomeRollupScore",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "score": {
+          "description": "The rollup score for the outcome, based on the student alignment scores related to the outcome. This could be null if the student has no related scores.",
+          "example": 3,
+          "type": "integer"
+        },
+        "count": {
+          "example": 6,
+          "type": "integer",
+          "description": "The number of alignment scores included in this rollup."
+        },
+        "links": {
+          "example": {
+            "outcome": "42"
+          },
+          "$ref": "OutcomeRollupScoreLinks"
+        }
+      }
+    },
+    "OutcomeRollupLinks": {
+      "id": "OutcomeRollupLinks",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "course": {
+          "description": "If an aggregate result was requested, the course field will be present. Otherwise, the user and section field will be present (Optional) The id of the course that this rollup applies to",
+          "example": 42,
+          "type": "integer"
+        },
+        "user": {
+          "description": "(Optional) The id of the user that this rollup applies to",
+          "example": 42,
+          "type": "integer"
+        },
+        "section": {
+          "description": "(Optional) The id of the section the user is in",
+          "example": 57,
+          "type": "integer"
+        }
+      }
+    },
+    "OutcomeRollup": {
+      "id": "OutcomeRollup",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "scores": {
+          "description": "an array of OutcomeRollupScore objects",
+          "$ref": "OutcomeRollupScore"
+        },
+        "name": {
+          "description": "The name of the resource for this rollup. For example, the user name.",
+          "example": "John Doe",
+          "type": "string"
+        },
+        "links": {
+          "example": {
+            "course": 42,
+            "user": 42,
+            "section": 57
+          },
+          "$ref": "OutcomeRollupLinks"
+        }
+      }
+    },
+    "OutcomeAlignment": {
+      "id": "OutcomeAlignment",
+      "description": "An asset aligned with this outcome",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "A unique identifier for this alignment",
+          "example": "quiz_3",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of this alignment",
+          "example": "Big mid-term test",
+          "type": "string"
+        },
+        "html_url": {
+          "description": "(Optional) A URL for details about this alignment",
+          "type": "string"
+        }
+      }
+    },
+    "OutcomePath": {
+      "id": "OutcomePath",
+      "description": "The full path to an outcome",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "example": "42",
+          "type": "integer",
+          "description": "A unique identifier for this outcome"
+        },
+        "parts": {
+          "description": "an array of OutcomePathPart objects",
+          "$ref": "OutcomePathPart"
+        }
+      }
+    },
+    "OutcomePathPart": {
+      "id": "OutcomePathPart",
+      "description": "An outcome or outcome group",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "name": {
+          "example": "Spelling out numbers",
+          "type": "string",
+          "description": "The title of the outcome or outcome group"
+        }
+      }
+    }
+  }
+}

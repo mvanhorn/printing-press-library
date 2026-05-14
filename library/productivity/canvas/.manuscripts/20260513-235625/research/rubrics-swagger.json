@@ -1,0 +1,1428 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/rubrics",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/rubrics",
+      "description": "Returns the rubric with the given id.\n\nUnfortunately this endpoint does not return a standard Rubric object,\ninstead it returns a hash that looks like\n  { 'rubric': Rubric, 'rubric_association': RubricAssociation }\n\nThis may eventually be deprecated in favor of a more standardized return\nvalue, but that is not currently planned.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a single rubric",
+          "notes": "Returns the rubric with the given id.\n\nUnfortunately this endpoint does not return a standard Rubric object,\ninstead it returns a hash that looks like\n  { 'rubric': Rubric, 'rubric_association': RubricAssociation }\n\nThis may eventually be deprecated in favor of a more standardized return\nvalue, but that is not currently planned.",
+          "nickname": "create_single_rubric",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "id",
+              "description": "The id of the rubric",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association_id",
+              "description": "The id of the rubric association object (not the course/assignment itself, but the join table record id).\nIt can be used in place of +rubric_association[association_id]+ and +rubric_association[association_type]+ if desired.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[title]",
+              "description": "The title of the rubric",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[free_form_criterion_comments]",
+              "description": "Whether or not you can write custom comments in the ratings field for a rubric",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_id]",
+              "description": "The id of the object with which this rubric is associated",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_type]",
+              "description": "The type of object this rubric is associated with",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "Assignment",
+                "Course",
+                "Account"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[use_for_grading]",
+              "description": "Whether or not the associated rubric is used for grade calculation",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[hide_score_total]",
+              "description": "Whether or not the score total is displayed within the rubric.\nThis option is only available if the rubric is not used for grading.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[purpose]",
+              "description": "Whether or not the association is for grading (and thus linked to an assignment)\nor if it's to indicate the rubric should appear in its context",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[criteria]",
+              "description": "An indexed Hash of RubricCriteria objects where the keys are integer ids and the values are the RubricCriteria objects",
+              "type": "Hash",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics/{id}",
+      "description": "Returns the rubric with the given id.\n\nUnfortunately this endpoint does not return a standard Rubric object,\ninstead it returns a hash that looks like\n  { 'rubric': Rubric, 'rubric_association': RubricAssociation }\n\nThis may eventually be deprecated in favor of a more standardized return\nvalue, but that is not currently planned.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a single rubric",
+          "notes": "Returns the rubric with the given id.\n\nUnfortunately this endpoint does not return a standard Rubric object,\ninstead it returns a hash that looks like\n  { 'rubric': Rubric, 'rubric_association': RubricAssociation }\n\nThis may eventually be deprecated in favor of a more standardized return\nvalue, but that is not currently planned.",
+          "nickname": "update_single_rubric",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "The id of the rubric",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association_id",
+              "description": "The id of the rubric association object (not the course/assignment itself, but the join table record id).\nIt can be used in place of +rubric_association[association_id]+ and +rubric_association[association_type]+ if desired.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[title]",
+              "description": "The title of the rubric",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[free_form_criterion_comments]",
+              "description": "Whether or not you can write custom comments in the ratings field for a rubric",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[skip_updating_points_possible]",
+              "description": "Whether or not to update the points possible",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_id]",
+              "description": "The id of the object with which this rubric is associated",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_type]",
+              "description": "The type of object this rubric is associated with",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "Assignment",
+                "Course",
+                "Account"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[use_for_grading]",
+              "description": "Whether or not the associated rubric is used for grade calculation",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[hide_score_total]",
+              "description": "Whether or not the score total is displayed within the rubric.\nThis option is only available if the rubric is not used for grading.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[purpose]",
+              "description": "Whether or not the association is for grading (and thus linked to an assignment)\nor if it's to indicate the rubric should appear in its context",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "grading",
+                "bookmark"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric[criteria]",
+              "description": "An indexed Hash of RubricCriteria objects where the keys are integer ids and the values are the RubricCriteria objects",
+              "type": "Hash",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics/{id}",
+      "description": "Deletes a Rubric and removes all RubricAssociations.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a single",
+          "notes": "Deletes a Rubric and removes all RubricAssociations.",
+          "nickname": "delete_single",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Rubric"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/rubrics",
+      "description": "Returns the paginated list of active rubrics for the current context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List rubrics",
+          "notes": "Returns the paginated list of active rubrics for the current context.",
+          "nickname": "list_rubrics_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics",
+      "description": "Returns the paginated list of active rubrics for the current context.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List rubrics",
+          "notes": "Returns the paginated list of active rubrics for the current context.",
+          "nickname": "list_rubrics_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/rubrics/{id}",
+      "description": "Returns the rubric with the given id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single rubric",
+          "notes": "Returns the rubric with the given id.",
+          "nickname": "get_single_rubric_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Related records to include in the response.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "assessments",
+                "graded_assessments",
+                "peer_assessments",
+                "associations",
+                "assignment_associations",
+                "course_associations",
+                "account_associations"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "style",
+              "description": "Applicable only if assessments are being returned. If included, returns either all criteria data associated with the assessment, or just the comments. If not included, both data and comments are omitted.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "full",
+                "comments_only"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Rubric"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics/{id}",
+      "description": "Returns the rubric with the given id.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single rubric",
+          "notes": "Returns the rubric with the given id.",
+          "nickname": "get_single_rubric_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Related records to include in the response.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "assessments",
+                "graded_assessments",
+                "peer_assessments",
+                "associations",
+                "assignment_associations",
+                "course_associations",
+                "account_associations"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "style",
+              "description": "Applicable only if assessments are being returned. If included, returns either all criteria data associated with the assessment, or just the comments. If not included, both data and comments are omitted.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "full",
+                "comments_only"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Rubric"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics/{id}/used_locations",
+      "description": "Returns the courses and assignments where a rubric is being used",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the courses and assignments for a rubric",
+          "notes": "Returns the courses and assignments where a rubric is being used",
+          "nickname": "get_courses_and_assignments_for_rubric_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "UsedLocations"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/rubrics/{id}/used_locations",
+      "description": "Returns the courses and assignments where a rubric is being used",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the courses and assignments for a rubric",
+          "notes": "Returns the courses and assignments where a rubric is being used",
+          "nickname": "get_courses_and_assignments_for_rubric_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "UsedLocations"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics/upload",
+      "description": "Returns the rubric import object that was created",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Creates a rubric using a CSV file",
+          "notes": "Returns the rubric import object that was created",
+          "nickname": "creates_rubric_using_csv_file_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/rubrics/upload",
+      "description": "Returns the rubric import object that was created",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Creates a rubric using a CSV file",
+          "notes": "Returns the rubric import object that was created",
+          "nickname": "creates_rubric_using_csv_file_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/rubrics/upload_template",
+      "description": "Returns a CSV template file that can be used to import rubrics into Canvas.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Templated file for importing a rubric",
+          "notes": "Returns a CSV template file that can be used to import rubrics into Canvas.",
+          "nickname": "templated_file_for_importing_rubric",
+          "parameters": [],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "a CSV file in the format that can be imported"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubrics/upload/{id}",
+      "description": "Can return the latest rubric import for an account or course, or a specific import by id",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the status of a rubric import",
+          "notes": "Can return the latest rubric import for an account or course, or a specific import by id",
+          "nickname": "get_status_of_rubric_import_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/rubrics/upload/{id}",
+      "description": "Can return the latest rubric import for an account or course, or a specific import by id",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the status of a rubric import",
+          "notes": "Can return the latest rubric import for an account or course, or a specific import by id",
+          "nickname": "get_status_of_rubric_import_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricImport"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubric_associations/{rubric_association_id}/rubric_assessments",
+      "description": "Returns the rubric assessment with the given id.\nThe returned object also provides the information of\n  :ratings, :assessor_name, :related_group_submissions_and_assessments, :artifact",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a single rubric assessment",
+          "notes": "Returns the rubric assessment with the given id.\nThe returned object also provides the information of\n  :ratings, :assessor_name, :related_group_submissions_and_assessments, :artifact",
+          "nickname": "create_single_rubric_assessment",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "The id of the course",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "rubric_association_id",
+              "description": "The id of the object with which this rubric assessment is associated",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "provisional",
+              "description": "(optional) Indicates whether this assessment is provisional, defaults to false.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "final",
+              "description": "(optional) Indicates a provisional grade will be marked as final. It only takes effect if the provisional param is passed as true. Defaults to false.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "graded_anonymously",
+              "description": "(optional) Defaults to false",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_assessment",
+              "description": "A Hash of data to complement the rubric assessment:\nThe user id that refers to the person being assessed\n  rubric_assessment[user_id]\nAssessment type. There are only three valid types:  'grading', 'peer_review', or 'provisional_grade'\n  rubric_assessment[assessment_type]\nThe points awarded for this row.\n  rubric_assessment[criterion_id][points]\nComments to add for this row.\n  rubric_assessment[criterion_id][comments]\nFor each criterion_id, change the id by the criterion number, ex: criterion_123\nIf the criterion_id is not specified it defaults to false, and nothing is updated.",
+              "type": "Hash",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubric_associations/{rubric_association_id}/rubric_assessments/{id}",
+      "description": "Returns the rubric assessment with the given id.\nThe returned object also provides the information of\n  :ratings, :assessor_name, :related_group_submissions_and_assessments, :artifact",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a single rubric assessment",
+          "notes": "Returns the rubric assessment with the given id.\nThe returned object also provides the information of\n  :ratings, :assessor_name, :related_group_submissions_and_assessments, :artifact",
+          "nickname": "update_single_rubric_assessment",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "The id of the rubric assessment",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "The id of the course",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "rubric_association_id",
+              "description": "The id of the object with which this rubric assessment is associated",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "provisional",
+              "description": "(optional) Indicates whether this assessment is provisional, defaults to false.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "final",
+              "description": "(optional) Indicates a provisional grade will be marked as final. It only takes effect if the provisional param is passed as true. Defaults to false.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "graded_anonymously",
+              "description": "(optional) Defaults to false",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_assessment",
+              "description": "A Hash of data to complement the rubric assessment:\nThe user id that refers to the person being assessed\n  rubric_assessment[user_id]\nAssessment type. There are only three valid types:  'grading', 'peer_review', or 'provisional_grade'\n  rubric_assessment[assessment_type]\nThe points awarded for this row.\n  rubric_assessment[criterion_id][points]\nComments to add for this row.\n  rubric_assessment[criterion_id][comments]\nFor each criterion_id, change the id by the criterion number, ex: criterion_123\nIf the criterion_id is not specified it defaults to false, and nothing is updated.",
+              "type": "Hash",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubric_associations/{rubric_association_id}/rubric_assessments/{id}",
+      "description": "Deletes a rubric assessment",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a single rubric assessment",
+          "notes": "Deletes a rubric assessment",
+          "nickname": "delete_single_rubric_assessment",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "rubric_association_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricAssessment"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubric_associations",
+      "description": "Returns the rubric with the given id.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a RubricAssociation",
+          "notes": "Returns the rubric with the given id.",
+          "nickname": "create_rubricassociation",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[rubric_id]",
+              "description": "The id of the Rubric",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_id]",
+              "description": "The id of the object with which this rubric is associated",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_type]",
+              "description": "The type of object this rubric is associated with",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "Assignment",
+                "Course",
+                "Account"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[title]",
+              "description": "The name of the object this rubric is associated with",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[use_for_grading]",
+              "description": "Whether or not the associated rubric is used for grade calculation",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[hide_score_total]",
+              "description": "Whether or not the score total is displayed within the rubric.\nThis option is only available if the rubric is not used for grading.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[purpose]",
+              "description": "Whether or not the association is for grading (and thus linked to an assignment)\nor if it's to indicate the rubric should appear in its context",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "grading",
+                "bookmark"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[bookmarked]",
+              "description": "Whether or not the associated rubric appears in its context",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricAssociation"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubric_associations/{id}",
+      "description": "Returns the rubric with the given id.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a RubricAssociation",
+          "notes": "Returns the rubric with the given id.",
+          "nickname": "update_rubricassociation",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "The id of the RubricAssociation to update",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[rubric_id]",
+              "description": "The id of the Rubric",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_id]",
+              "description": "The id of the object with which this rubric is associated",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[association_type]",
+              "description": "The type of object this rubric is associated with",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "Assignment",
+                "Course",
+                "Account"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[title]",
+              "description": "The name of the object this rubric is associated with",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[use_for_grading]",
+              "description": "Whether or not the associated rubric is used for grade calculation",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[hide_score_total]",
+              "description": "Whether or not the score total is displayed within the rubric.\nThis option is only available if the rubric is not used for grading.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[purpose]",
+              "description": "Whether or not the association is for grading (and thus linked to an assignment)\nor if it's to indicate the rubric should appear in its context",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "grading",
+                "bookmark"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "rubric_association[bookmarked]",
+              "description": "Whether or not the associated rubric appears in its context",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricAssociation"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/rubric_associations/{id}",
+      "description": "Delete the RubricAssociation with the given ID",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a RubricAssociation",
+          "notes": "Delete the RubricAssociation with the given ID",
+          "nickname": "delete_rubricassociation",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "RubricAssociation"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Rubric": {
+      "id": "Rubric",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the rubric",
+          "example": 1,
+          "type": "integer"
+        },
+        "title": {
+          "description": "title of the rubric",
+          "example": "some title",
+          "type": "string"
+        },
+        "context_id": {
+          "description": "the context owning the rubric",
+          "example": 1,
+          "type": "integer"
+        },
+        "context_type": {
+          "example": "Course",
+          "type": "string"
+        },
+        "points_possible": {
+          "example": "10.0",
+          "type": "integer"
+        },
+        "reusable": {
+          "example": "false",
+          "type": "boolean"
+        },
+        "read_only": {
+          "example": "true",
+          "type": "boolean"
+        },
+        "free_form_criterion_comments": {
+          "description": "whether or not free-form comments are used",
+          "example": "true",
+          "type": "boolean"
+        },
+        "hide_score_total": {
+          "example": "true",
+          "type": "boolean"
+        },
+        "data": {
+          "description": "An array with all of this Rubric's grading Criteria",
+          "type": "array",
+          "items": {
+            "$ref": "RubricCriterion"
+          }
+        },
+        "assessments": {
+          "description": "If an assessment type is included in the 'include' parameter, includes an array of rubric assessment objects for a given rubric, based on the assessment type requested. If the user does not request an assessment type this key will be absent.",
+          "type": "array",
+          "items": {
+            "$ref": "RubricAssessment"
+          }
+        },
+        "associations": {
+          "description": "If an association type is included in the 'include' parameter, includes an array of rubric association objects for a given rubric, based on the association type requested. If the user does not request an association type this key will be absent.",
+          "type": "array",
+          "items": {
+            "$ref": "RubricAssociation"
+          }
+        }
+      }
+    },
+    "RubricCriterion": {
+      "id": "RubricCriterion",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the criterion",
+          "example": "_10",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "long_description": {
+          "type": "string"
+        },
+        "points": {
+          "example": "5",
+          "type": "integer"
+        },
+        "criterion_use_range": {
+          "example": "false",
+          "type": "boolean"
+        },
+        "ratings": {
+          "description": "the possible ratings for this Criterion",
+          "type": "array",
+          "items": {
+            "$ref": "RubricRating"
+          }
+        }
+      }
+    },
+    "RubricRating": {
+      "id": "RubricRating",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "example": "name_2",
+          "type": "string"
+        },
+        "criterion_id": {
+          "example": "_10",
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "long_description": {
+          "type": "string"
+        },
+        "points": {
+          "example": "5",
+          "type": "integer"
+        }
+      }
+    },
+    "RubricAssessment": {
+      "id": "RubricAssessment",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the rubric",
+          "example": 1,
+          "type": "integer"
+        },
+        "rubric_id": {
+          "description": "the rubric the assessment belongs to",
+          "example": 1,
+          "type": "integer"
+        },
+        "rubric_association_id": {
+          "example": "2",
+          "type": "integer"
+        },
+        "score": {
+          "example": "5.0",
+          "type": "integer"
+        },
+        "artifact_type": {
+          "description": "the object of the assessment",
+          "example": "Submission",
+          "type": "string"
+        },
+        "artifact_id": {
+          "description": "the id of the object of the assessment",
+          "example": "3",
+          "type": "integer"
+        },
+        "artifact_attempt": {
+          "description": "the current number of attempts made on the object of the assessment",
+          "example": "2",
+          "type": "integer"
+        },
+        "assessment_type": {
+          "description": "the type of assessment. values will be either 'grading', 'peer_review', or 'provisional_grade'",
+          "example": "grading",
+          "type": "string"
+        },
+        "assessor_id": {
+          "description": "user id of the person who made the assessment",
+          "example": "6",
+          "type": "integer"
+        },
+        "data": {
+          "description": "(Optional) If 'full' is included in the 'style' parameter, returned assessments will have their full details contained in their data hash. If the user does not request a style, this key will be absent.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "comments": {
+          "description": "(Optional) If 'comments_only' is included in the 'style' parameter, returned assessments will include only the comments portion of their data hash. If the user does not request a style, this key will be absent.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "RubricAssociation": {
+      "id": "RubricAssociation",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "the ID of the association",
+          "example": 1,
+          "type": "integer"
+        },
+        "rubric_id": {
+          "description": "the ID of the rubric",
+          "example": "1",
+          "type": "integer"
+        },
+        "association_id": {
+          "description": "the ID of the object this association links to",
+          "example": 1,
+          "type": "integer"
+        },
+        "association_type": {
+          "description": "the type of object this association links to",
+          "example": "Course",
+          "type": "string"
+        },
+        "use_for_grading": {
+          "description": "Whether or not the associated rubric is used for grade calculation",
+          "example": "true",
+          "type": "boolean"
+        },
+        "summary_data": {
+          "example": "",
+          "type": "string"
+        },
+        "purpose": {
+          "description": "Whether or not the association is for grading (and thus linked to an assignment) or if it's to indicate the rubric should appear in its context. Values will be grading or bookmark.",
+          "example": "grading",
+          "type": "string"
+        },
+        "hide_score_total": {
+          "description": "Whether or not the score total is displayed within the rubric. This option is only available if the rubric is not used for grading.",
+          "example": "true",
+          "type": "boolean"
+        },
+        "hide_points": {
+          "example": "true",
+          "type": "boolean"
+        },
+        "hide_outcome_results": {
+          "example": "true",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

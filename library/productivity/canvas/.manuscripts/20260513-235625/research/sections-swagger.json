@@ -1,0 +1,615 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/sections",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/sections",
+      "description": "A paginated list of the list of sections for this course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List course sections",
+          "notes": "A paginated list of the list of sections for this course.",
+          "nickname": "list_course_sections",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"students\": Associations to include with the group. Note: this is only\n  available if you have permission to view users or grades in the course\n- \"avatar_url\": Include the avatar URLs for students returned.\n- \"enrollments\": If 'students' is also included, return the section\n  enrollment for each student\n- \"total_students\": Returns the total amount of active and invited students\n  for the course section\n- \"passback_status\": Include the grade passback status.\n- \"permissions\": Include whether section grants :manage_calendar permission\n  to the caller",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "students",
+                "avatar_url",
+                "enrollments",
+                "total_students",
+                "passback_status",
+                "permissions"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "When included, searches course sections for the term. Returns only matching\nresults. Term must be at least 2 characters.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Section"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/sections",
+      "description": "Creates a new section for this course.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create course section",
+          "notes": "Creates a new section for this course.",
+          "nickname": "create_course_section",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[name]",
+              "description": "The name of the section",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[sis_section_id]",
+              "description": "The sis ID of the section. Must have manage_sis permission to set. This is ignored if caller does not have permission to set.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[integration_id]",
+              "description": "The integration_id of the section. Must have manage_sis permission to set. This is ignored if caller does not have permission to set.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[start_at]",
+              "description": "Section start date in ISO8601 format, e.g. 2011-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[end_at]",
+              "description": "Section end date in ISO8601 format. e.g. 2011-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[restrict_enrollments_to_section_dates]",
+              "description": "Set to true to restrict user enrollments to the start and end dates of the section.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "enable_sis_reactivation",
+              "description": "When true, will first try to re-activate a deleted section with matching sis_section_id if possible.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/sections/{id}/crosslist/{new_course_id}",
+      "description": "Move the Section to another course.  The new course may be in a different account (department),\nbut must belong to the same root account (institution).",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Cross-list a Section",
+          "notes": "Move the Section to another course.  The new course may be in a different account (department),\nbut must belong to the same root account (institution).",
+          "nickname": "cross_list_section",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "new_course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "override_sis_stickiness",
+              "description": "Default is true. If false, any fields containing “sticky” changes will not be updated.\nSee SIS CSV Format documentation for information on which fields can have SIS stickiness",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/sections/{id}/crosslist",
+      "description": "Undo cross-listing of a Section, returning it to its original course.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "De-cross-list a Section",
+          "notes": "Undo cross-listing of a Section, returning it to its original course.",
+          "nickname": "de_cross_list_section",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "override_sis_stickiness",
+              "description": "Default is true. If false, any fields containing “sticky” changes will not be updated.\nSee SIS CSV Format documentation for information on which fields can have SIS stickiness",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/sections/{id}",
+      "description": "Modify an existing section.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Edit a section",
+          "notes": "Modify an existing section.",
+          "nickname": "edit_section",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[name]",
+              "description": "The name of the section",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[sis_section_id]",
+              "description": "The sis ID of the section. Must have manage_sis permission to set.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[integration_id]",
+              "description": "The integration_id of the section. Must have manage_sis permission to set.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[start_at]",
+              "description": "Section start date in ISO8601 format, e.g. 2011-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[end_at]",
+              "description": "Section end date in ISO8601 format. e.g. 2011-01-01T01:00Z",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "course_section[restrict_enrollments_to_section_dates]",
+              "description": "Set to true to restrict user enrollments to the start and end dates of the section.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "override_sis_stickiness",
+              "description": "Default is true. If false, any fields containing “sticky” changes will not be updated.\nSee SIS CSV Format documentation for information on which fields can have SIS stickiness",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/sections/{id}",
+      "description": "Gets details about a specific section",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get section information",
+          "notes": "Gets details about a specific section",
+          "nickname": "get_section_information_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"students\": Associations to include with the group. Note: this is only\n  available if you have permission to view users or grades in the course\n- \"avatar_url\": Include the avatar URLs for students returned.\n- \"enrollments\": If 'students' is also included, return the section\n  enrollment for each student\n- \"total_students\": Returns the total amount of active and invited students\n  for the course section\n- \"passback_status\": Include the grade passback status.\n- \"permissions\": Include whether section grants :manage_calendar permission\n  to the caller",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "students",
+                "avatar_url",
+                "enrollments",
+                "total_students",
+                "passback_status",
+                "permissions"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/sections/{id}",
+      "description": "Gets details about a specific section",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get section information",
+          "notes": "Gets details about a specific section",
+          "nickname": "get_section_information_sections",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"students\": Associations to include with the group. Note: this is only\n  available if you have permission to view users or grades in the course\n- \"avatar_url\": Include the avatar URLs for students returned.\n- \"enrollments\": If 'students' is also included, return the section\n  enrollment for each student\n- \"total_students\": Returns the total amount of active and invited students\n  for the course section\n- \"passback_status\": Include the grade passback status.\n- \"permissions\": Include whether section grants :manage_calendar permission\n  to the caller",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "students",
+                "avatar_url",
+                "enrollments",
+                "total_students",
+                "passback_status",
+                "permissions"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/sections/{id}",
+      "description": "Delete an existing section.  Returns the former Section.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a section",
+          "notes": "Delete an existing section.  Returns the former Section.",
+          "nickname": "delete_section",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Section"
+        }
+      ]
+    },
+    {
+      "path": "/v1/sections/{id}/users",
+      "description": "Returns a paginated list of users in the section.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List section's users",
+          "notes": "Returns a paginated list of users in the section.",
+          "nickname": "list_section_s_users",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial name or full ID of the users to match and return in the\nresults list. Must be at least 2 characters.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "\"avatar_url\": Include users' avatar_urls.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "avatar_url"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "exclude_inactive",
+              "description": "Whether to filter out inactive users from the results. Defaults to\nfalse unless explicitly provided.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "enrollment_type",
+              "description": "When set, only return users with the specified enrollment type for the given section.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teacher",
+                "student",
+                "ta",
+                "observer",
+                "designer"
+              ]
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Section": {
+      "id": "Section",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The unique identifier for the section.",
+          "example": 1,
+          "type": "integer"
+        },
+        "name": {
+          "description": "The name of the section.",
+          "example": "Section A",
+          "type": "string"
+        },
+        "sis_section_id": {
+          "description": "The sis id of the section. This field is only included if the user has permission to view SIS information.",
+          "example": "s34643",
+          "type": "string"
+        },
+        "integration_id": {
+          "description": "Optional: The integration ID of the section. This field is only included if the user has permission to view SIS information.",
+          "example": "3452342345",
+          "type": "string"
+        },
+        "sis_import_id": {
+          "description": "The unique identifier for the SIS import if created through SIS. This field is only included if the user has permission to manage SIS information.",
+          "example": 47,
+          "type": "integer"
+        },
+        "course_id": {
+          "description": "The unique Canvas identifier for the course in which the section belongs",
+          "example": 7,
+          "type": "integer"
+        },
+        "sis_course_id": {
+          "description": "The unique SIS identifier for the course in which the section belongs. This field is only included if the user has permission to view SIS information.",
+          "example": 7,
+          "type": "string"
+        },
+        "start_at": {
+          "description": "the start date for the section, if applicable",
+          "example": "2012-06-01T00:00:00-06:00",
+          "type": "datetime"
+        },
+        "end_at": {
+          "description": "the end date for the section, if applicable",
+          "type": "datetime"
+        },
+        "restrict_enrollments_to_section_dates": {
+          "description": "Restrict user enrollments to the start and end dates of the section",
+          "type": "boolean"
+        },
+        "nonxlist_course_id": {
+          "description": "The unique identifier of the original course of a cross-listed section",
+          "type": "integer"
+        },
+        "total_students": {
+          "description": "optional: the total number of active and invited students in the section",
+          "example": 13,
+          "type": "integer"
+        },
+        "students": {
+          "description": "optional: A list of students that are included in the section. Returned only if include[]=students. WARNING: this collection's size is capped (if there are an extremely large number of users in the section (thousands) not all of them will be returned). If you need to capture all the users in a section with certainty or experiencing slow response consider using the paginated /api/v1/sections/<section_id>/users endpoint.",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      }
+    }
+  }
+}
