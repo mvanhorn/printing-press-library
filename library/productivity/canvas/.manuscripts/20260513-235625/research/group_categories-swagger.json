@@ -1,0 +1,815 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/group_categories",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/accounts/{account_id}/group_categories",
+      "description": "Returns a paginated list of group categories in a context. The list returned\ndepends on the permissions of the current user and the specified collaboration state.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List group categories for a context",
+          "notes": "Returns a paginated list of group categories in a context. The list returned\ndepends on the permissions of the current user and the specified collaboration state.",
+          "nickname": "list_group_categories_for_context_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "collaboration_state",
+              "description": "Filter group categories by their collaboration state:\n- \"all\": Return both collaborative and non-collaborative group categories\n- \"collaborative\": Return only collaborative group categories (default)\n- \"non_collaborative\": Return only non-collaborative group categories",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "GroupCategory"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/group_categories",
+      "description": "Returns a paginated list of group categories in a context. The list returned\ndepends on the permissions of the current user and the specified collaboration state.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List group categories for a context",
+          "notes": "Returns a paginated list of group categories in a context. The list returned\ndepends on the permissions of the current user and the specified collaboration state.",
+          "nickname": "list_group_categories_for_context_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "collaboration_state",
+              "description": "Filter group categories by their collaboration state:\n- \"all\": Return both collaborative and non-collaborative group categories\n- \"collaborative\": Return only collaborative group categories (default)\n- \"non_collaborative\": Return only non-collaborative group categories",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "GroupCategory"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}",
+      "description": "Returns the data for a single group category, or a 401 if the caller doesn't have\nthe rights to see it.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single group category",
+          "notes": "Returns the data for a single group category, or a 401 if the caller doesn't have\nthe rights to see it.",
+          "nickname": "get_single_group_category",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "GroupCategory"
+        }
+      ]
+    },
+    {
+      "path": "/v1/accounts/{account_id}/group_categories",
+      "description": "Create a new group category",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a Group Category",
+          "notes": "Create a new group category",
+          "nickname": "create_group_category_accounts",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "account_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "name",
+              "description": "Name of the group category",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "non_collaborative",
+              "description": "Can only be set by users with the Differentiation Tag - Add permission\n\nIf set to true, groups in this category will be only be visible to users with the\nDifferentiation Tag - Manage permission.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "self_signup",
+              "description": "Allow students to sign up for a group themselves (Course Only).\nvalid values are:\n\"enabled\":: allows students to self sign up for any group in course\n\"restricted\":: allows students to self sign up only for groups in the\n               same section null disallows self sign up",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "enabled",
+                "restricted"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "auto_leader",
+              "description": "Assigns group leaders automatically when generating and allocating students to groups\nValid values are:\n\"first\":: the first student to be allocated to a group is the leader\n\"random\":: a random student from all members is chosen as the leader",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "first",
+                "random"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "group_limit",
+              "description": "Limit the maximum number of users in each group (Course Only). Requires\nself signup.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sis_group_category_id",
+              "description": "The unique SIS identifier.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "create_group_count",
+              "description": "Create this number of groups (Course Only).",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "split_group_count",
+              "description": "(Deprecated)\nCreate this number of groups, and evenly distribute students\namong them. not allowed with \"enable_self_signup\". because\nthe group assignment happens synchronously, it's recommended\nthat you instead use the assign_unassigned_members endpoint.\n(Course Only)",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "GroupCategory"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/group_categories",
+      "description": "Create a new group category",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a Group Category",
+          "notes": "Create a new group category",
+          "nickname": "create_group_category_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "name",
+              "description": "Name of the group category",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "non_collaborative",
+              "description": "Can only be set by users with the Differentiation Tag - Add permission\n\nIf set to true, groups in this category will be only be visible to users with the\nDifferentiation Tag - Manage permission.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "self_signup",
+              "description": "Allow students to sign up for a group themselves (Course Only).\nvalid values are:\n\"enabled\":: allows students to self sign up for any group in course\n\"restricted\":: allows students to self sign up only for groups in the\n               same section null disallows self sign up",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "enabled",
+                "restricted"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "auto_leader",
+              "description": "Assigns group leaders automatically when generating and allocating students to groups\nValid values are:\n\"first\":: the first student to be allocated to a group is the leader\n\"random\":: a random student from all members is chosen as the leader",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "first",
+                "random"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "group_limit",
+              "description": "Limit the maximum number of users in each group (Course Only). Requires\nself signup.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sis_group_category_id",
+              "description": "The unique SIS identifier.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "create_group_count",
+              "description": "Create this number of groups (Course Only).",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "split_group_count",
+              "description": "(Deprecated)\nCreate this number of groups, and evenly distribute students\namong them. not allowed with \"enable_self_signup\". because\nthe group assignment happens synchronously, it's recommended\nthat you instead use the assign_unassigned_members endpoint.\n(Course Only)",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "GroupCategory"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/group_categories/bulk_manage_differentiation_tag",
+      "description": "This API is only meant for Groups and GroupCategories where non_collaborative is true.\n\nPerform bulk operations on groups within a group category, or create a new group category\nalong with the groups in one transaction. If creation of the GroupCategory or any Group fails, the entire operation will be rolled back.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Bulk manage differentiation tags",
+          "notes": "This API is only meant for Groups and GroupCategories where non_collaborative is true.\n\nPerform bulk operations on groups within a group category, or create a new group category\nalong with the groups in one transaction. If creation of the GroupCategory or any Group fails, the entire operation will be rolled back.",
+          "nickname": "bulk_manage_differentiation_tags",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "operations",
+              "description": "A hash containing arrays of create/update/delete operations:\n{\n  \"create\": [\n    { \"name\": \"New Group A\" },\n    { \"name\": \"New Group B\" }\n  ],\n  \"update\": [\n    { \"id\": 123, \"name\": \"Updated Group Name A\" },\n    { \"id\": 456, \"name\": \"Updated Group Name B\" }\n  ],\n  \"delete\": [\n    { \"id\": 789 },\n    { \"id\": 101 }\n  ]\n}",
+              "type": "Hash",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_category",
+              "description": "Attributes for the GroupCategory. May include:\n  - id [Optional, Integer]: The ID of an existing GroupCategory.\n  - name [Optional, String]: A new name for the GroupCategory. If provided with an ID, the category name will be updated.",
+              "type": "Hash",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "GroupCategory and groups operation results"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/group_categories/import_tags",
+      "description": "Create Differentiation Tags through a CSV import\n\nFor more information on the format that's expected here, please see the\n\"Differentiation Tag CSV\" section in the API docs.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Import differentiation tags",
+          "notes": "Create Differentiation Tags through a CSV import\n\nFor more information on the format that's expected here, please see the\n\"Differentiation Tag CSV\" section in the API docs.",
+          "nickname": "import_differentiation_tags",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "There are two ways to post differentiation tag import data - either via a\nmultipart/form-data form-field-style attachment, or via a non-multipart\nraw post request.\n\n'attachment' is required for multipart/form-data style posts. Assumed to\nbe tag data from a file upload form field named 'attachment'.\n\nExamples:\n  curl -F attachment=@<filename> -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/group_categories/import_tags'\n\nIf you decide to do a raw post, you can skip the 'attachment' argument,\nbut you will then be required to provide a suitable Content-Type header.\nYou are encouraged to also provide the 'extension' argument.\n\nExamples:\n  curl -H 'Content-Type: text/csv' --data-binary @<filename>.csv \\\n      -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/group_categories_tags'",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Progress"
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}/import",
+      "description": "Create Groups in a Group Category through a CSV import\n\nFor more information on the format that's expected here, please see the\n\"Group Category CSV\" section in the API docs.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Import category groups",
+          "notes": "Create Groups in a Group Category through a CSV import\n\nFor more information on the format that's expected here, please see the\n\"Group Category CSV\" section in the API docs.",
+          "nickname": "import_category_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "There are two ways to post group category import data - either via a\nmultipart/form-data form-field-style attachment, or via a non-multipart\nraw post request.\n\n'attachment' is required for multipart/form-data style posts. Assumed to\nbe outcome data from a file upload form field named 'attachment'.\n\nExamples:\n  curl -F attachment=@<filename> -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/group_categories/<category_id>/import'\n\nIf you decide to do a raw post, you can skip the 'attachment' argument,\nbut you will then be required to provide a suitable Content-Type header.\nYou are encouraged to also provide the 'extension' argument.\n\nExamples:\n  curl -H 'Content-Type: text/csv' --data-binary @<filename>.csv \\\n      -H \"Authorization: Bearer <token>\" \\\n      'https://<canvas>/api/v1/group_categories/<category_id>/import'",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Progress"
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}",
+      "description": "Modifies an existing group category.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a Group Category",
+          "notes": "Modifies an existing group category.",
+          "nickname": "update_group_category",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "name",
+              "description": "Name of the group category",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "self_signup",
+              "description": "Allow students to sign up for a group themselves (Course Only).\nValid values are:\n\"enabled\":: allows students to self sign up for any group in course\n\"restricted\":: allows students to self sign up only for groups in the\n               same section null disallows self sign up",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "enabled",
+                "restricted"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "auto_leader",
+              "description": "Assigns group leaders automatically when generating and allocating students to groups\nValid values are:\n\"first\":: the first student to be allocated to a group is the leader\n\"random\":: a random student from all members is chosen as the leader",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "first",
+                "random"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "group_limit",
+              "description": "Limit the maximum number of users in each group (Course Only). Requires\nself signup.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sis_group_category_id",
+              "description": "The unique SIS identifier.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "create_group_count",
+              "description": "Create this number of groups (Course Only).",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "split_group_count",
+              "description": "(Deprecated)\nCreate this number of groups, and evenly distribute students\namong them. not allowed with \"enable_self_signup\". because\nthe group assignment happens synchronously, it's recommended\nthat you instead use the assign_unassigned_members endpoint.\n(Course Only)",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "GroupCategory"
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}",
+      "description": "Deletes a group category and all groups under it. Protected group\ncategories can not be deleted, i.e. \"communities\" and \"student_organized\".",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a Group Category",
+          "notes": "Deletes a group category and all groups under it. Protected group\ncategories can not be deleted, i.e. \"communities\" and \"student_organized\".",
+          "nickname": "delete_group_category",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}/groups",
+      "description": "Returns a paginated list of groups in a group category",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List groups in group category",
+          "notes": "Returns a paginated list of groups in a group category",
+          "nickname": "list_groups_in_group_category",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Group"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}/export",
+      "description": "Returns a csv file of users in format ready to import.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "export groups in and users in category",
+          "notes": "Returns a csv file of users in format ready to import.",
+          "nickname": "export_groups_in_and_users_in_category",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/group_categories/export_tags",
+      "description": "Returns a csv file of users in format ready to import.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "export tags and users in course",
+          "notes": "Returns a csv file of users in format ready to import.",
+          "nickname": "export_tags_and_users_in_course",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}/users",
+      "description": "Returns a paginated list of users in the group category.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List users in group category",
+          "notes": "Returns a paginated list of users in the group category.",
+          "nickname": "list_users_in_group_category",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial name or full ID of the users to match and return in the results\nlist. Must be at least 3 characters.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "unassigned",
+              "description": "Set this value to true if you wish only to search unassigned users in the\ngroup category.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "User"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/group_categories/{group_category_id}/assign_unassigned_members",
+      "description": "Assign all unassigned members as evenly as possible among the existing\nstudent groups.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Assign unassigned members",
+          "notes": "Assign all unassigned members as evenly as possible among the existing\nstudent groups.",
+          "nickname": "assign_unassigned_members",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_category_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sync",
+              "description": "The assigning is done asynchronously by default. If you would like to\noverride this and have the assigning done synchronously, set this value\nto true.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "GroupMembership | Progress"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "GroupCategory": {
+      "id": "GroupCategory",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of the group category.",
+          "example": 17,
+          "type": "integer"
+        },
+        "name": {
+          "description": "The display name of the group category.",
+          "example": "Math Groups",
+          "type": "string"
+        },
+        "role": {
+          "description": "Certain types of group categories have special role designations. Currently, these include: 'communities', 'student_organized', and 'imported'. Regular course/account group categories have a role of null.",
+          "example": "communities",
+          "type": "string"
+        },
+        "self_signup": {
+          "description": "If the group category allows users to join a group themselves, thought they may only be a member of one group per group category at a time. Values include 'restricted', 'enabled', and null 'enabled' allows students to assign themselves to a group 'restricted' restricts them to only joining a group in their section null disallows students from joining groups",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "restricted",
+              "enabled"
+            ]
+          }
+        },
+        "auto_leader": {
+          "description": "Gives instructors the ability to automatically have group leaders assigned.  Values include 'random', 'first', and null; 'random' picks a student from the group at random as the leader, 'first' sets the first student to be assigned to the group as the leader",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "first",
+              "random"
+            ]
+          }
+        },
+        "context_type": {
+          "description": "The course or account that the category group belongs to. The pattern here is that whatever the context_type is, there will be an _id field named after that type. So if instead context_type was 'Course', the course_id field would be replaced by an course_id field.",
+          "example": "Account",
+          "type": "string"
+        },
+        "account_id": {
+          "example": 3,
+          "type": "integer"
+        },
+        "group_limit": {
+          "description": "If self-signup is enabled, group_limit can be set to cap the number of users in each group. If null, there is no limit.",
+          "type": "integer"
+        },
+        "sis_group_category_id": {
+          "description": "The SIS identifier for the group category. This field is only included if the user has permission to manage or view SIS information.",
+          "type": "string"
+        },
+        "sis_import_id": {
+          "description": "The unique identifier for the SIS import. This field is only included if the user has permission to manage SIS information.",
+          "type": "integer"
+        },
+        "progress": {
+          "description": "If the group category has not yet finished a randomly student assignment request, a progress object will be attached, which will contain information related to the progress of the assignment request. Refer to the Progress API for more information",
+          "$ref": "Progress"
+        },
+        "non_collaborative": {
+          "description": "Indicates whether this group category is non-collaborative. A value of true means these group categories rely on the manage_tags permissions and do not have collaborative features",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

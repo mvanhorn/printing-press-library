@@ -1,0 +1,778 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/media_objects",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/media_objects/{media_object_id}/media_tracks",
+      "description": "List the media tracks associated with a media object or attachment",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List media tracks for a Media Object or Attachment",
+          "notes": "List the media tracks associated with a media object or attachment",
+          "nickname": "list_media_tracks_for_media_object_or_attachment_media_objects",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "media_object_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "By default, index returns id, locale, kind, media_object_id, and user_id for each of the\nresult MediaTracks. Use include[] to\nadd additional fields. For example include[]=content",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "content",
+                "webvtt_content",
+                "updated_at",
+                "created_at"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaTrack"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_attachments/{attachment_id}/media_tracks",
+      "description": "List the media tracks associated with a media object or attachment",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List media tracks for a Media Object or Attachment",
+          "notes": "List the media tracks associated with a media object or attachment",
+          "nickname": "list_media_tracks_for_media_object_or_attachment_media_attachments",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "attachment_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "By default, index returns id, locale, kind, media_object_id, and user_id for each of the\nresult MediaTracks. Use include[] to\nadd additional fields. For example include[]=content",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "content",
+                "webvtt_content",
+                "updated_at",
+                "created_at"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaTrack"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_objects/{media_object_id}/media_tracks",
+      "description": "Replace the media tracks associated with a media object or attachment with\nthe array of tracks provided in the body.\nUpdate will\ndelete any existing tracks not listed,\nleave untouched any tracks with no content field,\nand update or create tracks with a content field.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update Media Tracks",
+          "notes": "Replace the media tracks associated with a media object or attachment with\nthe array of tracks provided in the body.\nUpdate will\ndelete any existing tracks not listed,\nleave untouched any tracks with no content field,\nand update or create tracks with a content field.",
+          "nickname": "update_media_tracks_media_objects",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "media_object_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "include",
+              "description": "By default, an update returns id, locale, kind, media_object_id, and user_id for each of the\nresult MediaTracks. Use include[] to\nadd additional fields. For example include[]=content",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "content",
+                "webvtt_content",
+                "updated_at",
+                "created_at"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaTrack"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_attachments/{attachment_id}/media_tracks",
+      "description": "Replace the media tracks associated with a media object or attachment with\nthe array of tracks provided in the body.\nUpdate will\ndelete any existing tracks not listed,\nleave untouched any tracks with no content field,\nand update or create tracks with a content field.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update Media Tracks",
+          "notes": "Replace the media tracks associated with a media object or attachment with\nthe array of tracks provided in the body.\nUpdate will\ndelete any existing tracks not listed,\nleave untouched any tracks with no content field,\nand update or create tracks with a content field.",
+          "nickname": "update_media_tracks_media_attachments",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "attachment_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "include",
+              "description": "By default, an update returns id, locale, kind, media_object_id, and user_id for each of the\nresult MediaTracks. Use include[] to\nadd additional fields. For example include[]=content",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "content",
+                "webvtt_content",
+                "updated_at",
+                "created_at"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaTrack"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_objects",
+      "description": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Media Objects",
+          "notes": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+          "nickname": "list_media_objects_media_objects",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Field to sort on. Default is \"title\"\n\ntitle:: sorts on user_entered_title if available, title if not.\n\ncreated_at:: sorts on the object's creation time.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "Sort direction. Default is \"asc\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of data to exclude. By excluding \"sources\" and \"tracks\",\nthe api will not need to query kaltura, which greatly\nspeeds up its response.\n\nsources:: Do not query kaltura for media_sources\ntracks:: Do not query kaltura for media_tracks",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "sources",
+                "tracks"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaObject"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/media_objects",
+      "description": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Media Objects",
+          "notes": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+          "nickname": "list_media_objects_courses_media_objects",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Field to sort on. Default is \"title\"\n\ntitle:: sorts on user_entered_title if available, title if not.\n\ncreated_at:: sorts on the object's creation time.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "Sort direction. Default is \"asc\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of data to exclude. By excluding \"sources\" and \"tracks\",\nthe api will not need to query kaltura, which greatly\nspeeds up its response.\n\nsources:: Do not query kaltura for media_sources\ntracks:: Do not query kaltura for media_tracks",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "sources",
+                "tracks"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaObject"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/media_objects",
+      "description": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Media Objects",
+          "notes": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+          "nickname": "list_media_objects_groups_media_objects",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Field to sort on. Default is \"title\"\n\ntitle:: sorts on user_entered_title if available, title if not.\n\ncreated_at:: sorts on the object's creation time.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "Sort direction. Default is \"asc\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of data to exclude. By excluding \"sources\" and \"tracks\",\nthe api will not need to query kaltura, which greatly\nspeeds up its response.\n\nsources:: Do not query kaltura for media_sources\ntracks:: Do not query kaltura for media_tracks",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "sources",
+                "tracks"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaObject"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_attachments",
+      "description": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Media Objects",
+          "notes": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+          "nickname": "list_media_objects_media_attachments",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Field to sort on. Default is \"title\"\n\ntitle:: sorts on user_entered_title if available, title if not.\n\ncreated_at:: sorts on the object's creation time.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "Sort direction. Default is \"asc\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of data to exclude. By excluding \"sources\" and \"tracks\",\nthe api will not need to query kaltura, which greatly\nspeeds up its response.\n\nsources:: Do not query kaltura for media_sources\ntracks:: Do not query kaltura for media_tracks",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "sources",
+                "tracks"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaObject"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/media_attachments",
+      "description": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Media Objects",
+          "notes": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+          "nickname": "list_media_objects_courses_media_attachments",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Field to sort on. Default is \"title\"\n\ntitle:: sorts on user_entered_title if available, title if not.\n\ncreated_at:: sorts on the object's creation time.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "Sort direction. Default is \"asc\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of data to exclude. By excluding \"sources\" and \"tracks\",\nthe api will not need to query kaltura, which greatly\nspeeds up its response.\n\nsources:: Do not query kaltura for media_sources\ntracks:: Do not query kaltura for media_tracks",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "sources",
+                "tracks"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaObject"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/media_attachments",
+      "description": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List Media Objects",
+          "notes": "Returns media objects created by the user making the request. When\nusing the second version, returns media objects associated with\nthe given course.",
+          "nickname": "list_media_objects_groups_media_attachments",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Field to sort on. Default is \"title\"\n\ntitle:: sorts on user_entered_title if available, title if not.\n\ncreated_at:: sorts on the object's creation time.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "Sort direction. Default is \"asc\"",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "exclude",
+              "description": "Array of data to exclude. By excluding \"sources\" and \"tracks\",\nthe api will not need to query kaltura, which greatly\nspeeds up its response.\n\nsources:: Do not query kaltura for media_sources\ntracks:: Do not query kaltura for media_tracks",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "sources",
+                "tracks"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "MediaObject"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_objects/{media_object_id}",
+      "description": "Updates the title of a media object.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update Media Object",
+          "notes": "Updates the title of a media object.",
+          "nickname": "update_media_object_media_objects",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "media_object_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user_entered_title",
+              "description": "The new title.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "viewer_restrictions",
+              "description": "A JSON object describing viewer access restrictions for this media.\n- show_rolling_transcript [Optional, Boolean]: Whether to show the rolling transcripts of the media during playback, or not.",
+              "type": "Hash",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/media_attachments/{attachment_id}",
+      "description": "Updates the title of a media object.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update Media Object",
+          "notes": "Updates the title of a media object.",
+          "nickname": "update_media_object_media_attachments",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "attachment_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "user_entered_title",
+              "description": "The new title.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "viewer_restrictions",
+              "description": "A JSON object describing viewer access restrictions for this media.\n- show_rolling_transcript [Optional, Boolean]: Whether to show the rolling transcripts of the media during playback, or not.",
+              "type": "Hash",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "MediaTrack": {
+      "id": "MediaTrack",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": "",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "media_object_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "locale": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "webvtt_content": {
+          "type": "string"
+        }
+      }
+    },
+    "MediaObject": {
+      "id": "MediaObject",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": "",
+      "properties": {
+        "can_add_captions": {
+          "type": "boolean"
+        },
+        "user_entered_title": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "media_id": {
+          "type": "string"
+        },
+        "media_type": {
+          "type": "string"
+        },
+        "media_tracks": {
+          "type": "string"
+        },
+        "media_sources": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

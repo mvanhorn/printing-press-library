@@ -1,0 +1,99 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/announcements",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/announcements",
+      "description": "Returns the paginated list of announcements for the given courses and date range.  Note that\na +context_code+ field is added to the responses so you can tell which course each announcement\nbelongs to.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List announcements",
+          "notes": "Returns the paginated list of announcements for the given courses and date range.  Note that\na +context_code+ field is added to the responses so you can tell which course each announcement\nbelongs to.",
+          "nickname": "list_announcements",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "context_codes",
+              "description": "List of context_codes to retrieve announcements for (for example, +course_123+). Only courses\nare presently supported. The call will fail unless the caller has View Announcements permission\nin all listed courses.",
+              "type": "array",
+              "format": null,
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "start_date",
+              "description": "Only return announcements posted since the start_date (inclusive).\nDefaults to 14 days ago. The value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "end_date",
+              "description": "Only return announcements posted before the end_date (inclusive).\nDefaults to 28 days from start_date. The value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.\nAnnouncements scheduled for future posting will only be returned to course administrators.",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "available_after",
+              "description": "Only return announcements having locked_at nil or after available_after (exclusive).\nThe value should be formatted as: yyyy-mm-dd or ISO 8601 YYYY-MM-DDTHH:MM:SSZ.\nEffective only for students (who don't have moderate forum right).",
+              "type": "Date",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "active_only",
+              "description": "Only return active announcements that have been published.\nApplies only to requesting users that have permission to view\nunpublished items.\nDefaults to false for users with access to view unpublished items,\notherwise true and unmodifiable.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "latest_only",
+              "description": "Only return the latest announcement for each associated context.\nThe response will include at most one announcement for each\nspecified context in the context_codes[] parameter.\nDefaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "Optional list of resources to include with the response. May include\na string of the name of the resource. Possible values are:\n\"sections\", \"sections_user_count\"\nif \"sections\" is passed, includes the course sections that are associated\nwith the topic, if the topic is specific to certain sections of the course.\nIf \"sections_user_count\" is passed, then:\n  (a) If sections were asked for *and* the topic is specific to certain\n      course sections sections, includes the number of users in each\n      section. (as part of the section json asked for above)\n  (b) Else, includes at the root level the total number of users in the\n      topic's context (group or course) that the topic applies to.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "DiscussionTopic"
+          }
+        }
+      ]
+    }
+  ],
+  "models": {}
+}

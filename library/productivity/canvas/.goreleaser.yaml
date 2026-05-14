@@ -1,0 +1,51 @@
+version: 2
+project_name: canvas-lms-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: canvas-lms-pp-cli
+    main: ./cmd/canvas-lms-pp-cli
+    binary: canvas-lms-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X canvas-lms-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: canvas-lms-pp-mcp
+    main: ./cmd/canvas-lms-pp-mcp
+    binary: canvas-lms-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: canvas-lms-pp-cli
+    repository:
+      owner: martin
+      name: homebrew-tap
+    homepage: "https://github.com/martin/canvas-lms-pp-cli"
+    description: "The first Canvas CLI that handles pagination, works across all your courses at once, and tells you what to work on next."
+    install: |
+      bin.install "canvas-lms-pp-cli"
+      bin.install "canvas-lms-pp-mcp"

@@ -1,0 +1,1496 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/pages",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/front_page",
+      "description": "Retrieve the content of the front page",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show front page",
+          "notes": "Retrieve the content of the front page",
+          "nickname": "show_front_page_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/front_page",
+      "description": "Retrieve the content of the front page",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show front page",
+          "notes": "Retrieve the content of the front page",
+          "nickname": "show_front_page_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}/duplicate",
+      "description": "Duplicate a wiki page",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Duplicate page",
+          "notes": "Duplicate a wiki page",
+          "nickname": "duplicate_page",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/front_page",
+      "description": "Update the title or contents of the front page",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update/create front page",
+          "notes": "Update the title or contents of the front page",
+          "nickname": "update_create_front_page_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[title]",
+              "description": "The title for the new page. NOTE: changing a page's title will change its\nurl. The updated url will be returned in the result.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[body]",
+              "description": "The content for the new page.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[editing_roles]",
+              "description": "Which user roles are allowed to edit this page. Any combination\nof these roles is allowed (separated by commas).\n\n\"teachers\":: Allows editing by teachers in the course.\n\"students\":: Allows editing by students in the course.\n\"members\":: For group wikis, allows editing by members of the group.\n\"public\":: Allows editing by any user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teachers",
+                "students",
+                "members",
+                "public"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[notify_of_update]",
+              "description": "Whether participants should be notified when this page changes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[published]",
+              "description": "Whether the page is published (true) or draft state (false).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/front_page",
+      "description": "Update the title or contents of the front page",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update/create front page",
+          "notes": "Update the title or contents of the front page",
+          "nickname": "update_create_front_page_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[title]",
+              "description": "The title for the new page. NOTE: changing a page's title will change its\nurl. The updated url will be returned in the result.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[body]",
+              "description": "The content for the new page.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[editing_roles]",
+              "description": "Which user roles are allowed to edit this page. Any combination\nof these roles is allowed (separated by commas).\n\n\"teachers\":: Allows editing by teachers in the course.\n\"students\":: Allows editing by students in the course.\n\"members\":: For group wikis, allows editing by members of the group.\n\"public\":: Allows editing by any user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teachers",
+                "students",
+                "members",
+                "public"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[notify_of_update]",
+              "description": "Whether participants should be notified when this page changes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[published]",
+              "description": "Whether the page is published (true) or draft state (false).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages",
+      "description": "A paginated list of the wiki pages associated with a course or group",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List pages",
+          "notes": "A paginated list of the wiki pages associated with a course or group",
+          "nickname": "list_pages_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Sort results by this field.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "The sorting order. Defaults to 'asc'.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial title of the pages to match and return.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "published",
+              "description": "If true, include only published paqes. If false, exclude published\npages. If not present, do not filter on published status.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"body\": Optionally include the page body with each Page.\nIf this is a block_editor page, returns the block_editor_attributes.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "body"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Page"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages",
+      "description": "A paginated list of the wiki pages associated with a course or group",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List pages",
+          "notes": "A paginated list of the wiki pages associated with a course or group",
+          "nickname": "list_pages_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort",
+              "description": "Sort results by this field.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "title",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "order",
+              "description": "The sorting order. Defaults to 'asc'.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial title of the pages to match and return.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "published",
+              "description": "If true, include only published paqes. If false, exclude published\npages. If not present, do not filter on published status.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "- \"body\": Optionally include the page body with each Page.\nIf this is a block_editor page, returns the block_editor_attributes.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "body"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "Page"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages",
+      "description": "Create a new wiki page",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create page",
+          "notes": "Create a new wiki page",
+          "nickname": "create_page_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[title]",
+              "description": "The title for the new page.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[body]",
+              "description": "The content for the new page.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[editing_roles]",
+              "description": "Which user roles are allowed to edit this page. Any combination\nof these roles is allowed (separated by commas).\n\n\"teachers\":: Allows editing by teachers in the course.\n\"students\":: Allows editing by students in the course.\n\"members\":: For group wikis, allows editing by members of the group.\n\"public\":: Allows editing by any user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teachers",
+                "students",
+                "members",
+                "public"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[notify_of_update]",
+              "description": "Whether participants should be notified when this page changes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[published]",
+              "description": "Whether the page is published (true) or draft state (false).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[front_page]",
+              "description": "Set an unhidden page as the front page (if true)",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[publish_at]",
+              "description": "Schedule a future date/time to publish the page. This will have no effect unless the\n\"Scheduled Page Publication\" feature is enabled in the account. If a future date is\nsupplied, the page will be unpublished and +wiki_page[published]+ will be ignored.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages",
+      "description": "Create a new wiki page",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create page",
+          "notes": "Create a new wiki page",
+          "nickname": "create_page_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[title]",
+              "description": "The title for the new page.",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[body]",
+              "description": "The content for the new page.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[editing_roles]",
+              "description": "Which user roles are allowed to edit this page. Any combination\nof these roles is allowed (separated by commas).\n\n\"teachers\":: Allows editing by teachers in the course.\n\"students\":: Allows editing by students in the course.\n\"members\":: For group wikis, allows editing by members of the group.\n\"public\":: Allows editing by any user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teachers",
+                "students",
+                "members",
+                "public"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[notify_of_update]",
+              "description": "Whether participants should be notified when this page changes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[published]",
+              "description": "Whether the page is published (true) or draft state (false).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[front_page]",
+              "description": "Set an unhidden page as the front page (if true)",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[publish_at]",
+              "description": "Schedule a future date/time to publish the page. This will have no effect unless the\n\"Scheduled Page Publication\" feature is enabled in the account. If a future date is\nsupplied, the page will be unpublished and +wiki_page[published]+ will be ignored.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}",
+      "description": "Retrieve the content of a wiki page",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show page",
+          "notes": "Retrieve the content of a wiki page",
+          "nickname": "show_page_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}",
+      "description": "Retrieve the content of a wiki page",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show page",
+          "notes": "Retrieve the content of a wiki page",
+          "nickname": "show_page_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}",
+      "description": "Update the title or contents of a wiki page\n\nNOTE: You cannot specify the ID when creating a page. If you pass a numeric value\nas the page identifier and that does not represent a page ID that already\nexists, it will be interpreted as a URL.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update/create page",
+          "notes": "Update the title or contents of a wiki page\n\nNOTE: You cannot specify the ID when creating a page. If you pass a numeric value\nas the page identifier and that does not represent a page ID that already\nexists, it will be interpreted as a URL.",
+          "nickname": "update_create_page_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[title]",
+              "description": "The title for the new page. NOTE: changing a page's title will change its\nurl. The updated url will be returned in the result.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[body]",
+              "description": "The content for the new page.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[editing_roles]",
+              "description": "Which user roles are allowed to edit this page. Any combination\nof these roles is allowed (separated by commas).\n\n\"teachers\":: Allows editing by teachers in the course.\n\"students\":: Allows editing by students in the course.\n\"members\":: For group wikis, allows editing by members of the group.\n\"public\":: Allows editing by any user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teachers",
+                "students",
+                "members",
+                "public"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[notify_of_update]",
+              "description": "Whether participants should be notified when this page changes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[published]",
+              "description": "Whether the page is published (true) or draft state (false).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[publish_at]",
+              "description": "Schedule a future date/time to publish the page. This will have no effect unless the\n\"Scheduled Page Publication\" feature is enabled in the account. If a future date is\nset and the page is already published, it will be unpublished.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[front_page]",
+              "description": "Set an unhidden page as the front page (if true)",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}",
+      "description": "Update the title or contents of a wiki page\n\nNOTE: You cannot specify the ID when creating a page. If you pass a numeric value\nas the page identifier and that does not represent a page ID that already\nexists, it will be interpreted as a URL.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update/create page",
+          "notes": "Update the title or contents of a wiki page\n\nNOTE: You cannot specify the ID when creating a page. If you pass a numeric value\nas the page identifier and that does not represent a page ID that already\nexists, it will be interpreted as a URL.",
+          "nickname": "update_create_page_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[title]",
+              "description": "The title for the new page. NOTE: changing a page's title will change its\nurl. The updated url will be returned in the result.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[body]",
+              "description": "The content for the new page.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[editing_roles]",
+              "description": "Which user roles are allowed to edit this page. Any combination\nof these roles is allowed (separated by commas).\n\n\"teachers\":: Allows editing by teachers in the course.\n\"students\":: Allows editing by students in the course.\n\"members\":: For group wikis, allows editing by members of the group.\n\"public\":: Allows editing by any user.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "teachers",
+                "students",
+                "members",
+                "public"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[notify_of_update]",
+              "description": "Whether participants should be notified when this page changes.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[published]",
+              "description": "Whether the page is published (true) or draft state (false).",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[publish_at]",
+              "description": "Schedule a future date/time to publish the page. This will have no effect unless the\n\"Scheduled Page Publication\" feature is enabled in the account. If a future date is\nset and the page is already published, it will be unpublished.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "wiki_page[front_page]",
+              "description": "Set an unhidden page as the front page (if true)",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}",
+      "description": "Delete a wiki page",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete page",
+          "notes": "Delete a wiki page",
+          "nickname": "delete_page_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}",
+      "description": "Delete a wiki page",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete page",
+          "notes": "Delete a wiki page",
+          "nickname": "delete_page_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "Page"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}/revisions",
+      "description": "A paginated list of the revisions of a page. Callers must have update rights on the page in order to see page history.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List revisions",
+          "notes": "A paginated list of the revisions of a page. Callers must have update rights on the page in order to see page history.",
+          "nickname": "list_revisions_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "PageRevision"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}/revisions",
+      "description": "A paginated list of the revisions of a page. Callers must have update rights on the page in order to see page history.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List revisions",
+          "notes": "A paginated list of the revisions of a page. Callers must have update rights on the page in order to see page history.",
+          "nickname": "list_revisions_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "PageRevision"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}/revisions/latest",
+      "description": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show revision",
+          "notes": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+          "nickname": "show_revision_courses_latest",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "summary",
+              "description": "If set, exclude page content from results",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PageRevision"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}/revisions/latest",
+      "description": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show revision",
+          "notes": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+          "nickname": "show_revision_groups_latest",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "summary",
+              "description": "If set, exclude page content from results",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PageRevision"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}/revisions/{revision_id}",
+      "description": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show revision",
+          "notes": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+          "nickname": "show_revision_courses_revision_id",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "revision_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "summary",
+              "description": "If set, exclude page content from results",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PageRevision"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}/revisions/{revision_id}",
+      "description": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Show revision",
+          "notes": "Retrieve the metadata and optionally content of a revision of the page.\nNote that retrieving historic versions of pages requires edit rights.",
+          "nickname": "show_revision_groups_revision_id",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "revision_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "summary",
+              "description": "If set, exclude page content from results",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PageRevision"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/pages/{url_or_id}/revisions/{revision_id}",
+      "description": "Revert a page to a prior revision.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Revert to revision",
+          "notes": "Revert a page to a prior revision.",
+          "nickname": "revert_to_revision_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "revision_id",
+              "description": "The revision to revert to (use the\n{api:WikiPagesApiController#revisions List Revisions API} to see\navailable revisions)",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PageRevision"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/pages/{url_or_id}/revisions/{revision_id}",
+      "description": "Revert a page to a prior revision.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Revert to revision",
+          "notes": "Revert a page to a prior revision.",
+          "nickname": "revert_to_revision_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "url_or_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "revision_id",
+              "description": "The revision to revert to (use the\n{api:WikiPagesApiController#revisions List Revisions API} to see\navailable revisions)",
+              "type": "integer",
+              "format": "int64",
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "PageRevision"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "Page": {
+      "id": "Page",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "page_id": {
+          "description": "the ID of the page",
+          "example": 1,
+          "type": "integer"
+        },
+        "url": {
+          "description": "the unique locator for the page",
+          "example": "my-page-title",
+          "type": "string"
+        },
+        "title": {
+          "description": "the title of the page",
+          "example": "My Page Title",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "the creation date for the page",
+          "example": "2012-08-06T16:46:33-06:00",
+          "type": "datetime"
+        },
+        "updated_at": {
+          "description": "the date the page was last updated",
+          "example": "2012-08-08T14:25:20-06:00",
+          "type": "datetime"
+        },
+        "hide_from_students": {
+          "description": "(DEPRECATED) whether this page is hidden from students (note: this is always reflected as the inverse of the published value)",
+          "example": false,
+          "type": "boolean"
+        },
+        "editing_roles": {
+          "description": "roles allowed to edit the page; comma-separated list comprising a combination of 'teachers', 'students', 'members', and/or 'public' if not supplied, course defaults are used",
+          "example": "teachers,students",
+          "type": "string"
+        },
+        "last_edited_by": {
+          "description": "the User who last edited the page (this may not be present if the page was imported from another system)",
+          "$ref": "User"
+        },
+        "body": {
+          "description": "the page content, in HTML (present when requesting a single page; optionally included when listing pages)",
+          "example": "<p>Page Content</p>",
+          "type": "string"
+        },
+        "published": {
+          "description": "whether the page is published (true) or draft state (false).",
+          "example": true,
+          "type": "boolean"
+        },
+        "publish_at": {
+          "description": "scheduled publication date for this page",
+          "example": "2022-09-01T00:00:00",
+          "type": "datetime"
+        },
+        "front_page": {
+          "description": "whether this page is the front page for the wiki",
+          "example": false,
+          "type": "boolean"
+        },
+        "locked_for_user": {
+          "description": "Whether or not this is locked for the user.",
+          "example": false,
+          "type": "boolean"
+        },
+        "lock_info": {
+          "description": "(Optional) Information for the user about the lock. Present when locked_for_user is true.",
+          "$ref": "LockInfo"
+        },
+        "lock_explanation": {
+          "description": "(Optional) An explanation of why this is locked for the user. Present when locked_for_user is true.",
+          "example": "This page is locked until September 1 at 12:00am",
+          "type": "string"
+        },
+        "editor": {
+          "description": "The editor used to create and edit this page. May be one of 'rce' or 'block_editor'.",
+          "example": "rce",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "rce",
+              "block_editor"
+            ]
+          }
+        },
+        "block_editor_attributes": {
+          "description": "The block editor attributes for this page. (optionally included, and only if this is a block editor created page)",
+          "example": {
+            "id": 278,
+            "version": "0.2",
+            "blocks": "{...block json here...}"
+          },
+          "type": "object"
+        }
+      }
+    },
+    "PageRevision": {
+      "id": "PageRevision",
+      "description": "",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "revision_id": {
+          "description": "an identifier for this revision of the page",
+          "example": 7,
+          "type": "integer"
+        },
+        "updated_at": {
+          "description": "the time when this revision was saved",
+          "example": "2012-08-07T11:23:58-06:00",
+          "type": "datetime"
+        },
+        "latest": {
+          "description": "whether this is the latest revision or not",
+          "example": true,
+          "type": "boolean"
+        },
+        "edited_by": {
+          "description": "the User who saved this revision, if applicable (this may not be present if the page was imported from another system)",
+          "$ref": "User"
+        },
+        "url": {
+          "description": "the following fields are not included in the index action and may be omitted from the show action via summary=1 the historic url of the page",
+          "example": "old-page-title",
+          "type": "string"
+        },
+        "title": {
+          "description": "the historic page title",
+          "example": "Old Page Title",
+          "type": "string"
+        },
+        "body": {
+          "description": "the historic page contents",
+          "example": "<p>Old Page Content</p>",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

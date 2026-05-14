@@ -1,0 +1,4127 @@
+{
+  "apiVersion": "1.0",
+  "swaggerVersion": "1.2",
+  "basePath": "https://canvas.instructure.com/api",
+  "resourcePath": "/discussion_topics",
+  "produces": [
+    "application/json"
+  ],
+  "apis": [
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics",
+      "description": "Returns the paginated list of discussion topics for this course or group.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List discussion topics",
+          "notes": "Returns the paginated list of discussion topics for this course or group.",
+          "nickname": "list_discussion_topics_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "If \"all_dates\" is passed, all dates associated with graded discussions'\nassignments will be included.\nif \"sections\" is passed, includes the course sections that are associated\nwith the topic, if the topic is specific to certain sections of the course.\nIf \"sections_user_count\" is passed, then:\n  (a) If sections were asked for *and* the topic is specific to certain\n      course sections, includes the number of users in each\n      section. (as part of the section json asked for above)\n  (b) Else, includes at the root level the total number of users in the\n      topic's context (group or course) that the topic applies to.\nIf \"overrides\" is passed, the overrides for the assignment will be included",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "all_dates",
+                "sections",
+                "sections_user_count",
+                "overrides"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "order_by",
+              "description": "Determines the order of the discussion topic list. Defaults to \"position\".",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "position",
+                "recent_activity",
+                "title"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "scope",
+              "description": "Only return discussion topics in the given state(s). Defaults to including\nall topics. Filtering is done after pagination, so pages\nmay be smaller than requested if topics are filtered.\nCan pass multiple states as comma separated string.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "locked",
+                "unlocked",
+                "pinned",
+                "unpinned"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "only_announcements",
+              "description": "Return announcements instead of discussion topics. Defaults to false",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "filter_by",
+              "description": "The state of the discussion topic to return. Currently only supports unread state.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "all",
+                "unread"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial title of the discussion topics to match and return.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "exclude_context_module_locked_topics",
+              "description": "For students, exclude topics that are locked by module progression.\nDefaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "DiscussionTopic"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics",
+      "description": "Returns the paginated list of discussion topics for this course or group.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List discussion topics",
+          "notes": "Returns the paginated list of discussion topics for this course or group.",
+          "nickname": "list_discussion_topics_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "If \"all_dates\" is passed, all dates associated with graded discussions'\nassignments will be included.\nif \"sections\" is passed, includes the course sections that are associated\nwith the topic, if the topic is specific to certain sections of the course.\nIf \"sections_user_count\" is passed, then:\n  (a) If sections were asked for *and* the topic is specific to certain\n      course sections, includes the number of users in each\n      section. (as part of the section json asked for above)\n  (b) Else, includes at the root level the total number of users in the\n      topic's context (group or course) that the topic applies to.\nIf \"overrides\" is passed, the overrides for the assignment will be included",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "all_dates",
+                "sections",
+                "sections_user_count",
+                "overrides"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "paramType": "query",
+              "name": "order_by",
+              "description": "Determines the order of the discussion topic list. Defaults to \"position\".",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "position",
+                "recent_activity",
+                "title"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "scope",
+              "description": "Only return discussion topics in the given state(s). Defaults to including\nall topics. Filtering is done after pagination, so pages\nmay be smaller than requested if topics are filtered.\nCan pass multiple states as comma separated string.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "locked",
+                "unlocked",
+                "pinned",
+                "unpinned"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "only_announcements",
+              "description": "Return announcements instead of discussion topics. Defaults to false",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "filter_by",
+              "description": "The state of the discussion topic to return. Currently only supports unread state.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "all",
+                "unread"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "search_term",
+              "description": "The partial title of the discussion topics to match and return.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "exclude_context_module_locked_topics",
+              "description": "For students, exclude topics that are locked by module progression.\nDefaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "array",
+          "items": {
+            "$ref": "DiscussionTopic"
+          }
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics",
+      "description": "Create an new discussion topic for the course or group.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a new discussion topic",
+          "notes": "Create an new discussion topic for the course or group.",
+          "nickname": "create_new_discussion_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "title",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "discussion_type",
+              "description": "The type of discussion. Defaults to side_comment or not_threaded if not value is given. Accepted values are 'side_comment', 'not_threaded' for discussions that only allow one level of nested comments, and 'threaded' for fully threaded discussions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "side_comment",
+                "threaded",
+                "not_threaded"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "published",
+              "description": "Whether this topic is published (true) or draft state (false). Only\nteachers and TAs have the ability to create draft state topics.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "delayed_post_at",
+              "description": "If a timestamp is given, the topic will not be published until that time.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "allow_rating",
+              "description": "Whether or not users can rate entries in this topic.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_at",
+              "description": "If a timestamp is given, the topic will be scheduled to lock at the\nprovided timestamp. If the timestamp is in the past, the topic will be\nlocked.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_enabled",
+              "description": "If true, the topic will have an associated podcast feed.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_has_student_posts",
+              "description": "If true, the podcast will include posts from students as well. Implies\npodcast_enabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "require_initial_post",
+              "description": "If true then a user may not respond to other replies until that user has\nmade an initial reply. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "assignment",
+              "description": "To create an assignment discussion, pass the assignment parameters as a\nsub-object. See the {api:AssignmentsApiController#create Create an Assignment API}\nfor the available parameters. The name parameter will be ignored, as it's\ntaken from the discussion title. If you want to make a discussion that was\nan assignment NOT an assignment, pass set_assignment = false as part of\nthe assignment object",
+              "type": "Assignment",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "is_announcement",
+              "description": "If true, this topic is an announcement. It will appear in the\nannouncement's section rather than the discussions section. This requires\nannouncment-posting permissions.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pinned",
+              "description": "If true, this topic will be listed in the \"Pinned Discussion\" section",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "position_after",
+              "description": "By default, discussions are sorted chronologically by creation date, you\ncan pass the id of another topic to have this one show up after the other\nwhen they are listed.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_category_id",
+              "description": "If present, the topic will become a group discussion assigned\nto the group.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "only_graders_can_rate",
+              "description": "If true, only graders will be allowed to rate entries.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order",
+              "description": "Default sort order of the discussion. Accepted values are \"asc\", \"desc\".",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order_locked",
+              "description": "If true, users cannot choose their prefered sort order",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded",
+              "description": "If true, thread will be expanded by default",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded_locked",
+              "description": "If true, users cannot choose their prefered thread expansion setting",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_by_rating",
+              "description": "(DEPRECATED) If true, entries will be sorted by rating.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "A multipart/form-data form-field-style attachment.\nAttachments larger than 1 kilobyte are subject to quota restrictions.",
+              "type": "File",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "specific_sections",
+              "description": "A comma-separated list of sections ids to which the discussion topic\nshould be made specific to.  If it is not desired to make the discussion\ntopic specific to sections, then this parameter may be omitted or set to\n\"all\".  Can only be present only on announcements and only those that are\nfor a course (as opposed to a group).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_comment",
+              "description": "If is_announcement and lock_comment are true, ‘Allow Participants to Comment’ setting is disabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics",
+      "description": "Create an new discussion topic for the course or group.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Create a new discussion topic",
+          "notes": "Create an new discussion topic for the course or group.",
+          "nickname": "create_new_discussion_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "title",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "discussion_type",
+              "description": "The type of discussion. Defaults to side_comment or not_threaded if not value is given. Accepted values are 'side_comment', 'not_threaded' for discussions that only allow one level of nested comments, and 'threaded' for fully threaded discussions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "side_comment",
+                "threaded",
+                "not_threaded"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "published",
+              "description": "Whether this topic is published (true) or draft state (false). Only\nteachers and TAs have the ability to create draft state topics.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "delayed_post_at",
+              "description": "If a timestamp is given, the topic will not be published until that time.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "allow_rating",
+              "description": "Whether or not users can rate entries in this topic.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_at",
+              "description": "If a timestamp is given, the topic will be scheduled to lock at the\nprovided timestamp. If the timestamp is in the past, the topic will be\nlocked.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_enabled",
+              "description": "If true, the topic will have an associated podcast feed.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_has_student_posts",
+              "description": "If true, the podcast will include posts from students as well. Implies\npodcast_enabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "require_initial_post",
+              "description": "If true then a user may not respond to other replies until that user has\nmade an initial reply. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "assignment",
+              "description": "To create an assignment discussion, pass the assignment parameters as a\nsub-object. See the {api:AssignmentsApiController#create Create an Assignment API}\nfor the available parameters. The name parameter will be ignored, as it's\ntaken from the discussion title. If you want to make a discussion that was\nan assignment NOT an assignment, pass set_assignment = false as part of\nthe assignment object",
+              "type": "Assignment",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "is_announcement",
+              "description": "If true, this topic is an announcement. It will appear in the\nannouncement's section rather than the discussions section. This requires\nannouncment-posting permissions.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pinned",
+              "description": "If true, this topic will be listed in the \"Pinned Discussion\" section",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "position_after",
+              "description": "By default, discussions are sorted chronologically by creation date, you\ncan pass the id of another topic to have this one show up after the other\nwhen they are listed.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_category_id",
+              "description": "If present, the topic will become a group discussion assigned\nto the group.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "only_graders_can_rate",
+              "description": "If true, only graders will be allowed to rate entries.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order",
+              "description": "Default sort order of the discussion. Accepted values are \"asc\", \"desc\".",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order_locked",
+              "description": "If true, users cannot choose their prefered sort order",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded",
+              "description": "If true, thread will be expanded by default",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded_locked",
+              "description": "If true, users cannot choose their prefered thread expansion setting",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_by_rating",
+              "description": "(DEPRECATED) If true, entries will be sorted by rating.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "A multipart/form-data form-field-style attachment.\nAttachments larger than 1 kilobyte are subject to quota restrictions.",
+              "type": "File",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "specific_sections",
+              "description": "A comma-separated list of sections ids to which the discussion topic\nshould be made specific to.  If it is not desired to make the discussion\ntopic specific to sections, then this parameter may be omitted or set to\n\"all\".  Can only be present only on announcements and only those that are\nfor a course (as opposed to a group).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_comment",
+              "description": "If is_announcement and lock_comment are true, ‘Allow Participants to Comment’ setting is disabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}",
+      "description": "Update an existing discussion topic for the course or group.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a topic",
+          "notes": "Update an existing discussion topic for the course or group.",
+          "nickname": "update_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "title",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "discussion_type",
+              "description": "The type of discussion. Defaults to side_comment or not_threaded if not value is given. Accepted values are 'side_comment', 'not_threaded' for discussions that only allow one level of nested comments, and 'threaded' for fully threaded discussions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "side_comment",
+                "threaded",
+                "not_threaded"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "published",
+              "description": "Whether this topic is published (true) or draft state (false). Only\nteachers and TAs have the ability to create draft state topics.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "delayed_post_at",
+              "description": "If a timestamp is given, the topic will not be published until that time.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_at",
+              "description": "If a timestamp is given, the topic will be scheduled to lock at the\nprovided timestamp. If the timestamp is in the past, the topic will be\nlocked.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_enabled",
+              "description": "If true, the topic will have an associated podcast feed.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_has_student_posts",
+              "description": "If true, the podcast will include posts from students as well. Implies\npodcast_enabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "require_initial_post",
+              "description": "If true then a user may not respond to other replies until that user has\nmade an initial reply. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "assignment",
+              "description": "To create an assignment discussion, pass the assignment parameters as a\nsub-object. See the {api:AssignmentsApiController#create Create an Assignment API}\nfor the available parameters. The name parameter will be ignored, as it's\ntaken from the discussion title. If you want to make a discussion that was\nan assignment NOT an assignment, pass set_assignment = false as part of\nthe assignment object",
+              "type": "Assignment",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "is_announcement",
+              "description": "If true, this topic is an announcement. It will appear in the\nannouncement's section rather than the discussions section. This requires\nannouncment-posting permissions.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pinned",
+              "description": "If true, this topic will be listed in the \"Pinned Discussion\" section",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "position_after",
+              "description": "By default, discussions are sorted chronologically by creation date, you\ncan pass the id of another topic to have this one show up after the other\nwhen they are listed.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_category_id",
+              "description": "If present, the topic will become a group discussion assigned\nto the group.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "allow_rating",
+              "description": "If true, users will be allowed to rate entries.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "only_graders_can_rate",
+              "description": "If true, only graders will be allowed to rate entries.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order",
+              "description": "Default sort order of the discussion. Accepted values are \"asc\", \"desc\".",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order_locked",
+              "description": "If true, users cannot choose their prefered sort order",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded",
+              "description": "If true, thread will be expanded by default",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded_locked",
+              "description": "If true, users cannot choose their prefered thread expansion setting",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_by_rating",
+              "description": "(DEPRECATED) If true, entries will be sorted by rating.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "specific_sections",
+              "description": "A comma-separated list of sections ids to which the discussion topic\nshould be made specific too.  If it is not desired to make the discussion\ntopic specific to sections, then this parameter may be omitted or set to\n\"all\".  Can only be present only on announcements and only those that are\nfor a course (as opposed to a group).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_comment",
+              "description": "If is_announcement and lock_comment are true, ‘Allow Participants to Comment’ setting is disabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}",
+      "description": "Update an existing discussion topic for the course or group.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update a topic",
+          "notes": "Update an existing discussion topic for the course or group.",
+          "nickname": "update_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "title",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "no description",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "discussion_type",
+              "description": "The type of discussion. Defaults to side_comment or not_threaded if not value is given. Accepted values are 'side_comment', 'not_threaded' for discussions that only allow one level of nested comments, and 'threaded' for fully threaded discussions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "side_comment",
+                "threaded",
+                "not_threaded"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "published",
+              "description": "Whether this topic is published (true) or draft state (false). Only\nteachers and TAs have the ability to create draft state topics.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "delayed_post_at",
+              "description": "If a timestamp is given, the topic will not be published until that time.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_at",
+              "description": "If a timestamp is given, the topic will be scheduled to lock at the\nprovided timestamp. If the timestamp is in the past, the topic will be\nlocked.",
+              "type": "DateTime",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_enabled",
+              "description": "If true, the topic will have an associated podcast feed.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "podcast_has_student_posts",
+              "description": "If true, the podcast will include posts from students as well. Implies\npodcast_enabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "require_initial_post",
+              "description": "If true then a user may not respond to other replies until that user has\nmade an initial reply. Defaults to false.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "assignment",
+              "description": "To create an assignment discussion, pass the assignment parameters as a\nsub-object. See the {api:AssignmentsApiController#create Create an Assignment API}\nfor the available parameters. The name parameter will be ignored, as it's\ntaken from the discussion title. If you want to make a discussion that was\nan assignment NOT an assignment, pass set_assignment = false as part of\nthe assignment object",
+              "type": "Assignment",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "is_announcement",
+              "description": "If true, this topic is an announcement. It will appear in the\nannouncement's section rather than the discussions section. This requires\nannouncment-posting permissions.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "pinned",
+              "description": "If true, this topic will be listed in the \"Pinned Discussion\" section",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "position_after",
+              "description": "By default, discussions are sorted chronologically by creation date, you\ncan pass the id of another topic to have this one show up after the other\nwhen they are listed.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "group_category_id",
+              "description": "If present, the topic will become a group discussion assigned\nto the group.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "allow_rating",
+              "description": "If true, users will be allowed to rate entries.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "only_graders_can_rate",
+              "description": "If true, only graders will be allowed to rate entries.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order",
+              "description": "Default sort order of the discussion. Accepted values are \"asc\", \"desc\".",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            },
+            {
+              "paramType": "form",
+              "name": "sort_order_locked",
+              "description": "If true, users cannot choose their prefered sort order",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded",
+              "description": "If true, thread will be expanded by default",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "expanded_locked",
+              "description": "If true, users cannot choose their prefered thread expansion setting",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "sort_by_rating",
+              "description": "(DEPRECATED) If true, entries will be sorted by rating.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "specific_sections",
+              "description": "A comma-separated list of sections ids to which the discussion topic\nshould be made specific too.  If it is not desired to make the discussion\ntopic specific to sections, then this parameter may be omitted or set to\n\"all\".  Can only be present only on announcements and only those that are\nfor a course (as opposed to a group).",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "lock_comment",
+              "description": "If is_announcement and lock_comment are true, ‘Allow Participants to Comment’ setting is disabled.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}",
+      "description": "Deletes the discussion topic. This will also delete the assignment, if it's\nan assignment discussion.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a topic",
+          "notes": "Deletes the discussion topic. This will also delete the assignment, if it's\nan assignment discussion.",
+          "nickname": "delete_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}",
+      "description": "Deletes the discussion topic. This will also delete the assignment, if it's\nan assignment discussion.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete a topic",
+          "notes": "Deletes the discussion topic. This will also delete the assignment, if it's\nan assignment discussion.",
+          "nickname": "delete_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/reorder",
+      "description": "Puts the pinned discussion topics in the specified order.\nAll pinned topics should be included.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Reorder pinned topics",
+          "notes": "Puts the pinned discussion topics in the specified order.\nAll pinned topics should be included.",
+          "nickname": "reorder_pinned_topics_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "order",
+              "description": "The ids of the pinned discussion topics in the desired order.\n(For example, \"order=104,102,103\".)",
+              "type": "array",
+              "format": "int64",
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/reorder",
+      "description": "Puts the pinned discussion topics in the specified order.\nAll pinned topics should be included.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Reorder pinned topics",
+          "notes": "Puts the pinned discussion topics in the specified order.\nAll pinned topics should be included.",
+          "nickname": "reorder_pinned_topics_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "order",
+              "description": "The ids of the pinned discussion topics in the desired order.\n(For example, \"order=104,102,103\".)",
+              "type": "array",
+              "format": "int64",
+              "required": true,
+              "deprecated": false,
+              "items": {
+                "type": "integer"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{id}",
+      "description": "Update an existing discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the edit is not allowed, a 401 will be returned.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update an entry",
+          "notes": "Update an existing discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the edit is not allowed, a 401 will be returned.",
+          "nickname": "update_entry_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "The updated body of the entry.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{id}",
+      "description": "Update an existing discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the edit is not allowed, a 401 will be returned.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Update an entry",
+          "notes": "Update an existing discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the edit is not allowed, a 401 will be returned.",
+          "nickname": "update_entry_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "The updated body of the entry.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{id}",
+      "description": "Delete a discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the delete is not allowed, a 401 will be returned.\n\nThe discussion will be marked deleted, and the user_id and message will be cleared out.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete an entry",
+          "notes": "Delete a discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the delete is not allowed, a 401 will be returned.\n\nThe discussion will be marked deleted, and the user_id and message will be cleared out.",
+          "nickname": "delete_entry_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{id}",
+      "description": "Delete a discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the delete is not allowed, a 401 will be returned.\n\nThe discussion will be marked deleted, and the user_id and message will be cleared out.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Delete an entry",
+          "notes": "Delete a discussion entry.\n\nThe entry must have been created by the current user, or the current user\nmust have admin rights to the discussion. If the delete is not allowed, a 401 will be returned.\n\nThe discussion will be marked deleted, and the user_id and message will be cleared out.",
+          "nickname": "delete_entry_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}",
+      "description": "Returns data on an individual discussion topic. See the List action for the response formatting.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single topic",
+          "notes": "Returns data on an individual discussion topic. See the List action for the response formatting.",
+          "nickname": "get_single_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "If \"all_dates\" is passed, all dates associated with graded discussions'\nassignments will be included.\nif \"sections\" is passed, includes the course sections that are associated\nwith the topic, if the topic is specific to certain sections of the course.\nIf \"sections_user_count\" is passed, then:\n  (a) If sections were asked for *and* the topic is specific to certain\n      course sections, includes the number of users in each\n      section. (as part of the section json asked for above)\n  (b) Else, includes at the root level the total number of users in the\n      topic's context (group or course) that the topic applies to.\nIf \"overrides\" is passed, the overrides for the assignment will be included",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "all_dates",
+                "sections",
+                "sections_user_count",
+                "overrides"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}",
+      "description": "Returns data on an individual discussion topic. See the List action for the response formatting.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get a single topic",
+          "notes": "Returns data on an individual discussion topic. See the List action for the response formatting.",
+          "nickname": "get_single_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "include",
+              "description": "If \"all_dates\" is passed, all dates associated with graded discussions'\nassignments will be included.\nif \"sections\" is passed, includes the course sections that are associated\nwith the topic, if the topic is specific to certain sections of the course.\nIf \"sections_user_count\" is passed, then:\n  (a) If sections were asked for *and* the topic is specific to certain\n      course sections, includes the number of users in each\n      section. (as part of the section json asked for above)\n  (b) Else, includes at the root level the total number of users in the\n      topic's context (group or course) that the topic applies to.\nIf \"overrides\" is passed, the overrides for the assignment will be included",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "enum": [
+                "all_dates",
+                "sections",
+                "sections_user_count",
+                "overrides"
+              ],
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/summaries",
+      "description": "Returns:\n(1) last userInput (what current user had keyed in to produce the last discussion summary),\n(2) last discussion summary generated by the current user for current discussion topic, based on userInput,\n(3) and some usage information.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Find Last Summary",
+          "notes": "Returns:\n(1) last userInput (what current user had keyed in to produce the last discussion summary),\n(2) last discussion summary generated by the current user for current discussion topic, based on userInput,\n(3) and some usage information.",
+          "nickname": "find_last_summary_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/summaries",
+      "description": "Returns:\n(1) last userInput (what current user had keyed in to produce the last discussion summary),\n(2) last discussion summary generated by the current user for current discussion topic, based on userInput,\n(3) and some usage information.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Find Last Summary",
+          "notes": "Returns:\n(1) last userInput (what current user had keyed in to produce the last discussion summary),\n(2) last discussion summary generated by the current user for current discussion topic, based on userInput,\n(3) and some usage information.",
+          "nickname": "find_last_summary_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/summaries",
+      "description": "Generates a summary for a discussion topic. Returns the summary text and usage information.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Find or Create Summary",
+          "notes": "Generates a summary for a discussion topic. Returns the summary text and usage information.",
+          "nickname": "find_or_create_summary_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "userInput",
+              "description": "Areas or topics for the summary to focus on.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/summaries",
+      "description": "Generates a summary for a discussion topic. Returns the summary text and usage information.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Find or Create Summary",
+          "notes": "Generates a summary for a discussion topic. Returns the summary text and usage information.",
+          "nickname": "find_or_create_summary_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "userInput",
+              "description": "Areas or topics for the summary to focus on.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/summaries/disable",
+      "description": "Deprecated, to remove after VICE-5047 gets merged\nDisables the summary for a discussion topic.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Disable summary",
+          "notes": "Deprecated, to remove after VICE-5047 gets merged\nDisables the summary for a discussion topic.",
+          "nickname": "disable_summary_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/summaries/disable",
+      "description": "Deprecated, to remove after VICE-5047 gets merged\nDisables the summary for a discussion topic.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Disable summary",
+          "notes": "Deprecated, to remove after VICE-5047 gets merged\nDisables the summary for a discussion topic.",
+          "nickname": "disable_summary_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/summaries/{summary_id}/feedback",
+      "description": "Persists feedback on a discussion topic summary.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Summary Feedback",
+          "notes": "Persists feedback on a discussion topic summary.",
+          "nickname": "summary_feedback_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "summary_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "_action",
+              "description": "Required\nThe action to take on the summary. Possible values are:\n- \"seen\": Marks the summary as seen. This action saves the feedback if it's not already persisted.\n- \"like\": Marks the summary as liked.\n- \"dislike\": Marks the summary as disliked.\n- \"add_comment\": Adds a written comment to a disliked summary. Requires the \"comment\" parameter.\n- \"reset_like\": Resets the like status of the summary.\n- \"regenerate\": Regenerates the summary feedback.\n- \"disable_summary\": Disables the summary feedback.\nAny other value will result in an error response.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "comment",
+              "description": "Optional\nA written explanation for the dislike. Only used with the \"add_comment\" action. Maximum 1024 characters.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/summaries/{summary_id}/feedback",
+      "description": "Persists feedback on a discussion topic summary.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Summary Feedback",
+          "notes": "Persists feedback on a discussion topic summary.",
+          "nickname": "summary_feedback_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "summary_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "_action",
+              "description": "Required\nThe action to take on the summary. Possible values are:\n- \"seen\": Marks the summary as seen. This action saves the feedback if it's not already persisted.\n- \"like\": Marks the summary as liked.\n- \"dislike\": Marks the summary as disliked.\n- \"add_comment\": Adds a written comment to a disliked summary. Requires the \"comment\" parameter.\n- \"reset_like\": Resets the like status of the summary.\n- \"regenerate\": Regenerates the summary feedback.\n- \"disable_summary\": Disables the summary feedback.\nAny other value will result in an error response.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "comment",
+              "description": "Optional\nA written explanation for the dislike. Only used with the \"add_comment\" action. Maximum 1024 characters.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/view",
+      "description": "Return a cached structure of the discussion topic, containing all entries,\ntheir authors, and their message bodies.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nIn some rare situations, this cached structure may not be available yet. In\nthat case, the server will respond with a 503 error, and the caller should\ntry again soon.\n\nThe response is an object containing the following keys:\n* \"participants\": A list of summary information on users who have posted to\n  the discussion. Each value is an object containing their id, display_name,\n  and avatar_url.\n* \"unread_entries\": A list of entry ids that are unread by the current\n  user. this implies that any entry not in this list is read.\n* \"entry_ratings\": A map of entry ids to ratings by the current user. Entries\n  not in this list have no rating. Only populated if rating is enabled.\n* \"forced_entries\": A list of entry ids that have forced_read_state set to\n  true. This flag is meant to indicate the entry's read_state has been\n  manually set to 'unread' by the user, so the entry should not be\n  automatically marked as read.\n* \"view\": A threaded view of all the entries in the discussion, containing\n  the id, user_id, and message.\n* \"new_entries\": Because this view is eventually consistent, it's possible\n  that newly created or updated entries won't yet be reflected in the view.\n  If the application wants to also get a flat list of all entries not yet\n  reflected in the view, pass include_new_entries=1 to the request and this\n  array of entries will be returned. These entries are returned in a flat\n  array, in ascending created_at order.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the full topic",
+          "notes": "Return a cached structure of the discussion topic, containing all entries,\ntheir authors, and their message bodies.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nIn some rare situations, this cached structure may not be available yet. In\nthat case, the server will respond with a 503 error, and the caller should\ntry again soon.\n\nThe response is an object containing the following keys:\n* \"participants\": A list of summary information on users who have posted to\n  the discussion. Each value is an object containing their id, display_name,\n  and avatar_url.\n* \"unread_entries\": A list of entry ids that are unread by the current\n  user. this implies that any entry not in this list is read.\n* \"entry_ratings\": A map of entry ids to ratings by the current user. Entries\n  not in this list have no rating. Only populated if rating is enabled.\n* \"forced_entries\": A list of entry ids that have forced_read_state set to\n  true. This flag is meant to indicate the entry's read_state has been\n  manually set to 'unread' by the user, so the entry should not be\n  automatically marked as read.\n* \"view\": A threaded view of all the entries in the discussion, containing\n  the id, user_id, and message.\n* \"new_entries\": Because this view is eventually consistent, it's possible\n  that newly created or updated entries won't yet be reflected in the view.\n  If the application wants to also get a flat list of all entries not yet\n  reflected in the view, pass include_new_entries=1 to the request and this\n  array of entries will be returned. These entries are returned in a flat\n  array, in ascending created_at order.",
+          "nickname": "get_full_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/view",
+      "description": "Return a cached structure of the discussion topic, containing all entries,\ntheir authors, and their message bodies.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nIn some rare situations, this cached structure may not be available yet. In\nthat case, the server will respond with a 503 error, and the caller should\ntry again soon.\n\nThe response is an object containing the following keys:\n* \"participants\": A list of summary information on users who have posted to\n  the discussion. Each value is an object containing their id, display_name,\n  and avatar_url.\n* \"unread_entries\": A list of entry ids that are unread by the current\n  user. this implies that any entry not in this list is read.\n* \"entry_ratings\": A map of entry ids to ratings by the current user. Entries\n  not in this list have no rating. Only populated if rating is enabled.\n* \"forced_entries\": A list of entry ids that have forced_read_state set to\n  true. This flag is meant to indicate the entry's read_state has been\n  manually set to 'unread' by the user, so the entry should not be\n  automatically marked as read.\n* \"view\": A threaded view of all the entries in the discussion, containing\n  the id, user_id, and message.\n* \"new_entries\": Because this view is eventually consistent, it's possible\n  that newly created or updated entries won't yet be reflected in the view.\n  If the application wants to also get a flat list of all entries not yet\n  reflected in the view, pass include_new_entries=1 to the request and this\n  array of entries will be returned. These entries are returned in a flat\n  array, in ascending created_at order.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "Get the full topic",
+          "notes": "Return a cached structure of the discussion topic, containing all entries,\ntheir authors, and their message bodies.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nIn some rare situations, this cached structure may not be available yet. In\nthat case, the server will respond with a 503 error, and the caller should\ntry again soon.\n\nThe response is an object containing the following keys:\n* \"participants\": A list of summary information on users who have posted to\n  the discussion. Each value is an object containing their id, display_name,\n  and avatar_url.\n* \"unread_entries\": A list of entry ids that are unread by the current\n  user. this implies that any entry not in this list is read.\n* \"entry_ratings\": A map of entry ids to ratings by the current user. Entries\n  not in this list have no rating. Only populated if rating is enabled.\n* \"forced_entries\": A list of entry ids that have forced_read_state set to\n  true. This flag is meant to indicate the entry's read_state has been\n  manually set to 'unread' by the user, so the entry should not be\n  automatically marked as read.\n* \"view\": A threaded view of all the entries in the discussion, containing\n  the id, user_id, and message.\n* \"new_entries\": Because this view is eventually consistent, it's possible\n  that newly created or updated entries won't yet be reflected in the view.\n  If the application wants to also get a flat list of all entries not yet\n  reflected in the view, pass include_new_entries=1 to the request and this\n  array of entries will be returned. These entries are returned in a flat\n  array, in ascending created_at order.",
+          "nickname": "get_full_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries",
+      "description": "Create a new entry in a discussion topic. Returns a json representation of\nthe created entry (see documentation for 'entries' method) on success.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Post an entry",
+          "notes": "Create a new entry in a discussion topic. Returns a json representation of\nthe created entry (see documentation for 'entries' method) on success.",
+          "nickname": "post_entry_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "The body of the entry.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "a multipart/form-data form-field-style\nattachment. Attachments larger than 1 kilobyte are subject to quota\nrestrictions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries",
+      "description": "Create a new entry in a discussion topic. Returns a json representation of\nthe created entry (see documentation for 'entries' method) on success.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Post an entry",
+          "notes": "Create a new entry in a discussion topic. Returns a json representation of\nthe created entry (see documentation for 'entries' method) on success.",
+          "nickname": "post_entry_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "The body of the entry.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "a multipart/form-data form-field-style\nattachment. Attachments larger than 1 kilobyte are subject to quota\nrestrictions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/duplicate",
+      "description": "Duplicate a discussion topic according to context (Course/Group)",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Duplicate discussion topic",
+          "notes": "Duplicate a discussion topic according to context (Course/Group)",
+          "nickname": "duplicate_discussion_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "DiscussionTopic"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/duplicate",
+      "description": "Duplicate a discussion topic according to context (Course/Group)",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Duplicate discussion topic",
+          "notes": "Duplicate a discussion topic according to context (Course/Group)",
+          "nickname": "duplicate_discussion_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "DiscussionTopic"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries",
+      "description": "Retrieve the (paginated) top-level entries in a discussion topic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nWill include the 10 most recent replies, if any, for each entry returned.\n\nIf the topic is a root topic with children corresponding to groups of a\ngroup assignment, entries from those subtopics for which the user belongs\nto the corresponding group will be returned.\n\nOrdering of returned entries is newest-first by posting timestamp (reply\nactivity is ignored).",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List topic entries",
+          "notes": "Retrieve the (paginated) top-level entries in a discussion topic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nWill include the 10 most recent replies, if any, for each entry returned.\n\nIf the topic is a root topic with children corresponding to groups of a\ngroup assignment, entries from those subtopics for which the user belongs\nto the corresponding group will be returned.\n\nOrdering of returned entries is newest-first by posting timestamp (reply\nactivity is ignored).",
+          "nickname": "list_topic_entries_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique identifier for the author of the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "editor_id",
+              "description": "The unique user id of the person to last edit the entry, if different than user_id.",
+              "deprecated": false
+            },
+            {
+              "name": "user_name",
+              "description": "The name of the author of the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "description": "The content of the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "read_state",
+              "description": "The read state of the entry, \"read\" or \"unread\".",
+              "deprecated": false
+            },
+            {
+              "name": "forced_read_state",
+              "description": "Whether the read_state was forced (was set manually)",
+              "deprecated": false
+            },
+            {
+              "name": "created_at",
+              "description": "The creation time of the entry, in ISO8601\nformat.",
+              "deprecated": false
+            },
+            {
+              "name": "updated_at",
+              "description": "The updated time of the entry, in ISO8601 format.",
+              "deprecated": false
+            },
+            {
+              "name": "attachment",
+              "description": "JSON representation of the attachment for the\nentry, if any. Present only if there is an attachment.",
+              "deprecated": false
+            },
+            {
+              "name": "attachments",
+              "description": "*Deprecated*. Same as attachment, but returned\nas a one-element array. Present only if there is an attachment.",
+              "deprecated": false
+            },
+            {
+              "name": "recent_replies",
+              "description": "The 10 most recent replies for the entry,\nnewest first. Present only if there is at least one reply.",
+              "deprecated": false
+            },
+            {
+              "name": "has_more_replies",
+              "description": "True if there are more than 10 replies for\nthe entry (i.e., not all were included in this response). Present only if\nthere is at least one reply.",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries",
+      "description": "Retrieve the (paginated) top-level entries in a discussion topic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nWill include the 10 most recent replies, if any, for each entry returned.\n\nIf the topic is a root topic with children corresponding to groups of a\ngroup assignment, entries from those subtopics for which the user belongs\nto the corresponding group will be returned.\n\nOrdering of returned entries is newest-first by posting timestamp (reply\nactivity is ignored).",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List topic entries",
+          "notes": "Retrieve the (paginated) top-level entries in a discussion topic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nWill include the 10 most recent replies, if any, for each entry returned.\n\nIf the topic is a root topic with children corresponding to groups of a\ngroup assignment, entries from those subtopics for which the user belongs\nto the corresponding group will be returned.\n\nOrdering of returned entries is newest-first by posting timestamp (reply\nactivity is ignored).",
+          "nickname": "list_topic_entries_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique identifier for the author of the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "editor_id",
+              "description": "The unique user id of the person to last edit the entry, if different than user_id.",
+              "deprecated": false
+            },
+            {
+              "name": "user_name",
+              "description": "The name of the author of the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "description": "The content of the entry.",
+              "deprecated": false
+            },
+            {
+              "name": "read_state",
+              "description": "The read state of the entry, \"read\" or \"unread\".",
+              "deprecated": false
+            },
+            {
+              "name": "forced_read_state",
+              "description": "Whether the read_state was forced (was set manually)",
+              "deprecated": false
+            },
+            {
+              "name": "created_at",
+              "description": "The creation time of the entry, in ISO8601\nformat.",
+              "deprecated": false
+            },
+            {
+              "name": "updated_at",
+              "description": "The updated time of the entry, in ISO8601 format.",
+              "deprecated": false
+            },
+            {
+              "name": "attachment",
+              "description": "JSON representation of the attachment for the\nentry, if any. Present only if there is an attachment.",
+              "deprecated": false
+            },
+            {
+              "name": "attachments",
+              "description": "*Deprecated*. Same as attachment, but returned\nas a one-element array. Present only if there is an attachment.",
+              "deprecated": false
+            },
+            {
+              "name": "recent_replies",
+              "description": "The 10 most recent replies for the entry,\nnewest first. Present only if there is at least one reply.",
+              "deprecated": false
+            },
+            {
+              "name": "has_more_replies",
+              "description": "True if there are more than 10 replies for\nthe entry (i.e., not all were included in this response). Present only if\nthere is at least one reply.",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{entry_id}/replies",
+      "description": "Add a reply to an entry in a discussion topic. Returns a json\nrepresentation of the created reply (see documentation for 'replies'\nmethod) on success.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Post a reply",
+          "notes": "Add a reply to an entry in a discussion topic. Returns a json\nrepresentation of the created reply (see documentation for 'replies'\nmethod) on success.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+          "nickname": "post_reply_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "The body of the entry.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "a multipart/form-data form-field-style\nattachment. Attachments larger than 1 kilobyte are subject to quota\nrestrictions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{entry_id}/replies",
+      "description": "Add a reply to an entry in a discussion topic. Returns a json\nrepresentation of the created reply (see documentation for 'replies'\nmethod) on success.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Post a reply",
+          "notes": "Add a reply to an entry in a discussion topic. Returns a json\nrepresentation of the created reply (see documentation for 'replies'\nmethod) on success.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+          "nickname": "post_reply_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "message",
+              "description": "The body of the entry.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "attachment",
+              "description": "a multipart/form-data form-field-style\nattachment. Attachments larger than 1 kilobyte are subject to quota\nrestrictions.",
+              "type": "string",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{entry_id}/replies",
+      "description": "Retrieve the (paginated) replies to a top-level entry in a discussion\ntopic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nOrdering of returned entries is newest-first by creation timestamp.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List entry replies",
+          "notes": "Retrieve the (paginated) replies to a top-level entry in a discussion\ntopic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nOrdering of returned entries is newest-first by creation timestamp.",
+          "nickname": "list_entry_replies_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique identifier for the author of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "editor_id",
+              "description": "The unique user id of the person to last edit the entry, if different than user_id.",
+              "deprecated": false
+            },
+            {
+              "name": "user_name",
+              "description": "The name of the author of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "description": "The content of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "read_state",
+              "description": "The read state of the entry, \"read\" or \"unread\".",
+              "deprecated": false
+            },
+            {
+              "name": "forced_read_state",
+              "description": "Whether the read_state was forced (was set manually)",
+              "deprecated": false
+            },
+            {
+              "name": "created_at",
+              "description": "The creation time of the reply, in ISO8601\nformat.",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{entry_id}/replies",
+      "description": "Retrieve the (paginated) replies to a top-level entry in a discussion\ntopic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nOrdering of returned entries is newest-first by creation timestamp.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List entry replies",
+          "notes": "Retrieve the (paginated) replies to a top-level entry in a discussion\ntopic.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.\n\nOrdering of returned entries is newest-first by creation timestamp.",
+          "nickname": "list_entry_replies_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique identifier for the author of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "editor_id",
+              "description": "The unique user id of the person to last edit the entry, if different than user_id.",
+              "deprecated": false
+            },
+            {
+              "name": "user_name",
+              "description": "The name of the author of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "description": "The content of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "read_state",
+              "description": "The read state of the entry, \"read\" or \"unread\".",
+              "deprecated": false
+            },
+            {
+              "name": "forced_read_state",
+              "description": "Whether the read_state was forced (was set manually)",
+              "deprecated": false
+            },
+            {
+              "name": "created_at",
+              "description": "The creation time of the reply, in ISO8601\nformat.",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entry_list",
+      "description": "Retrieve a paginated list of discussion entries, given a list of ids.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List entries",
+          "notes": "Retrieve a paginated list of discussion entries, given a list of ids.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+          "nickname": "list_entries_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "ids",
+              "description": "A list of entry ids to retrieve. Entries will be returned in id order,\nsmallest id first.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique identifier for the author of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "user_name",
+              "description": "The author's display name, or null for anonymous topics when the author is not an instructor.",
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "description": "The content of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "read_state",
+              "description": "The read state of the entry, \"read\" or \"unread\".",
+              "deprecated": false
+            },
+            {
+              "name": "forced_read_state",
+              "description": "Whether the read_state was forced (was set manually)",
+              "deprecated": false
+            },
+            {
+              "name": "created_at",
+              "description": "The creation time of the reply, in ISO8601\nformat.",
+              "deprecated": false
+            },
+            {
+              "name": "deleted",
+              "description": "If the entry has been deleted, returns true. The\nuser_id, user_name, and message will not be returned for deleted entries.",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entry_list",
+      "description": "Retrieve a paginated list of discussion entries, given a list of ids.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+      "operations": [
+        {
+          "method": "GET",
+          "summary": "List entries",
+          "notes": "Retrieve a paginated list of discussion entries, given a list of ids.\n\nMay require (depending on the topic) that the user has posted in the topic.\nIf it is required, and the user has not posted, will respond with a 403\nForbidden status and the body 'require_initial_post'.",
+          "nickname": "list_entries_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "ids",
+              "description": "A list of entry ids to retrieve. Entries will be returned in id order,\nsmallest id first.",
+              "type": "array",
+              "format": null,
+              "required": false,
+              "deprecated": false,
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "response_fields": [
+            {
+              "name": "id",
+              "description": "The unique identifier for the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "user_id",
+              "description": "The unique identifier for the author of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "user_name",
+              "description": "The author's display name, or null for anonymous topics when the author is not an instructor.",
+              "deprecated": false
+            },
+            {
+              "name": "message",
+              "description": "The content of the reply.",
+              "deprecated": false
+            },
+            {
+              "name": "read_state",
+              "description": "The read state of the entry, \"read\" or \"unread\".",
+              "deprecated": false
+            },
+            {
+              "name": "forced_read_state",
+              "description": "Whether the read_state was forced (was set manually)",
+              "deprecated": false
+            },
+            {
+              "name": "created_at",
+              "description": "The creation time of the reply, in ISO8601\nformat.",
+              "deprecated": false
+            },
+            {
+              "name": "deleted",
+              "description": "If the entry has been deleted, returns true. The\nuser_id, user_name, and message will not be returned for deleted entries.",
+              "deprecated": false
+            }
+          ],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/read",
+      "description": "Mark the initial text of the discussion topic as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark topic as read",
+          "notes": "Mark the initial text of the discussion topic as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_topic_as_read_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/read",
+      "description": "Mark the initial text of the discussion topic as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark topic as read",
+          "notes": "Mark the initial text of the discussion topic as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_topic_as_read_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/read_all",
+      "description": "Mark the initial text of all the discussion topics as read in  the context.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark all topic as read",
+          "notes": "Mark the initial text of all the discussion topics as read in  the context.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_all_topic_as_read_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/read_all",
+      "description": "Mark the initial text of all the discussion topics as read in  the context.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark all topic as read",
+          "notes": "Mark the initial text of all the discussion topics as read in  the context.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_all_topic_as_read_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/read",
+      "description": "Mark the initial text of the discussion topic as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Mark topic as unread",
+          "notes": "Mark the initial text of the discussion topic as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_topic_as_unread_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/read",
+      "description": "Mark the initial text of the discussion topic as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Mark topic as unread",
+          "notes": "Mark the initial text of the discussion topic as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_topic_as_unread_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/read_all",
+      "description": "Mark the discussion topic and all its entries as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark all entries as read",
+          "notes": "Mark the discussion topic and all its entries as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_all_entries_as_read_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "forced_read_state",
+              "description": "A boolean value to set all of the entries' forced_read_state. No change\nis made if this argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/read_all",
+      "description": "Mark the discussion topic and all its entries as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark all entries as read",
+          "notes": "Mark the discussion topic and all its entries as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_all_entries_as_read_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "forced_read_state",
+              "description": "A boolean value to set all of the entries' forced_read_state. No change\nis made if this argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/read_all",
+      "description": "Mark the discussion topic and all its entries as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Mark all entries as unread",
+          "notes": "Mark the discussion topic and all its entries as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_all_entries_as_unread_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "forced_read_state",
+              "description": "A boolean value to set all of the entries' forced_read_state. No change is\nmade if this argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/read_all",
+      "description": "Mark the discussion topic and all its entries as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Mark all entries as unread",
+          "notes": "Mark the discussion topic and all its entries as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_all_entries_as_unread_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "forced_read_state",
+              "description": "A boolean value to set all of the entries' forced_read_state. No change is\nmade if this argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{entry_id}/read",
+      "description": "Mark a discussion entry as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark entry as read",
+          "notes": "Mark a discussion entry as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_entry_as_read_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "forced_read_state",
+              "description": "A boolean value to set the entry's forced_read_state. No change is made if\nthis argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{entry_id}/read",
+      "description": "Mark a discussion entry as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Mark entry as read",
+          "notes": "Mark a discussion entry as read.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_entry_as_read_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "forced_read_state",
+              "description": "A boolean value to set the entry's forced_read_state. No change is made if\nthis argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{entry_id}/read",
+      "description": "Mark a discussion entry as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Mark entry as unread",
+          "notes": "Mark a discussion entry as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_entry_as_unread_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "forced_read_state",
+              "description": "A boolean value to set the entry's forced_read_state. No change is made if\nthis argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{entry_id}/read",
+      "description": "Mark a discussion entry as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Mark entry as unread",
+          "notes": "Mark a discussion entry as unread.\n\nNo request fields are necessary.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "mark_entry_as_unread_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "query",
+              "name": "forced_read_state",
+              "description": "A boolean value to set the entry's forced_read_state. No change is made if\nthis argument is not specified.",
+              "type": "boolean",
+              "format": null,
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/entries/{entry_id}/rating",
+      "description": "Rate a discussion entry.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Rate entry",
+          "notes": "Rate a discussion entry.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "rate_entry_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rating",
+              "description": "A rating to set on this entry. Only 0 and 1 are accepted.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/entries/{entry_id}/rating",
+      "description": "Rate a discussion entry.\n\nOn success, the response will be 204 No Content with an empty body.",
+      "operations": [
+        {
+          "method": "POST",
+          "summary": "Rate entry",
+          "notes": "Rate a discussion entry.\n\nOn success, the response will be 204 No Content with an empty body.",
+          "nickname": "rate_entry_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "entry_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "form",
+              "name": "rating",
+              "description": "A rating to set on this entry. Only 0 and 1 are accepted.",
+              "type": "integer",
+              "format": "int64",
+              "required": false,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/subscribed",
+      "description": "Subscribe to a topic to receive notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Subscribe to a topic",
+          "notes": "Subscribe to a topic to receive notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+          "nickname": "subscribe_to_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/subscribed",
+      "description": "Subscribe to a topic to receive notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+      "operations": [
+        {
+          "method": "PUT",
+          "summary": "Subscribe to a topic",
+          "notes": "Subscribe to a topic to receive notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+          "nickname": "subscribe_to_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/courses/{course_id}/discussion_topics/{topic_id}/subscribed",
+      "description": "Unsubscribe from a topic to stop receiving notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Unsubscribe from a topic",
+          "notes": "Unsubscribe from a topic to stop receiving notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+          "nickname": "unsubscribe_from_topic_courses",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "course_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    },
+    {
+      "path": "/v1/groups/{group_id}/discussion_topics/{topic_id}/subscribed",
+      "description": "Unsubscribe from a topic to stop receiving notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+      "operations": [
+        {
+          "method": "DELETE",
+          "summary": "Unsubscribe from a topic",
+          "notes": "Unsubscribe from a topic to stop receiving notifications about new entries\n\nOn success, the response will be 204 No Content with an empty body",
+          "nickname": "unsubscribe_from_topic_groups",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "group_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            },
+            {
+              "paramType": "path",
+              "name": "topic_id",
+              "description": "ID",
+              "type": "string",
+              "format": null,
+              "required": true,
+              "deprecated": false
+            }
+          ],
+          "response_fields": [],
+          "deprecated": false,
+          "deprecation_description": "",
+          "type": "void"
+        }
+      ]
+    }
+  ],
+  "models": {
+    "FileAttachment": {
+      "id": "FileAttachment",
+      "description": "A file attachment",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "content-type": {
+          "example": "unknown/unknown",
+          "type": "string"
+        },
+        "url": {
+          "example": "http://www.example.com/courses/1/files/1/download",
+          "type": "string"
+        },
+        "filename": {
+          "example": "content.txt",
+          "type": "string"
+        },
+        "display_name": {
+          "example": "content.txt",
+          "type": "string"
+        }
+      }
+    },
+    "DiscussionTopic": {
+      "id": "DiscussionTopic",
+      "description": "A discussion topic",
+      "required": [],
+      "deprecated": false,
+      "deprecation_description": null,
+      "properties": {
+        "id": {
+          "description": "The ID of this topic.",
+          "example": 1,
+          "type": "integer"
+        },
+        "title": {
+          "description": "The topic title.",
+          "example": "Topic 1",
+          "type": "string"
+        },
+        "message": {
+          "description": "The HTML content of the message body.",
+          "example": "<p>content here</p>",
+          "type": "string"
+        },
+        "html_url": {
+          "description": "The URL to the discussion topic in canvas.",
+          "example": "https://<canvas>/courses/1/discussion_topics/2",
+          "type": "string"
+        },
+        "posted_at": {
+          "description": "The datetime the topic was posted. If it is null it hasn't been posted yet. (see delayed_post_at)",
+          "example": "2037-07-21T13:29:31Z",
+          "type": "datetime"
+        },
+        "last_reply_at": {
+          "description": "The datetime for when the last reply was in the topic.",
+          "example": "2037-07-28T19:38:31Z",
+          "type": "datetime"
+        },
+        "require_initial_post": {
+          "description": "If true then a user may not respond to other replies until that user has made an initial reply. Defaults to false.",
+          "example": false,
+          "type": "boolean"
+        },
+        "user_can_see_posts": {
+          "description": "Whether or not posts in this topic are visible to the user.",
+          "example": true,
+          "type": "boolean"
+        },
+        "discussion_subentry_count": {
+          "description": "The count of entries in the topic.",
+          "example": 0,
+          "type": "integer"
+        },
+        "read_state": {
+          "description": "The read_state of the topic for the current user, 'read' or 'unread'.",
+          "example": "read",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "read",
+              "unread"
+            ]
+          }
+        },
+        "unread_count": {
+          "description": "The count of unread entries of this topic for the current user.",
+          "example": 0,
+          "type": "integer"
+        },
+        "subscribed": {
+          "description": "Whether or not the current user is subscribed to this topic.",
+          "example": true,
+          "type": "boolean"
+        },
+        "subscription_hold": {
+          "description": "(Optional) Why the user cannot subscribe to this topic. Only one reason will be returned even if multiple apply. Can be one of: 'initial_post_required': The user must post a reply first; 'not_in_group_set': The user is not in the group set for this graded group discussion; 'not_in_group': The user is not in this topic's group; 'topic_is_announcement': This topic is an announcement",
+          "example": "not_in_group_set",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "initial_post_required",
+              "not_in_group_set",
+              "not_in_group",
+              "topic_is_announcement"
+            ]
+          }
+        },
+        "assignment_id": {
+          "description": "The unique identifier of the assignment if the topic is for grading, otherwise null.",
+          "type": "integer"
+        },
+        "delayed_post_at": {
+          "description": "The datetime to publish the topic (if not right away).",
+          "type": "datetime"
+        },
+        "published": {
+          "description": "Whether this discussion topic is published (true) or draft state (false)",
+          "example": true,
+          "type": "boolean"
+        },
+        "lock_at": {
+          "description": "The datetime to lock the topic (if ever).",
+          "type": "datetime"
+        },
+        "locked": {
+          "description": "Whether or not the discussion is 'closed for comments'.",
+          "example": false,
+          "type": "boolean"
+        },
+        "pinned": {
+          "description": "Whether or not the discussion has been 'pinned' by an instructor",
+          "example": false,
+          "type": "boolean"
+        },
+        "locked_for_user": {
+          "description": "Whether or not this is locked for the user.",
+          "example": true,
+          "type": "boolean"
+        },
+        "lock_info": {
+          "description": "(Optional) Information for the user about the lock. Present when locked_for_user is true.",
+          "$ref": "LockInfo"
+        },
+        "lock_explanation": {
+          "description": "(Optional) An explanation of why this is locked for the user. Present when locked_for_user is true.",
+          "example": "This discussion is locked until September 1 at 12:00am",
+          "type": "string"
+        },
+        "user_name": {
+          "description": "The username of the topic creator.",
+          "example": "User Name",
+          "type": "string"
+        },
+        "topic_children": {
+          "description": "DEPRECATED An array of topic_ids for the group discussions the user is a part of.",
+          "example": [
+            5,
+            7,
+            10
+          ],
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "group_topic_children": {
+          "description": "An array of group discussions the user is a part of. Fields include: id, group_id",
+          "example": [
+            {
+              "id": 5,
+              "group_id": 1
+            },
+            {
+              "id": 7,
+              "group_id": 5
+            },
+            {
+              "id": 10,
+              "group_id": 4
+            }
+          ],
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "root_topic_id": {
+          "description": "If the topic is for grading and a group assignment this will point to the original topic in the course.",
+          "type": "integer"
+        },
+        "podcast_url": {
+          "description": "If the topic is a podcast topic this is the feed url for the current user.",
+          "example": "/feeds/topics/1/enrollment_1XAcepje4u228rt4mi7Z1oFbRpn3RAkTzuXIGOPe.rss",
+          "type": "string"
+        },
+        "discussion_type": {
+          "description": "The type of discussion. Values are 'side_comment' or 'not_threaded', for discussions that only allow one level of nested comments, and 'threaded' for fully threaded discussions.",
+          "example": "side_comment",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "side_comment",
+              "not_threaded",
+              "threaded"
+            ]
+          }
+        },
+        "group_category_id": {
+          "description": "The unique identifier of the group category if the topic is a group discussion, otherwise null.",
+          "type": "integer"
+        },
+        "attachments": {
+          "description": "Array of file attachments.",
+          "type": "array",
+          "items": {
+            "$ref": "FileAttachment"
+          }
+        },
+        "permissions": {
+          "description": "The current user's permissions on this topic.",
+          "example": {
+            "attach": true
+          },
+          "type": "object",
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "boolean"
+          }
+        },
+        "allow_rating": {
+          "description": "Whether or not users can rate entries in this topic.",
+          "example": true,
+          "type": "boolean"
+        },
+        "only_graders_can_rate": {
+          "description": "Whether or not grade permissions are required to rate entries.",
+          "example": true,
+          "type": "boolean"
+        },
+        "sort_by_rating": {
+          "description": "DEPRECATED, Whether or not entries should be sorted by rating.",
+          "example": true,
+          "type": "boolean"
+        },
+        "sort_order": {
+          "description": "How entries should be sorted by default.",
+          "example": "asc",
+          "type": "string",
+          "allowableValues": {
+            "values": [
+              "asc",
+              "desc"
+            ]
+          }
+        },
+        "sort_order_locked": {
+          "description": "Can users decide their preferred sort order.",
+          "example": true,
+          "type": "boolean"
+        },
+        "expand": {
+          "description": "Threaded replies should be expanded by default.",
+          "example": true,
+          "type": "boolean"
+        },
+        "expand_locked": {
+          "description": "Can users decide their preferred thread expand setting.",
+          "example": true,
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
