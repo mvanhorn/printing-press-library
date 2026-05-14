@@ -240,6 +240,12 @@ func openPushoverLocalDB(ctx context.Context, dbPath string) (*sql.DB, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating local db directory: %w", err)
 	}
+	// PATCH(pr511-db-file-perms): the local history/inbox DB stores
+	// notification metadata and message previews; sql.Open is lazy and
+	// would otherwise let the file land at default-umask 0o644 next to
+	// sensitive content. Pre-touch at 0o600 before the driver opens,
+	// then chmod the file + WAL/SHM sidecars after migration.
+	restrictLocalDBFilePermissions(dbPath)
 	db, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=5000&_foreign_keys=ON")
 	if err != nil {
 		return nil, fmt.Errorf("opening local db: %w", err)
@@ -248,7 +254,22 @@ func openPushoverLocalDB(ctx context.Context, dbPath string) (*sql.DB, error) {
 		db.Close()
 		return nil, err
 	}
+	restrictLocalDBFilePermissions(dbPath)
 	return db, nil
+}
+
+// restrictLocalDBFilePermissions mirrors store.restrictDBFilePermissions
+// (unexported there) for the CLI-package local DB. Kept inline rather
+// than promoting the store helper to public API: the two databases have
+// different lifecycles (the store DB is the main app DB; this one is the
+// novel-history ledger) and we don't want to couple their open paths.
+func restrictLocalDBFilePermissions(path string) {
+	if f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
+		_ = f.Close()
+	}
+	for _, suffix := range []string{"", "-wal", "-shm"} {
+		_ = os.Chmod(path+suffix, 0o600)
+	}
 }
 
 func migratePushoverLocalDB(ctx context.Context, db *sql.DB) error {

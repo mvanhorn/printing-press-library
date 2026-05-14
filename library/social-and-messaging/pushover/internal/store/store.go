@@ -94,6 +94,15 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
+	// PATCH(pr511-db-file-perms): SQLite's sql.Open is lazy and creates
+	// the underlying file via the OS umask the first time the connection
+	// I/Os, which on default-umask systems lands at 0o644 — world-readable
+	// next to a database that may hold session secrets. Pre-touch the file
+	// at 0o600 before sql.Open so the bit is set the instant the file
+	// exists, and Chmod existing files on every open to fix
+	// previously-world-readable databases on upgrade.
+	restrictDBFilePermissions(dbPath)
+
 	db, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=5000&_foreign_keys=ON&_temp_store=MEMORY&_mmap_size=268435456")
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
@@ -110,7 +119,28 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
 
+	// PATCH(pr511-db-file-perms): the WAL holds uncommitted writes and the
+	// SHM holds the index mapping WAL frames to DB pages — both carry the
+	// same sensitivity as the main DB. They're created lazily by SQLite
+	// during migration, so the second pass after migrate catches them.
+	restrictDBFilePermissions(dbPath)
+
 	return s, nil
+}
+
+// restrictDBFilePermissions enforces 0o600 on the SQLite file at path and
+// its WAL / SHM sidecars. Idempotent: silently no-ops on files that don't
+// exist yet. Called twice per open — once before sql.Open to pre-create
+// the main file with the right mode before SQLite's lazy-open path
+// inherits the OS umask, and once after migrate to lock down the
+// sidecars that SQLite just created.
+func restrictDBFilePermissions(path string) {
+	if f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0o600); err == nil {
+		_ = f.Close()
+	}
+	for _, suffix := range []string{"", "-wal", "-shm"} {
+		_ = os.Chmod(path+suffix, 0o600)
+	}
 }
 
 func (s *Store) Close() error {
