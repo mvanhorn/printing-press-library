@@ -505,6 +505,7 @@ func chromeDataDir() (string, error) {
 	}
 }
 
+// PATCH(post-print-cleanup): dropped exec.LookPath("sqlite3") guard after countCookiesForDomain stopped shelling out, so profile auto-detection works on hosts without sqlite3.
 // discoverChromeProfiles finds Chrome profiles and counts cookies matching the domain.
 //
 // Previously gated on `exec.LookPath("sqlite3")` because countCookiesForDomain
@@ -583,6 +584,7 @@ func readProfileDisplayName(prefsPath string) string {
 	return prefs.Profile.Name
 }
 
+// PATCH(greptile-countcookies-sql-injection): swapped fmt.Sprintf + sqlite3 shell-out for database/sql with a bind parameter so host_key cannot be influenced by untrusted callers.
 // countCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts
 // matching rows via a parameterized read-only query through the in-binary
 // SQLite driver. host_key is plaintext so no decryption is needed.

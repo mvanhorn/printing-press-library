@@ -79,6 +79,7 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 //
+// PATCH(greptile-cache-store-config-modes): tightened store dir mode to 0o700 (was 0o755) so the synced order history is not world-readable.
 // Directory mode is 0o700 — the synced database holds the full materialized
 // order/item/shipment/transaction tree and must not be readable by other
 // users on a shared host. The SQLite file itself inherits the umask but is

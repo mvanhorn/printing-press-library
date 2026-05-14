@@ -464,6 +464,7 @@ func sanitizeJSONResponse(body []byte) []byte {
 // for short bearer tokens but is dangerous for the long semicolon-joined
 // Cookie headers this CLI passes (the last 4 chars reveal the trailing bytes
 // of the final cookie value verbatim).
+// PATCH(greptile-mask-token-redaction): return "[redacted N chars]" instead of the last 4 characters; long Cookie headers were leaking trailing bytes of the final cookie value.
 func maskToken(token string) string {
 	if token == "" {
 		return ""
