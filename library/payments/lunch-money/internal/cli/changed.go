@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -181,7 +182,7 @@ func parseChangedTypes(raw string) ([]string, error) {
 }
 
 func queryChangedTransactions(ctx context.Context, db *sql.DB, cutoff time.Time, limit int) ([]changedItem, error) {
-	rows, err := db.QueryContext(ctx, `SELECT id, data FROM transactions WHERE updated_at >= ? ORDER BY updated_at DESC`, cutoff.Format(time.RFC3339))
+	rows, err := db.QueryContext(ctx, `SELECT id, data FROM transactions WHERE updated_at >= ? ORDER BY updated_at DESC`, cutoff.UTC().Format(store.IndexedTimestampLayout))
 	if err != nil {
 		return nil, err
 	}

@@ -4,9 +4,14 @@
 package cli
 
 import (
+	"context"
+	"encoding/json"
 	"math"
+	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/store"
 )
 
 // PATCH: Cover the local changed command added outside the generator.
@@ -76,6 +81,35 @@ func TestChangedItemFromObjectBudgetFallback(t *testing.T) {
 	}
 	if item.NameOrPayee != "42" || item.ChangeType != "created" {
 		t.Fatalf("budget fallback item = %+v", item)
+	}
+}
+
+func TestQueryChangedTransactionsFindsSpaceSeparatedUpdatedAt(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	items := []json.RawMessage{
+		json.RawMessage(`{"id":"old","payee":"Old Charge","amount":"10.00","created_at":"2026-05-13 09:00:00","updated_at":"2026-05-13 09:00:00"}`),
+		json.RawMessage(`{"id":"recent","payee":"Recent Charge","amount":"20.00","created_at":"2026-05-13 10:00:00","updated_at":"2026-05-13 10:00:00"}`),
+	}
+	if _, _, err := db.UpsertBatch("transactions", items); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	cutoff := time.Date(2026, 5, 13, 9, 30, 0, 0, time.UTC)
+	changed, err := queryChangedTransactions(context.Background(), db.DB(), cutoff, 0)
+	if err != nil {
+		t.Fatalf("queryChangedTransactions: %v", err)
+	}
+	if len(changed) != 1 {
+		t.Fatalf("changed = %+v, want one recent transaction", changed)
+	}
+	if changed[0].ID != "recent" {
+		t.Fatalf("changed[0].ID = %q, want recent", changed[0].ID)
 	}
 }
 

@@ -41,7 +41,11 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 3
+const StoreSchemaVersion = 4
+
+// IndexedTimestampLayout is the canonical UTC text representation used for
+// timestamp columns that are compared lexicographically through SQLite indexes.
+const IndexedTimestampLayout = "2006-01-02T15:04:05.000000000Z"
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -336,6 +340,11 @@ func (s *Store) migrate(ctx context.Context) error {
 				return fmt.Errorf("backfilling transaction updated_at: %w", err)
 			}
 		}
+		if current < 4 {
+			if err := s.normalizeTransactionUpdatedAt(ctx, conn); err != nil {
+				return fmt.Errorf("normalizing transaction updated_at: %w", err)
+			}
+		}
 		// Stamp the schema version. On a fresh DB this writes the current
 		// StoreSchemaVersion; on an already-stamped DB this is a no-op
 		// write of the same value.
@@ -355,6 +364,53 @@ func (s *Store) backfillTransactionUpdatedAt(ctx context.Context, conn *sql.Conn
 		WHERE ("updated_at" IS NULL OR "updated_at" = '')
 			AND json_extract("data", '$.updated_at') IS NOT NULL`)
 	return err
+}
+
+func (s *Store) normalizeTransactionUpdatedAt(ctx context.Context, conn *sql.Conn) error {
+	rows, err := conn.QueryContext(ctx, `SELECT "id", "data", "updated_at" FROM "transactions"`)
+	if err != nil {
+		return err
+	}
+	type update struct {
+		id        string
+		updatedAt any
+	}
+	var updates []update
+	for rows.Next() {
+		var id, rawData string
+		var updatedAt sql.NullString
+		if err := rows.Scan(&id, &rawData, &updatedAt); err != nil {
+			rows.Close()
+			return err
+		}
+		rawUpdatedAt := ""
+		if updatedAt.Valid {
+			rawUpdatedAt = updatedAt.String
+		}
+		if strings.TrimSpace(rawUpdatedAt) == "" {
+			var obj map[string]any
+			if err := json.Unmarshal([]byte(rawData), &obj); err == nil {
+				rawUpdatedAt = fmt.Sprint(lookupFieldValue(obj, "updated_at"))
+			}
+		}
+		updates = append(updates, update{
+			id:        id,
+			updatedAt: normalizedIndexedTimestampValue(rawUpdatedAt),
+		})
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		return err
+	}
+	if err := rows.Close(); err != nil {
+		return err
+	}
+	for _, row := range updates {
+		if _, err := conn.ExecContext(ctx, `UPDATE "transactions" SET "updated_at" = ? WHERE "id" = ?`, row.updatedAt, row.id); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Store) migrateResourcesCompositeKey(ctx context.Context, conn *sql.Conn) error {
@@ -785,7 +841,7 @@ func (s *Store) upsertTransactionsTx(tx *sql.Tx, id string, obj map[string]any, 
 		id,
 		string(data),
 		time.Now(),
-		lookupFieldValue(obj, "updated_at"),
+		normalizedIndexedTimestampValue(lookupFieldValue(obj, "updated_at")),
 		lookupFieldValue(obj, "error"),
 		lookupFieldValue(obj, "has_more"),
 		lookupFieldValue(obj, "expires_at"),
@@ -795,6 +851,31 @@ func (s *Store) upsertTransactionsTx(tx *sql.Tx, id string, obj map[string]any, 
 	}
 
 	return nil
+}
+
+func normalizedIndexedTimestampValue(raw any) any {
+	if raw == nil {
+		return nil
+	}
+	normalized, ok := normalizeIndexedTimestamp(fmt.Sprint(raw))
+	if !ok {
+		return nil
+	}
+	return normalized
+}
+
+func normalizeIndexedTimestamp(raw string) (string, bool) {
+	s := strings.TrimSpace(raw)
+	if s == "" || s == "<nil>" {
+		return "", false
+	}
+	for _, layout := range []string{time.RFC3339Nano, "2006-01-02 15:04:05", "2006-01-02"} {
+		t, err := time.Parse(layout, s)
+		if err == nil {
+			return t.UTC().Format(IndexedTimestampLayout), true
+		}
+	}
+	return "", false
 }
 
 // UpsertTransactions inserts or updates a transactions record with domain-specific columns.

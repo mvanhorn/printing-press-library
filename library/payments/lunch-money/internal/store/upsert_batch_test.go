@@ -4,6 +4,7 @@
 package store
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"path/filepath"
@@ -309,7 +310,7 @@ func TestUpsertBatch_PopulatesIndexedTransactionUpdatedAt(t *testing.T) {
 	defer s.Close()
 
 	if _, _, err := s.UpsertBatch("transactions", []json.RawMessage{
-		json.RawMessage(`{"id":"test-001","updated_at":"2026-05-03T10:00:00Z"}`),
+		json.RawMessage(`{"id":"test-001","updated_at":"2026-05-03 10:00:00"}`),
 		json.RawMessage(`{"id":"test-002","updated_at":"2026-05-04T10:00:00Z"}`),
 	}); err != nil {
 		t.Fatalf("UpsertBatch: %v", err)
@@ -319,11 +320,11 @@ func TestUpsertBatch_PopulatesIndexedTransactionUpdatedAt(t *testing.T) {
 	if err := s.DB().QueryRow(`SELECT updated_at FROM transactions WHERE id = ?`, "test-001").Scan(&updatedAt); err != nil {
 		t.Fatalf("read transactions.updated_at: %v", err)
 	}
-	if updatedAt != "2026-05-03T10:00:00Z" {
-		t.Fatalf("updated_at = %q, want %q", updatedAt, "2026-05-03T10:00:00Z")
+	if updatedAt != "2026-05-03T10:00:00.000000000Z" {
+		t.Fatalf("updated_at = %q, want %q", updatedAt, "2026-05-03T10:00:00.000000000Z")
 	}
 
-	rows, err := s.DB().Query(`EXPLAIN QUERY PLAN SELECT id, data FROM transactions WHERE updated_at >= ? ORDER BY updated_at DESC`, "2026-05-03T00:00:00Z")
+	rows, err := s.DB().Query(`EXPLAIN QUERY PLAN SELECT id, data FROM transactions WHERE updated_at >= ? ORDER BY updated_at DESC`, "2026-05-03T00:00:00.000000000Z")
 	if err != nil {
 		t.Fatalf("explain changed transactions query: %v", err)
 	}
@@ -343,6 +344,52 @@ func TestUpsertBatch_PopulatesIndexedTransactionUpdatedAt(t *testing.T) {
 	}
 	if !strings.Contains(strings.Join(details, "\n"), "idx_transactions_updated_at") {
 		t.Fatalf("query plan does not use idx_transactions_updated_at: %v", details)
+	}
+}
+
+func TestMigrate_NormalizesLegacyTransactionUpdatedAt(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	rawDB, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw db: %v", err)
+	}
+	if _, err := rawDB.Exec(`
+		CREATE TABLE "transactions" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"updated_at" TEXT
+		);
+		INSERT INTO "transactions" ("id", "data", "updated_at") VALUES
+			('legacy-1', '{"id":"legacy-1","updated_at":"2026-05-03 10:00:00"}', '2026-05-03 10:00:00');
+		PRAGMA user_version = 3;
+	`); err != nil {
+		t.Fatalf("seed legacy db: %v", err)
+	}
+	if err := rawDB.Close(); err != nil {
+		t.Fatalf("close raw db: %v", err)
+	}
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open migrated store: %v", err)
+	}
+	defer s.Close()
+
+	var updatedAt string
+	if err := s.DB().QueryRow(`SELECT updated_at FROM transactions WHERE id = ?`, "legacy-1").Scan(&updatedAt); err != nil {
+		t.Fatalf("read migrated updated_at: %v", err)
+	}
+	if updatedAt != "2026-05-03T10:00:00.000000000Z" {
+		t.Fatalf("updated_at = %q, want normalized timestamp", updatedAt)
+	}
+
+	version, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("schema version: %v", err)
+	}
+	if version != StoreSchemaVersion {
+		t.Fatalf("schema version = %d, want %d", version, StoreSchemaVersion)
 	}
 }
 
