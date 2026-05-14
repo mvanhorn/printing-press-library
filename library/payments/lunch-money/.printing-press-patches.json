@@ -171,6 +171,18 @@
         "internal/cli/transcendence_helpers.go"
       ],
       "validated_outcome": "go test ./internal/cli passes, including retag response count and error parsing coverage."
+    },
+    {
+      "id": "cache-permissions-and-retag-split-children",
+      "summary": "Restricted HTTP cache permissions and excluded split children from bulk retag updates.",
+      "reason": "Cached Lunch Money API responses contain financial data and should be owner-only, and split children carry deliberate per-split categories that bulk retag should not overwrite.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go",
+        "internal/cli/transactions_retag_test.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/client and go test ./internal/cli pass for cache permission and retag split-child coverage."
     }
   ]
 }

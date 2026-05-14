@@ -138,7 +138,7 @@ func decodeRetagTransaction(raw []byte) (retagTransaction, bool) {
 }
 
 func retagCountsTransaction(tx retagTransaction) bool {
-	return tx.GroupParentID == "" && !tx.IsSplitParent
+	return tx.GroupParentID == "" && tx.SplitParentID == "" && !tx.IsSplitParent
 }
 
 func selectRetagTransactions(txs []retagTransaction, ids, match string, start, end time.Time, limit int) ([]retagTransaction, error) {
