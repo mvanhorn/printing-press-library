@@ -36,7 +36,7 @@ func newAnnouncementFloodCmd(flags *rootFlags) *cobra.Command {
 rolling historical baseline. A flood of filings reliably precedes
 announcements like rights issues, mergers, or delistings by 3-7 days.
 
-Requires: corporate announcements synced via 'nse-india-pp-cli sync'
+Requires: run 'nse-india-pp-cli corporate announcements --symbol <SYMBOL>' to populate the local store
 or fetched via 'nse-india-pp-cli corporate announcements --symbol <SYMBOL>'.`,
 		Example: `  # Detect filing surges in the last 7 days vs historical baseline
   nse-india-pp-cli announcement-flood
@@ -86,7 +86,7 @@ or fetched via 'nse-india-pp-cli corporate announcements --symbol <SYMBOL>'.`,
 				ORDER BY cnt DESC
 			`, cutoff)
 			if err != nil {
-				return fmt.Errorf("querying recent announcements: %w\nhint: run 'nse-india-pp-cli sync' or 'nse-india-pp-cli corporate announcements --symbol <SYMBOL>' to populate the store", err)
+				return fmt.Errorf("querying recent announcements: %w\nhint: run 'nse-india-pp-cli corporate announcements --symbol <SYMBOL>' to populate the store", err)
 			}
 			defer recentRows.Close()
 

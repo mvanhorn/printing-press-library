@@ -77,7 +77,7 @@ equity quote responses (pricebandlower/pricebandupper/iep fields).`,
 				ORDER BY symbol, updated_at DESC
 			`)
 			if err != nil {
-				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli sync' to populate the local store", err)
+				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store", err)
 			}
 			defer rows.Close()
 
@@ -100,7 +100,7 @@ equity quote responses (pricebandlower/pricebandupper/iep fields).`,
 			}
 
 			if len(bySymbol) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No IEP data found. Requires pre-open session data from 'nse-india-pp-cli sync'.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No IEP data found. Run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' during the pre-open session to populate IEP data.")
 				return nil
 			}
 

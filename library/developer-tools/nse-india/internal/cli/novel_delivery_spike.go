@@ -35,7 +35,7 @@ func newDeliverySpikeCmd(flags *rootFlags) *cobra.Command {
 rolling average across the last N sessions stored in the local database.
 A ratio above --threshold signals unusual institutional accumulation.
 
-Requires: 'nse-india-pp-cli sync' run at least once per session to
+Requires: run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' once per session to
 populate the local store with equity quote data (deliveryToTradedQty).`,
 		Example: `  # Show stocks with delivery spike >= 2x the rolling average
   nse-india-pp-cli delivery-spike
@@ -74,7 +74,7 @@ populate the local store with equity quote data (deliveryToTradedQty).`,
 				ORDER BY symbol, updated_at DESC
 			`)
 			if err != nil {
-				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli sync' to populate the local store", err)
+				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store", err)
 			}
 			defer rows.Close()
 
@@ -99,7 +99,7 @@ populate the local store with equity quote data (deliveryToTradedQty).`,
 			}
 
 			if len(bySymbol) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No equity delivery data found. Run 'nse-india-pp-cli sync' to populate the local store.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No equity delivery data found. Run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store.")
 				return nil
 			}
 

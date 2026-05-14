@@ -167,6 +167,13 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 	defer db.Close()
 
+	// PATCH: equity-write-through — NSE equity quote responses use "equityResponse"
+	// envelope and nested fields; project to the flat shape novel analysis commands query.
+	if resourceType == "equity" {
+		writeEquitySnapshot(db, data)
+		return
+	}
+
 	// Collect items to upsert from various response shapes
 	var items []json.RawMessage
 
@@ -206,6 +213,75 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 			id := strings.Trim(string(idRaw), "\"")
 			_ = db.Upsert(resourceType, id, item)
 		}
+	}
+}
+
+// writeEquitySnapshot projects an equityResponse item into the flat shape that
+// novel analysis commands query via json_extract. Fields are mapped from their
+// nested API paths to the top-level names the queries expect.
+//
+// Each snapshot is keyed by symbol_YYYYMMDD so that fetches on different
+// trading sessions accumulate as separate rows — required for multi-session
+// analysis commands (delivery-spike, iep-drift, delivery-divergence).
+//
+// Projected fields:
+//
+//	symbol                   ← metaData.symbol
+//	lastPrice                ← tradeInfo.lastPrice
+//	pChange                  ← metaData.pChange
+//	change                   ← metaData.change
+//	deliveryToTradedQty      ← tradeInfo.deliveryToTradedQuantity
+//	varMargin                ← secInfo.varMargin
+//	extremeLossMargin        ← secInfo.extremelossMargin
+//	metadata.preOpenMarket.IEP ← metaData.iep
+func writeEquitySnapshot(db *store.Store, data json.RawMessage) {
+	var outer struct {
+		EquityResponse []struct {
+			MetaData struct {
+				Symbol  string  `json:"symbol"`
+				PChange float64 `json:"pChange"`
+				Change  float64 `json:"change"`
+				IEP     float64 `json:"iep"`
+			} `json:"metaData"`
+			TradeInfo struct {
+				LastPrice                float64 `json:"lastPrice"`
+				DeliveryToTradedQuantity float64 `json:"deliveryToTradedQuantity"`
+			} `json:"tradeInfo"`
+			SecInfo struct {
+				VarMargin         interface{} `json:"varMargin"`
+				ExtremeLossMargin interface{} `json:"extremelossMargin"`
+			} `json:"secInfo"`
+		} `json:"equityResponse"`
+	}
+	if err := json.Unmarshal(data, &outer); err != nil {
+		return
+	}
+	today := time.Now().Format("20060102")
+	for _, item := range outer.EquityResponse {
+		if item.MetaData.Symbol == "" {
+			continue
+		}
+		snapshot := map[string]interface{}{
+			"symbol":              item.MetaData.Symbol,
+			"lastPrice":           item.TradeInfo.LastPrice,
+			"pChange":             item.MetaData.PChange,
+			"change":              item.MetaData.Change,
+			"deliveryToTradedQty": item.TradeInfo.DeliveryToTradedQuantity,
+			"varMargin":           item.SecInfo.VarMargin,
+			"extremeLossMargin":   item.SecInfo.ExtremeLossMargin,
+			"metadata": map[string]interface{}{
+				"preOpenMarket": map[string]interface{}{
+					"IEP": item.MetaData.IEP,
+				},
+			},
+		}
+		snapshotJSON, err := json.Marshal(snapshot)
+		if err != nil {
+			continue
+		}
+		// Key by symbol_YYYYMMDD so each trading session gets its own row.
+		rowID := item.MetaData.Symbol + "_" + today
+		_ = db.Upsert("equity", rowID, snapshotJSON)
 	}
 }
 

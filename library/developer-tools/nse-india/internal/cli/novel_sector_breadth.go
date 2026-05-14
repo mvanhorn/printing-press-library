@@ -39,7 +39,7 @@ with equity quote data in the local store.
 
 This cross-table join is impossible from any single NSE API call and
 only becomes available after syncing both index constituents and equity
-quote data via 'nse-india-pp-cli sync'.`,
+quote data via 'nse-india-pp-cli equity quote --symbol <SYMBOL>'.`,
 		Example: `  # Breadth for all available indices
   nse-india-pp-cli sector-breadth
 
@@ -89,7 +89,7 @@ quote data via 'nse-india-pp-cli sync'.`,
 
 			rows, err := s.DB().Query(query, queryArgs...)
 			if err != nil {
-				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli sync' to populate the local store", err)
+				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store", err)
 			}
 			defer rows.Close()
 

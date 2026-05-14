@@ -76,7 +76,7 @@ deliveryToTradedQty) stored in the local database.`,
 				ORDER BY symbol, updated_at DESC
 			`)
 			if err != nil {
-				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli sync' to populate the local store", err)
+				return fmt.Errorf("querying store: %w\nhint: run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store", err)
 			}
 			defer rows.Close()
 
@@ -99,7 +99,7 @@ deliveryToTradedQty) stored in the local database.`,
 			}
 
 			if len(bySymbol) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No equity data with delivery% found. Run 'nse-india-pp-cli sync' to populate the local store.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No equity data with delivery% found. Run 'nse-india-pp-cli equity quote --symbol <SYMBOL>' for each symbol to populate the local store.")
 				return nil
 			}
 
