@@ -1,6 +1,6 @@
 ---
 name: pp-openalex
-description: "Printing Press CLI for Openalex. The OpenAlex API provides access to a comprehensive catalog of scholarly works, authors, sources, institutions,..."
+description: "Search OpenAlex's catalog of 250M+ scholarly works, authors, sources, institutions, topics, keywords, publishers, and funders. Trigger phrases: `find scholarly papers on`, `look up research by <author>`, `citations for <work>`, `use openalex`."
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
