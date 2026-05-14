@@ -65,6 +65,28 @@ func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
 }
 
+// PATCH: DoRaw routes an absolute-URL HTTP request through the same
+// AdaptiveLimiter that c.do() uses. Hand-rolled fetches (HTML/XML primary
+// documents, submissions index, ticker cache, Form 4 XML) must go through
+// this method instead of c.HTTPClient.Do directly so SEC fair-access pacing
+// applies uniformly across the CLI.
+func (c *Client) DoRaw(req *http.Request) (*http.Response, error) {
+	if c.HTTPClient == nil {
+		c.HTTPClient = &http.Client{Timeout: 30 * time.Second}
+	}
+	c.limiter.Wait()
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode == 429 {
+		c.limiter.OnRateLimit()
+	} else if resp.StatusCode < 400 {
+		c.limiter.OnSuccess()
+	}
+	return resp, nil
+}
+
 func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
 	return c.GetWithHeaders(path, params, nil)
 }

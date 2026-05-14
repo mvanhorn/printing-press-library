@@ -108,35 +108,21 @@ func newInsiderFollowthroughCmd(flags *rootFlags) *cobra.Command {
 				var matched *store.EdgarFiling
 				var matchedItems []string
 				var matchedMaterial bool
-				for i := range eightKs {
+				// PATCH: ListEdgarFilings returns DESC by filed_at; pick the chronologically
+				// earliest material 8-K after the sale via findEarliestMaterial8K.
+				itemsFor := func(i int) []string {
 					f := eightKs[i]
-					filedAt, ferr := time.Parse("2006-01-02", f.FiledAt)
-					if ferr != nil {
-						continue
-					}
-					if filedAt.Before(saleDate) || filedAt.After(endDate) {
-						continue
-					}
-					// Fetch body to determine items/material
 					cached, _ := db.GetEdgarFiling(cmd.Context(), f.Accession)
 					body := cached.BodyText
 					if body == "" && cached.PrimaryDocURL != "" {
 						body, _ = fetchFilingBody(cmd.Context(), c, db, &cached)
 					}
-					items := parseEightKItems(body)
-					isMaterial := false
-					for _, it := range items {
-						if it != "9.01" {
-							isMaterial = true
-							break
-						}
-					}
-					if isMaterial {
-						matched = &eightKs[i]
-						matchedItems = items
-						matchedMaterial = true
-						break
-					}
+					return parseEightKItems(body)
+				}
+				if idx, items, ok := findEarliestMaterial8K(eightKs, saleDate, endDate, itemsFor); ok {
+					matched = &eightKs[idx]
+					matchedItems = items
+					matchedMaterial = true
 				}
 				pair := followthroughPair{}
 				pair.Sale.Reporter = t.ReporterName
@@ -167,4 +153,32 @@ func newInsiderFollowthroughCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&since, "since", "2y", "Earliest sale date")
 	cmd.Flags().Float64Var(&threshold, "threshold", 1_000_000, "Minimum sale value (USD)")
 	return cmd
+}
+
+// findEarliestMaterial8K returns the index, items, and ok flag for the chronologically
+// earliest material 8-K filed in (saleDate, endDate]. eightKs is expected DESC by filed_at
+// (the order ListEdgarFilings returns), so iteration walks from the tail forward.
+// An 8-K is "material" if it carries any item other than 9.01.
+func findEarliestMaterial8K(
+	eightKs []store.EdgarFiling,
+	saleDate, endDate time.Time,
+	itemsFor func(int) []string,
+) (int, []string, bool) {
+	for i := len(eightKs) - 1; i >= 0; i-- {
+		f := eightKs[i]
+		filedAt, err := time.Parse("2006-01-02", f.FiledAt)
+		if err != nil {
+			continue
+		}
+		if filedAt.Before(saleDate) || filedAt.After(endDate) {
+			continue
+		}
+		items := itemsFor(i)
+		for _, it := range items {
+			if it != "9.01" {
+				return i, items, true
+			}
+		}
+	}
+	return -1, nil, false
 }

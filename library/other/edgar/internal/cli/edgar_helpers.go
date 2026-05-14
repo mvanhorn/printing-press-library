@@ -87,10 +87,10 @@ func requireEdgarUA(c *client.Client) error {
 }
 
 // edgarHeaders returns the SEC-fair-access headers for a hand-built request.
-// Accept-Encoding is intentionally left UNSET so Go's net/http transparently
-// negotiates and decodes gzip. Setting it explicitly disables auto-decode
-// and leaves the caller with raw gzipped bytes (we hit this on the first
-// company_tickers.json call).
+// PATCH(phase5: gzip-header-removal): Accept-Encoding is intentionally left
+// UNSET so Go's net/http transparently negotiates and decodes gzip. Setting
+// it explicitly disables auto-decode and leaves the caller with raw gzipped
+// bytes (we hit this on the first company_tickers.json call).
 func edgarHeaders(c *client.Client) map[string]string {
 	return map[string]string{
 		"User-Agent": edgarUA(c),
@@ -117,11 +117,11 @@ func fetchAbsoluteRaw(ctx context.Context, c *client.Client, absURL string) ([]b
 		return nil, 0, errors.New("missing User-Agent; set COMPANY_PP_CONTACT_EMAIL")
 	}
 	req.Header.Set("Accept", "*/*")
-	httpClient := c.HTTPClient
-	if httpClient == nil {
-		httpClient = &http.Client{Timeout: 30 * time.Second}
-	}
-	resp, err := httpClient.Do(req)
+	// PATCH: route through c.DoRaw so the AdaptiveLimiter paces this hand-rolled
+	// fetch identically to c.do(). Previously bypassed the limiter, breaking
+	// SEC fair-access pacing for HTML/XML primary docs, submissions index,
+	// ticker cache, and Form 4 XML.
+	resp, err := c.DoRaw(req)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -136,7 +136,8 @@ func fetchAbsoluteRaw(ctx context.Context, c *client.Client, absURL string) ([]b
 	return body, resp.StatusCode, nil
 }
 
-// fetchForm4XML resolves the correct Form 4 XML document for an accession.
+// PATCH(phase5: form4-index-json-fallback): fetchForm4XML resolves the
+// correct Form 4 XML document for an accession.
 // SEC's submissions index `primaryDocument` field increasingly points at a
 // wrapper HTML stylesheet (e.g., `xslF345X05/wf-form4_xxx.xml`) instead of
 // the raw XML. We try in order:
@@ -249,11 +250,11 @@ func resolveTickerToCIK(ctx context.Context, c *client.Client, db *store.Store, 
 	if err == nil && time.Since(time.Unix(cached.CachedAt, 0)) < tickerCacheTTL {
 		return cached, nil
 	}
+	// PATCH: dropped dead `if err == nil { _ = cached }` block — it was nested
+	// inside `if err != nil` and therefore unreachable. Original intent was
+	// the stale-fallback below; that is preserved.
 	if err := refreshTickerCache(ctx, c, db); err != nil {
-		// Fall back to stale entry if we have one
-		if err == nil {
-			_ = cached
-		}
+		// Fall back to stale entry if we have one.
 		if cached.CIK != "" {
 			return cached, nil
 		}
@@ -641,9 +642,10 @@ type SectionResult struct {
 // item, plus a bool indicating whether ANY item failed (so callers can set
 // exit code 2).
 func extractSections(body string, items []string) ([]SectionResult, bool) {
-	// Pre-strip HTML — SEC 10-K bodies embed ITEM headers inside font/span/b
-	// tags, so the regex can't match raw HTML. After this step, all offsets
-	// and emitted text are against the stripped form.
+	// PATCH(phase5: sections-html-strip-pre-pass): Pre-strip HTML — SEC 10-K
+	// bodies embed ITEM headers inside font/span/b tags, so the regex can't
+	// match raw HTML. After this step, all offsets and emitted text are
+	// against the stripped form.
 	body = stripHTMLForBoundary(body)
 	// Build map of itemID → list of (start, end) byte ranges.
 	allMatches := itemHeaderRE.FindAllStringSubmatchIndex(body, -1)
@@ -722,9 +724,10 @@ func extractSections(body string, items []string) ([]SectionResult, bool) {
 		case 1:
 			chosen = substantial[0]
 		default:
-			// Multiple substantial candidates. The modern SEC 10-K shape is
-			// TOC-entry-for-Item-X (early in document) followed by body-Item-X
-			// (later in document). v1.1 heuristic: if the LATEST candidate is
+			// PATCH(phase5: sections-v1.1-disambiguation): multiple substantial
+			// candidates. The modern SEC 10-K shape is TOC-entry-for-Item-X
+			// (early in document) followed by body-Item-X (later in document).
+			// v1.1 heuristic: if the LATEST candidate is
 			// >3x larger than every earlier substantial candidate, prefer it.
 			// Boundary safety still holds — when the ratio test fails we fall
 			// back to boundary_unverifiable with the candidate offsets.
