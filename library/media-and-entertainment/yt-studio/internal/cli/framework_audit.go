@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -116,7 +115,7 @@ caller can correlate them with the structural beats.`),
 			// 2. Parse script for framework lines if we have a path and the binding didn't preload them.
 			if resolvedPath != "" && audit.Signal == "" && audit.BeliefShift == "" && audit.CTA == "" {
 				signal, belief, cta, perr := ExtractFrameworkLines(resolvedPath)
-				if perr != nil && !errors.Is(perr, errFileBackedScript) {
+				if perr != nil {
 					return fmt.Errorf("parsing script: %w", perr)
 				}
 				audit.Signal = signal
@@ -199,10 +198,6 @@ caller can correlate them with the structural beats.`),
 	cmd.Flags().StringVar(&dbPath, "db", "", "Custom database path")
 	return cmd
 }
-
-// errFileBackedScript is a sentinel for ExtractFrameworkLines that we ignore at the
-// audit layer (kept here so the import line stays referenced even on error paths).
-var errFileBackedScript = errors.New("script file unreadable")
 
 func oneLine(s string) string {
 	if s == "" {

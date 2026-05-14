@@ -118,10 +118,36 @@ func (c *Client) Query(ctx context.Context, p QueryParams) (*Report, error) {
 	return &r, nil
 }
 
+// IsValidVideoID reports whether s is shaped like a YouTube video ID:
+// alphanumeric or `-`/`_`, length 8-32 (real IDs are 11; allow some
+// slack for future ID shapes). Used to gate filter-string interpolation
+// in RetentionCurve and VideoDailyMetrics; YouTube Analytics filter
+// syntax uses `==` for equality and `;` as an AND separator, so a
+// video ID containing either could inject extra predicates.
+func IsValidVideoID(s string) bool {
+	if len(s) < 8 || len(s) > 32 {
+		return false
+	}
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z':
+		case r >= 'A' && r <= 'Z':
+		case r >= '0' && r <= '9':
+		case r == '-' || r == '_':
+		default:
+			return false
+		}
+	}
+	return true
+}
+
 // RetentionCurve returns the 100-bucket retention curve for a single video.
 // Convention: 100 rows with elapsedVideoTimeRatio from 0.01 to 1.0 in 0.01
 // increments, with audienceWatchRatio as the y-axis.
 func (c *Client) RetentionCurve(ctx context.Context, videoID, startDate, endDate string) ([]float64, error) {
+	if !IsValidVideoID(videoID) {
+		return nil, fmt.Errorf("invalid video ID %q: expected 8-32 chars of [A-Za-z0-9_-]", videoID)
+	}
 	r, err := c.Query(ctx, QueryParams{
 		Metrics:    "audienceWatchRatio",
 		Dimensions: "elapsedVideoTimeRatio",
@@ -159,6 +185,9 @@ type DailyRow struct {
 
 // VideoDailyMetrics queries the standard daily metrics for a video.
 func (c *Client) VideoDailyMetrics(ctx context.Context, videoID, startDate, endDate string) ([]DailyRow, error) {
+	if !IsValidVideoID(videoID) {
+		return nil, fmt.Errorf("invalid video ID %q: expected 8-32 chars of [A-Za-z0-9_-]", videoID)
+	}
 	r, err := c.Query(ctx, QueryParams{
 		Metrics:    "views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage,videoThumbnailImpressionsClickRate,videoThumbnailImpressions,subscribersGained",
 		Dimensions: "day",

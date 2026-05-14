@@ -40,8 +40,26 @@ Run 'yt-studio-pp-cli sync' first to populate daily metrics.`),
 			}
 			defer closer()
 
-			// Get all metrics for the video (wide window)
-			from := time.Now().UTC().AddDate(0, 0, -180).Format("2006-01-02")
+			// Anchor the early window to the video's publish date. The naive
+			// "first 3 rows in a 180-day look-back" approach silently breaks
+			// for videos older than 180 days: rows[0..2] become days
+			// 180-178 ago, not the first 72 hours after publish. Pulling the
+			// publish_at from yt_videos fixes the anchor.
+			var publishedAt string
+			_ = db.QueryRowContext(ctx,
+				`SELECT COALESCE(published_at,'') FROM yt_videos WHERE video_id = ?`,
+				videoID).Scan(&publishedAt)
+			if publishedAt == "" {
+				return notFoundErr(fmt.Errorf("video %s is not in the local store; run `yt-studio-pp-cli sync` first to capture its publish_at", videoID))
+			}
+			publishDate, err := parseVideoPublishedAt(publishedAt)
+			if err != nil {
+				return notFoundErr(fmt.Errorf("video %s has unparseable published_at %q: %w", videoID, publishedAt, err))
+			}
+
+			// Wide window starts at publish date; ends today. Avoids the
+			// 180-day look-back's broken anchoring.
+			from := publishDate.UTC().Format("2006-01-02")
 			to := time.Now().UTC().Format("2006-01-02")
 			rows, err := ytstore.MetricsRange(ctx, db, videoID, from, to)
 			if err != nil {
@@ -51,7 +69,8 @@ Run 'yt-studio-pp-cli sync' first to populate daily metrics.`),
 				return notFoundErr(fmt.Errorf("no daily metrics for video %s; run `yt-studio-pp-cli sync` first", videoID))
 			}
 
-			// First 3 days (sorted ascending) vs day 28-30 window
+			// Early window: days 0-3 from publish_at. Late window: day 27+.
+			// Because rows are now anchored to publish_at, this is honest.
 			early := rows[:min3(len(rows), 3)]
 			lateStart := 27
 			if len(rows) <= lateStart {
@@ -125,4 +144,18 @@ func min3(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// parseVideoPublishedAt parses the published_at field stored in yt_videos.
+// The YouTube Data API returns RFC3339 timestamps (e.g.
+// "2026-05-14T12:34:56Z"); the local store preserves them verbatim. We
+// accept a date-only "YYYY-MM-DD" form as a fallback so manual seeds
+// from the design spec keep working.
+func parseVideoPublishedAt(s string) (time.Time, error) {
+	for _, layout := range []string{time.RFC3339, time.RFC3339Nano, "2006-01-02"} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("unrecognized timestamp format")
 }
