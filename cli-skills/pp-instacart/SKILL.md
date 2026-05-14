@@ -182,6 +182,18 @@ instacart auth import-file <path>
 
 Session lives at `~/.config/instacart/session.json` (0600).
 
+## Location Setup
+
+Instacart's GraphQL API requires location data (`latitude`/`longitude` or an `address_id`) on every retailer lookup. Without it, `search`, `add`, and `cart show` fail at the `ShopCollectionScoped` bootstrap step.
+
+The post-`auth login` step auto-populates `address_id`, `postal_code`, `latitude`, and `longitude` from your default Instacart address. If that doesn't work, the agent should fall back to one of:
+
+- `instacart config set-address --id <uuid>` — derives coords from a known Instacart address ID via the cached `GetAddressById` op. Find the ID in the URL or a graphql variable on https://www.instacart.com/store/account/your-account (DevTools Network tab).
+- `instacart config set-coords --lat <N> --lon <N> [--postal <zip>]` — pass coordinates directly (Google Maps right-click → "What's here?" returns lat/lon).
+- `instacart config show` — confirm what's currently set.
+
+`instacart doctor` surfaces a `location: fail` check whenever this is missing, so an agent driving the CLI can detect the broken state before invoking a real command.
+
 ## Agent Mode
 
 The CLI is agent-native by default. Pass `--json` on any command for machine-readable output. `--dry-run` previews `add` without firing the mutation and surfaces which resolver (`history`, `live`, or `item-id`) would have fired.
