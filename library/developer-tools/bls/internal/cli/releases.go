@@ -6,9 +6,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -73,12 +75,8 @@ next release window opens (useful in CI / scheduled jobs).`,
 			}
 
 			if watch && len(rows) > 0 {
-				first := rows[0]
-				if t, perr := time.Parse(time.RFC3339, first.Date); perr == nil {
-					now := time.Now()
-					if t.After(now) {
-						fmt.Fprintf(cmd.OutOrStdout(), "watching %s at %s (%s) — sleeping %s\n", first.Title, first.Date, first.Time, t.Sub(now).Round(time.Minute))
-					}
+				if err := waitUntilNextRelease(cmd.Context(), rows[0]); err != nil {
+					return err
 				}
 			}
 
@@ -113,6 +111,44 @@ next release window opens (useful in CI / scheduled jobs).`,
 	cmd.Flags().BoolVar(&watch, "watch", false, "Poll until the next release window opens (no-op under PRINTING_PRESS_VERIFY).")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum number of releases to return.")
 	return cmd
+}
+
+// waitUntilNextRelease blocks until the supplied release's scheduled
+// time, then returns. Honors context cancellation (Ctrl-C) and
+// PRINTING_PRESS_VERIFY (no-op under verify so the matrix doesn't hang).
+// Caps the sleep at 24 hours so a far-future release doesn't lock the
+// process for days — a CI job runs daily and only needs to align with
+// the same-day release window.
+func waitUntilNextRelease(ctx context.Context, r ReleaseRow) error {
+	if cliutil.IsVerifyEnv() {
+		return nil
+	}
+	t, err := time.Parse(time.RFC3339, r.Date)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: --watch could not parse release date %q: %v; emitting list immediately\n", r.Date, err)
+		return nil
+	}
+	wait := time.Until(t)
+	if wait <= 0 {
+		return nil
+	}
+	const maxWait = 24 * time.Hour
+	if wait > maxWait {
+		fmt.Fprintf(os.Stderr, "watching %s at %s (%s) — capping --watch sleep at 24h (full wait would be %s); re-run after the cap to keep watching\n",
+			r.Title, r.Date, r.Time, wait.Round(time.Minute))
+		wait = maxWait
+	} else {
+		fmt.Fprintf(os.Stderr, "watching %s at %s (%s) — sleeping %s\n",
+			r.Title, r.Date, r.Time, wait.Round(time.Minute))
+	}
+	timer := time.NewTimer(wait)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 // queryReleases pulls upcoming events from bls_releases, applying optional

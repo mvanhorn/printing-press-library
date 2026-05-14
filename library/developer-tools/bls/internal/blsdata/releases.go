@@ -1,7 +1,11 @@
 // PATCH: hand-authored novel-feature file. See .printing-press-patches.json patch id "novel-blsdata-package".
 package blsdata
 
-import "time"
+import (
+	"fmt"
+	"os"
+	"time"
+)
 
 // pp:novel-static-reference
 //
@@ -29,8 +33,20 @@ type ReleaseEvent struct {
 // ReleaseCalendar returns the curated 2026 BLS release calendar. Dates are
 // confirmed publication dates as of the embed timestamp; revise annually.
 // Time zone is local America/New_York; the Time string carries human form.
+//
+// The cmd/bls-pp-cli and cmd/bls-pp-mcp main.go files blank-import
+// time/tzdata so LoadLocation succeeds even on scratch/Alpine images
+// that lack /usr/share/zoneinfo. As a defense-in-depth backstop for the
+// case where someone reuses this package outside those binaries without
+// the blank import, we fall back to a fixed -5h offset (EST) and emit a
+// stderr warning instead of silently using UTC — UTC was the original
+// bug that caused releases to drop off the upcoming list ~5h early.
 func ReleaseCalendar() []ReleaseEvent {
-	loc, _ := time.LoadLocation("America/New_York")
+	loc, err := time.LoadLocation("America/New_York")
+	if err != nil || loc == nil {
+		fmt.Fprintf(os.Stderr, "warning: blsdata.ReleaseCalendar: time.LoadLocation(\"America/New_York\") failed: %v; falling back to fixed EST (UTC-5)\n", err)
+		loc = time.FixedZone("EST", -5*60*60)
+	}
 	at := func(year, month, day int) time.Time {
 		return time.Date(year, time.Month(month), day, 8, 30, 0, 0, loc)
 	}

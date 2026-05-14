@@ -1,9 +1,27 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-13",
+  "applied_at": "2026-05-14",
   "base_run_id": "20260512-125748",
   "base_printing_press_version": "4.5.1",
   "patches": [
+    {
+      "id": "tzdata-blank-import",
+      "files": [
+        "cmd/bls-pp-cli/main.go",
+        "cmd/bls-pp-mcp/main.go",
+        "internal/blsdata/releases.go"
+      ],
+      "summary": "Embed the IANA timezone database (_ \"time/tzdata\") in both binaries and harden blsdata.ReleaseCalendar to fall back to a fixed EST offset (with stderr warning) instead of silently using UTC if LoadLocation still fails.",
+      "reason": "Without the blank import, scratch / Alpine containers without /usr/share/zoneinfo trip time.LoadLocation(\"America/New_York\") into an error. The previous code discarded the error with `_`, leaving loc=nil so every release event got stored at 08:30 UTC instead of 13:30 UTC (8:30 AM ET). The `releases next` filter then dropped events ~5h before they actually publish. Found by Greptile P1 review on PR #505.",
+      "validated_outcome": "`releases next --within 60d` returns events with release_date in ET (e.g. 12:30 UTC for an 8:30 AM EDT release in June), not in UTC."
+    },
+    {
+      "id": "releases-watch-actually-sleeps",
+      "files": ["internal/cli/releases.go"],
+      "summary": "Implement the documented `releases next --watch` behavior: actually time.Sleep until the next release window, honor context cancellation, cap the wait at 24h, and short-circuit under cliutil.IsVerifyEnv().",
+      "reason": "Previous implementation printed `watching ... — sleeping X` and immediately fell through to the list, defeating the documented `Poll until the next release window opens` contract — CI jobs that ran `releases next --watch` expecting to block until the next CPI / Employment Situation print returned the full list and exited right away. Found by Greptile P1 review on PR #505.",
+      "validated_outcome": "PRINTING_PRESS_VERIFY=1 `releases next --watch` short-circuits to ~18ms; without the env var, the command blocks via time.NewTimer + select on ctx.Done() until the next release time (capped at 24h)."
+    },
     {
       "id": "store-bls-id-field-typed-upsert",
       "files": ["internal/store/store.go"],

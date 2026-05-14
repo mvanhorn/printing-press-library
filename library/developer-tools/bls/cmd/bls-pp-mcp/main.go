@@ -7,6 +7,12 @@ import (
 	"fmt"
 	"os"
 
+	// PATCH: embed the IANA timezone database so the MCP server's
+	// `releases next` tool resolves "America/New_York" the same way the
+	// CLI does, regardless of base image. See main.go in cmd/bls-pp-cli
+	// and .printing-press-patches.json patch id "novel-blsdata-package".
+	_ "time/tzdata"
+
 	mcptools "github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )

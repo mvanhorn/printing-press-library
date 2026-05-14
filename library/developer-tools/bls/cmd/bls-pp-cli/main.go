@@ -7,6 +7,16 @@ import (
 	"fmt"
 	"os"
 
+	// PATCH: embed the IANA timezone database so
+	// blsdata.ReleaseCalendar's time.LoadLocation("America/New_York")
+	// works in scratch / Alpine containers without /usr/share/zoneinfo.
+	// Without this, LoadLocation returns an error, the curated 2026
+	// release calendar gets stored at 08:30 UTC instead of 13:30 UTC
+	// (8:30 AM ET), and `releases next` drops events ~5h before they
+	// publish. See .printing-press-patches.json patch id
+	// "novel-blsdata-package".
+	_ "time/tzdata"
+
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/bls/internal/cli"
 )
 
