@@ -43,9 +43,12 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 }
 
 // Set stores a value in the cache.
+// PATCH(pr511-cache-pkg-owner-only): align with client.writeCache (0o600)
+// so this scaffolding doesn't ship a regression vector if it's ever wired
+// up. Cached API payloads can include user-scoped data.
 func (s *Store) Set(key string, value json.RawMessage) {
 	_ = os.MkdirAll(s.Dir, 0o755)
-	_ = os.WriteFile(s.path(key), []byte(value), 0o644)
+	_ = os.WriteFile(s.path(key), []byte(value), 0o600)
 }
 
 // Clear removes all cached entries.
