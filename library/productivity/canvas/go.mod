@@ -25,13 +25,3 @@ require (
 	golang.org/x/sys v0.29.0 // indirect
 )
 
-replace (
-	golang.org/x/crypto => /tmp/pp-build/deps/x-crypto
-	golang.org/x/mod => /tmp/pp-build/deps/x-mod
-	golang.org/x/net => /tmp/pp-build/deps/x-net
-	golang.org/x/sync => /tmp/pp-build/deps/x-sync
-	golang.org/x/sys => /tmp/pp-build/deps/x-sys
-	golang.org/x/text => /tmp/pp-build/deps/x-text
-	golang.org/x/tools => /tmp/pp-build/deps/x-tools
-	gopkg.in/yaml.v3 => /tmp/pp-build/deps/yaml-v3
-)
