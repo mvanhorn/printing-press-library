@@ -40,6 +40,7 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	}
 }
 
+// PATCH: ratelimit-concurrent-burst — pre-reserve slot under lock so concurrent workers see monotonically advancing lastRequest.
 func (l *AdaptiveLimiter) Wait() {
 	if l == nil {
 		return
