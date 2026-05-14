@@ -49,14 +49,14 @@ These capabilities aren't available in any other tool for this API.
   _For quarterly thesis rechecks, reach for this before fetching the full submissions index — it eliminates re-paying token cost on filings already seen._
 
   ```bash
-  edgar-pp-cli since RCAT --as-of 2026-05-08 --json
+  edgar-pp-cli since AAPL --as-of 2026-05-08 --json
   ```
 - **`fts`** — Full-text search over locally-cached filing bodies via FTS5 — ticker- and form-scoped — with snippet windows and byte offsets for precise re-read.
 
   _Reach for fts during deep-dives where you re-query the same filing body multiple times; reach for the absorbed `efts` command for the first lookup or for cross-issuer queries._
 
   ```bash
-  edgar-pp-cli fts "going concern" --ticker RCAT --form 10-Q --json
+  edgar-pp-cli fts "going concern" --ticker AAPL --form 10-Q --json
   ```
 
 ### Service-specific content patterns
@@ -65,21 +65,21 @@ These capabilities aren't available in any other tool for this API.
   _Use this instead of pulling 8-K bodies when you need 'has anything material happened?' — answers in one call without reading filing text._
 
   ```bash
-  edgar-pp-cli eightk-items RCAT --since 2026-05-08 --material-only --json
+  edgar-pp-cli eightk-items AAPL --since 2026-05-08 --material-only --json
   ```
 - **`ownership-crosses`** — Enumerate 13D and 13G filings against an issuer (when someone else crosses 5% of the ticker), with filer name, percent owned, and filed-at.
 
   _Use in LODESTAR Gate 3 asymmetric-structure checks to spot activist or institutional concentration without scrolling submissions._
 
   ```bash
-  edgar-pp-cli ownership-crosses RCAT --json
+  edgar-pp-cli ownership-crosses AAPL --json
   ```
 - **`governance-flags`** — Compose three independent service-specific signals into one call: 8-K Item 4.01 auditor changes, Item 4.02 non-reliance restatements, and NT-10-K late-filing notices (Form 12b-25).
 
   _Use as an early disqualifier check — if any flag fires, surface to LODESTAR before spending tokens on the full thesis._
 
   ```bash
-  edgar-pp-cli governance-flags RCAT --since 2y --json
+  edgar-pp-cli governance-flags AAPL --since 2y --json
   ```
 
 ### Cross-entity joins
@@ -88,14 +88,16 @@ These capabilities aren't available in any other tool for this API.
   _Reach for this in LODESTAR Gate 2 execution-validation when an insider sale precedes material disclosures — surface management exits before bad news._
 
   ```bash
-  edgar-pp-cli insider-followthrough RCAT --json
+  edgar-pp-cli insider-followthrough AAPL --json
   ```
+
+  **Form 4 ingest cap.** `insider-summary`, `insider-followthrough`, and `primary-sources` ingest Form 4 filings through a shared `--max-form4 N` cap (default `200`) that bounds DB/API pressure on high-volume filers. When the cap clips older filings, the output surfaces `form4_truncated: true` and `form4_total_in_window: <N>` under `form4_skipped` plus a stderr WARN — never silent. Pass `--max-form4 0` to disable; pass a larger value to widen the window.
 - **`xbrl-pivot`** — Multi-ticker XBRL pivot that resolves concept aliases (Revenues ↔ RevenueFromContractWithCustomerExcludingAssessedTax ↔ SalesRevenueNet) into a flat ticker×quarter×concept table.
 
   _For cross-sectional quality screens — pivot before parsing 50 companyfacts JSON blobs by hand._
 
   ```bash
-  edgar-pp-cli xbrl-pivot --tickers RCAT,KTOS,LEU --concepts Revenues,NetIncomeLoss --quarters 8 --csv
+  edgar-pp-cli xbrl-pivot --tickers AAPL,MSFT,GOOGL --concepts Revenues,NetIncomeLoss --quarters 8 --csv
   ```
 
 ### Token-efficient extraction
@@ -104,7 +106,7 @@ These capabilities aren't available in any other tool for this API.
   _Use this instead of fetching the raw 10-K body — saves an order of magnitude in tokens when you only need Risk Factors and MD&A._
 
   ```bash
-  edgar-pp-cli sections RCAT --form 10-K --items 1A,7,7A --json
+  edgar-pp-cli sections AAPL --form 10-K --items 1A,7,7A --json
   ```
 
 ## Command Reference
@@ -144,7 +146,7 @@ edgar-pp-cli which "<capability in your own words>"
 ### Full LODESTAR research pull
 
 ```bash
-edgar-pp-cli primary-sources RCAT --json --select shares_outstanding,senior_insider_sales,recent_eightk_items,def14a_governance
+edgar-pp-cli primary-sources AAPL --json --select shares_outstanding,senior_insider_sales,recent_eightk_items,def14a_governance
 ```
 
 Compact JSON for an agent — primary-sources returns the full bundle; --select narrows to only the fields LODESTAR Gate evaluations actually need, dropping boilerplate.
@@ -152,7 +154,7 @@ Compact JSON for an agent — primary-sources returns the full bundle; --select 
 ### Quarterly recheck delta
 
 ```bash
-edgar-pp-cli since RCAT --as-of 2026-05-08 --json
+edgar-pp-cli since AAPL --as-of 2026-05-08 --json
 ```
 
 Only filings filed after the supplied timestamp. Local cursor — no SEC round-trip when the cache is warm. Pair with eightk-items --material-only when the delta includes 8-Ks.
@@ -160,7 +162,7 @@ Only filings filed after the supplied timestamp. Local cursor — no SEC round-t
 ### Insider follow-through pattern
 
 ```bash
-edgar-pp-cli insider-followthrough RCAT --json
+edgar-pp-cli insider-followthrough AAPL --json
 ```
 
 Cross-entity join: senior-officer code-S sales of ≥$1M paired with subsequent material 8-K items within 90 days. Surfaces management exits before bad news.
@@ -168,7 +170,7 @@ Cross-entity join: senior-officer code-S sales of ≥$1M paired with subsequent 
 ### Cross-sectional XBRL screen
 
 ```bash
-edgar-pp-cli xbrl-pivot --tickers RCAT,KTOS,LEU,EXE --concepts Revenues,NetIncomeLoss --quarters 8 --csv
+edgar-pp-cli xbrl-pivot --tickers AAPL,MSFT,GOOGL,META --concepts Revenues,NetIncomeLoss --quarters 8 --csv
 ```
 
 Multi-ticker pivot with concept-alias resolution — flat table for downstream screening or spreadsheet load. Use --csv for tabular pipes.
@@ -176,7 +178,7 @@ Multi-ticker pivot with concept-alias resolution — flat table for downstream s
 ### Token-efficient 10-K item extraction
 
 ```bash
-edgar-pp-cli sections RCAT --form 10-K --items 1A,7,7A --json --select item,text_offset,text
+edgar-pp-cli sections AAPL --form 10-K --items 1A,7,7A --json --select item,text_offset,text
 ```
 
 Pulls only Risk Factors (1A), MD&A (7), and Quantitative Disclosures (7A) with byte offsets — order of magnitude fewer tokens than the full filing body.
@@ -184,7 +186,7 @@ Pulls only Risk Factors (1A), MD&A (7), and Quantitative Disclosures (7A) with b
 ### Local FTS5 deep-dive
 
 ```bash
-edgar-pp-cli fts "going concern" --ticker RCAT --form 10-Q --json
+edgar-pp-cli fts "going concern" --ticker AAPL --form 10-Q --json
 ```
 
 Offline FTS5 over cached filing bodies; emits snippet + byte offsets for precise re-read. Run sync first if cache is cold.
