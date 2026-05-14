@@ -129,6 +129,8 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   edgar-pp-cli insider-followthrough AAPL --json
   ```
+
+  **Form 4 ingest cap.** `insider-summary`, `insider-followthrough`, and `primary-sources` ingest Form 4 filings through a shared `--max-form4 N` cap (default `200`) that bounds DB/API pressure on high-volume filers (large biotechs during offerings, late-stage IPOs). When the cap clips older filings, the JSON output surfaces `form4_truncated: true` and `form4_total_in_window: <N>` under `form4_skipped`, and a stderr WARN fires so the truncation is never silent. Pass `--max-form4 0` to disable the cap entirely; pass a larger value to widen it.
 - **`xbrl-pivot`** — Multi-ticker XBRL pivot that resolves concept aliases (Revenues ↔ RevenueFromContractWithCustomerExcludingAssessedTax ↔ SalesRevenueNet) into a flat ticker×quarter×concept table.
 
   _For cross-sectional quality screens — pivot before parsing 50 companyfacts JSON blobs by hand._

@@ -26,6 +26,7 @@ type primarySourcesBundle struct {
 
 func newPrimarySourcesCmd(flags *rootFlags) *cobra.Command {
 	var since string
+	var maxForm4 int
 	cmd := &cobra.Command{
 		Use:   "primary-sources <ticker-or-cik>",
 		Short: "LODESTAR primary-source bundle: 10-K + 4 10-Qs + 8-Ks + Form 4s + DEF 14A in one call",
@@ -138,7 +139,7 @@ object instead of best-effort text.`,
 			}
 
 			// Form 4 (12 months) — loud-skip per LODESTAR mandate
-			form4Skip, form4Err := ingestForm4ForCIK(cmd.Context(), c, db, ec.CIK, form4Since)
+			form4Skip, form4Err := ingestForm4ForCIK(cmd.Context(), c, db, ec.CIK, form4Since, maxForm4)
 			if form4Err == nil {
 				warnForm4Skips(form4Skip, ec.Ticker, ec.CIK)
 				bundle.Form4Skipped = form4Skip
@@ -188,5 +189,6 @@ object instead of best-effort text.`,
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "90d", "8-K window (ISO date or 90d/12mo)")
+	cmd.Flags().IntVar(&maxForm4, "max-form4", DefaultMaxForm4, "Cap on Form 4 filings ingested in the 12mo window; truncation is surfaced as form4_truncated + form4_total_in_window. 0 disables the cap.")
 	return cmd
 }

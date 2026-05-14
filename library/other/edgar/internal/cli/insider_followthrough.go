@@ -40,6 +40,7 @@ type followthroughPair struct {
 func newInsiderFollowthroughCmd(flags *rootFlags) *cobra.Command {
 	var since string
 	var threshold float64
+	var maxForm4 int
 	cmd := &cobra.Command{
 		Use:         "insider-followthrough <ticker-or-cik>",
 		Short:       "Pair senior-officer code-S sales ≥$1M with material 8-Ks in the following 90 days",
@@ -80,7 +81,7 @@ func newInsiderFollowthroughCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Ensure form 4 and 8-K data are present
-			skipRep, err := ingestForm4ForCIK(cmd.Context(), c, db, ec.CIK, sinceISO)
+			skipRep, err := ingestForm4ForCIK(cmd.Context(), c, db, ec.CIK, sinceISO, maxForm4)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -152,6 +153,7 @@ func newInsiderFollowthroughCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&since, "since", "2y", "Earliest sale date")
 	cmd.Flags().Float64Var(&threshold, "threshold", 1_000_000, "Minimum sale value (USD)")
+	cmd.Flags().IntVar(&maxForm4, "max-form4", DefaultMaxForm4, "Cap on Form 4 filings ingested in the window; truncation is surfaced as form4_truncated + form4_total_in_window. 0 disables the cap.")
 	return cmd
 }
 

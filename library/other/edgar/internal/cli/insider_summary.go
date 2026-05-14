@@ -28,10 +28,18 @@ type Form4SkipEntry struct {
 }
 
 // Form4SkipReport aggregates skip entries for one ingest pass.
+//
+// PATCH(greptile-form4-limit-truncation-signal): Truncated/TotalInWindow
+// surface when the hard --max-form4 cap clipped older Form 4s out of the
+// ingest window. Previously the LIMIT 200 cap was silent and high-volume
+// filers showed form4_skipped_count: 0 with a misleading clean bill.
 type Form4SkipReport struct {
-	Count   int              `json:"form4_skipped_count"`
-	Entries []Form4SkipEntry `json:"form4_skipped_accessions"`
-	Total   int              `json:"form4_total_seen"`
+	Count           int              `json:"form4_skipped_count"`
+	Entries         []Form4SkipEntry `json:"form4_skipped_accessions"`
+	Total           int              `json:"form4_total_seen"`
+	Truncated       bool             `json:"form4_truncated,omitempty"`
+	TotalInWindow   int              `json:"form4_total_in_window,omitempty"`
+	MaxForm4Applied int              `json:"form4_max_applied,omitempty"`
 }
 
 // warnForm4Skips writes a single WARN line to stderr summarizing the skip.
@@ -39,11 +47,17 @@ type Form4SkipReport struct {
 // Gate 2 directly; LODESTAR-mandated loud-skip behavior (in-band JSON
 // fields + stderr WARN).
 func warnForm4Skips(rep Form4SkipReport, ticker, cik string) {
-	if rep.Count == 0 {
-		return
+	if rep.Count > 0 {
+		fmt.Fprintf(os.Stderr, "WARN: Form 4 ingest for %s (CIK %s) skipped %d of %d filings; insider data is incomplete. Run with --json to see skipped accessions.\n",
+			ticker, cik, rep.Count, rep.Total)
 	}
-	fmt.Fprintf(os.Stderr, "WARN: Form 4 ingest for %s (CIK %s) skipped %d of %d filings; insider data is incomplete. Run with --json to see skipped accessions.\n",
-		ticker, cik, rep.Count, rep.Total)
+	// PATCH(greptile-form4-limit-truncation-signal): warn explicitly when the
+	// --max-form4 cap dropped older filings from the window. Silent
+	// truncation gave a false clean-bill on high-volume filers.
+	if rep.Truncated {
+		fmt.Fprintf(os.Stderr, "WARN: Form 4 ingest for %s (CIK %s) truncated by --max-form4 cap (%d ingested of %d in window); raise --max-form4 or narrow --since to see older transactions.\n",
+			ticker, cik, rep.MaxForm4Applied, rep.TotalInWindow)
+	}
 }
 
 type reporterSummary struct {
@@ -78,6 +92,7 @@ type insiderSummaryReport struct {
 func newInsiderSummaryCmd(flags *rootFlags) *cobra.Command {
 	var seniorOnly bool
 	var since string
+	var maxForm4 int
 	cmd := &cobra.Command{
 		Use:   "insider-summary <ticker-or-cik>",
 		Short: "Form 4 aggregation with senior-officer flagging and S/F discrimination",
@@ -122,7 +137,7 @@ S/F collapse is the bug we exist to prevent.`,
 			}
 
 			// Ensure Form 4 filings are synced into edgar_insider_transactions.
-			skipRep, err := ingestForm4ForCIK(cmd.Context(), c, db, ec.CIK, sinceISO)
+			skipRep, err := ingestForm4ForCIK(cmd.Context(), c, db, ec.CIK, sinceISO, maxForm4)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -189,19 +204,59 @@ S/F collapse is the bug we exist to prevent.`,
 	}
 	cmd.Flags().BoolVar(&seniorOnly, "senior-only", false, "Only include senior-officer reporters")
 	cmd.Flags().StringVar(&since, "since", "12mo", "Earliest transaction date (ISO or 90d/12mo/1y)")
+	cmd.Flags().IntVar(&maxForm4, "max-form4", DefaultMaxForm4, "Cap on Form 4 filings ingested in the window; truncation is surfaced as form4_truncated + form4_total_in_window. 0 disables the cap.")
 	return cmd
 }
+
+// PATCH(greptile-form4-limit-truncation-signal): planForm4Ingest counts the
+// Form 4 filings cached for cik in the sinceISO window and returns a
+// pre-populated Form4SkipReport (MaxForm4Applied, TotalInWindow, Truncated)
+// alongside the effective LIMIT to pass to ListEdgarFilings. Pure DB read —
+// no network — so it is independently testable. maxForm4 <= 0 disables the
+// cap (limit returned as 0, which ListEdgarFilings treats as unlimited).
+func planForm4Ingest(ctx context.Context, db *store.Store, cik, sinceISO string, maxForm4 int) (Form4SkipReport, int, error) {
+	skip := Form4SkipReport{MaxForm4Applied: maxForm4}
+	totalInWindow, err := db.CountEdgarFilings(ctx, cik, []string{"4", "4/A"}, sinceISO)
+	if err != nil {
+		return skip, 0, err
+	}
+	skip.TotalInWindow = totalInWindow
+	limit := maxForm4
+	if limit < 0 {
+		limit = 0
+	}
+	if limit > 0 && totalInWindow > limit {
+		skip.Truncated = true
+	}
+	return skip, limit, nil
+}
+
+// DefaultMaxForm4 is the default cap on Form 4 filings ingested per call.
+// Caps DB/API pressure on high-volume issuers (a single biotech can ship
+// >1000 Form 4s in 90 days during an offering). Callers override via the
+// --max-form4 flag wired in insider-summary, insider-followthrough, and
+// primary-sources; truncation when the cap clips older filings is surfaced
+// explicitly in Form4SkipReport.
+const DefaultMaxForm4 = 200
 
 // ingestForm4ForCIK fetches Form 4 filings for a CIK since sinceISO, downloads
 // the primary XML, parses each, and upserts transaction rows. Returns a
 // Form4SkipReport enumerating any filings that could not be ingested with
 // a per-accession reason (LODESTAR-mandated loud-skip; see Form4SkipEntry).
-func ingestForm4ForCIK(ctx context.Context, c *client.Client, db *store.Store, cik, sinceISO string) (Form4SkipReport, error) {
-	var skip Form4SkipReport
+//
+// PATCH(greptile-form4-limit-truncation-signal): maxForm4 caps the ingest
+// for DB/API pressure but truncation is now explicit — Truncated +
+// TotalInWindow surface in the JSON output and a stderr WARN fires when
+// older filings were dropped. maxForm4 <= 0 disables the cap.
+func ingestForm4ForCIK(ctx context.Context, c *client.Client, db *store.Store, cik, sinceISO string, maxForm4 int) (Form4SkipReport, error) {
 	if _, err := fetchSubmissions(ctx, c, db, cik); err != nil {
-		return skip, err
+		return Form4SkipReport{MaxForm4Applied: maxForm4}, err
 	}
-	filings, err := db.ListEdgarFilings(ctx, cik, []string{"4", "4/A"}, sinceISO, 200)
+	skip, limit, perr := planForm4Ingest(ctx, db, cik, sinceISO, maxForm4)
+	if perr != nil {
+		return skip, perr
+	}
+	filings, err := db.ListEdgarFilings(ctx, cik, []string{"4", "4/A"}, sinceISO, limit)
 	if err != nil {
 		return skip, err
 	}

@@ -222,6 +222,33 @@ func (s *Store) GetEdgarFiling(ctx context.Context, accession string) (EdgarFili
 	return f, nil
 }
 
+// PATCH(greptile-form4-limit-truncation-signal): CountEdgarFilings returns the
+// unfiltered count of cached filings matching cik/formTypes/since, ignoring
+// any limit clause. Used by Form 4 ingest to detect when LIMIT-clamped
+// ListEdgarFilings results silently truncated a high-volume issuer's filings
+// in the window.
+func (s *Store) CountEdgarFilings(ctx context.Context, cik string, formTypes []string, since string) (int, error) {
+	q := `SELECT COUNT(*) FROM edgar_filings WHERE cik = ?`
+	args := []any{cik}
+	if len(formTypes) > 0 {
+		placeholders := make([]string, len(formTypes))
+		for i, ft := range formTypes {
+			placeholders[i] = "?"
+			args = append(args, ft)
+		}
+		q += " AND form_type IN (" + strings.Join(placeholders, ",") + ")"
+	}
+	if since != "" {
+		q += " AND filed_at >= ?"
+		args = append(args, since)
+	}
+	var n int
+	if err := s.db.QueryRowContext(ctx, q, args...).Scan(&n); err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
 // ListEdgarFilings returns filings matching the optional filters. since="" means no since filter.
 func (s *Store) ListEdgarFilings(ctx context.Context, cik string, formTypes []string, since string, limit int) ([]EdgarFiling, error) {
 	q := `SELECT accession, cik, form_type, filed_at, COALESCE(primary_doc_url,''), COALESCE(title,''), CASE WHEN body_text IS NULL THEN 0 ELSE 1 END, COALESCE(body_cached_at,0), cached_at FROM edgar_filings WHERE cik = ?`
