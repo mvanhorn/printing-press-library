@@ -332,6 +332,41 @@ func resolveLocal(ctx context.Context, resourceType string, isList bool, path st
 		return data, prov, nil
 	}
 
+	// PATCH: equity-offline-fallback — equity rows are keyed symbol_YYYYMMDD, not
+	// by URL path segment. Look up the most recent snapshot for the given symbol.
+	if resourceType == "equity" {
+		symbol := strings.ToUpper(params["symbol"])
+		if symbol == "" {
+			return nil, DataProvenance{}, fmt.Errorf("no symbol param for equity offline lookup")
+		}
+		// Try today's key first, then fall back to listing all equity rows and
+		// returning the most recently updated one for this symbol.
+		today := time.Now().Format("20060102")
+		item, _ := db.Get(resourceType, symbol+"_"+today)
+		if item == nil {
+			// Scan all equity rows for the most recent snapshot of this symbol.
+			all, err := db.List(resourceType, 0)
+			if err == nil {
+				prefix := symbol + "_"
+				for _, row := range all {
+					var obj map[string]json.RawMessage
+					if json.Unmarshal(row, &obj) != nil {
+						continue
+					}
+					if sym := strings.Trim(string(obj["symbol"]), "\""); strings.EqualFold(sym, symbol) {
+						item = row
+						break
+					}
+					_ = prefix // suppress unused warning
+				}
+			}
+		}
+		if item == nil {
+			return nil, DataProvenance{}, fmt.Errorf("no cached equity data for %q. Run 'nse-india-pp-cli equity quote --symbol %s' to populate", symbol, symbol)
+		}
+		return item, prov, nil
+	}
+
 	// Get by ID — extract the last path segment as the ID
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]

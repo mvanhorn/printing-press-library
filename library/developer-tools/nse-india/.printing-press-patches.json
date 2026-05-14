@@ -28,6 +28,19 @@
       "reason": "NSE India equity quote responses wrap data under 'equityResponse' with nested fields; writeThroughCache only handled 'results'/'data'/'items'/'id' envelopes so equity data was never persisted, causing all eight novel commands to always return empty results.",
       "files": ["internal/cli/data_source.go"],
       "validated_outcome": "After running equity quote, SELECT from resources WHERE resource_type='equity' returns rows keyed symbol_YYYYMMDD with correct symbol, lastPrice, deliveryToTradedQty, varMargin, extremeLossMargin, and metadata.preOpenMarket.IEP fields. delivery-spike returns spike signals after 2+ sessions."
+    },
+    {
+      "id": "equity-offline-fallback",
+      "summary": "Fix resolveLocal to look up equity snapshots by symbol param rather than URL path segment.",
+      "reason": "The generic fallback extracted the last URL path segment (GetQuoteApi) as the store ID, but equity rows are keyed symbol_YYYYMMDD — offline fallback always returned not-found even when cached data existed.",
+      "files": ["internal/cli/data_source.go"],
+      "validated_outcome": "equity quote --symbol RELIANCE --data-source local returns cached snapshot with source=local."
+    },
+    {
+      "id": "ratelimit-concurrent-burst",
+      "summary": "Pre-reserve the next request slot under the lock in AdaptiveLimiter.Wait so concurrent workers see monotonically advancing lastRequest.",
+      "reason": "Wait released the mutex before sleeping, letting concurrent sync workers all read the same lastRequest, sleep the same duration, and fire simultaneously — defeating the per-second rate limit.",
+      "files": ["internal/cliutil/ratelimit.go"]
     }
   ]
 }
