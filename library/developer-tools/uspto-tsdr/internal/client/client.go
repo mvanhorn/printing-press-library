@@ -146,31 +146,62 @@ func (c *Client) GetJSON(path string, params map[string]string) (json.RawMessage
 	// Re-force Accept after config headers to ensure it isn't overridden
 	req.Header.Set("Accept", "application/json")
 
-	plainClient := &http.Client{Timeout: 30 * time.Second}
-	c.limiter.Wait()
+	const maxRetries = 3
+	var lastErr error
 
-	resp, err := plainClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("GET %s: %w", path, err)
-	}
-	defer resp.Body.Close()
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		c.limiter.Wait()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-	body = sanitizeJSONResponse(body)
+		reqCopy, _ := http.NewRequest("GET", req.URL.String(), nil)
+		reqCopy.Header = req.Header.Clone()
 
-	if resp.StatusCode >= 400 {
-		return nil, &APIError{Method: "GET", Path: path, StatusCode: resp.StatusCode, Body: truncateBody(body)}
+		resp, err := c.HTTPClient.Do(reqCopy)
+		if err != nil {
+			lastErr = fmt.Errorf("GET %s: %w", path, err)
+			if attempt < maxRetries {
+				time.Sleep(time.Duration(math.Pow(2, float64(attempt))) * time.Second)
+				continue
+			}
+			return nil, lastErr
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return nil, fmt.Errorf("reading response: %w", err)
+		}
+		body = sanitizeJSONResponse(body)
+
+		if resp.StatusCode == 429 && attempt < maxRetries {
+			c.limiter.OnRateLimit()
+			wait := cliutil.RetryAfter(resp)
+			fmt.Fprintf(os.Stderr, "rate limited on GET %s, waiting %s (attempt %d/%d)\n", path, wait, attempt+1, maxRetries)
+			time.Sleep(wait)
+			lastErr = &APIError{Method: "GET", Path: path, StatusCode: resp.StatusCode, Body: truncateBody(body)}
+			continue
+		}
+
+		if resp.StatusCode >= 500 && attempt < maxRetries {
+			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+			fmt.Fprintf(os.Stderr, "server error %d on GET %s, retrying in %s (attempt %d/%d)\n", resp.StatusCode, path, wait, attempt+1, maxRetries)
+			time.Sleep(wait)
+			lastErr = &APIError{Method: "GET", Path: path, StatusCode: resp.StatusCode, Body: truncateBody(body)}
+			continue
+		}
+
+		if resp.StatusCode >= 400 {
+			return nil, &APIError{Method: "GET", Path: path, StatusCode: resp.StatusCode, Body: truncateBody(body)}
+		}
+
+		c.limiter.OnSuccess()
+		result := json.RawMessage(body)
+		if !c.NoCache && !c.DryRun && c.cacheDir != "" {
+			c.writeCache(path, params, result)
+		}
+		return result, nil
 	}
 
-	c.limiter.OnSuccess()
-	result := json.RawMessage(body)
-	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
-		c.writeCache(path, params, result)
-	}
-	return result, nil
+	return nil, lastErr
 }
 
 func (c *Client) ProbeGet(path string) (int, error) {

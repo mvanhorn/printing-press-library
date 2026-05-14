@@ -116,6 +116,8 @@ func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.TsdrApikeyHeader = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 

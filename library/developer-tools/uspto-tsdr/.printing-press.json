@@ -6,6 +6,7 @@
   "display_name": "Tsdr",
   "cli_name": "uspto-tsdr-pp-cli",
   "owner": "h179922",
+  "printer": "H179922",
   "printer_name": "H179922",
   "spec_path": "spec.json",
   "spec_format": "openapi3",

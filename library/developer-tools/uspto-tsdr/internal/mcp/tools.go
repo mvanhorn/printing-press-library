@@ -597,12 +597,18 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
+	}
+
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("iterating rows: %v", err)), nil
 	}
 
 	data, _ := json.MarshalIndent(results, "", "  ")
