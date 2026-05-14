@@ -162,16 +162,21 @@ func newInboxSyncCmd(flags *rootFlags) *cobra.Command {
 			if items == nil {
 				items = []json.RawMessage{}
 			}
-			stored, highest, err := upsertInboxMessages(cmd.Context(), dbPath, items)
+			stored, highest, highestNum, err := upsertInboxMessages(cmd.Context(), dbPath, items)
 			if err != nil {
 				return err
 			}
 
 			var deleteStatus int
-			if deleteThrough && highest != "" {
+			// PATCH(pr511-inbox-delete-through-int): update_highest_message.json
+			// expects "message" as a JSON integer; sending the string form
+			// (from `highest`) gets rejected by Pushover's type-strict API.
+			// Use the parsed int64 from upsertInboxMessages and gate on a
+			// real numeric ID (highestNum >= 0).
+			if deleteThrough && highestNum >= 0 {
 				path := "/1/devices/{device_id}/update_highest_message.json"
 				path = replacePathParam(path, "device_id", deviceID)
-				_, statusCode, err := c.Post(path, map[string]any{"secret": clientSecret, "message": highest})
+				_, statusCode, err := c.Post(path, map[string]any{"secret": clientSecret, "message": highestNum})
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -385,15 +390,18 @@ func scanNotificationHistory(row scanner) (notificationHistoryRecord, error) {
 	return record, nil
 }
 
-func upsertInboxMessages(ctx context.Context, dbPath string, items []json.RawMessage) (int, string, error) {
+// PATCH(pr511-inbox-delete-through-int): returns highestNum (int64) alongside
+// the string form so callers can send the numeric ID to update_highest_message.json
+// without re-parsing. highestNum is -1 when no numeric message ID was seen.
+func upsertInboxMessages(ctx context.Context, dbPath string, items []json.RawMessage) (int, string, int64, error) {
 	db, err := openPushoverLocalDB(ctx, dbPath)
 	if err != nil {
-		return 0, "", err
+		return 0, "", -1, err
 	}
 	defer db.Close()
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
-		return 0, "", err
+		return 0, "", -1, err
 	}
 	defer tx.Rollback()
 
@@ -426,14 +434,14 @@ func upsertInboxMessages(ctx context.Context, dbPath string, items []json.RawMes
 			record.ID, record.SyncedAt, record.ReceivedAt, record.Title, record.MessagePreview, record.App, record.Priority,
 		)
 		if err != nil {
-			return 0, "", fmt.Errorf("storing inbox message: %w", err)
+			return 0, "", -1, fmt.Errorf("storing inbox message: %w", err)
 		}
 		stored++
 	}
 	if err := tx.Commit(); err != nil {
-		return 0, "", err
+		return 0, "", -1, err
 	}
-	return stored, highest, nil
+	return stored, highest, highestNum, nil
 }
 
 func listInboxMessages(ctx context.Context, dbPath string, limit int) ([]inboxMessageRecord, error) {

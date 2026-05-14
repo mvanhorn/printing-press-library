@@ -13,6 +13,16 @@
         "internal/client/dryrun_test.go"
       ],
       "validated_outcome": "go test ./internal/client -run TestWriteCacheUsesOwnerOnlyPermissions -count=1 confirms cache files are written 0600; publish-package verifier passes locally."
+    },
+    {
+      "id": "pr511-inbox-delete-through-int",
+      "summary": "Send update_highest_message.json `message` as a JSON integer, not a string.",
+      "reason": "upsertInboxMessages originally returned the highest seen message ID only as a Go string. Passing that string into the POST body produced \"message\":\"789\", which Pushover's type-strict update_highest_message.json endpoint rejects — server-side cleanup silently failed even though the local SQLite store updated. The function now also returns the parsed int64, and the inbox-sync caller uses it (gated on highestNum >= 0) so non-numeric fallback IDs never reach the API.",
+      "files": [
+        "internal/cli/pushover_history.go",
+        "internal/cli/pushover_history_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestUpsertInboxMessages -count=1 covers both the numeric-highest path and the all-hashed-IDs fallback (highestNum=-1) that suppresses the delete-through POST."
     }
   ]
 }
