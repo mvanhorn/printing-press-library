@@ -1,0 +1,10 @@
+PASS go mod tidy
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS pushpress-pp-cli --help
+PASS pushpress-pp-cli version
+PASS pushpress-pp-cli doctor
+Generated pushpress at /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-222152/working/pushpress-pp-cli
+Bundled /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-222152/working/pushpress-pp-cli/build/pushpress-pp-mcp-darwin-arm64.mcpb

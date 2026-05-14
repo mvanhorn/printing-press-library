@@ -1,0 +1,51 @@
+version: 2
+project_name: pushpress-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: pushpress-pp-cli
+    main: ./cmd/pushpress-pp-cli
+    binary: pushpress-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/pushpress/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: pushpress-pp-mcp
+    main: ./cmd/pushpress-pp-mcp
+    binary: pushpress-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: pushpress-pp-cli
+    repository:
+      owner: i2fitness
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every PushPress /v3 endpoint that exists, plus the going-dark report and the trainer-dashboard one-liner the API..."
+    install: |
+      bin.install "pushpress-pp-cli"
+      bin.install "pushpress-pp-mcp"

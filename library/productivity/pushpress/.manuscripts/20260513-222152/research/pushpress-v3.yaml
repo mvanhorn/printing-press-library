@@ -1,0 +1,1286 @@
+openapi: 3.1.0
+info:
+  title: PushPress Platform API
+  version: 3.0.0
+servers:
+- url: https://api.pushpress.com
+  description: production
+  x-speakeasy-server-id: prod
+- url: https://api.pushpressstage.com
+  description: staging
+  x-speakeasy-server-id: stage
+- url: https://api.pushpressdev.com
+  description: development
+  x-speakeasy-server-id: dev
+x-speakeasy-timeout: 10000
+x-speakeasy-retries:
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxInterval: 60000
+    maxElapsedTime: 3600000
+    exponent: 1.5
+  statusCodes:
+  - 5XX
+  retryConnectionErrors: true
+x-speakeasy-globals:
+  parameters:
+  - name: companyId
+    in: header
+    schema:
+      type: string
+    x-speakeasy-globals-hidden: true
+components:
+  schemas:
+    ApiKey:
+      type: object
+      properties:
+        keyUuid:
+          type: string
+        apiKey:
+          type: string
+        clientUuid:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: number
+        expiresAt:
+          type:
+          - number
+          - 'null'
+      required:
+      - keyUuid
+      - apiKey
+      - clientUuid
+      - name
+      - description
+      - createdAt
+      description: Platform API key
+      example:
+        keyUuid: key_asdfghjklqwertyuiop
+        apiKey: sk_zyxvutsrqponmlkjihgfedcba
+        clientUuid: client_asdfghjklqwertyuiop
+        name: My API Key
+        description: Additional description to add context to the key
+        createdAt: 1577836800000
+    App:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the app
+        name:
+          type: string
+          description: Name of the app
+        description:
+          type: string
+          description: Description of the app
+        created:
+          type: string
+          format: date-time
+          description: Timestamp when the app was created
+        updated:
+          type: string
+          format: date-time
+          description: Timestamp when the app was last updated
+      required:
+      - id
+      - name
+      - created
+      - updated
+    AppInstall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the app install
+        app:
+          type: string
+          format: uuid
+          description: Unique identifier for the app
+        company:
+          type: string
+          format: uuid
+          description: Unique identifier for the client
+        status:
+          type: string
+          description: Status of the app install
+        installed:
+          type: string
+          format: date-time
+          description: Timestamp when the app was installed
+        uninstalled:
+          type: string
+          format: date-time
+          description: Timestamp when the app was uninstalled (nullable)
+      required:
+      - id
+      - app
+      - company
+      - status
+      - installed
+    Company:
+      type: object
+      title: Company
+      description: Schema representing a company with a pushpress account, whether
+        its a gym, martial arts studio or mermaid swim school
+      required:
+      - id
+      - name
+      - subdomain
+      - defaultTimezone
+      - phone
+      - email
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the company
+          examples:
+          - client_1234
+        name:
+          type: string
+          description: Name of the company
+          examples:
+          - Acme Corp
+        subdomain:
+          type: string
+          description: Subdomain of the company
+          examples:
+          - acme
+        defaultTimezone:
+          type: string
+          description: Default timezone of the company
+          examples:
+          - America/Los_Angeles
+        phone:
+          type: string
+          description: Phone number of the company
+          examples:
+          - +1-800-555-1234
+        email:
+          type: string
+          description: Email address of the company
+          examples:
+          - info@acme.com
+        url:
+          type: string
+          description: URL of the company
+          examples:
+          - https://www.acme.com
+      examples:
+      - exampleResponse: null
+        value:
+          id: client_1234
+          name: Acme Corp
+          subdomain: acme
+          defaultTimezone: America/Los_Angeles
+          phone: +1-800-555-1234
+          email: info@acme.com
+          url: https://www.acme.com
+    Customer:
+      type: object
+      title: Customer
+      description: Schema representing a customer, former customer or lead served
+        by Company
+      required:
+      - id
+      - email
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the customer
+          examples:
+          - usr_1234
+        name:
+          type: string
+          description: Name of the customer
+          examples:
+          - John Doe
+        address:
+          type: string
+          description: Address of the customer
+          examples:
+          - 123 Main St, Anytown, USA
+        profileImage:
+          type: string
+          description: URL to the profile image of the customer
+          examples:
+          - https://example.com/profile.jpg
+        email:
+          type: string
+          description: Email address of the customer
+          examples:
+          - john.doe@example.com
+        phone:
+          type: string
+          description: Phone number of the customer
+          examples:
+          - +1-800-555-1234
+      examples:
+      - exampleResponse:
+          value:
+            id: usr_1234
+            name: John Doe
+            email: john@doe.com
+            address: 123 Main St, Anytown, USA
+            profileImage: https://example.com/profile.jpg
+            phone: +1-800-555-1234
+            deviceToken: abc123xyz456
+    AppointmentCheckin:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - appointmentType
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the checkin
+        name:
+          type: string
+          description: Name of the checked-in appointment
+        type:
+          type: string
+          enum:
+          - AppointmentCheckin
+        appointmentType:
+          type: string
+          description: Type of the appointment
+    ClassCheckin:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - classType
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the checkin
+        name:
+          type: string
+          description: Name of the checked-in class
+        type:
+          type: string
+          enum:
+          - ClassCheckin
+        classType:
+          type: string
+          description: Type of the class
+    EventCheckin:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - eventType
+      properties:
+        name:
+          type: string
+          description: Name of the checked-in event
+        type:
+          type: string
+          enum:
+          - EventCheckin
+        eventType:
+          type: string
+          description: Type of the event
+    Checkin:
+      type: object
+      required:
+      - id
+      - details
+      - checkinTime
+      - customer
+      - company
+      - name
+      properties:
+        details:
+          type: object
+          discriminator:
+            propertyName: type
+          oneOf:
+          - $ref: '#/components/schemas/AppointmentCheckin'
+          - $ref: '#/components/schemas/ClassCheckin'
+          - $ref: '#/components/schemas/EventCheckin'
+          description: Type of the check-in
+        checkinTime:
+          type: integer
+          format: int64
+          description: Check-in time in Unix timestamp
+        customer:
+          type: string
+          description: Customer ID for the check-in
+        company:
+          type: string
+          description: Company ID for the check-in
+        name:
+          type: string
+          description: Name of the thing being checked in
+    Webhook:
+      type: object
+      required:
+      - id
+      - url
+      - events
+      - created
+      - company
+      - updated
+      properties:
+        id:
+          type: string
+          examples:
+          - UUID
+        url:
+          type: string
+          description: URL to post the event data to
+          examples:
+          - https://new-webhook-url.com
+        events:
+          type: array
+          description: List of events the webhook is subscribed to
+          items:
+            type: string
+          examples:
+          - - event_3
+            - event_4
+        created:
+          type: number
+        updated:
+          type: number
+        company:
+          type: string
+          description: companyId of the company to which the webhook belongs
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: API-KEY
+      in: header
+      description: 'Pass the API key as a Bearer token in the `api_key` header. Example:
+        `api_key: <API_KEY>`'
+      x-auth-env-vars:
+      - PUSHPRESS_API_KEY
+security:
+- api_key: []
+tags:
+- name: Messages
+- name: Customers
+- name: Companies
+- name: Checkins
+- name: ApiKeys
+- name: Apps
+  description: manage PushPress appl ecosystem
+- name: Webhooks
+  description: create and configure webhooks for PushPress events
+paths:
+  /apps:
+    get:
+      tags:
+      - Apps
+      summary: List all available apps
+      operationId: listApps
+      responses:
+        '200':
+          description: Successfully retrieved list of apps
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/App'
+      x-speakeasy-name-override: list
+      x-speakeasy-group: apps
+  /apps/{app_id}:
+    get:
+      tags:
+      - Apps
+      summary: Get details of a specific app
+      operationId: getApp
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved app details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/App'
+      x-speakeasy-group: apps
+      x-speakeasy-name-override: get
+  /apps/{app_id}/install:
+    post:
+      tags:
+      - Apps
+      summary: Install an app for a company
+      operationId: installApp
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: string
+                  description: The ID of the company on which to install the app
+              required:
+              - company
+      responses:
+        '201':
+          description: Successfully installed the app
+      x-speakeasy-group: apps
+      x-speakeasy-name-override: install
+  /apps/{app_id}/installs:
+    get:
+      tags:
+      - Apps
+      summary: List all installs of a specific app
+      operationId: listAppInstalls
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: A paginated list of app installs
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AppInstall'
+      x-speakeasy-group: apps.installs
+      x-speakeasy-name-override: list
+      x-speakeasy-pagination:
+        type: offsetLimit
+        inputs:
+        - name: page
+          in: parameters
+          type: page
+        - name: limit
+          in: parameters
+          type: limit
+        outputs:
+          results: $.data.resultArray
+  /apps/{app_id}/installs/{install_id}/uninstall:
+    patch:
+      tags:
+      - Apps
+      summary: Soft uninstall an app (mark it as uninstalled but retain data)
+      operationId: uninstallApp
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: install_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successfully soft uninstalled the app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInstall'
+      x-speakeasy-group: apps
+      x-speakeasy-name-override: uninstall
+  /apps/{app_id}/installs/{install_id}/delete:
+    delete:
+      tags:
+      - Apps
+      summary: Hard delete an app (remove all data)
+      operationId: deleteAppInstall
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: install_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Successfully hard uninstalled the app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInstall'
+      x-speakeasy-group: apps
+      x-speakeasy-name-override: delete
+  /apps/{app_id}/installs/{install_id}:
+    get:
+      tags:
+      - Apps
+      summary: Get details of a specific app install
+      operationId: getAppInstall
+      parameters:
+      - name: app_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: install_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved app install details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppInstall'
+      x-speakeasy-name-override: get
+      x-speakeasy-group: apps.installs
+  /keys:
+    post:
+      tags:
+      - ApiKeys
+      summary: Create a new API key for a  company
+      description: Create a new API key for a company.
+      operationId: createApiKey
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: string
+                  description: The ID of the company for which to create the API key
+              required:
+              - company
+      responses:
+        '200':
+          description: API key created successfully
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: create
+    get:
+      tags:
+      - ApiKeys
+      summary: List all active API keys for a client
+      description: List all active API keys for a client.
+      operationId: listApiKeys
+      responses:
+        '200':
+          description: A list of active API keys
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: list
+  /keys/{key_id}/revoke:
+    patch:
+      tags:
+      - ApiKeys
+      summary: Revoke an API key
+      description: Revoke (deactivate) an API key.
+      operationId: revokeApiKey
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: API key revoked successfully
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: revoke
+  /keys/{key_id}:
+    get:
+      tags:
+      - ApiKeys
+      summary: Retrieve a single API key
+      description: Retrieve a single API key.
+      operationId: getApiKey
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        description: The ID of the API key to retrieve
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey'
+      x-speakeasy-name-override: get
+      x-speakeasy-group: keys
+    delete:
+      tags:
+      - ApiKeys
+      summary: Permanently delete an API key
+      description: Permanently delete an API key from the system.
+      operationId: deleteApiKey
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: API key deleted successfully
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: delete
+  /messages/email/send:
+    post:
+      tags:
+      - Messages
+      summary: Send an email
+      operationId: sendEmail
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - to
+              - subject
+              - body
+              - from
+              properties:
+                to:
+                  type: string
+                  format: email
+                subject:
+                  type: string
+                body:
+                  type: string
+                from:
+                  type: string
+                  format: email
+                cc:
+                  type: string
+                  format: email
+                bcc:
+                  type: string
+                  format: email
+                replyTo:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Email sent successfully
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: send
+      x-speakeasy-group: messages.email
+  /messages/notifications/ping:
+    post:
+      tags:
+      - Messages
+      summary: Send a ping notification via Ably Realtime
+      operationId: sendPing
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - channel
+              - message
+              properties:
+                channel:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '200':
+          description: Ping sent successfully
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: sendPing
+      x-speakeasy-group: messages.notifications
+  /messages/push/send:
+    post:
+      tags:
+      - Messages
+      summary: Send a push notification
+      operationId: sendPush
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - device_tokens
+              - title
+              - body
+              properties:
+                device_tokens:
+                  type: array
+                  items:
+                    type: string
+                title:
+                  type: string
+                body:
+                  type: string
+                metadata:
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Push notification sent successfully
+        '400':
+          description: Bad request
+      x-speakeasy-name-override: send
+      x-speakeasy-group: messages.push
+  /company:
+    get:
+      tags:
+      - Companies
+      summary: Get company details associated with the API key
+      operationId: getCompany
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Company details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+      x-speakeasy-name-override: get
+  /customers:
+    get:
+      tags:
+      - Customers
+      summary: Get a list of all customers in a
+      operationId: listCustomers
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: A paginated response containing an array of customerIds
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    description: An array of objects containing customerIds
+                    items:
+                      $ref: '#/components/schemas/Customer'
+      x-speakeasy-name-override: list
+      x-speakeasy-pagination:
+        type: offsetLimit
+        inputs:
+        - name: page
+          in: parameters
+          type: page
+        - name: limit
+          in: parameters
+          type: limit
+        outputs:
+          results: $.data.resultArray
+  /customers/{id}:
+    get:
+      tags:
+      - Customers
+      summary: Get a customer by ID
+      operationId: getCustomer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      x-speakeasy-name-override: get
+  /checkins:
+    get:
+      tags:
+      - Checkins
+      summary: Get a list of all check-ins
+      operationId: listCheckins
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 100
+      responses:
+        '200':
+          description: A paginated response containing a list of check-ins
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Checkin'
+      x-speakeasy-name-override: list
+      x-speakeasy-pagination:
+        type: offsetLimit
+        inputs:
+        - name: page
+          in: parameters
+          type: page
+        - name: limit
+          in: parameters
+          type: limit
+        outputs:
+          results: $.data.resultArray
+  /checkins/{id}:
+    get:
+      tags:
+      - Checkins
+      summary: Get a check-in by ID
+      operationId: getCheckin
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Check-in details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checkin'
+      x-speakeasy-name-override: get
+  /webhooks:
+    post:
+      tags:
+      - Webhooks
+      summary: Create a new webhook to subscribe to one or more events
+      operationId: createWebhook
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - url
+              - events
+              properties:
+                url:
+                  type: string
+                  description: URL to send the event data to
+                  examples:
+                  - https://your-webhook-url.com
+                events:
+                  type: array
+                  description: List of events the webhook is subscribed to
+                  items:
+                    type: string
+                  examples:
+                  - - event_1
+                    - event_2
+                company:
+                  type: string
+                  description: companyId of the company to which the webhook belongs
+      responses:
+        '200':
+          description: Webhook created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      x-speakeasy-name-override: create
+    get:
+      tags:
+      - Webhooks
+      summary: List all registered webhooks
+      operationId: listWebhooks
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of registered webhooks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      x-speakeasy-name-override: list
+  /webhooks/{webhook_id}:
+    get:
+      tags:
+      - Webhooks
+      summary: Get details of a specific webhook
+      operationId: getWebhook
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      - name: webhook_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Webhook details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      x-speakeasy-name-override: get
+    patch:
+      tags:
+      - Webhooks
+      summary: Update the URL or events for an existing webhook
+      operationId: updateWebhook
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      - name: webhook_id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+      responses:
+        '200':
+          description: Webhook updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+    delete:
+      tags:
+      - Webhooks
+      summary: Delete a specific webhook
+      operationId: deleteWebhook
+      parameters:
+      - name: companyId
+        in: header
+        schema:
+          type: string
+      - name: webhook_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Webhook deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deleted:
+                    type: integer
+                    description: Unix timestamp of the deletion event
+      x-speakeasy-name-override: delete
+webhooks:
+  customerCreated:
+    post:
+      summary: Customer Created Event
+      operationId: customerCreatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Customer'
+                created:
+                  type: integer
+                  format: int64
+                  description: Unix timestamp of the creation event
+                eventType:
+                  type: string
+                  enum:
+                  - created
+      responses:
+        '200':
+          description: Return a 200 status
+  customerUpdated:
+    post:
+      summary: Customer Updated Event
+      operationId: customerUpdatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Customer'
+                created:
+                  type: integer
+                  format: int64
+                  description: Unix timestamp of the update event
+                eventType:
+                  type: string
+                  enum:
+                  - updated
+      responses:
+        '200':
+          description: Return a 200 status
+  customerDeleted:
+    post:
+      summary: Customer Deleted Event
+      operationId: customerDeletedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Customer'
+                created:
+                  type: integer
+                  format: int64
+                  description: Unix timestamp of the deletion event
+                eventType:
+                  type: string
+                  enum:
+                  - deleted
+      responses:
+        '200':
+          description: Return a 200 status
+  checkinCreated:
+    post:
+      summary: Checkin Created Event
+      operationId: checkinCreatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Checkin'
+                created:
+                  type: integer
+                  format: int64
+                  description: Unix timestamp of the creation event
+                eventType:
+                  type: string
+                  enum:
+                  - created
+      responses:
+        '200':
+          description: Return a 200 status
+  checkinUpdated:
+    post:
+      summary: Checkin Updated Event
+      operationId: checkinUpdatedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Checkin'
+                created:
+                  type: integer
+                  format: int64
+                  description: Unix timestamp of the update event
+                eventType:
+                  type: string
+                  enum:
+                  - updated
+      responses:
+        '200':
+          description: Return a 200 status
+  checkinDeleted:
+    post:
+      summary: Checkin Deleted Event
+      operationId: checkinDeletedEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: '#/components/schemas/Checkin'
+                created:
+                  type: integer
+                  format: int64
+                  description: Unix timestamp of the deletion event
+                eventType:
+                  type: string
+                  enum:
+                  - deleted
+      responses:
+        '200':
+          description: Return a 200 status
+x-mcp:
+  transport:
+  - stdio
+  - http
+  orchestration: code
+  endpoint_tools: hidden

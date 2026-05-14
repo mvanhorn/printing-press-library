@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T13:20:02.247836Z",
+  "printing_press_version": "4.6.0",
+  "api_name": "pushpress",
+  "display_name": "Pushpress Platform",
+  "cli_name": "pushpress-pp-cli",
+  "owner": "i2fitness",
+  "printer": "i2Fitness",
+  "printer_name": "Alex Puckhaber",
+  "spec_path": "/Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-222152/research/pushpress-v3.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:0da5c524c8a9cd99a375b6811f009d7664fbf95a62bd42db0a86526634dba0cd",
+  "run_id": "20260513-222152",
+  "mcp_binary": "pushpress-platform-pp-mcp",
+  "mcp_tool_count": 25,
+  "mcp_ready": "full",
+  "api_version": "3.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PUSHPRESS_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Going-dark report",
+      "command": "going-dark",
+      "description": "List members whose most-recent check-in is older than N days (the operator's daily churn signal). Local SQLite join — no PushPress API endpoint computes this."
+    },
+    {
+      "name": "Recency ladder",
+      "command": "recency",
+      "description": "Bucket all active members by days-since-last-checkin; emits count + sample of names per bucket."
+    },
+    {
+      "name": "Trainer roster (one-line default)",
+      "command": "roster",
+      "description": "One line per active member: id, name, plan, status, last_visit, days_since. The trainer-dashboard's default view."
+    },
+    {
+      "name": "Daily KPI ticker",
+      "command": "kpi today",
+      "description": "One pass over local store: signups today, check-ins today, active members, going-dark @ 14d / 30d. JSON-friendly for cron."
+    },
+    {
+      "name": "Member 360",
+      "command": "member",
+      "description": "Single command: profile + plan/status + first_seen + last_seen + total_checkins + last 10 check-ins + current streak + cadence trend."
+    },
+    {
+      "name": "Class-type mix",
+      "command": "class-mix",
+      "description": "Histogram of class names from local check-ins over a window: counts + percent share per class."
+    }
+  ]
+}

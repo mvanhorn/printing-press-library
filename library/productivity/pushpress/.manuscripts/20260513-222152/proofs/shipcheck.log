@@ -1,0 +1,146 @@
+
+=== dogfood ===
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+Dogfood Report: pushpress-pp-cli
+================================
+
+Path Validity:     5/5 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: spec not provided or no bot/bearer/basic scheme detected
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 1
+
+Examples:          8/10 commands have examples (PASS)
+  - classes roster: missing example
+  - notes list: missing example
+
+Novel Features:    7/7 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 1/7 novel features look reimplemented: cohort (stubs.go) — hand-rolled response: no API client call, no store access
+
+=== verify ===
+Runtime Verification: /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-222152/working/pushpress-pp-cli/pushpress-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+cancellations                  read         PASS   PASS     PASS     3/3
+class-mix                      read         PASS   PASS     PASS     3/3
+classes                        read         PASS   PASS     PASS     3/3
+cohort                         read         PASS   PASS     PASS     3/3
+company                        read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+going-dark                     read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+kpi                            read         PASS   PASS     PASS     3/3
+leads                          read         PASS   PASS     PASS     3/3
+member                         read         PASS   PASS     FAIL     2/3
+mrr                            read         PASS   PASS     PASS     3/3
+notes                          read         PASS   PASS     PASS     3/3
+plans                          read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+recency                        read         PASS   PASS     PASS     3/3
+roster                         read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+signups                        read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+tasks                          read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (29/29 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: pushpress-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== pushpress-pp-cli ===
+  ✘ 3 error(s), 0 likely false-positive(s)
+    [flag-names] pushpress-pp-cli cohort: --month is referenced in SKILL.md but not declared in any internal/cli/*.go
+    [flag-commands] pushpress-pp-cli cohort: --month is not declared anywhere
+    [flag-commands] pushpress-pp-cli cohort: --month is not declared anywhere
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+FAILED [recipes]: pushpress-pp-cli cohort --month 2026-04 --json → full example failed: /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-222152/working/pushpress-pp-cli/pushpress-pp-cli cohort --month 2026-04 --json --dry-run: exit status 2: Error: unknown flag: --month
+unknown flag: --month
+DONE: 9 ok, 0 missing, 0 empty-words, 1 failed-examples, 0 unsupported
+narrative validation failed
+
+=== scorecard ===
+Quality Scorecard: pushpress
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 0/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              9/10
+  Vision               9/10
+  Workflows            8/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               5/5
+
+  Total: 89/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, live_api_verification
+
+Gaps:
+  - mcp_token_efficiency scored 0/10 - needs improvement
+  - insight scored 4/10 - needs improvement
+  - MCP: 25 tools (0 public, 25 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         946ms
+  verify            PASS    0         2.427s
+  workflow-verify   PASS    0         13ms
+  verify-skill      FAIL    1         115ms
+  validate-narrative  FAIL    1         151ms
+  scorecard         PASS    0         42ms
+
+Verdict: FAIL (2/6 legs failed)

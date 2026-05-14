@@ -1,0 +1,240 @@
+{
+  "api_name": "pushpress",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "speakeasy-sdks/pushpress-typescript-sdk",
+      "url": "https://github.com/speakeasy-sdks/pushpress-typescript-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PushPress/pushpress-ts",
+      "url": "https://github.com/PushPress/pushpress-ts",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@pushpress/pushpress (npm)",
+      "url": "https://www.npmjs.com/package/@pushpress/pushpress",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Zapier PushPress integration",
+      "url": "https://zapier.com/apps/pushpress/integrations",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T03:25:00Z",
+  "novel_features": [
+    {
+      "name": "Going-dark report",
+      "command": "going-dark",
+      "description": "List members whose most-recent check-in is older than N days (the operator's daily churn signal). Local SQLite join — no PushPress API endpoint computes this.",
+      "rationale": "Joins synced customers with their most-recent check-in locally; PushPress has no /v3 endpoint that returns 'members who stopped showing up'.",
+      "example": "pushpress-pp-cli going-dark --days 14 --json",
+      "why_it_matters": "Reach for this when answering 'who do I need to re-engage' — the daily-churn question every gym owner runs by hand.",
+      "group": "Churn signals"
+    },
+    {
+      "name": "Recency ladder",
+      "command": "recency",
+      "description": "Bucket all active members by days-since-last-checkin; emits count + sample of names per bucket.",
+      "rationale": "Local aggregation no /v3 endpoint exposes.",
+      "example": "pushpress-pp-cli recency --bucket 7,14,30,60,90 --json",
+      "why_it_matters": "Reach for this for the daily KPI dashboard — one histogram of who's still active, who's drifting.",
+      "group": "Churn signals"
+    },
+    {
+      "name": "Trainer roster (one-line default)",
+      "command": "roster",
+      "description": "One line per active member: id, name, plan, status, last_visit, days_since. The trainer-dashboard's default view.",
+      "rationale": "Joins synced customers with last check-in locally; the brief explicitly names 'one line per member' as the required default shape.",
+      "example": "pushpress-pp-cli roster --json",
+      "why_it_matters": "Reach for this from coach prep, trainer-dashboard renders, or any 'list my members' agent task.",
+      "group": "Coach surface"
+    },
+    {
+      "name": "Daily KPI ticker",
+      "command": "kpi today",
+      "description": "One pass over local store: signups today, check-ins today, active members, going-dark @ 14d / 30d. JSON-friendly for cron.",
+      "rationale": "Replaces 4-5 dashboard tabs with one local-aggregation row.",
+      "example": "pushpress-pp-cli kpi today --json",
+      "why_it_matters": "Reach for this from a business-dashboard cron job — one row, no parsing.",
+      "group": "Churn signals"
+    },
+    {
+      "name": "Member 360",
+      "command": "member",
+      "description": "Single command: profile + plan/status + first_seen + last_seen + total_checkins + last 10 check-ins + current streak + cadence trend.",
+      "rationale": "Collapses ~5 dashboard clicks; pulls from /v3 customers/{id} plus the local checkins store.",
+      "example": "pushpress-pp-cli member user@example.com",
+      "why_it_matters": "Reach for this before a coaching session, an at-risk-member outreach, or any per-member context an agent needs.",
+      "group": "Coach surface"
+    },
+    {
+      "name": "Class-type mix",
+      "command": "class-mix",
+      "description": "Histogram of class names from local check-ins over a window: counts + percent share per class.",
+      "rationale": "Class names appear inside ClassCheckin records even though /v3 has no class-definition endpoint; we expose the only class-side signal available.",
+      "example": "pushpress-pp-cli class-mix --days 30 --json",
+      "why_it_matters": "Reach for this when answering 'what class is most popular this month' or 'which class is bleeding members'.",
+      "group": "Operator analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Going-dark report",
+      "command": "going-dark",
+      "description": "List members whose most-recent check-in is older than N days (the operator's daily churn signal). Local SQLite join — no PushPress API endpoint computes this.",
+      "rationale": "Joins synced customers with their most-recent check-in locally; PushPress has no /v3 endpoint that returns 'members who stopped showing up'.",
+      "example": "pushpress-pp-cli going-dark --days 14 --json",
+      "why_it_matters": "Reach for this when answering 'who do I need to re-engage' — the daily-churn question every gym owner runs by hand.",
+      "group": "Churn signals"
+    },
+    {
+      "name": "Recency ladder",
+      "command": "recency",
+      "description": "Bucket all active members by days-since-last-checkin; emits count + sample of names per bucket.",
+      "rationale": "Local aggregation no /v3 endpoint exposes.",
+      "example": "pushpress-pp-cli recency --bucket 7,14,30,60,90 --json",
+      "why_it_matters": "Reach for this for the daily KPI dashboard — one histogram of who's still active, who's drifting.",
+      "group": "Churn signals"
+    },
+    {
+      "name": "Trainer roster (one-line default)",
+      "command": "roster",
+      "description": "One line per active member: id, name, plan, status, last_visit, days_since. The trainer-dashboard's default view.",
+      "rationale": "Joins synced customers with last check-in locally; the brief explicitly names 'one line per member' as the required default shape.",
+      "example": "pushpress-pp-cli roster --json",
+      "why_it_matters": "Reach for this from coach prep, trainer-dashboard renders, or any 'list my members' agent task.",
+      "group": "Coach surface"
+    },
+    {
+      "name": "Daily KPI ticker",
+      "command": "kpi today",
+      "description": "One pass over local store: signups today, check-ins today, active members, going-dark @ 14d / 30d. JSON-friendly for cron.",
+      "rationale": "Replaces 4-5 dashboard tabs with one local-aggregation row.",
+      "example": "pushpress-pp-cli kpi today --json",
+      "why_it_matters": "Reach for this from a business-dashboard cron job — one row, no parsing.",
+      "group": "Churn signals"
+    },
+    {
+      "name": "Member 360",
+      "command": "member",
+      "description": "Single command: profile + plan/status + first_seen + last_seen + total_checkins + last 10 check-ins + current streak + cadence trend.",
+      "rationale": "Collapses ~5 dashboard clicks; pulls from /v3 customers/{id} plus the local checkins store.",
+      "example": "pushpress-pp-cli member user@example.com",
+      "why_it_matters": "Reach for this before a coaching session, an at-risk-member outreach, or any per-member context an agent needs.",
+      "group": "Coach surface"
+    },
+    {
+      "name": "Class-type mix",
+      "command": "class-mix",
+      "description": "Histogram of class names from local check-ins over a window: counts + percent share per class.",
+      "rationale": "Class names appear inside ClassCheckin records even though /v3 has no class-definition endpoint; we expose the only class-side signal available.",
+      "example": "pushpress-pp-cli class-mix --days 30 --json",
+      "why_it_matters": "Reach for this when answering 'what class is most popular this month' or 'which class is bleeding members'.",
+      "group": "Operator analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "PushPress",
+    "headline": "Every PushPress /v3 endpoint that exists, plus the going-dark report and the trainer-dashboard one-liner the API itself can't answer.",
+    "value_prop": "Wraps PushPress's /v3 Platform API (members, check-ins, app installs, webhooks, messages) with a Go binary that caches every entity in local SQLite and adds the cross-entity views the API doesn't: `going-dark` for daily churn audits, `roster` for the trainer dashboard, `kpi today` for the business cockpit, `member` for coach prep. Five categories absent from /v3 (plans/billing, classes, leads, signup-source, tasks/notes, cancellations) ship as honest gap-flagged commands that point at the documented /v2 follow-up rather than silently dropping.",
+    "auth_narrative": "Authenticates with a PushPress API key. Set it once with `pushpress-pp-cli auth set-token \u003ckey\u003e` or `export PUSHPRESS_API_KEY=\u003ckey\u003e`. Every request sends `Authorization: Bearer \u003ckey\u003e`. Some endpoints also accept an optional `companyId` HEADER for tenant scoping.",
+    "quickstart": [
+      {
+        "command": "pushpress-pp-cli auth set-token \u003cyour-api-key\u003e",
+        "comment": "Save your PushPress API key once."
+      },
+      {
+        "command": "pushpress-pp-cli doctor",
+        "comment": "Verify the key reaches the API and identify which company the key is scoped to."
+      },
+      {
+        "command": "pushpress-pp-cli sync --full",
+        "comment": "Populate the local store so going-dark and roster have data."
+      },
+      {
+        "command": "pushpress-pp-cli going-dark --days 14 --json",
+        "comment": "The headline churn report — members who haven't checked in for 14 days."
+      },
+      {
+        "command": "pushpress-pp-cli kpi today --json",
+        "comment": "One-line metric ticker for a business-dashboard cron."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Regenerate the API key in the PushPress developer portal and re-run `pushpress-pp-cli auth set-token`."
+      },
+      {
+        "symptom": "`plans list` / `mrr today` / `cancellations recent` print 'not supported by /v3'",
+        "fix": "Expected — these categories aren't in the public /v3 API. Run the documented /v2 browser-sniff follow-up to unlock them."
+      },
+      {
+        "symptom": "Empty going-dark or recency output",
+        "fix": "Run `pushpress-pp-cli sync --full` — these read from the local store, not live API."
+      }
+    ],
+    "when_to_use": "Reach for `pp-pushpress` when you need member-attendance signals an agent can act on — going-dark lists for re-engagement, per-member visit history before a coaching session, daily KPI tickers for the dashboard. Skip it for billing or class-definition queries; those need the /v2 follow-up and currently print a 'not supported' message.",
+    "recipes": [
+      {
+        "title": "Monday-morning churn audit",
+        "command": "pushpress-pp-cli going-dark --days 14 --json --select customer_id,name,days_since_last_visit",
+        "explanation": "Lists every active member who hasn't checked in for 14+ days, narrowed to just the fields a follow-up campaign needs."
+      },
+      {
+        "title": "Pre-session coach prep",
+        "command": "pushpress-pp-cli member user@example.com --json",
+        "explanation": "Member 360 view for a specific client by email; collapses 4-5 dashboard clicks into one call."
+      },
+      {
+        "title": "Daily KPI cron line",
+        "command": "pushpress-pp-cli kpi today --json",
+        "explanation": "One-shot JSON for the business-dashboard nightly cron."
+      },
+      {
+        "title": "Programming retro",
+        "command": "pushpress-pp-cli class-mix --days 30 --json",
+        "explanation": "Histogram of class popularity for the last 30 days — which classes are pulling, which are bleeding."
+      }
+    ],
+    "trigger_phrases": [
+      "who hasn't been to the gym in N days",
+      "show me my pushpress members",
+      "going-dark report",
+      "pushpress check-ins today",
+      "member 360 for \u003cemail\u003e",
+      "use pushpress",
+      "run pushpress-pp-cli"
+    ]
+  }
+}

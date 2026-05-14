@@ -1,0 +1,499 @@
+{
+  "api_name": "pushpress-platform",
+  "base_url": "https://api.pushpress.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "API-KEY",
+    "in": "header",
+    "env_vars": [
+      "PUSHPRESS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PUSHPRESS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "apps_get",
+      "description": "Get details of a specific app. Required: app_id. Returns the App.",
+      "method": "GET",
+      "path": "/apps/{app_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_list",
+      "description": "List all available apps. Returns array of App.",
+      "method": "GET",
+      "path": "/apps",
+      "params": []
+    },
+    {
+      "name": "apps_install_app",
+      "description": "Install an app for a company. Required: app_id, company.",
+      "method": "POST",
+      "path": "/apps/{app_id}/install",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "company",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the company on which to install the app",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_installs_delete-app",
+      "description": "Hard delete an app (remove all data). Required: app_id, install_id. Returns the AppInstall. Destructive.",
+      "method": "DELETE",
+      "path": "/apps/{app_id}/installs/{install_id}/delete",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "Install id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_installs_get-app",
+      "description": "Get details of a specific app install. Required: app_id, install_id. Returns the AppInstall.",
+      "method": "GET",
+      "path": "/apps/{app_id}/installs/{install_id}",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "Install id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_installs_list-app",
+      "description": "List all installs of a specific app. Required: app_id. Optional: page (default: 1), limit (default: 10). Returns array of AppInstall.",
+      "method": "GET",
+      "path": "/apps/{app_id}/installs",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "apps_installs_uninstall-app",
+      "description": "Soft uninstall an app (mark it as uninstalled but retain data). Required: app_id, install_id. Returns the updated AppInstall.",
+      "method": "PATCH",
+      "path": "/apps/{app_id}/installs/{install_id}/uninstall",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "App id",
+          "required": true
+        },
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "Install id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "checkins_get",
+      "description": "Get a check-in by ID. Required: id. Returns the Checkin.",
+      "method": "GET",
+      "path": "/checkins/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "checkins_list",
+      "description": "Get a list of all check-ins. Optional: page (default: 1), limit (default: 10). Returns array of Checkin.",
+      "method": "GET",
+      "path": "/checkins",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "company_get",
+      "description": "Get company details associated with the API key. Returns the Company.",
+      "method": "GET",
+      "path": "/company",
+      "params": []
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a customer by ID. Required: id. Returns the Customer.",
+      "method": "GET",
+      "path": "/customers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "Get a list of all customers in a. Optional: page (default: 1), limit (default: 10). Returns array of Customer.",
+      "method": "GET",
+      "path": "/customers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "keys_create-api",
+      "description": "Create a new API key for a company. Required: company.",
+      "method": "POST",
+      "path": "/keys",
+      "params": [
+        {
+          "name": "company",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the company for which to create the API key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_delete-api",
+      "description": "Permanently delete an API key from the system. Required: key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/keys/{key_id}",
+      "params": [
+        {
+          "name": "key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_get-api",
+      "description": "Retrieve a single API key. Required: key_id. Returns the ApiKey.",
+      "method": "GET",
+      "path": "/keys/{key_id}",
+      "params": [
+        {
+          "name": "key_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the API key to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "keys_list-api",
+      "description": "List all active API keys for a client. Returns the ApiKey.",
+      "method": "GET",
+      "path": "/keys",
+      "params": []
+    },
+    {
+      "name": "keys_revoke_api-key",
+      "description": "Revoke (deactivate) an API key. Required: key_id. Partial update.",
+      "method": "PATCH",
+      "path": "/keys/{key_id}/revoke",
+      "params": [
+        {
+          "name": "key_id",
+          "type": "string",
+          "location": "path",
+          "description": "Key id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_send-email",
+      "description": "Send an email. Required: body, from, subject, to. Optional: bcc, cc, replyTo.",
+      "method": "POST",
+      "path": "/messages/email/send",
+      "params": [
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "replyTo",
+          "type": "string",
+          "location": "body",
+          "description": "Reply to"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "To",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_send-ping",
+      "description": "Send a ping notification via Ably Realtime. Required: channel, message.",
+      "method": "POST",
+      "path": "/messages/notifications/ping",
+      "params": [
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_send-push",
+      "description": "Send a push notification. Required: body, device_tokens, title. Optional: metadata.",
+      "method": "POST",
+      "path": "/messages/push/send",
+      "params": [
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "device_tokens",
+          "type": "array",
+          "location": "body",
+          "description": "Device tokens",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a new webhook to subscribe to one or more events. Required: events, url. Optional: company. Returns the new Webhook.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "company",
+          "type": "string",
+          "location": "body",
+          "description": "companyId of the company to which the webhook belongs"
+        },
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "List of events the webhook is subscribed to",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to send the event data to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a specific webhook. Required: webhook_id. Returns the WebhooksDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Get details of a specific webhook. Required: webhook_id. Returns the Webhook.",
+      "method": "GET",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List all registered webhooks. Returns the Webhook.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": []
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update the URL or events for an existing webhook. Required: webhook_id. Returns the updated Webhook.",
+      "method": "PATCH",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

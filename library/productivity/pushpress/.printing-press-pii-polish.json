@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-05-14T14:18:15.518822Z",
+  "cli_dir": "/tmp/printing-press/publish/pushpress-wfrNL6/package/library/productivity/pushpress",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/proofs/2026-05-13-222152-fix-pushpress-pp-cli-polish.md",
+      "line": 17,
+      "column": 8,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Polish proof references the synthetic placeholder string 'user@example.com' as the replacement value that landed in 3 source files. Uses IANA-reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research.json",
+      "line": 96,
+      "column": 43,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Research artifact recipe field carries the post-polish placeholder 'user@example.com' (RFC 2606 reserved TLD)."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research.json",
+      "line": 152,
+      "column": 43,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Research artifact recipe field carries the post-polish placeholder 'user@example.com' (RFC 2606 reserved TLD)."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research.json",
+      "line": 216,
+      "column": 45,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Research artifact recipe field carries the post-polish placeholder 'user@example.com' (RFC 2606 reserved TLD)."
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 164,
+      "column": 14,
+      "matched_span": "1-800-555-1234",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's own Speakeasy-generated /v3 spec example value. 555-1234 is the long-standing North American fictitious phone exchange used in documentation."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 169,
+      "column": 13,
+      "matched_span": "info@acme.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. 'acme.com' is the canonical fictional corporate placeholder in API documentation."
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 182,
+      "column": 19,
+      "matched_span": "1-800-555-1234",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. 555-1234 is the fictitious North American documentation phone exchange."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 183,
+      "column": 18,
+      "matched_span": "info@acme.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. 'acme.com' is the canonical fictional corporate placeholder."
+    },
+    {
+      "kind": "postal-address",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 208,
+      "column": 13,
+      "matched_span": "123 Main St",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. '123 Main St' is the most common fictional street-address placeholder in API documentation."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 218,
+      "column": 13,
+      "matched_span": "john.doe@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "PushPress's /v3 spec example value combining the conventional placeholder name 'john.doe' with the IANA-reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 223,
+      "column": 14,
+      "matched_span": "1-800-555-1234",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. 555-1234 is the fictitious documentation phone exchange."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 229,
+      "column": 20,
+      "matched_span": "john@doe.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. 'john@doe.com' is a conventional fictional placeholder pairing the 'john doe' name as both local-part and domain."
+    },
+    {
+      "kind": "postal-address",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 230,
+      "column": 22,
+      "matched_span": "123 Main St",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. '123 Main St' is the conventional fictional documentation address."
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260513-222152/research/pushpress-v3.yaml",
+      "line": 232,
+      "column": 21,
+      "matched_span": "1-800-555-1234",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "PushPress's /v3 spec example value. 555-1234 is the fictitious documentation phone exchange."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 123,
+      "column": 27,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "README 'Member 360' code-fenced example: 'pushpress-pp-cli member user@example.com'. Uses IANA-reserved @example.com TLD (RFC 2606) — documentation-only synthetic that cannot route."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 78,
+      "column": 27,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL 'Per-member context' code-fenced example: 'pushpress-pp-cli member user@example.com'. Uses IANA-reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 157,
+      "column": 25,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL 'Pre-session coach prep' recipe: 'pushpress-pp-cli member user@example.com --json'. Uses IANA-reserved @example.com TLD (RFC 2606)."
+    }
+  ],
+  "findings_count_before": 18
+}

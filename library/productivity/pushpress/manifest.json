@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "pushpress-platform-pp-mcp",
+  "display_name": "Pushpress Platform",
+  "version": "4.6.0",
+  "description": "Pushpress Platform API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pushpress-platform-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pushpress-platform-pp-mcp",
+      "args": [],
+      "env": {
+        "PUSHPRESS_API_KEY": "${user_config.pushpress_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "pushpress_api_key": {
+      "type": "string",
+      "title": "PUSHPRESS_API_KEY",
+      "description": "Sets PUSHPRESS_API_KEY for the Pushpress Platform MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
