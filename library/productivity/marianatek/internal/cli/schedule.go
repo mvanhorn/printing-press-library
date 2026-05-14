@@ -87,6 +87,7 @@ timestamps or "HH:MM" time-of-day (applied to every day in --window).`,
 			}
 
 			matched := filterClasses(rows, filters)
+			sortClassRowsByStart(matched)
 
 			if earliest && len(matched) > 1 {
 				matched = matched[:1]
@@ -245,17 +246,46 @@ func sortByStart(rows []map[string]any) {
 	sort.SliceStable(rows, func(i, j int) bool {
 		a := parseStart(rows[i])
 		b := parseStart(rows[j])
-		switch {
-		case !a.IsZero() && !b.IsZero():
-			return a.Before(b)
-		case !a.IsZero():
-			return true
-		case !b.IsZero():
-			return false
-		default:
-			return stringAttr(rows[i], "start_datetime", "start_date") < stringAttr(rows[j], "start_datetime", "start_date")
-		}
+		return startLess(a, b, stringAttr(rows[i], "start_datetime", "start_date"), stringAttr(rows[j], "start_datetime", "start_date"))
 	})
+}
+
+func sortClassRowsByStart(rows []json.RawMessage) {
+	type rowWithStart struct {
+		raw   json.RawMessage
+		start time.Time
+		key   string
+	}
+	items := make([]rowWithStart, 0, len(rows))
+	for _, row := range rows {
+		item := rowWithStart{raw: row}
+		var rec map[string]any
+		if err := json.Unmarshal(row, &rec); err == nil {
+			attrs := pickAttrs(rec)
+			item.start = parseStart(attrs)
+			item.key = stringAttr(attrs, "start_datetime", "start_date")
+		}
+		items = append(items, item)
+	}
+	sort.SliceStable(items, func(i, j int) bool {
+		return startLess(items[i].start, items[j].start, items[i].key, items[j].key)
+	})
+	for i, item := range items {
+		rows[i] = item.raw
+	}
+}
+
+func startLess(a, b time.Time, fallbackA, fallbackB string) bool {
+	switch {
+	case !a.IsZero() && !b.IsZero():
+		return a.Before(b)
+	case !a.IsZero():
+		return true
+	case !b.IsZero():
+		return false
+	default:
+		return fallbackA < fallbackB
+	}
 }
 
 func filterClasses(rows []json.RawMessage, f scheduleFilters) []json.RawMessage {

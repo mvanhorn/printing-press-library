@@ -3,6 +3,8 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/marianatek/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -69,5 +72,51 @@ func TestSortByStartUsesAbsoluteTime(t *testing.T) {
 
 	if got, want := rows[0]["id"], "earlier"; got != want {
 		t.Fatalf("first row id = %v, want %s", got, want)
+	}
+}
+
+func TestScheduleEarliestSortsLocalCacheByStartTime(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	earlierStart := time.Now().UTC().Add(2 * time.Hour).Truncate(time.Second)
+	laterStart := earlierStart.Add(2 * time.Hour)
+	earlier := json.RawMessage(fmt.Sprintf(`{"id":"earlier","start_datetime":%q}`, earlierStart.Format(time.RFC3339)))
+	later := json.RawMessage(fmt.Sprintf(`{"id":"later","start_datetime":%q}`, laterStart.Format(time.RFC3339)))
+	if err := db.Upsert("classes", "earlier", earlier); err != nil {
+		t.Fatalf("upsert earlier: %v", err)
+	}
+	if err := db.Upsert("classes", "later", later); err != nil {
+		t.Fatalf("upsert later: %v", err)
+	}
+	if _, err := db.DB().Exec(`UPDATE resources SET updated_at = ? WHERE resource_type = ? AND id = ?`, time.Now().Add(-time.Hour), "classes", "earlier"); err != nil {
+		t.Fatalf("set earlier updated_at: %v", err)
+	}
+	if _, err := db.DB().Exec(`UPDATE resources SET updated_at = ? WHERE resource_type = ? AND id = ?`, time.Now(), "classes", "later"); err != nil {
+		t.Fatalf("set later updated_at: %v", err)
+	}
+
+	flags := &rootFlags{asJSON: true}
+	cmd := newScheduleCmd(flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetArgs([]string{"--db", dbPath, "--earliest"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("execute schedule: %v", err)
+	}
+
+	var rows []map[string]any
+	if err := json.Unmarshal(out.Bytes(), &rows); err != nil {
+		t.Fatalf("parse output %q: %v", out.String(), err)
+	}
+	if len(rows) != 1 {
+		t.Fatalf("rows = %d, want 1: %#v", len(rows), rows)
+	}
+	if got, want := rows[0]["id"], "earlier"; got != want {
+		t.Fatalf("row id = %v, want %s", got, want)
 	}
 }
