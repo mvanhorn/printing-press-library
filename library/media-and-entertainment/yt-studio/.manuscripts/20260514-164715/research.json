@@ -1,0 +1,353 @@
+{
+  "api_name": "yt-studio",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "youtube-mcp-server",
+      "url": "https://github.com/dannySubsense/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 50,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-youtube",
+      "url": "https://github.com/anaisbetts/mcp-youtube",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 300,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-youtube",
+      "url": "https://github.com/adhikasp/mcp-youtube",
+      "language": "Python",
+      "install_method": "",
+      "stars": 100,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-mcp",
+      "url": "https://github.com/nattyraz/youtube-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-mcp-server",
+      "url": "https://github.com/mourad-ghafiri/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yt-mcp",
+      "url": "https://github.com/space-cadet/yt-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-cli",
+      "url": "https://github.com/danvega/youtube-cli",
+      "language": "Java",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-api-go-client",
+      "url": "https://github.com/googleapis/google-api-go-client",
+      "language": "Go",
+      "install_method": "",
+      "stars": 4000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T16:55:00Z",
+  "novel_features": [
+    {
+      "name": "Framework audit",
+      "command": "framework-audit",
+      "description": "Cross-check whether a published video hits the Signal / Belief-Shift / Action-CTA structure by joining retention buckets against script lines from your local content directory.",
+      "rationale": "Requires script binding via content-registry.md and a per-bucket retention store. No other YouTube tool has this join.",
+      "example": "yt-studio-pp-cli framework-audit dQw4w9WgXcQ --script-dir ~/.openclaw/workspace/data --json",
+      "why_it_matters": "When an agent reviews a published video, this is the only command that tells it which structural beat lost the audience.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Retention curve",
+      "command": "retention",
+      "description": "Return the 100-bucket retention curve for a video as JSON or an ASCII sparkline, with the three sharpest drops auto-annotated.",
+      "rationale": "Public Analytics API gives the curve, but only this CLI annotates drops and caches them per recorded_at for compare-over-time.",
+      "example": "yt-studio-pp-cli retention dQw4w9WgXcQ --ascii",
+      "why_it_matters": "Quickest way for an agent to identify which second of a video lost the audience.",
+      "group": "Per-video signal extraction"
+    },
+    {
+      "name": "Retention cohort",
+      "command": "retention-cohort",
+      "description": "Average retention across videos whose title matches a regex (build-guide cohort vs rework cohort vs tier-list cohort).",
+      "rationale": "Requires FTS on titles plus per-video retention rows in the local store.",
+      "example": "yt-studio-pp-cli retention-cohort --pattern \"Rework\" --days 30 --ascii",
+      "why_it_matters": "Tells an agent whether a content format is structurally stronger than another.",
+      "group": "Per-video signal extraction"
+    },
+    {
+      "name": "CTR decay",
+      "command": "ctr-decay",
+      "description": "Compare first-72h CTR to day-30 CTR for a video; flags fast-decaying thumbnails.",
+      "rationale": "Requires daily impression snapshots; cannot be computed from one API call.",
+      "example": "yt-studio-pp-cli ctr-decay dQw4w9WgXcQ --json --compact",
+      "why_it_matters": "Identifies which thumbnails earned their early lift and which are dying.",
+      "group": "Per-video signal extraction"
+    },
+    {
+      "name": "Watchlist benchmark",
+      "command": "vs-watchlist",
+      "description": "Compare own channel against the watchlist on CTR, retention, or upload cadence — normalized scale across all channels.",
+      "rationale": "Multi-channel normalized schema; competitor data via public Data API joined with own analytics.",
+      "example": "yt-studio-pp-cli vs-watchlist --metric ctr,retention,upload-cadence --period 28d",
+      "why_it_matters": "When an agent is planning what to publish next, this tells it which axis the channel is losing on.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Title pattern mining",
+      "command": "title-patterns",
+      "description": "Token-level analysis of words/phrases that correlate with above-median CTR (winners) or below-median (losers).",
+      "rationale": "Pure local SQL over per-video CTR + title tokens; no API call.",
+      "example": "yt-studio-pp-cli title-patterns --winners --losers --json",
+      "why_it_matters": "Drives an agent's title brainstorm with empirical evidence from this channel.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Idea gap",
+      "command": "idea-gap",
+      "description": "Topics the watchlist covered in the last N days that the own channel has not.",
+      "rationale": "Joins watchlist search snapshots against the own-channel video corpus via FTS.",
+      "example": "yt-studio-pp-cli idea-gap --days 14 --json",
+      "why_it_matters": "Cheapest way for an agent to find what's underserved on this channel.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Watchlist suggest",
+      "command": "watchlist suggest",
+      "description": "Auto-discover competitor channels for the watchlist via Search API; ranks by relevance and recent upload volume.",
+      "rationale": "Combines Data API search + channels.list and applies a relevance heuristic agnostic to incumbents.",
+      "example": "yt-studio-pp-cli watchlist suggest --niche \"poe2,last-epoch\" --top 20 --json",
+      "why_it_matters": "Saves an agent from manually curating a competitor list.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Hybrid quota-aware sync",
+      "command": "sync",
+      "description": "Incremental sync of own channel + watchlist with daily-quota budgeting; caps concurrency and prefers cache.",
+      "rationale": "10K Data API quota/day means search.list calls cost 100 units each. The CLI tracks cumulative spend and skips live calls past budget.",
+      "example": "yt-studio-pp-cli sync --since 2026-05-01 --data-source auto --concurrency 2",
+      "why_it_matters": "Prevents an agent from accidentally exhausting daily quota with one bad call.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Framework audit",
+      "command": "framework-audit",
+      "description": "Cross-check whether a published video hits the Signal / Belief-Shift / Action-CTA structure by joining retention buckets against script lines from your local content directory.",
+      "rationale": "Requires script binding via content-registry.md and a per-bucket retention store. No other YouTube tool has this join.",
+      "example": "yt-studio-pp-cli framework-audit dQw4w9WgXcQ --script-dir ~/.openclaw/workspace/data --json",
+      "why_it_matters": "When an agent reviews a published video, this is the only command that tells it which structural beat lost the audience.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Retention curve",
+      "command": "retention",
+      "description": "Return the 100-bucket retention curve for a video as JSON or an ASCII sparkline, with the three sharpest drops auto-annotated.",
+      "rationale": "Public Analytics API gives the curve, but only this CLI annotates drops and caches them per recorded_at for compare-over-time.",
+      "example": "yt-studio-pp-cli retention dQw4w9WgXcQ --ascii",
+      "why_it_matters": "Quickest way for an agent to identify which second of a video lost the audience.",
+      "group": "Per-video signal extraction"
+    },
+    {
+      "name": "Retention cohort",
+      "command": "retention-cohort",
+      "description": "Average retention across videos whose title matches a regex (build-guide cohort vs rework cohort vs tier-list cohort).",
+      "rationale": "Requires FTS on titles plus per-video retention rows in the local store.",
+      "example": "yt-studio-pp-cli retention-cohort --pattern \"Rework\" --days 30 --ascii",
+      "why_it_matters": "Tells an agent whether a content format is structurally stronger than another.",
+      "group": "Per-video signal extraction"
+    },
+    {
+      "name": "CTR decay",
+      "command": "ctr-decay",
+      "description": "Compare first-72h CTR to day-30 CTR for a video; flags fast-decaying thumbnails.",
+      "rationale": "Requires daily impression snapshots; cannot be computed from one API call.",
+      "example": "yt-studio-pp-cli ctr-decay dQw4w9WgXcQ --json --compact",
+      "why_it_matters": "Identifies which thumbnails earned their early lift and which are dying.",
+      "group": "Per-video signal extraction"
+    },
+    {
+      "name": "Watchlist benchmark",
+      "command": "vs-watchlist",
+      "description": "Compare own channel against the watchlist on CTR, retention, or upload cadence — normalized scale across all channels.",
+      "rationale": "Multi-channel normalized schema; competitor data via public Data API joined with own analytics.",
+      "example": "yt-studio-pp-cli vs-watchlist --metric ctr,retention,upload-cadence --period 28d",
+      "why_it_matters": "When an agent is planning what to publish next, this tells it which axis the channel is losing on.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Title pattern mining",
+      "command": "title-patterns",
+      "description": "Token-level analysis of words/phrases that correlate with above-median CTR (winners) or below-median (losers).",
+      "rationale": "Pure local SQL over per-video CTR + title tokens; no API call.",
+      "example": "yt-studio-pp-cli title-patterns --winners --losers --json",
+      "why_it_matters": "Drives an agent's title brainstorm with empirical evidence from this channel.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Idea gap",
+      "command": "idea-gap",
+      "description": "Topics the watchlist covered in the last N days that the own channel has not.",
+      "rationale": "Joins watchlist search snapshots against the own-channel video corpus via FTS.",
+      "example": "yt-studio-pp-cli idea-gap --days 14 --json",
+      "why_it_matters": "Cheapest way for an agent to find what's underserved on this channel.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Watchlist suggest",
+      "command": "watchlist suggest",
+      "description": "Auto-discover competitor channels for the watchlist via Search API; ranks by relevance and recent upload volume.",
+      "rationale": "Combines Data API search + channels.list and applies a relevance heuristic agnostic to incumbents.",
+      "example": "yt-studio-pp-cli watchlist suggest --niche \"poe2,last-epoch\" --top 20 --json",
+      "why_it_matters": "Saves an agent from manually curating a competitor list.",
+      "group": "Competitive context"
+    },
+    {
+      "name": "Hybrid quota-aware sync",
+      "command": "sync",
+      "description": "Incremental sync of own channel + watchlist with daily-quota budgeting; caps concurrency and prefers cache.",
+      "rationale": "10K Data API quota/day means search.list calls cost 100 units each. The CLI tracks cumulative spend and skips live calls past budget.",
+      "example": "yt-studio-pp-cli sync --since 2026-05-01 --data-source auto --concurrency 2",
+      "why_it_matters": "Prevents an agent from accidentally exhausting daily quota with one bad call.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "YouTube Studio (Kami creator analytics)",
+    "headline": "Every YouTube creator metric that matters, offline-queryable, with framework-audit binding to your scripts. The CLI that turns retention curves into belief-shift evidence.",
+    "value_prop": "yt-studio-pp-cli is a hybrid YouTube Data API + Analytics API + Studio Innertube creator-side CLI. It caches channel videos, daily metrics, retention curves, demographics, and thumbnail CTR into a local SQLite. The killer command, framework-audit, joins retention drops to script Signal/Belief-Shift/Action-CTA lines so you have measurable evidence of which structural beat lost the audience.",
+    "auth_narrative": "One-time interactive login captures OAuth refresh tokens (Data API + Analytics API, scopes youtube.readonly + yt-analytics.readonly) and the Studio web session cookies. OAuth refresh is automatic on 401. Studio session expiry surfaces as typed exit 4 with a re-login hint. Tokens live in ~/.openclaw/state/yt-studio/ mode 600.",
+    "quickstart": [
+      {
+        "command": "yt-studio-pp-cli login",
+        "comment": "One-time interactive: opens browser for OAuth + harvests Studio cookies"
+      },
+      {
+        "command": "yt-studio-pp-cli sync --full",
+        "comment": "Pulls own channel videos + watchlist + daily metrics into local SQLite"
+      },
+      {
+        "command": "yt-studio-pp-cli channels info --self --json --compact",
+        "comment": "Quickest health check; should return your channel stats"
+      },
+      {
+        "command": "yt-studio-pp-cli retention \u003cvideo_id\u003e --ascii",
+        "comment": "ASCII sparkline of the retention curve with 3 sharpest drops auto-annotated"
+      },
+      {
+        "command": "yt-studio-pp-cli framework-audit \u003cvideo_id\u003e --script-dir ~/.openclaw/workspace/data",
+        "comment": "The killer command: joins retention to script structure"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Exit 4 on every command",
+        "fix": "Run `yt-studio-pp-cli login` to refresh OAuth + capture a new Studio session"
+      },
+      {
+        "symptom": "Exit 5 on Studio-dependent commands (real-time, A/B thumbnails)",
+        "fix": "Studio Innertube schema drift; run `yt-studio-pp-cli sniff-doctor` for the suspected mismatch, then file an issue"
+      },
+      {
+        "symptom": "Exit 7 on sync",
+        "fix": "Daily quota exhausted (10K units). Wait until midnight PT or run `--data-source local` until reset"
+      },
+      {
+        "symptom": "framework-audit returns 'no script binding'",
+        "fix": "Run `yt-studio-pp-cli script-link \u003cvideo_id\u003e \u003cscript_path\u003e` to manually bind the script, or add a `**Video ID:** \u003cid\u003e` line to ~/.openclaw/workspace/data/content-registry.md"
+      },
+      {
+        "symptom": "Empty results from `search`",
+        "fix": "Run `yt-studio-pp-cli sync --full` first; offline FTS needs synced data"
+      }
+    ],
+    "when_to_use": "Use yt-studio-pp-cli when an agent needs creator-side analytics: retention curves, per-video CTR, audience demographics, competitor benchmarks, or framework audits against published videos. This is the right tool for post-publish review, content-format ideation, and identifying which video structures earned (or lost) the audience. It is NOT the right tool for downloading videos, fetching transcripts for transcription, or publishing new content — those belong to yt-dlp, Whisper-based MCPs, and the publishing pipeline respectively.",
+    "recipes": [
+      {
+        "title": "Audit a specific upload",
+        "command": "yt-studio-pp-cli framework-audit dQw4w9WgXcQ --json --select 'verdict,drops,signal_line,belief_shift_line,cta_line'",
+        "explanation": "Audit a single video against the audience-obsession framework, returning only the verdict, drops, and the three structural lines."
+      },
+      {
+        "title": "Find a cohort signal",
+        "command": "yt-studio-pp-cli retention-cohort --pattern \"Rework\" --days 90 --json --select 'cohort_size,avg_retention_pct,worst_bucket'",
+        "explanation": "Average retention across Rework-series videos in the last 90 days, returning only the cohort size, average retention percentage, and worst bucket."
+      },
+      {
+        "title": "Title brainstorm with evidence",
+        "command": "yt-studio-pp-cli title-patterns --winners --losers --json | jq '.winners[] | select(.lift_pct \u003e 15)'",
+        "explanation": "List title tokens with above-15% CTR lift; feeds an agent's title-generation prompt."
+      },
+      {
+        "title": "Quota-safe morning sync",
+        "command": "yt-studio-pp-cli sync --since 1d --data-source auto --concurrency 2 --quiet 2\u003e\u00261 | grep 'quota_used'",
+        "explanation": "Daily incremental, capped concurrency, with quota usage printed to stderr."
+      },
+      {
+        "title": "Inspect Studio session health",
+        "command": "yt-studio-pp-cli sniff-doctor --json",
+        "explanation": "Probes the Studio Innertube session; returns exit 4 if the session has expired (re-run login)."
+      }
+    ],
+    "trigger_phrases": [
+      "audit this youtube video",
+      "what's the retention on this video",
+      "how did \u003cvideo\u003e retain its audience",
+      "compare my channel against my watchlist",
+      "what titles work on my channel",
+      "what should I cover next on youtube",
+      "framework audit my video",
+      "use yt-studio",
+      "run yt-studio-pp-cli"
+    ]
+  }
+}

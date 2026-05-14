@@ -1,0 +1,328 @@
+name: yt-studio
+description: "Every YouTube creator metric that matters, offline-queryable, with framework-audit binding to your scripts. The CLI that turns retention curves into belief-shift evidence."
+version: "0.1.0"
+base_url: "https://www.googleapis.com"
+website_url: "https://studio.youtube.com"
+category: media-and-entertainment
+cli_description: "Hybrid YouTube Data API + Analytics API + Studio Innertube creator analytics CLI with offline SQLite, framework-audit, retention/CTR/demographics commands, and competitor watchlist."
+
+auth:
+  type: oauth2
+  oauth2_grant: authorization_code
+  refresh_token_mechanism: "query:access_type=offline"
+  authorization_url: "https://accounts.google.com/o/oauth2/v2/auth"
+  token_url: "https://oauth2.googleapis.com/token"
+  scopes:
+    - "https://www.googleapis.com/auth/youtube.readonly"
+    - "https://www.googleapis.com/auth/yt-analytics.readonly"
+  env_vars:
+    - YT_STUDIO_OAUTH_CLIENT_ID
+    - YT_STUDIO_OAUTH_CLIENT_SECRET
+  env_var_specs:
+    - name: YT_STUDIO_OAUTH_CLIENT_ID
+      kind: auth_flow_input
+      required: true
+      sensitive: false
+      description: "OAuth 2.0 Client ID from your Google Cloud Console Desktop Client"
+    - name: YT_STUDIO_OAUTH_CLIENT_SECRET
+      kind: auth_flow_input
+      required: true
+      sensitive: true
+      description: "OAuth 2.0 Client Secret from your Google Cloud Console Desktop Client"
+  key_url: "https://console.cloud.google.com/apis/credentials"
+  instructions: "Create an OAuth 2.0 Desktop Client in Google Cloud Console, then run `yt-studio-pp-cli auth login`. Enable both the YouTube Data API v3 and YouTube Analytics API on the project first."
+  verify_path: "/youtube/v3/channels?part=id&mine=true"
+
+config:
+  format: toml
+  path: "~/.config/yt-studio-pp-cli/config.toml"
+
+resources:
+  channels:
+    description: "YouTube channels (own channel + competitor watchlist)"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/channels"
+        description: "List channel resources by id, mine=true, or forHandle"
+        params:
+          - name: part
+            type: string
+            description: "Comma-separated part fields (snippet, statistics, contentDetails, brandingSettings)"
+          - name: id
+            type: string
+            description: "Comma-separated channel IDs"
+          - name: mine
+            type: bool
+            description: "Return the authenticated user's channel"
+          - name: forHandle
+            type: string
+            description: "Channel handle (e.g. @KamiVar)"
+          - name: maxResults
+            type: int
+            description: "Max channels per page (1-50)"
+          - name: pageToken
+            type: string
+            description: "Pagination token from prior response"
+        response:
+          type: array
+          item: Channel
+
+      info:
+        method: GET
+        path: "/youtube/v3/channels"
+        description: "Get the authenticated user's channel (--self) or a single channel by id"
+        params:
+          - name: self
+            type: bool
+            description: "Return the authenticated user's channel (sets mine=true,part=snippet,statistics,contentDetails)"
+          - name: id
+            type: string
+            description: "Channel ID (alternative to --self)"
+        response:
+          type: object
+          item: Channel
+
+  videos:
+    description: "YouTube videos (own + watchlist)"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/videos"
+        description: "List video metadata by id"
+        params:
+          - name: part
+            type: string
+            description: "Comma-separated part fields (snippet, statistics, contentDetails)"
+          - name: id
+            type: string
+            required: true
+            description: "Comma-separated video IDs (up to 50 per request)"
+          - name: maxResults
+            type: int
+            description: "Max items per page (1-50)"
+        response:
+          type: array
+          item: Video
+
+      get:
+        method: GET
+        path: "/youtube/v3/videos"
+        description: "Get a single video by ID"
+        params:
+          - name: video_id
+            type: string
+            required: true
+            positional: true
+            description: "Video ID"
+          - name: part
+            type: string
+            description: "Comma-separated part fields"
+        response:
+          type: object
+          item: Video
+
+  playlists:
+    description: "YouTube playlists"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/playlists"
+        description: "List playlists by channelId or id"
+        params:
+          - name: part
+            type: string
+            description: "Comma-separated part fields (snippet, contentDetails)"
+          - name: channelId
+            type: string
+            description: "Channel ID to fetch playlists for"
+          - name: id
+            type: string
+            description: "Comma-separated playlist IDs"
+          - name: mine
+            type: bool
+            description: "Return the authenticated user's playlists"
+          - name: maxResults
+            type: int
+            description: "Max items per page (1-50)"
+          - name: pageToken
+            type: string
+            description: "Pagination token"
+        response:
+          type: array
+          item: Playlist
+
+      get:
+        method: GET
+        path: "/youtube/v3/playlists"
+        description: "Get a single playlist by ID"
+        params:
+          - name: playlist_id
+            type: string
+            required: true
+            positional: true
+            description: "Playlist ID"
+        response:
+          type: object
+          item: Playlist
+
+  playlistItems:
+    description: "Items within a playlist"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/playlistItems"
+        description: "List items in a playlist"
+        params:
+          - name: part
+            type: string
+            description: "Comma-separated part fields (snippet, contentDetails)"
+          - name: playlistId
+            type: string
+            required: true
+            description: "Playlist ID (e.g. UU... for an uploads playlist)"
+          - name: maxResults
+            type: int
+            description: "Max items per page (1-50)"
+          - name: pageToken
+            type: string
+            description: "Pagination token"
+        response:
+          type: array
+          item: PlaylistItem
+
+  discover:
+    description: "YouTube search.list API (100 quota units per request — use sparingly; named 'discover' because 'search' is a built-in framework command for offline FTS)"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/search"
+        description: "Search for videos, channels, or playlists via the YouTube Data API search.list endpoint. WARNING: 100 quota units per call."
+        params:
+          - name: part
+            type: string
+            description: "Always 'snippet' for search"
+          - name: q
+            type: string
+            description: "Query string"
+          - name: channelId
+            type: string
+            description: "Restrict to a single channel"
+          - name: type
+            type: string
+            description: "video, channel, or playlist"
+          - name: order
+            type: string
+            description: "date, rating, relevance, title, videoCount, viewCount"
+          - name: publishedAfter
+            type: string
+            description: "RFC3339 timestamp (e.g. 2026-05-01T00:00:00Z)"
+          - name: publishedBefore
+            type: string
+            description: "RFC3339 timestamp"
+          - name: maxResults
+            type: int
+            description: "Max items per page (1-50)"
+          - name: pageToken
+            type: string
+            description: "Pagination token"
+        response:
+          type: array
+          item: SearchResult
+
+  captions:
+    description: "Caption tracks (read-only; transcript fetch deferred)"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/captions"
+        description: "List caption tracks for a video"
+        params:
+          - name: part
+            type: string
+            description: "Always 'snippet'"
+          - name: videoId
+            type: string
+            required: true
+            description: "Video ID"
+        response:
+          type: array
+          item: CaptionTrack
+
+  categories:
+    description: "YouTube video category metadata"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/videoCategories"
+        description: "List video categories for a region"
+        params:
+          - name: part
+            type: string
+            description: "Always 'snippet'"
+          - name: regionCode
+            type: string
+            description: "ISO 3166-1 alpha-2 region code (e.g. US, GB)"
+        response:
+          type: array
+          item: VideoCategory
+
+  comments:
+    description: "Video comment threads (read-only)"
+    endpoints:
+      list:
+        method: GET
+        path: "/youtube/v3/commentThreads"
+        description: "List top-level comment threads for a video"
+        params:
+          - name: part
+            type: string
+            description: "Comma-separated part fields (snippet, replies)"
+          - name: videoId
+            type: string
+            required: true
+            description: "Video ID"
+          - name: order
+            type: string
+            description: "time or relevance"
+          - name: maxResults
+            type: int
+            description: "Max threads per page (1-100)"
+          - name: pageToken
+            type: string
+            description: "Pagination token"
+        response:
+          type: array
+          item: CommentThread
+
+extra_commands:
+  - name: login
+    description: "Interactive: OAuth + Studio cookie capture (one-time setup)"
+  - name: sync
+    description: "Incremental sync of own channel + watchlist into local SQLite (quota-aware)"
+  - name: retention
+    args: "<video_id>"
+    description: "Retention curve (JSON or ASCII sparkline) with 3 sharpest drops auto-annotated"
+  - name: retention-cohort
+    description: "Composite retention across videos matching a title regex"
+  - name: ctr-decay
+    args: "<video_id>"
+    description: "First-72h CTR vs day-30 CTR; flags fast-decaying thumbnails"
+  - name: vs-watchlist
+    description: "Compare own channel against watchlist on CTR / retention / upload cadence"
+  - name: title-patterns
+    description: "Token-level analysis of words correlating with above-median CTR"
+  - name: idea-gap
+    description: "Topics watchlist covered in last N days that own channel hasn't"
+  - name: framework-audit
+    args: "<video_id>"
+    description: "Join retention to script Signal/BeliefShift/CTA structure. The killer command."
+  - name: script-link
+    args: "<video_id> <script_path>"
+    description: "Manually bind a script to a video for framework-audit"
+  - name: watchlist
+    description: "Manage competitor watchlist (suggest / add / remove / list)"
+  - name: quota
+    description: "Show today's Data API quota usage"
+  - name: sniff-doctor
+    description: "Verify Studio Innertube response schema (drift detection)"

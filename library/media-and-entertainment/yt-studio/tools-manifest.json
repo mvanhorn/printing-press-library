@@ -1,0 +1,380 @@
+{
+  "api_name": "yt-studio",
+  "base_url": "https://www.googleapis.com",
+  "description": "Every YouTube creator metric that matters, offline-queryable, with framework-audit binding to your scripts. The CLI that turns retention curves into belief-shift evidence.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "env_vars": [
+      "YT_STUDIO_OAUTH_CLIENT_ID",
+      "YT_STUDIO_OAUTH_CLIENT_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YT_STUDIO_OAUTH_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": false,
+        "description": "OAuth 2.0 Client ID from your Google Cloud Console Desktop Client"
+      },
+      {
+        "name": "YT_STUDIO_OAUTH_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "OAuth 2.0 Client Secret from your Google Cloud Console Desktop Client"
+      }
+    ],
+    "key_url": "https://console.cloud.google.com/apis/credentials"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "captions_list",
+      "description": "List caption tracks for a video. Required: videoId. Optional: part. Returns array of CaptionTrack.",
+      "method": "GET",
+      "path": "/youtube/v3/captions",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Always 'snippet'"
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Video ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List video categories for a region. Optional: part, regionCode. Returns array of VideoCategory.",
+      "method": "GET",
+      "path": "/youtube/v3/videoCategories",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Always 'snippet'"
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 3166-1 alpha-2 region code (e.g. US, GB)"
+        }
+      ]
+    },
+    {
+      "name": "channels_info",
+      "description": "Get the authenticated user's channel (--self) or a single channel by id. Optional: self, id. Returns the Channel.",
+      "method": "GET",
+      "path": "/youtube/v3/channels",
+      "params": [
+        {
+          "name": "self",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the authenticated user's channel (sets mine=true,part=snippet,statistics,contentDetails)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID (alternative to --self)"
+        }
+      ]
+    },
+    {
+      "name": "channels_list",
+      "description": "List channel resources by id, mine=true, or forHandle. Optional: part, id, mine (plus 3 more). Returns array of Channel.",
+      "method": "GET",
+      "path": "/youtube/v3/channels",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated part fields (snippet, statistics, contentDetails, brandingSettings)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated channel IDs"
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the authenticated user's channel"
+        },
+        {
+          "name": "forHandle",
+          "type": "string",
+          "location": "query",
+          "description": "Channel handle (e.g. @KamiVar)"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Max channels per page (1-50)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token from prior response"
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List top-level comment threads for a video. Required: videoId. Optional: part, order, maxResults (plus 1 more). Returns array of CommentThread.",
+      "method": "GET",
+      "path": "/youtube/v3/commentThreads",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated part fields (snippet, replies)"
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "time or relevance"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Max threads per page (1-100)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token"
+        }
+      ]
+    },
+    {
+      "name": "discover_list",
+      "description": "Search for videos, channels, or playlists via the YouTube Data API search.list endpoint. WARNING: 100 quota units per call. Optional: part, q, channelId (plus 6 more). Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/youtube/v3/search",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Always 'snippet' for search"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Query string"
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to a single channel"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "video, channel, or playlist"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "date, rating, relevance, title, videoCount, viewCount"
+        },
+        {
+          "name": "publishedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "RFC3339 timestamp (e.g. 2026-05-01T00:00:00Z)"
+        },
+        {
+          "name": "publishedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "RFC3339 timestamp"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Max items per page (1-50)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token"
+        }
+      ]
+    },
+    {
+      "name": "playlist_items_list",
+      "description": "List items in a playlist. Required: playlistId. Optional: part, maxResults, pageToken. Returns array of PlaylistItem.",
+      "method": "GET",
+      "path": "/youtube/v3/playlistItems",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated part fields (snippet, contentDetails)"
+        },
+        {
+          "name": "playlistId",
+          "type": "string",
+          "location": "query",
+          "description": "Playlist ID (e.g. UU... for an uploads playlist)",
+          "required": true
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Max items per page (1-50)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token"
+        }
+      ]
+    },
+    {
+      "name": "playlists_get",
+      "description": "Get a single playlist by ID. Required: playlist_id. Returns the Playlist.",
+      "method": "GET",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_list",
+      "description": "List playlists by channelId or id. Optional: part, channelId, id (plus 3 more). Returns array of Playlist.",
+      "method": "GET",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated part fields (snippet, contentDetails)"
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID to fetch playlists for"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated playlist IDs"
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the authenticated user's playlists"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Max items per page (1-50)"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination token"
+        }
+      ]
+    },
+    {
+      "name": "videos_get",
+      "description": "Get a single video by ID. Required: video_id. Optional: part. Returns the Video.",
+      "method": "GET",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "video_id",
+          "type": "string",
+          "location": "path",
+          "description": "Video ID",
+          "required": true
+        },
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated part fields"
+        }
+      ]
+    },
+    {
+      "name": "videos_list",
+      "description": "List video metadata by id. Required: id. Optional: part, maxResults. Returns array of Video.",
+      "method": "GET",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "part",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated part fields (snippet, statistics, contentDetails)"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated video IDs (up to 50 per request)",
+          "required": true
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Max items per page (1-50)"
+        }
+      ]
+    }
+  ]
+}

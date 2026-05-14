@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "yt-studio-pp-mcp",
+  "display_name": "Yt Studio",
+  "version": "4.6.0",
+  "description": "Hybrid YouTube Data API + Analytics API + Studio Innertube creator analytics CLI with offline SQLite, framework-audit, retention/CTR/demographics commands, and competitor watchlist.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/yt-studio-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/yt-studio-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

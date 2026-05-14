@@ -1,0 +1,19 @@
+{
+  "reachability": {
+    "mode": "standard_http",
+    "evidence": "All three surfaces (Data API v3, Analytics API v2, Studio Innertube) are plain HTTPS endpoints. No anti-bot challenge expected; OAuth tokens and Studio cookies are the only credentials needed."
+  },
+  "transport_hints": {
+    "uses_browser_http_transport": false,
+    "uses_cookie_clearance": false,
+    "needs_chrome_attach_at_runtime": false
+  },
+  "endpoints_discovered": 11,
+  "endpoints_by_surface": {
+    "youtube_data_api_v3": 6,
+    "youtube_analytics_api_v2": 4,
+    "youtube_studio_innertube": 3
+  },
+  "auth_model": "composed",
+  "auth_notes": "OAuth 2.0 (refresh + access tokens) for Data + Analytics APIs. Cookie session + SAPISIDHASH-computed Authorization header for Studio Innertube. login command harvests both."
+}

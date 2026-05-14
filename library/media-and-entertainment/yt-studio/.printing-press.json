@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T23:03:48.568721Z",
+  "printing_press_version": "4.6.0",
+  "api_name": "yt-studio",
+  "display_name": "Yt Studio",
+  "cli_name": "yt-studio-pp-cli",
+  "owner": "kamiops",
+  "printer": "kamiops",
+  "printer_name": "Kamibot Upgrade Automation",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:40427209150d27ccd53f9487c5702cf5662af7dc6181aa19d9b9648e39130b5e",
+  "run_id": "20260514-164715",
+  "category": "media-and-entertainment",
+  "description": "Hybrid YouTube Data API + Analytics API + Studio Innertube creator analytics CLI with offline SQLite, framework-audit, retention/CTR/demographics commands, and competitor watchlist.",
+  "mcp_binary": "yt-studio-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "YT_STUDIO_OAUTH_CLIENT_ID",
+    "YT_STUDIO_OAUTH_CLIENT_SECRET"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "YT_STUDIO_OAUTH_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": false,
+      "description": "OAuth 2.0 Client ID from your Google Cloud Console Desktop Client"
+    },
+    {
+      "name": "YT_STUDIO_OAUTH_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "OAuth 2.0 Client Secret from your Google Cloud Console Desktop Client"
+    }
+  ],
+  "auth_key_url": "https://console.cloud.google.com/apis/credentials",
+  "novel_features": [
+    {
+      "name": "Framework audit",
+      "command": "framework-audit",
+      "description": "Cross-check whether a published video hits the Signal / Belief-Shift / Action-CTA structure by joining retention buckets against script lines from your local content directory."
+    },
+    {
+      "name": "Retention curve",
+      "command": "retention",
+      "description": "Return the 100-bucket retention curve for a video as JSON or an ASCII sparkline, with the three sharpest drops auto-annotated."
+    },
+    {
+      "name": "Retention cohort",
+      "command": "retention-cohort",
+      "description": "Average retention across videos whose title matches a regex (build-guide cohort vs rework cohort vs tier-list cohort)."
+    },
+    {
+      "name": "CTR decay",
+      "command": "ctr-decay",
+      "description": "Compare first-72h CTR to day-30 CTR for a video; flags fast-decaying thumbnails."
+    },
+    {
+      "name": "Watchlist benchmark",
+      "command": "vs-watchlist",
+      "description": "Compare own channel against the watchlist on CTR, retention, or upload cadence — normalized scale across all channels."
+    },
+    {
+      "name": "Title pattern mining",
+      "command": "title-patterns",
+      "description": "Token-level analysis of words/phrases that correlate with above-median CTR (winners) or below-median (losers)."
+    },
+    {
+      "name": "Idea gap",
+      "command": "idea-gap",
+      "description": "Topics the watchlist covered in the last N days that the own channel has not."
+    },
+    {
+      "name": "Watchlist suggest",
+      "command": "watchlist suggest",
+      "description": "Auto-discover competitor channels for the watchlist via Search API; ranks by relevance and recent upload volume."
+    },
+    {
+      "name": "Hybrid quota-aware sync",
+      "command": "sync",
+      "description": "Incremental sync of own channel + watchlist with daily-quota budgeting; caps concurrency and prefers cache."
+    }
+  ]
+}
