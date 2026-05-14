@@ -68,8 +68,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("title", mcplib.Description("Short field label, up to 100 characters")),
 			mcplib.WithString("text", mcplib.Description("Main text field, up to 100 characters")),
 			mcplib.WithString("subtext", mcplib.Description("Secondary text field, up to 100 characters")),
-			mcplib.WithString("count", mcplib.Description("Integer count value")),
-			mcplib.WithString("percent", mcplib.Description("Integer progress value from 0 to 100")),
+			// PATCH(pr511-delete-through-int): glances widget `count` and `percent` are
+			// documented as integers by the Pushover API; WithString sent them as quoted
+			// JSON strings ("count":"5") and the type-strict endpoint rejected. Same fix
+			// class as devices_delete-through's message-id binding.
+			mcplib.WithNumber("count", mcplib.Description("Integer count value")),
+			mcplib.WithNumber("percent", mcplib.Description("Integer progress value from 0 to 100")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),

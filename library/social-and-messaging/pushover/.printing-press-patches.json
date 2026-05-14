@@ -36,14 +36,14 @@
     },
     {
       "id": "pr511-delete-through-int",
-      "summary": "Send --message-id as a JSON integer in the standalone devices delete-through CLI and its MCP tool binding.",
-      "reason": "The earlier inbox-sync --delete-through fix landed the int-vs-string correction at one call site for update_highest_message.json, but the standalone CLI wrapper (devices_delete-through.go) and the MCP tool's WithString binding for the same endpoint both still sent the message id as a quoted string. Pushover's type-strict endpoint rejected both. The CLI now ParseInt's the --message-id flag (returning a usage error on bad input) before assembling the body, and the MCP tool declares the input as WithNumber so the wire value is a JSON integer.",
+      "summary": "Send numeric body fields as JSON integers across both CLI and MCP surfaces — devices delete-through `message-id` and glances_update `count` / `percent`.",
+      "reason": "The earlier inbox-sync --delete-through fix landed the int-vs-string correction at one call site for update_highest_message.json, but the standalone CLI wrapper (devices_delete-through.go) and the MCP tool's WithString binding for the same endpoint both still sent the message id as a quoted string. The same WithString-for-integer-spec-field mismatch then surfaced on a second MCP tool (glances_update's `count` and `percent`, both documented as integers by Pushover). All three MCP bindings switched to WithNumber so makeAPIHandler emits JSON integers; the CLI now ParseInt's --message-id (returning a usage error on bad input) and the existing glances IntVar guards already produce integers on the CLI side. The cross-cutting template angle is filed upstream as mvanhorn/cli-printing-press#1362.",
       "files": [
         "internal/cli/devices_delete-through.go",
         "internal/cli/devices_delete-through_test.go",
         "internal/mcp/tools.go"
       ],
-      "validated_outcome": "go test ./internal/cli -run TestDevicesDeleteThrough -count=1 covers both the integer-on-wire happy path (httptest captures the body and asserts it decodes to a JSON number, not a Go string) and the usage-error path on non-numeric input."
+      "validated_outcome": "go test ./internal/cli -run TestDevicesDeleteThrough -count=1 covers both the integer-on-wire happy path (httptest captures the body and asserts it decodes to a JSON number, not a Go string) and the usage-error path on non-numeric input. The glances count/percent change is a one-line binding swap from WithString to WithNumber; makeAPIHandler's pass-through behavior is already pinned by TestMCPBodyIsJSONObjectNotBase64."
     },
     {
       "id": "pr511-handle-sql-scan-error",
