@@ -50,3 +50,17 @@ func TestLoadRetagTransactionsFiltersHandledRows(t *testing.T) {
 		}
 	}
 }
+
+func TestApplyRetagResponseUsesAPIOutcome(t *testing.T) {
+	result := applyRetagResponse(retagResult{Errors: []string{}}, json.RawMessage(`{
+		"transactions": [{"id": 101}],
+		"errors": [{"transaction_index": 1, "errMsg": "category_id does not exist"}]
+	}`), 3)
+
+	if result.Updated != 1 {
+		t.Fatalf("Updated = %d, want API transaction count 1", result.Updated)
+	}
+	if len(result.Errors) != 1 || result.Errors[0] != "category_id does not exist" {
+		t.Fatalf("Errors = %#v, want API error message", result.Errors)
+	}
+}

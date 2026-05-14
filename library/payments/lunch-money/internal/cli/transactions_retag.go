@@ -100,10 +100,11 @@ func newTransactionsRetagCmd(flags *rootFlags) *cobra.Command {
 				return fail(err)
 			}
 			body := buildRetagBody(matched, categoryChanged, categoryID, tagsChanged, addIDs, removeIDs)
-			if _, _, err := c.Put("/transactions", body); err != nil {
+			data, _, err := c.Put("/transactions", body)
+			if err != nil {
 				return fail(classifyAPIError(err, flags))
 			}
-			result.Updated = len(matched)
+			result = applyRetagResponse(result, data, len(matched))
 			return json.NewEncoder(cmd.OutOrStdout()).Encode(result)
 		},
 	}

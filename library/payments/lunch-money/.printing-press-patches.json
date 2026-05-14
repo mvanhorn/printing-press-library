@@ -160,6 +160,17 @@
         "internal/cli/transcendence_helpers.go"
       ],
       "validated_outcome": "go test ./internal/cli passes, including retag split/group filtering and unconverted foreign-balance net-worth coverage."
+    },
+    {
+      "id": "retag-bulk-update-response-accounting",
+      "summary": "Derived retag updated counts and row errors from the bulk update API response.",
+      "reason": "The retag command should not report every matched transaction as updated when the API returns fewer updated rows or per-row errors.",
+      "files": [
+        "internal/cli/transactions_retag.go",
+        "internal/cli/transactions_retag_test.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including retag response count and error parsing coverage."
     }
   ]
 }

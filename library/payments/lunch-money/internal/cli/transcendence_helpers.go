@@ -316,6 +316,80 @@ func buildRetagBody(txs []retagTransaction, categoryChanged bool, categoryID int
 	return map[string]any{"transactions": updates}
 }
 
+func applyRetagResponse(result retagResult, raw json.RawMessage, fallbackUpdated int) retagResult {
+	result.Updated = fallbackUpdated
+	if len(raw) == 0 {
+		return result
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		result.Errors = append(result.Errors, fmt.Sprintf("could not parse update response: %v", err))
+		return result
+	}
+	if updated, ok := retagUpdatedCount(v); ok {
+		result.Updated = updated
+	}
+	result.Errors = append(result.Errors, retagResponseErrors(v)...)
+	return result
+}
+
+func retagUpdatedCount(v any) (int, bool) {
+	switch x := v.(type) {
+	case []any:
+		return len(x), true
+	case map[string]any:
+		for _, key := range []string{"transactions", "updated_transactions", "updated"} {
+			if count, ok := retagUpdatedCount(x[key]); ok {
+				return count, true
+			}
+		}
+	case float64:
+		if x >= 0 && math.Trunc(x) == x {
+			return int(x), true
+		}
+	}
+	return 0, false
+}
+
+func retagResponseErrors(v any) []string {
+	obj, ok := v.(map[string]any)
+	if !ok {
+		return nil
+	}
+	rawErrors, ok := obj["errors"].([]any)
+	if !ok {
+		return nil
+	}
+	out := make([]string, 0, len(rawErrors))
+	for _, raw := range rawErrors {
+		if msg := retagErrorMessage(raw); msg != "" {
+			out = append(out, msg)
+		}
+	}
+	return out
+}
+
+func retagErrorMessage(v any) string {
+	switch x := v.(type) {
+	case string:
+		return x
+	case map[string]any:
+		for _, key := range []string{"errMsg", "message", "error"} {
+			if msg := strings.TrimSpace(fmt.Sprint(x[key])); msg != "" && msg != "<nil>" {
+				return msg
+			}
+		}
+		if data, err := json.Marshal(x); err == nil {
+			return string(data)
+		}
+	default:
+		if msg := strings.TrimSpace(fmt.Sprint(v)); msg != "" && msg != "<nil>" {
+			return msg
+		}
+	}
+	return ""
+}
+
 func retagTagIDs(v any) []int {
 	set := map[int]bool{}
 	var add func(any)
