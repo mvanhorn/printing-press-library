@@ -443,15 +443,17 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		switch method {
 		case "GET":
 			data, err = c.Get(path, params)
+		// PATCH(pr511-mcp-double-marshal): client.{Post,Put,Patch} take `body any`
+		// and json.Marshal it inside do(). Pre-marshaling bodyArgs to []byte made
+		// Go re-encode it as a base64 JSON string, so every mutating MCP tool sent
+		// a quoted base64 blob instead of a JSON object — Pushover rejected all of
+		// them. Pass the map[string]any directly.
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(path, bodyArgs)
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(path, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(path, bodyArgs)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:
