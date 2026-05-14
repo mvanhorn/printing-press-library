@@ -98,7 +98,7 @@ but do not stop the import.`,
 					"skipped":   skipped,
 				}, flags)
 			}
-			fmt.Fprintf(os.Stderr, "Import complete: %d succeeded, %d failed, %d skipped\n", success, failed, skipped)
+			fmt.Fprintf(cmd.OutOrStdout(), "Import complete: %d succeeded, %d failed, %d skipped\n", success, failed, skipped)
 			return nil
 		},
 	}
