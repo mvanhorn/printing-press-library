@@ -873,6 +873,10 @@ func syncResourcePath(resource string) (string, error) {
 		"custom-emojis": "/v1/custom_emojis",
 		"file-uploads": "/v1/file_uploads",
 		"users": "/v1/users",
+		// PATCH (fix-sync-views-requires-scope-334): retained in the lookup so
+		// `--resources views` still resolves to the canonical endpoint and
+		// surfaces the API's own scope-required error. Removed from
+		// defaultSyncResources() because /v1/views rejects every unscoped call.
 		"views": "/v1/views",
 	}
 	if p, ok := paths[resource]; ok {
