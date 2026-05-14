@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: cal-com-pp-cli
     repository:
-      owner: trevin-chow
+      owner: david-n
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Cal.com is the open-source Calendly alternative — bookable invite links, availability, slots, bookings, schedules, teams, OAuth, and webhooks. All endpoints require a bearer token."
+    description: "Every Cal.com command bcharleson ships, plus a local SQLite layer that answers questions the API can't: conflict..."
     install: |
       bin.install "cal-com-pp-cli"
       bin.install "cal-com-pp-mcp"

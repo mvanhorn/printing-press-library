@@ -1,0 +1,273 @@
+{
+  "api_name": "cal-com",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "bcharleson/calcom-cli",
+      "url": "https://github.com/bcharleson/calcom-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 61,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aditzel/caldotcom-api-v2-sdk",
+      "url": "https://github.com/aditzel/caldotcom-api-v2-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@calcom/cal-mcp",
+      "url": "https://www.npmjs.com/package/@calcom/cal-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T07:46:30Z",
+  "novel_features": [
+    {
+      "name": "Conflict scan across linked calendars",
+      "command": "conflicts",
+      "description": "Find overlapping busy time across your Google, Outlook, iCloud, and ICS calendars during bookable windows — surfaces double-booking risk before it happens.",
+      "rationale": "Requires joining multi-provider busy data with local bookings; Cal.com's API exposes busy-times per calendar but no cross-provider conflict view.",
+      "example": "cal-com-pp-cli conflicts --window 7d --json",
+      "why_it_matters": "When an agent needs to know whether a Cal.com bookable slot has an external calendar conflict, this is the only command that joins the data instead of doing N round-trips.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "No-show risk by attendee",
+      "command": "no-show-risk",
+      "description": "Rank attendees by historical no-show and cancellation rate from your local booking history.",
+      "rationale": "Local aggregation over the bookings table; the API exposes per-booking status but no attendee-keyed rates.",
+      "example": "cal-com-pp-cli no-show-risk --since 90d --json --select email,no_show_rate,total_count",
+      "why_it_matters": "Lets an agent decide whether to require a deposit or reminder for a specific attendee before confirming a new booking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Attendee history",
+      "command": "attendee",
+      "description": "Every past booking for a single attendee email — event types, statuses, first-seen, last-seen — with --summary collapsing to one row.",
+      "rationale": "Cal.com's API exposes attendees only inside individual bookings; cross-booking attendee view requires local joins.",
+      "example": "cal-com-pp-cli attendee PII_EMAIL_EXAMPLE --summary --json",
+      "why_it_matters": "Agents tagging 'repeat customer' or 'first-time prospect' use this instead of paginating /bookings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Schedule gap finder",
+      "command": "gaps",
+      "description": "Contiguous free time of at least N minutes inside your availability windows.",
+      "rationale": "Local subtraction of bookings from schedule windows; /slots is per-event-type only.",
+      "example": "cal-com-pp-cli gaps --min 30m --window 7d --json",
+      "why_it_matters": "Agents fitting an interview block or a focus window pick gaps directly instead of probing /slots per event-type.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reschedule replay",
+      "command": "reschedule-history",
+      "description": "Full chain of reschedules for a booking — every prior UID, who/when, with the final state on top.",
+      "rationale": "Recursive walk of rescheduledFromUid pointers across local bookings; the API exposes the field but not the chain.",
+      "example": "cal-com-pp-cli reschedule-history abc123 --json",
+      "why_it_matters": "When a customer asks 'what happened to my booking?' the agent traces the full trail in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cancel sweep",
+      "command": "cancel-sweep",
+      "description": "Find and (with --apply) cancel stale unconfirmed bookings older than a threshold. Dry-run by default.",
+      "rationale": "Local SQL pre-filter on (status, createdAt age) drives a typed cancel loop; the API has no bulk cancel.",
+      "example": "cal-com-pp-cli cancel-sweep --status PENDING --older-than 48h --json",
+      "why_it_matters": "Agents doing weekly hygiene get one command instead of paginating /bookings and looping cancel calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Host load report",
+      "command": "host-load",
+      "description": "Per-host booking counts, total hours, cancel rate, and no-show rate for a given ISO week.",
+      "rationale": "Local GROUP BY host_user_id; no API aggregation endpoint.",
+      "example": "cal-com-pp-cli host-load --week 2026-W20 --json",
+      "why_it_matters": "RevOps agents building team-load reports stop writing Python pagination scripts.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Load-by-day",
+      "command": "load-day",
+      "description": "Sync one calendar day's bookings into local store and emit the delta (added/changed) vs the prior sync.",
+      "rationale": "Windowed /bookings call + upsert + delta computation against local state.",
+      "example": "cal-com-pp-cli load-day 2026-05-14 --json",
+      "why_it_matters": "Targeted incremental sync for debugging a specific day without re-syncing the whole history.",
+      "group": "Sync verbs"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Conflict scan across linked calendars",
+      "command": "conflicts",
+      "description": "Find overlapping busy time across your Google, Outlook, iCloud, and ICS calendars during bookable windows — surfaces double-booking risk before it happens.",
+      "rationale": "Requires joining multi-provider busy data with local bookings; Cal.com's API exposes busy-times per calendar but no cross-provider conflict view.",
+      "example": "cal-com-pp-cli conflicts --window 7d --json",
+      "why_it_matters": "When an agent needs to know whether a Cal.com bookable slot has an external calendar conflict, this is the only command that joins the data instead of doing N round-trips.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "No-show risk by attendee",
+      "command": "no-show-risk",
+      "description": "Rank attendees by historical no-show and cancellation rate from your local booking history.",
+      "rationale": "Local aggregation over the bookings table; the API exposes per-booking status but no attendee-keyed rates.",
+      "example": "cal-com-pp-cli no-show-risk --since 90d --json --select email,no_show_rate,total_count",
+      "why_it_matters": "Lets an agent decide whether to require a deposit or reminder for a specific attendee before confirming a new booking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Attendee history",
+      "command": "attendee",
+      "description": "Every past booking for a single attendee email — event types, statuses, first-seen, last-seen — with --summary collapsing to one row.",
+      "rationale": "Cal.com's API exposes attendees only inside individual bookings; cross-booking attendee view requires local joins.",
+      "example": "cal-com-pp-cli attendee PII_EMAIL_EXAMPLE --summary --json",
+      "why_it_matters": "Agents tagging 'repeat customer' or 'first-time prospect' use this instead of paginating /bookings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Schedule gap finder",
+      "command": "gaps",
+      "description": "Contiguous free time of at least N minutes inside your availability windows.",
+      "rationale": "Local subtraction of bookings from schedule windows; /slots is per-event-type only.",
+      "example": "cal-com-pp-cli gaps --min 30m --window 7d --json",
+      "why_it_matters": "Agents fitting an interview block or a focus window pick gaps directly instead of probing /slots per event-type.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reschedule replay",
+      "command": "reschedule-history",
+      "description": "Full chain of reschedules for a booking — every prior UID, who/when, with the final state on top.",
+      "rationale": "Recursive walk of rescheduledFromUid pointers across local bookings; the API exposes the field but not the chain.",
+      "example": "cal-com-pp-cli reschedule-history abc123 --json",
+      "why_it_matters": "When a customer asks 'what happened to my booking?' the agent traces the full trail in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cancel sweep",
+      "command": "cancel-sweep",
+      "description": "Find and (with --apply) cancel stale unconfirmed bookings older than a threshold. Dry-run by default.",
+      "rationale": "Local SQL pre-filter on (status, createdAt age) drives a typed cancel loop; the API has no bulk cancel.",
+      "example": "cal-com-pp-cli cancel-sweep --status PENDING --older-than 48h --json",
+      "why_it_matters": "Agents doing weekly hygiene get one command instead of paginating /bookings and looping cancel calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Host load report",
+      "command": "host-load",
+      "description": "Per-host booking counts, total hours, cancel rate, and no-show rate for a given ISO week.",
+      "rationale": "Local GROUP BY host_user_id; no API aggregation endpoint.",
+      "example": "cal-com-pp-cli host-load --week 2026-W20 --json",
+      "why_it_matters": "RevOps agents building team-load reports stop writing Python pagination scripts.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Load-by-day",
+      "command": "load-day",
+      "description": "Sync one calendar day's bookings into local store and emit the delta (added/changed) vs the prior sync.",
+      "rationale": "Windowed /bookings call + upsert + delta computation against local state.",
+      "example": "cal-com-pp-cli load-day 2026-05-14 --json",
+      "why_it_matters": "Targeted incremental sync for debugging a specific day without re-syncing the whole history.",
+      "group": "Sync verbs"
+    }
+  ],
+  "narrative": {
+    "display_name": "Cal.com",
+    "headline": "Every Cal.com command bcharleson ships, plus a local SQLite layer that answers questions the API can't: conflict scans across linked calendars, attendee history, no-show risk, schedule gap finder.",
+    "value_prop": "121 generated commands across Bookings, Event Types, Schedules, Slots, Calendars, Webhooks, Teams, OOO, and Conferencing — every endpoint in the Cal.com Platform API v2 OpenAPI spec, agent-native with --json / --select / --csv / --dry-run / typed exit codes. On top, eight novel commands that join your local synced state to surface conflict detection, attendee history, no-show ranking, schedule gaps, reschedule chains, and host load reports — none of which exist as Cal.com API endpoints.",
+    "auth_narrative": "Set CAL_COM_API_KEY (or CAL_API_KEY for bcharleson compatibility) to your cal_live_* key from Settings → Security → API keys. The CLI sends Authorization: Bearer \u003ckey\u003e. cal-com-pp-cli doctor verifies auth + reachability before anything else.",
+    "quickstart": [
+      {
+        "command": "cal-com-pp-cli doctor",
+        "comment": "Verify auth + API reachability"
+      },
+      {
+        "command": "cal-com-pp-cli sync --full",
+        "comment": "Pull bookings, event types, schedules, teams, OOO into local SQLite"
+      },
+      {
+        "command": "cal-com-pp-cli bookings list --status accepted --after-start 2026-05-14 --json",
+        "comment": "Today's confirmed bookings, agent-shaped JSON"
+      },
+      {
+        "command": "cal-com-pp-cli conflicts --window 7d --json",
+        "comment": "Cross-provider conflict scan — novel"
+      },
+      {
+        "command": "cal-com-pp-cli no-show-risk --since 90d --json --select email,no_show_rate,total_count",
+        "comment": "Rank attendees by historical no-show rate — novel"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 UnauthorizedException",
+        "fix": "Run cal-com-pp-cli auth status; ensure CAL_COM_API_KEY is set and starts with cal_live_."
+      },
+      {
+        "symptom": "429 rate-limited mid-sync",
+        "fix": "The built-in AdaptiveLimiter honors X-RateLimit-Reset; rerun sync — it resumes from the last cursor."
+      },
+      {
+        "symptom": "conflict scan returns empty",
+        "fix": "Run sync --full first; conflict scan reads local calendars/busy and bookings tables only."
+      },
+      {
+        "symptom": "rescheduled-from chain breaks",
+        "fix": "Some legacy bookings missing rescheduledFromUid; cal-com-pp-cli bookings get \u003cuid\u003e --json to inspect."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs full Cal.com Platform API v2 coverage with local-state superpowers: not just listing/creating/cancelling bookings, but joining bookings × attendees × event_types × calendar busy data to answer questions the API itself can't (cross-provider conflicts, attendee no-show rates, contiguous schedule gaps, host load reports). Prefer it over generic HTTP clients when offline aggregation, cross-entity queries, or batched operations matter.",
+    "recipes": [
+      {
+        "title": "Weekly cancellation hygiene",
+        "command": "cal-com-pp-cli cancel-sweep --status PENDING --older-than 48h --json",
+        "explanation": "Dry-run lists pending bookings older than 48h; add --apply to cancel."
+      },
+      {
+        "title": "Conflict scan before sharing slots",
+        "command": "cal-com-pp-cli conflicts --window 14d --json --select date,event_title,conflict_calendar,conflict_event",
+        "explanation": "Shows every 14-day window where a connected calendar has a busy block overlapping a confirmed booking."
+      },
+      {
+        "title": "Attendee follow-up at scale",
+        "command": "cal-com-pp-cli attendee PII_EMAIL_EXAMPLE --summary --json",
+        "explanation": "First booking, last booking, total count, cancel rate, last event type for one attendee."
+      },
+      {
+        "title": "Find a 45-minute window this week",
+        "command": "cal-com-pp-cli gaps --min 45m --window 7d --json --select start,end,minutes",
+        "explanation": "Contiguous free time across your availability windows, sorted earliest first."
+      },
+      {
+        "title": "VP-ready host load report",
+        "command": "cal-com-pp-cli host-load --week 2026-W20 --json --select host_email,booking_count,total_hours,no_show_rate",
+        "explanation": "Group bookings by host with derived rates, ready to paste into a slide or feed to claude."
+      }
+    ],
+    "trigger_phrases": [
+      "list my Cal.com bookings",
+      "find calendar conflicts",
+      "who's likely to no-show",
+      "sync Cal.com to local",
+      "use cal-com",
+      "run cal-com-pp-cli"
+    ]
+  }
+}

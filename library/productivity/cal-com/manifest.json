@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "cal-com-pp-mcp",
-  "display_name": "Cal.com",
-  "version": "3.9.0",
-  "description": "Cal.com API surface as MCP tools.",
+  "display_name": "Cal Com",
+  "version": "4.6.1",
+  "description": "Cal Com API surface as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,15 +15,23 @@
       "command": "${__dirname}/bin/cal-com-pp-mcp",
       "args": [],
       "env": {
-        "CAL_COM_TOKEN": "${user_config.cal_com_token}"
+        "CAL_API_KEY": "${user_config.cal_api_key}",
+        "CAL_COM_API_KEY": "${user_config.cal_com_api_key}"
       }
     }
   },
   "user_config": {
-    "cal_com_token": {
+    "cal_api_key": {
       "type": "string",
-      "title": "Cal.com API Key",
-      "description": "Cal.com bearer token (cal_live_* or cal_test_*); managed-user access tokens and OAuth access tokens also accepted",
+      "title": "CAL_API_KEY",
+      "description": "Sets CAL_API_KEY for the Cal Com MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "cal_com_api_key": {
+      "type": "string",
+      "title": "CAL_COM_API_KEY",
+      "description": "Sets CAL_COM_API_KEY for the Cal Com MCP server.",
       "sensitive": true,
       "required": true
     }

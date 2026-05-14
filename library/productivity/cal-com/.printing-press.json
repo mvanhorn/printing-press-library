@@ -1,96 +1,66 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-05T05:30:07.353005Z",
-  "printing_press_version": "3.9.0",
+  "generated_at": "2026-05-14T08:58:24.34908Z",
+  "printing_press_version": "4.6.1",
   "api_name": "cal-com",
-  "display_name": "Cal.com",
+  "display_name": "Cal Com",
   "cli_name": "cal-com-pp-cli",
-  "printer": "tmchow",
-  "printer_name": "Trevin Chow",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/research/cal-com-openapi-enriched.json",
+  "owner": "David N",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:569c5b2d8a7bf1efa931662520f6153f0f0904528b2bc73e00cd4a1fe8240e22",
-  "run_id": "20260504-205634",
+  "spec_checksum": "sha256:9da464a68369fa5b2310cb3755ced35d23a8ce4d02c9d44e61775eabc6b9f2a5",
+  "run_id": "20260514-143946",
   "mcp_binary": "cal-com-pp-mcp",
-  "mcp_tool_count": 291,
+  "mcp_tool_count": 121,
   "mcp_ready": "full",
+  "api_version": "1.0.0",
   "auth_type": "bearer_token",
   "auth_env_vars": [
-    "CAL_COM_TOKEN"
+    "CAL_COM_API_KEY",
+    "CAL_API_KEY"
   ],
-  "auth_key_url": "https://app.cal.com/settings/developer/api-keys",
-  "auth_title": "Cal.com API Key",
-  "auth_description": "Cal.com bearer token (cal_live_* or cal_test_*); managed-user access tokens and OAuth access tokens also accepted",
   "novel_features": [
     {
-      "name": "One-shot booking",
-      "command": "book",
-      "description": "Schedule an attendee onto one of your event types in a single composed call — slot check, optional reservation, create, optional confirm. For the rare scripting case (admin onboarding, recruiter pre-fill, test fixtures); for the normal flow where the attendee picks their own time, share a URL from link list."
-    },
-    {
-      "name": "Unified agenda",
-      "command": "agenda",
-      "description": "Upcoming bookings in a window — today, this week, or any duration — read from the local store."
-    },
-    {
-      "name": "Cross-event-type slot search",
-      "command": "slots find",
-      "description": "Find first available slots across multiple event-type IDs in one call, ranked by start time."
-    },
-    {
-      "name": "Booking analytics",
-      "command": "analytics no-show",
-      "description": "No-show, cancellation, volume, and density metrics over a window. Sister subcommands under analytics: bookings (volume), cancellations, no-show, density. --by accepts event-type, attendee, or weekday on the rate commands; analytics density --unit hour adds hourly heatmaps."
-    },
-    {
-      "name": "Conflict detection",
+      "name": "Conflict scan across linked calendars",
       "command": "conflicts",
-      "description": "Detects overlapping bookings within a time window — pairs whose time ranges intersect get reported. Reads the local store, no API call."
+      "description": "Find overlapping busy time across your Google, Outlook, iCloud, and ICS calendars during bookable windows \u2014 surfaces double-booking risk before it happens."
     },
     {
-      "name": "Availability gap finder",
+      "name": "No-show risk by attendee",
+      "command": "no-show-risk",
+      "description": "Rank attendees by historical no-show and cancellation rate from your local booking history."
+    },
+    {
+      "name": "Attendee history",
+      "command": "attendee",
+      "description": "Every past booking for a single attendee email \u2014 event types, statuses, first-seen, last-seen \u2014 with --summary collapsing to one row."
+    },
+    {
+      "name": "Schedule gap finder",
       "command": "gaps",
-      "description": "Finds open windows in your schedule that are available but unbooked, filtered by minimum block size."
+      "description": "Contiguous free time of at least N minutes inside your availability windows."
     },
     {
-      "name": "Team workload balance",
-      "command": "workload",
-      "description": "Booking distribution across team members over a window — surfaces overloaded vs underutilized hosts."
+      "name": "Reschedule replay",
+      "command": "reschedule-history",
+      "description": "Full chain of reschedules for a booking \u2014 every prior UID, who/when, with the final state on top."
     },
     {
-      "name": "Webhook coverage",
-      "command": "webhooks coverage",
-      "description": "Audits registered webhook triggers against the canonical set and reports lifecycle events with no subscriber."
+      "name": "Cancel sweep",
+      "command": "cancel-sweep",
+      "description": "Find and (with --apply) cancel stale unconfirmed bookings older than a threshold. Dry-run by default."
     },
     {
-      "name": "Stale event types",
-      "command": "event-types stale",
-      "description": "Event types with zero bookings in the last N days — candidates for removal."
+      "name": "Host load report",
+      "command": "host-load",
+      "description": "Per-host booking counts, total hours, cancel rate, and no-show rate for a given ISO week."
     },
     {
-      "name": "Reschedule to next open slot",
-      "command": "reschedule next",
-      "description": "Move an existing booking to the next available slot for the same event type, after a cutoff."
-    },
-    {
-      "name": "Bookable link create",
-      "command": "link create",
-      "description": "Create a new bookable link (event type) on your Cal.com account; prints the cal.com/<your-username>/<slug> URL ready to share."
-    },
-    {
-      "name": "Bookable link list",
-      "command": "link list",
-      "description": "List every bookable link you own with the full cal.com/<your-username>/<slug> URL pre-rendered for copy-share."
-    },
-    {
-      "name": "Out-of-office set",
-      "command": "ooo set",
-      "description": "Mark yourself out-of-office for a date range so Cal.com excludes the period from slot search; supports redirect-to-teammate for round-robin event types."
-    },
-    {
-      "name": "Out-of-office list",
-      "command": "ooo list",
-      "description": "List your active and upcoming out-of-office entries, sorted by start time."
+      "name": "Load-by-day",
+      "command": "load-day",
+      "description": "Sync one calendar day's bookings into local store and emit the delta (added/changed) vs the prior sync."
     }
-  ]
+  ],
+  "printer": "anubistar",
+  "printer_name": "David N",
+  "category": "productivity"
 }

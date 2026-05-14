@@ -1,36 +1,35 @@
 {
-  "dir": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/working/cal-com-pp-cli",
-  "spec_path": "/Users/tmchow/printing-press/.runstate/calm-scribbling-glacier-fb2ca6fd/runs/20260504-205634/research/cal-com-openapi-enriched.json",
+  "dir": "\u003ccli-dir\u003e/cal-com",
   "verdict": "PASS",
   "path_check": {
-    "tested": 4,
-    "valid": 4,
-    "valid_pct": 100
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
   },
   "auth_check": {
-    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
-    "generated_format": "Bearer ",
+    "spec_scheme": "",
+    "generated_format": "",
     "match": true,
-    "detail": "spec and generated client both use \"Bearer\""
+    "detail": "spec not provided; auth protocol check skipped"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
-    "detail": "browser-session auth not required"
+    "detail": "spec not provided; browser-session auth check skipped"
   },
   "dead_flags": {
-    "total": 17,
+    "total": 19,
     "dead": 0
   },
   "dead_functions": {
-    "total": 50,
+    "total": 59,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": true,
-    "domain_tables": 2,
-    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 2 domain tables found"
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -40,8 +39,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 400,
-      "registered": 400
+      "defined": 200,
+      "registered": 200
     },
     "config_consistency": {
       "consistent": true
@@ -54,8 +53,9 @@
     }
   },
   "novel_features_check": {
-    "planned": 10,
-    "found": 10
+    "planned": 0,
+    "found": 0,
+    "skipped": true
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -63,22 +63,22 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 10,
+    "checked": 0,
     "exempted_via_store": 0,
-    "exempted_via_annotation": 10
+    "skipped": true
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 379
+    "checked": 184
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 379
+    "checked": 184
   },
   "issues": null
 }

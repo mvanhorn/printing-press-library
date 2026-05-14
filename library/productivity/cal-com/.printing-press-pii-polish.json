@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-05-14T14:37:40.932636Z",
+  "cli_dir": "/tmp/printing-press/publish/cal-com-7ob4CK/package/library/productivity/cal-com",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 106,
+      "column": 27,
+      "matched_span": "jane@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "README Quick Start example using RFC 2606 reserved example.com TLD as documentation placeholder for the attendee-email flag."
+    },
+    {
+      "kind": "phone-us",
+      "file": "README.md",
+      "line": 183,
+      "column": 157,
+      "matched_span": "19876543210",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Cal.com's own OpenAPI spec description prose for SMS-reminder phone format; reproduced verbatim in README from upstream API documentation."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 67,
+      "column": 27,
+      "matched_span": "jane@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL recipe code example using RFC 2606 reserved example.com TLD to teach the attendee command shape."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 253,
+      "column": 25,
+      "matched_span": "jane@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL recipe code example using RFC 2606 reserved example.com TLD to teach the attendee --summary command shape."
+    }
+  ],
+  "findings_count_before": 6
+}
