@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-13",
+  "applied_at": "2026-05-14",
   "base_run_id": "2026-04-11T06:12:25Z",
   "base_printing_press_version": "1.2.1",
   "patches": [
@@ -15,6 +15,17 @@
         "internal/cli/retailers.go"
       ],
       "validated_outcome": "Unit tests pin the JSON shape: no `coordinates` key when lat/lng are both zero; coordinates included when at least one is non-zero; addressId omitted when empty."
+    },
+    {
+      "id": "fix-instacart-location-config-546",
+      "summary": "Add the instacart config subtree, auto-populate location on auth login from the user default address, and surface a doctor location check; closes the cold-install gap from issue #546.",
+      "reason": "Reported in mvanhorn/printing-press-library#546. Cold install required latitude/longitude in config.json but the keys were not documented anywhere user-facing; instacart doctor reported [ok] against a config missing them, so users only discovered the gap when search/add/cart show failed. PR #539 removed the silent {0,0} masking but did not address the underlying UX gap. This patch adds: (a) instacart config show / set-coords / set-address subcommands so users can populate via CLI instead of hand-editing JSON; set-address uses the cached GetAddressById op to derive coordinates from a known address ID; (b) tryAutoPopulateLocation helper called from all three auth flows (login, paste, import-file) that posts CurrentUserAddresses {addresses {id streetAddress postalCode latitude longitude isDefault}} via the existing POST-with-query-text path; on failure it surfaces a typed hint pointing at the manual setters; (c) a doctor location check that returns status fail with actionable remediation; (d) README Quick Start and SKILL Auth Setup sections documenting the new flow.",
+      "files": [
+        "internal/cli/config.go",
+        "internal/cli/auth.go",
+        "internal/cli/doctor.go",
+        "internal/cli/root.go"
+      ]
     }
   ]
 }

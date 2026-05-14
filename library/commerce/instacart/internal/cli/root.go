@@ -122,6 +122,8 @@ No browser automation. No Playwright. No Composio subscription. Just a binary.`,
 	root.AddCommand(
 		newDoctorCmd(),
 		newAuthCmd(),
+		// PATCH (fix-instacart-location-config-546): config subtree.
+		newConfigCmd(),
 		newRetailersCmd(),
 		newSearchCmd(),
 		newAddCmd(),

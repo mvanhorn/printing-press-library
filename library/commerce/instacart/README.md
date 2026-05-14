@@ -38,8 +38,32 @@ go build -o instacart ./cmd/instacart
 # Or paste a Cookie header from devtools:
 ./instacart auth paste
 
-# 4. Verify
+# 4. Verify (this also surfaces if location config is missing)
 ./instacart doctor
+```
+
+`auth login` (and the `paste` / `import-file` variants) automatically fetches
+your default Instacart address and persists `address_id`, `postal_code`,
+`latitude`, and `longitude` to `~/.config/instacart/config.json`. Without these,
+every `search`, `add`, and `cart show` against an uncached retailer fails at
+the `ShopCollectionScoped` bootstrap. If auto-populate doesn't work for your
+account (for example because Instacart's schema changed), the CLI prints a
+note pointing you at the manual fallbacks below.
+
+### Setting location manually
+
+```bash
+# Option 1: auto-derive from your Instacart address ID. Find the ID in the
+# URL or a graphql variable on https://www.instacart.com/store/account/your-account
+# (DevTools Network tab). Uses the cached GetAddressById op.
+./instacart config set-address --id 12345678-aaaa-bbbb-cccc-deadbeef0000
+
+# Option 2: pass coordinates directly (e.g., from Google Maps right-click
+# "What's here?"). --postal is optional but recommended.
+./instacart config set-coords --lat 47.6740 --lon -122.1215 --postal 98052
+
+# View what's currently set:
+./instacart config show
 ```
 
 ## First-time history backfill
