@@ -42,6 +42,7 @@ func (s *Store) Get(key string) (json.RawMessage, bool) {
 	return json.RawMessage(data), true
 }
 
+// PATCH(greptile-cache-store-config-modes): tightened cache dir/file modes to 0o700/0o600 (was 0o755/0o644) so cached response bodies are not world-readable.
 // Set stores a value in the cache. Directory + file are owner-only (0o700 /
 // 0o600) because cached entries can contain authenticated response bodies
 // (order history, items, addresses, payment summaries) that must not be

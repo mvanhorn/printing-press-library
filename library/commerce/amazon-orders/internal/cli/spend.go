@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH(greptile-year-default): replaced static "year-2026" default with current-year helper.
 // defaultYearWindow returns "year-YYYY" for the current calendar year. Used as
 // the default value for --window flags so the CLI does not silently query an
 // empty result set after the year ends.

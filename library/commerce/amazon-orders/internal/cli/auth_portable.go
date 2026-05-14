@@ -87,6 +87,7 @@ inject into any other host via 'op read | auth import --stdin').`,
 			if err != nil {
 				return configErr(err)
 			}
+			// PATCH(greptile-auth-export-uses-authheader): delegate cookie selection to AuthHeader() so exported bytes match the live request when AMAZON_COOKIES is set.
 			// Delegate the cookie-selection rule to cfg.AuthHeader() so the
 			// exported bytes are always exactly what the live request would
 			// use. Prior implementation read AccessToken first, which inverted

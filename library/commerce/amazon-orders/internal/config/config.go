@@ -79,6 +79,7 @@ func Load(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
+// PATCH(greptile-authheader-source): preserve Load()'s AuthSource classification instead of re-stamping it on every call.
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
@@ -132,6 +133,7 @@ func (c *Config) ClearTokens() error {
 	return c.save()
 }
 
+// PATCH(greptile-cache-store-config-modes): tightened config dir/file modes to 0o700/0o600 (was 0o755/0o644) so persisted credentials are not world-readable.
 func (c *Config) save() error {
 	dir := filepath.Dir(c.Path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
