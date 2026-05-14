@@ -213,17 +213,21 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("device", mcplib.Description("Device name or comma-separated device names for single-user sends")),
 			mcplib.WithString("html", mcplib.Description("Enable supported HTML formatting")),
 			mcplib.WithString("monospace", mcplib.Description("Display message in monospace formatting")),
-			mcplib.WithString("priority", mcplib.Description("Message priority: -2 lowest, -1 low, 0 normal, 1 high, 2 emergency")),
+			// PATCH(pr511-delete-through-int): priority/timestamp/ttl/retry/expire are
+			// integer fields per the Pushover API; WithString would serialize them as
+			// quoted strings ("priority":"2") and the type-strict endpoint rejects.
+			// Same fix class as devices_delete-through and glances_update count/percent.
+			mcplib.WithNumber("priority", mcplib.Description("Message priority: -2 lowest, -1 low, 0 normal, 1 high, 2 emergency")),
 			mcplib.WithString("sound", mcplib.Description("Notification sound name")),
-			mcplib.WithString("timestamp", mcplib.Description("Unix timestamp to display as the message time")),
-			mcplib.WithString("ttl", mcplib.Description("Seconds before the message is automatically deleted from devices")),
+			mcplib.WithNumber("timestamp", mcplib.Description("Unix timestamp to display as the message time")),
+			mcplib.WithNumber("ttl", mcplib.Description("Seconds before the message is automatically deleted from devices")),
 			mcplib.WithString("url", mcplib.Description("Supplementary URL shown with the message")),
 			mcplib.WithString("url-title", mcplib.Description("Title for the supplementary URL")),
 			mcplib.WithString("attachment-base64", mcplib.Description("Base64-encoded image attachment")),
 			mcplib.WithString("attachment-type", mcplib.Description("MIME type for attachment-base64")),
 			mcplib.WithString("encrypted", mcplib.Description("Set when encrypted message fields are supplied")),
-			mcplib.WithString("retry", mcplib.Description("Emergency priority retry interval in seconds; minimum 30")),
-			mcplib.WithString("expire", mcplib.Description("Emergency priority retry duration in seconds; maximum 10800")),
+			mcplib.WithNumber("retry", mcplib.Description("Emergency priority retry interval in seconds; minimum 30")),
+			mcplib.WithNumber("expire", mcplib.Description("Emergency priority retry duration in seconds; maximum 10800")),
 			mcplib.WithString("callback", mcplib.Description("Public callback URL for emergency acknowledgement callbacks")),
 			mcplib.WithString("tags", mcplib.Description("Comma-separated tags for emergency receipt cancellation")),
 			mcplib.WithDestructiveHintAnnotation(false),
