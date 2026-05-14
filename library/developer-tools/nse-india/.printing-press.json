@@ -48,5 +48,7 @@
       "description": "Detects when price is rising but delivery % is falling (distribution signal) or price falling while delivery is rising (accumulation signal) \u2014 separates smart money from retail."
     }
   ],
-  "category": "developer-tools"
+  "category": "developer-tools",
+  "printer": "lavs9",
+  "printer_name": "Mayank Lavania"
 }
