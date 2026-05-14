@@ -53,14 +53,14 @@ Canvas restricts API access to courses after the term ends (HTTP 401 / `access_r
 
 ### CLI → MCP equivalents for read operations
 
-| CLI command | MCP fallback |
-|---|---|
-| `courses list-your` | `mcp__canvas__list_courses(include_concluded=true)` |
-| `courses get-single <id>` | `mcp__canvas__get_course_details(course_identifier=<id>)` |
-| `courses assignments list <id>` | `mcp__canvas__list_assignments(course_identifier=<id>)` |
-| `courses submissions list <id> <aid>` | `mcp__canvas__get_my_submission_status(course_identifier=<id>)` |
-| grade check | `mcp__canvas__get_my_course_grades()` |
-| announcements | `mcp__canvas__list_announcements(context_codes=[...])` |
+When CLI returns 401 or access-restricted, use the corresponding Canvas MCP tool instead:
+
+- **courses list-your** → Canvas MCP: list_courses (with include_concluded=true)
+- **courses get-single** → Canvas MCP: get_course_details
+- **courses assignments list** → Canvas MCP: list_assignments
+- **courses submissions** → Canvas MCP: get_my_submission_status
+- **grade check** → Canvas MCP: get_my_course_grades
+- **announcements** → Canvas MCP: list_announcements
 
 ### What MCP cannot do (CLI only)
 
