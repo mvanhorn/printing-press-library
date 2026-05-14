@@ -32,6 +32,15 @@ func ndjsonEmit(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stdout, format, args...)
 }
 
+// ndjsonEmitLine serializes a pre-formatted JSON line plus newline to
+// stdout under the same mutex as ndjsonEmit. Use for error-path emissions
+// where the payload is already a JSON string (e.g. syncErrorJSON output).
+func ndjsonEmitLine(line string) {
+	ndjsonStdoutMu.Lock()
+	defer ndjsonStdoutMu.Unlock()
+	fmt.Fprintln(os.Stdout, line)
+}
+
 // unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
 // after syncResourcePath() resolution. Hierarchical APIs (Yahoo Fantasy,
 // Reddit pre-2024, YouTube Data v3, MLB Stats, etc.) declare paths like
@@ -439,7 +448,7 @@ func syncResource(c interface {
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				ndjsonEmitLine(syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -455,7 +464,7 @@ func syncResource(c interface {
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
-					fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+					ndjsonEmitLine(syncErrorJSON(resource, "", err))
 				}
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
@@ -477,7 +486,7 @@ func syncResource(c interface {
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				ndjsonEmitLine(syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
