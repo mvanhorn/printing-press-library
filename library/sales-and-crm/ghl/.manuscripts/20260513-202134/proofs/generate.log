@@ -1,0 +1,11 @@
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+PASS go mod tidy
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS ghl-pp-cli --help
+PASS ghl-pp-cli version
+PASS ghl-pp-cli doctor
+Generated ghl at /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-202134/working/ghl-pp-cli
+Bundled /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-202134/working/ghl-pp-cli/build/ghl-pp-mcp-darwin-arm64.mcpb

@@ -1,0 +1,372 @@
+{
+  "api_name": "ghl",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Official HighLevel MCP",
+      "url": "https://marketplace.gohighlevel.com/docs/other/mcp/",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 35,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mastanley13/GoHighLevel-MCP",
+      "url": "https://github.com/mastanley13/GoHighLevel-MCP",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "basicmachines-co/open-ghl-mcp",
+      "url": "https://github.com/basicmachines-co/open-ghl-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BusyBee3333/Go-High-Level-MCP-2026-Complete",
+      "url": "https://github.com/BusyBee3333/Go-High-Level-MCP-2026-Complete",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 520,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@gohighlevel/api-client",
+      "url": "https://www.npmjs.com/package/@gohighlevel/api-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "M2KDevelopments/gohighlevel",
+      "url": "https://github.com/M2KDevelopments/gohighlevel",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GoHighLevel/highlevel-api-docs",
+      "url": "https://github.com/GoHighLevel/highlevel-api-docs",
+      "language": "JSON",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T01:30:00Z",
+  "novel_features": [
+    {
+      "name": "Kill-switch roster",
+      "command": "killswitch list",
+      "description": "List every contact in the location tagged with `ai off` or `human handover` so you can audit who Riley should not be texting.",
+      "rationale": "Local SQLite join across contacts, tag memberships, and the latest message row — no GHL tool surfaces kill-switch tags as a first-class signal.",
+      "example": "ghl-pp-cli killswitch list --tag ai-off --json",
+      "why_it_matters": "Reach for this before bulk-sending or auditing AI nurture — the two tags it surfaces gate every Riley message; missing one is a real-world safety violation.",
+      "group": "Kill-switch awareness"
+    },
+    {
+      "name": "Kill-switch check (typed exit)",
+      "command": "killswitch check",
+      "description": "Return a typed exit code for a single contact: 0 clear, 2 ai-off, 3 human-handover. Designed to gate a send from a workflow.",
+      "rationale": "No GHL tool exposes the kill-switch state as a typed exit code; agents have to grep tags arrays manually.",
+      "example": "ghl-pp-cli killswitch check +1-555-0100 || echo 'do not send'",
+      "why_it_matters": "Reach for this in any send-preflight script or workflow gate — typed exit codes let bash and agent loops skip with no parsing.",
+      "group": "Kill-switch awareness"
+    },
+    {
+      "name": "Activity window",
+      "command": "activity",
+      "description": "Recent activity across contacts, messages, opportunities, and appointments in one timeline. `--since 24h` or `--since 7d`.",
+      "rationale": "No single GHL endpoint returns cross-entity activity; the official MCP has no activity surface.",
+      "example": "ghl-pp-cli activity --since 24h --json",
+      "why_it_matters": "Reach for this when answering 'what happened in the last day' — the official MCP has no equivalent and the UI requires four tabs.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Tag analytics",
+      "command": "tags stats",
+      "description": "List every tag in the location with contact-count, last-used date, and a kill-switch flag.",
+      "rationale": "Official MCP can add/remove tags but cannot list all tags or count contacts per tag; this is pure local aggregation.",
+      "example": "ghl-pp-cli tags stats --json",
+      "why_it_matters": "Reach for this before tag cleanup, segmentation reviews, or auditing how many contacts a tag actually covers.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Daily KPI ticker",
+      "command": "kpi today",
+      "description": "One-line cross-entity aggregate: new contacts, SMS sent, appointments booked, opportunities moved, kill-switch trips — JSON-friendly for dashboard cron.",
+      "rationale": "Replaces four GHL tabs and four API calls with a single aggregated query over the local store.",
+      "example": "ghl-pp-cli kpi today --json",
+      "why_it_matters": "Reach for this from a business-dashboard cron or a daily standup script — one row, no parsing.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Client recency",
+      "command": "contacts recency",
+      "description": "For each contact (optionally filtered by tag), show last inbound and last outbound message timestamps; sort by oldest-last-touch.",
+      "rationale": "Joins contacts × messages with direction in the local store; no single endpoint exposes this.",
+      "example": "ghl-pp-cli contacts recency --tag client --over 14d --json",
+      "why_it_matters": "Reach for this for coach roster reviews and 'who haven't I talked to in two weeks' triage.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "SMS send preflight",
+      "command": "sms preflight",
+      "description": "Validate a planned SMS: contact exists, has E.164 phone, no `ai off` tag, optionally within business hours — returns typed exit code without sending.",
+      "rationale": "No existing tool offers a send-gate check; Riley currently fetches the contact and greps tags manually.",
+      "example": "ghl-pp-cli sms preflight +1-555-0100 --body 'see you tomorrow'",
+      "why_it_matters": "Reach for this in every agent send-loop — it returns immediately with a typed reason and never sends, so it's safe to call before deciding.",
+      "group": "Kill-switch awareness"
+    },
+    {
+      "name": "Inbox triage",
+      "command": "inbox triage",
+      "description": "Conversations with unread inbound messages and no outbound reply in the window, kill-switch-aware (skips `ai off`).",
+      "rationale": "Joins messages by direction and timestamp locally with kill-switch filter; no equivalent in any tool.",
+      "example": "ghl-pp-cli inbox triage --since 4h --json",
+      "why_it_matters": "Reach for this for daily standup or any 'who do I need to reply to' question.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Stale opportunities",
+      "command": "opportunities stale",
+      "description": "List opportunities whose stage has not moved in N days, grouped by pipeline and stage.",
+      "rationale": "API has no stale filter; pure local time-based query.",
+      "example": "ghl-pp-cli opportunities stale --days 14 --json",
+      "why_it_matters": "Reach for this in end-of-week pipeline reviews when you need to know which deals stopped moving.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Workflow membership",
+      "command": "workflows members",
+      "description": "List the contacts currently enrolled in a workflow with a terse default.",
+      "rationale": "Workflows are entirely missing from the official MCP; this exposes the read that i2-ai-nurture needs.",
+      "example": "ghl-pp-cli workflows members wf_abc123 --json",
+      "why_it_matters": "Reach for this when auditing nurture enrollment or debugging why Riley isn't seeing a contact.",
+      "group": "Workflow coverage"
+    },
+    {
+      "name": "Pipeline funnel snapshot",
+      "command": "opportunities funnel",
+      "description": "For one pipeline, count and total monetary value per stage in stage order.",
+      "rationale": "API does not aggregate; this is a local SUM/COUNT over the synced opportunities table.",
+      "example": "ghl-pp-cli opportunities funnel pipeline_abc --json",
+      "why_it_matters": "Reach for this for weekly pipeline reviews and quarterly forecasting baselines.",
+      "group": "Cross-entity local queries"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Kill-switch roster",
+      "command": "killswitch list",
+      "description": "List every contact in the location tagged with `ai off` or `human handover` so you can audit who Riley should not be texting.",
+      "rationale": "Local SQLite join across contacts, tag memberships, and the latest message row — no GHL tool surfaces kill-switch tags as a first-class signal.",
+      "example": "ghl-pp-cli killswitch list --tag ai-off --json",
+      "why_it_matters": "Reach for this before bulk-sending or auditing AI nurture — the two tags it surfaces gate every Riley message; missing one is a real-world safety violation.",
+      "group": "Kill-switch awareness"
+    },
+    {
+      "name": "Kill-switch check (typed exit)",
+      "command": "killswitch check",
+      "description": "Return a typed exit code for a single contact: 0 clear, 2 ai-off, 3 human-handover. Designed to gate a send from a workflow.",
+      "rationale": "No GHL tool exposes the kill-switch state as a typed exit code; agents have to grep tags arrays manually.",
+      "example": "ghl-pp-cli killswitch check +1-555-0100 || echo 'do not send'",
+      "why_it_matters": "Reach for this in any send-preflight script or workflow gate — typed exit codes let bash and agent loops skip with no parsing.",
+      "group": "Kill-switch awareness"
+    },
+    {
+      "name": "Activity window",
+      "command": "activity",
+      "description": "Recent activity across contacts, messages, opportunities, and appointments in one timeline. `--since 24h` or `--since 7d`.",
+      "rationale": "No single GHL endpoint returns cross-entity activity; the official MCP has no activity surface.",
+      "example": "ghl-pp-cli activity --since 24h --json",
+      "why_it_matters": "Reach for this when answering 'what happened in the last day' — the official MCP has no equivalent and the UI requires four tabs.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Tag analytics",
+      "command": "tags stats",
+      "description": "List every tag in the location with contact-count, last-used date, and a kill-switch flag.",
+      "rationale": "Official MCP can add/remove tags but cannot list all tags or count contacts per tag; this is pure local aggregation.",
+      "example": "ghl-pp-cli tags stats --json",
+      "why_it_matters": "Reach for this before tag cleanup, segmentation reviews, or auditing how many contacts a tag actually covers.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Daily KPI ticker",
+      "command": "kpi today",
+      "description": "One-line cross-entity aggregate: new contacts, SMS sent, appointments booked, opportunities moved, kill-switch trips — JSON-friendly for dashboard cron.",
+      "rationale": "Replaces four GHL tabs and four API calls with a single aggregated query over the local store.",
+      "example": "ghl-pp-cli kpi today --json",
+      "why_it_matters": "Reach for this from a business-dashboard cron or a daily standup script — one row, no parsing.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Client recency",
+      "command": "contacts recency",
+      "description": "For each contact (optionally filtered by tag), show last inbound and last outbound message timestamps; sort by oldest-last-touch.",
+      "rationale": "Joins contacts × messages with direction in the local store; no single endpoint exposes this.",
+      "example": "ghl-pp-cli contacts recency --tag client --over 14d --json",
+      "why_it_matters": "Reach for this for coach roster reviews and 'who haven't I talked to in two weeks' triage.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "SMS send preflight",
+      "command": "sms preflight",
+      "description": "Validate a planned SMS: contact exists, has E.164 phone, no `ai off` tag, optionally within business hours — returns typed exit code without sending.",
+      "rationale": "No existing tool offers a send-gate check; Riley currently fetches the contact and greps tags manually.",
+      "example": "ghl-pp-cli sms preflight +1-555-0100 --body 'see you tomorrow'",
+      "why_it_matters": "Reach for this in every agent send-loop — it returns immediately with a typed reason and never sends, so it's safe to call before deciding.",
+      "group": "Kill-switch awareness"
+    },
+    {
+      "name": "Inbox triage",
+      "command": "inbox triage",
+      "description": "Conversations with unread inbound messages and no outbound reply in the window, kill-switch-aware (skips `ai off`).",
+      "rationale": "Joins messages by direction and timestamp locally with kill-switch filter; no equivalent in any tool.",
+      "example": "ghl-pp-cli inbox triage --since 4h --json",
+      "why_it_matters": "Reach for this for daily standup or any 'who do I need to reply to' question.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Stale opportunities",
+      "command": "opportunities stale",
+      "description": "List opportunities whose stage has not moved in N days, grouped by pipeline and stage.",
+      "rationale": "API has no stale filter; pure local time-based query.",
+      "example": "ghl-pp-cli opportunities stale --days 14 --json",
+      "why_it_matters": "Reach for this in end-of-week pipeline reviews when you need to know which deals stopped moving.",
+      "group": "Cross-entity local queries"
+    },
+    {
+      "name": "Workflow membership",
+      "command": "workflows members",
+      "description": "List the contacts currently enrolled in a workflow with a terse default.",
+      "rationale": "Workflows are entirely missing from the official MCP; this exposes the read that i2-ai-nurture needs.",
+      "example": "ghl-pp-cli workflows members wf_abc123 --json",
+      "why_it_matters": "Reach for this when auditing nurture enrollment or debugging why Riley isn't seeing a contact.",
+      "group": "Workflow coverage"
+    },
+    {
+      "name": "Pipeline funnel snapshot",
+      "command": "opportunities funnel",
+      "description": "For one pipeline, count and total monetary value per stage in stage order.",
+      "rationale": "API does not aggregate; this is a local SUM/COUNT over the synced opportunities table.",
+      "example": "ghl-pp-cli opportunities funnel pipeline_abc --json",
+      "why_it_matters": "Reach for this for weekly pipeline reviews and quarterly forecasting baselines.",
+      "group": "Cross-entity local queries"
+    }
+  ],
+  "narrative": {
+    "display_name": "GoHighLevel",
+    "headline": "Every GoHighLevel surface that matters for a marketing/CRM operator — with offline SQL, kill-switch tag awareness, and a local cache that makes Riley-grade automation safe.",
+    "value_prop": "Wraps the GoHighLevel v2 API (contacts, conversations, calendars, opportunities, workflows, tags, custom fields) with a Go binary that mirrors every endpoint, caches every entity in local SQLite, and adds the surfaces the official MCP lacks: workflow membership, tag analytics, cross-entity activity windows, send preflight, and kill-switch roster. Default output is token-efficient one-liners; --full and --select expose the rest.",
+    "auth_narrative": "Authenticates with a Private Integration Token (PIT) issued from a HighLevel sub-account location (Settings → Private Integrations). Store it once with `ghl-pp-cli auth set-token`, then every command sends `Authorization: Bearer \u003cpit\u003e` plus the required `Version: 2021-07-28` header on your behalf. The token is location-scoped — one CLI install per sub-account.",
+    "quickstart": [
+      {
+        "command": "ghl-pp-cli auth setup",
+        "comment": "Prints the steps for getting a Sub-Account Private Integration Token from HighLevel — then store it with `ghl-pp-cli auth set-token \u003cpit\u003e`."
+      },
+      {
+        "command": "ghl-pp-cli doctor",
+        "comment": "Once your PIT is set (via env var or `auth set-token`), verify it reaches the API and locate which sub-account it owns."
+      },
+      {
+        "command": "ghl-pp-cli sync --full",
+        "comment": "Populate the local store so all transcendence commands (killswitch, activity, tags stats) have data."
+      },
+      {
+        "command": "ghl-pp-cli killswitch list --json",
+        "comment": "Audit every contact tagged `ai off` or `human handover` before any nurture run."
+      },
+      {
+        "command": "ghl-pp-cli kpi today --json",
+        "comment": "One-line daily metric ticker for a business-dashboard cron."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`Invalid Private Integration token`",
+        "fix": "Regenerate the PIT in HighLevel Settings → Private Integrations and re-run `ghl-pp-cli auth set-token`. Sub-account PITs are scoped to one location; verify you are in the right sub-account."
+      },
+      {
+        "symptom": "Empty results from `killswitch list` or `tags stats`",
+        "fix": "Run `ghl-pp-cli sync --full` — these commands read the local store. Without a sync the join has no rows."
+      },
+      {
+        "symptom": "`429 Too Many Requests`",
+        "fix": "GHL caps roughly 10 req/sec per location. The CLI surfaces a typed `*cliutil.RateLimitError`; wait the suggested seconds or rerun with `--rate-limit-rps 5`."
+      },
+      {
+        "symptom": "Required header `Version` missing",
+        "fix": "Should never appear — the client injects `Version: 2021-07-28` automatically. If you see it, file a bug; do not pass `--header` manually."
+      }
+    ],
+    "when_to_use": "Reach for `pp-ghl` whenever you need GHL data in an agent loop without burning tokens on verbose JSON, when you need to compose a kill-switch-aware nurture step, or when you want answers that span contacts + conversations + opportunities + appointments in one query. Skip it if you only need to open the GHL UI for a one-off click.",
+    "recipes": [
+      {
+        "title": "Daily Riley audit",
+        "command": "ghl-pp-cli killswitch list --json --select id,name,phone,killswitch_tag",
+        "explanation": "Lists every contact Riley must skip, with just the fields a workflow needs."
+      },
+      {
+        "title": "Pre-send gate inside a workflow",
+        "command": "ghl-pp-cli killswitch check $CONTACT_ID || exit 0",
+        "explanation": "Returns exit code 2 or 3 if the contact is flagged; the workflow short-circuits without any SMS."
+      },
+      {
+        "title": "Slim conversation list for an agent",
+        "command": "ghl-pp-cli conversations list --json --select results.id,results.contactName,results.lastMessageDate,results.unreadCount",
+        "explanation": "Default one-liner is already terse, but --select trims even further for context-window-sensitive callers."
+      },
+      {
+        "title": "Friday client recency review",
+        "command": "ghl-pp-cli contacts recency --tag client --over 14d --json",
+        "explanation": "Lists every client tag-member whose last touchpoint was over two weeks ago, oldest first."
+      },
+      {
+        "title": "Pipeline funnel ticker",
+        "command": "ghl-pp-cli opportunities funnel \u003cpipeline-id\u003e --json",
+        "explanation": "One row per stage with count and SUM(monetary_value); pipe to jq for charts."
+      }
+    ],
+    "trigger_phrases": [
+      "look up a GHL contact",
+      "find this lead in highlevel",
+      "is this contact opted out",
+      "what's our GHL pipeline this week",
+      "show me unread GHL conversations",
+      "use ghl",
+      "run ghl-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,139 @@
+
+=== dogfood ===
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+Dogfood Report: ghl-pp-cli
+================================
+
+Path Validity:     5/5 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    11/11 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== verify ===
+Runtime Verification: /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-202134/working/ghl-pp-cli/ghl-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+activity                       read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+inbox                          read         PASS   PASS     PASS     3/3
+killswitch                     read         PASS   PASS     PASS     3/3
+kpi                            read         PASS   PASS     PASS     3/3
+load                           read         PASS   PASS     PASS     3/3
+orphans                        read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sms                            read         PASS   PASS     PASS     3/3
+stale                          data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tags                           read         PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+workflows                      read         PASS   PASS     FAIL     2/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (23/23 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: ghl-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== ghl-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+FAILED [quickstart]: ghl-pp-cli auth set-token → full example failed: /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-202134/working/ghl-pp-cli/ghl-pp-cli auth set-token --dry-run: exit status 1: Error: accepts 1 arg(s), received 0
+accepts 1 arg(s), received 0
+FAILED [recipes]: ghl-pp-cli killswitch check $CONTACT_ID || exit 0 → full example failed: /Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-202134/working/ghl-pp-cli/ghl-pp-cli killswitch check $CONTACT_ID || exit 0 --dry-run: exit status 4: {
+  "contact": "$CONTACT_ID",
+  "exit_code": 4,
+  "resolved": false,
+  "state": "unknown"
+}
+DONE: 8 ok, 0 missing, 0 empty-words, 2 failed-examples, 0 unsupported
+narrative validation failed
+
+=== scorecard ===
+Quality Scorecard: ghl
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              8/10
+  Vision               8/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               5/5
+
+  Total: 93/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Gaps:
+  - MCP: 159 tools (0 public, 159 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         1.85s
+  verify            PASS    0         2.145s
+  workflow-verify   PASS    0         12ms
+  verify-skill      PASS    0         522ms
+  validate-narrative  FAIL    1         288ms
+  scorecard         PASS    0         112ms
+
+Verdict: FAIL (1/6 legs failed)

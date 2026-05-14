@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T02:21:26.615005Z",
+  "printing_press_version": "4.6.0",
+  "api_name": "ghl",
+  "display_name": "Gohighlevel",
+  "cli_name": "ghl-pp-cli",
+  "owner": "alex-puckhaber",
+  "printer": "i2Fitness",
+  "printer_name": "Alex Puckhaber",
+  "spec_path": "/Users/alexpuckhaber/printing-press/.runstate/cli-printing-press-0934ffe3/runs/20260513-202134/research/ghl-merged-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:02185dfdf574d6f6415c8e364521ebc180e702852cfc21419e3aa370265ec1e4",
+  "run_id": "20260513-202134",
+  "mcp_binary": "gohighlevel-pp-mcp",
+  "mcp_tool_count": 159,
+  "mcp_ready": "full",
+  "api_version": "2021-07-28",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOHIGHLEVEL_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Kill-switch roster",
+      "command": "killswitch list",
+      "description": "List every contact in the location tagged with `ai off` or `human handover` so you can audit who Riley should not be texting."
+    },
+    {
+      "name": "Kill-switch check (typed exit)",
+      "command": "killswitch check",
+      "description": "Return a typed exit code for a single contact: 0 clear, 2 ai-off, 3 human-handover. Designed to gate a send from a workflow."
+    },
+    {
+      "name": "Activity window",
+      "command": "activity",
+      "description": "Recent activity across contacts, messages, opportunities, and appointments in one timeline. `--since 24h` or `--since 7d`."
+    },
+    {
+      "name": "Tag analytics",
+      "command": "tags stats",
+      "description": "List every tag in the location with contact-count, last-used date, and a kill-switch flag."
+    },
+    {
+      "name": "Daily KPI ticker",
+      "command": "kpi today",
+      "description": "One-line cross-entity aggregate: new contacts, SMS sent, appointments booked, opportunities moved, kill-switch trips \u2014 JSON-friendly for dashboard cron."
+    },
+    {
+      "name": "Client recency",
+      "command": "contacts recency",
+      "description": "For each contact (optionally filtered by tag), show last inbound and last outbound message timestamps; sort by oldest-last-touch."
+    },
+    {
+      "name": "SMS send preflight",
+      "command": "sms preflight",
+      "description": "Validate a planned SMS: contact exists, has E.164 phone, no `ai off` tag, optionally within business hours \u2014 returns typed exit code without sending."
+    },
+    {
+      "name": "Inbox triage",
+      "command": "inbox triage",
+      "description": "Conversations with unread inbound messages and no outbound reply in the window, kill-switch-aware (skips `ai off`)."
+    },
+    {
+      "name": "Stale opportunities",
+      "command": "opportunities stale",
+      "description": "List opportunities whose stage has not moved in N days, grouped by pipeline and stage."
+    },
+    {
+      "name": "Workflow membership",
+      "command": "workflows members",
+      "description": "List the contacts currently enrolled in a workflow with a terse default."
+    },
+    {
+      "name": "Pipeline funnel snapshot",
+      "command": "opportunities funnel",
+      "description": "For one pipeline, count and total monetary value per stage in stage order."
+    }
+  ]
+}
