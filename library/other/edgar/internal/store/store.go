@@ -1075,10 +1075,26 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
+//
+// PATCH: gate the table-name interpolation behind an allowlist. resourceType
+// comes from dependent-sync callers that already pass our own table names,
+// but the Sprintf path was a latent SQL-injection surface if a future caller
+// piped user input through. Unknown names fall through to the generic
+// `resources` table.
+var listIDsAllowedTables = map[string]bool{
+	"companies": true,
+	"filings":   true,
+}
+
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	var rows *sql.Rows
+	var err error
+	if listIDsAllowedTables[resourceType] {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+	} else {
+		err = fmt.Errorf("table not in allowlist: %q", resourceType)
+	}
 	if err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)

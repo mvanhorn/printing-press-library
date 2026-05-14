@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/other/edgar/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/edgar/internal/store"
@@ -225,8 +226,21 @@ func ingestForm4ForCIK(ctx context.Context, c *client.Client, db *store.Store, c
 			skip.Count++
 			continue
 		}
+		// PATCH: surface UpsertEdgarInsiderTransaction errors in the skip
+		// report instead of dropping them silently. A write failure here
+		// previously left transactions absent with no diagnostic.
+		var writeErrs []string
 		for _, tx := range txs {
-			_ = db.UpsertEdgarInsiderTransaction(ctx, tx)
+			if werr := db.UpsertEdgarInsiderTransaction(ctx, tx); werr != nil {
+				writeErrs = append(writeErrs, werr.Error())
+			}
+		}
+		if len(writeErrs) > 0 {
+			skip.Entries = append(skip.Entries, Form4SkipEntry{
+				Accession: f.Accession,
+				Reason:    "DB write failed for one or more transactions: " + strings.Join(writeErrs, "; "),
+			})
+			skip.Count++
 		}
 	}
 	return skip, nil

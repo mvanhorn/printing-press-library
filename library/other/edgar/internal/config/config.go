@@ -83,16 +83,16 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// PATCH: removed redundant second `c.CompanyPpContactEmail == ""` check —
+	// `token` already aliases that field and the prior guard returned.
 	token := c.CompanyPpContactEmail
 	if token == "" {
 		return ""
 	}
-	if c.CompanyPpContactEmail == "" {
-		return ""
-	}
-	// {email} is the spec's placeholder; {token} is the generator's default
-	// alias; {pp_contact_email} and {COMPANY_PP_CONTACT_EMAIL} are alternate
-	// spellings the generator emits. All resolve to COMPANY_PP_CONTACT_EMAIL.
+	// PATCH(phase5: auth-header-placeholder): {email} is the spec's placeholder;
+	// {token} is the generator's default alias; {pp_contact_email} and
+	// {COMPANY_PP_CONTACT_EMAIL} are alternate spellings the generator emits.
+	// All resolve to COMPANY_PP_CONTACT_EMAIL.
 	replacements := map[string]string{
 		"email":                    token,
 		"token":                    token,
