@@ -164,6 +164,9 @@ func modelRow(m openartmodels.Model) map[string]any {
 		"credits_per_video_default":  m.CreditsPerVideoDefault,
 		"tier":                       m.Tier,
 		"recommended":                m.Recommended,
+		// PATCH: surface Experimental in models list/show JSON so callers know
+		// which models need --accept-experimental before submitting.
+		"experimental":               m.Experimental,
 	}
 }
 

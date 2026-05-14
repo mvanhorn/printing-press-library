@@ -32,6 +32,19 @@
         "internal/cli/credits_novel.go"
       ],
       "validated_outcome": "go test ./... passes. credits burn buckets by observation date, credits forecast's 28-day window only matches recently-observed spends. Migration is idempotent and backfills pre-existing rows from synced_at."
+    },
+    {
+      "id": "modelrow-surface-experimental",
+      "summary": "Add the catalog's Experimental flag to modelRow() output so models list / models show JSON exposes which models need --accept-experimental.",
+      "reason": "The Experimental field was set correctly on every catalog entry but modelRow() omitted it from the returned map, so callers parsing the JSON had no way to filter or warn before submitting. Discovered in the 2026-05-14 donkey-photo session: the agent picked nano-banana-pro from JSON output with no experimental signal, then learned about the opt-in flag only after the submit rejected it. Paired with SKILL.md / README.md / image gen --help updates that document the nano-banana family explicitly (regular vs Pro, no v2).",
+      "files": [
+        "internal/cli/models_novel.go",
+        "internal/cli/models_novel_test.go",
+        "internal/cli/image.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "go test ./... passes (193 in 12 packages, including 3 new modelRow tests). go vet clean. verify_skill.py clean. `models show nano-banana-pro --agent` returns experimental=true; `models show nano-banana --agent` returns experimental=false; `image gen --help` shows both variants in examples."
     }
   ]
 }

@@ -59,19 +59,26 @@ func newImageGenCmd(flags *rootFlags) *cobra.Command {
 		Long: `Submit an image generation, optionally poll until completion, and
 optionally download the resulting PNG/WebP(s) to local disk.
 
-The model can be referenced by slug (e.g. nano-banana, gpt-image-2) or
-display name. Run 'openart-pp-cli models list --family image' to see
-what is available. Verified models submit cleanly; experimental models
-print a warning and require --accept-experimental to proceed because
-their submit contract has not been individually verified end-to-end.
+Pick a model first. Run 'openart-pp-cli models list --family image' to
+see slugs, costs, and the 'experimental' flag, then pass --model with
+the slug (e.g. --model nano-banana for the verified default, or --model
+nano-banana-pro for the higher-quality variant). The Nano Banana family
+has two members: nano-banana (50 credits, verified) and nano-banana-pro
+(120 credits, experimental). There is no nano-banana-2 — Pro is the
+upgrade path. Experimental models print a warning and require
+--accept-experimental because their submit contract has not been
+individually verified end-to-end.
 
 By default this returns immediately with the historyId + resourceIds.
 Pass --wait to poll until each resource has status='completed'. Combine
 with --download <dir> to stream the finished images to disk.`,
-		Example: `  # Generate two nano-banana images
+		Example: `  # Verified, cheapest path: nano-banana (50 credits per image)
   openart-pp-cli image gen --prompt "a phoenix soaring over molten gold canyons" --model nano-banana --count 2 --wait --download ./out/
 
-  # Try GPT Image 2 (marked experimental — opt in)
+  # Higher-quality Pro variant: nano-banana-pro (120 credits, opt-in)
+  openart-pp-cli image gen --prompt "donkey on Mercer Island" --model nano-banana-pro --count 2 --accept-experimental --wait --download ./out/
+
+  # Other experimental models follow the same pattern
   openart-pp-cli image gen --prompt "donkey on Mercer Island" --model gpt-image-2 --accept-experimental --wait --download ./out/
 
   # Square 1024x1024 with explicit aspect ratio

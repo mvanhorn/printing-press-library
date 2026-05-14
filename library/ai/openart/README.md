@@ -101,10 +101,14 @@ These capabilities aren't available in any other tool for this API.
   openart-pp-cli video gen --prompt "a phoenix" --model byte-plus-seedance-2 --duration 10 --count 2 --wait --download ./out/
   ```
 
-- **`image gen`** — Submit + poll + download images in one command. Nano Banana is verified end-to-end; GPT Image 2, FLUX 2 Pro, Seedream 4, Imagen 4, and Qwen Image are gated as `--accept-experimental` (their submit shapes are inferred from the JS bundle but not individually exercised live).
+- **`image gen`** — Submit + poll + download images in one command. The Nano Banana family has two variants: `nano-banana` (50 credits, verified end-to-end) and `nano-banana-pro` (120 credits, higher quality, gated as experimental). There is no `nano-banana-2` — Pro is the upgrade path. The other image models (`gpt-image-2`, `gpt-image-1-5`, `flux-2-pro`, `byte-plus-seedream-4`, `byte-plus-seedream-4-5`, `google-imagen-4`, `qwen-image-max`) are also gated as `--accept-experimental` (their submit shapes were inferred from the JS bundle but not individually exercised live). Run `openart-pp-cli models list --family image` to see slugs, costs, and the `experimental` flag before picking.
 
   ```bash
+  # verified, cheapest path
   openart-pp-cli image gen --prompt "donkey on Mercer Island" --model nano-banana --count 2 --wait --download ./out/
+
+  # higher-quality Pro variant — opt in with --accept-experimental
+  openart-pp-cli image gen --prompt "donkey on Mercer Island" --model nano-banana-pro --count 2 --accept-experimental --wait --download ./out/
   ```
 
 - **`video gen --no-audio`** — Disables Seedance's auto-generated audio track. Workaround for `OutputAudioSensitiveContentDetected` moderation failures, and also halves the cost on Seedance 2.0 normal mode.
