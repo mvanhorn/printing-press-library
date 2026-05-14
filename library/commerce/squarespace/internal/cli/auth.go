@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
-	"squarespace-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

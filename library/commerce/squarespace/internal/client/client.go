@@ -15,8 +15,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"squarespace-pp-cli/internal/cliutil"
-	"squarespace-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/config"
 	"strings"
 	"time"
 )

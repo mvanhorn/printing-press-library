@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"squarespace-pp-cli/internal/client"
-	"squarespace-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/config"
 )
 
 var version = "1.0.0"

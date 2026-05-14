@@ -10,7 +10,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	"squarespace-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/store"
 	"strconv"
 	"strings"
 	"sync"

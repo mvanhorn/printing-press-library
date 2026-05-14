@@ -14,12 +14,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"squarespace-pp-cli/internal/cli"
-	"squarespace-pp-cli/internal/client"
-	"squarespace-pp-cli/internal/cliutil"
-	"squarespace-pp-cli/internal/config"
-	"squarespace-pp-cli/internal/mcp/cobratree"
-	"squarespace-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

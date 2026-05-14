@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"squarespace-pp-cli/internal/client"
-	"squarespace-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

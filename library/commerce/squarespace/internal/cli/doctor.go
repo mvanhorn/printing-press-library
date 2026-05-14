@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"squarespace-pp-cli/internal/client"
-	"squarespace-pp-cli/internal/config"
-	"squarespace-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

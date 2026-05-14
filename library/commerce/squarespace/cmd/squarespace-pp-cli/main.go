@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"squarespace-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/cli"
 )
 
 func main() {

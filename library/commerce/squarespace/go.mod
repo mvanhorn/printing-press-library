@@ -1,4 +1,4 @@
-module squarespace-pp-cli
+module github.com/mvanhorn/printing-press-library/library/commerce/squarespace
 
 go 1.26.3
 

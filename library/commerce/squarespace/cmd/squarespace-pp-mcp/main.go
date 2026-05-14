@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "squarespace-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/mcp"
 )
 
 func main() {
