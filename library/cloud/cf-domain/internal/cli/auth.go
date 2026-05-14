@@ -198,27 +198,30 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
 
-			// Identify which (if any) auth env var is still exported so the
+			// Identify which (if any) external auth source is still active so the
 			// JSON envelope and the human prose can both surface it.
-			envStillSet := ""
-			if envStillSet == "" && os.Getenv("CLOUDFLARE_API_TOKEN") != "" {
-				envStillSet = "CLOUDFLARE_API_TOKEN"
+			activeAuthSource := ""
+			if activeAuthSource == "" && os.Getenv("CLOUDFLARE_API_TOKEN") != "" {
+				activeAuthSource = "CLOUDFLARE_API_TOKEN env var"
 			}
-			if envStillSet == "" && os.Getenv("CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH") != "" {
-				envStillSet = "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH"
+			if activeAuthSource == "" && os.Getenv("CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH") != "" {
+				activeAuthSource = "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH env var"
+			}
+			if activeAuthSource == "" && config.HasCloudflareOAuthToken() {
+				activeAuthSource = "cf OAuth token in ~/.cf/config.toml"
 			}
 
-			// JSON envelope: {cleared: true, note?: "<env_var> env var is still set"}.
+			// JSON envelope: {cleared: true, note?: "<auth source> is still active"}.
 			if flags.asJSON {
 				out := map[string]any{"cleared": true}
-				if envStillSet != "" {
-					out["note"] = envStillSet + " env var is still set"
+				if activeAuthSource != "" {
+					out["note"] = activeAuthSource + " is still active"
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 
-			if envStillSet != "" {
-				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s env var is still set.\n", envStillSet)
+			if activeAuthSource != "" {
+				fmt.Fprintf(cmd.OutOrStdout(), "Config cleared. Note: %s is still active.\n", activeAuthSource)
 				return nil
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")

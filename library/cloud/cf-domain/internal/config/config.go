@@ -152,6 +152,10 @@ func readCloudflareOAuthToken() string {
 	return string(m[1])
 }
 
+func HasCloudflareOAuthToken() bool {
+	return readCloudflareOAuthToken() != ""
+}
+
 func isCloudflareOAuthExpired(data []byte) bool {
 	m := regexp.MustCompile(`(?m)^expires_at\s*=\s*"([^"]+)"`).FindSubmatch(data)
 	if len(m) != 2 {
