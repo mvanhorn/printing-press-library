@@ -16,7 +16,7 @@ on:
 permissions:
   checks: read
   contents: read
-  issues: read
+  issues: write
   pull-requests: write
 
 jobs:
@@ -86,10 +86,15 @@ jobs:
                   nudged=1
                 else
                   echo "Greptile Review still missing after $((SECONDS - start))s; posting @greptileai review nudge."
+                  # shellcheck disable=SC2016
                   nudge_body="$(printf '@greptileai review\n\n<sub>Auto-nudge from `greptile-policy-gate.yml` because no Greptile Review check appeared for `%s` after %ss. This usually means the PR is over Greptile auto-review size cap; manual triggers bypass it.</sub>\n\n%s\n' "${HEAD_SHA}" "$((SECONDS - start))" "${nudge_marker}")"
-                  gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-                    -f "body=${nudge_body}" >/dev/null
-                  nudged=1
+                  if gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+                    -f "body=${nudge_body}" >/dev/null; then
+                    nudged=1
+                  else
+                    echo "::warning::Could not post @greptileai review nudge; continuing to wait for Greptile Review."
+                    nudged=1
+                  fi
                 fi
               fi
               echo "Greptile Review check not found yet; waiting..."
