@@ -49,7 +49,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDescription("Delete downloaded Open Client messages up to a highest message id. Required: device-id, client-secret, message-id. Returns the new StatusResponse."),
 			mcplib.WithString("device-id", mcplib.Required(), mcplib.Description("Open Client device id")),
 			mcplib.WithString("client-secret", mcplib.Required(), mcplib.Description("Open Client session secret")),
-			mcplib.WithString("message-id", mcplib.Required(), mcplib.Description("Highest downloaded message id to delete through")),
+			// PATCH(pr511-delete-through-int): WithNumber so the MCP wire arrives as a JSON
+			// integer; Pushover's update_highest_message.json rejects "message":"789" but
+			// accepts "message":789. WithString would round-trip through the CLI's mirror
+			// path the same way the direct CLI flag did before its parse-to-int fix.
+			mcplib.WithNumber("message-id", mcplib.Required(), mcplib.Description("Highest downloaded message id to delete through")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -633,7 +637,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -641,15 +648,27 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		// PATCH(pr511-handle-sql-scan-error): a swallowed Scan error left every
+		// column as a nil zero-value, which serialized as all-nulls and looked
+		// indistinguishable from a legitimately-empty row to the agent. Surface
+		// the error so callers don't act on synthetic blanks.
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("iterating rows: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
+	data, err := json.MarshalIndent(results, "", "  ")
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("marshaling results: %v", err)), nil
+	}
 	return mcplib.NewToolResultText(string(data)), nil
 }
 

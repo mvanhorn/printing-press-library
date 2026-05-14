@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -57,8 +58,17 @@ func newDevicesDeleteThroughCmd(flags *rootFlags) *cobra.Command {
 				if bodySecret != "" {
 					body["secret"] = bodySecret
 				}
+				// PATCH(pr511-delete-through-int): update_highest_message.json
+				// expects "message" as a JSON integer; the StringVar flag value
+				// would serialize as "789" instead of 789 and Pushover rejects
+				// type-strict bodies. Parse to int64 here so the wire shape is
+				// correct on every direct-CLI invocation.
 				if bodyMessage != "" {
-					body["message"] = bodyMessage
+					n, err := strconv.ParseInt(bodyMessage, 10, 64)
+					if err != nil {
+						return usageErr(fmt.Errorf("--message-id must be an integer message id (got %q)", bodyMessage))
+					}
+					body["message"] = n
 				}
 			}
 			data, statusCode, err := c.Post(path, body)

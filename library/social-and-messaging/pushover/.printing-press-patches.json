@@ -33,6 +33,26 @@
         "internal/mcp/body_shape_test.go"
       ],
       "validated_outcome": "go test ./internal/mcp -run TestMCPBodyIsJSONObjectNotBase64 -count=1 stands up an httptest server, drives c.Post(_, map[string]any{...}), and asserts the captured request body parses as a JSON object containing the bound keys."
+    },
+    {
+      "id": "pr511-delete-through-int",
+      "summary": "Send --message-id as a JSON integer in the standalone devices delete-through CLI and its MCP tool binding.",
+      "reason": "The earlier inbox-sync --delete-through fix landed the int-vs-string correction at one call site for update_highest_message.json, but the standalone CLI wrapper (devices_delete-through.go) and the MCP tool's WithString binding for the same endpoint both still sent the message id as a quoted string. Pushover's type-strict endpoint rejected both. The CLI now ParseInt's the --message-id flag (returning a usage error on bad input) before assembling the body, and the MCP tool declares the input as WithNumber so the wire value is a JSON integer.",
+      "files": [
+        "internal/cli/devices_delete-through.go",
+        "internal/cli/devices_delete-through_test.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestDevicesDeleteThrough -count=1 covers both the integer-on-wire happy path (httptest captures the body and asserts it decodes to a JSON number, not a Go string) and the usage-error path on non-numeric input."
+    },
+    {
+      "id": "pr511-handle-sql-scan-error",
+      "summary": "Surface rows.Scan / rows.Err / Columns / MarshalIndent errors in handleSQL instead of swallowing them.",
+      "reason": "A swallowed rows.Scan error left every column at the zero value and the row serialized as all-null entries — indistinguishable from a legitimately-empty result row to an agent calling the MCP sql tool. Same pattern existed for rows.Columns and the final MarshalIndent. The MCP surface is the boundary where these silent failures would matter most because the agent can't see the underlying driver state.",
+      "files": [
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./internal/mcp -count=1 still passes (no behavior change on the happy path); a future regression test can drive a malformed value into Scan to assert the new error result, but the change is mechanical enough that a unit test would mostly be testing the stdlib."
     }
   ]
 }
