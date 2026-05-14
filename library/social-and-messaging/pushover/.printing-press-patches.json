@@ -65,6 +65,16 @@
         "internal/cli/pushover_history_perms_test.go"
       ],
       "validated_outcome": "go test ./internal/store -run TestOpenWithContextLocksDownDBFilePermissions -count=1 and go test ./internal/cli -run TestOpenPushoverLocalDBLocksDownFilePermissions -count=1 both stat the on-disk file (and any sidecars SQLite created during migration) and assert mode == 0o600. The tests skip on Windows where POSIX modes aren't meaningful."
+    },
+    {
+      "id": "pr511-cancel-on-timeout-requires-watch",
+      "summary": "Reject --cancel-on-timeout without --watch under --priority emergency in validateNotifyOptions.",
+      "reason": "The cancel-on-timeout path only fires from inside the watchEmergencyReceipt poll loop. The non-emergency branch already rejected --cancel-on-timeout (it routed through the catch-all emergency-only flags check), but the emergency branch had no guard for cancelOnTimeout-without-watch: the flag was silently accepted, the cancellation never fired, and an emergency retry chain kept paging the recipient while the user believed it was cancelled.",
+      "files": [
+        "internal/cli/pushover_notify.go",
+        "internal/cli/pushover_notify_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestValidateNotifyEmergencyOptions -count=1 covers the rejection (emergency + cancel-on-timeout - watch) and the still-accepted shape (emergency + cancel-on-timeout + watch)."
     }
   ]
 }

@@ -61,6 +61,25 @@ func TestValidateNotifyEmergencyOptions(t *testing.T) {
 	if err := validateNotifyOptions(emergency, 2, &rootFlags{}); err == nil {
 		t.Fatal("emergency retry below 30 accepted")
 	}
+
+	// --cancel-on-timeout has no meaning without --watch (the cancellation
+	// fires from inside the watch loop). Accepting the combo silently
+	// would leave an emergency retry chain paging the recipient while
+	// the user believed it was cancelled, so the validator must reject.
+	cancelWithoutWatch := base
+	cancelWithoutWatch.retry = 30
+	cancelWithoutWatch.expire = 120
+	cancelWithoutWatch.cancelOnTimeout = true
+	if err := validateNotifyOptions(cancelWithoutWatch, 2, &rootFlags{}); err == nil {
+		t.Fatal("--cancel-on-timeout without --watch was accepted under --priority emergency")
+	}
+
+	// The same combo WITH --watch is the documented usage and must still pass.
+	cancelWithWatch := cancelWithoutWatch
+	cancelWithWatch.watch = true
+	if err := validateNotifyOptions(cancelWithWatch, 2, &rootFlags{}); err != nil {
+		t.Fatalf("--cancel-on-timeout --watch under emergency rejected: %v", err)
+	}
 }
 
 func TestApplyPushoverEnvDefaults(t *testing.T) {

@@ -285,6 +285,14 @@ func validateNotifyOptions(opts notifyOptions, priority int, flags *rootFlags) e
 		if opts.expire <= 0 || opts.expire > 10800 {
 			return fmt.Errorf("--expire must be between 1 and 10800 seconds for emergency priority")
 		}
+		// PATCH(pr511-cancel-on-timeout-requires-watch): the cancel-on-timeout
+		// path only fires inside the watch loop. Accepting --cancel-on-timeout
+		// without --watch silently drops the cancellation — an emergency
+		// retry chain keeps paging the recipient and the user believes it
+		// was cancelled. Surface the misuse explicitly.
+		if opts.cancelOnTimeout && !opts.watch {
+			return fmt.Errorf("--cancel-on-timeout requires --watch")
+		}
 	} else {
 		if opts.retry != 0 || opts.expire != 0 || opts.callback != "" || opts.tags != "" || opts.watch || opts.cancelOnTimeout {
 			return fmt.Errorf("emergency-only flags require --priority emergency")
