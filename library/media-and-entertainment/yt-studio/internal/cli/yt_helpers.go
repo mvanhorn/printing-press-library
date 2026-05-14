@@ -3,8 +3,13 @@ package cli
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yt-studio/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/yt-studio/internal/store"
@@ -28,8 +33,17 @@ func openYTDB(ctx context.Context, flags *rootFlags, customPath string) (*store.
 	return s, nil
 }
 
-// loadOAuthToken reads the access token from config and surfaces a typed
-// auth error if it's missing or expired.
+// loadOAuthToken reads the access token from config, refreshes it if expired
+// (mirroring client.go's authHeader() refresh guard so analytics-API commands
+// don't bypass token rotation), and surfaces a typed auth error if no
+// credentials are available.
+//
+// The generated client.Client refreshes inside authHeader(). The hand-written
+// ytanalytics path constructs its own http.Client and would otherwise skip
+// that path entirely — analytics calls with an expired token would return a
+// 401, the user would see `authErr`, and `auth status` would say
+// "expired (will auto-refresh on next request)" — which is true for Data API
+// calls but was false here. Refreshing in this helper closes that gap.
 func loadOAuthToken(flags *rootFlags) (string, error) {
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
@@ -38,7 +52,68 @@ func loadOAuthToken(flags *rootFlags) (string, error) {
 	if cfg.AccessToken == "" {
 		return "", authErr(fmt.Errorf("no OAuth access token; run `yt-studio-pp-cli auth login`"))
 	}
+	if !cfg.TokenExpiry.IsZero() && time.Now().After(cfg.TokenExpiry) && cfg.RefreshToken != "" {
+		if err := refreshOAuthToken(cfg); err != nil {
+			return "", authErr(fmt.Errorf("refreshing OAuth token: %w", err))
+		}
+	}
 	return cfg.AccessToken, nil
+}
+
+// refreshOAuthToken mints a new access token via the refresh_token grant and
+// persists it to the config file. Mirrors client.refreshAccessToken so the
+// hand-written ytanalytics path stays consistent with the generated client.
+func refreshOAuthToken(cfg *config.Config) error {
+	tokenURL := cfg.TokenURL
+	if tokenURL == "" {
+		tokenURL = "https://oauth2.googleapis.com/token"
+	}
+	params := url.Values{
+		"grant_type":    {"refresh_token"},
+		"refresh_token": {cfg.RefreshToken},
+		"client_id":     {cfg.ClientID},
+	}
+	if cfg.ClientSecret != "" {
+		params.Set("client_secret", cfg.ClientSecret)
+	}
+	hc := &http.Client{Timeout: 30 * time.Second}
+	resp, err := hc.PostForm(tokenURL, params)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, truncateTokenBody(body))
+	}
+	var tokenResp struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresIn    int    `json:"expires_in"`
+	}
+	if err := json.Unmarshal(body, &tokenResp); err != nil {
+		return fmt.Errorf("parsing response: %w", err)
+	}
+	if tokenResp.AccessToken == "" {
+		return fmt.Errorf("response had no access_token")
+	}
+	refreshToken := cfg.RefreshToken
+	if tokenResp.RefreshToken != "" {
+		refreshToken = tokenResp.RefreshToken
+	}
+	expiry := time.Time{}
+	if tokenResp.ExpiresIn > 0 {
+		expiry = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
+	}
+	return cfg.SaveTokens(cfg.ClientID, cfg.ClientSecret, tokenResp.AccessToken, refreshToken, expiry)
+}
+
+func truncateTokenBody(b []byte) string {
+	const max = 200
+	if len(b) <= max {
+		return string(b)
+	}
+	return string(b[:max]) + "…"
 }
 
 // ensureDB returns the *sql.DB and a close func from openYTDB.
