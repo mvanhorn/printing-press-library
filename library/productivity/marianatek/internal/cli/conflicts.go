@@ -77,7 +77,7 @@ multi-tenant aggregation is planned for v0.2.`,
 	}
 	cmd.Flags().StringVar(&icsPath, "ics", "", "path to an exported ICS calendar (optional)")
 	cmd.Flags().DurationVar(&buffer, "buffer", 30*time.Minute, "minimum gap between events (back-to-back tolerance)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.cache/marianatek-pp-cli/store.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.local/share/marianatek-pp-cli/data.db)")
 	return cmd
 }
 

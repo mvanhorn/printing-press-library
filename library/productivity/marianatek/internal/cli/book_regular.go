@@ -94,7 +94,7 @@ Note: in v0.1 book-regular uses the single tenant the CLI is configured for.`,
 	cmd.Flags().StringVar(&slot, "slot", "", `slot key e.g. "tue-7am-vinyasa"`)
 	cmd.Flags().BoolVar(&auto, "auto", false, "actually book the candidate (default: dry-run preview only)")
 	cmd.Flags().StringVar(&paymentOption, "payment-option", "", "payment option id (default: server picks)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.cache/marianatek-pp-cli/store.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.local/share/marianatek-pp-cli/data.db)")
 	return cmd
 }
 

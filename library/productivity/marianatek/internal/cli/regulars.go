@@ -72,7 +72,7 @@ populate the local store.`,
 	}
 	cmd.Flags().StringVar(&by, "by", "instructor", "dimension: instructor, type, time, day, location")
 	cmd.Flags().IntVar(&top, "top", 5, "max rows to return (0 = all)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.cache/marianatek-pp-cli/store.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.local/share/marianatek-pp-cli/data.db)")
 	return cmd
 }
 

@@ -101,7 +101,7 @@ timestamps or "HH:MM" time-of-day (applied to every day in --window).`,
 	cmd.Flags().StringVar(&after, "after", "", "only sessions starting after this time (RFC3339 or HH:MM)")
 	cmd.Flags().DurationVar(&window, "window", 168*time.Hour, "look-ahead window from now (default 7d)")
 	cmd.Flags().BoolVar(&earliest, "earliest", false, "return only the soonest matching session")
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.cache/marianatek-pp-cli/store.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.local/share/marianatek-pp-cli/data.db)")
 	return cmd
 }
 

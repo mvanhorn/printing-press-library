@@ -96,7 +96,7 @@ populate the local store.`,
 		},
 	}
 	cmd.Flags().DurationVar(&within, "within", 30*24*time.Hour, "expiry window (default 30 days)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.cache/marianatek-pp-cli/store.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite path (default: ~/.local/share/marianatek-pp-cli/data.db)")
 	return cmd
 }
 
