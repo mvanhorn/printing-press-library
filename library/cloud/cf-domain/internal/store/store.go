@@ -84,7 +84,8 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
+	// PATCH: keep synced Registrar data private on shared machines.
+	if err := os.MkdirAll(filepath.Dir(dbPath), 0o700); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 

@@ -29,7 +29,8 @@ func newRegistrarDomainRegisterCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "domain-name")
 			}
 			if !flags.dryRun {
-				// Extra destructive-action gate. --agent implies --yes, so require a typed domain confirmation too.
+				// PATCH: extra destructive-action gate because --agent implies --yes.
+				// Require a typed domain confirmation too.
 				if confirmDomain == "" {
 					return fmt.Errorf("refusing to register domain without --confirm-domain %s after a fresh domain-check price review", bodyDomainName)
 				}

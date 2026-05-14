@@ -38,11 +38,13 @@ components:
               additionalProperties: true
     DomainCheckRequest:
       type: object
-      required: [domain_name]
+      required: [domains]
       properties:
-        domain_name:
-          type: string
-          description: Fully qualified domain name to check, e.g. example.dev.
+        domains:
+          type: array
+          items:
+            type: string
+          description: Fully qualified domain name(s) to check, e.g. ["example.dev"].
     DomainCheckResponse:
       allOf:
         - $ref: '#/components/schemas/CloudflareEnvelope'
