@@ -23,6 +23,11 @@ func TestBuildNetWorthIncludesCryptoSyncedHistory(t *testing.T) {
 	}
 	defer db.Close()
 
+	if _, _, err := db.UpsertBatch("profile", []json.RawMessage{
+		json.RawMessage(`{"id":"me","primary_currency":"usd"}`),
+	}); err != nil {
+		t.Fatalf("upsert profile: %v", err)
+	}
 	if _, _, err := db.UpsertBatch("crypto-synced", []json.RawMessage{
 		json.RawMessage(`{"id":"cs-1","display_name":"Coinbase BTC","balance":100,"currency":"USD"}`),
 	}); err != nil {
@@ -51,5 +56,36 @@ func TestBuildNetWorthIncludesCryptoSyncedHistory(t *testing.T) {
 	account := group.Accounts[0]
 	if account.ID != "cs-1" || account.Source != "balance-history" || math.Abs(account.Balance-125.5) > 0.000001 {
 		t.Fatalf("account = %+v, want crypto-synced history balance", account)
+	}
+}
+
+func TestBuildNetWorthDoesNotTotalUnconvertedForeignBalances(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	if _, _, err := db.UpsertBatch("profile", []json.RawMessage{
+		json.RawMessage(`{"id":"me","primary_currency":"usd"}`),
+	}); err != nil {
+		t.Fatalf("upsert profile: %v", err)
+	}
+	if _, _, err := db.UpsertBatch("manual-accounts", []json.RawMessage{
+		json.RawMessage(`{"id":"usd-1","name":"Checking","type":"depository","balance":100,"currency":"usd"}`),
+		json.RawMessage(`{"id":"eur-1","name":"Euro Cash","type":"depository","balance":1500,"currency":"eur"}`),
+	}); err != nil {
+		t.Fatalf("upsert manual accounts: %v", err)
+	}
+
+	result, err := buildNetWorth(context.Background(), db, "2026-05-02", time.Date(2026, 5, 2, 0, 0, 0, 0, time.UTC))
+	if err != nil {
+		t.Fatalf("buildNetWorth: %v", err)
+	}
+	if math.Abs(result.Total-100) > 0.000001 {
+		t.Fatalf("total = %.2f, want only converted/base-currency balance 100.00", result.Total)
+	}
+	if len(result.ByAccountType) != 1 || len(result.ByAccountType[0].Accounts) != 2 {
+		t.Fatalf("result groups = %+v, want both accounts listed", result.ByAccountType)
 	}
 }

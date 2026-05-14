@@ -40,13 +40,17 @@ type localTransaction struct {
 // PATCH: Shared helpers for local transaction retagging and tag resolution.
 
 type retagTransaction struct {
-	ID     int
-	Payee  string
-	Notes  string
-	Amount string
-	Date   time.Time
-	DateS  string
-	Tags   []int
+	ID            int
+	Payee         string
+	Notes         string
+	Amount        string
+	Date          time.Time
+	DateS         string
+	Tags          []int
+	GroupParentID string
+	SplitParentID string
+	IsGroupParent bool
+	IsSplitParent bool
 }
 
 type retagSample struct {
@@ -86,7 +90,7 @@ func loadRetagTransactions(ctx context.Context, db *store.Store) ([]retagTransac
 			if err := rows.Scan(&raw); err != nil {
 				return nil, err
 			}
-			if tx, ok := decodeRetagTransaction([]byte(raw)); ok {
+			if tx, ok := decodeRetagTransaction([]byte(raw)); ok && retagCountsTransaction(tx) {
 				out = append(out, tx)
 				seen[tx.ID] = true
 			}
@@ -101,7 +105,7 @@ func loadRetagTransactions(ctx context.Context, db *store.Store) ([]retagTransac
 	}
 	for _, obj := range objs {
 		raw, _ := json.Marshal(obj)
-		if tx, ok := decodeRetagTransaction(raw); ok && !seen[tx.ID] {
+		if tx, ok := decodeRetagTransaction(raw); ok && retagCountsTransaction(tx) && !seen[tx.ID] {
 			out = append(out, tx)
 		}
 	}
@@ -126,7 +130,15 @@ func decodeRetagTransaction(raw []byte) (retagTransaction, bool) {
 	return retagTransaction{
 		ID: id, Payee: localString(obj, "payee"), Notes: localString(obj, "notes"),
 		Amount: amount, Date: date, DateS: dateS, Tags: retagTagIDs(localLookup(obj, "tags", "tag_ids", "tagIds")),
+		GroupParentID: localID(obj, "group_parent_id", "group_id", "groupParentId"),
+		SplitParentID: localID(obj, "split_parent_id", "parent_id", "splitParentId"),
+		IsGroupParent: localBool(obj, "is_group_parent", "isGroupParent"),
+		IsSplitParent: localBool(obj, "is_split_parent", "isSplitParent"),
 	}, true
+}
+
+func retagCountsTransaction(tx retagTransaction) bool {
+	return tx.GroupParentID == "" && !tx.IsSplitParent
 }
 
 func selectRetagTransactions(txs []retagTransaction, ids, match string, start, end time.Time, limit int) ([]retagTransaction, error) {

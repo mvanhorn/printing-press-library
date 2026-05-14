@@ -38,12 +38,13 @@ type netWorthAccount struct {
 }
 
 type localAccount struct {
-	sourceType  string
-	id          string
-	name        string
-	accountType string
-	balance     float64
-	currency    string
+	sourceType    string
+	id            string
+	name          string
+	accountType   string
+	balance       float64
+	currency      string
+	balanceInBase bool
 }
 
 func newNetWorthCmd(flags *rootFlags) *cobra.Command {
@@ -105,7 +106,11 @@ func newNetWorthOnCmd(flags *rootFlags) *cobra.Command {
 }
 
 func buildNetWorth(ctx context.Context, db *store.Store, asOfString string, asOf time.Time) (netWorthResult, error) {
-	accounts, err := loadNetWorthAccounts(ctx, db)
+	primaryCurrency, err := loadPrimaryCurrency(ctx, db)
+	if err != nil {
+		return netWorthResult{}, err
+	}
+	accounts, err := loadNetWorthAccounts(ctx, db, primaryCurrency)
 	if err != nil {
 		return netWorthResult{}, err
 	}
@@ -116,9 +121,9 @@ func buildNetWorth(ctx context.Context, db *store.Store, asOfString string, asOf
 
 	byType := map[string]*netWorthTypeRoll{}
 	for _, acct := range accounts {
-		balance, currency, source := acct.balance, acct.currency, "account-current"
-		if histBalance, histCurrency, ok := latestHistoryBalance(history, acct.sourceType, acct.id, asOf); ok {
-			balance, source = histBalance, "balance-history"
+		balance, currency, source, inBase := acct.balance, acct.currency, "account-current", acct.balanceInBase
+		if histBalance, histCurrency, histInBase, ok := latestHistoryBalance(history, acct.sourceType, acct.id, acct.currency, primaryCurrency, asOf); ok {
+			balance, source, inBase = histBalance, "balance-history", histInBase
 			if histCurrency != "" {
 				currency = histCurrency
 			}
@@ -128,7 +133,9 @@ func buildNetWorth(ctx context.Context, db *store.Store, asOfString string, asOf
 			group = &netWorthTypeRoll{AccountType: acct.accountType}
 			byType[acct.accountType] = group
 		}
-		group.Total += balance
+		if inBase {
+			group.Total += balance
+		}
 		group.Accounts = append(group.Accounts, netWorthAccount{
 			ID: acct.id, Name: acct.name, Balance: balance, Currency: currency, Source: source,
 		})
@@ -152,14 +159,14 @@ func buildNetWorth(ctx context.Context, db *store.Store, asOfString string, asOf
 	return result, nil
 }
 
-func loadNetWorthAccounts(ctx context.Context, db *store.Store) ([]localAccount, error) {
+func loadNetWorthAccounts(ctx context.Context, db *store.Store, primaryCurrency string) ([]localAccount, error) {
 	var accounts []localAccount
 	manual, err := loadResourceObjects(ctx, db, "manual-accounts")
 	if err != nil {
 		return nil, err
 	}
 	for _, obj := range manual {
-		if acct := decodeLocalAccount(obj, "manual", localString(obj, "type")); acct.id != "" {
+		if acct := decodeLocalAccount(obj, "manual", localString(obj, "type"), primaryCurrency); acct.id != "" {
 			accounts = append(accounts, acct)
 		}
 	}
@@ -168,7 +175,7 @@ func loadNetWorthAccounts(ctx context.Context, db *store.Store) ([]localAccount,
 		return nil, err
 	}
 	for _, obj := range plaid {
-		if acct := decodeLocalAccount(obj, "plaid", localString(obj, "type")); acct.id != "" {
+		if acct := decodeLocalAccount(obj, "plaid", localString(obj, "type"), primaryCurrency); acct.id != "" {
 			accounts = append(accounts, acct)
 		}
 	}
@@ -177,7 +184,7 @@ func loadNetWorthAccounts(ctx context.Context, db *store.Store) ([]localAccount,
 		return nil, err
 	}
 	for _, obj := range crypto {
-		if acct := decodeLocalAccount(obj, "crypto_manual", "crypto_manual"); acct.id != "" {
+		if acct := decodeLocalAccount(obj, "crypto_manual", "crypto_manual", primaryCurrency); acct.id != "" {
 			accounts = append(accounts, acct)
 		}
 	}
@@ -186,32 +193,31 @@ func loadNetWorthAccounts(ctx context.Context, db *store.Store) ([]localAccount,
 		return nil, err
 	}
 	for _, obj := range cryptoSynced {
-		if acct := decodeLocalAccount(obj, "crypto_synced", "crypto_synced"); acct.id != "" {
+		if acct := decodeLocalAccount(obj, "crypto_synced", "crypto_synced", primaryCurrency); acct.id != "" {
 			accounts = append(accounts, acct)
 		}
 	}
 	return accounts, nil
 }
 
-func decodeLocalAccount(obj map[string]any, sourceType, accountType string) localAccount {
+func decodeLocalAccount(obj map[string]any, sourceType, accountType, primaryCurrency string) localAccount {
 	if accountType == "" {
 		accountType = sourceType
 	}
-	balance := localFloat(obj, "balance")
-	if localLookup(obj, "to_base") != nil {
-		balance = localFloat(obj, "to_base")
-	}
+	currency := localString(obj, "currency", "symbol")
+	balance, balanceInBase := netWorthBalance(obj, currency, primaryCurrency)
 	return localAccount{
-		sourceType:  sourceType,
-		id:          localID(obj, "id"),
-		name:        accountDisplayName(obj),
-		accountType: accountType,
-		balance:     balance,
-		currency:    localString(obj, "currency", "symbol"),
+		sourceType:    sourceType,
+		id:            localID(obj, "id"),
+		name:          accountDisplayName(obj),
+		accountType:   accountType,
+		balance:       balance,
+		currency:      currency,
+		balanceInBase: balanceInBase,
 	}
 }
 
-func latestHistoryBalance(history []map[string]any, sourceType, accountID string, asOf time.Time) (float64, string, bool) {
+func latestHistoryBalance(history []map[string]any, sourceType, accountID, accountCurrency, primaryCurrency string, asOf time.Time) (float64, string, bool, bool) {
 	bestDate := time.Time{}
 	var best map[string]any
 	for _, obj := range history {
@@ -228,11 +234,41 @@ func latestHistoryBalance(history []map[string]any, sourceType, accountID string
 		}
 	}
 	if best == nil {
-		return 0, "", false
+		return 0, "", false, false
 	}
-	balance := localFloat(best, "balance")
-	if localLookup(best, "to_base") != nil {
-		balance = localFloat(best, "to_base")
+	currency := localString(best, "currency")
+	if currency == "" {
+		currency = accountCurrency
 	}
-	return balance, localString(best, "currency"), true
+	balance, inBase := netWorthBalance(best, currency, primaryCurrency)
+	return balance, currency, inBase, true
+}
+
+func loadPrimaryCurrency(ctx context.Context, db *store.Store) (string, error) {
+	profiles, err := loadResourceObjects(ctx, db, "profile")
+	if err != nil {
+		return "", err
+	}
+	for _, obj := range profiles {
+		if currency := normalizeNetWorthCurrency(localString(obj, "primary_currency", "primaryCurrency")); currency != "" {
+			return currency, nil
+		}
+	}
+	return "", nil
+}
+
+func netWorthBalance(obj map[string]any, currency, primaryCurrency string) (float64, bool) {
+	if localLookup(obj, "to_base") != nil {
+		return localFloat(obj, "to_base"), true
+	}
+	balance := localFloat(obj, "balance")
+	normalizedCurrency := normalizeNetWorthCurrency(currency)
+	if normalizedCurrency == "" || (primaryCurrency != "" && normalizedCurrency == primaryCurrency) {
+		return balance, true
+	}
+	return balance, false
+}
+
+func normalizeNetWorthCurrency(currency string) string {
+	return strings.ToLower(strings.TrimSpace(currency))
 }
