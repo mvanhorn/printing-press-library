@@ -86,8 +86,10 @@ func newConfigSetCoordsCmd() *cobra.Command {
 		Example: "  instacart config set-coords --lat 47.6740 --lon -122.1215\n" +
 			"  instacart config set-coords --lat 47.6740 --lon -122.1215 --postal 98052",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if lat == 0 || lon == 0 {
-				return coded(ExitUsage, "--lat and --lon are both required (and non-zero)")
+			// Use Changed() so a deliberate `--lat 0` (equator) or `--lon 0`
+			// (prime meridian) isn't rejected as "not provided".
+			if !cmd.Flags().Changed("lat") || !cmd.Flags().Changed("lon") {
+				return coded(ExitUsage, "--lat and --lon are both required")
 			}
 			cfg, err := config.Load()
 			if err != nil {
@@ -200,8 +202,8 @@ exposed in the Network tab will contain it. It looks like a UUID.`,
 					"street_address": addr.StreetAddress,
 				})
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "saved address %q (%s) → %s\n  postal_code=%q latitude=%v longitude=%v\n",
-				addr.ID, addr.StreetAddress, addr.PostalCode, addr.PostalCode, addr.Latitude, addr.Longitude)
+			fmt.Fprintf(cmd.OutOrStdout(), "saved address %q (%s)\n  postal_code=%q latitude=%v longitude=%v\n",
+				addr.ID, addr.StreetAddress, addr.PostalCode, addr.Latitude, addr.Longitude)
 			return nil
 		},
 	}
@@ -273,6 +275,15 @@ func tryAutoPopulateLocation(cmd *cobra.Command, sess *auth.Session) {
 	defer st.Close()
 
 	client := gql.NewClient(sess, cfg, st)
+	// Note on `client.Mutation`: this codebase uses Mutation as the
+	// POST-with-raw-query-text path regardless of GraphQL operation type
+	// — it does not set any operation-type metadata on the wire (see
+	// `internal/gql/client.go:call`, which just serializes `operationName +
+	// variables + query` into the body). The CurrentUserAddresses payload
+	// is a `query`, not a `mutation`; reusing this method here mirrors the
+	// existing UpdateCartItemsMutation convention. If the client ever
+	// gains an explicit type marker, the right move is to add a thin
+	// `client.PostRaw` and route this call through it.
 	resp, err := client.Mutation(context.Background(), "CurrentUserAddresses", map[string]any{}, currentUserAddressesQuery)
 	if err != nil {
 		fmt.Fprintf(cmd.OutOrStdout(), "\nNote: could not auto-populate location (%v).\n", err)
