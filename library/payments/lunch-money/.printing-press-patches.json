@@ -120,6 +120,16 @@
         "internal/store/upsert_batch_test.go"
       ],
       "validated_outcome": "go test ./internal/cli and go test ./internal/store pass, including mixed-format changed-since and v3 migration coverage."
+    },
+    {
+      "id": "duplicates-member-level-handled-filter",
+      "summary": "Filtered split/group transactions out of duplicate clusters at the member level.",
+      "reason": "A handled split or group transaction can share a merchant/date/amount cluster with genuine duplicates; excluding the whole cluster hides the duplicate charges.",
+      "files": [
+        "internal/cli/transactions_duplicates.go",
+        "internal/cli/transactions_duplicates_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including duplicate clustering with a handled split member."
     }
   ]
 }

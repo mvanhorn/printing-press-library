@@ -84,7 +84,7 @@ func newTransactionsDuplicatesCmd(flags *rootFlags) *cobra.Command {
 func buildDuplicateClusters(txs []localTransaction, windowDays int, tolerance float64, minClusterSize int) []duplicateCluster {
 	groups := map[string][]int{}
 	for i, tx := range txs {
-		if tx.PayeeNormalized != "" && !tx.Date.IsZero() {
+		if tx.PayeeNormalized != "" && !tx.Date.IsZero() && duplicateCountsTransaction(tx) {
 			groups[tx.PayeeNormalized] = append(groups[tx.PayeeNormalized], i)
 		}
 	}
@@ -102,12 +102,15 @@ func buildDuplicateClusters(txs []localTransaction, windowDays int, tolerance fl
 
 	byRoot := map[int][]localTransaction{}
 	for i, tx := range txs {
+		if !duplicateCountsTransaction(tx) {
+			continue
+		}
 		root := uf.find(i)
 		byRoot[root] = append(byRoot[root], tx)
 	}
 	clusters := make([]duplicateCluster, 0)
 	for _, group := range byRoot {
-		if len(group) < minClusterSize || duplicateClusterIsHandled(group) {
+		if len(group) < minClusterSize {
 			continue
 		}
 		sort.SliceStable(group, func(i, j int) bool {
@@ -139,13 +142,8 @@ func absDateDays(a, b localTransaction) int {
 	return days
 }
 
-func duplicateClusterIsHandled(group []localTransaction) bool {
-	for _, tx := range group {
-		if tx.GroupParentID != "" || tx.SplitParentID != "" || tx.IsGroupParent || tx.IsSplitParent {
-			return true
-		}
-	}
-	return false
+func duplicateCountsTransaction(tx localTransaction) bool {
+	return tx.GroupParentID == "" && tx.SplitParentID == "" && !tx.IsGroupParent && !tx.IsSplitParent
 }
 
 type unionFind struct {
