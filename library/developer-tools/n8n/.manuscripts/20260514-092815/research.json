@@ -1,0 +1,328 @@
+{
+  "api_name": "n8n",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "n8n-mcp",
+      "url": "https://github.com/leonardsellem/n8n-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 120,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "n8n Official MCP",
+      "url": "https://github.com/n8n-io/n8n-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 80,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kainlite/n8n-cli",
+      "url": "https://github.com/kainlite/n8n-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T09:28:15Z",
+  "novel_features": [
+    {
+      "name": "Cross-Instance Workflow Diff",
+      "command": "diff",
+      "description": "Diff workflow inventories between two n8n instances — missing, active mismatches, name changes.",
+      "rationale": "Requires simultaneous API access to two instances with configurable auth per target, impossible from a single-instance MCP server.",
+      "example": "n8n-pp-cli diff --target-url https://n8n-prod.example.com --target-key $PROD_KEY --json --agent",
+      "why_it_matters": "Use before GitOps promotions to verify staging matches production without manual inspection.",
+      "group": "Multi-instance operations"
+    },
+    {
+      "name": "Instance Health Compare",
+      "command": "health compare",
+      "description": "Side-by-side workflow counts and reachability for two n8n instances.",
+      "rationale": "Requires probing two separate instances at once — single-instance MCPs cannot do cross-environment comparisons.",
+      "example": "n8n-pp-cli health compare --target-url https://n8n-prod.example.com --target-key $PROD_KEY --json --agent",
+      "why_it_matters": "Use when verifying failover readiness or multi-tenant deployment parity.",
+      "group": "Multi-instance operations"
+    },
+    {
+      "name": "Stale Workflow Detection",
+      "command": "workflows stale",
+      "description": "List workflows not updated within N days — find dormant automations before they become liabilities. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires joining update timestamps across all workflows in the local store; single API calls return paginated lists without time-window filtering.",
+      "example": "n8n-pp-cli workflows stale --days 90 --active --json --agent",
+      "why_it_matters": "Use when auditing automation health or preparing for n8n upgrades.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credential Reference Audit",
+      "command": "credentials audit",
+      "description": "Cross-reference every credential with the workflows using it — find unused and high-impact credentials. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires joining credential records with parsed workflow node definitions — only possible after full sync of both resources.",
+      "example": "n8n-pp-cli credentials audit --show-workflows --json --agent",
+      "why_it_matters": "Use before rotating credentials or deleting unused ones to avoid breaking active workflows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Node Type Inventory",
+      "command": "workflows node-inventory",
+      "description": "Count every n8n node type across all workflows — map your automation footprint and audit community node dependencies. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires parsing the nodes array of every synced workflow JSON and aggregating counts — a cross-workflow analysis impossible in a single API call.",
+      "example": "n8n-pp-cli workflows node-inventory --show-workflows --json --agent",
+      "why_it_matters": "Use before upgrading community nodes to find every workflow that would be affected.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Workflow Dependency Map",
+      "command": "workflows deps",
+      "description": "Map execution chains via executeWorkflow nodes — see what calls what and who would break if a workflow is deleted. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires scanning the parameters of every node across all workflows to find executeWorkflow references — a deep local join not available via any single API endpoint.",
+      "example": "n8n-pp-cli workflows deps --json --agent",
+      "why_it_matters": "Use before deleting or refactoring a workflow to find all callers in the dependency chain.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Execution CI Gate",
+      "command": "executions wait",
+      "description": "Poll an execution until it reaches a terminal state — blocks CI/CD pipelines on real n8n workflow results.",
+      "rationale": "Requires long-polling the executions API with typed exit codes (0 success, 1 error, 2 timeout) that map to CI system expectations.",
+      "example": "n8n-pp-cli executions wait $EXEC_ID --timeout 300 --json --agent",
+      "why_it_matters": "Use in CI scripts to block a deployment until an n8n data migration or validation workflow completes. Typed exit codes: 0 = success, 1 = error/canceled, 2 = timeout (distinct from global code 2 = usage error).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Runaway Trigger Detection",
+      "command": "executions rate-check",
+      "description": "Flag workflows executing above a per-minute threshold — catch infinite loops and webhook storms before they degrade instance health. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires time-window aggregation across execution records in the local store; the n8n API returns executions but not rate analytics.",
+      "example": "n8n-pp-cli executions rate-check --runaway --threshold 5 --json --agent",
+      "why_it_matters": "Use when n8n instance is slow or execution queue is growing to quickly identify the culprit workflow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Variable Drift Detection",
+      "command": "variables diff",
+      "description": "Compare environment variables between two n8n instances — find missing keys or value mismatches before deployment.",
+      "rationale": "Requires authenticating to two separate n8n instances simultaneously; single-instance MCPs cannot do cross-environment variable comparison.",
+      "example": "n8n-pp-cli variables diff --target-url https://n8n-prod.example.com --target-key $PROD_KEY --hide-values --json --agent",
+      "why_it_matters": "Use as a pre-deployment gate to ensure all required variables are set on the target instance.",
+      "group": "Multi-instance operations"
+    },
+    {
+      "name": "Bulk Workflow Management",
+      "command": "workflows bulk",
+      "description": "Activate, deactivate, or archive multiple workflows at once filtered by tag or name — hours of clicking replaced by one command.",
+      "rationale": "The n8n UI and API only expose per-workflow operations; bulk changes require iterating the full list and calling each endpoint individually.",
+      "example": "n8n-pp-cli workflows bulk --action deactivate --tag staging --dry-run",
+      "why_it_matters": "Use before maintenance windows or environment teardowns to disable entire workflow sets safely.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Execution History Export",
+      "command": "executions export",
+      "description": "Export structured execution history filtered by workflow, status, and time window for audit logs and analytics pipelines. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires querying the local store with composite filters (workflow + status + time window) in a single pass — the n8n API paginates executions without all these filter combinations.",
+      "example": "n8n-pp-cli executions export --workflow abc123 --status error --since 7d --json --agent",
+      "why_it_matters": "Use to feed execution audit trails into SIEM, data warehouses, or compliance reporting pipelines.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-Instance Workflow Diff",
+      "command": "diff",
+      "description": "Diff workflow inventories between two n8n instances — missing, active mismatches, name changes.",
+      "rationale": "Requires simultaneous API access to two instances with configurable auth per target, impossible from a single-instance MCP server.",
+      "example": "n8n-pp-cli diff --target-url https://n8n-prod.example.com --target-key $PROD_KEY --json --agent",
+      "why_it_matters": "Use before GitOps promotions to verify staging matches production without manual inspection.",
+      "group": "Multi-instance operations"
+    },
+    {
+      "name": "Instance Health Compare",
+      "command": "health compare",
+      "description": "Side-by-side workflow counts and reachability for two n8n instances.",
+      "rationale": "Requires probing two separate instances at once — single-instance MCPs cannot do cross-environment comparisons.",
+      "example": "n8n-pp-cli health compare --target-url https://n8n-prod.example.com --target-key $PROD_KEY --json --agent",
+      "why_it_matters": "Use when verifying failover readiness or multi-tenant deployment parity.",
+      "group": "Multi-instance operations"
+    },
+    {
+      "name": "Stale Workflow Detection",
+      "command": "workflows stale",
+      "description": "List workflows not updated within N days — find dormant automations before they become liabilities. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires joining update timestamps across all workflows in the local store; single API calls return paginated lists without time-window filtering.",
+      "example": "n8n-pp-cli workflows stale --days 90 --active --json --agent",
+      "why_it_matters": "Use when auditing automation health or preparing for n8n upgrades.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credential Reference Audit",
+      "command": "credentials audit",
+      "description": "Cross-reference every credential with the workflows using it — find unused and high-impact credentials. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires joining credential records with parsed workflow node definitions — only possible after full sync of both resources.",
+      "example": "n8n-pp-cli credentials audit --show-workflows --json --agent",
+      "why_it_matters": "Use before rotating credentials or deleting unused ones to avoid breaking active workflows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Node Type Inventory",
+      "command": "workflows node-inventory",
+      "description": "Count every n8n node type across all workflows — map your automation footprint and audit community node dependencies. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires parsing the nodes array of every synced workflow JSON and aggregating counts — a cross-workflow analysis impossible in a single API call.",
+      "example": "n8n-pp-cli workflows node-inventory --show-workflows --json --agent",
+      "why_it_matters": "Use before upgrading community nodes to find every workflow that would be affected.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Workflow Dependency Map",
+      "command": "workflows deps",
+      "description": "Map execution chains via executeWorkflow nodes — see what calls what and who would break if a workflow is deleted. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires scanning the parameters of every node across all workflows to find executeWorkflow references — a deep local join not available via any single API endpoint.",
+      "example": "n8n-pp-cli workflows deps --json --agent",
+      "why_it_matters": "Use before deleting or refactoring a workflow to find all callers in the dependency chain.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Execution CI Gate",
+      "command": "executions wait",
+      "description": "Poll an execution until it reaches a terminal state — blocks CI/CD pipelines on real n8n workflow results.",
+      "rationale": "Requires long-polling the executions API with typed exit codes (0 success, 1 error, 2 timeout) that map to CI system expectations.",
+      "example": "n8n-pp-cli executions wait $EXEC_ID --timeout 300 --json --agent",
+      "why_it_matters": "Use in CI scripts to block a deployment until an n8n data migration or validation workflow completes. Typed exit codes: 0 = success, 1 = error/canceled, 2 = timeout (distinct from global code 2 = usage error).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Runaway Trigger Detection",
+      "command": "executions rate-check",
+      "description": "Flag workflows executing above a per-minute threshold — catch infinite loops and webhook storms before they degrade instance health. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires time-window aggregation across execution records in the local store; the n8n API returns executions but not rate analytics.",
+      "example": "n8n-pp-cli executions rate-check --runaway --threshold 5 --json --agent",
+      "why_it_matters": "Use when n8n instance is slow or execution queue is growing to quickly identify the culprit workflow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Variable Drift Detection",
+      "command": "variables diff",
+      "description": "Compare environment variables between two n8n instances — find missing keys or value mismatches before deployment.",
+      "rationale": "Requires authenticating to two separate n8n instances simultaneously; single-instance MCPs cannot do cross-environment variable comparison.",
+      "example": "n8n-pp-cli variables diff --target-url https://n8n-prod.example.com --target-key $PROD_KEY --hide-values --json --agent",
+      "why_it_matters": "Use as a pre-deployment gate to ensure all required variables are set on the target instance.",
+      "group": "Multi-instance operations"
+    },
+    {
+      "name": "Bulk Workflow Management",
+      "command": "workflows bulk",
+      "description": "Activate, deactivate, or archive multiple workflows at once filtered by tag or name — hours of clicking replaced by one command.",
+      "rationale": "The n8n UI and API only expose per-workflow operations; bulk changes require iterating the full list and calling each endpoint individually.",
+      "example": "n8n-pp-cli workflows bulk --action deactivate --tag staging --dry-run",
+      "why_it_matters": "Use before maintenance windows or environment teardowns to disable entire workflow sets safely.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Execution History Export",
+      "command": "executions export",
+      "description": "Export structured execution history filtered by workflow, status, and time window for audit logs and analytics pipelines. Requires a local sync first: `n8n-pp-cli sync`.",
+      "rationale": "Requires querying the local store with composite filters (workflow + status + time window) in a single pass — the n8n API paginates executions without all these filter combinations.",
+      "example": "n8n-pp-cli executions export --workflow abc123 --status error --since 7d --json --agent",
+      "why_it_matters": "Use to feed execution audit trails into SIEM, data warehouses, or compliance reporting pipelines.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "n8n",
+    "headline": "Every n8n feature from the terminal — workflow management, execution triage, GitOps sync, multi-instance health, and analytics no other tool ships.",
+    "value_prop": "n8n-pp-cli gives agents and engineers full programmatic control over n8n: manage workflows, credentials, and executions without opening the UI. Sync your instance to local SQLite for offline analytics, cross-workflow dependency mapping, and stale-automation detection. Diff and compare two instances side-by-side for safe GitOps promotions.",
+    "auth_narrative": "Set N8N_API_KEY (from Settings \u003e API \u003e Create an API key) and N8N_BASE_URL. The CLI sends the key as X-N8N-API-KEY on every request — no Bearer prefix needed. Run 'n8n-pp-cli doctor' to verify connectivity.",
+    "quickstart": [
+      {
+        "command": "n8n-pp-cli doctor",
+        "comment": "Verify N8N_API_KEY and N8N_BASE_URL are set and the instance is reachable"
+      },
+      {
+        "command": "n8n-pp-cli workflows list --json --agent",
+        "comment": "List all workflows with structured output for agent consumption"
+      },
+      {
+        "command": "n8n-pp-cli sync",
+        "comment": "Sync all resources to local SQLite for offline queries and analytics"
+      },
+      {
+        "command": "n8n-pp-cli workflows stale --days 90 --json --agent",
+        "comment": "Find workflows not updated in 90 days"
+      },
+      {
+        "command": "n8n-pp-cli executions list --status error --limit 20 --json --agent",
+        "comment": "Triage recent execution failures"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 on all commands",
+        "fix": "export N8N_API_KEY=\u003cyour-key\u003e — generate one at Settings \u003e API \u003e Create an API key"
+      },
+      {
+        "symptom": "HTTP 403 on executions or credentials",
+        "fix": "Your API key may lack required scopes — check n8n Settings \u003e API for permissions"
+      },
+      {
+        "symptom": "n8n-pp-cli sync returns no data",
+        "fix": "Verify N8N_BASE_URL points to your n8n instance (include https://, no trailing slash)"
+      },
+      {
+        "symptom": "workflows stale / credentials audit returns empty",
+        "fix": "Run 'n8n-pp-cli sync' first to populate the local store"
+      }
+    ],
+    "when_to_use": "Use n8n-pp-cli when you need to manage n8n workflows programmatically from CI/CD, scripts, or an AI agent. It covers the full n8n API surface with structured JSON output, offline analytics via local SQLite, and cross-instance diff/compare operations that the n8n UI and standard MCPs cannot perform.",
+    "recipes": [
+      {
+        "title": "Audit credentials before rotation",
+        "command": "n8n-pp-cli credentials audit --show-workflows --json --select credential_name,used_by_count,used_by_workflow_names --agent",
+        "explanation": "Find which credentials are used by which workflows before rotating secrets."
+      },
+      {
+        "title": "CI gate on workflow execution",
+        "command": "n8n-pp-cli executions wait $EXEC_ID --timeout 300 --json --agent",
+        "explanation": "Block a deployment pipeline until an n8n validation workflow finishes."
+      },
+      {
+        "title": "Pre-deployment variable check",
+        "command": "n8n-pp-cli variables diff --target-url https://n8n-prod.example.com --target-key $PROD_KEY --hide-values --json --agent",
+        "explanation": "Verify all variables are set on production before promoting."
+      },
+      {
+        "title": "Node dependency audit before upgrade",
+        "command": "n8n-pp-cli workflows node-inventory --node httpRequest --show-workflows --json --select node_type,count,workflows --agent",
+        "explanation": "Find every workflow using a specific node type before upgrading it."
+      },
+      {
+        "title": "Catch runaway triggers",
+        "command": "n8n-pp-cli executions rate-check --runaway --threshold 5.0 --window 10 --json --agent",
+        "explanation": "Detect workflows firing more than 5 times per minute in the last 10 minutes."
+      }
+    ],
+    "trigger_phrases": [
+      "manage n8n workflows",
+      "list n8n executions",
+      "diff n8n instances",
+      "sync n8n to local",
+      "n8n health check",
+      "use n8n-pp-cli",
+      "run n8n-pp-cli"
+    ]
+  }
+}

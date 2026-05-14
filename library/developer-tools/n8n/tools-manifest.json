@@ -1,0 +1,2172 @@
+{
+  "api_name": "n8n-public",
+  "base_url": "",
+  "description": "Every n8n feature from the terminal — workflow management, execution triage, GitOps sync, multi-instance health, and analytics no other tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "N8N_PUBLIC_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "N8N_PUBLIC_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "audit_create",
+      "description": "Generate a security audit for your n8n instance. Optional: additionalOptions. Returns the new Audit.",
+      "method": "POST",
+      "path": "/audit",
+      "params": [
+        {
+          "name": "additionalOptions",
+          "type": "object",
+          "location": "body",
+          "description": "Additional options"
+        }
+      ]
+    },
+    {
+      "name": "community-packages_create",
+      "description": "Install a community package by npm name and optional version. Required: name. Optional: verify, version. Returns the new CommunityPackage.",
+      "method": "POST",
+      "path": "/community-packages",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "npm package name (must start with n8n-nodes-)",
+          "required": true
+        },
+        {
+          "name": "verify",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to verify the package against the n8n-vetted package list. Required when the instance has N8N_UNVERIFIED_PACKAGES_ENABLED=false."
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "Specific semver version to install"
+        }
+      ]
+    },
+    {
+      "name": "community-packages_delete",
+      "description": "Uninstall a community package by name. Required: name. Destructive.",
+      "method": "DELETE",
+      "path": "/community-packages/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "npm package name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "community-packages_list",
+      "description": "Retrieve all installed community packages with pending update info. Returns array of CommunityPackage.",
+      "method": "GET",
+      "path": "/community-packages",
+      "params": []
+    },
+    {
+      "name": "community-packages_update",
+      "description": "Update an installed community package to a new version. Required: name. Optional: verify, version. Returns the updated CommunityPackage.",
+      "method": "PATCH",
+      "path": "/community-packages/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "npm package name",
+          "required": true
+        },
+        {
+          "name": "verify",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to verify the package against the n8n-vetted package list. Setting to false will allow installing or updating to an unverified version. Default is true."
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "body",
+          "description": "Specific semver version to update to"
+        }
+      ]
+    },
+    {
+      "name": "credentials_create",
+      "description": "Creates a credential that can be used by nodes of the specified type. Required: data, name, type. Optional: createdAt, id, isResolvable (plus 2 more). Returns the new CreateCredentialResponse.",
+      "method": "POST",
+      "path": "/credentials",
+      "params": [
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Data",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "isResolvable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this credential has resolvable fields"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "Project to create the credential in. Defaults to the user's personal project."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        }
+      ]
+    },
+    {
+      "name": "credentials_delete",
+      "description": "Deletes a credential from your instance. You must be the owner of the credentials. Required: id. Returns the Credential. Destructive.",
+      "method": "DELETE",
+      "path": "/credentials/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The credential ID that needs to be deleted",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "credentials_get",
+      "description": "Retrieve all credentials from your instance. Only available for the instance owner and admin. Credential data (secrets) is not included. Optional: limit (default: 100), cursor. Returns array of CredentialListItem.",
+      "method": "GET",
+      "path": "/credentials",
+      "params": [
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        }
+      ]
+    },
+    {
+      "name": "credentials_get-id",
+      "description": "Retrieves a credential by ID. Credential data (secrets) is not included. Required: id. Returns the CreateCredentialResponse.",
+      "method": "GET",
+      "path": "/credentials/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The credential ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "credentials_get-schema",
+      "description": "Show credential data schema. Required: credentialTypeName. Returns the CredentialsGetSchemaResponse.",
+      "method": "GET",
+      "path": "/credentials/schema/{credentialTypeName}",
+      "params": [
+        {
+          "name": "credentialTypeName",
+          "type": "string",
+          "location": "path",
+          "description": "The credential type name that you want to get the schema for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "credentials_update",
+      "description": "Updates an existing credential. You must be the owner of the credential. Required: id. Optional: data, isGlobal, isPartialData (default: false) (plus 3 more). Returns the updated CreateCredentialResponse.",
+      "method": "PATCH",
+      "path": "/credentials/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The credential ID that needs to be updated",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "The credential data. Required when changing credential type."
+        },
+        {
+          "name": "isGlobal",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this credential is available globally"
+        },
+        {
+          "name": "isPartialData",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, unredacts and merges existing credential data with the provided data. If false, replaces the entire data object."
+        },
+        {
+          "name": "isResolvable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this credential has resolvable fields"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the credential"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The credential type. If changing type, data must also be provided."
+        }
+      ]
+    },
+    {
+      "name": "credentials_test_credential",
+      "description": "Tests a credential by ID using the stored credential data. Required: id. Returns the new CredentialTestResponse.",
+      "method": "POST",
+      "path": "/credentials/{id}/test",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The credential ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "credentials_transfer_update",
+      "description": "Transfer a credential to another project. Required: id, destinationProjectId.",
+      "method": "PUT",
+      "path": "/credentials/{id}/transfer",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the credential.",
+          "required": true
+        },
+        {
+          "name": "destinationProjectId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the project to transfer the credential to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_create",
+      "description": "Create a new data table in your personal project or a team project you have access to. Required: columns, name. Optional: projectId. Returns the new DataTable.",
+      "method": "POST",
+      "path": "/data-tables",
+      "params": [
+        {
+          "name": "columns",
+          "type": "array",
+          "location": "body",
+          "description": "Column definitions for the table",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the data table",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the project to create the table in. When omitted, the table is created in the user's personal project."
+        }
+      ]
+    },
+    {
+      "name": "data-tables_delete",
+      "description": "Delete a data table. This will also delete all rows in the table. Required: dataTableId. Destructive.",
+      "method": "DELETE",
+      "path": "/data-tables/{dataTableId}",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_get",
+      "description": "Retrieve a specific data table by ID. Required: dataTableId. Returns the DataTable.",
+      "method": "GET",
+      "path": "/data-tables/{dataTableId}",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_list",
+      "description": "Retrieve a list of all data tables with optional filtering, sorting, and pagination. Optional: limit (default: 100), cursor, filter (plus 1 more). Returns array of DataTable.",
+      "method": "GET",
+      "path": "/data-tables",
+      "params": [
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "JSON string of filter conditions"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort format: field:asc or field:desc"
+        }
+      ]
+    },
+    {
+      "name": "data-tables_update",
+      "description": "Update a data table's name. Required: dataTableId, name. Returns the updated DataTable.",
+      "method": "PATCH",
+      "path": "/data-tables/{dataTableId}",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name for the data table",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_columns_create-data-table",
+      "description": "Add a new column to an existing data table. Required: dataTableId, name, type. Optional: index. Returns the new DataTableColumn.",
+      "method": "POST",
+      "path": "/data-tables/{dataTableId}/columns",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "body",
+          "description": "Column position (optional, appended to end if omitted)"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Column name. Must start with a letter; only letters, digits, and underscores after that; maximum 63 characters.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Column data type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_columns_delete-data-table",
+      "description": "Remove a column from a data table. This will also delete all data in the column. Required: dataTableId, columnId. Destructive.",
+      "method": "DELETE",
+      "path": "/data-tables/{dataTableId}/columns/{columnId}",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "columnId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the column",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_columns_list-data-table",
+      "description": "Retrieve all columns for a specific data table. Required: dataTableId. Returns array of DataTableColumn.",
+      "method": "GET",
+      "path": "/data-tables/{dataTableId}/columns",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_columns_update-data-table",
+      "description": "Rename and/or reorder a column in a data table. Required: dataTableId, columnId. Returns the updated DataTableColumn.",
+      "method": "PATCH",
+      "path": "/data-tables/{dataTableId}/columns/{columnId}",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "columnId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the column",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-tables_rows_delete-data-table",
+      "description": "Delete rows matching filter conditions from a data table. Filter is required to prevent accidental deletion of all data. Required: dataTableId, filter. Optional: returnData (default: false), dryRun (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/data-tables/{dataTableId}/rows/delete",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "JSON string of filter conditions. Required to prevent accidental deletion of all data.",
+          "required": true
+        },
+        {
+          "name": "returnData",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, return the deleted rows; if false, return true on success"
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, preview which rows would be deleted without actually deleting them"
+        }
+      ]
+    },
+    {
+      "name": "data-tables_rows_get-data-table",
+      "description": "Query and retrieve rows from a data table with optional filtering, sorting, and pagination. Required: dataTableId. Optional: limit (default: 100), cursor, filter (plus 2 more). Returns array of DataTableRow.",
+      "method": "GET",
+      "path": "/data-tables/{dataTableId}/rows",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "JSON string of filter conditions"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort format: columnName:asc or columnName:desc"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search text across all string columns"
+        }
+      ]
+    },
+    {
+      "name": "data-tables_rows_insert-data-table",
+      "description": "Insert one or more rows into a data table. Required: dataTableId, data. Optional: returnType (default: count).",
+      "method": "POST",
+      "path": "/data-tables/{dataTableId}/rows",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "array",
+          "location": "body",
+          "description": "Array of rows to insert. Each row is an object with column names as keys.",
+          "required": true
+        },
+        {
+          "name": "returnType",
+          "type": "string",
+          "location": "body",
+          "description": "- count: Return only the number of rows inserted - id: Return an array of inserted row IDs - all: Return the full row data for all inserted rows"
+        }
+      ]
+    },
+    {
+      "name": "data-tables_rows_update-data-table",
+      "description": "Update rows matching filter conditions in a data table. Required: dataTableId, data, filter. Optional: dryRun (default: false), returnData (default: false). Partial update.",
+      "method": "PATCH",
+      "path": "/data-tables/{dataTableId}/rows/update",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Column values to update",
+          "required": true
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, preview changes without persisting them"
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter conditions to match rows for update",
+          "required": true
+        },
+        {
+          "name": "returnData",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, return the updated rows; if false, return true on success"
+        }
+      ]
+    },
+    {
+      "name": "data-tables_rows_upsert-data-table",
+      "description": "Update an existing row or insert a new one if no row matches the filter conditions. Required: dataTableId, data, filter. Optional: dryRun (default: false), returnData (default: false).",
+      "method": "POST",
+      "path": "/data-tables/{dataTableId}/rows/upsert",
+      "params": [
+        {
+          "name": "dataTableId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data table",
+          "required": true
+        },
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Column values for the row",
+          "required": true
+        },
+        {
+          "name": "dryRun",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, preview changes without persisting them"
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter conditions to match existing row. If no row matches, a new row is inserted.",
+          "required": true
+        },
+        {
+          "name": "returnData",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, return the upserted row; if false, return true on success"
+        }
+      ]
+    },
+    {
+      "name": "discover_list",
+      "description": "Returns a filtered capability map based on the caller's API key scopes. Each resource includes the operations and endpoints accessible to the authenticated API key. Use query parameters to narrow the response. Optional: include, resource, operation.",
+      "method": "GET",
+      "path": "/discover",
+      "params": [
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Include additional data. Use 'schemas' to inline request body schemas per endpoint, eliminating the need to fetch the full OpenAPI spec."
+        },
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a specific resource (e.g. 'workflow', 'tags', 'credential')."
+        },
+        {
+          "name": "operation",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to endpoints with a specific operation (e.g. 'read', 'create', 'list')."
+        }
+      ]
+    },
+    {
+      "name": "executions_create",
+      "description": "Stop multiple executions from your instance based on filter criteria. Required: status. Optional: startedAfter, startedBefore, workflowId. Returns the new ExecutionsCreateResponse.",
+      "method": "POST",
+      "path": "/executions/stop",
+      "params": [
+        {
+          "name": "startedAfter",
+          "type": "string",
+          "location": "body",
+          "description": "Only stop executions that started after this time."
+        },
+        {
+          "name": "startedBefore",
+          "type": "string",
+          "location": "body",
+          "description": "Only stop executions that started before this time."
+        },
+        {
+          "name": "status",
+          "type": "array",
+          "location": "body",
+          "description": "Array of execution statuses to stop. Must include at least one status.",
+          "required": true
+        },
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional workflow ID to filter executions. If not provided, will stop executions across all accessible workflows."
+        }
+      ]
+    },
+    {
+      "name": "executions_delete",
+      "description": "Deletes an execution from your instance. Required: id. Returns the Execution. Destructive.",
+      "method": "DELETE",
+      "path": "/executions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "The ID of the execution.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "executions_get",
+      "description": "Retrieve an execution from your instance. Required: id. Optional: includeData, redactExecutionData. Returns the Execution.",
+      "method": "GET",
+      "path": "/executions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "The ID of the execution.",
+          "required": true
+        },
+        {
+          "name": "includeData",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not to include the execution's detailed data."
+        },
+        {
+          "name": "redactExecutionData",
+          "type": "bool",
+          "location": "query",
+          "description": "Controls execution data redaction. When `true`, execution output data is always redacted. When `false`, requests unredacted (revealed) data — requires the `execution:reveal` scope. When omitted, follows the workflow redaction policy."
+        }
+      ]
+    },
+    {
+      "name": "executions_list",
+      "description": "Retrieve all executions from your instance. Optional: includeData, redactExecutionData, status (plus 4 more). Returns array of Execution.",
+      "method": "GET",
+      "path": "/executions",
+      "params": [
+        {
+          "name": "includeData",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not to include the execution's detailed data."
+        },
+        {
+          "name": "redactExecutionData",
+          "type": "bool",
+          "location": "query",
+          "description": "Controls execution data redaction. When `true`, execution output data is always redacted. When `false`, requests unredacted (revealed) data — requires the `execution:reveal` scope. When omitted, follows the workflow redaction policy."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status to filter the executions by."
+        },
+        {
+          "name": "workflowId",
+          "type": "string",
+          "location": "query",
+          "description": "Workflow to filter the executions by."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        }
+      ]
+    },
+    {
+      "name": "executions_retry_create",
+      "description": "Retry an execution from your instance. Required: id. Optional: loadWorkflow. Returns the new Execution.",
+      "method": "POST",
+      "path": "/executions/{id}/retry",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "The ID of the execution.",
+          "required": true
+        },
+        {
+          "name": "loadWorkflow",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to load the currently saved workflow to execute instead of the one saved at the time of the execution. If set to true, it will retry with the latest version of the workflow."
+        }
+      ]
+    },
+    {
+      "name": "executions_stop_create",
+      "description": "Stop an execution by id. Required: id. Returns the new Execution.",
+      "method": "POST",
+      "path": "/executions/{id}/stop",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "The ID of the execution.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "executions_tags_get",
+      "description": "Get annotation tags for an execution. Required: id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/executions/{id}/tags",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "The ID of the execution.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "executions_tags_update",
+      "description": "Update annotation tags of an execution. Required: id. Returns array of Tag.",
+      "method": "PUT",
+      "path": "/executions/{id}/tags",
+      "params": [
+        {
+          "name": "id",
+          "type": "float",
+          "location": "path",
+          "description": "The ID of the execution.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "insights_list",
+      "description": "Retrieve the insights summary for the selected date range. Optional: startDate, endDate, projectId. Returns the Insights.",
+      "method": "GET",
+      "path": "/insights/summary",
+      "params": [
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 start date. Defaults to 7 days ago."
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 end date. Defaults to now."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Project identifier to filter insights by project."
+        }
+      ]
+    },
+    {
+      "name": "projects_create",
+      "description": "Create a project on your instance. Required: name. Optional: id, type.",
+      "method": "POST",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Delete a project from your instance. Required: projectId. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{projectId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "Retrieve projects from your instance. Optional: limit (default: 100), cursor. Returns array of Project.",
+      "method": "GET",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "Update a project on your instance. Required: projectId, name. Optional: id, type.",
+      "method": "PUT",
+      "path": "/projects/{projectId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "projects_folders_create",
+      "description": "Create a folder within a project. Required: projectId, name. Optional: parentFolderId. Returns the new Folder.",
+      "method": "POST",
+      "path": "/projects/{projectId}/folders",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "parentFolderId",
+          "type": "string",
+          "location": "body",
+          "description": "Parent folder id"
+        }
+      ]
+    },
+    {
+      "name": "projects_folders_delete",
+      "description": "Delete a folder within a project. When `transferToFolderId` is provided, workflows and sub-folders are moved to the target folder before deletion. When omitted, workflows are moved to the project root and archived, and child folders are deleted. Required: projectId, folderId. Optional: transferToFolderId. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{projectId}/folders/{folderId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "folderId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the folder.",
+          "required": true
+        },
+        {
+          "name": "transferToFolderId",
+          "type": "string",
+          "location": "query",
+          "description": "Optional target folder ID to move workflows and sub-folders into before deleting."
+        }
+      ]
+    },
+    {
+      "name": "projects_folders_get",
+      "description": "Retrieve folders within a project. Supports filtering, sorting, field selection, and pagination. Required: projectId. Optional: filter, select, sortBy (plus 2 more). Returns array of Folder.",
+      "method": "GET",
+      "path": "/projects/{projectId}/folders",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded filter object. Supported fields — parentFolderId, name, tags (array of tag names), excludeFolderIdAndDescendants."
+        },
+        {
+          "name": "select",
+          "type": "string",
+          "location": "query",
+          "description": "JSON-encoded array of fields to include. Valid fields — id, name, createdAt, updatedAt, project, tags, parentFolder, workflowCount, subFolderCount, path."
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for results."
+        },
+        {
+          "name": "skip",
+          "type": "string",
+          "location": "query",
+          "description": "Number of items to skip for pagination. Defaults to 0."
+        },
+        {
+          "name": "take",
+          "type": "string",
+          "location": "query",
+          "description": "Number of items to return. Defaults to 10."
+        }
+      ]
+    },
+    {
+      "name": "projects_folders_get-projects",
+      "description": "Get folder details including sub-folder and workflow counts. Required: projectId, folderId. Returns the FoldersGetProjectsResponse.",
+      "method": "GET",
+      "path": "/projects/{projectId}/folders/{folderId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "folderId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the folder.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_folders_update",
+      "description": "Update folder name or parent folder. Required: projectId, folderId. Optional: name, parentFolderId. Returns the updated Folder.",
+      "method": "PATCH",
+      "path": "/projects/{projectId}/folders/{folderId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "folderId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the folder.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "parentFolderId",
+          "type": "string",
+          "location": "body",
+          "description": "Parent folder id"
+        }
+      ]
+    },
+    {
+      "name": "projects_users_create",
+      "description": "Add one or more users to a project on your instance. Required: projectId, relations.",
+      "method": "POST",
+      "path": "/projects/{projectId}/users",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "relations",
+          "type": "array",
+          "location": "body",
+          "description": "A list of userIds and roles to add to the project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_users_delete",
+      "description": "Delete a user from a project on your instance. Required: projectId, userId. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{projectId}/users/{userId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_users_get",
+      "description": "Returns a list of all members of a project including their role. Requires user:list scope. Required: projectId. Optional: limit (default: 100), cursor.",
+      "method": "GET",
+      "path": "/projects/{projectId}/users",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        }
+      ]
+    },
+    {
+      "name": "projects_users_update",
+      "description": "Change a user's role in a project. Required: projectId, userId, role. Partial update.",
+      "method": "PATCH",
+      "path": "/projects/{projectId}/users/{userId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the project.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the user.",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "The role assigned to the user in the project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "source-control_create",
+      "description": "Requires the Source Control feature to be licensed and connected to a repository. Optional: autoPublish (default: none), force, variables. Returns the new ImportResult.",
+      "method": "POST",
+      "path": "/source-control/pull",
+      "params": [
+        {
+          "name": "autoPublish",
+          "type": "string",
+          "location": "body",
+          "description": "Controls automatic workflow publishing after import: - `none`: Keep workflows in their local published state (default) - `all`: Publish all imported workflows - `published`: Publish only workflows that were published locally before import"
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "body",
+          "description": "Force"
+        },
+        {
+          "name": "variables",
+          "type": "object",
+          "location": "body",
+          "description": "Variables"
+        }
+      ]
+    },
+    {
+      "name": "tags_create",
+      "description": "Create a tag in your instance. Required: name. Optional: createdAt, id, updatedAt. Returns the new Tag.",
+      "method": "POST",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Deletes a tag. Required: id. Returns the Tag. Destructive.",
+      "method": "DELETE",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the tag.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_get",
+      "description": "Retrieves a tag. Required: id. Returns the Tag.",
+      "method": "GET",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the tag.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "Retrieve all tags from your instance. Optional: limit (default: 100), cursor. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        }
+      ]
+    },
+    {
+      "name": "tags_update",
+      "description": "Update a tag. Required: id, name. Optional: createdAt, updatedAt. Returns the updated Tag.",
+      "method": "PUT",
+      "path": "/tags/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the tag.",
+          "required": true
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        }
+      ]
+    },
+    {
+      "name": "users_create",
+      "description": "Create one or more users. Returns the new UsersCreateResponse.",
+      "method": "POST",
+      "path": "/users",
+      "params": []
+    },
+    {
+      "name": "users_delete",
+      "description": "Delete a user from your instance. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID or email of the user.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Retrieve a user from your instance. Only available for the instance owner. Required: id. Optional: includeRole (default: false). Returns the User.",
+      "method": "GET",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID or email of the user.",
+          "required": true
+        },
+        {
+          "name": "includeRole",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include the user's role or not."
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "Retrieve all users from your instance. Only available for the instance owner. Optional: limit (default: 100), offset (default: 0), cursor (plus 2 more). Returns array of User.",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "offset",
+          "type": "float",
+          "location": "query",
+          "description": "The number of items to skip before starting to collect the result set."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        },
+        {
+          "name": "includeRole",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include the user's role or not."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        }
+      ]
+    },
+    {
+      "name": "users_role_update",
+      "description": "Change a user's global role. Required: id, newRoleName. Partial update.",
+      "method": "PATCH",
+      "path": "/users/{id}/role",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID or email of the user.",
+          "required": true
+        },
+        {
+          "name": "newRoleName",
+          "type": "string",
+          "location": "body",
+          "description": "New role name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "variables_create",
+      "description": "Create a variable in your instance. Required: key, value. Optional: id, projectId, type.",
+      "method": "POST",
+      "path": "/variables",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "Project id"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "variables_delete",
+      "description": "Delete a variable from your instance. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/variables/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the variable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "variables_list",
+      "description": "Retrieve variables from your instance. Optional: limit (default: 100), cursor, projectId (plus 1 more). Returns array of Variable.",
+      "method": "GET",
+      "path": "/variables",
+      "params": [
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        }
+      ]
+    },
+    {
+      "name": "variables_update",
+      "description": "Update a variable from your instance. Required: id, key, value. Optional: projectId, type.",
+      "method": "PUT",
+      "path": "/variables/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the variable.",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "Project id"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_create",
+      "description": "Create a workflow in your instance. Required: connections, name, nodes, settings. Optional: active, activeVersion, createdAt (plus 11 more). Returns the new Workflow.",
+      "method": "POST",
+      "path": "/workflows",
+      "params": [
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active"
+        },
+        {
+          "name": "activeVersion",
+          "type": "object",
+          "location": "body",
+          "description": "Active version"
+        },
+        {
+          "name": "connections",
+          "type": "object",
+          "location": "body",
+          "description": "Connections",
+          "required": true
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "isArchived",
+          "type": "bool",
+          "location": "body",
+          "description": "Is archived"
+        },
+        {
+          "name": "meta",
+          "type": "object",
+          "location": "body",
+          "description": "Workflow metadata such as template information"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "array",
+          "location": "body",
+          "description": "Nodes",
+          "required": true
+        },
+        {
+          "name": "pinData",
+          "type": "object",
+          "location": "body",
+          "description": "Pinned sample data for nodes, keyed by node name"
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "Target project to create the workflow in. Defaults to the user's personal project."
+        },
+        {
+          "name": "settings",
+          "type": "object",
+          "location": "body",
+          "description": "Settings",
+          "required": true
+        },
+        {
+          "name": "shared",
+          "type": "array",
+          "location": "body",
+          "description": "Shared"
+        },
+        {
+          "name": "staticData",
+          "type": "string",
+          "location": "body",
+          "description": "Static data"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "triggerCount",
+          "type": "int",
+          "location": "body",
+          "description": "Number of active trigger nodes in the workflow"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "body",
+          "description": "Current version identifier used for optimistic locking"
+        }
+      ]
+    },
+    {
+      "name": "workflows_delete",
+      "description": "Delete a workflow. Required: id. Returns the Workflow. Destructive.",
+      "method": "DELETE",
+      "path": "/workflows/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_get",
+      "description": "Retrieve a workflow. Required: id. Optional: excludePinnedData. Returns the Workflow.",
+      "method": "GET",
+      "path": "/workflows/{id}",
+      "params": [
+        {
+          "name": "excludePinnedData",
+          "type": "bool",
+          "location": "query",
+          "description": "Set this to avoid retrieving pinned data"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_get-id",
+      "description": "Retrieves a specific version of a workflow from workflow history. Required: id, versionId. Returns the WorkflowVersion.",
+      "method": "GET",
+      "path": "/workflows/{id}/{versionId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "path",
+          "description": "The version ID to retrieve",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_list",
+      "description": "Retrieve all workflows from your instance. Optional: active, tags, name (plus 4 more). Returns array of Workflow.",
+      "method": "GET",
+      "path": "/workflows",
+      "params": [
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "query",
+          "description": "Active"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Tags"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "excludePinnedData",
+          "type": "bool",
+          "location": "query",
+          "description": "Set this to avoid retrieving pinned data"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "The maximum number of items to return."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Paginate by setting the cursor parameter to the nextCursor attribute returned by the..."
+        }
+      ]
+    },
+    {
+      "name": "workflows_update",
+      "description": "Update a workflow. If the workflow is published, the updated version will be automatically re-published. Required: id, connections, name, nodes, settings. Optional: active, activeVersion, createdAt (plus 10 more). Returns the updated Workflow.",
+      "method": "PUT",
+      "path": "/workflows/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active"
+        },
+        {
+          "name": "activeVersion",
+          "type": "object",
+          "location": "body",
+          "description": "Active version"
+        },
+        {
+          "name": "connections",
+          "type": "object",
+          "location": "body",
+          "description": "Connections",
+          "required": true
+        },
+        {
+          "name": "createdAt",
+          "type": "string",
+          "location": "body",
+          "description": "Created at"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the workflow"
+        },
+        {
+          "name": "isArchived",
+          "type": "bool",
+          "location": "body",
+          "description": "Is archived"
+        },
+        {
+          "name": "meta",
+          "type": "object",
+          "location": "body",
+          "description": "Workflow metadata such as template information"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "nodes",
+          "type": "array",
+          "location": "body",
+          "description": "Nodes",
+          "required": true
+        },
+        {
+          "name": "pinData",
+          "type": "object",
+          "location": "body",
+          "description": "Pinned sample data for nodes, keyed by node name"
+        },
+        {
+          "name": "settings",
+          "type": "object",
+          "location": "body",
+          "description": "Settings",
+          "required": true
+        },
+        {
+          "name": "shared",
+          "type": "array",
+          "location": "body",
+          "description": "Shared"
+        },
+        {
+          "name": "staticData",
+          "type": "string",
+          "location": "body",
+          "description": "Static data"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "triggerCount",
+          "type": "int",
+          "location": "body",
+          "description": "Number of active trigger nodes in the workflow"
+        },
+        {
+          "name": "updatedAt",
+          "type": "string",
+          "location": "body",
+          "description": "Updated at"
+        },
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "body",
+          "description": "Current version identifier used for optimistic locking"
+        }
+      ]
+    },
+    {
+      "name": "workflows_activate_create",
+      "description": "Publish a workflow. In n8n v1, this action was termed activating a workflow. Required: id. Optional: description, name, versionId. Returns the new Workflow.",
+      "method": "POST",
+      "path": "/workflows/{id}/activate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional description for the workflow version during activation."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional name for the workflow version during activation."
+        },
+        {
+          "name": "versionId",
+          "type": "string",
+          "location": "body",
+          "description": "The specific version ID to activate or publish. If not provided, the latest version is used."
+        }
+      ]
+    },
+    {
+      "name": "workflows_archive_create",
+      "description": "Soft-deletes a workflow by archiving it. Idempotent: archiving an already archived workflow returns 200 with the current workflow. Requires API key scope `workflow:delete`. Required: id.",
+      "method": "POST",
+      "path": "/workflows/{id}/archive",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_deactivate_create",
+      "description": "Deactivate a workflow. Required: id. Returns the new Workflow.",
+      "method": "POST",
+      "path": "/workflows/{id}/deactivate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_tags_get",
+      "description": "Get workflow tags. Required: id. Returns array of Tag.",
+      "method": "GET",
+      "path": "/workflows/{id}/tags",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_tags_update",
+      "description": "Update tags of a workflow. Required: id. Returns array of Tag.",
+      "method": "PUT",
+      "path": "/workflows/{id}/tags",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_transfer_update",
+      "description": "Transfer a workflow to another project. Required: id, destinationProjectId.",
+      "method": "PUT",
+      "path": "/workflows/{id}/transfer",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        },
+        {
+          "name": "destinationProjectId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the project to transfer the workflow to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workflows_unarchive_create",
+      "description": "Restores an archived workflow. Requires API key scope `workflow:delete`. Required: id. Returns the new Workflow.",
+      "method": "POST",
+      "path": "/workflows/{id}/unarchive",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the workflow.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

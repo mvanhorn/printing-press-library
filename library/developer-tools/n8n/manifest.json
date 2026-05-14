@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "n8n-public-pp-mcp",
+  "display_name": "N8n Public",
+  "version": "4.6.1",
+  "description": "N8n Public API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/n8n-public-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/n8n-public-pp-mcp",
+      "args": [],
+      "env": {
+        "N8N_PUBLIC_BEARER_AUTH": "${user_config.n8n_public_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "n8n_public_bearer_auth": {
+      "type": "string",
+      "title": "N8N_PUBLIC_BEARER_AUTH",
+      "description": "Sets N8N_PUBLIC_BEARER_AUTH for the N8n Public MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

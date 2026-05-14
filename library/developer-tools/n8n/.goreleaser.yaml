@@ -1,0 +1,51 @@
+version: 2
+project_name: n8n-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: n8n-pp-cli
+    main: ./cmd/n8n-pp-cli
+    binary: n8n-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/n8n/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: n8n-pp-mcp
+    main: ./cmd/n8n-pp-mcp
+    binary: n8n-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: n8n-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every n8n feature from the terminal — workflow management, execution triage, GitOps sync, multi-instance health,..."
+    install: |
+      bin.install "n8n-pp-cli"
+      bin.install "n8n-pp-mcp"

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T09:18:00.368247Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "n8n",
+  "display_name": "n8n",
+  "cli_name": "n8n-pp-cli",
+  "owner": "gdompey",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b7474d9aff78c742a16130e5ee0f3a15aa4075085e2b1e8bca43093d95b3d8ce",
+  "run_id": "20260514-092815",
+  "mcp_binary": "n8n-public-pp-mcp",
+  "mcp_tool_count": 78,
+  "mcp_ready": "full",
+  "api_version": "1.1.1",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "N8N_PUBLIC_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-Instance Workflow Diff",
+      "command": "diff",
+      "description": "Diff workflow inventories between two n8n instances \u2014 missing, active mismatches, name changes."
+    },
+    {
+      "name": "Instance Health Compare",
+      "command": "health compare",
+      "description": "Side-by-side workflow counts and reachability for two n8n instances."
+    },
+    {
+      "name": "Stale Workflow Detection",
+      "command": "workflows stale",
+      "description": "List workflows not updated within N days \u2014 find dormant automations before they become liabilities. Requires a local sync first: `n8n-pp-cli sync`."
+    },
+    {
+      "name": "Credential Reference Audit",
+      "command": "credentials audit",
+      "description": "Cross-reference every credential with the workflows using it \u2014 find unused and high-impact credentials. Requires a local sync first: `n8n-pp-cli sync`."
+    },
+    {
+      "name": "Node Type Inventory",
+      "command": "workflows node-inventory",
+      "description": "Count every n8n node type across all workflows \u2014 map your automation footprint and audit community node dependencies. Requires a local sync first: `n8n-pp-cli sync`."
+    },
+    {
+      "name": "Workflow Dependency Map",
+      "command": "workflows deps",
+      "description": "Map execution chains via executeWorkflow nodes \u2014 see what calls what and who would break if a workflow is deleted. Requires a local sync first: `n8n-pp-cli sync`."
+    },
+    {
+      "name": "Execution CI Gate",
+      "command": "executions wait",
+      "description": "Poll an execution until it reaches a terminal state \u2014 blocks CI/CD pipelines on real n8n workflow results."
+    },
+    {
+      "name": "Runaway Trigger Detection",
+      "command": "executions rate-check",
+      "description": "Flag workflows executing above a per-minute threshold \u2014 catch infinite loops and webhook storms before they degrade instance health. Requires a local sync first: `n8n-pp-cli sync`."
+    },
+    {
+      "name": "Variable Drift Detection",
+      "command": "variables diff",
+      "description": "Compare environment variables between two n8n instances \u2014 find missing keys or value mismatches before deployment."
+    },
+    {
+      "name": "Bulk Workflow Management",
+      "command": "workflows bulk",
+      "description": "Activate, deactivate, or archive multiple workflows at once filtered by tag or name \u2014 hours of clicking replaced by one command."
+    },
+    {
+      "name": "Execution History Export",
+      "command": "executions export",
+      "description": "Export structured execution history filtered by workflow, status, and time window for audit logs and analytics pipelines. Requires a local sync first: `n8n-pp-cli sync`."
+    }
+  ],
+  "printer": "gdompey",
+  "printer_name": "Gabriel Dompey",
+  "owner_name": "Gabriel Dompey",
+  "category": "developer-tools"
+}
