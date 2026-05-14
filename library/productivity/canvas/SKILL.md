@@ -86,7 +86,7 @@ These capabilities aren't available in any other tool for this API.
   _Use when an agent or student needs to know if passing a course is still possible before committing to remaining work._
 
   ```bash
-  canvas-pp-cli impact CS3398 --agent
+  canvas-pp-cli impact --course 12345 --agent
   ```
 - **`drift`** — Tracks your grade trajectory across syncs and flags courses where your score has dropped since last check.
 
@@ -107,7 +107,7 @@ These capabilities aren't available in any other tool for this API.
   _Use when an agent needs to identify what prerequisite work a student is missing before an assignment is due._
 
   ```bash
-  canvas-pp-cli gaps CS3398 --agent
+  canvas-pp-cli gaps --course 12345 --agent
   ```
 
 ### Pattern intelligence
@@ -116,7 +116,7 @@ These capabilities aren't available in any other tool for this API.
   _Use when an agent needs to decide whether to submit late or skip — answered from actual historical data._
 
   ```bash
-  canvas-pp-cli late-window CS3398 --agent
+  canvas-pp-cli late-window --course 12345 --agent
   ```
 - **`forecast`** — Shows a per-day workload bar chart for the next N weeks across all courses, weighted by submission type effort.
 
