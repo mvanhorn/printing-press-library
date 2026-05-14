@@ -93,7 +93,6 @@ jobs:
                     nudged=1
                   else
                     echo "::warning::Could not post @greptileai review nudge; continuing to wait for Greptile Review."
-                    nudged=1
                   fi
                 fi
               fi
