@@ -1,7 +1,18 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-14",
   "base_run_id": "20260411-210148",
   "base_printing_press_version": "1.3.2",
-  "patches": []
+  "patches": [
+    {
+      "id": "fix-fundamentals-dry-run-url-506",
+      "summary": "Render the dry-run URL via url.Values so every query param after the first is joined with `&` instead of `?`.",
+      "reason": "Reported in #506. dryRunWithCrumb printed each param on its own line prefixed with `?`, so `--dry-run` output looked like the live URL was malformed (e.g. `...?type=...?period1=...?crumb=...`). The actual HTTP path always used net/http's q.Encode() and was fine; only the preview was misleading. Building the preview through url.Values matches what the real request sends and removes the false signal.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "Dry-run preview for `fundamentals NVDA --period1 ... --type ...` now prints a single line `GET https://...?type=...&period1=...&crumb=...`. New TestDryRunURLJoinsParamsWithAmpersand asserts the preview never produces a second `?` prefix in the query string."
+    }
+  ]
 }
