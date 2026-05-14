@@ -39,6 +39,36 @@ canvas-pp-cli sync populates your entire Canvas LMS state locally and exposes ev
 
 Use canvas-pp-cli when an agent needs to read or act on Canvas LMS data — checking deadlines, retrieving assignment details, submitting work, or running grade analysis across multiple courses. It is especially useful when the task requires combining data across courses (pressure, forecast, drift) or when offline/fast access to already-synced course data is needed. Do not use for New Quizzes (v2 engine) submissions, which require the LTI interface.
 
+## MCP Fallback for Concluded / Access-Restricted Courses
+
+Canvas restricts API access to courses after the term ends (HTTP 401 / `access_restricted_by_date`). The CLI cannot read these courses directly. **When a CLI command returns 401 or access-restricted for a course, automatically fall back to the Canvas MCP tools** for that operation.
+
+### Fallback rules
+
+| CLI exits with | Action |
+|---|---|
+| 401 or `access_restricted_by_date` | Re-run via `mcp__canvas__*` equivalent |
+| 403 (permission) | Re-run via MCP if a matching tool exists |
+| Any other error | Fail normally — MCP won't help |
+
+### CLI → MCP equivalents for read operations
+
+| CLI command | MCP fallback |
+|---|---|
+| `courses list-your` | `mcp__canvas__list_courses(include_concluded=true)` |
+| `courses get-single <id>` | `mcp__canvas__get_course_details(course_identifier=<id>)` |
+| `courses assignments list <id>` | `mcp__canvas__list_assignments(course_identifier=<id>)` |
+| `courses submissions list <id> <aid>` | `mcp__canvas__get_my_submission_status(course_identifier=<id>)` |
+| grade check | `mcp__canvas__get_my_course_grades()` |
+| announcements | `mcp__canvas__list_announcements(context_codes=[...])` |
+
+### What MCP cannot do (CLI only)
+
+- `pressure`, `impact`, `drift`, `going-dark`, `forecast`, `heads-up`, `gaps` — local SQLite cross-course analytics, no MCP equivalent
+- Offline / post-sync queries
+- File downloads, assignment submissions
+
+
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
@@ -49,35 +79,35 @@ These capabilities aren't available in any other tool for this API.
   _Use when an agent needs to prioritize which assignment to work on next across multiple active courses._
 
   ```bash
-  canvas-lms-pp-cli pressure --days 14 --agent
+  canvas-pp-cli pressure --days 14 --agent
   ```
 - **`impact`** — Shows the max and min final grade still achievable in a course given your remaining unsubmitted work.
 
   _Use when an agent or student needs to know if passing a course is still possible before committing to remaining work._
 
   ```bash
-  canvas-lms-pp-cli impact CS3398 --agent
+  canvas-pp-cli impact CS3398 --agent
   ```
 - **`drift`** — Tracks your grade trajectory across syncs and flags courses where your score has dropped since last check.
 
   _Use when an agent monitors academic performance over time and needs to alert on declining grades._
 
   ```bash
-  canvas-lms-pp-cli drift --json --agent
+  canvas-pp-cli drift --json --agent
   ```
 - **`going-dark`** — Flags courses with unread announcements, no recent module completions, and upcoming deadlines — courses slipping off your radar.
 
   _Use when an agent monitors for courses a student has stopped engaging with before a deadline hits._
 
   ```bash
-  canvas-lms-pp-cli going-dark --agent
+  canvas-pp-cli going-dark --agent
   ```
 - **`gaps`** — Shows module completion ratio and flags incomplete items that block downstream graded assignments.
 
   _Use when an agent needs to identify what prerequisite work a student is missing before an assignment is due._
 
   ```bash
-  canvas-lms-pp-cli gaps CS3398 --agent
+  canvas-pp-cli gaps CS3398 --agent
   ```
 
 ### Pattern intelligence
@@ -86,21 +116,21 @@ These capabilities aren't available in any other tool for this API.
   _Use when an agent needs to decide whether to submit late or skip — answered from actual historical data._
 
   ```bash
-  canvas-lms-pp-cli late-window CS3398 --agent
+  canvas-pp-cli late-window CS3398 --agent
   ```
 - **`forecast`** — Shows a per-day workload bar chart for the next N weeks across all courses, weighted by submission type effort.
 
   _Use when an agent plans a student's schedule and needs to avoid overloading any single day._
 
   ```bash
-  canvas-lms-pp-cli forecast --weeks 2 --agent --select day,load_score,assignments
+  canvas-pp-cli forecast --weeks 2 --agent --select day,load_score,assignments
   ```
 - **`heads-up`** — Surfaces announcements posted within 72 hours of a due date for assignments you have not yet submitted.
 
   _Use when an agent checks for last-minute instructor guidance before a submission deadline._
 
   ```bash
-  canvas-lms-pp-cli heads-up --agent
+  canvas-pp-cli heads-up --agent
   ```
 
 ## Command Reference
