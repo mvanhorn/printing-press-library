@@ -1496,12 +1496,34 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
+//
+// PATCH(theloft sl-cli): the domain-table query must interpolate the table
+// name as a SQL identifier (parameter binding doesn't bind table names), so
+// resourceType is validated against a hardcoded allowlist of generator-known
+// domain tables before interpolation. Anything not in the allowlist falls
+// through to the parameterized resources-table query and never touches the
+// formatted SQL string, eliminating the injection vector even if a future
+// caller passes user-supplied input.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
-	if err != nil {
-		// Fall back to generic resources table
+	// Allowlist of domain tables emitted by Printing Press for this CLI.
+	// Keep in sync with CREATE TABLE migrations above.
+	domainTables := map[string]bool{
+		"affiliate": true,
+		"merchant":  true,
+	}
+	var rows *sql.Rows
+	var err error
+	if domainTables[resourceType] {
+		query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+		rows, err = s.db.Query(query)
+		if err != nil {
+			// Fall back to generic resources table on schema mismatch.
+			rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
 		if err != nil {
 			return nil, err

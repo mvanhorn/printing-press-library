@@ -129,9 +129,15 @@ func (c *Client) readCache(path string, params map[string]string) (json.RawMessa
 }
 
 func (c *Client) writeCache(path string, params map[string]string, data json.RawMessage) {
-	os.MkdirAll(c.cacheDir, 0o755)
+	// PATCH(theloft sl-cli): cache files can contain merchant configs,
+	// conversion records, and balance data — match config-file perms
+	// (0o600 file / 0o700 dir) so other local users on shared systems
+	// can't read cached commerce data. Existing cache files keep their
+	// old perms until the next write; users wanting the tighter mode on
+	// pre-existing files can `chmod -R go-rwx ~/.cache/syndicate-links-pp-cli`.
+	os.MkdirAll(c.cacheDir, 0o700)
 	cacheFile := filepath.Join(c.cacheDir, c.cacheKey(path, params)+".json")
-	os.WriteFile(cacheFile, []byte(data), 0o644)
+	os.WriteFile(cacheFile, []byte(data), 0o600)
 }
 
 // invalidateCache wholesale-removes the cache directory so the next read

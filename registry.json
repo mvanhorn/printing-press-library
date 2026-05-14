@@ -755,37 +755,6 @@
       "printer_name": "Matt Van Horn"
     },
     {
-      "name": "jimmy-johns",
-      "category": "food-and-dining",
-      "api": "Jimmy John's",
-      "description": "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed.",
-      "path": "library/food-and-dining/jimmy-johns",
-      "printer": "omarshahine",
-      "printer_name": "Omar Shahine",
-      "mcp": {
-        "binary": "jimmy-johns-pp-mcp",
-        "transports": [
-          "stdio",
-          "http"
-        ],
-        "tool_count": 16,
-        "public_tool_count": 8,
-        "auth_type": "cookie",
-        "env_vars": [],
-        "mcp_ready": "partial",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "jira",
-      "category": "project-management",
-      "api": "jira",
-      "description": "Jira Cloud platform REST API documentation",
-      "path": "library/project-management/jira",
-      "printer": "neektza",
-      "printer_name": "Nikica Jokic"
-    },
-    {
       "name": "kalshi",
       "category": "payments",
       "api": "Kalshi",
@@ -1509,50 +1478,6 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
-      }
-    },
-    {
-      "name": "techmeme",
-      "category": "productivity",
-      "api": "Techmeme",
-      "description": "Tech news aggregation and curation. No official API exists. This spec describes the RSS, OPML, search, and HTML surfaces available for programmatic access. No authentication required.",
-      "path": "library/productivity/techmeme",
-      "printer": "davemorin",
-      "printer_name": "Dave Morin",
-      "mcp": {
-        "binary": "techmeme-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 5,
-        "public_tool_count": 5,
-        "auth_type": "none",
-        "env_vars": [],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
-      }
-    },
-    {
-      "name": "ticketmaster",
-      "category": "media-and-entertainment",
-      "api": "Ticketmaster",
-      "description": "Every Discovery v2 endpoint plus offline search, multi-venue watchlists, residency dedup, and on-sale tracking no...",
-      "path": "library/media-and-entertainment/ticketmaster",
-      "printer": "omarshahine",
-      "printer_name": "Omar Shahine",
-      "mcp": {
-        "binary": "ticketmaster-pp-mcp",
-        "transports": [
-          "stdio"
-        ],
-        "tool_count": 13,
-        "public_tool_count": 0,
-        "auth_type": "api_key",
-        "env_vars": [
-          "TICKETMASTER_API_KEY"
-        ],
-        "mcp_ready": "full",
-        "spec_format": "openapi3"
       }
     },
     {

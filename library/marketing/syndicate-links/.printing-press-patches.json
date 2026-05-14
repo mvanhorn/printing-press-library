@@ -26,6 +26,27 @@
         ".printing-press.json"
       ],
       "validated_outcome": "go build ./... succeeds; CLI works against live API."
+    },
+    {
+      "id": "auth-source-preserve-in-authheader",
+      "summary": "Stop AuthHeader() from overwriting AuthSource that Load() set authoritatively; only fill it when empty.",
+      "reason": "Load() correctly distinguishes env:SL_API_KEY from env:SYNDICATE_LINKS_BEARER_AUTH and from config-file credentials, but AuthHeader() then unconditionally clobbered the label with env:SYNDICATE_LINKS_BEARER_AUTH on every call. doctor and auth status reported the wrong credential source for SL_API_KEY users. Fix preserves the Load()-set label and only fills AuthSource when it was empty (bypass-Load callers).",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go test ./internal/cli ./internal/cliutil ./internal/store pass; the doctor/auth-status JSON now mirrors which env var actually supplied the key."
+    },
+    {
+      "id": "cache-perms-tighten",
+      "summary": "Tighten ~/.cache/syndicate-links-pp-cli/ to 0o700 dir / 0o600 files to match the config-file perm convention.",
+      "reason": "HTTP response cache files contain merchant program configs, conversion records, and balance data. They were written 0o644 in a 0o755 dir, world-readable on shared systems. Match the 0o600 config-file convention so cached commerce data is not exposed to other local users. Pre-existing files keep their old perms until next write; users wanting an immediate fix can `chmod -R go-rwx ~/.cache/syndicate-links-pp-cli`.",
+      "files": ["internal/client/client.go"],
+      "validated_outcome": "go build ./... clean; cache test suite passes; manual smoke confirms new cache files land 0o600 in a 0o700 dir."
+    },
+    {
+      "id": "listids-sql-allowlist",
+      "summary": "Validate ListIDs() resourceType against a hardcoded allowlist of domain tables before SQL interpolation; everything else routes to the parameterized resources-table fallback.",
+      "reason": "ListIDs() interpolated resourceType straight into `SELECT id FROM %s` via fmt.Sprintf. Parameter binding doesn't work for table names, so for the domain-table path we validate the name against a known-good set (affiliate, merchant) before formatting. Anything outside the allowlist falls through to the already-parameterized `SELECT id FROM resources WHERE resource_type = ?` and never touches the formatted string. No actual exploit path today (call sites pass hardcoded values), but closes the pattern.",
+      "files": ["internal/store/store.go"],
+      "validated_outcome": "go test ./internal/store passes; domain-table reads of affiliate and merchant still work; arbitrary resource types correctly fall through to the parameterized fallback."
     }
   ]
 }

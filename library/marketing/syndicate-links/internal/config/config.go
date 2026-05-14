@@ -93,12 +93,21 @@ func (c *Config) AuthHeader() string {
 		return c.AuthHeaderVal
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
+	// PATCH(theloft sl-cli): AuthSource is set authoritatively in Load() — it
+	// knows which env var actually supplied the credential (SL_API_KEY vs
+	// SYNDICATE_LINKS_BEARER_AUTH vs config file). Do NOT overwrite it here;
+	// only fill it in when Load() left it blank (e.g. the field was populated
+	// by a caller bypassing Load).
 	if c.SyndicateLinksBearerAuth != "" {
-		c.AuthSource = "env:SYNDICATE_LINKS_BEARER_AUTH"
+		if c.AuthSource == "" {
+			c.AuthSource = "env:SYNDICATE_LINKS_BEARER_AUTH"
+		}
 		return "Bearer " + c.SyndicateLinksBearerAuth
 	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
+		if c.AuthSource == "" {
+			c.AuthSource = "oauth2"
+		}
 		return "Bearer " + c.AccessToken
 	}
 	return ""

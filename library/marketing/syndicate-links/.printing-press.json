@@ -6,6 +6,7 @@
   "display_name": "Syndicate Links",
   "cli_name": "syndicate-links-pp-cli",
   "owner": "syndicate-links",
+  "printer": "cmcgrabby-hue",
   "printer_name": "cmcgrabby-hue",
   "spec_path": "sl-openapi.json",
   "spec_format": "openapi3",
