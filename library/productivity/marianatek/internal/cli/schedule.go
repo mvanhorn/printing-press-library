@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -240,17 +241,21 @@ func matchesLiveFilters(r map[string]any, f scheduleFilters) bool {
 }
 
 // sortByStart performs a stable in-place sort over the live fan-out results.
-// Small-N (<200) so the cost of a simple sort is negligible vs the network IO.
 func sortByStart(rows []map[string]any) {
-	for i := 0; i < len(rows); i++ {
-		for j := i + 1; j < len(rows); j++ {
-			a := stringAttr(rows[i], "start_datetime", "start_date")
-			b := stringAttr(rows[j], "start_datetime", "start_date")
-			if a > b {
-				rows[i], rows[j] = rows[j], rows[i]
-			}
+	sort.SliceStable(rows, func(i, j int) bool {
+		a := parseStart(rows[i])
+		b := parseStart(rows[j])
+		switch {
+		case !a.IsZero() && !b.IsZero():
+			return a.Before(b)
+		case !a.IsZero():
+			return true
+		case !b.IsZero():
+			return false
+		default:
+			return stringAttr(rows[i], "start_datetime", "start_date") < stringAttr(rows[j], "start_datetime", "start_date")
 		}
-	}
+	})
 }
 
 func filterClasses(rows []json.RawMessage, f scheduleFilters) []json.RawMessage {

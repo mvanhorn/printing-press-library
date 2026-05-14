@@ -191,10 +191,9 @@ func parseICSDate(line string) time.Time {
 	loc := time.UTC
 	if tzid := icsParam(prop, "TZID"); tzid != "" {
 		loaded, err := time.LoadLocation(tzid)
-		if err != nil {
-			return time.Time{}
+		if err == nil {
+			loc = loaded
 		}
-		loc = loaded
 	}
 	for _, layout := range []string{"20060102T150405", "20060102"} {
 		if t, err := time.ParseInLocation(layout, val, loc); err == nil {

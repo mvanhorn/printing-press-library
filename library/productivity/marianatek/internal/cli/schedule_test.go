@@ -58,3 +58,16 @@ func TestScheduleAcrossTenantsFollowsPagination(t *testing.T) {
 		t.Fatalf("after cursors = %s, want %s", got, want)
 	}
 }
+
+func TestSortByStartUsesAbsoluteTime(t *testing.T) {
+	rows := []map[string]any{
+		{"id": "later", "start_datetime": "2026-05-15T07:00:00-05:00"},
+		{"id": "earlier", "start_datetime": "2026-05-15T09:00:00+05:30"},
+	}
+
+	sortByStart(rows)
+
+	if got, want := rows[0]["id"], "earlier"; got != want {
+		t.Fatalf("first row id = %v, want %s", got, want)
+	}
+}
