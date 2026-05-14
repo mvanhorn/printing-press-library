@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -57,12 +56,13 @@ func newBudgetsBurnCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("budgets burn: %w", err)
 			}
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			fmt.Println("Category ID\tCategory Name\tTarget\tSpent\tDays Remaining\tProjected End Spend\tOver/Under")
+			fmt.Fprintln(w, "Category ID\tCategory Name\tTarget\tSpent\tDays Remaining\tProjected End Spend\tOver/Under")
 			for _, r := range results {
-				fmt.Printf("%s\t%s\t%.2f\t%.2f\t%d\t%.2f\t%s\n",
+				fmt.Fprintf(w, "%s\t%s\t%.2f\t%.2f\t%d\t%.2f\t%s\n",
 					r.CategoryID, r.CategoryName, r.Target, r.Spent, r.DaysRemaining, r.ProjectedEndSpend, r.OverUnderFlag)
 			}
 			return nil

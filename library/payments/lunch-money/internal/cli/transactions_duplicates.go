@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 	"sort"
 	"strings"
 
@@ -60,13 +59,14 @@ func newTransactionsDuplicatesCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("transactions duplicates: %w", err)
 			}
 			results := buildDuplicateClusters(txs, windowDays, tolerance, minClusterSize)
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			fmt.Println("Cluster ID\tCluster Size\tTransaction ID\tPayee\tAmount\tDate")
+			fmt.Fprintln(w, "Cluster ID\tCluster Size\tTransaction ID\tPayee\tAmount\tDate")
 			for _, cluster := range results {
 				for _, tx := range cluster.Transactions {
-					fmt.Printf("%s\t%d\t%s\t%s\t%.2f\t%s\n",
+					fmt.Fprintf(w, "%s\t%d\t%s\t%s\t%.2f\t%s\n",
 						cluster.ClusterID, cluster.ClusterSize, tx.ID, tx.Payee, tx.Amount, tx.Date)
 				}
 			}

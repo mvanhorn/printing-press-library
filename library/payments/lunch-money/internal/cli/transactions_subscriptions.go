@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -55,12 +54,13 @@ func newTransactionsSubscriptionsCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("transactions subscriptions: %w", err)
 			}
 			results := buildSubscriptionResults(txs, minOccurrences, suspectedOnly)
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			fmt.Println("Payee\tOccurrences\tAvg Amount\tCadence\tLast Seen\tAmount Stddev Pct")
+			fmt.Fprintln(w, "Payee\tOccurrences\tAvg Amount\tCadence\tLast Seen\tAmount Stddev Pct")
 			for _, r := range results {
-				fmt.Printf("%s\t%d\t%.2f\t%s\t%s\t%.4f\n",
+				fmt.Fprintf(w, "%s\t%d\t%.2f\t%s\t%s\t%.4f\n",
 					r.PayeeNormalized, r.Occurrences, r.AvgAmount, r.Cadence, r.LastSeen, r.AmountStddevPct)
 			}
 			return nil

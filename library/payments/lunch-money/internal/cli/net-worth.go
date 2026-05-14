@@ -7,7 +7,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"time"
@@ -86,14 +85,15 @@ func newNetWorthOnCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("net-worth on: %w", err)
 			}
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(result)
+				return json.NewEncoder(w).Encode(result)
 			}
-			fmt.Printf("As Of Date\tTotal\n%s\t%.2f\n\n", result.AsOfDate, result.Total)
-			fmt.Println("Account Type\tAccount ID\tName\tBalance\tCurrency\tSource")
+			fmt.Fprintf(w, "As Of Date\tTotal\n%s\t%.2f\n\n", result.AsOfDate, result.Total)
+			fmt.Fprintln(w, "Account Type\tAccount ID\tName\tBalance\tCurrency\tSource")
 			for _, group := range result.ByAccountType {
 				for _, acct := range group.Accounts {
-					fmt.Printf("%s\t%s\t%s\t%.2f\t%s\t%s\n",
+					fmt.Fprintf(w, "%s\t%s\t%s\t%.2f\t%s\t%s\n",
 						group.AccountType, acct.ID, acct.Name, acct.Balance, acct.Currency, acct.Source)
 				}
 			}

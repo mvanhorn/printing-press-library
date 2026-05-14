@@ -5,6 +5,7 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"strings"
@@ -113,13 +114,13 @@ func capChangedItems(items []changedItem, limit int) []changedItem {
 	return items
 }
 
-func printChangedTable(items []changedItem) {
-	fmt.Println("TYPE\tID\tNAME/PAYEE\tAMOUNT\tUPDATED_AT\tCHANGE")
+func printChangedTable(w io.Writer, items []changedItem) {
+	fmt.Fprintln(w, "TYPE\tID\tNAME/PAYEE\tAMOUNT\tUPDATED_AT\tCHANGE")
 	for _, item := range items {
 		amount := ""
 		if item.Amount != nil {
 			amount = strconv.FormatFloat(*item.Amount, 'f', 2, 64)
 		}
-		fmt.Printf("%s\t%s\t%s\t%s\t%s\t%s\n", item.ResourceType, item.ID, item.NameOrPayee, amount, item.UpdatedAt, item.ChangeType)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", item.ResourceType, item.ID, item.NameOrPayee, amount, item.UpdatedAt, item.ChangeType)
 	}
 }

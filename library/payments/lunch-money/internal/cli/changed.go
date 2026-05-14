@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"os"
 	"regexp"
 	"slices"
 	"strconv"
@@ -69,10 +68,11 @@ func newChangedCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("changed: %w", err)
 			}
 			sortChangedItems(results)
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			printChangedTable(results)
+			printChangedTable(w, results)
 			return nil
 		},
 	}

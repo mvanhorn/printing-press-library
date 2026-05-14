@@ -7,14 +7,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/payments/lunch-money/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // PATCH: Add local account audit parent for generated CLI transcendence commands.
@@ -70,12 +69,13 @@ func newAccountsStaleCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("accounts stale: %w", err)
 			}
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			fmt.Println("Account Type\tAccount ID\tAccount Name\tLast Updated\tDays Stale\tSuggested Command")
+			fmt.Fprintln(w, "Account Type\tAccount ID\tAccount Name\tLast Updated\tDays Stale\tSuggested Command")
 			for _, r := range results {
-				fmt.Printf("%s\t%s\t%s\t%s\t%d\t%s\n",
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%d\t%s\n",
 					r.AccountType, r.AccountID, r.AccountName, r.LastUpdated, r.DaysStale, r.SuggestedCommand)
 			}
 			return nil

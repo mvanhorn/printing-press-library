@@ -4,10 +4,12 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"math"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -110,6 +112,43 @@ func TestQueryChangedTransactionsFindsSpaceSeparatedUpdatedAt(t *testing.T) {
 	}
 	if changed[0].ID != "recent" {
 		t.Fatalf("changed[0].ID = %q, want recent", changed[0].ID)
+	}
+}
+
+func TestChangedCommandWritesToCommandOutput(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer db.Close()
+
+	if _, _, err := db.UpsertBatch("transactions", []json.RawMessage{
+		json.RawMessage(`{"id":"recent","payee":"Recent Charge","amount":"20.00","created_at":"2026-05-13T10:00:00Z","updated_at":"2026-05-13T10:00:00Z"}`),
+	}); err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+
+	flags := &rootFlags{asJSON: true}
+	cmd := newChangedCmd(flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetContext(context.Background())
+	if err := cmd.Flags().Set("since", "2026-05-01"); err != nil {
+		t.Fatalf("set since: %v", err)
+	}
+	if err := cmd.Flags().Set("types", "transactions"); err != nil {
+		t.Fatalf("set types: %v", err)
+	}
+	if err := cmd.Flags().Set("db", dbPath); err != nil {
+		t.Fatalf("set db: %v", err)
+	}
+
+	if err := cmd.RunE(cmd, nil); err != nil {
+		t.Fatalf("RunE: %v", err)
+	}
+	if !strings.Contains(out.String(), `"id":"recent"`) {
+		t.Fatalf("command output = %q, want JSON result in command output writer", out.String())
 	}
 }
 

@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 	"strings"
 	"time"
 
@@ -55,12 +54,13 @@ func newRecurringMissingCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("recurring missing: %w", err)
 			}
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			fmt.Println("Recurring ID\tPayee\tExpected Amount\tExpected Date\tCurrency\tLast Seen Transaction Date")
+			fmt.Fprintln(w, "Recurring ID\tPayee\tExpected Amount\tExpected Date\tCurrency\tLast Seen Transaction Date")
 			for _, r := range results {
-				fmt.Printf("%s\t%s\t%.2f\t%s\t%s\t%s\n",
+				fmt.Fprintf(w, "%s\t%s\t%.2f\t%s\t%s\t%s\n",
 					r.RecurringID, r.Payee, r.ExpectedAmount, r.ExpectedDate, r.Currency, r.LastSeenTransactionDate)
 			}
 			return nil

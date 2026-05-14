@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 
@@ -58,12 +57,13 @@ func newTriageCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			results := buildTriageResults(txs, categoryNames, limit)
+			w := cmd.OutOrStdout()
 			if flags.asJSON {
-				return json.NewEncoder(os.Stdout).Encode(results)
+				return json.NewEncoder(w).Encode(results)
 			}
-			fmt.Println("ID\tPayee\tAmount\tDate\tCurrent Category\tSuggested Category\tSuggested Name\tConfidence")
+			fmt.Fprintln(w, "ID\tPayee\tAmount\tDate\tCurrent Category\tSuggested Category\tSuggested Name\tConfidence")
 			for _, r := range results {
-				fmt.Printf("%s\t%s\t%.2f\t%s\t%s\t%s\t%s\t%.2f\n",
+				fmt.Fprintf(w, "%s\t%s\t%.2f\t%s\t%s\t%s\t%s\t%.2f\n",
 					r.ID, r.Payee, r.Amount, r.Date, r.CurrentCategoryID,
 					r.SuggestedCategoryID, r.SuggestedCategoryName, r.Confidence)
 			}
