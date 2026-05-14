@@ -849,12 +849,18 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
+	// PATCH (fix-sync-views-requires-scope-334): `views` is intentionally
+	// excluded. Notion's GET /v1/views rejects any unscoped call with HTTP 400
+	// "At least one of database_id or data_source_id must be provided." Notion
+	// also exposes no global GET /v1/databases or GET /v1/data_sources listing
+	// endpoint, so there is no parent-table enumeration path in the local
+	// store today. Populate views per data source via:
+	//   notion-pp-cli views list --data-source-id <id>
 	return []string{
 		"comments",
 		"custom-emojis",
 		"file-uploads",
 		"users",
-		"views",
 	}
 }
 
