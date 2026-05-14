@@ -710,6 +710,7 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
+// PATCH: listids-sql-injection — validate resourceType via sqlite_master before interpolating into table-name position.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	// Validate resourceType is a real table before interpolating it into a query.
 	var tableExists int
@@ -795,6 +796,7 @@ func (s *Store) Status() (map[string]int, error) {
 	return status, rows.Err()
 }
 
+// PATCH: resolvebyname-field-injection — validate matchFields entries against ^[a-zA-Z0-9_]+$ before interpolating into json_extract path.
 var validJSONFieldRe = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
 // ResolveByName resolves a human-readable name to a UUID from synced data.

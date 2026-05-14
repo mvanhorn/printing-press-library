@@ -98,6 +98,7 @@ func (c *Client) ProbeGet(path string) (int, error) {
 	return status, err
 }
 
+// PATCH: sort-cache-key-params — sort map keys before hashing so cache key is deterministic for multi-param requests.
 func (c *Client) cacheKey(path string, params map[string]string) string {
 	keys := make([]string, 0, len(params))
 	for k := range params {
