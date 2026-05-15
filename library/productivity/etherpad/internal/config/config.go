@@ -159,10 +159,25 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
+// PATCH(no-env-bleed-on-save): `auth logout` and any other code path that
+// calls save() previously leaked env-var-loaded credentials to disk —
+// Load() copies $ETHERPAD_OPENID into c.EtherpadOpenid, then toml.Marshal
+// writes the whole struct, persisting the env token under `openid` in
+// ~/.config/etherpad-pp-cli/config.toml. After the user unsets the env
+// var, the next load reads the persisted token from the file and
+// AuthHeader() keeps returning "Bearer <token>" — auth survives
+// "logout" for env-derived credentials. ClearTokens() also wipes the
+// in-memory env-loaded fields so the running process honours the
+// logout for the rest of its lifetime, not just the next start.
+// See .printing-press-patches.json patches[5] (Greptile P1).
 func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.EtherpadOpenid = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 
@@ -171,9 +186,26 @@ func (c *Config) save() error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
-	data, err := toml.Marshal(c)
-	if err != nil {
-		return fmt.Errorf("marshaling config: %w", err)
+
+	// Snapshot + zero env-derived fields so they don't get marshaled to
+	// disk. AuthSource is the durable signal of where each field came
+	// from (set in Load() and not persisted via TOML tag `-`); restoring
+	// the snapshot after marshal keeps the running process's in-memory
+	// state intact for subsequent AuthHeader() calls in the same run.
+	envOpenid := ""
+	if c.AuthSource == "env:ETHERPAD_OPENID" {
+		envOpenid = c.EtherpadOpenid
+		c.EtherpadOpenid = ""
+	}
+
+	data, marshalErr := toml.Marshal(c)
+
+	if envOpenid != "" {
+		c.EtherpadOpenid = envOpenid
+	}
+
+	if marshalErr != nil {
+		return fmt.Errorf("marshaling config: %w", marshalErr)
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
