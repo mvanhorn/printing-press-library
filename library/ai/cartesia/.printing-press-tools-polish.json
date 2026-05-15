@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-14T05:41:09.097241Z",
+  "cli_dir": "\u003ccli-dir\u003e/cartesia-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-14T05:36:17.241167Z"
+  }
+}

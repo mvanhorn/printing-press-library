@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T05:43:00.107338Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "cartesia",
+  "display_name": "Cartesia",
+  "cli_name": "cartesia-pp-cli",
+  "owner": "user",
+  "printer": "rajsuyash",
+  "printer_name": "rajsuyash",
+  "spec_path": "/Users/suyashraj/printing-press/.runstate/suyashraj-5d45be1b/runs/20260513-233554/research/cartesia-openapi.yml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:0f4f10e95460cff12e59b901f5d908304c4a1c301b2887fbbba636022c960cbc",
+  "run_id": "20260513-233554",
+  "mcp_binary": "cartesia-pp-mcp",
+  "mcp_tool_count": 49,
+  "mcp_ready": "full",
+  "api_version": "2025-04-16",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "CARTESIA_API_KEY",
+    "CARTESIA_ACCESS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "CARTESIA_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Short-lived JWT from POST /access-token. Set this OR CARTESIA_API_KEY."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Call grep",
+      "command": "calls grep",
+      "description": "Full-text + regex search across every synced call transcript, with windowed turns of context, agent filter, and time window."
+    },
+    {
+      "name": "Agent audit",
+      "command": "agents audit",
+      "description": "Joins the last 24h of calls + each call's metric results + the deployment that handled it, flagging regressions vs the prior deployment."
+    },
+    {
+      "name": "Deployment diff",
+      "command": "agents diff",
+      "description": "Side-by-side diff of prompt, voice, model, and config between any two deployments of the same agent."
+    },
+    {
+      "name": "Metric trend",
+      "command": "metrics trend",
+      "description": "Bucketed pass-rate or score-mean for any LLM-judge metric over time, sliced by deployment."
+    },
+    {
+      "name": "Since-when feed",
+      "command": "agents since",
+      "description": "Every call plus every flagged metric result on a given agent since a timestamp, in one chronological feed."
+    },
+    {
+      "name": "Bad-call hunter",
+      "command": "calls worst",
+      "description": "Surfaces the lowest-scored calls across all agents in one window, with transcript snippets."
+    },
+    {
+      "name": "Voice changelog",
+      "command": "voices changelog",
+      "description": "Voices created, updated, deleted since the last sync, with metadata diffs."
+    },
+    {
+      "name": "Voice picker",
+      "command": "voices find",
+      "description": "Free-text style match (\"warm female, mid-pitch, Spanish\") against locally cached voice catalog with structured filters."
+    },
+    {
+      "name": "Transcript SQL",
+      "command": "sql",
+      "description": "Read-only SELECT over the local SQLite store — agents, calls, transcripts, metrics, deployments."
+    },
+    {
+      "name": "Cost estimate",
+      "command": "usage estimate",
+      "description": "Estimates credit cost for a planned operation (fine-tune, localize) from local usage history."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "cartesia-pp-mcp",
+  "display_name": "Cartesia",
+  "version": "4.5.2",
+  "description": "Cartesia API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cartesia-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cartesia-pp-mcp",
+      "args": [],
+      "env": {
+        "CARTESIA_API_KEY": "${user_config.cartesia_api_key}",
+        "CARTESIA_ACCESS_TOKEN": "${user_config.cartesia_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "cartesia_api_key": {
+      "type": "string",
+      "title": "CARTESIA_API_KEY",
+      "description": "Cartesia long-lived API key (Bearer, sk_car_...). Set this OR CARTESIA_ACCESS_TOKEN.",
+      "sensitive": true,
+      "required": false
+    },
+    "cartesia_access_token": {
+      "type": "string",
+      "title": "CARTESIA_ACCESS_TOKEN",
+      "description": "Optional. Short-lived JWT from POST /access-token. Set this OR CARTESIA_API_KEY.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

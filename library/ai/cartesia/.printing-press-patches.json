@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-233554",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "like-fallback-escape",
+      "summary": "Escape % and _ in LIKE fallback queries (calls grep, voices find) so search patterns match literally.",
+      "reason": "Greptile #560 (initial + voices_find follow-up): bare wildcards in user-supplied pattern silently broadened matches across both LIKE-fallback paths. Added backslash-escaping for %, _, and \\ plus ESCAPE '\\' clauses.",
+      "files": [
+        "internal/cli/calls_grep.go",
+        "internal/cli/voices_find.go"
+      ]
+    },
+    {
+      "id": "sql-allow-cte",
+      "summary": "Accept WITH ... SELECT CTEs in the sql command's prefix guard.",
+      "reason": "Greptile #560 outside-diff comment: prefix-only check rejected legitimate CTEs. Driver-level mode=ro from store.OpenReadOnly is the actual write protection.",
+      "files": [
+        "internal/cli/sql.go"
+      ]
+    },
+    {
+      "id": "auth-logout-warns-api-key",
+      "summary": "auth logout warns about CARTESIA_API_KEY (priority credential), not just CARTESIA_ACCESS_TOKEN.",
+      "reason": "Greptile #560 follow-up: logout would print 'Logged out' with no warning even when CARTESIA_API_KEY is exported, leaving the user authenticated on every subsequent call. Now joins both env vars and pluralises the warning text.",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "rows-err-checks",
+      "summary": "Check rows.Err() after iteration loops in agents since (both loops) and voices changelog timestamp loop.",
+      "reason": "Greptile #560 (multiple follow-ups): rows.Next() returns false for end-of-rows AND I/O / corrupted-page errors. Without the guard, agents_since silently truncated feeds and voices_changelog returned the misleading 'fewer than two snapshots available' note when iteration actually errored. Matches pattern in calls_worst.go, agents_audit.go, calls_grep.go, sql.go, loadSnapshot.",
+      "files": [
+        "internal/cli/agents_since.go",
+        "internal/cli/voices_changelog.go"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4517 @@
+openapi: 3.0.1
+info:
+  title: Cartesia API
+  version: '2025-04-16'
+  description: 'Cartesia REST API for voice agents, voices, TTS, STT, voice-changer,
+    infill, fine-tunes, datasets, metrics, deployments, and calls.
+
+
+    Authentication: set CARTESIA_API_KEY to a Bearer API key (sk_car_...). Optionally
+    set CARTESIA_API_VERSION to override the Cartesia-Version header.'
+  x-cli-description: Manage Cartesia voice agents, deployments, calls, metrics, and
+    voices from the terminal.
+paths:
+  /agents:
+    get:
+      description: Lists all agents associated with your account.
+      operationId: agents_list
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAgentsResponse'
+      summary: List Agents
+      security: &id001
+      - APIKeyAuth: []
+  /agents/{agent_id}:
+    get:
+      description: Returns the details of a specific agent. To create an agent, use
+        the CLI or the Playground for the best experience and integration with Github.
+      operationId: agents_get
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSummary'
+      summary: Get Agent
+      security: *id001
+    patch:
+      operationId: agents_update
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSummary'
+      summary: Update Agent
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAgentRequest'
+    delete:
+      operationId: agents_delete
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Delete Agent
+      security: *id001
+  /agents/templates:
+    get:
+      description: List of public, Cartesia-provided agent templates to help you get
+        started.
+      operationId: agents_templates
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTemplatesResponse'
+      summary: List Templates
+  /agents/calls:
+    get:
+      description: Lists calls sorted by start time in descending order for a specific
+        agent. `agent_id` is required and if you want to include `transcript` in the
+        response, add `expand=transcript` to the request. This endpoint is paginated.
+      operationId: agents_list-calls
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: query
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      - name: expand
+        in: query
+        description: The fields to expand in the response. Currently, the only supported
+          value is `transcript`.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: starting_after
+        in: query
+        description: (Pagination option)The ID of the call to start after.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: (Pagination option) The ID of the call to end before.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        description: (Pagination option) The number of calls to return per page, ranging
+          between 1 and 100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCallsResponse'
+      summary: List Calls
+      security: *id001
+  /agents/calls/{call_id}:
+    get:
+      operationId: agents_get-call
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: call_id
+        in: path
+        description: The ID of the call.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentCall'
+      summary: Get Call
+      security: *id001
+  /agents/calls/{call_id}/audio:
+    get:
+      description: The downloaded audio file is in .wav format. This endpoint streams
+        the audio file content (WAV format) to the client.
+      operationId: agents_download-call-audio
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: call_id
+        in: path
+        description: The ID of the call.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Download Call Audio
+      security: *id001
+  /agents/{agent_id}/phone-numbers:
+    get:
+      description: List the phone numbers associated with an agent. Currently, you
+        can only have one phone number per agent and these are provisioned by Cartesia.
+      operationId: agents_phone-numbers
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PhoneNumber'
+      summary: List Phone Numbers
+      security: *id001
+  /agents/metrics:
+    get:
+      description: List of all LLM-as-a-Judge metrics owned by your account.
+      operationId: agents_list-metrics
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: starting_after
+        in: query
+        description: (Pagination option) The ID of the last Metric in the current
+          response as a cursor for the next page of results.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        description: (Pagination option) The number of metrics to return per page,
+          ranging between 1 and 100. The default page limit is 10.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMetricsResponse'
+      summary: List Metrics
+      security: *id001
+    post:
+      description: Create a new metric.
+      operationId: agents_create-metric
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metric'
+      summary: Create Metric
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMetricRequest'
+  /agents/metrics/{metric_id}:
+    get:
+      description: Get a metric by its ID.
+      operationId: agents_get-metric
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: metric_id
+        in: path
+        description: The ID of the metric.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metric'
+      summary: Get Metric
+      security: *id001
+  /agents/metrics/results:
+    get:
+      description: Paginated list of metric results. Filter results using the query
+        parameters,
+      operationId: agents_list-metric-results
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: query
+        description: The ID of the agent.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: deployment_id
+        in: query
+        description: The ID of the deployment.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: metric_id
+        in: query
+        description: The ID of the metric.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: start_date
+        in: query
+        description: Filter metric results created at or after this ISO 8601 date/time
+          (e.g. 2024-04-01T00:00:00Z).
+        required: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      - name: end_date
+        in: query
+        description: Filter metric results created before or at this ISO 8601 date/time
+          (e.g. 2024-04-30T23:59:59Z).
+        required: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      - name: call_id
+        in: query
+        description: The ID of the call.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: starting_after
+        in: query
+        description: A cursor to use in pagination. `starting_after` is a metric result
+          ID that defines your place in the list. For example, if you make a /metrics/results
+          request and receive 100 objects, ending with `metric_result_abc123`, your
+          subsequent call can include `starting_after=metric_result_abc123` to fetch
+          the next page of the list.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: A cursor to use in pagination. `ending_before` is a metric result
+          ID that defines your place in the list. For example, if you make a /metrics/results
+          request and receive 100 objects, starting with `metric_result_abc123`, your
+          subsequent call can include `ending_before=metric_result_abc123` to fetch
+          the previous page of the list.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        description: The number of metric results to return per page, ranging between
+          1 and 100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListMetricResultsResponse'
+      summary: List Metric Results
+      security: *id001
+  /agents/metrics/results/export:
+    get:
+      description: Export metric results to a CSV file. This endpoint streams at most
+        100k results as the CSV file directly to the client. Use the optional filters
+        to narrow down the results to export.
+      operationId: agents_export-metric-results
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: query
+        description: The ID of the agent.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: deployment_id
+        in: query
+        description: The ID of the deployment.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: metric_id
+        in: query
+        description: The ID of the metric.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: call_id
+        in: query
+        description: The ID of the call.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: start_date
+        in: query
+        description: Filter metric results created at or after this ISO 8601 date/time
+          (e.g. 2024-04-01T00:00:00Z).
+        required: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      - name: end_date
+        in: query
+        description: Filter metric results created before or at this ISO 8601 date/time
+          (e.g. 2024-04-30T23:59:59Z).
+        required: false
+        schema:
+          type: string
+          format: date-time
+          nullable: true
+      responses:
+        '200':
+          description: Successfully exported metric results as a CSV file.
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: More than 100k metric results found for the given filters.
+            Please narrow down the filters to export less than 100k results.
+        '404':
+          description: No metric results found for the given filters.
+      summary: Export Metric Results
+      security: *id001
+  /agents/{agent_id}/metrics/{metric_id}:
+    post:
+      description: Add a metric to an agent. Once the metric is added, it will be
+        run on all calls made to the agent automatically from that point onwards.
+      operationId: agents_add-metric-to-agent
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      - name: metric_id
+        in: path
+        description: The ID of the metric.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Add Metric to Agent
+      security: *id001
+    delete:
+      description: Remove a metric from an agent. Once the metric is removed, it will
+        no longer be run on all calls made to the agent automatically from that point
+        onwards. Existing metric results will remain.
+      operationId: agents_remove-metric-from-agent
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: metric_id
+        in: path
+        description: The ID of the metric.
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      summary: Remove Metric from Agent
+      security: *id001
+  /agents/{agent_id}/deployments:
+    get:
+      description: List of all deployments associated with an agent.
+      operationId: agents_list-deployments
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: agent_id
+        in: path
+        description: The ID of the agent.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deployment'
+      summary: List Deployments
+      security: *id001
+  /agents/deployments/{deployment_id}:
+    get:
+      description: Get a deployment by its ID.
+      operationId: agents_get-deployment
+      tags:
+      - Agents
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: deployment_id
+        in: path
+        description: The ID of the deployment.
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+      summary: Get Deployment
+      security: *id001
+  /:
+    get:
+      operationId: apiStatus_get
+      tags:
+      - ApiStatus
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIInfo'
+      summary: API Status and Version
+  /access-token:
+    post:
+      description: Generates a new Access Token for the client. These tokens are short-lived
+        and should be used to make requests to the API from authenticated clients.
+      operationId: auth_access-token
+      tags:
+      - Auth
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+      summary: Generate a New Access Token
+      security:
+      - APIKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+  /datasets/:
+    get:
+      description: Paginated list of datasets
+      operationId: datasets_list
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: limit
+        in: query
+        description: The number of Datasets to return per page, ranging between 1
+          and 100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      - name: starting_after
+        in: query
+        description: 'A cursor to use in pagination. `starting_after` is a Dataset
+          ID that defines your
+
+          place in the list. For example, if you make a /datasets request and receive
+          20
+
+          objects, ending with `dataset_abc123`, your subsequent call can include
+
+          `starting_after=dataset_abc123` to fetch the next page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: 'A cursor to use in pagination. `ending_before` is a Dataset
+          ID that defines your
+
+          place in the list. For example, if you make a /datasets request and receive
+          20
+
+          objects, starting with `dataset_abc123`, your subsequent call can include
+
+          `ending_before=dataset_abc123` to fetch the previous page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDatasets'
+      security: *id001
+    post:
+      description: Create a new dataset
+      operationId: datasets_create
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDatasetRequest'
+  /datasets/{id}:
+    get:
+      description: Retrieve a specific dataset by ID
+      operationId: datasets_get
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the dataset to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+      security: *id001
+    patch:
+      description: Update an existing dataset
+      operationId: datasets_update
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the dataset to update
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDatasetRequest'
+    delete:
+      description: Delete a dataset
+      operationId: datasets_delete
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the dataset to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      security: *id001
+  /datasets/{id}/files:
+    get:
+      description: Paginated list of files in a dataset
+      operationId: datasets_listFiles
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the dataset to list files from
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: The number of files to return per page, ranging between 1 and
+          100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      - name: starting_after
+        in: query
+        description: 'A cursor to use in pagination. `starting_after` is a file ID
+          that defines your
+
+          place in the list. For example, if you make a dataset files request and
+          receive 20
+
+          objects, ending with `file_abc123`, your subsequent call can include
+
+          `starting_after=file_abc123` to fetch the next page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: 'A cursor to use in pagination. `ending_before` is a file ID
+          that defines your
+
+          place in the list. For example, if you make a dataset files request and
+          receive 20
+
+          objects, starting with `file_abc123`, your subsequent call can include
+
+          `ending_before=file_abc123` to fetch the previous page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDatasetFiles'
+      security: *id001
+    post:
+      description: Upload a new file to a dataset
+      operationId: datasets_uploadFile
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the dataset to upload to
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                purpose:
+                  description: Purpose of the file (e.g., fine_tune)
+                  type: string
+  /datasets/{id}/files/{fileID}:
+    delete:
+      description: Remove a file from a dataset
+      operationId: datasets_deleteFile
+      tags:
+      - Datasets
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the dataset containing the file
+        required: true
+        schema:
+          type: string
+      - name: fileID
+        in: path
+        description: ID of the file to remove
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      security: *id001
+  /fine-tunes/:
+    get:
+      description: Paginated list of all fine-tunes for the authenticated user
+      operationId: fineTunes_list
+      tags:
+      - FineTunes
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: limit
+        in: query
+        description: The number of fine-tunes to return per page, ranging between
+          1 and 100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      - name: starting_after
+        in: query
+        description: 'A cursor to use in pagination. `starting_after` is a fine-tune
+          ID that defines your
+
+          place in the list. For example, if you make a /fine-tunes request and receive
+          20
+
+          objects, ending with `fine_tune_abc123`, your subsequent call can include
+
+          `starting_after=fine_tune_abc123` to fetch the next page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: 'A cursor to use in pagination. `ending_before` is a fine-tune
+          ID that defines your
+
+          place in the list. For example, if you make a /fine-tunes request and receive
+          20
+
+          objects, starting with `fine_tune_abc123`, your subsequent call can include
+
+          `ending_before=fine_tune_abc123` to fetch the previous page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFineTunes'
+      security: *id001
+    post:
+      description: Create a new fine-tune
+      operationId: fineTunes_create
+      tags:
+      - FineTunes
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineTune'
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFineTuneRequest'
+  /fine-tunes/{id}:
+    get:
+      description: Retrieve a specific fine-tune by ID
+      operationId: fineTunes_get
+      tags:
+      - FineTunes
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the fine-tune to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FineTune'
+      security: *id001
+    delete:
+      description: Delete a fine-tune
+      operationId: fineTunes_delete
+      tags:
+      - FineTunes
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the fine-tune to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      security: *id001
+  /fine-tunes/{id}/voices:
+    get:
+      description: List all voices created from a fine-tune
+      operationId: fineTunes_listVoices
+      tags:
+      - FineTunes
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the fine-tune to list voices from
+        required: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: The number of voices to return per page, ranging between 1 and
+          100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      - name: starting_after
+        in: query
+        description: 'A cursor to use in pagination. `starting_after` is a voice ID
+          that defines your
+
+          place in the list. For example, if you make a fine-tune voices request and
+          receive 20
+
+          objects, ending with `voice_abc123`, your subsequent call can include
+
+          `starting_after=voice_abc123` to fetch the next page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: 'A cursor to use in pagination. `ending_before` is a voice ID
+          that defines your
+
+          place in the list. For example, if you make a fine-tune voices request and
+          receive 20
+
+          objects, starting with `voice_abc123`, your subsequent call can include
+
+          `ending_before=voice_abc123` to fetch the previous page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedVoices'
+      security: *id001
+  /infill/bytes:
+    post:
+      description: "Infill (Bytes).\n\nGenerate audio that smoothly connects two existing\
+        \ audio segments. This is useful for inserting new speech between existing\
+        \ speech segments while maintaining natural transitions.\n\n**The cost is\
+        \ 1 credit per character of the infill text plus a fixed cost of 300 credits.**\n\
+        \nAt least one of `left_audio` or `right_audio` must be provided.\n\nAs with\
+        \ all generative models, there's some inherent variability, but here's some\
+        \ tips we recommend to get the best results from infill:\n- Use longer infill\
+        \ transcripts\n  - This gives the model more flexibility to adapt to the rest\
+        \ of the audio\n- Target natural pauses in the audio when deciding where to\
+        \ clip\n  - This means you don't need word-level timestamps to be as precise\n\
+        - Clip right up to the start and end of the audio segment you want infilled,\
+        \ keeping as much silence in the left/right audio segments as possible\n \
+        \ - This helps the model generate more natural transitions"
+      operationId: infill_bytes
+      tags:
+      - Infill
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: Audio bytes
+          content:
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+      summary: Infill (Bytes)
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                left_audio:
+                  type: string
+                  format: binary
+                right_audio:
+                  type: string
+                  format: binary
+                model_id:
+                  description: The ID of the model to use for generating audio. Any
+                    model other than the first `"sonic"` model is supported.
+                  type: string
+                language:
+                  description: The language of the transcript
+                  type: string
+                transcript:
+                  description: The infill text to generate
+                  type: string
+                voice_id:
+                  description: The ID of the voice to use for generating audio
+                  type: string
+                output_format:
+                  $ref: '#/components/schemas/OutputFormat'
+  /pronunciation-dicts/:
+    get:
+      description: List all pronunciation dictionaries for the authenticated user
+      operationId: pronunciationDicts_list
+      tags:
+      - PronunciationDicts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: limit
+        in: query
+        description: The number of dictionaries to return per page, ranging between
+          1 and 100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      - name: starting_after
+        in: query
+        description: 'A cursor to use in pagination. `starting_after` is a dictionary
+          ID that defines your
+
+          place in the list. For example, if you make a request and receive 20 objects,
+          ending
+
+          with `dict_abc123`, your subsequent call can include `starting_after=dict_abc123`
+
+          to fetch the next page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: 'A cursor to use in pagination. `ending_before` is a dictionary
+          ID that defines your
+
+          place in the list. For example, if you make a request and receive 20 objects,
+          starting
+
+          with `dict_abc123`, your subsequent call can include `ending_before=dict_abc123`
+
+          to fetch the previous page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPronunciationDicts'
+      security: *id001
+    post:
+      description: Create a new pronunciation dictionary
+      operationId: pronunciationDicts_create
+      tags:
+      - PronunciationDicts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PronunciationDict'
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePronunciationDictRequest'
+  /pronunciation-dicts/{id}:
+    get:
+      description: Retrieve a specific pronunciation dictionary by ID
+      operationId: pronunciationDicts_get
+      tags:
+      - PronunciationDicts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the pronunciation dictionary to retrieve
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PronunciationDict'
+      security: *id001
+    patch:
+      description: Update a pronunciation dictionary
+      operationId: pronunciationDicts_update
+      tags:
+      - PronunciationDicts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the pronunciation dictionary to update
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PronunciationDict'
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePronunciationDictRequest'
+    delete:
+      description: Delete a pronunciation dictionary
+      operationId: pronunciationDicts_delete
+      tags:
+      - PronunciationDicts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        description: ID of the pronunciation dictionary to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      security: *id001
+  /stt:
+    post:
+      description: 'Transcribes audio files into text using Cartesia''s Speech-to-Text
+        API.
+
+
+        Upload an audio file and receive a complete transcription response. Supports
+        arbitrarily long audio files with automatic intelligent chunking for longer
+        audio.
+
+
+        **Supported audio formats:** flac, m4a, mp3, mp4, mpeg, mpga, oga, ogg, wav,
+        webm
+
+
+        **Response format:** Returns JSON with transcribed text, duration, and language.
+        Include `timestamp_granularities: ["word"]` to get word-level timestamps.
+
+        **Pricing:** Batch transcription is priced at **1 credit per 2 seconds** of
+        audio processed.
+
+
+        <Note>
+
+        For migrating from the OpenAI SDK, see our [OpenAI Whisper to Cartesia Ink
+        Migration Guide](/api-reference/stt/migrate-from-open-ai).
+
+        </Note>'
+      operationId: stt_transcribe
+      tags:
+      - Stt
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: encoding
+        in: query
+        description: "The encoding format to process the audio as. If not specified,\
+          \ the audio file will be decoded automatically.\n\n**Supported formats:**\n\
+          - `pcm_s16le` - 16-bit signed integer PCM, little-endian (recommended for\
+          \ best performance)\n- `pcm_s32le` - 32-bit signed integer PCM, little-endian\n\
+          - `pcm_f16le` - 16-bit floating point PCM, little-endian\n- `pcm_f32le`\
+          \ - 32-bit floating point PCM, little-endian\n- `pcm_mulaw` - 8-bit \u03BC\
+          -law encoded PCM\n- `pcm_alaw` - 8-bit A-law encoded PCM"
+        required: false
+        schema:
+          $ref: '#/components/schemas/STTEncoding'
+          nullable: true
+      - name: sample_rate
+        in: query
+        description: 'The sample rate of the audio in Hz. '
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptionResponse'
+      summary: Speech-to-Text (Batch)
+      security: &id002
+      - TokenAuth: []
+      - APIKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                model:
+                  description: ID of the model to use for transcription. Use `ink-whisper`
+                    for the latest Cartesia Whisper model.
+                  type: string
+                language:
+                  description: The language of the input audio in ISO-639-1 format.
+                    Defaults to `en`.
+                  enum:
+                  - en
+                  - zh
+                  - de
+                  - es
+                  - ru
+                  - ko
+                  - fr
+                  - ja
+                  - pt
+                  - tr
+                  - pl
+                  - ca
+                  - nl
+                  - ar
+                  - sv
+                  - it
+                  - id
+                  - hi
+                  - fi
+                  - vi
+                  - he
+                  - uk
+                  - el
+                  - ms
+                  - cs
+                  - ro
+                  - da
+                  - hu
+                  - ta
+                  - 'no'
+                  - th
+                  - ur
+                  - hr
+                  - bg
+                  - lt
+                  - la
+                  - mi
+                  - ml
+                  - cy
+                  - sk
+                  - te
+                  - fa
+                  - lv
+                  - bn
+                  - sr
+                  - az
+                  - sl
+                  - kn
+                  - et
+                  - mk
+                  - br
+                  - eu
+                  - is
+                  - hy
+                  - ne
+                  - mn
+                  - bs
+                  - kk
+                  - sq
+                  - sw
+                  - gl
+                  - mr
+                  - pa
+                  - si
+                  - km
+                  - sn
+                  - yo
+                  - so
+                  - af
+                  - oc
+                  - ka
+                  - be
+                  - tg
+                  - sd
+                  - gu
+                  - am
+                  - yi
+                  - lo
+                  - uz
+                  - fo
+                  - ht
+                  - ps
+                  - tk
+                  - nn
+                  - mt
+                  - sa
+                  - lb
+                  - my
+                  - bo
+                  - tl
+                  - mg
+                  - as
+                  - tt
+                  - haw
+                  - ln
+                  - ha
+                  - ba
+                  - jw
+                  - su
+                  - yue
+                  type: string
+                  nullable: true
+                timestamp_granularities[]:
+                  description: The timestamp granularities to populate for this transcription.
+                    Currently only `word` level timestamps are supported.
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TimestampGranularity'
+                  nullable: true
+  /tts/bytes:
+    post:
+      operationId: tts_bytes
+      tags:
+      - Tts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: Audio bytes
+          content:
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+      summary: Text-to-Speech (Bytes)
+      description: 'Text-to-Speech (Bytes).
+
+
+        The simplest way to stream generated audio.
+
+
+        See [Compare TTS Endpoints](https://docs.cartesia.ai/use-the-api/compare-tts-endpoints)
+        for details.'
+      security: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TTSRequest'
+  /tts/sse:
+    post:
+      operationId: tts_sse
+      tags:
+      - Tts
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: 'Server-sent events stream. Each frame is `data: <json>\n\n`
+            where the JSON payload matches `TTSSSEEvent`.'
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/TTSSSEEvent'
+      summary: Text-to-Speech (SSE)
+      description: "Text-to-Speech (SSE).\n\nSupports:\n  - Streaming\n  - Timestamps\n\
+        \  - context_id without transcript buffering\n\n\nSee [Compare TTS Endpoints](https://docs.cartesia.ai/use-the-api/compare-tts-endpoints)\
+        \ for details."
+      security: *id002
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TTSSSERequest'
+  /voice-changer/bytes:
+    post:
+      description: 'Voice Changer (Bytes).
+
+
+        Takes an audio file of speech, and returns an audio file of speech spoken
+        with the same intonation, but with a different voice.
+
+
+        This endpoint is priced at 15 characters per second of input audio.'
+      operationId: voiceChanger_bytes
+      tags:
+      - VoiceChanger
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: OK
+          content:
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+      summary: Voice Changer (Bytes)
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                clip:
+                  type: string
+                  format: binary
+                voice[id]:
+                  type: string
+                output_format[container]:
+                  $ref: '#/components/schemas/OutputFormatContainer'
+                output_format[sample_rate]:
+                  type: integer
+                  enum:
+                  - 8000
+                  - 16000
+                  - 22050
+                  - 24000
+                  - 44100
+                  - 48000
+                output_format[encoding]:
+                  description: Required for `raw` and `wav` containers.
+                  $ref: '#/components/schemas/RawEncoding'
+                  nullable: true
+                output_format[bit_rate]:
+                  description: Required for `mp3` containers.
+                  type: integer
+                  nullable: true
+  /voice-changer/sse:
+    post:
+      operationId: voiceChanger_sse
+      tags:
+      - VoiceChanger
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: 'Server-sent events stream. Each frame is `data: <json>\n\n`
+            where the JSON payload matches `VoiceChangerSSEEvent`.'
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/VoiceChangerSSEEvent'
+      summary: Voice Changer (SSE)
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                clip:
+                  type: string
+                  format: binary
+                voice[id]:
+                  type: string
+                output_format[container]:
+                  $ref: '#/components/schemas/OutputFormatContainer'
+                output_format[sample_rate]:
+                  type: integer
+                  enum:
+                  - 8000
+                  - 16000
+                  - 22050
+                  - 24000
+                  - 44100
+                  - 48000
+                output_format[encoding]:
+                  description: Required for `raw` and `wav` containers.
+                  $ref: '#/components/schemas/RawEncoding'
+                  nullable: true
+                output_format[bit_rate]:
+                  description: Required for `mp3` containers.
+                  type: integer
+                  nullable: true
+  /voices:
+    get:
+      operationId: voices_list
+      tags:
+      - Voices
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: limit
+        in: query
+        description: The number of Voices to return per page, ranging between 1 and
+          100.
+        required: false
+        schema:
+          type: integer
+          nullable: true
+      - name: starting_after
+        in: query
+        description: 'A cursor to use in pagination. `starting_after` is a Voice ID
+          that defines your
+
+          place in the list. For example, if you make a /voices request and receive
+          100
+
+          objects, ending with `voice_abc123`, your subsequent call can include
+
+          `starting_after=voice_abc123` to fetch the next page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: ending_before
+        in: query
+        description: 'A cursor to use in pagination. `ending_before` is a Voice ID
+          that defines your
+
+          place in the list. For example, if you make a /voices request and receive
+          100
+
+          objects, starting with `voice_abc123`, your subsequent call can include
+
+          `ending_before=voice_abc123` to fetch the previous page of the list.'
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: q
+        in: query
+        description: Query string to search for voices by name, description, or Voice
+          ID.
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: is_owner
+        in: query
+        description: Whether to only return voices owned your organization.
+        required: false
+        schema:
+          type: boolean
+          nullable: true
+      - name: gender
+        in: query
+        description: The gender presentation of the voices to return.
+        required: false
+        schema:
+          $ref: '#/components/schemas/GenderPresentation'
+          nullable: true
+      - name: expand[]
+        in: query
+        description: Additional fields to include in the response.
+        required: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/VoiceExpandOptions'
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetVoicesResponse'
+      summary: List Voices
+      security: *id001
+  /voices/clone:
+    post:
+      description: Clone a high similarity voice from an audio clip. Clones are more
+        similar to the source clip, but may reproduce background noise. For these,
+        use an audio clip about 5 seconds long.
+      operationId: voices_clone
+      tags:
+      - Voices
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceMetadata'
+      summary: Clone Voice
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                clip:
+                  type: string
+                  format: binary
+                name:
+                  description: The name of the voice.
+                  type: string
+                description:
+                  description: A description for the voice.
+                  type: string
+                  nullable: true
+                language:
+                  description: The language of the voice.
+                  $ref: '#/components/schemas/SupportedLanguage'
+                base_voice_id:
+                  description: Optional base voice ID that the cloned voice is derived
+                    from.
+                  $ref: '#/components/schemas/VoiceId'
+                  nullable: true
+  /voices/{id}:
+    delete:
+      operationId: voices_delete
+      tags:
+      - Voices
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VoiceId'
+      responses:
+        '204':
+          description: ''
+      summary: Delete Voice
+      security: *id001
+    patch:
+      description: Update the name, description, and gender of a voice. To set the
+        gender back to the default, set the gender to `null`. If gender is not specified,
+        the gender will not be updated.
+      operationId: voices_update
+      tags:
+      - Voices
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VoiceId'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voice'
+      summary: Update Voice
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVoiceRequest'
+    get:
+      operationId: voices_get
+      tags:
+      - Voices
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      - name: id
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/VoiceId'
+      - name: expand[]
+        in: query
+        description: Additional fields to include in the response.
+        required: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/VoiceExpandOptions'
+          nullable: true
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Voice'
+      summary: Get Voice
+      security: *id001
+  /voices/localize:
+    post:
+      description: Create a new voice from an existing voice localized to a new language
+        and dialect.
+      operationId: voices_localize
+      tags:
+      - Voices
+      parameters:
+      - $ref: '#/components/parameters/CartesiaVersionHeader'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceMetadata'
+      summary: Localize Voice
+      security: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocalizeVoiceRequest'
+security:
+- TokenAuth: []
+- APIKeyAuth: []
+components:
+  parameters:
+    CartesiaVersionHeader:
+      name: Cartesia-Version
+      in: header
+      description: API version header.
+      required: true
+      schema:
+        type: string
+        enum:
+        - '2026-03-01'
+  securitySchemes:
+    TokenAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: An Access Token
+      x-auth-env-vars:
+      - CARTESIA_ACCESS_TOKEN
+      x-auth-vars:
+      - name: CARTESIA_ACCESS_TOKEN
+        kind: per_call
+        required: false
+        sensitive: true
+        description: Short-lived JWT from POST /access-token. Set this OR CARTESIA_API_KEY.
+    APIKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+      description: Cartesia API key
+      x-auth-env-vars:
+      - CARTESIA_API_KEY
+      x-auth-vars:
+      - name: CARTESIA_API_KEY
+        kind: per_call
+        required: true
+        sensitive: true
+        description: Cartesia long-lived API key (Bearer). Get one from https://play.cartesia.ai/keys
+  schemas:
+    TextChunk:
+      title: TextChunk
+      type: object
+      properties:
+        text:
+          type: string
+          description: The text content of the chunk.
+        start_timestamp:
+          type: number
+          format: double
+          description: The starting timestamp of the text chunk in seconds relative
+            to the start of the call.
+      required:
+      - text
+      - start_timestamp
+    TelephonyParams:
+      title: TelephonyParams
+      type: object
+      description: The telephony parameters associated with the call when the call
+        is made via a phone. More details can also be returned depending on the provider.
+      properties:
+        to:
+          type: string
+          description: The phone number of the caller.
+        from:
+          type: string
+          description: The phone number of the agent.
+      required:
+      - to
+      - from
+    LogEvent:
+      title: LogEvent
+      type: object
+      properties:
+        event:
+          type: string
+          description: The event name.
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional metadata associated with the event.
+        timestamp:
+          type: number
+          format: double
+          description: The timestamp when the event was received relative to the start
+            of the call.
+      required:
+      - event
+      - metadata
+      - timestamp
+    LogMetric:
+      title: LogMetric
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the metric.
+        value:
+          type: number
+          format: double
+          description: The value of the metric.
+        timestamp:
+          type: number
+          format: double
+          description: The timestamp when the metric was received relative to the
+            start of the call.
+      required:
+      - name
+      - value
+      - timestamp
+    ToolCall:
+      title: ToolCall
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the tool call.
+        name:
+          type: string
+          description: The name of the tool that was called.
+        arguments:
+          type: object
+          additionalProperties:
+            type: string
+          description: The arguments passed to the tool.
+      required:
+      - id
+      - name
+      - arguments
+    AgentCallStatus:
+      title: AgentCallStatus
+      type: string
+      enum:
+      - active
+      - completed
+      - failed
+      - cancelled
+      description: The status of an agent call.
+    AgentMetricResultStatus:
+      title: AgentMetricResultStatus
+      type: string
+      enum:
+      - completed
+      - failed
+      description: The status of an agent metric result. `failed` indicates that the
+        metric result was not computed or parsed properly.
+    GetCallsResponse:
+      title: GetCallsResponse
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentCall'
+          description: The list of agent calls.
+        next_page:
+          type: string
+          nullable: true
+          description: The cursor for the next page of results.
+      required:
+      - data
+    PhoneNumberSummary:
+      title: PhoneNumberSummary
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the phone number.
+        number:
+          type: string
+          description: The phone number with country code included.
+      required:
+      - id
+      - number
+    GitRepository:
+      title: GitRepository
+      type: object
+      properties:
+        provider:
+          type: string
+          description: The provider of the Git repository, e.g., GitHub.
+        account:
+          type: string
+          description: The account name associated with the Git repository.
+        name:
+          type: string
+          description: The name of the Git repository.
+      required:
+      - provider
+      - account
+      - name
+    AgentSummary:
+      title: AgentSummary
+      type: object
+      description: A summary of essential information about an agent.
+      properties:
+        id:
+          type: string
+          description: The ID of the agent.
+        name:
+          type: string
+          description: The unique name of the agent, which can be used to identify
+            the agent in the CLI.
+        description:
+          type: string
+          nullable: true
+          description: A brief description of the agent.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time when the agent was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The date and time when the agent was last updated.
+        tts_voice:
+          $ref: '#/components/schemas/VoiceId'
+          description: The text-to-speech voice used by the agent.
+        tts_language:
+          type: string
+          description: The language used for text-to-speech by the agent.
+        webhook_id:
+          type: string
+          nullable: true
+          description: The identifier for the webhook associated with the agent. Add
+            or customize a webhook to your agent to receive events when calls are
+            made to your agent via the Playground.
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: The date and time when the agent was deleted, if applicable.
+        git_repository:
+          $ref: '#/components/schemas/GitRepository'
+          nullable: true
+          description: The Git repository associated with the agent.
+        git_deploy_branch:
+          type: string
+          nullable: true
+          description: The branch of the Git repository used for deployment.
+        phone_numbers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PhoneNumberSummary'
+          nullable: true
+          description: The phone numbers associated with the agent. Currently, you
+            can only have one phone number per agent.
+        has_text_to_agent_run:
+          type: boolean
+          description: Whether the agent has a text-to-agent run.
+        deployment_count:
+          type: integer
+          description: The number of deployments associated with the agent.
+      required:
+      - id
+      - name
+      - created_at
+      - updated_at
+      - tts_voice
+      - tts_language
+      - has_text_to_agent_run
+      - deployment_count
+    AgentTemplate:
+      title: AgentTemplate
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the agent template.
+        name:
+          type: string
+          description: The name of the agent template.
+        description:
+          type: string
+          nullable: true
+          description: The description of the agent template.
+        repo_url:
+          type: string
+          description: The URL of the Git repository associated with the agent template.
+        root_dir:
+          type: string
+          description: The root directory of the agent template.
+        required_env_vars:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: The required environment variables for the agent template.
+        dependencies:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: The dependencies of the agent template.
+        owner_id:
+          type: string
+          description: The ID of the owner of the agent template.
+        created_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the agent template was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the agent template was last updated.
+      required:
+      - id
+      - name
+      - repo_url
+      - root_dir
+      - owner_id
+      - created_at
+      - updated_at
+    AgentTranscript:
+      title: AgentTranscript
+      type: object
+      properties:
+        role:
+          type: string
+          description: The role of the participant in the conversation. Roles are
+            `user`, `assistant`, or `system`. `assistant` is the agent. `system` is
+            used to indicate logs during the conversation such as `log_event` or `log_metric`.
+        text:
+          type: string
+          nullable: true
+          description: The text content of the transcript. This is the text that was
+            spoken by the user or the agent.
+        text_chunks:
+          type: array
+          items:
+            $ref: '#/components/schemas/TextChunk'
+          nullable: true
+          description: The chunks of text at a more granular level in the transcript
+            with timestamps relative to the start of the call.
+        start_timestamp:
+          type: number
+          format: float
+          description: The start timestamp in seconds relative to the start of the
+            call.
+        end_timestamp:
+          type: number
+          format: float
+          description: The end timestamp in seconds relative to the start of the call.
+        end_reason:
+          type: string
+          nullable: true
+          description: The reason for why the assistant turn ended. This could be
+            `call_ended`, `interrupted`, or `tts_completed`.
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCall'
+          nullable: true
+          description: The tool calls made during the turn.
+        vad_buffer_ms:
+          type: integer
+          nullable: true
+          description: The VAD buffer time in milliseconds.
+        tts_ttfb:
+          type: number
+          format: float
+          nullable: true
+          description: The time to first byte in seconds from the agent for text-to-speech.
+        log_event:
+          $ref: '#/components/schemas/LogEvent'
+          nullable: true
+          description: The log event from user code.
+        log_metric:
+          $ref: '#/components/schemas/LogMetric'
+          nullable: true
+          description: The log metric from user code.
+      required:
+      - role
+      - start_timestamp
+      - end_timestamp
+    AgentCall:
+      title: AgentCall
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the agent call.
+        agent_id:
+          type: string
+          description: The identifier of the agent associated with the call.
+        start_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: The start time of the agent call.
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+          description: The end time of the agent call.
+        transcript:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentTranscript'
+          nullable: true
+          description: The transcript of the agent call.
+        telephony_params:
+          $ref: '#/components/schemas/TelephonyParams'
+          nullable: true
+          description: The telephony parameters associated with the call when the
+            call is made via phone.
+        summary:
+          type: string
+          nullable: true
+          description: A summary of the agent call. This is a brief summary of the
+            call that is generated by Cartesia.
+        status:
+          $ref: '#/components/schemas/AgentCallStatus'
+          description: The status of the agent call.
+        error_message:
+          type: string
+          nullable: true
+          description: The error message, if any, associated with the call.
+        deployment_id:
+          type: string
+          nullable: true
+          description: The deployment identifier associated with the call.
+      required:
+      - id
+      - agent_id
+      - status
+    Metric:
+      title: Metric
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the metric.
+        name:
+          type: string
+          description: The name of the metric. This is a unique name that you can
+            use to identify the metric in the CLI.
+        display_name:
+          type: string
+          nullable: true
+          description: The display name of the metric, if available. This is the name
+            that is displayed in the Playground.
+        prompt:
+          type: string
+          description: The prompt associated with the metric, detailing the task and
+            evaluation criteria.
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp when the metric was created.
+      required:
+      - id
+      - name
+      - prompt
+      - created_at
+    CreateMetricRequest:
+      title: CreateMetricRequest
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the metric. This must be a unique name that only
+            allows lower case letters, numbers, and the characters _, -, and .
+        display_name:
+          type: string
+          nullable: true
+          description: The display name of the metric.
+        prompt:
+          type: string
+          description: The prompt associated with the metric, detailing the task and
+            evaluation criteria.
+      required:
+      - name
+      - prompt
+    ListMetricsResponse:
+      title: ListMetricsResponse
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metric'
+          description: List of metrics.
+        has_more:
+          type: boolean
+          description: Whether there are more metrics to fetch (using `starting_after=id`,
+            where id is the ID of the last Metric in the current response).
+        next_page:
+          type: string
+          nullable: true
+          description: The ID of the last Metric in the current response as a cursor
+            for the next page of results.
+      required:
+      - data
+      - has_more
+    MetricResult:
+      title: MetricResult
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the metric result.
+        metricId:
+          type: string
+          description: The identifier of the metric being measured.
+        metricName:
+          type: string
+          description: The name of the metric being measured.
+        summary:
+          type: string
+          description: A summary of the transcript of the call.
+        transcript:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentTranscript'
+          nullable: true
+          description: The transcript of the call.
+        agentId:
+          type: string
+          description: The identifier of the agent associated with the metric result.
+        callId:
+          type: string
+          description: The identifier of the call associated with the metric result.
+        deploymentId:
+          type: string
+          description: The identifier of the deployment associated with the metric
+            result.
+        result:
+          type: string
+          description: The raw result of the metric in a string format.
+        jsonResult:
+          type: object
+          additionalProperties: true
+          nullable: true
+          description: The structured JSON result of the metric.
+        value:
+          nullable: true
+          description: The value of the metric result.
+        status:
+          $ref: '#/components/schemas/AgentMetricResultStatus'
+          description: The status of the metric result.
+        runId:
+          type: string
+          nullable: true
+          description: The identifier of the run associated with the metric result,
+            if applicable.
+        createdAt:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the metric result was created.
+      required:
+      - id
+      - metricId
+      - metricName
+      - summary
+      - agentId
+      - callId
+      - deploymentId
+      - result
+      - status
+      - createdAt
+    ListMetricResultsResponse:
+      title: ListMetricResultsResponse
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricResult'
+          description: List of metric results.
+        has_more:
+          type: boolean
+          description: Whether there are more metric results to fetch (using `starting_after=id`,
+            where id is the ID of the last MetricResult in the current response).
+        next_page:
+          type: string
+          nullable: true
+          description: The cursor for the next page of results.
+      required:
+      - data
+      - has_more
+    PhoneNumber:
+      title: PhoneNumber
+      type: object
+      description: A phone number that can be used to make calls to your agent.
+      properties:
+        agent_id:
+          type: string
+          description: The ID of the agent.
+        number:
+          type: string
+          description: The phone number.
+        created_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the phone number was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the phone number was last updated.
+        is_cartesia_managed:
+          type: boolean
+          description: Whether the phone number is managed by Cartesia. As of now,
+            this is always true since Cartesia provisions phone numbers for you.
+      required:
+      - agent_id
+      - number
+      - created_at
+      - updated_at
+      - is_cartesia_managed
+    GetTemplatesResponse:
+      title: GetTemplatesResponse
+      type: object
+      properties:
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentTemplate'
+          description: List of agent templates.
+      required:
+      - templates
+    GetAgentsResponse:
+      title: GetAgentsResponse
+      type: object
+      properties:
+        summaries:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentSummary'
+          description: The summaries of the agents.
+      required:
+      - summaries
+    UpdateAgentRequest:
+      title: UpdateAgentRequest
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          description: The name of the agent.
+        description:
+          type: string
+          nullable: true
+          description: The description of the agent.
+        tts_voice:
+          $ref: '#/components/schemas/VoiceId'
+          nullable: true
+          description: The voice to use for text-to-speech.
+        tts_language:
+          type: string
+          nullable: true
+          description: The language to use for text-to-speech.
+    Deployment:
+      title: Deployment
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the deployment.
+        agent_id:
+          type: string
+          description: The ID of the agent associated with this deployment.
+        status:
+          type: string
+          description: The current status of the deployment. It can be `queued`, `inactive`,
+            `deploy_error`, `skipped`, `build_error`, `building`, or `deployed`.
+        is_pinned:
+          type: boolean
+          description: Marks that this deployment is the active deployment for its
+            associated `agent_id`. Only one deployment per agent can be pinned at
+            a time. Deployments can be pinned even if they are not live or failed.
+        is_live:
+          type: boolean
+          description: True if this deployment is the live production deployment for
+            its associated `agent_id`. Only one deployment per agent can be live at
+            a time.
+        env_var_collection_id:
+          type: string
+          description: The ID of the environment variable collection associated with
+            this deployment.
+        source_code_file_id:
+          type: string
+          description: The ID of the source code file associated with this deployment.
+        git_commit_hash:
+          type: string
+          description: The commit hash of the Git repository for this deployment.
+        created_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the deployment was created.
+        updated_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the deployment was last updated.
+        build_completed_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the build was completed.
+        build_error:
+          type: string
+          nullable: true
+          description: Any error that occurred during the build process.
+        build_logs:
+          type: string
+          description: Logs generated during the build process of the deployment.
+        build_started_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the build process started.
+        deployment_started_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the deployment process started.
+        deployment_completed_at:
+          type: string
+          format: date-time
+          description: The UTC timestamp when the deployment process was completed.
+        deployment_error:
+          type: string
+          nullable: true
+          description: Any error that occurred during the deployment process.
+      required:
+      - id
+      - agent_id
+      - status
+      - is_pinned
+      - is_live
+      - env_var_collection_id
+      - source_code_file_id
+      - git_commit_hash
+      - created_at
+      - updated_at
+      - build_completed_at
+      - build_logs
+      - build_started_at
+      - deployment_started_at
+      - deployment_completed_at
+    APIInfo:
+      title: APIInfo
+      type: object
+      properties:
+        ok:
+          type: boolean
+        version:
+          type: string
+      required:
+      - ok
+      - version
+    TokenGrant:
+      title: TokenGrant
+      type: object
+      properties:
+        tts:
+          type: boolean
+          nullable: true
+          description: The `tts` grant allows the token to be used to access any TTS
+            endpoint.
+        stt:
+          type: boolean
+          nullable: true
+          description: The `stt` grant allows the token to be used to access any STT
+            endpoint.
+        agent:
+          type: boolean
+          nullable: true
+          description: The `agent` grant allows the token to be used to access the
+            Agent websocket calling [endpoint](/line/integrations/web-calls#connection).
+    TokenRequest:
+      title: TokenRequest
+      type: object
+      properties:
+        grants:
+          $ref: '#/components/schemas/TokenGrant'
+          nullable: true
+          description: The permissions to be granted via the token. Both TTS and STT
+            grants are optional - specify only the capabilities you need.
+        expires_in:
+          type: integer
+          nullable: true
+          description: The number of seconds the token will be valid for since the
+            time of generation. The maximum is 1 hour (3600 seconds).
+    TokenResponse:
+      title: TokenResponse
+      type: object
+      properties:
+        token:
+          type: string
+          description: The generated Access Token.
+      required:
+      - token
+    Dataset:
+      title: Dataset
+      type: object
+      description: A collection of files used for fine-tuning models
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the dataset
+        name:
+          type: string
+          description: Name of the dataset
+        created_at:
+          type: string
+          description: Timestamp when the dataset was created
+        description:
+          type: string
+          description: Optional description of the dataset
+      required:
+      - id
+      - name
+      - created_at
+      - description
+    CreateDatasetRequest:
+      title: CreateDatasetRequest
+      type: object
+      description: Request to create a new dataset
+      properties:
+        name:
+          type: string
+          description: Name for the new dataset
+        description:
+          type: string
+          description: Optional description for the dataset
+      required:
+      - name
+      - description
+    UpdateDatasetRequest:
+      title: UpdateDatasetRequest
+      type: object
+      description: Request to update an existing dataset
+      properties:
+        name:
+          type: string
+          description: New name for the dataset
+        description:
+          type: string
+          description: New description for the dataset
+      required:
+      - name
+      - description
+    DatasetFile:
+      title: DatasetFile
+      type: object
+      description: File stored in a dataset
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the file
+        filename:
+          type: string
+          description: Original filename
+        created_at:
+          type: string
+          description: Timestamp when the file was created
+        size:
+          type: integer
+          description: Size of the file in bytes
+      required:
+      - id
+      - filename
+      - created_at
+      - size
+    PaginatedDatasets:
+      title: PaginatedDatasets
+      type: object
+      description: Paginated list of datasets
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dataset'
+          description: List of dataset objects
+        has_more:
+          type: boolean
+          description: Whether there are more datasets available
+      required:
+      - data
+      - has_more
+    PaginatedDatasetFiles:
+      title: PaginatedDatasetFiles
+      type: object
+      description: Paginated list of files in a dataset
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetFile'
+          description: List of file objects
+        has_more:
+          type: boolean
+          description: Whether there are more files available
+      required:
+      - data
+      - has_more
+    S3UploadParamsResponse:
+      title: S3UploadParamsResponse
+      type: object
+      description: Parameters for direct upload to S3 storage
+      properties:
+        url:
+          type: string
+          description: Pre-signed URL for upload
+        method:
+          type: string
+          description: HTTP method to use for upload
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional fields required for the upload
+      required:
+      - url
+      - method
+      - fields
+    FineTuneStatus:
+      title: FineTuneStatus
+      type: string
+      enum:
+      - created
+      - training
+      - completed
+      - failed
+      description: Status of a fine-tune
+    FineTune:
+      title: FineTune
+      type: object
+      description: Information about a fine-tune
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the fine-tune
+        name:
+          type: string
+          description: Name of the fine-tune
+        description:
+          type: string
+          description: Description of the fine-tune
+        language:
+          type: string
+          description: Language code of the fine-tune
+        model_id:
+          type: string
+          description: Base model identifier to fine-tune from
+          x-stainless-naming:
+            python:
+              property_name: llm_model_id
+        dataset:
+          type: string
+          description: ID of the dataset used for fine-tuning
+        status:
+          $ref: '#/components/schemas/FineTuneStatus'
+          description: Current status of the fine-tune
+      required:
+      - id
+      - name
+      - description
+      - language
+      - model_id
+      - dataset
+      - status
+    CreateFineTuneRequest:
+      title: CreateFineTuneRequest
+      type: object
+      description: Request to create a new fine-tune
+      properties:
+        name:
+          type: string
+          description: Name for the new fine-tune
+        description:
+          type: string
+          description: Description for the fine-tune
+        language:
+          type: string
+          description: Language code for the fine-tune
+        model_id:
+          type: string
+          description: Base model ID to fine-tune from
+          x-stainless-naming:
+            python:
+              property_name: llm_model_id
+        dataset:
+          type: string
+          description: Dataset ID containing training files
+      required:
+      - name
+      - description
+      - language
+      - model_id
+      - dataset
+    PaginatedFineTunes:
+      title: PaginatedFineTunes
+      type: object
+      description: Paginated list of fine-tunes
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FineTune'
+          description: List of fine-tune objects
+        has_more:
+          type: boolean
+          description: Whether there are more fine-tunes available
+      required:
+      - data
+      - has_more
+    PaginatedVoices:
+      title: PaginatedVoices
+      type: object
+      description: Paginated list of voices created from a fine-tune
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Voice'
+          description: List of voice objects
+        has_more:
+          type: boolean
+          description: Whether there are more voices available
+      required:
+      - data
+      - has_more
+    PronunciationDictItem:
+      title: PronunciationDictItem
+      type: object
+      description: A pronunciation dictionary item mapping text to a custom pronunciation
+      properties:
+        text:
+          type: string
+          description: The original text to be replaced
+        alias:
+          type: string
+          description: A phonetic representation or text to be said in place of the
+            original text
+      required:
+      - text
+      - alias
+    PronunciationDict:
+      title: PronunciationDict
+      type: object
+      description: A dictionary of text-to-alias mappings
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the pronunciation dictionary
+        name:
+          type: string
+          description: Name of the pronunciation dictionary
+        owner_id:
+          type: string
+          description: ID of the user who owns this dictionary
+        pinned:
+          type: boolean
+          description: Whether this dictionary is pinned for the user
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PronunciationDictItem'
+          description: List of text-to-pronunciation mappings
+        created_at:
+          type: string
+          description: ISO 8601 timestamp of when the dictionary was created
+      required:
+      - id
+      - name
+      - owner_id
+      - pinned
+      - items
+      - created_at
+    CreatePronunciationDictRequest:
+      title: CreatePronunciationDictRequest
+      type: object
+      description: Request to create a new pronunciation dictionary
+      properties:
+        name:
+          type: string
+          description: Name for the new pronunciation dictionary
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PronunciationDictItem'
+          nullable: true
+          description: Optional initial list of pronunciation mappings
+      required:
+      - name
+    UpdatePronunciationDictRequest:
+      title: UpdatePronunciationDictRequest
+      type: object
+      description: Request to update an existing pronunciation dictionary
+      properties:
+        name:
+          type: string
+          nullable: true
+          description: New name for the pronunciation dictionary
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PronunciationDictItem'
+          nullable: true
+          description: Updated list of pronunciation mappings
+    PaginatedPronunciationDicts:
+      title: PaginatedPronunciationDicts
+      type: object
+      description: Paginated list of pronunciation dictionaries
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PronunciationDict'
+          description: List of pronunciation dictionary objects
+        has_more:
+          type: boolean
+          description: Whether there are more dictionaries available
+      required:
+      - data
+      - has_more
+    TimestampGranularity:
+      title: TimestampGranularity
+      type: string
+      enum:
+      - word
+      description: 'The granularity of timestamps to include in the response.
+
+
+        Currently only `word` level timestamps are supported, providing start and
+        end times for each word.'
+    TranscriptionWord:
+      title: TranscriptionWord
+      type: object
+      properties:
+        word:
+          type: string
+          description: The transcribed word.
+        start:
+          type: number
+          format: double
+          description: Start time of the word in seconds.
+        end:
+          type: number
+          format: double
+          description: End time of the word in seconds.
+      required:
+      - word
+      - start
+      - end
+    TranscriptionResponse:
+      title: TranscriptionResponse
+      type: object
+      properties:
+        text:
+          type: string
+          description: The transcribed text.
+        language:
+          type: string
+          nullable: true
+          description: The specified language of the input audio.
+        duration:
+          type: number
+          format: double
+          nullable: true
+          description: The duration of the input audio in seconds.
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/TranscriptionWord'
+          nullable: true
+          description: Word-level timestamps showing the start and end time of each
+            word. Only included when `[word]` is passed into `timestamp_granularities[]`.
+      required:
+      - text
+    StreamingTranscriptionResponse:
+      title: StreamingTranscriptionResponse
+      oneOf:
+      - type: object
+        allOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - transcript
+        - $ref: '#/components/schemas/TranscriptMessage'
+        required:
+        - type
+      - type: object
+        allOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - flush_done
+        - $ref: '#/components/schemas/FlushDoneMessage'
+        required:
+        - type
+      - type: object
+        allOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - done
+        - $ref: '#/components/schemas/DoneMessage'
+        required:
+        - type
+      - type: object
+        allOf:
+        - type: object
+          properties:
+            type:
+              type: string
+              enum:
+              - error
+        - $ref: '#/components/schemas/ErrorMessage'
+        required:
+        - type
+      description: The server sends transcription results, control messages, or error
+        messages. Each message has a `type` field to distinguish between different
+        message types.
+    TranscriptMessage:
+      title: TranscriptMessage
+      type: object
+      properties:
+        request_id:
+          type: string
+          description: Unique identifier for this transcription session.
+        text:
+          type: string
+          description: 'The transcribed text. May be partial or final depending on
+            is_final.
+
+
+            **Note**: Text may be empty in initial responses while the system accumulates
+            sufficient audio for transcription. This is normal behavior - wait for
+            responses with non-empty text or monitor is_final for completion status.'
+        is_final:
+          type: boolean
+          description: Whether this is a final transcription result or an interim
+            result.
+        duration:
+          type: number
+          format: double
+          nullable: true
+          description: The duration of the audio transcribed so far, in seconds.
+        language:
+          type: string
+          nullable: true
+          description: The specified language of the input audio.
+        words:
+          type: array
+          items:
+            $ref: '#/components/schemas/TranscriptionWord'
+          nullable: true
+          description: Word-level timestamps showing the start and end time of each
+            word in seconds. Always included in streaming responses.
+      required:
+      - request_id
+      - text
+      - is_final
+    FlushDoneMessage:
+      title: FlushDoneMessage
+      type: object
+      description: Acknowledgment message sent in response to a `finalize` command,
+        indicating that all buffered audio has been flushed and processed.
+      properties:
+        request_id:
+          type: string
+          description: Unique identifier for this transcription session.
+      required:
+      - request_id
+    DoneMessage:
+      title: DoneMessage
+      type: object
+      description: Acknowledgment message sent in response to a `done` command, indicating
+        that the session is complete and the WebSocket will close.
+      properties:
+        request_id:
+          type: string
+          description: Unique identifier for this transcription session.
+      required:
+      - request_id
+    ErrorMessage:
+      title: ErrorMessage
+      type: object
+      properties:
+        request_id:
+          type: string
+          nullable: true
+          description: The request ID associated with the error, if applicable.
+        message:
+          type: string
+          description: Human-readable error message describing what went wrong.
+      required:
+      - message
+    STTEncoding:
+      title: STTEncoding
+      type: string
+      enum:
+      - pcm_s16le
+      - pcm_s32le
+      - pcm_f16le
+      - pcm_f32le
+      - pcm_mulaw
+      - pcm_alaw
+      description: The encoding format for audio data sent to the STT WebSocket.
+    RequestID:
+      title: RequestID
+      type: string
+      description: A unique identifier for the network connection.
+    ContextID:
+      title: ContextID
+      type: string
+      description: A unique identifier for the context. You can use any unique identifier,
+        like a UUID or human ID.
+    FlushID:
+      title: FlushID
+      type: integer
+      description: 'An identifier corresponding to the number of flush commands that
+        have been sent for this context. Starts at 1.
+
+
+        This can be used to map chunks of audio to certain transcript submissions.'
+    ModelSpeed:
+      title: ModelSpeed
+      deprecated: true
+      type: string
+      default: normal
+      enum:
+      - slow
+      - normal
+      - fast
+      description: 'Speed setting for the model. Defaults to `normal`.
+
+        This feature is experimental and may not work for all voices.
+
+        Influences the speed of the generated speech. Faster speeds may reduce hallucination
+        rate.'
+      x-stainless-deprecation-message: Use `generation_config.speed` for sonic-3.
+    TTSWebSocketResponse:
+      title: TTSWebSocketResponse
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - chunk
+          context_id:
+            $ref: '#/components/schemas/ContextID'
+          status_code:
+            type: integer
+            description: HTTP-style status code
+          done:
+            type: boolean
+            description: Whether this is the final chunk for this context
+          data:
+            type: string
+            description: Base64-encoded audio data
+          step_time:
+            type: number
+            format: double
+            description: Server-side processing time for this chunk in milliseconds
+          flush_id:
+            $ref: '#/components/schemas/FlushID'
+            nullable: true
+        required:
+        - type
+        - context_id
+        - status_code
+        - done
+        - data
+        - step_time
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - flush_done
+          context_id:
+            $ref: '#/components/schemas/ContextID'
+          status_code:
+            type: integer
+            description: HTTP-style status code
+          done:
+            type: boolean
+            description: Whether generation is complete
+          flush_id:
+            $ref: '#/components/schemas/FlushID'
+          flush_done:
+            type: boolean
+            description: Whether the flush is complete
+        required:
+        - type
+        - context_id
+        - status_code
+        - done
+        - flush_id
+        - flush_done
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - done
+          context_id:
+            $ref: '#/components/schemas/ContextID'
+          status_code:
+            type: integer
+            description: HTTP-style status code
+          done:
+            type: boolean
+            enum:
+            - true
+            description: Whether generation is complete. Always `true` for done events.
+        required:
+        - type
+        - context_id
+        - status_code
+        - done
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - timestamps
+          context_id:
+            $ref: '#/components/schemas/ContextID'
+          status_code:
+            type: integer
+            description: HTTP-style status code
+          done:
+            type: boolean
+            description: Whether generation is complete
+          word_timestamps:
+            $ref: '#/components/schemas/WordTimestamps'
+            nullable: true
+          flush_id:
+            $ref: '#/components/schemas/FlushID'
+            nullable: true
+        required:
+        - type
+        - context_id
+        - status_code
+        - done
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - error
+          done:
+            type: boolean
+            description: Whether generation is complete
+          title:
+            type: string
+            description: Human-readable error title.
+          message:
+            type: string
+            description: Human-readable error message.
+          error_code:
+            type: string
+            description: Machine-readable error code.
+          status_code:
+            type: integer
+            description: An HTTP response status code.
+          doc_url:
+            type: string
+            description: URL to relevant documentation
+          request_id:
+            $ref: '#/components/schemas/RequestID'
+          context_id:
+            $ref: '#/components/schemas/ContextID'
+        required:
+        - type
+        - done
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - phoneme_timestamps
+          context_id:
+            $ref: '#/components/schemas/ContextID'
+          status_code:
+            type: integer
+            description: HTTP-style status code
+          done:
+            type: boolean
+            description: Whether generation is complete
+          phoneme_timestamps:
+            $ref: '#/components/schemas/PhonemeTimestamps'
+            nullable: true
+          flush_id:
+            $ref: '#/components/schemas/FlushID'
+            nullable: true
+        required:
+        - type
+        - context_id
+        - status_code
+        - done
+      discriminator:
+        propertyName: type
+    WordTimestamps:
+      title: WordTimestamps
+      type: object
+      description: Word-level timing information.
+      properties:
+        words:
+          type: array
+          items:
+            type: string
+          description: List of words in order.
+        start:
+          type: array
+          items:
+            type: number
+          description: Start times in seconds for each word.
+        end:
+          type: array
+          items:
+            type: number
+          description: End times in seconds for each word.
+      required:
+      - words
+      - start
+      - end
+      word_timestamps:
+        words:
+        - Hello
+        - world
+        start:
+        - 0
+        - 0.5
+        end:
+        - 0.4
+        - 0.9
+    PhonemeTimestamps:
+      title: PhonemeTimestamps
+      type: object
+      description: Phoneme-level timing information.
+      properties:
+        phonemes:
+          type: array
+          items:
+            type: string
+          description: List of phonemes in order.
+        start:
+          type: array
+          items:
+            type: number
+          description: Start times in seconds for each phoneme.
+        end:
+          type: array
+          items:
+            type: number
+          description: End times in seconds for each phoneme.
+      required:
+      - phonemes
+      - start
+      - end
+      example:
+        phonemes:
+        - h
+        - "\u0259"
+        - l
+        - "o\u028A"
+        start:
+        - 0.093
+        - 0.174
+        - 0.255
+        - 0.337
+        end:
+        - 0.174
+        - 0.255
+        - 0.337
+        - 0.418
+    CancelContextRequest:
+      title: CancelContextRequest
+      type: object
+      properties:
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+          description: The ID of the context to cancel.
+        cancel:
+          type: boolean
+          enum:
+          - true
+          description: Whether to cancel the context, so that no more messages are
+            generated for that context.
+      required:
+      - context_id
+      - cancel
+    GenerationRequest:
+      title: Generation Request
+      type: object
+      properties:
+        model_id:
+          type: string
+          description: The ID of the model to use for the generation. See [Models](/build-with-cartesia/tts-models)
+            for available models.
+          x-stainless-naming:
+            python:
+              property_name: llm_model_id
+        transcript:
+          type: string
+          description: The transcript to generate speech for.
+        voice:
+          $ref: '#/components/schemas/TTSRequestVoiceSpecifier'
+        generation_config:
+          $ref: '#/components/schemas/GenerationConfig'
+        language:
+          $ref: '#/components/schemas/SupportedLanguage'
+        output_format:
+          $ref: '#/components/schemas/WebSocketRawOutputFormat'
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+        continue:
+          type: boolean
+          nullable: true
+          default: false
+          description: 'Whether this input may be followed by more inputs.
+
+            If not specified, this defaults to `false`.'
+        max_buffer_delay_ms:
+          type: integer
+          nullable: true
+          default: 3000
+          description: 'The maximum time in milliseconds to buffer text before starting
+            generation. Values between [0, 5000]ms are supported. Defaults to 3000ms.
+
+
+            When set, the model will buffer incoming text chunks until it''s confident
+            it has enough context to generate high-quality speech, or the buffer delay
+            elapses, whichever comes first. Without this option set, the model will
+            kick off generations immediately, ceding control of buffering to the user.
+
+
+            Use this to balance responsiveness with higher quality speech generation,
+            which often benefits from having more context.'
+        speed:
+          $ref: '#/components/schemas/ModelSpeed'
+          deprecated: true
+        flush:
+          type: boolean
+          nullable: true
+          description: Whether to flush the context.
+        add_timestamps:
+          type: boolean
+          nullable: true
+          default: false
+          description: Whether to return word-level timestamps. If `false` (default),
+            no word timestamps will be produced at all. If `true`, the server will
+            return timestamp events containing word-level timing information.
+        add_phoneme_timestamps:
+          type: boolean
+          nullable: true
+          default: false
+          description: Whether to return phoneme-level timestamps. If `false` (default),
+            no phoneme timestamps will be produced. If `true`, the server will return
+            timestamp events containing phoneme-level timing information.
+        use_normalized_timestamps:
+          type: boolean
+          nullable: true
+          description: Whether to use normalized timestamps (True) or original timestamps
+            (False).
+        pronunciation_dict_id:
+          type: string
+          nullable: true
+          description: The ID of a pronunciation dictionary to use for the generation.
+            Pronunciation dictionaries are supported by `sonic-3` models and newer.
+      required:
+      - model_id
+      - transcript
+      - voice
+      - output_format
+      - context_id
+    WebSocketRawOutputFormat:
+      title: WebSocketRawOutputFormat
+      type: object
+      properties:
+        container:
+          type: string
+          enum:
+          - raw
+        encoding:
+          $ref: '#/components/schemas/RawEncoding'
+        sample_rate:
+          type: integer
+          enum:
+          - 8000
+          - 16000
+          - 22050
+          - 24000
+          - 44100
+          - 48000
+      required:
+      - container
+      - encoding
+      - sample_rate
+    TTSWebSocketRequest:
+      title: TTSWebSocketRequest
+      oneOf:
+      - description: Use this to generate speech for a transcript.
+        $ref: '#/components/schemas/GenerationRequest'
+      - description: Use this to cancel a context, so that no more messages are generated
+          for that context.
+        $ref: '#/components/schemas/CancelContextRequest'
+    TTSRequest:
+      title: TTSRequest
+      type: object
+      properties:
+        model_id:
+          type: string
+          description: The ID of the model to use for the generation. See [Models](/build-with-cartesia/tts-models)
+            for available models.
+          x-stainless-naming:
+            python:
+              property_name: llm_model_id
+        transcript:
+          type: string
+        voice:
+          $ref: '#/components/schemas/TTSRequestVoiceSpecifier'
+        language:
+          $ref: '#/components/schemas/SupportedLanguage'
+          nullable: true
+        generation_config:
+          $ref: '#/components/schemas/GenerationConfig'
+        output_format:
+          $ref: '#/components/schemas/OutputFormat'
+        save:
+          type: boolean
+          nullable: true
+          default: false
+          description: Whether to save the generated audio file. When true, the response
+            will include a `Cartesia-File-ID` header.
+        pronunciation_dict_id:
+          type: string
+          nullable: true
+          description: The ID of a pronunciation dictionary to use for the generation.
+            Pronunciation dictionaries are supported by `sonic-3` models and newer.
+        speed:
+          $ref: '#/components/schemas/ModelSpeed'
+      required:
+      - model_id
+      - transcript
+      - voice
+      - output_format
+    GenerationConfig:
+      title: GenerationConfig
+      type: object
+      description: 'Configure the various attributes of the generated speech. These
+        are only for `sonic-3` and have no effect on earlier models.
+
+
+        See [Volume, Speed, and Emotion in Sonic-3](/build-with-cartesia/sonic-3/volume-speed-emotion)
+        for a guide on this option.'
+      properties:
+        volume:
+          type: number
+          format: double
+          default: 1
+          description: Adjust the volume of the generated speech between 0.5x and
+            2.0x the original volume (default is 1.0x). Valid values are between [0.5,
+            2.0] inclusive.
+        speed:
+          type: number
+          format: double
+          default: 1
+          description: Adjust the speed of the generated speech between 0.6x and 1.5x
+            the original speed (default is 1.0x). Valid values are between [0.6, 1.5]
+            inclusive.
+        emotion:
+          description: Guide the emotion of the generated speech.
+          $ref: '#/components/schemas/Emotion'
+    Emotion:
+      title: Emotion
+      type: string
+      description: The primary emotions are `neutral`, `calm`, `angry`, `content`,
+        `sad`, `scared`. For more options, see [Prompting Sonic-3](/build-with-cartesia/sonic-3/volume-speed-emotion#emotion-controls-beta).
+      enum:
+      - neutral
+      - happy
+      - excited
+      - enthusiastic
+      - elated
+      - euphoric
+      - triumphant
+      - amazed
+      - surprised
+      - flirtatious
+      - curious
+      - content
+      - peaceful
+      - serene
+      - calm
+      - grateful
+      - affectionate
+      - trust
+      - sympathetic
+      - anticipation
+      - mysterious
+      - angry
+      - mad
+      - outraged
+      - frustrated
+      - agitated
+      - threatened
+      - disgusted
+      - contempt
+      - envious
+      - sarcastic
+      - ironic
+      - sad
+      - dejected
+      - melancholic
+      - disappointed
+      - hurt
+      - guilty
+      - bored
+      - tired
+      - rejected
+      - nostalgic
+      - wistful
+      - apologetic
+      - hesitant
+      - insecure
+      - confused
+      - resigned
+      - anxious
+      - panicked
+      - alarmed
+      - scared
+      - proud
+      - confident
+      - distant
+      - skeptical
+      - contemplative
+      - determined
+    TTSSSERequest:
+      title: TTSSSERequest
+      type: object
+      properties:
+        model_id:
+          type: string
+          description: The ID of the model to use for the generation. See [Models](/build-with-cartesia/tts-models)
+            for available models.
+          x-stainless-naming:
+            python:
+              property_name: llm_model_id
+        transcript:
+          type: string
+        voice:
+          $ref: '#/components/schemas/TTSRequestVoiceSpecifier'
+        output_format:
+          $ref: '#/components/schemas/SSEOutputFormat'
+        generation_config:
+          $ref: '#/components/schemas/GenerationConfig'
+        language:
+          $ref: '#/components/schemas/SupportedLanguage'
+        speed:
+          $ref: '#/components/schemas/ModelSpeed'
+          deprecated: true
+        add_timestamps:
+          type: boolean
+          nullable: true
+          default: false
+          description: Whether to return word-level timestamps. If `false` (default),
+            no word timestamps will be produced at all. If `true`, the server will
+            return timestamp events containing word-level timing information.
+        add_phoneme_timestamps:
+          type: boolean
+          nullable: true
+          default: false
+          description: Whether to return phoneme-level timestamps. If `false` (default),
+            no phoneme timestamps will be produced. If `true`, the server will return
+            timestamp events containing phoneme-level timing information.
+        use_normalized_timestamps:
+          type: boolean
+          nullable: true
+          description: Whether to use normalized timestamps (True) or original timestamps
+            (False).
+        pronunciation_dict_id:
+          type: string
+          nullable: true
+          description: The ID of a pronunciation dictionary to use for the generation.
+            Pronunciation dictionaries are supported by `sonic-3` models and newer.
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+          nullable: true
+          description: Optional context ID for this request.
+      required:
+      - model_id
+      - transcript
+      - voice
+      - output_format
+    TTSSSEEvent:
+      title: TTSSSEEvent
+      description: An event emitted by the TTS SSE stream.
+      oneOf:
+      - $ref: '#/components/schemas/TTSSSEChunkEvent'
+      - $ref: '#/components/schemas/TTSSSETimestampsEvent'
+      - $ref: '#/components/schemas/TTSSSEPhonemeTimestampsEvent'
+      - $ref: '#/components/schemas/TTSSSEDoneEvent'
+      - $ref: '#/components/schemas/TTSSSEErrorEvent'
+      discriminator:
+        propertyName: type
+        mapping:
+          chunk: '#/components/schemas/TTSSSEChunkEvent'
+          timestamps: '#/components/schemas/TTSSSETimestampsEvent'
+          phoneme_timestamps: '#/components/schemas/TTSSSEPhonemeTimestampsEvent'
+          done: '#/components/schemas/TTSSSEDoneEvent'
+          error: '#/components/schemas/TTSSSEErrorEvent'
+    TTSSSEChunkEvent:
+      title: TTSSSEChunkEvent
+      description: Audio data chunk.
+      type: object
+      example:
+        type: chunk
+        done: false
+        status_code: 206
+        step_time: 123
+        context_id: 50dc3b5e-5841-4aa1-9f94-60cfb9aead79
+        data: aSDinaTvuI8gbWludGxpZnk=
+      properties:
+        type:
+          type: string
+          enum:
+          - chunk
+          description: Event type identifier.
+        done:
+          type: boolean
+          enum:
+          - false
+          description: Whether this is the final event for the request. Always `false`
+            for chunk events.
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+          nullable: true
+          description: The context ID echoed back from the request, if one was provided.
+        data:
+          type: string
+          description: Base64-encoded audio data.
+        step_time:
+          type: number
+          description: Server-side processing time for this chunk in milliseconds.
+        status_code:
+          type: integer
+          description: HTTP-style status code.
+      required:
+      - type
+      - done
+      - data
+      - step_time
+      - status_code
+    TTSSSETimestampsEvent:
+      title: TTSSSETimestampsEvent
+      description: Word-level timing information.
+      type: object
+      example:
+        type: timestamps
+        done: false
+        status_code: 206
+        context_id: 872ec12d-bc63-4e1e-a241-4f58c879d105
+        word_timestamps:
+          words:
+          - Hello
+          - world
+          start:
+          - 0
+          - 0.5
+          end:
+          - 0.4
+          - 0.9
+      properties:
+        type:
+          type: string
+          enum:
+          - timestamps
+          description: Event type identifier.
+        done:
+          type: boolean
+          enum:
+          - false
+          description: Whether this is the final event for the request. Always `false`
+            for timestamps events.
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+          nullable: true
+          description: The context ID echoed back from the request, if one was provided.
+        word_timestamps:
+          $ref: '#/components/schemas/WordTimestamps'
+          description: Word-level timing information.
+        status_code:
+          type: integer
+          description: HTTP-style status code.
+      required:
+      - type
+      - done
+      - word_timestamps
+      - status_code
+    TTSSSEPhonemeTimestampsEvent:
+      title: TTSSSEPhonemeTimestampsEvent
+      description: Phoneme-level timing information.
+      type: object
+      example:
+        type: phoneme_timestamps
+        done: false
+        status_code: 206
+        context_id: 872ec12d-bc63-4e1e-a241-4f58c879d105
+        phoneme_timestamps:
+          phonemes:
+          - h
+          - "\u0259"
+          - l
+          - "o\u028A"
+          start:
+          - 0.093
+          - 0.174
+          - 0.255
+          - 0.337
+          end:
+          - 0.174
+          - 0.255
+          - 0.337
+          - 0.418
+      properties:
+        type:
+          type: string
+          enum:
+          - phoneme_timestamps
+          description: Event type identifier.
+        done:
+          type: boolean
+          enum:
+          - false
+          description: Whether this is the final event for the request. Always `false`
+            for phoneme_timestamps events.
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+          nullable: true
+          description: The context ID echoed back from the request, if one was provided.
+        phoneme_timestamps:
+          $ref: '#/components/schemas/PhonemeTimestamps'
+          description: Phoneme-level timing information.
+        status_code:
+          type: integer
+          description: HTTP-style status code.
+      required:
+      - type
+      - done
+      - phoneme_timestamps
+      - status_code
+    TTSSSEDoneEvent:
+      title: TTSSSEDoneEvent
+      description: Generation completion signal. Final event in the stream.
+      type: object
+      example:
+        type: done
+        done: true
+        status_code: 206
+        context_id: 50dc3b5e-5841-4aa1-9f94-60cfb9aead79
+      properties:
+        type:
+          type: string
+          enum:
+          - done
+          description: Event type identifier.
+        done:
+          type: boolean
+          enum:
+          - true
+          description: Whether generation is complete. Always `true` for done events.
+        context_id:
+          $ref: '#/components/schemas/ContextID'
+          nullable: true
+          description: The context ID echoed back from the request, if one was provided.
+        status_code:
+          type: integer
+          description: HTTP-style status code.
+      required:
+      - type
+      - done
+      - status_code
+    TTSSSEErrorEvent:
+      title: TTSSSEErrorEvent
+      description: Error information for the TTS SSE request.
+      type: object
+      example:
+        type: error
+        done: true
+        title: Invalid model
+        message: The model is not valid, make sure it is a valid model ID.
+        error_code: model_not_found
+        status_code: 400
+        doc_url: https://docs.cartesia.ai/build-with-cartesia/tts-models/latest
+        request_id: 2ff8af53-4d38-479d-8287-58940f01c701
+        context_id: 50dc3b5e-5841-4aa1-9f94-60cfb9aead79
+      properties:
+        type:
+          type: string
+          enum:
+          - error
+          description: Event type identifier.
+        done:
+          type: boolean
+          description: Whether generation is complete.
+        status_code:
+          type: integer
+          description: An HTTP response status code.
+        title:
+          type: string
+          description: Human-readable error title.
+        message:
+          type: string
+          description: Human-readable error message.
+        error_code:
+          type: string
+          nullable: true
+          description: Machine-readable error code.
+        request_id:
+          type: string
+          description: Unique identifier for this request.
+        doc_url:
+          type: string
+          nullable: true
+          description: URL to relevant documentation.
+      required:
+      - type
+      - done
+      - status_code
+      - title
+      - message
+      - request_id
+    VoiceChangerSSEEvent:
+      title: VoiceChangerSSEEvent
+      description: An event emitted by the Voice Changer SSE stream.
+      oneOf:
+      - $ref: '#/components/schemas/VoiceChangerSSEChunk'
+      - $ref: '#/components/schemas/VoiceChangerSSEDone'
+      - $ref: '#/components/schemas/VoiceChangerSSEError'
+    VoiceChangerSSEChunk:
+      title: VoiceChangerSSEChunk
+      description: Audio data chunk.
+      type: object
+      example:
+        done: false
+        status_code: 206
+        step_time: 123
+        data: aSDinaTvuI8gbWludGxpZnk=
+        sample_rate: 44100
+      properties:
+        status_code:
+          type: integer
+          enum:
+          - 206
+          description: HTTP-style status code. Always `206` for chunk events.
+        done:
+          type: boolean
+          enum:
+          - false
+          description: Whether this is the final event for the request. Always `false`
+            for chunk events.
+        data:
+          type: string
+          description: Base64-encoded audio data.
+        sample_rate:
+          type: integer
+          description: The sample rate of the audio in Hz.
+        step_time:
+          type: number
+          description: Server-side processing time for this chunk in milliseconds.
+      required:
+      - status_code
+      - done
+      - data
+      - sample_rate
+      - step_time
+    VoiceChangerSSEDone:
+      title: VoiceChangerSSEDone
+      description: Generation completion signal. Final event in the stream.
+      type: object
+      example:
+        done: true
+        status_code: 200
+      properties:
+        status_code:
+          type: integer
+          enum:
+          - 200
+          description: HTTP-style status code. Always `200` for done events.
+        done:
+          type: boolean
+          enum:
+          - true
+          description: Whether generation is complete. Always `true` for done events.
+      required:
+      - status_code
+      - done
+    VoiceChangerSSEError:
+      title: VoiceChangerSSEError
+      description: Error information for the Voice Changer SSE request.
+      type: object
+      example:
+        type: error
+        done: true
+        title: Invalid voice
+        message: The voice is not valid, make sure it is a valid voice ID.
+        error_code: voice_not_found
+        status_code: 400
+        request_id: 2ff8af53-4d38-479d-8287-58940f01c701
+      properties:
+        type:
+          type: string
+          enum:
+          - error
+          description: Event type identifier.
+        done:
+          type: boolean
+          enum:
+          - true
+          description: Whether generation is complete. Always `true` for error events.
+        status_code:
+          type: integer
+          description: An HTTP response status code.
+        title:
+          type: string
+          description: Human-readable error title.
+        message:
+          type: string
+          description: Human-readable error message.
+        error_code:
+          type: string
+          nullable: true
+          description: Machine-readable error code.
+        request_id:
+          type: string
+          description: Unique identifier for this request.
+        doc_url:
+          type: string
+          nullable: true
+          description: URL to relevant documentation.
+      required:
+      - type
+      - done
+      - status_code
+      - title
+      - message
+      - request_id
+    SupportedLanguage:
+      title: SupportedLanguage
+      type: string
+      enum:
+      - en
+      - fr
+      - de
+      - es
+      - pt
+      - zh
+      - ja
+      - hi
+      - it
+      - ko
+      - nl
+      - pl
+      - ru
+      - sv
+      - tr
+      - tl
+      - bg
+      - ro
+      - ar
+      - cs
+      - el
+      - fi
+      - hr
+      - ms
+      - sk
+      - da
+      - ta
+      - uk
+      - hu
+      - 'no'
+      - vi
+      - bn
+      - th
+      - he
+      - ka
+      - id
+      - te
+      - gu
+      - kn
+      - ml
+      - mr
+      - pa
+      description: The language that the given voice should speak the transcript in.
+        For valid options, see [Models](/build-with-cartesia/tts-models).
+    OutputFormat:
+      title: OutputFormat
+      oneOf:
+      - type: object
+        title: RAWOutputFormat
+        allOf:
+        - type: object
+          properties:
+            container:
+              type: string
+              enum:
+              - raw
+        - $ref: '#/components/schemas/RawOutputFormat'
+        required:
+        - container
+      - type: object
+        title: WAVOutputFormat
+        allOf:
+        - type: object
+          properties:
+            container:
+              type: string
+              enum:
+              - wav
+        - $ref: '#/components/schemas/WAVOutputFormat'
+        required:
+        - container
+      - type: object
+        title: MP3OutputFormat
+        allOf:
+        - type: object
+          properties:
+            container:
+              type: string
+              enum:
+              - mp3
+        - $ref: '#/components/schemas/MP3OutputFormat'
+        required:
+        - container
+    RawOutputFormat:
+      title: RawOutputFormat
+      type: object
+      properties:
+        encoding:
+          $ref: '#/components/schemas/RawEncoding'
+        sample_rate:
+          type: integer
+          enum:
+          - 8000
+          - 16000
+          - 22050
+          - 24000
+          - 44100
+          - 48000
+      required:
+      - encoding
+      - sample_rate
+    SSEOutputFormat:
+      title: SSEOutputFormat
+      type: object
+      properties:
+        container:
+          type: string
+          enum:
+          - raw
+        encoding:
+          $ref: '#/components/schemas/RawEncoding'
+        sample_rate:
+          type: integer
+          enum:
+          - 8000
+          - 16000
+          - 22050
+          - 24000
+          - 44100
+          - 48000
+      required:
+      - container
+      - encoding
+      - sample_rate
+    RawEncoding:
+      title: RawEncoding
+      type: string
+      enum:
+      - pcm_f32le
+      - pcm_s16le
+      - pcm_mulaw
+      - pcm_alaw
+    WAVOutputFormat:
+      title: WAVOutputFormat
+      type: object
+      properties: {}
+      allOf:
+      - $ref: '#/components/schemas/RawOutputFormat'
+    MP3OutputFormat:
+      title: MP3OutputFormat
+      type: object
+      properties:
+        sample_rate:
+          type: integer
+          enum:
+          - 8000
+          - 16000
+          - 22050
+          - 24000
+          - 44100
+          - 48000
+        bit_rate:
+          type: integer
+          enum:
+          - 32000
+          - 64000
+          - 96000
+          - 128000
+          - 192000
+      required:
+      - sample_rate
+      - bit_rate
+    TTSRequestVoiceSpecifier:
+      title: TTSRequestVoiceSpecifier
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+          - id
+        id:
+          $ref: '#/components/schemas/VoiceId'
+      required:
+      - mode
+      - id
+    OutputFormatContainer:
+      title: OutputFormatContainer
+      type: string
+      enum:
+      - raw
+      - wav
+      - mp3
+    VoiceId:
+      title: VoiceId
+      type: string
+      description: The ID of the voice.
+    BaseVoiceId:
+      title: BaseVoiceId
+      $ref: '#/components/schemas/VoiceId'
+      description: Pull in features from a base voice, used for features like voice
+        mixing.
+    Voice:
+      title: Voice
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/VoiceId'
+        is_owner:
+          type: boolean
+          description: Whether your organization owns the voice.
+        is_public:
+          type: boolean
+          description: Whether the voice is publicly accessible.
+        name:
+          type: string
+          description: The name of the voice.
+        description:
+          type: string
+          description: The description of the voice.
+        gender:
+          $ref: '#/components/schemas/GenderPresentation'
+          nullable: true
+          description: The gender of the voice, if specified.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the voice was created.
+        preview_file_url:
+          type: string
+          nullable: true
+          description: A URL to download a preview audio file for this voice. Useful
+            to avoid consuming credits when looking for the right voice. The URL requires
+            the same Authorization header. Voice previews may be changed, moved, or
+            deleted so you should avoid storing the URL permanently. This property
+            will be null if there's no preview available. Only included when `expand[]`
+            includes `preview_file_url`.
+        language:
+          $ref: '#/components/schemas/SupportedLanguage'
+      required:
+      - id
+      - is_owner
+      - is_public
+      - name
+      - description
+      - created_at
+      - language
+      example:
+        id: <string>
+        is_owner: true
+        is_public: false
+        name: <string>
+        description: <string>
+        language: en
+        created_at: '2024-11-04T05:31:56Z'
+    VoiceMetadata:
+      title: VoiceMetadata
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/VoiceId'
+        user_id:
+          type: string
+          description: The ID of the user who owns the voice.
+        is_public:
+          type: boolean
+          description: Whether the voice is publicly accessible.
+        name:
+          type: string
+          description: The name of the voice.
+        description:
+          type: string
+          description: The description of the voice.
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the voice was created.
+        language:
+          $ref: '#/components/schemas/SupportedLanguage'
+      required:
+      - id
+      - user_id
+      - is_public
+      - name
+      - description
+      - created_at
+      - language
+    GetVoicesResponse:
+      title: GetVoicesResponse
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Voice'
+          description: The paginated list of Voices.
+        has_more:
+          type: boolean
+          description: Whether there are more Voices to fetch (using `starting_after=id`,
+            where id is the ID of the last Voice in the current response).
+        next_page:
+          $ref: '#/components/schemas/VoiceId'
+          nullable: true
+          description: (Deprecated - use the id of the last Voice in the current response
+            instead.) An ID that can be passed as `starting_after` to get the next
+            page of Voices.
+      required:
+      - data
+      - has_more
+    UpdateVoiceRequest:
+      title: UpdateVoiceRequest
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the voice.
+        description:
+          type: string
+          description: The description of the voice.
+        gender:
+          $ref: '#/components/schemas/GenderPresentation'
+          nullable: true
+      required:
+      - name
+      - description
+    LocalizeTargetLanguage:
+      title: LocalizeTargetLanguage
+      type: string
+      enum:
+      - en
+      - de
+      - es
+      - fr
+      - ja
+      - pt
+      - zh
+      - hi
+      - it
+      - ko
+      - nl
+      - pl
+      - ru
+      - sv
+      - tr
+      description: 'Target language to localize the voice to.
+
+
+        Options: English (en), German (de), Spanish (es), French (fr), Japanese (ja),
+        Portuguese (pt), Chinese (zh), Hindi (hi), Italian (it), Korean (ko), Dutch
+        (nl), Polish (pl), Russian (ru), Swedish (sv), Turkish (tr).'
+    LocalizeEnglishDialect:
+      title: LocalizeEnglishDialect
+      type: string
+      enum:
+      - au
+      - in
+      - so
+      - uk
+      - us
+    LocalizeFrenchDialect:
+      title: LocalizeFrenchDialect
+      type: string
+      enum:
+      - eu
+      - ca
+    LocalizeSpanishDialect:
+      title: LocalizeSpanishDialect
+      type: string
+      enum:
+      - mx
+      - pe
+    LocalizePortugueseDialect:
+      title: LocalizePortugueseDialect
+      type: string
+      enum:
+      - br
+      - eu
+    LocalizeDialect:
+      title: LocalizeDialect
+      oneOf:
+      - description: 'Only available when language is set to English (`en`). Options:
+          Australian (`au`), Indian (`in`), Southern (`so`), British (`uk`), or American
+          (`us`).'
+        $ref: '#/components/schemas/LocalizeEnglishDialect'
+      - description: 'Only available when language is set to Spanish (`es`). Options:
+          Latin American (`mx`) and Peninsular (`pe`).'
+        $ref: '#/components/schemas/LocalizeSpanishDialect'
+      - description: 'Only available when language is set to Portuguese (`pt`). Options:
+          Brazilian (`br`) and European Portuguese (`eu`).'
+        $ref: '#/components/schemas/LocalizePortugueseDialect'
+      - description: 'Only available when language is set to French (`fr`). Options:
+          Standard Parisian/Metropolitan (`eu`) and Canadian (`ca`).'
+        $ref: '#/components/schemas/LocalizeFrenchDialect'
+      description: The dialect to localize to. Only supported for English (`en`),
+        Spanish (`es`), Portuguese (`pt`), and French (`fr`).
+    GenderPresentation:
+      title: GenderPresentation
+      type: string
+      enum:
+      - masculine
+      - feminine
+      - gender_neutral
+    Gender:
+      title: Gender
+      type: string
+      enum:
+      - male
+      - female
+    VoiceExpandOptions:
+      title: VoiceExpandOptions
+      type: string
+      enum:
+      - preview_file_url
+    LocalizeVoiceRequest:
+      title: LocalizeVoiceRequest
+      type: object
+      properties:
+        voice_id:
+          type: string
+          description: The ID of the voice to localize.
+        name:
+          type: string
+          description: The name of the new localized voice.
+        description:
+          type: string
+          description: The description of the new localized voice.
+        language:
+          $ref: '#/components/schemas/LocalizeTargetLanguage'
+        original_speaker_gender:
+          $ref: '#/components/schemas/Gender'
+        dialect:
+          $ref: '#/components/schemas/LocalizeDialect'
+          nullable: true
+      required:
+      - voice_id
+      - name
+      - description
+      - language
+      - original_speaker_gender
+servers:
+- url: https://api.cartesia.ai
+  description: Production
+x-mcp:
+  transport:
+  - stdio
+  - http
+  orchestration: code
+  endpoint_tools: hidden

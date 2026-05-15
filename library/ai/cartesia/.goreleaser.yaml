@@ -1,0 +1,51 @@
+version: 2
+project_name: cartesia-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cartesia-pp-cli
+    main: ./cmd/cartesia-pp-cli
+    binary: cartesia-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/cartesia/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cartesia-pp-mcp
+    main: ./cmd/cartesia-pp-mcp
+    binary: cartesia-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cartesia-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Manage Cartesia voice agents, deployments, calls, metrics, and voices from the terminal — with a local SQLite..."
+    install: |
+      bin.install "cartesia-pp-cli"
+      bin.install "cartesia-pp-mcp"

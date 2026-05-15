@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "agents_delete": "Delete a Cartesia agent by id. Required: agent_id (path). Destructive — removes the agent and detaches its phone numbers and metrics; existing call records are retained but their agent reference becomes dangling. Returns 204 on success. Use agents_list first to confirm the agent_id; this operation cannot be undone.",
+    "agents_get-call": "Fetch a single agent call by id. Required: call_id (path). Returns the AgentCall object including agent_id, start_time, duration, status, transcript, and any attached metric results. Prefer this over agents_list-calls when you already have a call_id; use list-calls when you need to filter or paginate across many calls.",
+    "datasets_delete": "Delete a fine-tune dataset by id. Required: id (path). Destructive — removes the dataset record and any uploaded files associated with it; any in-progress fine-tunes that reference this dataset will fail. Returns 204 on success. Confirm with datasets_list before deleting; this operation cannot be undone.",
+    "fine-tunes_delete": "Delete a fine-tune job and its resulting custom voice by id. Required: id (path). Destructive — removes the fine-tune record and the derived voice; deployed agents pointing at that voice will fall back to their base voice. Returns 204 on success. Use fine-tunes_list to find candidates; this operation cannot be undone.",
+    "voices_delete": "Delete a voice from your private library by id. Required: id (path). Destructive — only succeeds for voices you own (not the shared catalog); agents that reference this voice will fail to synthesize until reassigned. Returns 204 on success. Use voices_list with owner filter to find your private voices; this operation cannot be undone."
+  }
+}

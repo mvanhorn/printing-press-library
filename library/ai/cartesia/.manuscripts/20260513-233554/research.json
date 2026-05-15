@@ -1,0 +1,331 @@
+{
+  "api_name": "cartesia",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "cartesia-mcp",
+      "url": "https://github.com/cartesia-ai/cartesia-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cartesia-python",
+      "url": "https://github.com/cartesia-ai/cartesia-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 121,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cartesia-js",
+      "url": "https://github.com/cartesia-ai/cartesia-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 131,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "line",
+      "url": "https://github.com/cartesia-ai/line",
+      "language": "Python",
+      "install_method": "",
+      "stars": 100,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ai-say-cli",
+      "url": "https://www.npmjs.com/package/ai-say-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-13T23:35:54Z",
+  "novel_features": [
+    {
+      "name": "Call grep",
+      "command": "calls grep",
+      "description": "Full-text + regex search across every synced call transcript, with windowed turns of context, agent filter, and time window.",
+      "rationale": "Requires FTS5 over transcripts already pulled to disk; the API only paginates raw results and has no search endpoint.",
+      "example": "cartesia-pp-cli calls grep 'refund' --agent agent_42 --turns 2 --since 7d --json",
+      "why_it_matters": "When an agent says 'find every call where the customer asked about cancellation,' this is the single answer no API call gives.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent audit",
+      "command": "agents audit",
+      "description": "Joins the last 24h of calls + each call's metric results + the deployment that handled it, flagging regressions vs the prior deployment.",
+      "rationale": "Requires correlating four resources offline (agents, deployments, calls, metric_results) — no single endpoint produces this.",
+      "example": "cartesia-pp-cli agents audit agent_42 --since 24h --regression-threshold 0.1 --json",
+      "why_it_matters": "Pick this when an agent wants a single 'is my voice agent regressing right now' verdict.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deployment diff",
+      "command": "agents diff",
+      "description": "Side-by-side diff of prompt, voice, model, and config between any two deployments of the same agent.",
+      "rationale": "Needs both deployments resolved into one renderer; the API returns one deployment per call.",
+      "example": "cartesia-pp-cli agents diff agent_42 --from dep_prev --to dep_curr --json",
+      "why_it_matters": "Use this when an agent says 'why did this start failing after my last push?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Metric trend",
+      "command": "metrics trend",
+      "description": "Bucketed pass-rate or score-mean for any LLM-judge metric over time, sliced by deployment.",
+      "rationale": "Joins metric_results with the deployment timeline locally; the API paginates raw results only.",
+      "example": "cartesia-pp-cli metrics trend metric_pass_rate --bucket day --agent agent_42 --since 30d --json",
+      "why_it_matters": "Reach for this when an agent wants to know 'is quality going up or down per release?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Since-when feed",
+      "command": "agents since",
+      "description": "Every call plus every flagged metric result on a given agent since a timestamp, in one chronological feed.",
+      "rationale": "Time-windowed aggregation across calls and metric_results — no single API endpoint returns this combined view.",
+      "example": "cartesia-pp-cli agents since agent_42 2h --json",
+      "why_it_matters": "Use this when an agent comes back from a break and asks 'what happened on my line while I was away?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bad-call hunter",
+      "command": "calls worst",
+      "description": "Surfaces the lowest-scored calls across all agents in one window, with transcript snippets.",
+      "rationale": "Cross-agent ranking from local metric_results joined to call transcripts — the API does not rank cross-agent.",
+      "example": "cartesia-pp-cli calls worst --metric metric_csat --since 7d --limit 20 --json",
+      "why_it_matters": "Use this when an agent says 'show me the worst things our voice agents said this week.'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Voice changelog",
+      "command": "voices changelog",
+      "description": "Voices created, updated, deleted since the last sync, with metadata diffs.",
+      "rationale": "Needs historical local snapshots; the API returns only current state.",
+      "example": "cartesia-pp-cli voices changelog --since 7d --json",
+      "why_it_matters": "Use this when an agent needs to know which voices changed before a deployment.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Voice picker",
+      "command": "voices find",
+      "description": "Free-text style match (\"warm female, mid-pitch, Spanish\") against locally cached voice catalog with structured filters.",
+      "rationale": "FTS5 over local voice catalog + filters; no API search endpoint exists.",
+      "example": "cartesia-pp-cli voices find 'warm female mid-pitch' --lang es --gender female --json",
+      "why_it_matters": "Use this when an agent needs to pick a voice from a description, not an id.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Transcript SQL",
+      "command": "sql",
+      "description": "Read-only SELECT over the local SQLite store — agents, calls, transcripts, metrics, deployments.",
+      "rationale": "Composable read surface on synced data; unique to local-store CLIs.",
+      "example": "cartesia-pp-cli sql \"SELECT id, summary FROM calls ORDER BY start_time DESC LIMIT 20\" --json",
+      "why_it_matters": "Reach for this when no canned subcommand fits the question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cost estimate",
+      "command": "usage estimate",
+      "description": "Estimates credit cost for a planned operation (fine-tune, localize) from local usage history.",
+      "rationale": "Combines /usage/credits history with a planned operation; no single endpoint estimates pre-spend.",
+      "example": "cartesia-pp-cli usage estimate fine-tune --dataset ds_42 --json",
+      "why_it_matters": "Use this before committing to a billable operation an agent is about to kick off.",
+      "group": "Cost intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Call grep",
+      "command": "calls grep",
+      "description": "Full-text + regex search across every synced call transcript, with windowed turns of context, agent filter, and time window.",
+      "rationale": "Requires FTS5 over transcripts already pulled to disk; the API only paginates raw results and has no search endpoint.",
+      "example": "cartesia-pp-cli calls grep 'refund' --agent agent_42 --turns 2 --since 7d --json",
+      "why_it_matters": "When an agent says 'find every call where the customer asked about cancellation,' this is the single answer no API call gives.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Agent audit",
+      "command": "agents audit",
+      "description": "Joins the last 24h of calls + each call's metric results + the deployment that handled it, flagging regressions vs the prior deployment.",
+      "rationale": "Requires correlating four resources offline (agents, deployments, calls, metric_results) — no single endpoint produces this.",
+      "example": "cartesia-pp-cli agents audit agent_42 --since 24h --regression-threshold 0.1 --json",
+      "why_it_matters": "Pick this when an agent wants a single 'is my voice agent regressing right now' verdict.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deployment diff",
+      "command": "agents diff",
+      "description": "Side-by-side diff of prompt, voice, model, and config between any two deployments of the same agent.",
+      "rationale": "Needs both deployments resolved into one renderer; the API returns one deployment per call.",
+      "example": "cartesia-pp-cli agents diff agent_42 --from dep_prev --to dep_curr --json",
+      "why_it_matters": "Use this when an agent says 'why did this start failing after my last push?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Metric trend",
+      "command": "metrics trend",
+      "description": "Bucketed pass-rate or score-mean for any LLM-judge metric over time, sliced by deployment.",
+      "rationale": "Joins metric_results with the deployment timeline locally; the API paginates raw results only.",
+      "example": "cartesia-pp-cli metrics trend metric_pass_rate --bucket day --agent agent_42 --since 30d --json",
+      "why_it_matters": "Reach for this when an agent wants to know 'is quality going up or down per release?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Since-when feed",
+      "command": "agents since",
+      "description": "Every call plus every flagged metric result on a given agent since a timestamp, in one chronological feed.",
+      "rationale": "Time-windowed aggregation across calls and metric_results — no single API endpoint returns this combined view.",
+      "example": "cartesia-pp-cli agents since agent_42 2h --json",
+      "why_it_matters": "Use this when an agent comes back from a break and asks 'what happened on my line while I was away?'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bad-call hunter",
+      "command": "calls worst",
+      "description": "Surfaces the lowest-scored calls across all agents in one window, with transcript snippets.",
+      "rationale": "Cross-agent ranking from local metric_results joined to call transcripts — the API does not rank cross-agent.",
+      "example": "cartesia-pp-cli calls worst --metric metric_csat --since 7d --limit 20 --json",
+      "why_it_matters": "Use this when an agent says 'show me the worst things our voice agents said this week.'",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Voice changelog",
+      "command": "voices changelog",
+      "description": "Voices created, updated, deleted since the last sync, with metadata diffs.",
+      "rationale": "Needs historical local snapshots; the API returns only current state.",
+      "example": "cartesia-pp-cli voices changelog --since 7d --json",
+      "why_it_matters": "Use this when an agent needs to know which voices changed before a deployment.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Voice picker",
+      "command": "voices find",
+      "description": "Free-text style match (\"warm female, mid-pitch, Spanish\") against locally cached voice catalog with structured filters.",
+      "rationale": "FTS5 over local voice catalog + filters; no API search endpoint exists.",
+      "example": "cartesia-pp-cli voices find 'warm female mid-pitch' --lang es --gender female --json",
+      "why_it_matters": "Use this when an agent needs to pick a voice from a description, not an id.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Transcript SQL",
+      "command": "sql",
+      "description": "Read-only SELECT over the local SQLite store — agents, calls, transcripts, metrics, deployments.",
+      "rationale": "Composable read surface on synced data; unique to local-store CLIs.",
+      "example": "cartesia-pp-cli sql \"SELECT id, summary FROM calls ORDER BY start_time DESC LIMIT 20\" --json",
+      "why_it_matters": "Reach for this when no canned subcommand fits the question.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cost estimate",
+      "command": "usage estimate",
+      "description": "Estimates credit cost for a planned operation (fine-tune, localize) from local usage history.",
+      "rationale": "Combines /usage/credits history with a planned operation; no single endpoint estimates pre-spend.",
+      "example": "cartesia-pp-cli usage estimate fine-tune --dataset ds_42 --json",
+      "why_it_matters": "Use this before committing to a billable operation an agent is about to kick off.",
+      "group": "Cost intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Cartesia",
+    "headline": "Manage Cartesia voice agents, deployments, calls, metrics, and voices from the terminal — with a local SQLite mirror that makes agent grep, drift, and audit possible.",
+    "value_prop": "Every Cartesia endpoint as a typed command, plus the offline joins the API can't do in one shot: deployment diff, transcript grep, metric trends, agent audit. Designed for AI agents and humans alike.",
+    "auth_narrative": "Cartesia ships two Bearer schemes on the same header: long-lived API keys for backend automation and short-lived JWT access tokens (obtained from POST /access-token with TTS or STT grants) for browser/edge clients. `auth set-token` stores the API key in OS-appropriate config; `auth access-token` mints a JWT.",
+    "quickstart": [
+      {
+        "command": "cartesia-pp-cli auth set-token sk_car_your_key_here",
+        "comment": "Store your Cartesia API key so every subsequent call is authenticated."
+      },
+      {
+        "command": "cartesia-pp-cli doctor",
+        "comment": "Verifies auth, base URL, and Cartesia-Version header before any real work."
+      },
+      {
+        "command": "cartesia-pp-cli sync",
+        "comment": "Pulls agents, voices, deployments, metrics, datasets into the local store so the compound commands work."
+      },
+      {
+        "command": "cartesia-pp-cli calls grep cancel --since 24h --json",
+        "comment": "Once synced, this returns every transcript containing 'cancel' across all agents -- no extra API calls."
+      },
+      {
+        "command": "cartesia-pp-cli agents audit agent_42 --since 24h --json",
+        "comment": "Joins calls, metric_results, and deployments locally for a single regression verdict."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 from any command",
+        "fix": "Run `cartesia-pp-cli auth status`; if missing, `auth set-token` or `export CARTESIA_API_KEY=sk_car_...`."
+      },
+      {
+        "symptom": "Cartesia-Version header rejected",
+        "fix": "Set `CARTESIA_API_VERSION` env var to the date string from `cartesia-pp-cli status` (currently 2025-04-16)."
+      },
+      {
+        "symptom": "calls grep returns nothing",
+        "fix": "Calls aren't synced until you run `sync --resource calls --full`. The grep is offline-first."
+      },
+      {
+        "symptom": "TTS websocket disconnects mid-stream",
+        "fix": "Reduce concurrency: WebSocket multiplexes contexts but caps per connection. Use --max-contexts to bound."
+      }
+    ],
+    "when_to_use": "Reach for cartesia-pp-cli when iterating on a production Cartesia voice agent: tweaking prompts, watching deployments roll out, grepping call transcripts for failure modes, attaching LLM-judge metrics, or pulling regression reports. The local SQLite mirror is what makes the compound commands fast and offline-friendly.",
+    "recipes": [
+      {
+        "title": "Find calls where the agent misheard a date",
+        "command": "cartesia-pp-cli calls grep yesterday --agent agent_42 --turns 1 --json --select id,start_time,agent_id",
+        "explanation": "FTS-backed search over local transcripts with dotted --select so the response stays under one screen."
+      },
+      {
+        "title": "Audit yesterday's deployment for regressions",
+        "command": "cartesia-pp-cli agents audit agent_42 --since 24h --regression-threshold 0.1 --json",
+        "explanation": "Joins calls + metric_results + deployments offline; flags any metric that dropped more than 10% from the prior deployment."
+      },
+      {
+        "title": "Pick a Spanish voice from a description",
+        "command": "cartesia-pp-cli voices find warm --lang es --gender female --json",
+        "explanation": "FTS5 + structured filters over the locally cached voice catalog; returns the top match in agent-ready JSON."
+      },
+      {
+        "title": "Estimate credits before kicking off a fine-tune",
+        "command": "cartesia-pp-cli usage estimate fine-tune --dataset ds_42 --json",
+        "explanation": "Compares the planned fine-tune to your local usage history so you don't pay for an experiment you'd skip."
+      },
+      {
+        "title": "Find the worst-scored calls this week",
+        "command": "cartesia-pp-cli calls worst --since 7d --limit 20 --json",
+        "explanation": "Cross-agent ranking from local metric_results joined to call transcripts; surfaces the lowest scorers without touching the API."
+      }
+    ],
+    "trigger_phrases": [
+      "audit my cartesia agent",
+      "grep cartesia call transcripts",
+      "diff cartesia deployments",
+      "estimate cartesia credits",
+      "use cartesia",
+      "run cartesia"
+    ]
+  }
+}
