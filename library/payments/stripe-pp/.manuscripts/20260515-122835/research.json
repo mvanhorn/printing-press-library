@@ -1,0 +1,271 @@
+{
+  "api_name": "stripe",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "stripe-cli",
+      "url": "https://github.com/stripe/stripe-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 3500,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agent-toolkit (@stripe/mcp)",
+      "url": "https://github.com/stripe/agent-toolkit",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 600,
+      "last_updated": "",
+      "command_count": 48,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stripe-go",
+      "url": "https://github.com/stripe/stripe-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2400,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stripe-node",
+      "url": "https://github.com/stripe/stripe-node",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 3800,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "stripe-python",
+      "url": "https://github.com/stripe/stripe-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1700,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dj-stripe",
+      "url": "https://github.com/dj-stripe/dj-stripe",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1700,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T10:28:35Z",
+  "novel_features": [
+    {
+      "name": "Mirror sync",
+      "command": "sync",
+      "description": "Incrementally mirror your Stripe account into a local SQLite database — customers, payment_intents, charges, invoices, subscriptions, refunds, balance_transactions, payouts — with resumable cursors per entity.",
+      "rationale": "Stripe has no first-class local store. stripe-cli is online-only. dj-stripe needs Postgres + Django. A single-binary SQLite mirror is what unlocks every other novel command.",
+      "example": "stripe-pp-cli sync --since 30d --resources customers,charges,invoices,subscriptions,balance_transactions --json",
+      "why_it_matters": "Run this first in any Stripe analytics session — every other novel command queries the local mirror instead of hitting the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Payout explain",
+      "command": "payouts explain",
+      "description": "Decompose a payout into every contributing balance_transaction (charges, refunds, fees, adjustments, disputes) with running totals and top-customer attribution.",
+      "rationale": "Only a local mirror with JOIN access to balance_transactions, charges, and customers can answer 'why is this payout $X?' in one command. Stripe Dashboard requires CSV export plus spreadsheet pivoting.",
+      "example": "stripe-pp-cli payouts explain po_1NXabc --json --select amount,arrival_date,breakdown,top_customers",
+      "why_it_matters": "Reach for this when a founder or finance lead asks 'is this payout right?' — replaces a 15-minute spreadsheet exercise with one CLI call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Failed payment triage",
+      "command": "payments failed",
+      "description": "Group failed PaymentIntents by decline_code, customer, or amount band over a date window, with $ at risk and sample customers.",
+      "rationale": "Stripe Dashboard has no group-by-decline-reason view. Search API lags ~1 minute and cannot aggregate. Local SQL over last_payment_error fields is instant.",
+      "example": "stripe-pp-cli payments failed --since 2026-05-01 --group-by decline_code --json --select decline_code,count,total_amount,sample_customers",
+      "why_it_matters": "Morning standup query: 'did anything weird happen overnight?' — answers in one shot what's normally a 5-click dashboard journey.",
+      "group": "Compound analytics agents need"
+    },
+    {
+      "name": "Subscription churn audit",
+      "command": "subscriptions churn",
+      "description": "List canceled or past_due subscriptions in a window, grouped by cancellation_details.reason, with MRR delta and customer LTV attribution.",
+      "rationale": "Stripe Sigma costs extra and lags. Dashboard shows individual cancellations, not aggregated $ impact. Only a local subscriptions-to-invoice-items join produces an MRR-weighted churn report.",
+      "example": "stripe-pp-cli subscriptions churn --since 2026-04-01 --group-by cancellation_reason --mrr-delta --json",
+      "why_it_matters": "First-of-the-month query: 'why are we down on MRR?' — turns vague churn into a ranked list of reasons with dollars attached.",
+      "group": "Compound analytics agents need"
+    },
+    {
+      "name": "Customer 360",
+      "command": "customers profile",
+      "description": "Join one customer's record with their active subscriptions, lifetime charges and refunds, open invoices, recent activity, and computed lifetime value.",
+      "rationale": "Stripe Dashboard splits this across 5 tabs. @stripe/mcp requires multiple sequential calls bounded by expand[] depth 4. One local query returns the whole picture.",
+      "example": "stripe-pp-cli customers profile cus_1234 --json --select id,email,lifetime_value,active_subscriptions,recent_failures,open_invoice_balance",
+      "why_it_matters": "First command on any support ticket — replaces the dashboard scavenger hunt with one CLI call that hands the agent a complete customer record.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Why did this charge fail",
+      "command": "charges why",
+      "description": "For a failed charge, return decline_code, network message, that customer's recent successes/failures, and similar failures in the last 7 days.",
+      "rationale": "Today this is 5+ dashboard clicks. A local mirror collapses it to one SQL query with self-joins on decline_code over a 7-day window.",
+      "example": "stripe-pp-cli charges why ch_3Nabc --json --select decline_code,network_message,customer_recent_activity,similar_failures_7d",
+      "why_it_matters": "Default agent action when a user pastes a charge ID — gives complete context for refund/retry/dispute decisions without further roundtrips.",
+      "group": "Frustration eliminators"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mirror sync",
+      "command": "sync",
+      "description": "Incrementally mirror your Stripe account into a local SQLite database — customers, payment_intents, charges, invoices, subscriptions, refunds, balance_transactions, payouts — with resumable cursors per entity.",
+      "rationale": "Stripe has no first-class local store. stripe-cli is online-only. dj-stripe needs Postgres + Django. A single-binary SQLite mirror is what unlocks every other novel command.",
+      "example": "stripe-pp-cli sync --since 30d --resources customers,charges,invoices,subscriptions,balance_transactions --json",
+      "why_it_matters": "Run this first in any Stripe analytics session — every other novel command queries the local mirror instead of hitting the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Payout explain",
+      "command": "payouts explain",
+      "description": "Decompose a payout into every contributing balance_transaction (charges, refunds, fees, adjustments, disputes) with running totals and top-customer attribution.",
+      "rationale": "Only a local mirror with JOIN access to balance_transactions, charges, and customers can answer 'why is this payout $X?' in one command. Stripe Dashboard requires CSV export plus spreadsheet pivoting.",
+      "example": "stripe-pp-cli payouts explain po_1NXabc --json --select amount,arrival_date,breakdown,top_customers",
+      "why_it_matters": "Reach for this when a founder or finance lead asks 'is this payout right?' — replaces a 15-minute spreadsheet exercise with one CLI call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Failed payment triage",
+      "command": "payments failed",
+      "description": "Group failed PaymentIntents by decline_code, customer, or amount band over a date window, with $ at risk and sample customers.",
+      "rationale": "Stripe Dashboard has no group-by-decline-reason view. Search API lags ~1 minute and cannot aggregate. Local SQL over last_payment_error fields is instant.",
+      "example": "stripe-pp-cli payments failed --since 2026-05-01 --group-by decline_code --json --select decline_code,count,total_amount,sample_customers",
+      "why_it_matters": "Morning standup query: 'did anything weird happen overnight?' — answers in one shot what's normally a 5-click dashboard journey.",
+      "group": "Compound analytics agents need"
+    },
+    {
+      "name": "Subscription churn audit",
+      "command": "subscriptions churn",
+      "description": "List canceled or past_due subscriptions in a window, grouped by cancellation_details.reason, with MRR delta and customer LTV attribution.",
+      "rationale": "Stripe Sigma costs extra and lags. Dashboard shows individual cancellations, not aggregated $ impact. Only a local subscriptions-to-invoice-items join produces an MRR-weighted churn report.",
+      "example": "stripe-pp-cli subscriptions churn --since 2026-04-01 --group-by cancellation_reason --mrr-delta --json",
+      "why_it_matters": "First-of-the-month query: 'why are we down on MRR?' — turns vague churn into a ranked list of reasons with dollars attached.",
+      "group": "Compound analytics agents need"
+    },
+    {
+      "name": "Customer 360",
+      "command": "customers profile",
+      "description": "Join one customer's record with their active subscriptions, lifetime charges and refunds, open invoices, recent activity, and computed lifetime value.",
+      "rationale": "Stripe Dashboard splits this across 5 tabs. @stripe/mcp requires multiple sequential calls bounded by expand[] depth 4. One local query returns the whole picture.",
+      "example": "stripe-pp-cli customers profile cus_1234 --json --select id,email,lifetime_value,active_subscriptions,recent_failures,open_invoice_balance",
+      "why_it_matters": "First command on any support ticket — replaces the dashboard scavenger hunt with one CLI call that hands the agent a complete customer record.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Why did this charge fail",
+      "command": "charges why",
+      "description": "For a failed charge, return decline_code, network message, that customer's recent successes/failures, and similar failures in the last 7 days.",
+      "rationale": "Today this is 5+ dashboard clicks. A local mirror collapses it to one SQL query with self-joins on decline_code over a 7-day window.",
+      "example": "stripe-pp-cli charges why ch_3Nabc --json --select decline_code,network_message,customer_recent_activity,similar_failures_7d",
+      "why_it_matters": "Default agent action when a user pastes a charge ID — gives complete context for refund/retry/dispute decisions without further roundtrips.",
+      "group": "Frustration eliminators"
+    }
+  ],
+  "narrative": {
+    "display_name": "Stripe",
+    "headline": "Every Stripe feature, plus a local SQLite mirror, FTS search, and compound-analytics commands no other Stripe tool has.",
+    "value_prop": "Mirror your Stripe account into a single-file SQLite database, then ask questions across customers, payments, subscriptions, refunds, and payouts with one command. Designed for agents (JSON, --select, --csv everywhere) and for the finance/RevOps user who lives in the dashboard today.",
+    "auth_narrative": "Set STRIPE_SECRET_KEY in your environment. Test-mode keys (sk_test_*) are recommended — `doctor` warns loudly on sk_live_* so you can't accidentally hit production. Auth is Bearer, idempotency keys are auto-injected on every POST.",
+    "quickstart": [
+      {
+        "command": "stripe-pp-cli doctor",
+        "comment": "Confirm key works, API reachable, rate-limit headroom available — and surface a warning if you're on a live-mode key."
+      },
+      {
+        "command": "stripe-pp-cli sync --since 30d --resources customers,charges,invoices,subscriptions,balance_transactions,payouts",
+        "comment": "Mirror your account into local SQLite. Resumable per-entity cursors mean you can stop and restart."
+      },
+      {
+        "command": "stripe-pp-cli customers profile cus_1234 --json",
+        "comment": "Returns the full customer record — subscriptions, lifetime charges/refunds, open invoices, LTV — in one query."
+      },
+      {
+        "command": "stripe-pp-cli payments failed --since 2026-05-01 --group-by decline_code --json --select decline_code,count,total_amount",
+        "comment": "Morning triage: what's failing and why, grouped instantly with no Search API lag."
+      },
+      {
+        "command": "stripe-pp-cli payouts explain po_1NXabc --json",
+        "comment": "Decompose a payout into every underlying balance_transaction with per-customer attribution."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor says 'sk_live_ detected'",
+        "fix": "Set STRIPE_SECRET_KEY to a test key (sk_test_*) from https://dashboard.stripe.com/test/apikeys. Live keys still work but every write prints a confirmation."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Built-in exponential backoff handles spikes; for sync runs add `--rate-limit 10` to slow the request rate (default is 25/s test, 100/s live)."
+      },
+      {
+        "symptom": "sync says 'cursor exhausted'",
+        "fix": "Re-run sync with the same --resources; the cursor resumes from the last successful page. Use --reset to start over."
+      },
+      {
+        "symptom": "customers profile returns 'no local mirror'",
+        "fix": "Run `stripe-pp-cli sync --resources customers,charges,subscriptions,invoices` first — novel analytics commands require the mirror."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need to answer a money question about your own Stripe account — who churned, why payments failed, what's in this payout, what's a customer's lifetime value. Use stripe-cli (the official one) for webhook forwarding and event triggering; use this CLI for analyst-style questions and agent-driven workflows that need joined, deterministic, offline-fast answers.",
+    "recipes": [
+      {
+        "title": "Daily failures triage",
+        "command": "stripe-pp-cli payments failed --since 24h --group-by decline_code --json --select decline_code,count,total_amount,sample_customers",
+        "explanation": "Run every morning to see what broke overnight, grouped by reason with dollars at risk."
+      },
+      {
+        "title": "Churn report for the week",
+        "command": "stripe-pp-cli subscriptions churn --since 7d --group-by cancellation_reason --mrr-delta --json",
+        "explanation": "Group canceled subscriptions by reason with MRR impact attached — the report Stripe Sigma charges extra for."
+      },
+      {
+        "title": "Payout reconciliation",
+        "command": "stripe-pp-cli payouts explain po_1NXabc --json --select amount,arrival_date,breakdown,top_customers",
+        "explanation": "Decompose a payout into balance_transactions with per-customer attribution. Replaces the CSV-export-to-spreadsheet workflow."
+      },
+      {
+        "title": "Agent-narrow JSON for deeply nested customer record",
+        "command": "stripe-pp-cli customers profile cus_1234 --json --select id,email,lifetime_value,active_subscriptions.id,active_subscriptions.status,open_invoices.amount_due",
+        "explanation": "Customer 360 returns a deeply nested object; dotted `--select` paths narrow to exactly the fields the agent needs so it doesn't burn context on full responses."
+      },
+      {
+        "title": "Local FTS across entities",
+        "command": "stripe-pp-cli search \"acme.co\" --type customers --json --select entity,id,snippet,score",
+        "explanation": "Find every customer, invoice, or charge mentioning a domain or company name — instantly, with no Search API lag."
+      }
+    ],
+    "trigger_phrases": [
+      "stripe payout breakdown",
+      "stripe failed payments by reason",
+      "stripe churn report",
+      "customer 360 in stripe",
+      "why did this stripe charge fail",
+      "use stripe-pp-cli",
+      "run stripe-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "stripe-pp-pp-mcp",
+  "display_name": "Stripe",
+  "version": "4.6.1",
+  "description": "Payment processing and financial infrastructure API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/stripe-pp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/stripe-pp-pp-mcp",
+      "args": [],
+      "env": {
+        "STRIPE_BEARER_AUTH": "${user_config.stripe_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "stripe_bearer_auth": {
+      "type": "string",
+      "title": "STRIPE_BEARER_AUTH",
+      "description": "Sets STRIPE_BEARER_AUTH for the Stripe MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

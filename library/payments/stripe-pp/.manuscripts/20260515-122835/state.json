@@ -1,0 +1,12 @@
+{
+  "version": 0,
+  "api_name": "stripe",
+  "run_id": "20260515-122835",
+  "scope": "saulfresneda-e704a88a",
+  "output_dir": "/Users/saulfresneda/printing-press/.runstate/saulfresneda-e704a88a/runs/20260515-122835/working/stripe-pp-cli",
+  "working_dir": "/Users/saulfresneda/printing-press/library/stripe",
+  "published_dir": "/Users/saulfresneda/printing-press/library/stripe",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": {},
+  "spec_path": "https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json"
+}

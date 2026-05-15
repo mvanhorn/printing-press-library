@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T13:55:19.461409Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "stripe-pp",
+  "display_name": "Stripe",
+  "cli_name": "stripe-pp-pp-cli",
+  "owner": "primiasolutions",
+  "printer": "Primiasolutions",
+  "printer_name": "Primiasolutions",
+  "spec_path": "https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:99ce0fa0117908f701878877c9c0275d9367b938a91f0a11ff145e5e9f5388db",
+  "run_id": "20260515-122835",
+  "catalog_entry": "stripe",
+  "category": "payments",
+  "description": "Payment processing and financial infrastructure API",
+  "mcp_binary": "stripe-pp-pp-mcp",
+  "mcp_tool_count": 587,
+  "mcp_ready": "full",
+  "api_version": "2026-04-22.dahlia",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "STRIPE_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Mirror sync",
+      "command": "sync",
+      "description": "Incrementally mirror your Stripe account into a local SQLite database — customers, payment_intents, charges, invoices, subscriptions, refunds, balance_transactions, payouts — with resumable cursors per entity."
+    },
+    {
+      "name": "Payout explain",
+      "command": "payouts explain",
+      "description": "Decompose a payout into every contributing balance_transaction (charges, refunds, fees, adjustments, disputes) with running totals and top-customer attribution."
+    },
+    {
+      "name": "Failed payment triage",
+      "command": "payments failed",
+      "description": "Group failed PaymentIntents by decline_code, customer, or amount band over a date window, with $ at risk and sample customers."
+    },
+    {
+      "name": "Subscription churn audit",
+      "command": "subscriptions churn",
+      "description": "List canceled or past_due subscriptions in a window, grouped by cancellation_details.reason, with MRR delta and customer LTV attribution."
+    },
+    {
+      "name": "Customer 360",
+      "command": "customers profile",
+      "description": "Join one customer's record with their active subscriptions, lifetime charges and refunds, open invoices, recent activity, and computed lifetime value."
+    },
+    {
+      "name": "Why did this charge fail",
+      "command": "charges why",
+      "description": "For a failed charge, return decline_code, network message, that customer's recent successes/failures, and similar failures in the last 7 days."
+    }
+  ]
+}
