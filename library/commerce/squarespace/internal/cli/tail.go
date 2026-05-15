@@ -78,6 +78,9 @@ native streaming instead of polling.`,
 			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
+			if !follow {
+				return nil
+			}
 
 			for {
 				select {
