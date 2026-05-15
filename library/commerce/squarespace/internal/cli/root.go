@@ -71,7 +71,7 @@ func Execute() error {
 		}
 	}
 	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact, flags.timeout); derr != nil {
+		if derr := Deliver(rootCmd.Context(), flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact, flags.timeout); derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}

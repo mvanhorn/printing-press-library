@@ -46,3 +46,37 @@ func TestSearch_NoTypeSearchesLocalFTS(t *testing.T) {
 		t.Fatalf("search output = %s, did not expect unrelated row", got)
 	}
 }
+
+func TestSearch_TypeFiltersLocalFTS(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	if err := db.Upsert("commerce", "product_1", json.RawMessage(`{"id":"product_1","name":"cafe table"}`)); err != nil {
+		t.Fatalf("upsert commerce: %v", err)
+	}
+	if err := db.Upsert("contacts", "contact_1", json.RawMessage(`{"id":"contact_1","name":"cafe buyer"}`)); err != nil {
+		t.Fatalf("upsert contact: %v", err)
+	}
+	db.Close()
+
+	var flags rootFlags
+	cmd := newSearchCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"cafe", "--type", "contacts", "--db", dbPath})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("search execute: %v", err)
+	}
+
+	got := out.String()
+	if !strings.Contains(got, "cafe buyer") {
+		t.Fatalf("search output = %s, want typed contacts result", got)
+	}
+	if strings.Contains(got, "cafe table") {
+		t.Fatalf("search output = %s, did not expect commerce row", got)
+	}
+}
