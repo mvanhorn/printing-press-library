@@ -13,7 +13,7 @@ import (
 
 func main() {
 	s := server.NewMCPServer(
-		"Ted Search",
+		"EU Tenders",
 		"1.0.0",
 		server.WithToolCapabilities(false),
 	)

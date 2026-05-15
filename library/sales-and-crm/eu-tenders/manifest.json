@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "eu-tenders-pp-mcp",
-  "display_name": "Ted Search",
+  "display_name": "EU Tenders",
   "version": "4.0.6",
-  "description": "Ted Search API surface as MCP tools.",
+  "description": "EU public procurement notices as MCP tools.",
   "author": {
     "name": "CLI Printing Press"
   },

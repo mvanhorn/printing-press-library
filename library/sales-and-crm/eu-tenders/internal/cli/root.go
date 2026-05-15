@@ -82,8 +82,8 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "eu-tenders-pp-cli",
-		Short: `Ted Search CLI — The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for construction co…`,
-		Long: `Ted Search CLI — The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for construction co…
+		Short: `EU Tenders CLI — The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for construction co…`,
+		Long: `EU Tenders CLI — The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for construction co…
 
 Highlights (not in the official API docs):
   • leads   Surface recent construction contract award winners as B2B outreach candidates — company name, project location, contract value, and construction type — so you can contact winners who need constructio…
