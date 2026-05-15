@@ -20,7 +20,7 @@
   "auth_env_vars": [
     "FDA_API_KEY"
   ],
-  "auth_description": "Optional. Without key: 40 req/min, 1K/day. With key: 240 req/min, 120K/day. Get a free key at https://open.fda.gov/apis/authentication/",
+  "auth_description": "Optional. Without key: 40 req/min, 1K/day. With key: 240 req/min, 120K/day. Get a free key at https://open.fda.gov/apis/authentication/\n",
   "novel_features": [
     {
       "name": "Drug Event Signal Tracking",

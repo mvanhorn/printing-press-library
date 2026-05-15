@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/openfda/internal/store"
@@ -34,7 +34,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/animalandveterinary/event.json", []mcpParamBinding{{PublicName: "animal", WireName: "animal", Location: "query"},{PublicName: "breed", WireName: "breed", Location: "query"},{PublicName: "drug", WireName: "drug", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/animalandveterinary/event.json", []mcpParamBinding{{PublicName: "animal", WireName: "animal", Location: "query"}, {PublicName: "breed", WireName: "breed", Location: "query"}, {PublicName: "drug", WireName: "drug", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-510k_list",
@@ -49,7 +49,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/510k.json", []mcpParamBinding{{PublicName: "device", WireName: "device_name", Location: "query"},{PublicName: "applicant", WireName: "applicant", Location: "query"},{PublicName: "code", WireName: "product_code", Location: "query"},{PublicName: "type", WireName: "clearance_type", Location: "query"},{PublicName: "from", WireName: "decision_date_from", Location: "query"},{PublicName: "to", WireName: "decision_date_to", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/510k.json", []mcpParamBinding{{PublicName: "device", WireName: "device_name", Location: "query"}, {PublicName: "applicant", WireName: "applicant", Location: "query"}, {PublicName: "code", WireName: "product_code", Location: "query"}, {PublicName: "type", WireName: "clearance_type", Location: "query"}, {PublicName: "from", WireName: "decision_date_from", Location: "query"}, {PublicName: "to", WireName: "decision_date_to", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-classification_list",
@@ -63,7 +63,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/classification.json", []mcpParamBinding{{PublicName: "device", WireName: "device_name", Location: "query"},{PublicName: "class", WireName: "device_class", Location: "query"},{PublicName: "specialty", WireName: "medical_specialty", Location: "query"},{PublicName: "code", WireName: "product_code", Location: "query"},{PublicName: "regulation", WireName: "regulation_number", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/classification.json", []mcpParamBinding{{PublicName: "device", WireName: "device_name", Location: "query"}, {PublicName: "class", WireName: "device_class", Location: "query"}, {PublicName: "specialty", WireName: "medical_specialty", Location: "query"}, {PublicName: "code", WireName: "product_code", Location: "query"}, {PublicName: "regulation", WireName: "regulation_number", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-covid19_list",
@@ -74,7 +74,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/covid19serology.json", []mcpParamBinding{{PublicName: "manufacturer", WireName: "manufacturer", Location: "query"},{PublicName: "device", WireName: "device", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/covid19serology.json", []mcpParamBinding{{PublicName: "manufacturer", WireName: "manufacturer", Location: "query"}, {PublicName: "device", WireName: "device", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-events_count",
@@ -84,7 +84,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/event.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/event.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-events_list",
@@ -99,7 +99,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/event.json", []mcpParamBinding{{PublicName: "device", WireName: "device_name", Location: "query"},{PublicName: "manufacturer", WireName: "manufacturer", Location: "query"},{PublicName: "code", WireName: "product_code", Location: "query"},{PublicName: "type", WireName: "event_type", Location: "query"},{PublicName: "from", WireName: "date_from", Location: "query"},{PublicName: "to", WireName: "date_to", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/event.json", []mcpParamBinding{{PublicName: "device", WireName: "device_name", Location: "query"}, {PublicName: "manufacturer", WireName: "manufacturer", Location: "query"}, {PublicName: "code", WireName: "product_code", Location: "query"}, {PublicName: "type", WireName: "event_type", Location: "query"}, {PublicName: "from", WireName: "date_from", Location: "query"}, {PublicName: "to", WireName: "date_to", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-pma_list",
@@ -112,7 +112,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/pma.json", []mcpParamBinding{{PublicName: "device", WireName: "trade_name", Location: "query"},{PublicName: "applicant", WireName: "applicant", Location: "query"},{PublicName: "code", WireName: "product_code", Location: "query"},{PublicName: "decision", WireName: "decision_code", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/pma.json", []mcpParamBinding{{PublicName: "device", WireName: "trade_name", Location: "query"}, {PublicName: "applicant", WireName: "applicant", Location: "query"}, {PublicName: "code", WireName: "product_code", Location: "query"}, {PublicName: "decision", WireName: "decision_code", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-recall-detail_list",
@@ -124,7 +124,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/recall.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"},{PublicName: "firm", WireName: "recalling_firm", Location: "query"},{PublicName: "cause", WireName: "root_cause", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/recall.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"}, {PublicName: "firm", WireName: "recalling_firm", Location: "query"}, {PublicName: "cause", WireName: "root_cause", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-recalls_list",
@@ -140,7 +140,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/enforcement.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"},{PublicName: "firm", WireName: "recalling_firm", Location: "query"},{PublicName: "class", WireName: "classification", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "code", WireName: "product_code", Location: "query"},{PublicName: "from", WireName: "date_from", Location: "query"},{PublicName: "to", WireName: "date_to", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/enforcement.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"}, {PublicName: "firm", WireName: "recalling_firm", Location: "query"}, {PublicName: "class", WireName: "classification", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "code", WireName: "product_code", Location: "query"}, {PublicName: "from", WireName: "date_from", Location: "query"}, {PublicName: "to", WireName: "date_to", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-registration_list",
@@ -151,7 +151,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/registrationlisting.json", []mcpParamBinding{{PublicName: "type", WireName: "establishment_type", Location: "query"},{PublicName: "name", WireName: "proprietary_name", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/registrationlisting.json", []mcpParamBinding{{PublicName: "type", WireName: "establishment_type", Location: "query"}, {PublicName: "name", WireName: "proprietary_name", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("device-udi_list",
@@ -163,7 +163,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/device/udi.json", []mcpParamBinding{{PublicName: "brand", WireName: "brand_name", Location: "query"},{PublicName: "company", WireName: "company_name", Location: "query"},{PublicName: "description", WireName: "device_description", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/device/udi.json", []mcpParamBinding{{PublicName: "brand", WireName: "brand_name", Location: "query"}, {PublicName: "company", WireName: "company_name", Location: "query"}, {PublicName: "description", WireName: "device_description", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-approvals_list",
@@ -178,7 +178,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/drugsfda.json", []mcpParamBinding{{PublicName: "sponsor", WireName: "sponsor_name", Location: "query"},{PublicName: "brand", WireName: "brand_name", Location: "query"},{PublicName: "ingredient", WireName: "active_ingredient", Location: "query"},{PublicName: "form", WireName: "dosage_form", Location: "query"},{PublicName: "status", WireName: "marketing_status", Location: "query"},{PublicName: "app-number", WireName: "application_number", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/drugsfda.json", []mcpParamBinding{{PublicName: "sponsor", WireName: "sponsor_name", Location: "query"}, {PublicName: "brand", WireName: "brand_name", Location: "query"}, {PublicName: "ingredient", WireName: "active_ingredient", Location: "query"}, {PublicName: "form", WireName: "dosage_form", Location: "query"}, {PublicName: "status", WireName: "marketing_status", Location: "query"}, {PublicName: "app-number", WireName: "application_number", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-events_count",
@@ -188,7 +188,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/event.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/event.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-events_list",
@@ -205,7 +205,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/event.json", []mcpParamBinding{{PublicName: "drug", WireName: "drug", Location: "query"},{PublicName: "reaction", WireName: "reaction", Location: "query"},{PublicName: "serious", WireName: "serious", Location: "query"},{PublicName: "outcome", WireName: "outcome", Location: "query"},{PublicName: "country", WireName: "country", Location: "query"},{PublicName: "from", WireName: "date_from", Location: "query"},{PublicName: "to", WireName: "date_to", Location: "query"},{PublicName: "sex", WireName: "sex", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/event.json", []mcpParamBinding{{PublicName: "drug", WireName: "drug", Location: "query"}, {PublicName: "reaction", WireName: "reaction", Location: "query"}, {PublicName: "serious", WireName: "serious", Location: "query"}, {PublicName: "outcome", WireName: "outcome", Location: "query"}, {PublicName: "country", WireName: "country", Location: "query"}, {PublicName: "from", WireName: "date_from", Location: "query"}, {PublicName: "to", WireName: "date_to", Location: "query"}, {PublicName: "sex", WireName: "sex", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-labels_list",
@@ -221,7 +221,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/label.json", []mcpParamBinding{{PublicName: "brand", WireName: "brand_name", Location: "query"},{PublicName: "generic", WireName: "generic_name", Location: "query"},{PublicName: "manufacturer", WireName: "manufacturer", Location: "query"},{PublicName: "ingredient", WireName: "active_ingredient", Location: "query"},{PublicName: "indication", WireName: "indication", Location: "query"},{PublicName: "route", WireName: "route", Location: "query"},{PublicName: "type", WireName: "product_type", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/label.json", []mcpParamBinding{{PublicName: "brand", WireName: "brand_name", Location: "query"}, {PublicName: "generic", WireName: "generic_name", Location: "query"}, {PublicName: "manufacturer", WireName: "manufacturer", Location: "query"}, {PublicName: "ingredient", WireName: "active_ingredient", Location: "query"}, {PublicName: "indication", WireName: "indication", Location: "query"}, {PublicName: "route", WireName: "route", Location: "query"}, {PublicName: "type", WireName: "product_type", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-ndc_list",
@@ -237,7 +237,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/ndc.json", []mcpParamBinding{{PublicName: "ndc", WireName: "product_ndc", Location: "query"},{PublicName: "brand", WireName: "brand_name", Location: "query"},{PublicName: "generic", WireName: "generic_name", Location: "query"},{PublicName: "labeler", WireName: "labeler_name", Location: "query"},{PublicName: "form", WireName: "dosage_form", Location: "query"},{PublicName: "route", WireName: "route", Location: "query"},{PublicName: "substance", WireName: "substance_name", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/ndc.json", []mcpParamBinding{{PublicName: "ndc", WireName: "product_ndc", Location: "query"}, {PublicName: "brand", WireName: "brand_name", Location: "query"}, {PublicName: "generic", WireName: "generic_name", Location: "query"}, {PublicName: "labeler", WireName: "labeler_name", Location: "query"}, {PublicName: "form", WireName: "dosage_form", Location: "query"}, {PublicName: "route", WireName: "route", Location: "query"}, {PublicName: "substance", WireName: "substance_name", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-recalls_count",
@@ -247,7 +247,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/enforcement.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/enforcement.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-recalls_list",
@@ -264,7 +264,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/enforcement.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"},{PublicName: "firm", WireName: "recalling_firm", Location: "query"},{PublicName: "class", WireName: "classification", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "reason", WireName: "reason", Location: "query"},{PublicName: "state", WireName: "state", Location: "query"},{PublicName: "from", WireName: "date_from", Location: "query"},{PublicName: "to", WireName: "date_to", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/enforcement.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"}, {PublicName: "firm", WireName: "recalling_firm", Location: "query"}, {PublicName: "class", WireName: "classification", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "reason", WireName: "reason", Location: "query"}, {PublicName: "state", WireName: "state", Location: "query"}, {PublicName: "from", WireName: "date_from", Location: "query"}, {PublicName: "to", WireName: "date_to", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("drug-shortages_list",
@@ -277,7 +277,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/drug/shortages.json", []mcpParamBinding{{PublicName: "product", WireName: "product_name", Location: "query"},{PublicName: "generic", WireName: "generic_name", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "designation", WireName: "designation", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/drug/shortages.json", []mcpParamBinding{{PublicName: "product", WireName: "product_name", Location: "query"}, {PublicName: "generic", WireName: "generic_name", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "designation", WireName: "designation", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("food-events_list",
@@ -289,7 +289,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/food/event.json", []mcpParamBinding{{PublicName: "product", WireName: "product", Location: "query"},{PublicName: "reaction", WireName: "reaction", Location: "query"},{PublicName: "outcome", WireName: "outcome", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/food/event.json", []mcpParamBinding{{PublicName: "product", WireName: "product", Location: "query"}, {PublicName: "reaction", WireName: "reaction", Location: "query"}, {PublicName: "outcome", WireName: "outcome", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("food-recalls_count",
@@ -299,7 +299,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/food/enforcement.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/food/enforcement.json", []mcpParamBinding{{PublicName: "field", WireName: "field", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("food-recalls_list",
@@ -315,7 +315,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/food/enforcement.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"},{PublicName: "firm", WireName: "recalling_firm", Location: "query"},{PublicName: "class", WireName: "classification", Location: "query"},{PublicName: "reason", WireName: "reason", Location: "query"},{PublicName: "status", WireName: "status", Location: "query"},{PublicName: "from", WireName: "date_from", Location: "query"},{PublicName: "to", WireName: "date_to", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/food/enforcement.json", []mcpParamBinding{{PublicName: "product", WireName: "product_description", Location: "query"}, {PublicName: "firm", WireName: "recalling_firm", Location: "query"}, {PublicName: "class", WireName: "classification", Location: "query"}, {PublicName: "reason", WireName: "reason", Location: "query"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "from", WireName: "date_from", Location: "query"}, {PublicName: "to", WireName: "date_to", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("nsde_list",
@@ -326,7 +326,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/other/nsde.json", []mcpParamBinding{{PublicName: "name", WireName: "proprietary_name", Location: "query"},{PublicName: "ndc", WireName: "package_ndc", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/other/nsde.json", []mcpParamBinding{{PublicName: "name", WireName: "proprietary_name", Location: "query"}, {PublicName: "ndc", WireName: "package_ndc", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("substance_list",
@@ -336,7 +336,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/other/substance.json", []mcpParamBinding{{PublicName: "name", WireName: "substance_name", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/other/substance.json", []mcpParamBinding{{PublicName: "name", WireName: "substance_name", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tobacco-problems_list",
@@ -346,7 +346,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/tobacco/problem.json", []mcpParamBinding{{PublicName: "type", WireName: "product_type", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/tobacco/problem.json", []mcpParamBinding{{PublicName: "type", WireName: "product_type", Location: "query"}}, []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -458,11 +458,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			data, _, err = c.Post(path, bodyArgs)
+			body, _ := json.Marshal(bodyArgs)
+			data, _, err = c.Post(path, body)
 		case "PUT":
-			data, _, err = c.Put(path, bodyArgs)
+			body, _ := json.Marshal(bodyArgs)
+			data, _, err = c.Put(path, body)
 		case "PATCH":
-			data, _, err = c.Patch(path, bodyArgs)
+			body, _ := json.Marshal(bodyArgs)
+			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:
@@ -541,6 +544,7 @@ func dbPath() string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", "openfda-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -680,140 +684,140 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"type": "api_key",
 			"env_vars": []map[string]any{
 				{
-					"name": "FDA_API_KEY",
-					"kind": "per_call",
-					"required": true,
-					"sensitive": true,
+					"name":        "FDA_API_KEY",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
 					"description": "Set to your API credential.",
 				},
 			},
 		},
 		"resources": []map[string]any{
 			{
-				"name": "animal-events",
+				"name":        "animal-events",
 				"description": "Animal drug and device adverse event reports.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-510k",
+				"name":        "device-510k",
 				"description": "Premarket notification submissions demonstrating substantial equivalence.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-classification",
+				"name":        "device-classification",
 				"description": "Medical device product codes, specialty areas, and regulatory class.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-covid19",
+				"name":        "device-covid19",
 				"description": "COVID-19 serological testing evaluation data.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-events",
+				"name":        "device-events",
 				"description": "Medical device adverse event reports (MAUDE/MDR) — injuries, deaths, malfunctions.",
-				"endpoints": []string{"count", "list",  },
-				"syncable": true,
+				"endpoints":   []string{"count", "list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-pma",
+				"name":        "device-pma",
 				"description": "Class III medical device premarket approval decisions.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-recall-detail",
+				"name":        "device-recall-detail",
 				"description": "Detailed device recall actions addressing defects or health risks.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-recalls",
+				"name":        "device-recalls",
 				"description": "Medical device recall enforcement reports.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-registration",
+				"name":        "device-registration",
 				"description": "Medical device manufacturing establishment registrations and product listings.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "device-udi",
+				"name":        "device-udi",
 				"description": "Global Unique Device Identification Database (GUDID).",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "drug-approvals",
+				"name":        "drug-approvals",
 				"description": "FDA-approved drug products since 1939 — applications, submissions, and marketing status.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "drug-events",
+				"name":        "drug-events",
 				"description": "Reports of drug side effects, medication errors, product quality problems (FAERS). 4.9M+ reports since 2003.",
-				"endpoints": []string{"count", "list",  },
-				"syncable": true,
+				"endpoints":   []string{"count", "list"},
+				"syncable":    true,
 			},
 			{
-				"name": "drug-labels",
+				"name":        "drug-labels",
 				"description": "Structured product information including prescribing info, black box warnings, indications.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "drug-ndc",
+				"name":        "drug-ndc",
 				"description": "National Drug Code directory — product identifiers, packaging, and classification.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "drug-recalls",
+				"name":        "drug-recalls",
 				"description": "Drug product recall enforcement reports.",
-				"endpoints": []string{"count", "list",  },
-				"syncable": true,
+				"endpoints":   []string{"count", "list"},
+				"syncable":    true,
 			},
 			{
-				"name": "drug-shortages",
+				"name":        "drug-shortages",
 				"description": "Current and historical drug shortages from manufacturing issues, delays, and discontinuations.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "food-events",
+				"name":        "food-events",
 				"description": "CAERS reports — food, dietary supplement, and cosmetic adverse events.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "food-recalls",
+				"name":        "food-recalls",
 				"description": "Food product recall enforcement reports.",
-				"endpoints": []string{"count", "list",  },
-				"syncable": true,
+				"endpoints":   []string{"count", "list"},
+				"syncable":    true,
 			},
 			{
-				"name": "nsde",
+				"name":        "nsde",
 				"description": "Non-Standardized Drug Entities — drug names that don't map to standard terminology.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "substance",
+				"name":        "substance",
 				"description": "Substance data from the FDA substance registration system.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 			{
-				"name": "tobacco-problems",
+				"name":        "tobacco-problems",
 				"description": "Tobacco product problem reports.",
-				"endpoints": []string{"list",  },
-				"syncable": true,
+				"endpoints":   []string{"list"},
+				"syncable":    true,
 			},
 		},
 		"query_tips": []string{
@@ -822,6 +826,26 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Drug Event Signal Tracking", "command": "drug-events trend", "description": "Track adverse event signal over time for a drug — spot emerging safety signals by charting report frequency across...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Drug Reaction Comparison", "command": "drug-events compare", "description": "Compare adverse reaction profiles between two drugs side-by-side — see which reactions are unique to each and...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Reaction Co-occurrence", "command": "drug-events cooccur", "description": "Find reaction co-occurrence patterns for a drug — which side effects tend to appear together in the same report", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Polypharmacy Analysis", "command": "drug-events polypharmacy", "description": "Analyze adverse events for drug combinations — find safety signals that only appear when specific drugs are taken...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Recall-Event Correlation", "command": "drug-recalls correlate", "description": "Correlate drug recall enforcement actions with adverse event report spikes — see if recalls follow signal escalation", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Device Inventory Risk Check", "command": "device check", "description": "Check a CSV inventory of medical devices against FDA recall and adverse event databases — flag devices with active...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Manufacturer Dossier", "command": "manufacturer dossier", "description": "Build a cross-domain intelligence dossier for any manufacturer — recalls, adverse events, 510(k) clearances, and...", "rationale": "", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "Drug Event Signal Tracking", "insight": ""},
+			{"topic": "Drug Reaction Comparison", "insight": ""},
+			{"topic": "Reaction Co-occurrence", "insight": ""},
+			{"topic": "Polypharmacy Analysis", "insight": ""},
+			{"topic": "Recall-Event Correlation", "insight": ""},
+			{"topic": "Device Inventory Risk Check", "insight": ""},
+			{"topic": "Manufacturer Dossier", "insight": ""},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
