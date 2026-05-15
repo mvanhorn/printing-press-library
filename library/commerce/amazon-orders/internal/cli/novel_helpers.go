@@ -103,10 +103,12 @@ func arrivingByDay(orders []parser.OrderSummary, days int) []parser.OrderSummary
 	return out
 }
 
+// PATCH(greptile-lateorders-date-boundary): compare ETA against today's midnight, not the current instant — time.Parse("2006-01-02") returns midnight UTC, so eta.Before(now) marked today-ETA orders as late once UTC passed 00:00 even though the delivery window had not closed.
 // lateOrders filters in-flight orders past their ETA. Always returns a non-nil
 // slice.
 func lateOrders(orders []parser.OrderSummary) []parser.OrderSummary {
 	now := time.Now().UTC()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	out := []parser.OrderSummary{}
 	for _, o := range inflightOrders(orders) {
 		if o.ETADate == "" {
@@ -116,7 +118,10 @@ func lateOrders(orders []parser.OrderSummary) []parser.OrderSummary {
 		if err != nil {
 			continue
 		}
-		if eta.Before(now) {
+		// eta is midnight UTC of the ETA date; today is midnight UTC of the
+		// current date. An order is only "late" once its ETA date has fully
+		// passed — strictly before today, never on it.
+		if eta.Before(today) {
 			out = append(out, o)
 		}
 	}

@@ -99,12 +99,21 @@ inject into any other host via 'op read | auth import --stdin').`,
 			if cookies == "" {
 				return fmt.Errorf("no active session — run 'auth login --chrome' first")
 			}
+			// PATCH(greptile-export-source-from-authsource): label exported
+			// sessions with the actual source (env:AMAZON_COOKIES, config,
+			// browser) classified by Load(), instead of hardcoding "chrome".
+			// Roundtrips via env-var or stdin-import had been emitted as
+			// "chrome", which misled 1Password/agent inspection.
+			src := cfg.AuthSource
+			if src == "" {
+				src = "chrome"
+			}
 			session := PortableSession{
 				Schema:     "amazon-orders-session/v1",
 				Domain:     ".amazon.com",
 				Cookies:    cookies,
 				ExportedAt: time.Now().UTC(),
-				Source:     "chrome",
+				Source:     src,
 				Note:       note,
 			}
 			b, err := json.MarshalIndent(session, "", "  ")

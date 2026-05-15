@@ -733,11 +733,16 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 	return ""
 }
 
+// PATCH(greptile-listids-quote-identifier): double-quote the resourceType identifier so future user-supplied values cannot break/inject the query.
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	// Try domain table first (tables are named after the resource type).
+	// resourceType is bound directly into the SQL because parameter
+	// placeholders don't work for identifiers; double-quoting + escaping
+	// embedded quotes is the SQLite-safe form and closes the injection
+	// class if this is ever called with user input (e.g. a --resources flag).
+	query := fmt.Sprintf(`SELECT id FROM "%s"`, strings.ReplaceAll(resourceType, `"`, `""`))
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table
