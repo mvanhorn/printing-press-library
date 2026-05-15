@@ -59,7 +59,7 @@ func newV10FulfillOrderCmd(flags *rootFlags) *cobra.Command {
 					body["shouldSendNotification"] = bodyShouldSendNotification
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostContext(cmd.Context(), path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

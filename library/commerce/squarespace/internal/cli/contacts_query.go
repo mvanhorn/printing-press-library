@@ -199,7 +199,7 @@ func newContactsQueryCmd(flags *rootFlags) *cobra.Command {
 					body["sortField"] = bodySortField
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostContext(cmd.Context(), path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

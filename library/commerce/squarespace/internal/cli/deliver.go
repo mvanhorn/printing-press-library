@@ -57,14 +57,14 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
 // the MultiWriter set up in root.go.
-func Deliver(sink DeliverSink, body []byte, compact bool) error {
+func Deliver(sink DeliverSink, body []byte, compact bool, timeout time.Duration) error {
 	switch sink.Scheme {
 	case "", "stdout":
 		return nil
 	case "file":
 		return deliverFile(sink.Target, body)
 	case "webhook":
-		return deliverWebhook(sink.Target, body, compact)
+		return deliverWebhook(sink.Target, body, compact, timeout)
 	default:
 		return fmt.Errorf("unsupported deliver sink %q", sink.Scheme)
 	}
@@ -89,7 +89,10 @@ func deliverFile(path string, body []byte) error {
 	return nil
 }
 
-func deliverWebhook(url string, body []byte, compact bool) error {
+func deliverWebhook(url string, body []byte, compact bool, timeout time.Duration) error {
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
 	contentType := "application/json"
 	if compact {
 		contentType = "application/x-ndjson"
@@ -101,7 +104,7 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", "squarespace-pp-cli/deliver")
 
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{Timeout: timeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("posting to webhook: %w", err)

@@ -97,7 +97,7 @@ func newContactsAddressBookCreateEntryCmd(flags *rootFlags) *cobra.Command {
 					body["defaultShipping"] = bodyDefaultShipping
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostContext(cmd.Context(), path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

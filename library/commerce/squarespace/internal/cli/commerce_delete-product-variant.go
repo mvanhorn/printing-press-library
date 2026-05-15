@@ -33,7 +33,7 @@ func newCommerceDeleteProductVariantCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("variantId is required\nUsage: %s <%s>", cmd.CommandPath(), "variantId"))
 			}
 			path = replacePathParam(path, "variantId", args[1])
-			data, statusCode, err := c.Delete(path)
+			data, statusCode, err := c.DeleteContext(cmd.Context(), path)
 			if err != nil {
 				return classifyDeleteError(err, flags)
 			}

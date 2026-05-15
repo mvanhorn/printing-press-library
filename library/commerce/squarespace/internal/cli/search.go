@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for
@@ -133,9 +133,7 @@ In local mode: searches locally synced data only.`,
 			var results []json.RawMessage
 			switch resourceType {
 			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
-				seen := make(map[string]bool)
-				_ = seen // prevent unused error when no FTS tables exist
+				results, err = db.Search(query, limit)
 			default:
 				// Unrecognized type — fall back to generic search
 				results, err = db.Search(query, limit)

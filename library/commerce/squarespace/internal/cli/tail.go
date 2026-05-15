@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -74,17 +75,19 @@ native streaming instead of polling.`,
 			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
 
 			// Initial fetch
-			if err := fetchAndEmit(c, path, enc); err != nil {
+			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
 
 			for {
 				select {
+				case <-cmd.Context().Done():
+					return cmd.Context().Err()
 				case <-sig:
 					fmt.Fprintln(os.Stderr, "\nShutting down gracefully...")
 					return nil
 				case <-ticker.C:
-					if err := fetchAndEmit(c, path, enc); err != nil {
+					if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: poll failed: %v\n", err)
 					}
 				}
@@ -111,10 +114,10 @@ func tailKnownResources() []string {
 	}
 }
 
-func fetchAndEmit(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func fetchAndEmit(ctx context.Context, c interface {
+	GetContext(context.Context, string, map[string]string) (json.RawMessage, error)
 }, path string, enc *json.Encoder) error {
-	data, err := c.Get(path, nil)
+	data, err := c.GetContext(ctx, path, nil)
 	if err != nil {
 		return err
 	}

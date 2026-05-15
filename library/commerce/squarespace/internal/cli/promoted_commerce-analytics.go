@@ -49,7 +49,7 @@ func newCommerceAnalyticsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if bodyGroupBy != "" {
 				body["groupBy"] = bodyGroupBy
 			}
-			data, _, err := c.Post(path, body)
+			data, _, err := c.PostContext(cmd.Context(), path, body)
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)

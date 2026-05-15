@@ -29,7 +29,7 @@ func newContactsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/contacts/{contactId}"
 			path = replacePathParam(path, "contactId", args[0])
-			data, statusCode, err := c.Delete(path)
+			data, statusCode, err := c.DeleteContext(cmd.Context(), path)
 			if err != nil {
 				return classifyDeleteError(err, flags)
 			}

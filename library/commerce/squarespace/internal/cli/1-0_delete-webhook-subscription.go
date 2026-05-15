@@ -30,7 +30,7 @@ func newV10DeleteWebhookSubscriptionCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/1.0/webhook_subscriptions/{subscriptionId}"
 			path = replacePathParam(path, "subscriptionId", args[0])
-			data, statusCode, err := c.Delete(path)
+			data, statusCode, err := c.DeleteContext(cmd.Context(), path)
 			if err != nil {
 				return classifyDeleteError(err, flags)
 			}

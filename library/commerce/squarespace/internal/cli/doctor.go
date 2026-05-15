@@ -13,10 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/squarespace/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
@@ -145,7 +145,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					reachBody, reachErr := c.Get("/", nil)
+					reachBody, reachErr := c.GetContext(cmd.Context(), "/", nil)
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:

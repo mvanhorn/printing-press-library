@@ -74,7 +74,7 @@ func newContactsPatchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			data, statusCode, err := c.Patch(path, body)
+			data, statusCode, err := c.PatchContext(cmd.Context(), path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

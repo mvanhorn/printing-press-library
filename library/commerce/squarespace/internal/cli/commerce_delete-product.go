@@ -30,7 +30,7 @@ func newCommerceDeleteProductCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v2/commerce/products/{productId}"
 			path = replacePathParam(path, "productId", args[0])
-			data, statusCode, err := c.Delete(path)
+			data, statusCode, err := c.DeleteContext(cmd.Context(), path)
 			if err != nil {
 				return classifyDeleteError(err, flags)
 			}
