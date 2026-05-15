@@ -327,7 +327,7 @@ When a SKILL.md or README.md shape change must propagate across **all library CL
 cd tools/sweep-canonical && GO111MODULE=off go test .
 ```
 
-The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. After running the sweep, regenerate `cli-skills/` so the mirror reflects the updated library content (see the section above).
+The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. Don't commit `cli-skills/` changes alongside the sweep — the PR-time parity step in `verify-library-conventions.yml` auto-commits any mirror drift as `github-actions[bot]`, and `generate-skills.yml` re-mirrors post-merge. Hand-committing the regen trips the `Guard against hand-edits to cli-skills mirror` step (see the section above).
 
 ## Commit style
 
