@@ -48,7 +48,7 @@ native streaming instead of polling.`,
 			if resource == "" && flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"resources": tailKnownResources(),
-					"note":      "tail requires a resource name; pass one of the listed names",
+					"note":      "tail requires a camelCase API resource name. Most Etherpad endpoints take query parameters (padID, authorID, ...) that tail's bare GET does not pass; the no-param endpoints that work out-of-the-box are listAllPads, listAllGroups, and getStats.",
 				}, flags)
 			}
 			if resource == "" {
@@ -71,11 +71,22 @@ native streaming instead of polling.`,
 
 			enc := json.NewEncoder(os.Stdout)
 
-			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			if follow {
+				fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			} else {
+				fmt.Fprintf(os.Stderr, "Polling %s once (--follow=false)\n", resource)
+			}
 
 			// Initial fetch
 			if err := fetchAndEmit(c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
+			}
+
+			// PATCH(tail-fixes): honour --follow=false — return after the
+			// single initial poll instead of running the ticker loop forever.
+			// See .printing-press-patches.json patches[8].
+			if !follow {
+				return nil
 			}
 
 			for {
@@ -99,61 +110,72 @@ native streaming instead of polling.`,
 	return cmd
 }
 
-// tailKnownResources returns the resource names this CLI exposes, so the
-// no-arg JSON help envelope can list them without depending on sync's
-// defaultSyncResources (which only exists when sync is generated).
+// PATCH(tail-fixes): tail's hint list previously returned hyphenated Cobra
+// command names ("get-stats", "list-all-pads", …) but tail builds the
+// HTTP path as "/" + resource — and Etherpad's API endpoints are
+// camelCase ("/getStats", "/listAllPads", …). The previous list made
+// every hint guaranteed to 404. The names below are the actual API path
+// segments (matching each promoted command's `pp:path` annotation).
+//
+// Note: most Etherpad endpoints additionally require query parameters
+// (padID, authorID, groupID, ...) that tail's bare GET doesn't pass.
+// The "note" in the JSON help envelope flags this explicitly so agents
+// don't burn cycles tailing parameterized endpoints that 400 without
+// the required fields. The no-param endpoints that are actually
+// tail-able as-is are listAllPads, listAllGroups, and getStats.
+// See .printing-press-patches.json patches[8].
 func tailKnownResources() []string {
 	return []string{
-		"anonymize-author",
-		"append-chat-message",
-		"append-text",
-		"check-token",
-		"compact-pad",
-		"copy-pad",
-		"copy-pad-without-history",
-		"create-author",
-		"create-author-if-not-exists-for",
-		"create-diff-html",
-		"create-group",
-		"create-group-if-not-exists-for",
-		"create-group-pad",
-		"create-pad",
-		"create-session",
-		"delete-group",
-		"delete-pad",
-		"delete-session",
-		"get-attribute-pool",
-		"get-author-name",
-		"get-chat-head",
-		"get-chat-history",
-		"get-html",
-		"get-last-edited",
-		"get-pad-id",
-		"get-public-status",
-		"get-read-only-id",
-		"get-revision-changeset",
-		"get-revisions-count",
-		"get-saved-revisions-count",
-		"get-session-info",
-		"get-stats",
-		"get-text",
-		"list-all-groups",
-		"list-all-pads",
-		"list-authors-of-pad",
-		"list-pads",
-		"list-pads-of-author",
-		"list-saved-revisions",
-		"list-sessions-of-author",
-		"list-sessions-of-group",
-		"move-pad",
-		"pad-users",
-		"pad-users-count",
-		"restore-revision",
-		"save-revision",
-		"send-clients-message",
-		"set-html",
-		"set-public-status",
-		"set-text",
+		"anonymizeAuthor",
+		"appendChatMessage",
+		"appendText",
+		"checkToken",
+		"compactPad",
+		"copyPad",
+		"copyPadWithoutHistory",
+		"createAuthor",
+		"createAuthorIfNotExistsFor",
+		"createDiffHTML",
+		"createGroup",
+		"createGroupIfNotExistsFor",
+		"createGroupPad",
+		"createPad",
+		"createSession",
+		"deleteGroup",
+		"deletePad",
+		"deleteSession",
+		"getAttributePool",
+		"getAuthorName",
+		"getChatHead",
+		"getChatHistory",
+		"getHTML",
+		"getLastEdited",
+		"getPadID",
+		"getPublicStatus",
+		"getReadOnlyID",
+		"getRevisionChangeset",
+		"getRevisionsCount",
+		"getSavedRevisionsCount",
+		"getSessionInfo",
+		"getStats",
+		"getText",
+		"listAllGroups",
+		"listAllPads",
+		"listAuthorsOfPad",
+		"listPads",
+		"listPadsOfAuthor",
+		"listSavedRevisions",
+		"listSessionsOfAuthor",
+		"listSessionsOfGroup",
+		"movePad",
+		"padUsers",
+		"padUsersCount",
+		"restoreRevision",
+		"saveRevision",
+		"sendClientsMessage",
+		"setHTML",
+		"setPublicStatus",
+		"setText",
 	}
 }
 
