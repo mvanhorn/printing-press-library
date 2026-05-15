@@ -176,7 +176,13 @@ func buildOpenFDAParams(params map[string]string) map[string]string {
 	}
 
 	// Build date ranges
-	for field, dr := range dateRanges {
+	dateKeys := make([]string, 0, len(dateRanges))
+	for field := range dateRanges {
+		dateKeys = append(dateKeys, field)
+	}
+	sort.Strings(dateKeys)
+	for _, field := range dateKeys {
+		dr := dateRanges[field]
 		start, end := dr[0], dr[1]
 		if start != "" && end != "" {
 			searchParts = append(searchParts, fmt.Sprintf("%s:[%s+TO+%s]", field, start, end))

@@ -70,6 +70,7 @@ Data must be synced first with the sync command.`,
 
 			buckets := make(map[string]int)
 			total := 0
+			seen := make(map[string]bool)
 			for rows.Next() {
 				var dataStr string
 				if err := rows.Scan(&dataStr); err != nil {
@@ -111,6 +112,14 @@ Data must be synced first with the sync command.`,
 				}
 				bucket := dateToBucket(receiptDate, interval)
 				if bucket != "" {
+					reportID, _ := event["safetyreportid"].(string)
+					key := reportID + "|" + bucket
+					if reportID != "" && seen[key] {
+						continue
+					}
+					if reportID != "" {
+						seen[key] = true
+					}
 					buckets[bucket]++
 					total++
 				}

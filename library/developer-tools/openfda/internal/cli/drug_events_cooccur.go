@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 
@@ -61,6 +62,7 @@ counts across all reports mentioning the drug.`,
 
 			// Collect reactions per report
 			reportReactions := make(map[string][]string) // safetyreportid -> reactions
+			var skippedNoID int
 			for rows.Next() {
 				var dataStr string
 				if err := rows.Scan(&dataStr); err != nil {
@@ -73,6 +75,7 @@ counts across all reports mentioning the drug.`,
 
 				reportID, _ := event["safetyreportid"].(string)
 				if reportID == "" {
+					skippedNoID++
 					continue
 				}
 				if _, seen := reportReactions[reportID]; seen {
@@ -94,6 +97,10 @@ counts across all reports mentioning the drug.`,
 				if len(reactions) > 1 {
 					reportReactions[reportID] = reactions
 				}
+			}
+
+			if skippedNoID > 0 {
+				fmt.Fprintf(os.Stderr, "warning: %d events without safetyreportid were skipped\n", skippedNoID)
 			}
 
 			// Compute pairwise co-occurrence

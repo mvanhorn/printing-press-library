@@ -1,6 +1,6 @@
 # Compiled binaries
-openfda-pp-cli
-openfda-pp-mcp
+/openfda-pp-cli
+/openfda-pp-mcp
 
 # Local data
 *.db
