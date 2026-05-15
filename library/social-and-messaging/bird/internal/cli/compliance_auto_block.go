@@ -136,11 +136,19 @@ func scanOptOuts(db *store.Store, cutoff time.Time) ([]optOutCandidate, error) {
 		if matched == "" {
 			continue
 		}
+		// PATCH: messages with no createdAt or an unparseable timestamp must be
+		// excluded by the --since window, not silently included. The previous
+		// guard only skipped when createdAt parsed AND was older than cutoff,
+		// so messages without createdAt (or with a malformed value) bypassed
+		// the window and were always considered opt-out candidates. With
+		// --apply, that could bulk-block phone numbers from arbitrarily old
+		// STOP messages. Surfaced by Greptile P1 in PR #417 review.
 		ts, _ := m["createdAt"].(string)
-		if ts != "" {
-			if t, err := time.Parse(time.RFC3339, ts); err == nil && t.Before(cutoff) {
-				continue
-			}
+		if ts == "" {
+			continue
+		}
+		if t, err := time.Parse(time.RFC3339, ts); err != nil || t.Before(cutoff) {
+			continue
 		}
 		key, value := lookupParticipantIdentifier(db, convID)
 		if value == "" {

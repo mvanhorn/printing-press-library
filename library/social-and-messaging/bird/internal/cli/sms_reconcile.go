@@ -118,8 +118,23 @@ campaign.`,
 			sort.SliceStable(result.Rows, func(i, j int) bool {
 				return result.Rows[i].Final < result.Rows[j].Final
 			})
-			if retryFailed && result.Failed > 0 {
-				retries := make([]sendBatchRow, 0, result.Failed)
+			if retryFailed {
+				// PATCH: gate the retry loop on the same population it iterates
+				// over (rows whose original HTTP send failed), not on
+				// result.Failed (which counts Bird-side delivery failures from
+				// runAudit and is a disjoint set). The previous guard silently
+				// no-op'd in two common scenarios:
+				//   1. All POSTs succeeded but Bird rejected delivery for N rows
+				//      -> result.Failed == N, guard passed, but no row.Status
+				//      == "failed", so retries stayed empty.
+				//   2. All POSTs failed (network error, 4xx) -> every row had
+				//      MessageID == "" and was skipped earlier, so
+				//      result.Failed == 0 and the guard was false even though
+				//      every row needed retrying.
+				// Surfaced by Greptile P1 in PR #417 review. The flag's
+				// help text reads "Re-send rows whose original send failed",
+				// so this matches the documented contract.
+				retries := make([]sendBatchRow, 0)
 				for _, row := range batch.Rows {
 					if row.Status == "failed" || row.Error != "" {
 						retry := row
