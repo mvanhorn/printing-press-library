@@ -888,6 +888,13 @@ func parseSinceDuration(s string) (time.Time, error) {
 	}
 }
 
+// PATCH(drop-sync-and-analytics-novel-features): the generator's sync template
+// assumes paginated object lists. Etherpad's API is RPC-shaped — every list
+// endpoint returns a wrapper of scalar IDs (e.g. `{"data":{"padIDs":[...]}}`)
+// and per-pad metadata requires separate RPC calls per ID. So the resource
+// map stays empty by default; `sync` exits 0 with 0 records and `--resources`
+// errors with "unknown sync resource" until a fan-out adapter lands upstream.
+// See .printing-press-patches.json patches[4].
 func defaultSyncResources() []string {
 	return []string{
 	}
@@ -896,6 +903,9 @@ func defaultSyncResources() []string {
 // syncResourcePath maps resource names to their actual API endpoint paths.
 // For REST APIs this is typically "/<resource>". For non-REST APIs (e.g., Steam)
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
+//
+// PATCH(drop-sync-and-analytics-novel-features): intentionally empty for
+// Etherpad. See defaultSyncResources above and .printing-press-patches.json.
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
 	}

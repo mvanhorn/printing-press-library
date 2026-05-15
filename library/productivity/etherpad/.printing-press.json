@@ -22,11 +22,6 @@
   "category": "productivity",
   "novel_features": [
     {
-      "name": "Local SQLite Mirror",
-      "command": "sync",
-      "description": "Sync pads to local SQLite for offline analytics."
-    },
-    {
       "name": "Live Change Tail",
       "command": "tail",
       "description": "Stream changes by polling."
@@ -45,11 +40,6 @@
       "name": "Agent Context Bootstrap",
       "command": "agent-context",
       "description": "Emit JSON brief for LLM agents."
-    },
-    {
-      "name": "Analytics Over Mirror",
-      "command": "analytics",
-      "description": "Group-by/limit queries against local store."
     }
   ]
 }
