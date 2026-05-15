@@ -64,6 +64,38 @@
       "files": [
         "internal/cli/auth_portable.go"
       ]
+    },
+    {
+      "id": "greptile-cleartokens-cookies",
+      "summary": "ClearTokens() also zeroes c.AmazonCookies before save().",
+      "reason": "AmazonCookies is a toml:-tagged field populated by Load() from the AMAZON_COOKIES env var. Without zeroing it in ClearTokens(), running `auth logout` while the env var was active wrote the live session to ~/.config/amazon-orders-pp-cli/config.toml — a silent persistence the user couldn't detect until they unset the env var and re-ran `auth status`.",
+      "files": [
+        "internal/config/config.go"
+      ]
+    },
+    {
+      "id": "greptile-lateorders-date-boundary",
+      "summary": "lateOrders compares ETA against today's midnight, not the current instant.",
+      "reason": "time.Parse(\"2006-01-02\", ...) returns midnight UTC; eta.Before(now) marked any ETA=today order as late once UTC time passed 00:00, producing false positives throughout the delivery day. Comparing eta.Before(today-at-midnight) only flags orders whose ETA date has fully passed.",
+      "files": [
+        "internal/cli/novel_helpers.go"
+      ]
+    },
+    {
+      "id": "greptile-listids-quote-identifier",
+      "summary": "Store.ListIDs double-quotes the resourceType identifier with embedded-quote escaping.",
+      "reason": "fmt.Sprintf(\"SELECT id FROM %s\", resourceType) inlined the table name unquoted. Today's callers pass hardcoded values, but parameter placeholders don't work for SQL identifiers — double-quoting plus escaping embedded quotes is the SQLite-safe pattern and closes the injection class for future callers that might forward a --resources flag.",
+      "files": [
+        "internal/store/store.go"
+      ]
+    },
+    {
+      "id": "greptile-export-source-from-authsource",
+      "summary": "auth export records cfg.AuthSource (env:AMAZON_COOKIES, config, browser) instead of a hardcoded \"chrome\".",
+      "reason": "After greptile-auth-export-uses-authheader delegated cookie selection to AuthHeader(), the exported PortableSession.Source still claimed \"chrome\" even when the live cookies came from AMAZON_COOKIES, an `auth import --stdin`, or the TOML file — misleading 1Password and headless-agent inspection. Load() already classifies the source authoritatively, so we forward that and only fall back to \"chrome\" if it is unset.",
+      "files": [
+        "internal/cli/auth_portable.go"
+      ]
     }
   ]
 }
