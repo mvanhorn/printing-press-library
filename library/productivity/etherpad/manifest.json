@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "etherpad-pp-mcp",
+  "display_name": "Etherpad",
+  "version": "4.2.2",
+  "description": "Etherpad API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/etherpad-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/etherpad-pp-mcp",
+      "args": [],
+      "env": {
+        "ETHERPAD_OPENID": "${user_config.etherpad_openid}"
+      }
+    }
+  },
+  "user_config": {
+    "etherpad_openid": {
+      "type": "string",
+      "title": "ETHERPAD_OPENID",
+      "description": "Sets ETHERPAD_OPENID for the Etherpad MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

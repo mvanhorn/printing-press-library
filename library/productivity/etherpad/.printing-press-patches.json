@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_printing_press_version": "4.2.2",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "patches": [
+    {
+      "id": "oidc-urls-from-base-url",
+      "summary": "Derive OIDC authorization and token URLs from cfg.BaseURL (or cfg.OIDCIssuer override) instead of hardcoding localhost:9001.",
+      "reason": "Generator emits hardcoded http://localhost:9001 OIDC URLs in auth.go (lines 70 + 129) and client.go (line 375), bypassing cfg.BaseURL entirely. `auth login` and automatic token refresh are broken for any non-local Etherpad deployment. Greptile flagged this as P1 on review of mvanhorn/printing-press-library#396.",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/auth.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Adds cfg.OIDCIssuer field + ETHERPAD_OIDC_ISSUER env override + AuthURL()/TokenURL() helpers that derive scheme://host from BaseURL. auth login + refresh now work against any Etherpad deployment whose OIDC provider is at the same host, with explicit override for separate-host providers. localhost:9001 fallback preserved only when BaseURL is unset or unparseable.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should derive OIDC URLs from BaseURL by default."
+    },
+    {
+      "id": "remove-dead-tokenurl-guard",
+      "summary": "Drop the dead `if tokenURL == \"\"` guard in client.go's refreshAccessToken; tokenURL is now always non-empty (returned by helper).",
+      "reason": "client.go:375-378 had `tokenURL := \"http://localhost:9001/oidc/token\"; if tokenURL == \"\" { return nil }` — the literal can never be empty, so the guard was dead code. Likely a leftover from a planned OIDC-discovery lookup that never landed.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Replaced with `tokenURL := c.Config.TokenURL()`. Token refresh now works against any non-local deployment; a config-derived URL replaces the dead guard.",
+      "upstream_issue": "Same as oidc-urls-from-base-url"
+    },
+    {
+      "id": "expires-in-zero-guard-on-login",
+      "summary": "Guard against ExpiresIn==0 on initial token storage in auth.go (parallel guard already exists in refreshAccessToken).",
+      "reason": "auth.go:167 set `expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)` unconditionally. If the OIDC server returns expires_in=0 (non-conformant but possible), expiry == time.Now() (already past) → next request triggers an unnecessary refresh round-trip.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "Mirrors the existing client.go:418 guard: `expiry := time.Time{}; if tokenResp.ExpiresIn > 0 { expiry = time.Now().Add(...) }`. Eliminates the spurious refresh per call when ExpiresIn is 0."
+    },
+    {
+      "id": "shellout-args-passthrough-comment",
+      "summary": "Add a comment to internal/mcp/cobratree/shellout.go explaining the intent of the raw args passthrough.",
+      "reason": "Greptile flagged the raw `args` passthrough as a potential CLI-flag-injection vector. It's intentional (mirrors printing-press v4 design — lets MCP callers reach typed flags not in the tool schema) but worth documenting for security reviewers.",
+      "files": [
+        "internal/mcp/cobratree/shellout.go"
+      ],
+      "validated_outcome": "Comment in place describing the design (no shell, exec.CommandContext executes argv directly) and the trust boundary (hosts run this MCP behind their own access control)."
+    }
+  ]
+}
