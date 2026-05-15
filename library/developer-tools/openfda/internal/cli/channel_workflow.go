@@ -69,10 +69,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
 
+				// OpenFDA uses offset-based pagination (skip), not cursor-based.
+				skip := 0
 				params := map[string]string{"limit": "100"}
-				if cursor != "" {
-					params["after"] = cursor
-				}
 
 				count := 0
 				for {
@@ -80,6 +79,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 					if pathErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, pathErr)
 						break
+					}
+					if skip > 0 {
+						params["skip"] = fmt.Sprintf("%d", skip)
 					}
 					data, fetchErr := c.Get(apiPath, params)
 					if fetchErr != nil {
@@ -124,7 +126,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 					if len(items) < 100 {
 						break
 					}
-					params["after"] = cursor
+					skip += len(items)
 				}
 
 				if count > 0 {

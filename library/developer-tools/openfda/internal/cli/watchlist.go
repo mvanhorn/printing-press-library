@@ -290,8 +290,10 @@ func newWatchlistCheckCmd(flags *rootFlags) *cobra.Command {
 
 				switch item.ResourceType {
 				case "drug-events":
+					// Use DISTINCT on r.id to avoid inflated counts when a report
+					// lists the same drug multiple times in $.patient.drug.
 					query = `
-						SELECT r.data FROM resources r, json_each(json_extract(r.data, '$.patient.drug')) je
+						SELECT DISTINCT r.data FROM resources r, json_each(json_extract(r.data, '$.patient.drug')) je
 						WHERE r.resource_type = ?
 						AND UPPER(json_extract(je.value, '$.medicinalproduct')) LIKE ?
 						AND r.updated_at > ?
@@ -300,7 +302,7 @@ func newWatchlistCheckCmd(flags *rootFlags) *cobra.Command {
 					queryArgs = []interface{}{item.ResourceType, "%" + nameUpper + "%", item.LastCheckedAt}
 				case "device-events":
 					query = `
-						SELECT r.data FROM resources r, json_each(json_extract(r.data, '$.device')) je
+						SELECT DISTINCT r.data FROM resources r, json_each(json_extract(r.data, '$.device')) je
 						WHERE r.resource_type = ?
 						AND UPPER(json_extract(je.value, '$.brand_name')) LIKE ?
 						AND r.updated_at > ?

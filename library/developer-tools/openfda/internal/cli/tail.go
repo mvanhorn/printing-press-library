@@ -61,7 +61,10 @@ native streaming instead of polling.`,
 			}
 			c.NoCache = true
 
-			path := "/" + resource
+			path, pathErr := syncResourcePath(resource)
+			if pathErr != nil {
+				return fmt.Errorf("unknown resource %q; run 'tail --json' to list available resources", resource)
+			}
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
