@@ -2,6 +2,10 @@
 
 Date: 2026-05-12
 
+Durable package-building rules from this work now live in
+[`../printing-press-library-lessons.md`](../printing-press-library-lessons.md).
+Keep this file focused on discovery evidence and live-smoke findings.
+
 ## What Was Found
 
 The current CLI is a Printing Press-generated Squarespace baseline from the official Commerce OpenAPI schema. It covers the public Commerce API surface:
