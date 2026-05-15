@@ -80,13 +80,17 @@ func inflightOrders(orders []parser.OrderSummary) []parser.OrderSummary {
 	return out
 }
 
-// arrivingByDay filters orders whose ETA is within [today, today + N days]
-// inclusive. Sorted by ETA ascending. Always returns a non-nil slice.
+// PATCH(greptile-arriving-soon-inflight): pre-filter through inflightOrders so Cancelled-after-shipping orders with a future ETA in the listing HTML don't surface as "arriving".
+// arrivingByDay filters in-flight orders whose ETA is within [today, today + N
+// days] inclusive. Sorted by ETA ascending. Always returns a non-nil slice.
 func arrivingByDay(orders []parser.OrderSummary, days int) []parser.OrderSummary {
 	now := time.Now().UTC()
 	cutoff := now.AddDate(0, 0, days)
 	out := []parser.OrderSummary{}
-	for _, o := range orders {
+	// Match the inflight-only contract that lateOrders and where-is-my-stuff
+	// already enforce: an order Amazon marked Cancelled after it shipped can
+	// still carry a future ETA date, but it is not "arriving".
+	for _, o := range inflightOrders(orders) {
 		if o.ETADate == "" {
 			continue
 		}

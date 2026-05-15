@@ -82,6 +82,14 @@
       ]
     },
     {
+      "id": "greptile-arriving-soon-inflight",
+      "summary": "arrivingByDay pre-filters through inflightOrders() so cancelled-after-shipping orders with a future ETA do not surface.",
+      "reason": "lateOrders and where-is-my-stuff already restrict their input to inflightOrders(orders). arrivingByDay iterated the raw slice, so an order Amazon marked Cancelled after the carrier handoff (real Amazon scenario — the listing HTML keeps the future ETA but flips the status) would still appear in `arriving-soon`. Consistent inflight gating across the novel commands keeps the contract uniform.",
+      "files": [
+        "internal/cli/novel_helpers.go"
+      ]
+    },
+    {
       "id": "greptile-listids-quote-identifier",
       "summary": "Store.ListIDs double-quotes the resourceType identifier with embedded-quote escaping.",
       "reason": "fmt.Sprintf(\"SELECT id FROM %s\", resourceType) inlined the table name unquoted. Today's callers pass hardcoded values, but parameter placeholders don't work for SQL identifiers — double-quoting plus escaping embedded quotes is the SQLite-safe pattern and closes the injection class for future callers that might forward a --resources flag.",
