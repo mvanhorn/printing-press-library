@@ -38,7 +38,10 @@ appear here. Wire a webhook endpoint and let it accumulate to populate this.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			windowStart := parseSinceWindow(since)
+			windowStart, err := parseSinceWindow(since)
+			if err != nil {
+				return usageErr(err)
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -98,42 +101,44 @@ appear here. Wire a webhook endpoint and let it accumulate to populate this.`,
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
-	cmd.Flags().StringVar(&since, "since", "7d", "Time window (e.g. 1h, 7d, 30d)")
+	cmd.Flags().StringVar(&since, "since", "7d", "Time window: Go duration (1h30m) or shorthand <N><unit> with unit in m/h/d/w (15m, 1h, 7d, 2w); pass an empty string for no window")
 	cmd.Flags().IntVar(&milestone, "milestone", 0, "Minimum milestone percentage threshold (0 = any)")
 	cmd.Flags().IntVar(&limit, "limit", 200, "Max webhook messages to scan")
 	return cmd
 }
 
-// parseSinceWindow converts strings like "7d", "1h", "15m" to a wall-clock
-// start. Returns zero time on parse error so the caller treats the window as
-// open-ended.
-func parseSinceWindow(s string) time.Time {
+// parseSinceWindow converts strings like "7d", "1h", "15m" into a wall-clock
+// start. Returns (zero time, nil) when the input is empty — that's the
+// caller's "no window" sentinel. Returns a parse error for any other
+// unrecognized value so a typo (`--since yesterday`, `--since 2 weeks`)
+// doesn't silently widen the rollup to the entire event stream.
+func parseSinceWindow(s string) (time.Time, error) {
 	s = strings.TrimSpace(s)
 	if s == "" {
-		return time.Time{}
+		return time.Time{}, nil
 	}
 	// Accept Go duration first
 	if d, err := time.ParseDuration(s); err == nil {
-		return time.Now().Add(-d)
+		return time.Now().Add(-d), nil
 	}
-	// Try suffixes like "7d", "30d"
+	// Try suffixes like "7d", "30d", "2w"
 	if len(s) >= 2 {
 		unit := s[len(s)-1]
 		num, err := strconv.Atoi(s[:len(s)-1])
 		if err == nil {
 			switch unit {
 			case 'd':
-				return time.Now().Add(-time.Duration(num) * 24 * time.Hour)
+				return time.Now().Add(-time.Duration(num) * 24 * time.Hour), nil
 			case 'h':
-				return time.Now().Add(-time.Duration(num) * time.Hour)
+				return time.Now().Add(-time.Duration(num) * time.Hour), nil
 			case 'm':
-				return time.Now().Add(-time.Duration(num) * time.Minute)
+				return time.Now().Add(-time.Duration(num) * time.Minute), nil
 			case 'w':
-				return time.Now().Add(-time.Duration(num) * 7 * 24 * time.Hour)
+				return time.Now().Add(-time.Duration(num) * 7 * 24 * time.Hour), nil
 			}
 		}
 	}
-	return time.Time{}
+	return time.Time{}, fmt.Errorf("invalid --since value %q: expected a Go duration (e.g. 1h30m) or shorthand <N><unit> with unit in m/h/d/w (e.g. 15m, 1h, 7d, 2w); pass an empty value for no window", s)
 }
 
 func formatWindow(t time.Time) string {
@@ -293,6 +298,3 @@ func formatTimeRFC3339(t time.Time) string {
 	}
 	return t.UTC().Format(time.RFC3339)
 }
-
-// _ silence unused imports used in tests
-var _ = fmt.Sprintf

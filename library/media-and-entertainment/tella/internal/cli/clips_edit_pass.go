@@ -90,12 +90,31 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 				ClipID  string `json:"clip_id"`
 				Ops     []op   `json:"ops"`
 			}
+			// enumerationFailure records a per-video planning-stage error so
+			// the result envelope can surface partial-plan situations. Before
+			// this struct landed, listClipIDs and the silences fetch each
+			// silently swallowed errors via bare continue / `if err == nil`,
+			// producing a plan that looked complete and an --apply that
+			// reported applied=true / failed_ops=0 while entire videos were
+			// never touched.
+			type enumerationFailure struct {
+				VideoID string `json:"video_id"`
+				ClipID  string `json:"clip_id,omitempty"`
+				Stage   string `json:"stage"`
+				Error   string `json:"error"`
+			}
 			plans := []clipPlan{}
+			enumFailures := []enumerationFailure{}
 			totalClips := 0
 
 			for _, vid := range videoIDs {
 				clipIDs, err := listClipIDs(c, vid)
 				if err != nil {
+					enumFailures = append(enumFailures, enumerationFailure{
+						VideoID: vid,
+						Stage:   "list_clips",
+						Error:   truncate(err.Error(), 200),
+					})
 					continue
 				}
 				for _, cid := range clipIDs {
@@ -105,8 +124,15 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 						p.Ops = append(p.Ops, op{Op: "remove-fillers"})
 					}
 					if minSilenceMS > 0 {
-						silData, err := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
-						if err == nil {
+						silData, silErr := c.Get(fmt.Sprintf("/v1/videos/%s/clips/%s/silences", vid, cid), nil)
+						if silErr != nil {
+							enumFailures = append(enumFailures, enumerationFailure{
+								VideoID: vid,
+								ClipID:  cid,
+								Stage:   "fetch_silences",
+								Error:   truncate(silErr.Error(), 200),
+							})
+						} else {
 							for _, sil := range extractSilenceRanges(silData) {
 								if sil.End-sil.Start >= minSilenceMS {
 									p.Ops = append(p.Ops, op{
@@ -128,6 +154,11 @@ func newClipsEditPassCmd(flags *rootFlags) *cobra.Command {
 				"total_clips": totalClips,
 				"planned":     plans,
 				"applied":     false,
+			}
+			// Only attach enumeration_failures when non-empty so the
+			// happy-path envelope shape stays clean.
+			if len(enumFailures) > 0 {
+				result["enumeration_failures"] = enumFailures
 			}
 			if apply {
 				type failure struct {
