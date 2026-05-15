@@ -53,14 +53,45 @@ Local-only — run 'bird-pp-cli sync' first.`,
 			}
 			defer db.Close()
 
-			// Restrict to conversations whose participants match identifier filters.
+			// PATCH: when both --from and --to are provided, intersect the two
+			// participant sets so the query restricts to conversations
+			// involving BOTH numbers. The previous code
+			//
+			//   identifier := to
+			//   if identifier == "" { identifier = from }
+			//
+			// silently discarded --from whenever --to was also set, so a
+			// caller running `sms search "X" --from +A --to +B` got all
+			// conversations involving +B (with --from quietly ignored) --
+			// not the intersection they almost certainly wanted. Surfaced by
+			// Greptile P1 in the PR #417 fifth review pass. Direction-aware
+			// filtering (--from = outgoing, --to = incoming) is left as a
+			// follow-up: it requires a direction field in the synced message
+			// rows that the current schema doesn't surface uniformly.
 			var convFilter map[string]struct{}
-			identifier := to
-			if identifier == "" {
-				identifier = from
-			}
-			if identifier != "" {
-				convFilter, err = conversationsForIdentifier(db, identifier)
+			switch {
+			case from != "" && to != "":
+				fromSet, ferr := conversationsForIdentifier(db, from)
+				if ferr != nil {
+					return ferr
+				}
+				toSet, terr := conversationsForIdentifier(db, to)
+				if terr != nil {
+					return terr
+				}
+				convFilter = make(map[string]struct{}, len(fromSet))
+				for c := range fromSet {
+					if _, ok := toSet[c]; ok {
+						convFilter[c] = struct{}{}
+					}
+				}
+			case from != "":
+				convFilter, err = conversationsForIdentifier(db, from)
+				if err != nil {
+					return err
+				}
+			case to != "":
+				convFilter, err = conversationsForIdentifier(db, to)
 				if err != nil {
 					return err
 				}
