@@ -46,25 +46,7 @@ func newClipsTranscriptDiffCmd(flags *rootFlags) *cobra.Command {
 			uncutText, _ := extractTranscriptText(uncutData)
 			cutWords := tokenize(cutText)
 			uncutWords := tokenize(uncutText)
-			cutSet := map[string]int{}
-			for _, w := range cutWords {
-				cutSet[strings.ToLower(w)]++
-			}
-			type removed struct {
-				Word     string `json:"word"`
-				Position int    `json:"position"`
-				Context  string `json:"context"`
-			}
-			out := []removed{}
-			for i, w := range uncutWords {
-				key := strings.ToLower(w)
-				if cutSet[key] > 0 {
-					cutSet[key]--
-					continue
-				}
-				ctx := contextWindow(uncutWords, i, 3)
-				out = append(out, removed{Word: w, Position: i, Context: ctx})
-			}
+			out := diffRemovedWords(uncutWords, cutWords)
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 				"video_id":      videoID,
 				"clip_id":       clipID,
@@ -77,6 +59,48 @@ func newClipsTranscriptDiffCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&videoID, "video", "", "Video ID the clip belongs to")
 	return cmd
+}
+
+// removedWord records a single word that was present in uncut but not in
+// the corresponding subsequence position of cut. Exported (via its JSON
+// tags) as the per-entry element of clips transcript-diff's removed_words
+// output.
+type removedWord struct {
+	Word     string `json:"word"`
+	Position int    `json:"position"`
+	Context  string `json:"context"`
+}
+
+// diffRemovedWords walks uncut and cut with two pointers and returns every
+// uncut token that isn't matched (case-insensitively) by the next-unconsumed
+// token in cut. A cut transcript is by definition a subsequence of the
+// uncut transcript — edits only remove words; they don't insert — so this
+// is exact and O(n).
+//
+// The previous implementation built a multiset bag-count of cut words and
+// decremented as it walked uncut. That produced correct removal counts but
+// the wrong position field for repeated words: for uncut
+// "alpha beta gamma alpha" cut to "beta gamma alpha" (with alpha removed
+// at position 0), the bag-count matched the position-3 alpha first and
+// reported the removal at position 3. The two-pointer walk preserves
+// sequence information and reports position 0 — the actual removal
+// boundary that callers (the `removed_words[].position` JSON field) rely
+// on for "show me the words deleted near this timestamp" workflows.
+func diffRemovedWords(uncutWords, cutWords []string) []removedWord {
+	out := []removedWord{}
+	j := 0
+	for i, w := range uncutWords {
+		if j < len(cutWords) && strings.EqualFold(w, cutWords[j]) {
+			j++
+			continue
+		}
+		out = append(out, removedWord{
+			Word:     w,
+			Position: i,
+			Context:  contextWindow(uncutWords, i, 3),
+		})
+	}
+	return out
 }
 
 // tokenize splits text into lowercase word tokens. Trims punctuation so

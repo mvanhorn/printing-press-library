@@ -133,10 +133,22 @@ func newWebhooksReplayCmd(flags *rootFlags) *cobra.Command {
 			}
 			signature := ""
 			if endpoint != "" {
+				// Surface secret-fetch failure instead of silently
+				// firing an unsigned POST. A receiving server with
+				// HMAC verification will reject an unsigned replay,
+				// and without this error the CLI would otherwise
+				// report success (status from the upstream rejection)
+				// with no indication that signing was attempted and
+				// failed. classifyAPIError preserves 401/404/network
+				// distinctions for the user.
 				secret, sErr := fetchEndpointSecret(c, endpoint)
-				if sErr == nil && secret != "" {
-					signature = signHMAC(secret, body)
+				if sErr != nil {
+					return classifyAPIError(fmt.Errorf("fetching endpoint secret for %q: %w", endpoint, sErr), flags)
 				}
+				if secret == "" {
+					return apiErr(fmt.Errorf("endpoint %q returned an empty secret; cannot sign replay", endpoint))
+				}
+				signature = signHMAC(secret, body)
 			}
 			plan := map[string]any{
 				"message_id":    msgID,
