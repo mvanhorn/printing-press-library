@@ -77,6 +77,16 @@
       "upstream_issue": "Same upstream root cause as patches[4] (drop-sync-and-analytics-novel-features) — generator should detect scalar-ID-list APIs and either skip the sync-derived workflow features or emit a per-resource fan-out adapter."
     },
     {
+      "id": "default-baseurl-https",
+      "summary": "Default Config.BaseURL to HTTPS instead of HTTP so the CLI doesn't ship a cleartext-credential footgun.",
+      "reason": "Greptile P1 (security) on PR #396: Load() set `BaseURL: \"http://pad-dev.etherpad.org/api/1.3.1\"` as the default, but `.printing-press.json` already registers the same host as `https://`, and pad-dev.etherpad.org serves the spec over TLS. Any user who runs the CLI without setting $ETHERPAD_BASE_URL would transmit their bearer token in cleartext to pad-dev.etherpad.org.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "Default is now https://. Local development instances that run on plain HTTP can still be reached by setting $ETHERPAD_BASE_URL explicitly. AuthURL/TokenURL helpers inherit the scheme from BaseURL, so the OIDC fallback path also defaults to HTTPS now.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should default to HTTPS whenever the spec_url is HTTPS (and warn loudly if a printed CLI ships an HTTP default for a host that the spec serves over HTTPS)."
+    },
+    {
       "id": "tail-fixes",
       "summary": "Honour --follow=false in tail and fix the hint list's hyphenated names to match Etherpad's camelCase API paths.",
       "reason": "Greptile P1 (two findings) on PR #396: (1) the `follow` flag is declared, registered, and documented (\"set --follow=false for single poll\") but the variable is never checked inside RunE — the ticker for-loop runs indefinitely regardless. (2) `tailKnownResources()` returned hyphenated Cobra command names (`\"get-stats\"`, `\"list-all-pads\"`, ...) but tail builds the HTTP path as `\"/\" + resource` and Etherpad's API endpoints are camelCase (`/getStats`, `/listAllPads`, ...). Every hint was guaranteed to 404 on a real Etherpad instance.",
