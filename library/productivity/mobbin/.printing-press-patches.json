@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-105250",
+  "base_printing_press_version": "4.6.0",
+  "patches": [
+    {
+      "id": "local-sqlite-store",
+      "summary": "Adds a local SQLite mirror with sync, FTS search, and read-only SQL commands.",
+      "reason": "The generated Mobbin CLI needs offline cross-entity querying across apps, screens, flows, patterns, elements, and collections.",
+      "files": [
+        "go.mod",
+        "go.sum",
+        "internal/store/store.go",
+        "internal/store/migrations.go",
+        "internal/store/store_test.go",
+        "internal/cli/sync.go",
+        "internal/cli/search.go",
+        "internal/cli/sql.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... and go test ./... pass; sync/search/sql help surfaces are present."
+    },
+    {
+      "id": "shipcheck-dry-run-flag-shapes",
+      "summary": "Adds flat search filter flags and dry-run-safe auth and drift behavior.",
+      "reason": "Shipcheck probes expect README-style flat filter flags, browser auth dry runs, and zero-snapshot drift to exit successfully.",
+      "files": [
+        "internal/cli/apps_search.go",
+        "internal/cli/auth.go",
+        "internal/cli/drift.go",
+        "internal/cli/helpers.go",
+        "internal/cli/promoted_flows.go",
+        "internal/cli/promoted_screens.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... && go test ./... pass; requested auth/screens/drift probes exit 0."
+    },
+    {
+      "id": "phase5-live-api-fixes",
+      "summary": "Fixes live Mobbin auth cookie decoding, strict search bodies, app slug lookup, and filter dictionary projection.",
+      "reason": "Phase 5 live dogfood found schema-strict API endpoints and Supabase cookie chunk ordering that the generated CLI did not handle.",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/promoted_screens.go",
+        "internal/cli/apps_search.go",
+        "internal/cli/promoted_flows.go",
+        "internal/cli/apps_discover.go",
+        "internal/cli/app.go",
+        "internal/cli/categories.go",
+        "internal/cli/patterns.go",
+        "internal/cli/elements.go",
+        "internal/cli/flow_actions.go",
+        "internal/cli/helpers.go",
+        "internal/cli/pp_helpers.go",
+        "internal/appscrape/appscrape.go",
+        "spec.yaml"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... && go test ./... pass; live command probes reach Mobbin and return successful JSON where the upstream account/query has rows."
+    }
+  ]
+}

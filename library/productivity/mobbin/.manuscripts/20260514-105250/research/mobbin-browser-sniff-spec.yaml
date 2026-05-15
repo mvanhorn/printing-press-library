@@ -1,0 +1,962 @@
+name: mobbin
+description: Discovered API spec for mobbin
+version: 0.1.0
+base_url: https://mobbin.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/mobbin-pp-cli/config.toml
+resources:
+    FW25bBB:
+        description: Operations on 90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4
+        endpoints:
+            list_4cb46b4c_8977_4180_8c30_52324b982832.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: 4cb46b4c_8977_4180_8c30_52324b982832.mp4
+                pagination: null
+            list_9c095fce_c969_43c2_ae93_195ed245075e.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: 9c095fce_c969_43c2_ae93_195ed245075e.mp4
+                pagination: null
+            list_82c7bd75_f813_494e_b4b7_3e5d0ec37bc2.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: 82c7bd75_f813_494e_b4b7_3e5d0ec37bc2.mp4
+                pagination: null
+            list_90bc0ee6_0dd5_49d1_a02b_4614d25dc4b7.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: 90bc0ee6_0dd5_49d1_a02b_4614d25dc4b7.mp4
+                pagination: null
+            list_8437464b_b025_46e4_a11e_a33fbd9b984e.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: 8437464b_b025_46e4_a11e_a33fbd9b984e.mp4
+                pagination: null
+            list_b6eee83e_83f0_4495_9e1e_aaa28762dd9b.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: b6eee83e_83f0_4495_9e1e_aaa28762dd9b.mp4
+                pagination: null
+            list_e287c9b9_2e67_4f16_bda5_c424840aa6de.mp4:
+                method: GET
+                path: /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4
+                description: GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4
+                params:
+                    - name: bf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: bo
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: f
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gop
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hp
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: if
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: mute
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: p
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: qz
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rf
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sd
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sh
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: w
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: e287c9b9_2e67_4f16_bda5_c424840aa6de.mp4
+                pagination: null
+    discover:
+        description: Operations on fetch-discover-page-apps
+        endpoints:
+            create_fetch_discover_page_apps:
+                method: POST
+                path: /api/discover/fetch-discover-page-apps
+                description: POST /api/discover/fetch-discover-page-apps
+                params: []
+                body:
+                    - name: pageIndex
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tab
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: fetch_discover_page_apps
+                pagination: null
+    filter-tags:
+        description: Operations on fetch-dictionary-definitions
+        endpoints:
+            create_fetch_dictionary_definitions:
+                method: POST
+                path: /api/filter-tags/fetch-dictionary-definitions
+                description: POST /api/filter-tags/fetch-dictionary-definitions
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: fetch_dictionary_definitions
+                pagination: null
+    popular-apps:
+        description: Operations on fetch-popular-apps-with-preview-screens
+        endpoints:
+            create_fetch_popular_apps_with_preview_screens:
+                method: POST
+                path: /api/popular-apps/fetch-popular-apps-with-preview-screens
+                description: POST /api/popular-apps/fetch-popular-apps-with-preview-screens
+                params: []
+                body:
+                    - name: limitPerCategory
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: fetch_popular_apps_with_preview_screens
+                pagination: null
+    search-bar:
+        description: Operations on fetch-trending-apps
+        endpoints:
+            create_fetch_searchable_sites:
+                method: POST
+                path: /api/search-bar/fetch-searchable-sites
+                description: POST /api/search-bar/fetch-searchable-sites
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: fetch_searchable_sites
+                pagination: null
+            create_fetch_trending_apps:
+                method: POST
+                path: /api/search-bar/fetch-trending-apps
+                description: POST /api/search-bar/fetch-trending-apps
+                params: []
+                body:
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: fetch_trending_apps
+                pagination: null
+            create_fetch_trending_filter_tags:
+                method: POST
+                path: /api/search-bar/fetch-trending-filter-tags
+                description: POST /api/search-bar/fetch-trending-filter-tags
+                params: []
+                body:
+                    - name: experience
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: fetch_trending_filter_tags
+                pagination: null
+            create_fetch_trending_sites:
+                method: POST
+                path: /api/search-bar/fetch-trending-sites
+                description: POST /api/search-bar/fetch-trending-sites
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: fetch_trending_sites
+                pagination: null
+            create_fetch_trending_text_in_screenshot_keywords:
+                method: POST
+                path: /api/search-bar/fetch-trending-text-in-screenshot-keywords
+                description: POST /api/search-bar/fetch-trending-text-in-screenshot-keywords
+                params: []
+                body:
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: fetch_trending_text_in_screenshot_keywords
+                pagination: null
+    searchable-apps:
+        description: Operations on ios
+        endpoints:
+            list_android:
+                method: GET
+                path: /api/searchable-apps/android
+                description: GET /api/searchable-apps/android
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: android
+                pagination: null
+            list_ios:
+                method: GET
+                path: /api/searchable-apps/ios
+                description: GET /api/searchable-apps/ios
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: ios
+                pagination: null
+            list_web:
+                method: GET
+                path: /api/searchable-apps/web
+                description: GET /api/searchable-apps/web
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: web
+                pagination: null
+types: {}

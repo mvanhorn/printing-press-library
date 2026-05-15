@@ -1,0 +1,11 @@
+{
+  "count": 0,
+  "generated_at": "2026-05-15T00:06:29Z",
+  "items": [],
+  "query": {
+    "industry": "fintech",
+    "limit": 50,
+    "pattern": "empty-state",
+    "platform": "web"
+  }
+}

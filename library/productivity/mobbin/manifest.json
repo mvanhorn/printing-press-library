@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "mobbin-pp-mcp",
+  "display_name": "Mobbin",
+  "version": "4.6.0",
+  "description": "Browse Mobbin's 621,500+ shipped UI screens from the terminal, with offline SQLite mirror and design-deck workflows no other Mobbin tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mobbin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mobbin-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

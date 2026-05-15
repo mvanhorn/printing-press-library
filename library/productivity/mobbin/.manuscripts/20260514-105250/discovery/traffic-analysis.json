@@ -1,0 +1,4150 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://mobbin.com/discover/apps/web/latest",
+    "entry_count": 2103,
+    "api_entry_count": 71,
+    "noise_entry_count": 2032,
+    "host_distribution": {
+      "bytescale.mobbin.com": 455,
+      "mobbin.com": 1634
+    },
+    "time_start": "2026-05-14T17:59:39.778451968Z",
+    "time_end": "2026-05-14T18:03:17.994659072Z"
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.65,
+    "reasons": [
+      "no browser-only reachability signals observed"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 108,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 119,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 120,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 121,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 339,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 342,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 343,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 344,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 345,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 346,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 347,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 348,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 349,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 350,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 351,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 352,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 537,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 540,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 541,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 543,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 544,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 545,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 546,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 547,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 548,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 549,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 550,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 551,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 552,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 555,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 556,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 787,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 790,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 791,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 792,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 793,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 794,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 795,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 796,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 797,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 798,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 799,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 800,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 801,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 802,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 832,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 833,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 936,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 937,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 938,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 987,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 991,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1081,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1082,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1083,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1084,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1085,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1087,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1088,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1090,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1091,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1215,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1345,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1453,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1547,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1629,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1744,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1874,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2083,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/manifest.json",
+          "status": 200,
+          "content_type": "application/manifest+json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "endpoint_clusters": [
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 937,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 551,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 801,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 938,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 936,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 556,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 833,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 552,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 802,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "bytescale.mobbin.com",
+      "method": "GET",
+      "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 555,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 832,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/discover/fetch-discover-page-apps",
+      "count": 2,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "pageIndex",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "platform",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "tab",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 991,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/filter-tags/fetch-dictionary-definitions",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 120,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 351,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 549,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 799,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1090,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "limitPerCategory",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "platform",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 121,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 352,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 550,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 800,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1091,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-searchable-sites",
+      "count": 5,
+      "statuses": [
+        0,
+        200
+      ],
+      "content_types": [
+        "application/json",
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 350,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 548,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 798,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1089,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-apps",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "platform",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 342,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 540,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 790,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1081,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-filter-tags",
+      "count": 10,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "experience",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "platform",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 343,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 346,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 541,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 544,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 791,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 794,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1082,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1085,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-sites",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 345,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 543,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 793,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1084,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "POST",
+      "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "platform",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 344,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 792,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1083,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "GET",
+      "path": "/api/searchable-apps/android",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 348,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 546,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 796,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1087,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "GET",
+      "path": "/api/searchable-apps/ios",
+      "count": 5,
+      "statuses": [
+        0,
+        200
+      ],
+      "content_types": [
+        "application/json",
+        "application/octet-stream"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 347,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 545,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 795,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1086,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "mobbin.com",
+      "method": "GET",
+      "path": "/api/searchable-apps/web",
+      "count": 5,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "empty",
+      "request_shape": {},
+      "response_shape": {},
+      "evidence": [
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 349,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 547,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 797,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1088,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_fetch_dictionary_definitions",
+      "resource": "fetch_dictionary_definitions",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/filter-tags/fetch-dictionary-definitions traffic.",
+      "evidence": [
+        {
+          "entry_index": 120,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 351,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 549,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 799,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1090,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_discover_page_apps",
+      "resource": "fetch_discover_page_apps",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/discover/fetch-discover-page-apps traffic.",
+      "evidence": [
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 991,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_popular_apps_with_preview_screens",
+      "resource": "fetch_popular_apps_with_preview_screens",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/popular-apps/fetch-popular-apps-with-preview-screens traffic.",
+      "evidence": [
+        {
+          "entry_index": 121,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 352,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 550,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 800,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1091,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_searchable_sites",
+      "resource": "fetch_searchable_sites",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/search-bar/fetch-searchable-sites traffic.",
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 350,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 548,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 798,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1089,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_trending_apps",
+      "resource": "fetch_trending_apps",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/search-bar/fetch-trending-apps traffic.",
+      "evidence": [
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 342,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 540,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 790,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1081,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_trending_filter_tags",
+      "resource": "fetch_trending_filter_tags",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/search-bar/fetch-trending-filter-tags traffic.",
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 343,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 346,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 541,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 544,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 791,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 794,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1082,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1085,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_trending_sites",
+      "resource": "fetch_trending_sites",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/search-bar/fetch-trending-sites traffic.",
+      "evidence": [
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 345,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 543,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 793,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1084,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_fetch_trending_text_in_screenshot_keywords",
+      "resource": "fetch_trending_text_in_screenshot_keywords",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/search-bar/fetch-trending-text-in-screenshot-keywords traffic.",
+      "evidence": [
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 344,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 792,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1083,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_4cb46b4c_8977_4180_8c30_52324b982832.mp4",
+      "resource": "4cb46b4c_8977_4180_8c30_52324b982832.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 126,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 937,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/4cb46b4c-8977-4180-8c30-52324b982832.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_82c7bd75_f813_494e_b4b7_3e5d0ec37bc2.mp4",
+      "resource": "82c7bd75_f813_494e_b4b7_3e5d0ec37bc2.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 551,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 801,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/82c7bd75-f813-494e-b4b7-3e5d0ec37bc2.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_8437464b_b025_46e4_a11e_a33fbd9b984e.mp4",
+      "resource": "8437464b_b025_46e4_a11e_a33fbd9b984e.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 127,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 938,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/8437464b-b025-46e4-a11e-a33fbd9b984e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_90bc0ee6_0dd5_49d1_a02b_4614d25dc4b7.mp4",
+      "resource": "90bc0ee6_0dd5_49d1_a02b_4614d25dc4b7.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 125,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 936,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/90bc0ee6-0dd5-49d1-a02b-4614d25dc4b7.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_9c095fce_c969_43c2_ae93_195ed245075e.mp4",
+      "resource": "9c095fce_c969_43c2_ae93_195ed245075e.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 556,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 833,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/9c095fce-c969-43c2-ae93-195ed245075e.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_android",
+      "resource": "android",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/searchable-apps/android traffic.",
+      "evidence": [
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 348,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 546,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 796,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1087,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_b6eee83e_83f0_4495_9e1e_aaa28762dd9b.mp4",
+      "resource": "b6eee83e_83f0_4495_9e1e_aaa28762dd9b.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 552,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 802,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/b6eee83e-83f0-4495-9e1e-aaa28762dd9b.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_e287c9b9_2e67_4f16_bda5_c424840aa6de.mp4",
+      "resource": "e287c9b9_2e67_4f16_bda5_c424840aa6de.mp4",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4 traffic.",
+      "evidence": [
+        {
+          "entry_index": 555,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 832,
+          "method": "GET",
+          "host": "bytescale.mobbin.com",
+          "path": "/FW25bBB/video/mobbin.com/prod/content/app_flow_videos/e287c9b9-2e67-4f16-bda5-c424840aa6de.mp4",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_ios",
+      "resource": "ios",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/searchable-apps/ios traffic.",
+      "evidence": [
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 347,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 545,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 795,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1086,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "content_type": "application/octet-stream",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_web",
+      "resource": "web",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/searchable-apps/web traffic.",
+      "evidence": [
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 349,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 547,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 797,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 1088,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "weak_schema_confidence"
+  ],
+  "warnings": [
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1081,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1082,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1083,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1084,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1085,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1086,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1087,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1088,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1089,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "content_type": "application/octet-stream",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1090,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 1091,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 111,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 112,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 113,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 114,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 115,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 116,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 117,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 118,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 119,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 120,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 121,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 208,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 342,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 343,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 344,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 345,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 346,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 347,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 348,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 349,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 350,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 351,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 352,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 540,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 541,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 543,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 544,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 545,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 546,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 547,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 548,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 549,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 550,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 790,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 791,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 792,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 793,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 794,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-trending-filter-tags",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 795,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 796,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/android",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 797,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/web",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 798,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 799,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/filter-tags/fetch-dictionary-definitions",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 800,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/popular-apps/fetch-popular-apps-with-preview-screens",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "empty_payload",
+      "message": "API-looking request returned an empty or null payload; schema confidence is weak.",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 991,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/discover/fetch-discover-page-apps",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "empty/null payload"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1016,
+          "method": "GET",
+          "path": "/c053e3c9-b60f-4381-bd8e-5de89924ac31",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 107,
+          "method": "GET",
+          "path": "/2f418aa6-2725-4fe6-9f5c-ddfaf1cfb2c4",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1086,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/api/searchable-apps/ios",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1089,
+          "method": "POST",
+          "host": "mobbin.com",
+          "path": "/api/search-bar/fetch-searchable-sites",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1096,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Save-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1097,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Globe-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1098,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Bell-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1216,
+          "method": "GET",
+          "path": "/ba95f875-9698-47c0-b74b-f2663c7a69ac",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1230,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/pricing",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1340,
+          "method": "GET",
+          "path": "/fdd9bd60-d681-438b-a383-2b362e31c9bc",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1351,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/explore",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1378,
+          "method": "GET",
+          "path": "/1b6f826e-04e5-496d-b176-6dc90747fed5",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1472,
+          "method": "GET",
+          "path": "/cfb3827e-890b-42fe-8d1b-01df33d21645",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1618,
+          "method": "GET",
+          "path": "/19251a7b-bd3a-444a-94e5-b83c7364e9f9",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 161,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Save-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 162,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Globe-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 163,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Bell-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1743,
+          "method": "GET",
+          "path": "/9eacacd6-1d9f-422c-919e-c94a7889ed5b",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1755,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/explore",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1869,
+          "method": "GET",
+          "path": "/7d44a600-5b79-4141-a5d8-5ae9ba5f860d",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1881,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/explore",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1968,
+          "method": "GET",
+          "path": "/c7df3448-de18-427f-9286-b43a3de3e323",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1974,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/login",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 2082,
+          "method": "GET",
+          "path": "/202e7af7-437c-47dc-b941-2129230ad0dd",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 2094,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/explore",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 338,
+          "method": "GET",
+          "path": "/4fbfdd12-db5f-482d-956f-b69e70d82482",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 358,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Save-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 359,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Globe-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 360,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Bell-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 536,
+          "method": "GET",
+          "path": "/876e18ab-14c2-40da-88f7-8326d058f6c2",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 589,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Save-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 590,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Globe-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 591,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Bell-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 673,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/search",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 674,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/discover",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 786,
+          "method": "GET",
+          "path": "/29ff80c9-7d9b-4dc9-af16-7d897f4415fb",
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 834,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Save-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 835,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Globe-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    },
+    {
+      "type": "weak_schema_evidence",
+      "message": "Binary or protobuf response cannot provide reliable JSON schema evidence.",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 836,
+          "method": "GET",
+          "host": "mobbin.com",
+          "path": "/assets/lottie/Bell-dark.lottie",
+          "status": 200,
+          "content_type": "application/octet-stream",
+          "reason": "binary/protobuf response"
+        }
+      ]
+    }
+  ]
+}
