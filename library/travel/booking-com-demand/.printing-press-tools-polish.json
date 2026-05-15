@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-15T06:51:11.700111Z",
+  "cli_dir": "\u003ccli-dir\u003e/booking-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-15T06:51:11.700112Z"
+  }
+}

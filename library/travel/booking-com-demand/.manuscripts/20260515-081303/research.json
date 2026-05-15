@@ -1,0 +1,249 @@
+{
+  "api_name": "booking",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "hotels_mcp_server",
+      "url": "https://github.com/esakrissa/hotels_mcp_server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bookingcomclient",
+      "url": "https://github.com/azaelcodes/bookingcomclient",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bookingcom-client",
+      "url": "https://github.com/rybakit/bookingcom-client",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hotels-skill",
+      "url": "https://github.com/Anmoldureha/hotels-skill",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T08:20:00Z",
+  "novel_features": [
+    {
+      "name": "Price Drift Detector",
+      "command": "accommodations drift",
+      "description": "Flags properties where pricing moved beyond a threshold since your last sync",
+      "rationale": "Requires joining current bulk-availability API response against local SQLite price history — no API endpoint returns price deltas",
+      "example": "booking-com-demand-pp-cli accommodations drift --since 7d --threshold 10 --json",
+      "why_it_matters": "When monitoring property pricing for affiliate content or OTA inventory, this command replaces manual spreadsheet comparison with a single query",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review Category Ranker",
+      "command": "reviews rank",
+      "description": "Ranks properties by user-specified review sub-categories (cleanliness, location, staff) with price filtering",
+      "rationale": "Joins review_scores + accommodations + availability tables locally — no API endpoint filters across properties by review category thresholds",
+      "example": "booking-com-demand-pp-cli reviews rank --destination Barcelona --min-cleanliness 8 --min-location 9 --sort price --json",
+      "why_it_matters": "When curating top-N property lists for content or recommendations, this replaces hours of manual web browsing with a structured query",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Upcoming Orders Dashboard",
+      "command": "orders upcoming",
+      "description": "Lists orders with imminent check-in dates, highlighting those with unresolved message threads",
+      "rationale": "Joins orders filtered by check-in date with message resolution status — no single API endpoint combines order timeline with messaging state",
+      "example": "booking-com-demand-pp-cli orders upcoming --days 14 --with-messages --json",
+      "why_it_matters": "When managing active bookings, this single command replaces toggling between orders and messages screens",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Property Change Digest",
+      "command": "accommodations changelog",
+      "description": "Shows field-level diffs for properties that changed since your last sync",
+      "rationale": "Calls the changes endpoint for IDs, then diffs against locally stored details to produce per-field changelogs",
+      "example": "booking-com-demand-pp-cli accommodations changelog --since 7d --fields price,facilities --json",
+      "why_it_matters": "When maintaining an OTA inventory, this command catches price and facility changes that would otherwise require manual API polling",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Facility Comparison Matrix",
+      "command": "accommodations compare",
+      "description": "Side-by-side comparison of multiple properties across facilities, review scores, and pricing",
+      "rationale": "Joins accommodations + facilities + review_scores + availability for N properties — no API endpoint returns cross-property comparisons",
+      "example": "booking-com-demand-pp-cli accommodations compare --ids 123,456,789 --show facilities,scores,price --json",
+      "why_it_matters": "When narrowing down property options for a client or article, this replaces manual tab-switching with a structured diff",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Destination Intelligence",
+      "command": "locations intel",
+      "description": "City-level analytics: property count, average scores, price ranges, top landmarks, district breakdown",
+      "rationale": "Aggregates 6 local tables (cities, districts, landmarks, accommodations, review_scores, availability) — no API endpoint provides city-level analytics",
+      "example": "booking-com-demand-pp-cli locations intel --city Barcelona --json",
+      "why_it_matters": "When researching a new destination for content or travel planning, this produces a data-driven overview that replaces hours of browsing",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Price Drift Detector",
+      "command": "accommodations drift",
+      "description": "Flags properties where pricing moved beyond a threshold since your last sync",
+      "rationale": "Requires joining current bulk-availability API response against local SQLite price history — no API endpoint returns price deltas",
+      "example": "booking-com-demand-pp-cli accommodations drift --since 7d --threshold 10 --json",
+      "why_it_matters": "When monitoring property pricing for affiliate content or OTA inventory, this command replaces manual spreadsheet comparison with a single query",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review Category Ranker",
+      "command": "reviews rank",
+      "description": "Ranks properties by user-specified review sub-categories (cleanliness, location, staff) with price filtering",
+      "rationale": "Joins review_scores + accommodations + availability tables locally — no API endpoint filters across properties by review category thresholds",
+      "example": "booking-com-demand-pp-cli reviews rank --destination Barcelona --min-cleanliness 8 --min-location 9 --sort price --json",
+      "why_it_matters": "When curating top-N property lists for content or recommendations, this replaces hours of manual web browsing with a structured query",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Upcoming Orders Dashboard",
+      "command": "orders upcoming",
+      "description": "Lists orders with imminent check-in dates, highlighting those with unresolved message threads",
+      "rationale": "Joins orders filtered by check-in date with message resolution status — no single API endpoint combines order timeline with messaging state",
+      "example": "booking-com-demand-pp-cli orders upcoming --days 14 --with-messages --json",
+      "why_it_matters": "When managing active bookings, this single command replaces toggling between orders and messages screens",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Property Change Digest",
+      "command": "accommodations changelog",
+      "description": "Shows field-level diffs for properties that changed since your last sync",
+      "rationale": "Calls the changes endpoint for IDs, then diffs against locally stored details to produce per-field changelogs",
+      "example": "booking-com-demand-pp-cli accommodations changelog --since 7d --fields price,facilities --json",
+      "why_it_matters": "When maintaining an OTA inventory, this command catches price and facility changes that would otherwise require manual API polling",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Facility Comparison Matrix",
+      "command": "accommodations compare",
+      "description": "Side-by-side comparison of multiple properties across facilities, review scores, and pricing",
+      "rationale": "Joins accommodations + facilities + review_scores + availability for N properties — no API endpoint returns cross-property comparisons",
+      "example": "booking-com-demand-pp-cli accommodations compare --ids 123,456,789 --show facilities,scores,price --json",
+      "why_it_matters": "When narrowing down property options for a client or article, this replaces manual tab-switching with a structured diff",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Destination Intelligence",
+      "command": "locations intel",
+      "description": "City-level analytics: property count, average scores, price ranges, top landmarks, district breakdown",
+      "rationale": "Aggregates 6 local tables (cities, districts, landmarks, accommodations, review_scores, availability) — no API endpoint provides city-level analytics",
+      "example": "booking-com-demand-pp-cli locations intel --city Barcelona --json",
+      "why_it_matters": "When researching a new destination for content or travel planning, this produces a data-driven overview that replaces hours of browsing",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Booking.com",
+    "headline": "Every Booking.com Demand API feature, plus offline search, price drift detection, and review-based property ranking that no other tool offers",
+    "value_prop": "The only CLI for Booking.com's Demand API. Search accommodations, manage bookings, track price changes, and rank properties by review categories — all with offline SQLite storage, agent-native JSON output, and full MCP server support.",
+    "auth_narrative": "Requires a Booking.com Demand API Bearer token and Affiliate ID. Get partner access at developers.booking.com. Set BOOKING_API_TOKEN and BOOKING_AFFILIATE_ID in your environment.",
+    "quickstart": [
+      {
+        "command": "booking-com-demand-pp-cli auth set-token YOUR_TOKEN_HERE",
+        "comment": "Configure your Bearer token and Affiliate ID"
+      },
+      {
+        "command": "booking-com-demand-pp-cli doctor",
+        "comment": "Verify API connectivity and auth"
+      },
+      {
+        "command": "booking-com-demand-pp-cli accommodations search --country nl --checkin 2026-07-01 --checkout 2026-07-05",
+        "comment": "Search properties in the Netherlands"
+      },
+      {
+        "command": "booking-com-demand-pp-cli sync --full",
+        "comment": "Populate the local store for offline queries"
+      },
+      {
+        "command": "booking-com-demand-pp-cli reviews rank --destination Amsterdam --min-cleanliness 8 --sort price",
+        "comment": "Rank by review quality and price"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "Verify your Bearer token is set: booking-com-demand-pp-cli doctor --json"
+      },
+      {
+        "symptom": "403 Forbidden",
+        "fix": "Check your Affiliate ID is correct and your partner account has Demand API access enabled"
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "The CLI uses adaptive rate limiting. Wait 60 seconds or reduce --limit on bulk operations"
+      },
+      {
+        "symptom": "Empty search results",
+        "fix": "Verify date range is in the future and destination exists: booking-com-demand-pp-cli locations cities --query Amsterdam"
+      }
+    ],
+    "when_to_use": "Use this CLI when you need programmatic access to Booking.com's accommodation search, booking management, or property data. Ideal for travel affiliates automating content creation, OTA engineers syncing inventory, and travel agents managing bookings. The offline store and review ranking make it particularly valuable for recurring workflows like weekly price monitoring or destination research.",
+    "recipes": [
+      {
+        "title": "Find top-rated budget hotels",
+        "command": "booking-com-demand-pp-cli reviews rank --destination Barcelona --min-cleanliness 8 --max-price 120 --sort price --agent --select name,reviewScore,price",
+        "explanation": "Ranks properties by cleanliness score, filtered to budget range, with agent-friendly narrow output"
+      },
+      {
+        "title": "Monitor price changes",
+        "command": "booking-com-demand-pp-cli accommodations drift --since 7d --threshold 10 --json",
+        "explanation": "Detects properties where pricing moved more than 10% since last sync"
+      },
+      {
+        "title": "Compare shortlisted properties",
+        "command": "booking-com-demand-pp-cli accommodations compare --ids 123,456,789 --show facilities,scores,price --agent --select name,overallScore,price",
+        "explanation": "Side-by-side comparison with narrowed output for agent consumption"
+      },
+      {
+        "title": "Weekly booking review",
+        "command": "booking-com-demand-pp-cli orders upcoming --days 14 --with-messages --json",
+        "explanation": "Lists imminent check-ins with unresolved message threads"
+      },
+      {
+        "title": "Destination research",
+        "command": "booking-com-demand-pp-cli locations intel --city Amsterdam --json",
+        "explanation": "City-level analytics aggregated from the local store"
+      }
+    ],
+    "trigger_phrases": [
+      "search hotels in",
+      "find accommodation",
+      "check booking availability",
+      "compare hotel prices",
+      "booking.com properties",
+      "manage travel bookings",
+      "use booking"
+    ]
+  }
+}

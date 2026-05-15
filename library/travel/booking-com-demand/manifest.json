@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "booking-com-demand-pp-mcp",
+  "display_name": "Booking Com Demand",
+  "version": "4.6.1",
+  "description": "Booking Com Demand API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/booking-com-demand-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/booking-com-demand-pp-mcp",
+      "args": [],
+      "env": {
+        "BOOKING_COM_DEMAND_BEARER_AUTH": "${user_config.booking_com_demand_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "booking_com_demand_bearer_auth": {
+      "type": "string",
+      "title": "BOOKING_COM_DEMAND_BEARER_AUTH",
+      "description": "Sets BOOKING_COM_DEMAND_BEARER_AUTH for the Booking Com Demand MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T08:47:43.28426Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "booking-com-demand",
+  "display_name": "Booking Com Demand",
+  "cli_name": "booking-com-demand-pp-cli",
+  "owner": "netnull",
+  "printer": "netnull",
+  "printer_name": "netnull",
+  "spec_path": "/Users/valcontini/printing-press/.runstate/cli-printing-press-c3e332fb/runs/20260515-081303/research/demand-api.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:a88ae070588312bee92596641abfa4472ad5d3b9cd65ef8d5af9450d0675ed73",
+  "run_id": "20260515-081303",
+  "mcp_binary": "booking-com-demand-pp-mcp",
+  "mcp_tool_count": 39,
+  "mcp_ready": "full",
+  "api_version": "3.1",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "BOOKING_COM_DEMAND_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Price Drift Detector",
+      "command": "accommodations drift",
+      "description": "Flags properties where pricing moved beyond a threshold since your last sync"
+    },
+    {
+      "name": "Review Category Ranker",
+      "command": "reviews rank",
+      "description": "Ranks properties by user-specified review sub-categories (cleanliness, location, staff) with price filtering"
+    },
+    {
+      "name": "Upcoming Orders Dashboard",
+      "command": "orders upcoming",
+      "description": "Lists orders with imminent check-in dates, highlighting those with unresolved message threads"
+    },
+    {
+      "name": "Property Change Digest",
+      "command": "accommodations changelog",
+      "description": "Shows field-level diffs for properties that changed since your last sync"
+    },
+    {
+      "name": "Facility Comparison Matrix",
+      "command": "accommodations compare",
+      "description": "Side-by-side comparison of multiple properties across facilities, review scores, and pricing"
+    },
+    {
+      "name": "Destination Intelligence",
+      "command": "locations intel",
+      "description": "City-level analytics: property count, average scores, price ranges, top landmarks, district breakdown"
+    }
+  ],
+  "category": "travel",
+  "description": "CLI for the Booking.com Demand API \u2014 search accommodations, manage bookings, track price changes, and rank properties by review categories with offline SQLite storage.",
+  "spec_url": "https://developers.booking.com/_bundle/demand/docs/open-api/demand-api.yaml"
+}

@@ -1,0 +1,1444 @@
+{
+  "api_name": "booking-com-demand",
+  "base_url": "https://demandapi.booking.com/3.1",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BOOKING_COM_DEMAND_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BOOKING_COM_DEMAND_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "X-Affiliate-Id",
+      "value": ""
+    }
+  ],
+  "tools": [
+    {
+      "name": "accommodations_availability",
+      "description": "Use this endpoint to return detailed product availability, price and charges of the accommodation matching a given search criteria. \u003cbr/\u003eBy default, only product availability and price is returned. To receive extended information use the `extras` parameter. \u003cbr/\u003e\u003cbr/\u003eNote: It is mandatory to pass the input parameters: accommodation, booker, checkin, checkout and guest. Required: accommodation, booker, checkin, checkout, guests. Optional: currency, extras, payment (plus 1 more). Returns the new AccommodationsAvailabilityOutput.",
+      "method": "POST",
+      "path": "/accommodations/availability",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies an accommodation property. The full list can be obtained by calling [accommodations/details](/demand/docs/open-api/demand-api/accommodations/accommodations/details).",
+          "required": true
+        },
+        {
+          "name": "booker",
+          "type": "object",
+          "location": "body",
+          "description": "The booker's information.",
+          "required": true
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "body",
+          "description": "The checkin date. Must be within 500 days in the future and in the format yyyy-mm-dd.",
+          "required": true
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "body",
+          "description": "The checkout date. Must be later than {checkin}. Must be between 1 and 90 days after...",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies a monetary currency as defined by the ISO 4217..."
+        },
+        {
+          "name": "extras",
+          "type": "array",
+          "location": "body",
+          "description": "Input parameter to request for additional information about this product.include_bundle_variants must be passed in order to retrieve all value added products."
+        },
+        {
+          "name": "guests",
+          "type": "object",
+          "location": "body",
+          "description": "The guest details for the request.",
+          "required": true
+        },
+        {
+          "name": "payment",
+          "type": "string",
+          "location": "body",
+          "description": "Payment input information to filter results."
+        },
+        {
+          "name": "products",
+          "type": "array",
+          "location": "body",
+          "description": "Products"
+        }
+      ]
+    },
+    {
+      "name": "accommodations_bulk-availability",
+      "description": "Use this endpoint to retrieve detailed product availability, price and charges of a list of accommodations. By default, only product availability and price is returned. \u003cbr/\u003eTo receive extended information use the `extras` parameter. \u003cbr/\u003eNote: It is mandatory to pass the input parameters: accommodations, booker, checkin, checkout and guests. Required: accommodations, booker, checkin, checkout, guests. Optional: currency, extras, filters. Returns array of AccommodationsBulkAvailabilityDataOutput.",
+      "method": "POST",
+      "path": "/accommodations/bulk-availability",
+      "params": [
+        {
+          "name": "accommodations",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodations",
+          "required": true
+        },
+        {
+          "name": "booker",
+          "type": "object",
+          "location": "body",
+          "description": "The booker's information.",
+          "required": true
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "body",
+          "description": "The checkin date. Must be within 500 days in the future and in the format yyyy-mm-dd.",
+          "required": true
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "body",
+          "description": "The checkout date. Must be later than {checkin}. Must be between 1 and 90 days after...",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies a monetary currency as defined by the ISO 4217..."
+        },
+        {
+          "name": "extras",
+          "type": "array",
+          "location": "body",
+          "description": "Input parameter to request for additional information about this product.include_bundle_variants must be passed in order to retrieve all value added products."
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "The filters to apply in this availability request."
+        },
+        {
+          "name": "guests",
+          "type": "object",
+          "location": "body",
+          "description": "The guest details for the request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accommodations_chains",
+      "description": "Use this endpoint to retrieve a list of accommodation chains and their associated brands.\u003cbr/\u003e\u003cbr/\u003e A chain-branded accommodation is part of a larger corporate group and operates under a recognised brand. The returned information can be used to filter search results by chain or brand across other endpoints. \u003cbr/\u003e - To obtain the full list of chains, call this endpoint with an empty request body. \u003cbr/\u003e - The `id` values returned are the codes used as input and output in other API requests, ensuring consistency across your integration. \u003cbr/\u003e **Example of chain** - 'Radisson Hotel Group' with brands such as 'Radisson Blu' or 'Park Inn by Radisson.'. Returns array of AccommodationsChainsOutput.",
+      "method": "POST",
+      "path": "/accommodations/chains",
+      "params": []
+    },
+    {
+      "name": "accommodations_constants",
+      "description": "Use this endpoint to retrieve standardised codes and names for accommodation-specific types, including facilities, room types, bed types, themes, and charges. \u003cbr/\u003eThese constants can be used to filter searches or populate reference data across other accommodation endpoints. \u003cbr/\u003eYou can request multiple languages using IETF language tags (see common/languages). \u003cbr/\u003e Call with an empty body to retrieve all constants. The codes returned are canonical identifiers used across the API. Optional: constants, languages (default: [en-gb]). Returns the new AccommodationsConstantsOutput.",
+      "method": "POST",
+      "path": "/accommodations/constants",
+      "params": [
+        {
+          "name": "constants",
+          "type": "array",
+          "location": "body",
+          "description": "Allows to filter the results only for specific sections."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        }
+      ]
+    },
+    {
+      "name": "accommodations_details",
+      "description": "This endpoint returns detailed information on all accommodation properties matching a given search criteria. By default, only basic information is returned. \u003cbr/\u003e\u003cbr/\u003eIt is mandatory to pass one of the input parameters: accommodations, airport, city, country or region. \u003cbr/\u003e\u003cbr/\u003eTo receive extended information use the `extras` parameter. Optional: accommodation_facilities, accommodation_types, accommodations (plus 10 more).",
+      "method": "POST",
+      "path": "/accommodations/details",
+      "params": [
+        {
+          "name": "accommodation_facilities",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodation facilities"
+        },
+        {
+          "name": "accommodation_types",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodation types"
+        },
+        {
+          "name": "accommodations",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodations"
+        },
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "brands",
+          "type": "array",
+          "location": "body",
+          "description": "Brands"
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "extras",
+          "type": "array",
+          "location": "body",
+          "description": "Input parameter to request for additional information about the accommodation property. It should be passed as a JSON array with one or more items."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "payment",
+          "type": "string",
+          "location": "body",
+          "description": "Payment input information to filter results."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "accommodations_details-changes",
+      "description": "Use this endpoint to track accommodations that have opened, closed, or had relevant content updates since a specific timestamp. Changes can include updates to general information, facilities, rooms, photos, payments, and more. \u003cbr/\u003eYou can:\u003cbr/\u003e - Filter results by country or city.\u003cbr/\u003e - Use the 'next' timestamp from the response to request further updates.\u003cbr/\u003e\u003cbr/\u003eTo keep your local accommodation cache up to date, use this endpoint in combination with [accommodations/details](/demand/docs/open-api/demand-api/accommodations/accommodations/details) \u003cbr/\u003e\u003cbr/\u003eThe maximum number of IDs returned is approximately 5000 per request. Required: last_change. Optional: filters. Returns the new AccommodationsDetailsChangesOutput.",
+      "method": "POST",
+      "path": "/accommodations/details/changes",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "parameter basis which filtering needs to be done. Only one of (countries or cities) must be provided."
+        },
+        {
+          "name": "last_change",
+          "type": "string",
+          "location": "body",
+          "description": "The timestamp in ISO-8601 format from which changes to accommodations are returned (inclusive). Only UTC time zone is supported. We support changes for last 24 hours. Format: YYYY-MM-DDTHH:mm:ss+00:00",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accommodations_reviews",
+      "description": "This endpoint provides access to reviews for specified accommodations, allowing you to retrieve traveller feedback associated with a particular property.\u003c/br\u003e\u003c/br\u003e ✅ The reviews returned can be [filtered and sorted](/demand/docs/accommodations/filter-sorting), with the option to limit the number of reviews per accommodation by specifying the `rows` parameter.\u003c/br\u003e\u003c/br\u003e Please note that the ratings **score is based on all traveller traffic across Booking.com**, and may not necessarily reflect the experience of your own customers.\u003c/br\u003e\u003c/br\u003e If you choose to display or use these ratings and reviews, you are responsible for ensuring that your travellers are properly informed about what these scores represent. Required: accommodations. Optional: languages, last_change, page (plus 3 more). Returns array of AccommodationsReviewsDataOutput.",
+      "method": "POST",
+      "path": "/accommodations/reviews",
+      "params": [
+        {
+          "name": "accommodations",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodations",
+          "required": true
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Limits reviews to those written in this language."
+        },
+        {
+          "name": "last_change",
+          "type": "string",
+          "location": "body",
+          "description": "Limits the reviews to those changed after the given date. Format: YYYY-MM-DD."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "reviewer",
+          "type": "object",
+          "location": "body",
+          "description": "Reviewer"
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "score",
+          "type": "object",
+          "location": "body",
+          "description": "Score"
+        }
+      ]
+    },
+    {
+      "name": "accommodations_reviews-scores",
+      "description": "This endpoint returns score distribution and score breakdown for the specified accommodations. The scores information can be filtered by reviewer parameters and languages. Required: accommodations. Optional: languages, reviewer.",
+      "method": "POST",
+      "path": "/accommodations/reviews/scores",
+      "params": [
+        {
+          "name": "accommodations",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodations",
+          "required": true
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Limits reviews to those written in this language."
+        },
+        {
+          "name": "reviewer",
+          "type": "object",
+          "location": "body",
+          "description": "Reviewer"
+        }
+      ]
+    },
+    {
+      "name": "accommodations_search",
+      "description": "This endpoint returns, by default, the cheapest available product for each accommodation that matches the specified search criteria. \u003cbr/\u003e\u003cbr/\u003eWhen you apply location filters using parameters such as country or region id, the results are sorted by Booking.com popularity (top_picks) instead of price.\u003cbr/\u003eIn this case, accommodations are ranked in descending order of popularity, meaning higher-ranked listings will appear earlier in the response. Required: booker, checkin, checkout, guests. Optional: 24_hour_reception, accommodation_facilities, accommodation_types (plus 22 more). Returns array of AccommodationsSearchDataOutput.",
+      "method": "POST",
+      "path": "/accommodations/search",
+      "params": [
+        {
+          "name": "24_hour_reception",
+          "type": "bool",
+          "location": "body",
+          "description": "Filter the result based if the front desk reception is available 24/7. When specified true, the result will filter the products where front desk is available 24/7."
+        },
+        {
+          "name": "accommodation_facilities",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodation facilities"
+        },
+        {
+          "name": "accommodation_types",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodation types"
+        },
+        {
+          "name": "accommodations",
+          "type": "array",
+          "location": "body",
+          "description": "Accommodations"
+        },
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "booker",
+          "type": "object",
+          "location": "body",
+          "description": "The booker's information.",
+          "required": true
+        },
+        {
+          "name": "brands",
+          "type": "array",
+          "location": "body",
+          "description": "Brands"
+        },
+        {
+          "name": "cancellation_type",
+          "type": "string",
+          "location": "body",
+          "description": "Filters the result for the cancellation type specified. Possible values are free_cancellation \u0026 non_refundable. If cancellation_type is free_cancellation, the result will contain all the products with free_cancellation."
+        },
+        {
+          "name": "checkin",
+          "type": "string",
+          "location": "body",
+          "description": "The checkin date. Must be within 500 days in the future and in the format yyyy-mm-dd.",
+          "required": true
+        },
+        {
+          "name": "checkout",
+          "type": "string",
+          "location": "body",
+          "description": "The checkout date. Must be later than {checkin}. Must be between 1 and 90 days after...",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "coordinates",
+          "type": "object",
+          "location": "body",
+          "description": "Limit the result list to the specified coordinates."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies a monetary currency as defined by the ISO 4217..."
+        },
+        {
+          "name": "district",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a district."
+        },
+        {
+          "name": "dormitories",
+          "type": "string",
+          "location": "body",
+          "description": "This parameter specifies if the results should include dormitory beds or rooms. The default behaviour will include the dormitory beds or rooms with other results. When this flag is set to 'only', the response will only include dormitory beds or rooms. When this flag is set to 'exclude', the response will exclude dormitory beds or rooms. When this flag is set to 'include', the response will include dormitory beds or rooms with other results."
+        },
+        {
+          "name": "extras",
+          "type": "array",
+          "location": "body",
+          "description": "Input parameter to request for additional information about the products."
+        },
+        {
+          "name": "guests",
+          "type": "object",
+          "location": "body",
+          "description": "The guest details for the request.",
+          "required": true
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "meal_plan",
+          "type": "string",
+          "location": "body",
+          "description": "Filter the result based on the selected meal plan. Example: When specified breakfast_included, it will show the product with free breakfast."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "payment",
+          "type": "object",
+          "location": "body",
+          "description": "The payment filter for the request"
+        },
+        {
+          "name": "price",
+          "type": "object",
+          "location": "body",
+          "description": "If specified, will return only results where the price *per night* falls in the specified range (inclusive). This filter requires that a currency is passed"
+        },
+        {
+          "name": "rating",
+          "type": "object",
+          "location": "body",
+          "description": "The rating filter for the request"
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "room_facilities",
+          "type": "array",
+          "location": "body",
+          "description": "Room facilities"
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "sort",
+          "type": "object",
+          "location": "body",
+          "description": "The sorting parameters for the response"
+        },
+        {
+          "name": "travel_proud",
+          "type": "bool",
+          "location": "body",
+          "description": "Filter the result based on if the property is LGBTQ+ friendly. When specified true, the result will filter and return only the accommodations that are Proud Certified."
+        }
+      ]
+    },
+    {
+      "name": "cars_constants",
+      "description": "This endpoint returns a list of relevant car constants names in the specified languages. For example, calling with the parameters {'languages':'en-us','fr'} will return the list in English (US) and French. To retrieve the full list, make the request with an empty body. Optional: constants, languages (default: [en-gb]).",
+      "method": "POST",
+      "path": "/cars/constants",
+      "params": [
+        {
+          "name": "constants",
+          "type": "array",
+          "location": "body",
+          "description": "A list of car rental constant types to filter the results by. This allows you to narrow down the result based on particular criteria, such as fuel_policy, payment_timings etc."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        }
+      ]
+    },
+    {
+      "name": "cars_depots",
+      "description": "Use this endpoint to retrieve the list of all available car rental depots. Optional: languages (default: [en-gb]), last_modified, maximum_results (default: 100) (plus 1 more). Returns array of CarsDepotsItem.",
+      "method": "POST",
+      "path": "/cars/depots",
+      "params": [
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "last_modified",
+          "type": "string",
+          "location": "body",
+          "description": "The last modified date-time, only returns depots newer than this timestamp."
+        },
+        {
+          "name": "maximum_results",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        }
+      ]
+    },
+    {
+      "name": "cars_depots-reviews-scores",
+      "description": "Use this endpoint to return the score breakdown for the specified depots together with the overall number of reviews and score. \u003c/br\u003e\u003c/br\u003e- Please note that the **ratings score is based on all traveller traffic across Booking.com/cars**, and may not necessarily reflect the experience of your own customers.\u003c/br\u003e\u003c/br\u003e - If you choose to display or use these ratings, you are responsible for ensuring that your travellers are properly informed about what these scores represent. Optional: maximum_results (default: 100), page. Returns array of CarsDepotsReviewsScoresItem.",
+      "method": "POST",
+      "path": "/cars/depots/reviews/scores",
+      "params": [
+        {
+          "name": "maximum_results",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        }
+      ]
+    },
+    {
+      "name": "cars_details",
+      "description": "Use this endpoint to fetch car details like bag capacity, number of doors, brand and model, etc. Optional: last_modified, maximum_results (default: 100), page. Returns array of CarsDetailsItem.",
+      "method": "POST",
+      "path": "/cars/details",
+      "params": [
+        {
+          "name": "last_modified",
+          "type": "string",
+          "location": "body",
+          "description": "The last modified date-time, only returns depots newer than this timestamp. The value should be within last 7 days"
+        },
+        {
+          "name": "maximum_results",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        }
+      ]
+    },
+    {
+      "name": "cars_search",
+      "description": "Use this endpoint to retrieve the available car rentals matching the search criteria. Required: booker, currency, driver, route. Optional: filters, language, maximum_results (default: 100) (plus 3 more). Returns array of CarsSearchItem.",
+      "method": "POST",
+      "path": "/cars/search",
+      "params": [
+        {
+          "name": "booker",
+          "type": "object",
+          "location": "body",
+          "description": "Defines the booker context.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies a monetary currency as defined by the ISO 4217...",
+          "required": true
+        },
+        {
+          "name": "driver",
+          "type": "object",
+          "location": "body",
+          "description": "Defines the driver context.",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Defines the filtering criteria for refining the request results. It allows you to specify various parameters to narrow down the available car rental options based on specific attributes."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "Effects on the selected language of the target website after redirection by provided url."
+        },
+        {
+          "name": "maximum_results",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return per page."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "payment",
+          "type": "object",
+          "location": "body",
+          "description": "Payment-related input filters that allow you to narrow down car search results based on the payment timing options."
+        },
+        {
+          "name": "route",
+          "type": "object",
+          "location": "body",
+          "description": "Defines the route context.",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "object",
+          "location": "body",
+          "description": "The sorting parameters for the response."
+        }
+      ]
+    },
+    {
+      "name": "cars_suppliers",
+      "description": "Use this endpoint to fetch a list of car rental suppliers. \u003cbr/\u003eYou can use a supplier ID (or an array of them), to retrieve specific details. \u003cbr/\u003eAlternatively, if you do not add any ID in the request, the response will include all suppliers. Optional: maximum_results (default: 100), page, suppliers. Returns array of CarsSuppliersItem.",
+      "method": "POST",
+      "path": "/cars/suppliers",
+      "params": [
+        {
+          "name": "maximum_results",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "suppliers",
+          "type": "array",
+          "location": "body",
+          "description": "Defines the suppliers that should be returned. Without it all suppliers will be returned"
+        }
+      ]
+    },
+    {
+      "name": "common_languages",
+      "description": "This endpoint returns a list of human language codes and their names in the corresponding language. To get the full list call the endpoint passing an empty body. The language codes returned are what is used as input and output for other endpoints.",
+      "method": "POST",
+      "path": "/common/languages",
+      "params": []
+    },
+    {
+      "name": "common_locations-airports",
+      "description": "This endpoint returns a list of airport codes and their names in the selected languages. The airports returned may be filtered by a location id. For example, you can get the list of airports in The Netherlands by passing: `{'country':'nl'}`. To get the full list call the endpoint passing an empty body. The airport codes returned are what is used as input and output for other endpoints. This endpoint implements pagination of the results. Optional: airport, city, country (plus 6 more).",
+      "method": "POST",
+      "path": "/common/locations/airports",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "district",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a district."
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "common_locations-cities",
+      "description": "This endpoint returns a list of city codes and their names in the selected languages. The cities returned may be filtered by a location id. For example, you can get the list of cities in The Netherlands by passing: `{'country':'nl'}`. To get the full list call the endpoint passing an empty body. The city codes returned are what is used as input and output for other endpoints. This endpoint implements pagination of the results. Optional: airport, city, country (plus 6 more).",
+      "method": "POST",
+      "path": "/common/locations/cities",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "district",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a district."
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "common_locations-countries",
+      "description": "This endpoint returns a list of country codes and their names in the selected languages. The countries returned may be filtered by a location id. For example, you can get the list of countries that are associated with the European Alps region by passing: `{'region':1199}`. \u003cbr/\u003e\u003cbr/\u003eTo get the full list call the endpoint passing an empty body. The returned country codes are used as input and output for other endpoints. \u003cbr/\u003e\u003cbr/\u003eThis endpoint implements pagination of the results. Optional: airport, city, country (plus 6 more).",
+      "method": "POST",
+      "path": "/common/locations/countries",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "district",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a district."
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "common_locations-districts",
+      "description": "This endpoint returns a list of districts with translations in the selected languages. The districts returned may be filtered by a location id. For example, you can get the list of districts in Amsterdam by passing: `{'city':-2140479}`. \u003cbr/\u003e\u003cbr/\u003eTo get the full list call the endpoint passing an empty body. The district ids returned are what is used as input and output for other endpoints.\u003cbr/\u003e\u003cbr/\u003e This endpoint implements pagination of the results. Optional: airport, city, country (plus 6 more).",
+      "method": "POST",
+      "path": "/common/locations/districts",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "district",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a district."
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "common_locations-landmarks",
+      "description": "This endpoint returns a list of relevant geographical landmark codes and their names in the selected languages. The landmarks returned may be filtered by a location id. For example, you can get the list of landmarks that are associated with the city of Paris in France by passing: `{'city':-1456928}`. \u003cbr/\u003e\u003cbr/\u003eTo get the full list call the endpoint passing an empty body. The landmark codes returned are what is used as input and output for other endpoints. \u003cbr/\u003e\u003cbr/\u003eThis endpoint implements pagination of the results. Optional: airport, city, country (plus 6 more).",
+      "method": "POST",
+      "path": "/common/locations/landmarks",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "district",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a district."
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "common_locations-regions",
+      "description": "This endpoint returns a list of regions with translations in the selected languages. The regions returned may be filtered by a location id. For example, you can get the list of regions in the Netherlands or that the Netherlands is a part of by passing: `{'country':'nl'}`. To get the full list call the endpoint passing an empty body. The region ids returned are what is used as input and output for other endpoints. This endpoint implements pagination of the results. Optional: airport, city, country (plus 5 more).",
+      "method": "POST",
+      "path": "/common/locations/regions",
+      "params": [
+        {
+          "name": "airport",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies an airport as defined by the International Air..."
+        },
+        {
+          "name": "city",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a city."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "body",
+          "description": "A two-letter code that uniquely identifies a country."
+        },
+        {
+          "name": "landmark",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a relevant geographical landmark, like a..."
+        },
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Pagination token used to retrieve the next page of results. Obtained from `next_page`."
+        },
+        {
+          "name": "region",
+          "type": "int",
+          "location": "body",
+          "description": "A signed integer number that uniquely identifies a geographical region."
+        },
+        {
+          "name": "rows",
+          "type": "int",
+          "location": "body",
+          "description": "The maximum number of results to return."
+        }
+      ]
+    },
+    {
+      "name": "common_payments-cards",
+      "description": "This endpoint returns a list of supported payment cards and their names in English. Examples of payment types are the different credit and debit cards. \u003cbr/\u003e\u003cbr/\u003eTo get the full list call the endpoint passing an empty body. The codes returned are what is used as input and output for other endpoints.",
+      "method": "POST",
+      "path": "/common/payments/cards",
+      "params": []
+    },
+    {
+      "name": "common_payments-currencies",
+      "description": "This endpoint returns a list of currency codes and their names in the selected languages. To get the full list call the endpoint passing an empty body. \u003cbr/\u003e\u003cbr/\u003eThe currency codes returned are what is used as input and output for other endpoints. Optional: languages (default: [en-gb]).",
+      "method": "POST",
+      "path": "/common/payments/currencies",
+      "params": [
+        {
+          "name": "languages",
+          "type": "array",
+          "location": "body",
+          "description": "Languages"
+        }
+      ]
+    },
+    {
+      "name": "messages_confirm-receipt",
+      "description": "Confirms receipt of specified messages. This confirmation is required before receiving new messages from the POST /messages/latest endpoint. Optional: messages.",
+      "method": "POST",
+      "path": "/messages/latest/confirm",
+      "params": [
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "Messages"
+        }
+      ]
+    },
+    {
+      "name": "messages_download-attachment",
+      "description": "Retrieves a file that was attached to a message. The response includes the file's content as a base64-encoded string. Required: accommodation, attachment, conversation. Returns the new MessagesDownloadAttachmentResponse.",
+      "method": "POST",
+      "path": "/messages/attachments/download",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the property where the conversation occurred.",
+          "required": true
+        },
+        {
+          "name": "attachment",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the attachment to download.",
+          "required": true
+        },
+        {
+          "name": "conversation",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the conversation that contains the attachment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_fetch-latest",
+      "description": "Retrieves up to **100 of the most recent messages** including messages from both property and guest.\u003cbr/\u003e - Messages are returned in reverse chronological order (newest first). - Use this endpoint to sync message threads or poll for updates. **Important:** To retrieve the latest messages, send an empty POST request. Any content in the request body will be ignored. Returns the new MessagesFetchLatestResponse.",
+      "method": "POST",
+      "path": "/messages/latest",
+      "params": []
+    },
+    {
+      "name": "messages_get-attachment-metadata",
+      "description": "Returns metadata for a file uploaded in a message, including its name, type, and size. Required: accommodation, attachment, conversation.",
+      "method": "POST",
+      "path": "/messages/attachments/metadata",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the property associated with the conversation.",
+          "required": true
+        },
+        {
+          "name": "attachment",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the attachment whose metadata is being requested.",
+          "required": true
+        },
+        {
+          "name": "conversation",
+          "type": "string",
+          "location": "body",
+          "description": "The unique identifier of the conversation that includes the attachment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_retrieve-conversation",
+      "description": "Retrieves a conversation accessible to the authenticated user, including message history and participants. Returns the new MessagesRetrieveConversationResponse.",
+      "method": "POST",
+      "path": "/messages/conversations",
+      "params": []
+    },
+    {
+      "name": "messages_send",
+      "description": "Sends a message within a conversation. The message body supports plain text. Optionally, attach a file by referencing a previously uploaded attachment ID. Required: accommodation, content, conversation. Optional: attachments. Returns the new MessagesSendResponse.",
+      "method": "POST",
+      "path": "/messages/send",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the property.",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Optional list of attachment IDs, if sending one or more files."
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "The message text to send.",
+          "required": true
+        },
+        {
+          "name": "conversation",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the conversation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_upload-attachment",
+      "description": "Uploads a file to be used as a message attachment. The response includes an attachment ID to reference when sending messages. Required: accommodation, conversation, file_content, file_name, file_size, file_type.",
+      "method": "POST",
+      "path": "/messages/attachments/upload",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the property.",
+          "required": true
+        },
+        {
+          "name": "conversation",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the conversation.",
+          "required": true
+        },
+        {
+          "name": "file_content",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded content of the file.",
+          "required": true
+        },
+        {
+          "name": "file_name",
+          "type": "string",
+          "location": "body",
+          "description": "Original file name including extension.",
+          "required": true
+        },
+        {
+          "name": "file_size",
+          "type": "int",
+          "location": "body",
+          "description": "Size of the file in bytes.",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the file.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_cancel",
+      "description": "Use this endpoint to process an order cancellation. Refer to the [Cancellations guide](/demand/docs/orders-api/cancel-order) for instructions, tips and examples. Required: order, reason. Optional: request_property_approval. Returns the new OrdersCancelOutput.",
+      "method": "POST",
+      "path": "/orders/cancel",
+      "params": [
+        {
+          "name": "order",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the order to cancel.",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "The reason for cancelling this order.",
+          "required": true
+        },
+        {
+          "name": "request_property_approval",
+          "type": "string",
+          "location": "body",
+          "description": "(accommodations only) If the reservation has a cancellation fee, request the property to waive the fee and cancel for free. Subject to approval by the property."
+        }
+      ]
+    },
+    {
+      "name": "orders_create",
+      "description": "Use this endpoint to confirm the booking and proceed the payment. Required: booker, order_token, payment. Optional: accommodation. Returns the new OrderCreateOutput.",
+      "method": "POST",
+      "path": "/orders/create",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "object",
+          "location": "body",
+          "description": "Additional information related to the accommodation order."
+        },
+        {
+          "name": "booker",
+          "type": "object",
+          "location": "body",
+          "description": "The booker's information.",
+          "required": true
+        },
+        {
+          "name": "order_token",
+          "type": "string",
+          "location": "body",
+          "description": "A token containing the necessary data to be used for creating this order.",
+          "required": true
+        },
+        {
+          "name": "payment",
+          "type": "object",
+          "location": "body",
+          "description": "Payment related information for the order.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "orders_details",
+      "description": "This endpoint returns basic information for orders filtered according to the input.",
+      "method": "POST",
+      "path": "/orders/details",
+      "params": []
+    },
+    {
+      "name": "orders_details-accommodations",
+      "description": "This endpoint returns all information for given accommodation orders, sorted by `bookingDate` in descending order.",
+      "method": "POST",
+      "path": "/orders/details/accommodations",
+      "params": []
+    },
+    {
+      "name": "orders_details-cars",
+      "description": "This endpoint returns car order details, sorted by `bookingDate` in descending order.",
+      "method": "POST",
+      "path": "/orders/details/cars",
+      "params": []
+    },
+    {
+      "name": "orders_details-flights",
+      "description": "Use this endpoint to retrieve detailed information for one or more flight orders. - You can request car order details either by **order ID** or by **reservation ID**. - The response includes all relevant information for each order, such as booking and cancellation details, commission, pricing, and optional extras (for example, policies). Results are sorted by `bookingDate` in descending order, with the most recently booked orders listed first. It returns structured order data, including pricing, itinerary segments with IATA airport codes, etc. \u003c/br\u003e\u003c/br\u003eThis endpoint is ideal for:\u003c/br\u003e\u003c/br\u003e - Displaying flight booking details in traveller dashboards or confirmation pages.\u003c/br\u003e - Generating post-booking communications and invoices. \u003c/br\u003e - Performing reporting or reconciliation tasks that require accurate itinerary and pricing data.",
+      "method": "POST",
+      "path": "/orders/details/flights",
+      "params": []
+    },
+    {
+      "name": "orders_modify",
+      "description": "Use this endpoint to modify certain aspects of an accommodation order, such as credit card details, checkin/checkout dates, and room configurations (guest allocation, guest names, and smoking preferences). - See the [Orders modification guide](/demand/docs/orders-api/order-modify) for examples and best practices.",
+      "method": "POST",
+      "path": "/orders/modify",
+      "params": []
+    },
+    {
+      "name": "orders_preview",
+      "description": "This endpoint returns the total final price with final charges, as well as the price breakdown and payment/cancellation policies for each product passed in the input. Required: accommodation, booker. Optional: currency.",
+      "method": "POST",
+      "path": "/orders/preview",
+      "params": [
+        {
+          "name": "accommodation",
+          "type": "object",
+          "location": "body",
+          "description": "Input parameter with the checkin and checkout date and all the accommodation products to be ordered.",
+          "required": true
+        },
+        {
+          "name": "booker",
+          "type": "object",
+          "location": "body",
+          "description": "The booker's information.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "A three-letter code that uniquely identifies a monetary currency as defined by the ISO 4217..."
+        }
+      ]
+    }
+  ]
+}
