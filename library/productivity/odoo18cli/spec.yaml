@@ -1,0 +1,1159 @@
+openapi: "3.1.0"
+info:
+  title: "Odoo 18"
+  description: |
+    Generic Odoo 18 CLI covering the main business models: sales, purchases,
+    products, partners, manufacturing, inventory, and accounting.
+
+    Connects to the Odoo XML-RPC external API at /xmlrpc/2/common (auth)
+    and /xmlrpc/2/object (ORM: search_read, read, create, write).
+
+    Supports multiple Odoo instances via profiles:
+      odoo18cli --profile edarredo partners list --limit 10
+
+    Auth: set ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY environment variables.
+    Generate an API key in Odoo via Settings → Users → your user → Account Security.
+  version: "1.0.0"
+  x-auth-instructions: "Generate an API key in Odoo: Settings → Users → your user → Account Security tab."
+  x-display-name: "Odoo 18"
+
+x-auth-type: "api-key"
+x-auth-env-var: "ODOO_API_KEY"
+
+servers:
+  - url: "https://your-odoo.example.com"
+    description: "Odoo 18 instance (override with --url flag or ODOO_URL env var)"
+
+paths:
+  /xmlrpc/2/common:
+    post:
+      operationId: "authenticate"
+      summary: "Authenticate and get UID"
+      description: |
+        Calls common.authenticate(db, username, api_key, {}) via XML-RPC.
+        Returns integer UID used in all subsequent object calls.
+      tags: ["auth"]
+      x-auth-skip: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                db: { type: string }
+                username: { type: string }
+                api_key: { type: string }
+      responses:
+        "200":
+          description: "UID returned"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  # ─── SALES ───────────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/sale.order/search_read:
+    post:
+      operationId: "listSalesOrders"
+      summary: "List sales orders"
+      description: |
+        Calls execute_kw on sale.order/search_read. Returns sales orders
+        matching the optional domain filter.
+      tags: ["sales"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON (e.g. [[\"state\",\"=\",\"sale\"]])"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "date_order desc" }
+      responses:
+        "200":
+          description: "List of sales orders"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SaleOrder"
+
+  /xmlrpc/2/object/sale.order/read:
+    post:
+      operationId: "getSalesOrder"
+      summary: "Get a single sales order by ID"
+      tags: ["sales"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Sales order record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaleOrder"
+
+  /xmlrpc/2/object/sale.order/create:
+    post:
+      operationId: "createSalesOrder"
+      summary: "Create a new sales order"
+      tags: ["sales"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [partner_id]
+              properties:
+                partner_id: { type: integer, description: "Customer partner ID" }
+                date_order: { type: string, format: date-time }
+                user_id: { type: integer, description: "Salesperson ID" }
+                team_id: { type: integer, description: "Sales team ID" }
+                payment_term_id: { type: integer }
+                note: { type: string }
+      responses:
+        "200":
+          description: "New sales order ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /xmlrpc/2/object/sale.order/action_confirm:
+    post:
+      operationId: "confirmSalesOrder"
+      summary: "Confirm a quotation into a sales order"
+      tags: ["sales"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer }
+      responses:
+        "200":
+          description: "True on success"
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  # ─── PURCHASES ───────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/purchase.order/search_read:
+    post:
+      operationId: "listPurchaseOrders"
+      summary: "List purchase orders"
+      tags: ["purchases"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "date_order desc" }
+      responses:
+        "200":
+          description: "List of purchase orders"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PurchaseOrder"
+
+  /xmlrpc/2/object/purchase.order/read:
+    post:
+      operationId: "getPurchaseOrder"
+      summary: "Get a single purchase order by ID"
+      tags: ["purchases"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Purchase order record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseOrder"
+
+  /xmlrpc/2/object/purchase.order/create:
+    post:
+      operationId: "createPurchaseOrder"
+      summary: "Create a new purchase order (RFQ)"
+      tags: ["purchases"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [partner_id]
+              properties:
+                partner_id: { type: integer, description: "Vendor partner ID" }
+                date_order: { type: string, format: date-time }
+                user_id: { type: integer }
+                payment_term_id: { type: integer }
+                notes: { type: string }
+      responses:
+        "200":
+          description: "New purchase order ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  # ─── PRODUCTS ────────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/product.template/search_read:
+    post:
+      operationId: "listProducts"
+      summary: "List product templates"
+      tags: ["products"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "name asc" }
+      responses:
+        "200":
+          description: "List of products"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /xmlrpc/2/object/product.template/read:
+    post:
+      operationId: "getProduct"
+      summary: "Get a single product template by ID"
+      tags: ["products"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Product record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /xmlrpc/2/object/product.template/create:
+    post:
+      operationId: "createProduct"
+      summary: "Create a new product template"
+      tags: ["products"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                default_code: { type: string, description: "Internal reference" }
+                categ_id: { type: integer }
+                list_price: { type: number, description: "Sales price" }
+                standard_price: { type: number, description: "Cost" }
+                type:
+                  type: string
+                  enum: [consu, service, product]
+                  description: "consu=consumable, service=service, product=storable"
+                uom_id: { type: integer }
+      responses:
+        "200":
+          description: "New product ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /xmlrpc/2/object/product.template/write:
+    post:
+      operationId: "updateProduct"
+      summary: "Update product template fields"
+      tags: ["products"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer }
+                name: { type: string }
+                list_price: { type: number }
+                standard_price: { type: number }
+                active: { type: boolean }
+                default_code: { type: string }
+      responses:
+        "200":
+          description: "True on success"
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  # ─── PARTNERS ────────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/res.partner/search_read:
+    post:
+      operationId: "listPartners"
+      summary: "List partners (customers and/or vendors)"
+      tags: ["partners"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "name asc" }
+      responses:
+        "200":
+          description: "List of partners"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Partner"
+
+  /xmlrpc/2/object/res.partner/read:
+    post:
+      operationId: "getPartner"
+      summary: "Get a single partner by ID"
+      tags: ["partners"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Partner record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Partner"
+
+  /xmlrpc/2/object/res.partner/create:
+    post:
+      operationId: "createPartner"
+      summary: "Create a new partner"
+      tags: ["partners"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                email: { type: string }
+                phone: { type: string }
+                is_company: { type: boolean }
+                vat: { type: string, description: "Tax ID / VAT number" }
+                street: { type: string }
+                city: { type: string }
+                country_id: { type: integer }
+                customer_rank: { type: integer }
+                supplier_rank: { type: integer }
+      responses:
+        "200":
+          description: "New partner ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  # ─── MANUFACTURING ────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/mrp.production/search_read:
+    post:
+      operationId: "listManufacturingOrders"
+      summary: "List manufacturing orders"
+      tags: ["manufacturing"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "date_start desc" }
+      responses:
+        "200":
+          description: "List of manufacturing orders"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ManufacturingOrder"
+
+  /xmlrpc/2/object/mrp.production/read:
+    post:
+      operationId: "getManufacturingOrder"
+      summary: "Get a single manufacturing order by ID"
+      tags: ["manufacturing"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Manufacturing order record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManufacturingOrder"
+
+  /xmlrpc/2/object/mrp.production/create:
+    post:
+      operationId: "createManufacturingOrder"
+      summary: "Create a new manufacturing order"
+      tags: ["manufacturing"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_id, product_qty]
+              properties:
+                product_id: { type: integer }
+                product_qty: { type: number }
+                bom_id: { type: integer }
+                date_start: { type: string, format: date-time }
+                company_id: { type: integer }
+      responses:
+        "200":
+          description: "New manufacturing order ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  # ─── BILL OF MATERIALS ────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/mrp.bom/search_read:
+    post:
+      operationId: "listBoms"
+      summary: "List bills of materials"
+      tags: ["bom"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "id desc" }
+      responses:
+        "200":
+          description: "List of BOMs"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bom"
+
+  /xmlrpc/2/object/mrp.bom/read:
+    post:
+      operationId: "getBom"
+      summary: "Get a single BOM by ID"
+      tags: ["bom"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "BOM record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bom"
+
+  # ─── WORK CENTERS ─────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/mrp.workcenter/search_read:
+    post:
+      operationId: "listWorkcenters"
+      summary: "List work centers"
+      tags: ["workcenters"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: "List of work centers"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workcenter"
+
+  # ─── WORK ORDERS ─────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/mrp.workorder/search_read:
+    post:
+      operationId: "listWorkorders"
+      summary: "List work orders"
+      tags: ["workorders"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "date_start desc" }
+      responses:
+        "200":
+          description: "List of work orders"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workorder"
+
+  # ─── TRANSFERS (STOCK PICKINGS) ───────────────────────────────────────────
+
+  /xmlrpc/2/object/stock.picking/search_read:
+    post:
+      operationId: "listTransfers"
+      summary: "List stock transfers (pickings)"
+      tags: ["transfers"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "scheduled_date desc" }
+      responses:
+        "200":
+          description: "List of transfers"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transfer"
+
+  /xmlrpc/2/object/stock.picking/read:
+    post:
+      operationId: "getTransfer"
+      summary: "Get a single transfer by ID"
+      tags: ["transfers"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Transfer record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+
+  # ─── STOCK MOVES ─────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/stock.move/search_read:
+    post:
+      operationId: "listStockMoves"
+      summary: "List stock moves"
+      tags: ["moves"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "date desc" }
+      responses:
+        "200":
+          description: "List of stock moves"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockMove"
+
+  # ─── INVENTORY (STOCK QUANTS) ─────────────────────────────────────────────
+
+  /xmlrpc/2/object/stock.quant/search_read:
+    post:
+      operationId: "listInventory"
+      summary: "List stock quantities (on-hand inventory)"
+      tags: ["inventory"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON (e.g. [[\"location_id.usage\",\"=\",\"internal\"]])"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "product_id asc" }
+      responses:
+        "200":
+          description: "List of stock quants"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StockQuant"
+
+  # ─── PRICELISTS ───────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/product.pricelist/search_read:
+    post:
+      operationId: "listPricelists"
+      summary: "List customer pricelists"
+      tags: ["pricelists"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+      responses:
+        "200":
+          description: "List of pricelists"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pricelist"
+
+  /xmlrpc/2/object/product.pricelist/read:
+    post:
+      operationId: "getPricelist"
+      summary: "Get a single pricelist by ID"
+      tags: ["pricelists"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Pricelist record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pricelist"
+
+  # ─── SUPPLIER PRICES ──────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/product.supplierinfo/search_read:
+    post:
+      operationId: "listSupplierPrices"
+      summary: "List supplier price rules"
+      tags: ["supplier-prices"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "partner_id asc" }
+      responses:
+        "200":
+          description: "List of supplier price rules"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SupplierPrice"
+
+  # ─── CHART OF ACCOUNTS ───────────────────────────────────────────────────
+
+  /xmlrpc/2/object/account.account/search_read:
+    post:
+      operationId: "listAccounts"
+      summary: "List chart of accounts"
+      tags: ["accounts"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 200 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "code asc" }
+      responses:
+        "200":
+          description: "List of accounts"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+
+  # ─── JOURNAL ENTRIES (MOVE LINES) ─────────────────────────────────────────
+
+  /xmlrpc/2/object/account.move.line/search_read:
+    post:
+      operationId: "listJournalEntries"
+      summary: "List journal entry lines"
+      tags: ["journal-entries"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "date desc" }
+      responses:
+        "200":
+          description: "List of journal entry lines"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JournalEntryLine"
+
+  # ─── INVOICES ────────────────────────────────────────────────────────────
+
+  /xmlrpc/2/object/account.move/search_read:
+    post:
+      operationId: "listInvoices"
+      summary: "List invoices and bills"
+      description: |
+        Calls execute_kw on account.move/search_read. Use domain to filter
+        by move_type (out_invoice, in_invoice, out_refund, in_refund).
+      tags: ["invoices"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON (e.g. [[\"move_type\",\"=\",\"out_invoice\"]])"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "invoice_date desc" }
+      responses:
+        "200":
+          description: "List of invoices"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invoice"
+
+  /xmlrpc/2/object/account.move/read:
+    post:
+      operationId: "getInvoice"
+      summary: "Get a single invoice or bill by ID"
+      tags: ["invoices"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Invoice record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+
+components:
+  schemas:
+    SaleOrder:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, description: "Order reference (e.g. S00042)" }
+        partner_id: { description: "Customer [id, name]" }
+        partner_name: { type: string }
+        date_order: { type: string, format: date-time }
+        amount_untaxed: { type: number }
+        amount_tax: { type: number }
+        amount_total: { type: number }
+        currency_id: { description: "Currency [id, name]" }
+        state:
+          type: string
+          enum: [draft, sent, sale, done, cancel]
+          description: "draft=Quotation, sent=Sent, sale=Sales Order, done=Locked, cancel=Cancelled"
+        user_id: { description: "Salesperson [id, name]" }
+        team_id: { description: "Sales team [id, name]" }
+        payment_term_id: { description: "Payment terms [id, name]" }
+        invoice_status:
+          type: string
+          enum: [upselling, invoiced, to invoice, nothing]
+        note: { type: string }
+
+    PurchaseOrder:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, description: "Order reference (e.g. P00042)" }
+        partner_id: { description: "Vendor [id, name]" }
+        date_order: { type: string, format: date-time }
+        date_approve: { type: string, format: date-time }
+        amount_untaxed: { type: number }
+        amount_tax: { type: number }
+        amount_total: { type: number }
+        currency_id: { description: "Currency [id, name]" }
+        state:
+          type: string
+          enum: [draft, sent, to approve, purchase, done, cancel]
+        user_id: { description: "Purchase representative [id, name]" }
+        payment_term_id: { description: "Payment terms [id, name]" }
+        invoice_status:
+          type: string
+          enum: [nothing, to invoice, invoiced]
+
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        default_code: { type: string, description: "Internal reference" }
+        categ_id: { description: "Category [id, name]" }
+        list_price: { type: number, description: "Sales price" }
+        standard_price: { type: number, description: "Cost" }
+        type:
+          type: string
+          enum: [consu, service, product]
+        uom_id: { description: "Unit of measure [id, name]" }
+        active: { type: boolean }
+        sale_ok: { type: boolean }
+        purchase_ok: { type: boolean }
+
+    Partner:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        mobile: { type: string }
+        is_company: { type: boolean }
+        customer_rank: { type: integer, description: "> 0 = customer" }
+        supplier_rank: { type: integer, description: "> 0 = vendor" }
+        vat: { type: string, description: "Tax ID / VAT number" }
+        street: { type: string }
+        city: { type: string }
+        zip: { type: string }
+        country_id: { description: "Country [id, name]" }
+        property_payment_term_id: { description: "Customer payment terms [id, name]" }
+        property_supplier_payment_term_id: { description: "Vendor payment terms [id, name]" }
+
+    ManufacturingOrder:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, description: "MO reference (e.g. WH/MO/00042)" }
+        product_id: { description: "Product to produce [id, name]" }
+        product_qty: { type: number }
+        product_uom_id: { description: "Unit of measure [id, name]" }
+        bom_id: { description: "Bill of materials [id, name]" }
+        date_start: { type: string, format: date-time }
+        date_finished: { type: string, format: date-time }
+        date_deadline: { type: string, format: date-time }
+        state:
+          type: string
+          enum: [draft, confirmed, progress, to_close, done, cancel]
+        user_id: { description: "Responsible [id, name]" }
+        company_id: { description: "Company [id, name]" }
+        qty_producing: { type: number }
+        qty_produced: { type: number }
+
+    Bom:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string, description: "BOM reference" }
+        product_tmpl_id: { description: "Product template [id, name]" }
+        product_id: { description: "Product variant [id, name]" }
+        product_qty: { type: number }
+        product_uom_id: { description: "Unit of measure [id, name]" }
+        type:
+          type: string
+          enum: [normal, phantom, subcontract]
+        active: { type: boolean }
+
+    Workcenter:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        active: { type: boolean }
+        time_efficiency: { type: number, description: "Efficiency %" }
+        capacity: { type: number }
+        costs_hour: { type: number }
+
+    Workorder:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        production_id: { description: "Manufacturing order [id, name]" }
+        product_id: { description: "Product [id, name]" }
+        workcenter_id: { description: "Work center [id, name]" }
+        state:
+          type: string
+          enum: [pending, waiting, ready, progress, done, cancel]
+        date_start: { type: string, format: date-time }
+        date_finished: { type: string, format: date-time }
+        duration_expected: { type: number, description: "Expected duration (minutes)" }
+        duration: { type: number, description: "Actual duration (minutes)" }
+
+    Transfer:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, description: "Transfer reference (e.g. WH/OUT/00042)" }
+        partner_id: { description: "Contact [id, name]" }
+        picking_type_id: { description: "Operation type [id, name]" }
+        origin: { type: string, description: "Source document" }
+        scheduled_date: { type: string, format: date-time }
+        date_done: { type: string, format: date-time }
+        state:
+          type: string
+          enum: [draft, waiting, confirmed, assigned, done, cancel]
+        company_id: { description: "Company [id, name]" }
+
+    StockMove:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        picking_id: { description: "Transfer [id, name]" }
+        product_id: { description: "Product [id, name]" }
+        product_uom: { description: "Unit [id, name]" }
+        product_uom_qty: { type: number, description: "Demanded quantity" }
+        quantity_done: { type: number }
+        date: { type: string, format: date-time }
+        state:
+          type: string
+          enum: [draft, cancel, waiting, confirmed, partially_available, assigned, done]
+        location_id: { description: "Source location [id, name]" }
+        location_dest_id: { description: "Destination location [id, name]" }
+
+    StockQuant:
+      type: object
+      properties:
+        id: { type: integer }
+        product_id: { description: "Product [id, name]" }
+        location_id: { description: "Location [id, name]" }
+        lot_id: { description: "Lot/Serial [id, name]" }
+        quantity: { type: number, description: "On-hand quantity" }
+        reserved_quantity: { type: number }
+        in_date: { type: string, format: date-time }
+
+    Pricelist:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        currency_id: { description: "Currency [id, name]" }
+        active: { type: boolean }
+
+    SupplierPrice:
+      type: object
+      properties:
+        id: { type: integer }
+        product_tmpl_id: { description: "Product template [id, name]" }
+        product_id: { description: "Product variant [id, name]" }
+        partner_id: { description: "Vendor [id, name]" }
+        price: { type: number }
+        min_qty: { type: number }
+        delay: { type: integer, description: "Lead time (days)" }
+        currency_id: { description: "Currency [id, name]" }
+
+    Account:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        account_type:
+          type: string
+          description: "asset_receivable, asset_cash, liability_payable, income, expense, etc."
+        active: { type: boolean }
+        reconcile: { type: boolean }
+
+    JournalEntryLine:
+      type: object
+      properties:
+        id: { type: integer }
+        move_id: { description: "Journal entry [id, name]" }
+        account_id: { description: "Account [id, name]" }
+        partner_id: { description: "Partner [id, name]" }
+        name: { type: string, description: "Label" }
+        debit: { type: number }
+        credit: { type: number }
+        balance: { type: number }
+        date: { type: string, format: date }
+        currency_id: { description: "Currency [id, name]" }
+        reconciled: { type: boolean }
+
+    Invoice:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, description: "Invoice reference (e.g. INV/2024/00042)" }
+        partner_id: { description: "Customer/Vendor [id, name]" }
+        date: { type: string, format: date }
+        invoice_date: { type: string, format: date }
+        invoice_date_due: { type: string, format: date }
+        amount_untaxed: { type: number }
+        amount_tax: { type: number }
+        amount_total: { type: number }
+        amount_residual: { type: number, description: "Outstanding balance" }
+        currency_id: { description: "Currency [id, name]" }
+        state:
+          type: string
+          enum: [draft, posted, cancel]
+        payment_state:
+          type: string
+          enum: [not_paid, in_payment, paid, partial, reversed, invoicing_legacy]
+        move_type:
+          type: string
+          enum: [out_invoice, out_refund, in_invoice, in_refund, out_receipt, in_receipt, entry]
+          description: "out_invoice=Customer Invoice, in_invoice=Vendor Bill"
+        invoice_user_id: { description: "Salesperson [id, name]" }
+        journal_id: { description: "Journal [id, name]" }
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Odoo-API-Key
+      description: "Odoo API key (used as password in XML-RPC calls)"
+
+security:
+  - apiKey: []

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "odoo18cli",
+  "run_id": "20260515-190211",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 100,
+  "tests_passed": 100,
+  "tests_skipped": 63,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "odoo18cli-pp-mcp",
+  "display_name": "Odoo 18",
+  "version": "4.6.1",
+  "description": "Odoo 18 API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/odoo18cli-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/odoo18cli-pp-mcp",
+      "args": [],
+      "env": {
+        "ODOO_API_KEY": "${user_config.odoo_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "odoo_api_key": {
+      "type": "string",
+      "title": "ODOO_API_KEY",
+      "description": "Sets ODOO_API_KEY for the Odoo 18 MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

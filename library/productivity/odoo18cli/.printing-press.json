@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T17:05:45.446032827Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "odoo18cli",
+  "display_name": "Odoo 18",
+  "cli_name": "odoo18cli-pp-cli",
+  "owner": "andreampiovesana",
+  "printer": "andreampiovesana",
+  "printer_name": "Andrea M. Piovesana",
+  "spec_path": "/home/odoo-dev/printing-press/.runstate/cli-printing-press-49485651/runs/20260515-190211/odoo18cli.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8fa66f15c8a8c16b1d1598ff34e71df225df2d7d9144e55dbc9f27b1efad6244",
+  "run_id": "20260515-190211",
+  "mcp_binary": "odoo18cli-pp-mcp",
+  "mcp_tool_count": 33,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ODOO_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Customer List",
+      "command": "partners customers",
+      "description": "List partners with customer_rank \u003e 0 — filters res.partner to customers only"
+    },
+    {
+      "name": "Supplier List",
+      "command": "partners suppliers",
+      "description": "List partners with supplier_rank \u003e 0 — filters res.partner to vendors only"
+    },
+    {
+      "name": "Invoice Unpaid",
+      "command": "invoices unpaid",
+      "description": "List posted invoices not yet fully paid (payment_state in not_paid, partial)"
+    },
+    {
+      "name": "Invoice Overdue",
+      "command": "invoices overdue",
+      "description": "List unpaid invoices past their due date"
+    },
+    {
+      "name": "Inventory Balance",
+      "command": "inventory balance",
+      "description": "Aggregate on-hand stock by product from stock.quant"
+    },
+    {
+      "name": "Manufacturing WIP",
+      "command": "manufacturing wip",
+      "description": "List work-in-progress manufacturing orders (confirmed, progress, to_close)"
+    },
+    {
+      "name": "Business Summary",
+      "command": "summary",
+      "description": "Structured KPI snapshot: open sales, WIP MOs, unpaid invoices, overdue, low stock"
+    }
+  ]
+}

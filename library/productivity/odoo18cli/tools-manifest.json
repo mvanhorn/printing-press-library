@@ -1,0 +1,986 @@
+{
+  "api_name": "odoo18cli",
+  "base_url": "https://your-odoo.example.com",
+  "description": "Generic Odoo 18 CLI covering the main business models: sales, purchases,\nproducts, partners, manufacturing, inventory, and accounting.\n\nConnects to the Odoo XML-RPC external API at /xmlrpc/2/common (auth)\nand /xmlrpc/2/object (ORM: search_read, read, create, write).\n\nSupports multiple Odoo instances via profiles:\n  odoo18cli --profile edarredo partners list --limit 10\n\nAuth: set ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY environment variables.\nGenerate an API key in Odoo via Settings → Users → your user → Account Security.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Odoo-API-Key",
+    "in": "header",
+    "env_vars": [
+      "ODOO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ODOO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "xmlrpc_authenticate",
+      "description": "Calls common.authenticate(db, username, api_key, {}) via XML-RPC. Returns integer UID used in all subsequent object calls. Optional: api_key, db, username.",
+      "method": "POST",
+      "path": "/xmlrpc/2/common",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Api key"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "body",
+          "description": "Db"
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_confirm-sales-order",
+      "description": "Confirm a quotation into a sales order. Required: id.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/sale.order/action_confirm",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_create-manufacturing-order",
+      "description": "Create a new manufacturing order. Required: product_id, product_qty. Optional: bom_id, company_id, date_start.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.production/create",
+      "params": [
+        {
+          "name": "bom_id",
+          "type": "int",
+          "location": "body",
+          "description": "Bom id"
+        },
+        {
+          "name": "company_id",
+          "type": "int",
+          "location": "body",
+          "description": "Company id"
+        },
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "body",
+          "description": "Date start"
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "location": "body",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "product_qty",
+          "type": "float",
+          "location": "body",
+          "description": "Product qty",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_create-partner",
+      "description": "Create a new partner. Required: name. Optional: city, country_id, customer_rank (plus 6 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/res.partner/create",
+      "params": [
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "City"
+        },
+        {
+          "name": "country_id",
+          "type": "int",
+          "location": "body",
+          "description": "Country id"
+        },
+        {
+          "name": "customer_rank",
+          "type": "int",
+          "location": "body",
+          "description": "Customer rank"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "is_company",
+          "type": "bool",
+          "location": "body",
+          "description": "Is company"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "street",
+          "type": "string",
+          "location": "body",
+          "description": "Street"
+        },
+        {
+          "name": "supplier_rank",
+          "type": "int",
+          "location": "body",
+          "description": "Supplier rank"
+        },
+        {
+          "name": "vat",
+          "type": "string",
+          "location": "body",
+          "description": "Tax ID / VAT number"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_create-product",
+      "description": "Create a new product template. Required: name. Optional: categ_id, default_code, list_price (plus 3 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.template/create",
+      "params": [
+        {
+          "name": "categ_id",
+          "type": "int",
+          "location": "body",
+          "description": "Categ id"
+        },
+        {
+          "name": "default_code",
+          "type": "string",
+          "location": "body",
+          "description": "Internal reference"
+        },
+        {
+          "name": "list_price",
+          "type": "float",
+          "location": "body",
+          "description": "Sales price"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "standard_price",
+          "type": "float",
+          "location": "body",
+          "description": "Cost"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "consu=consumable, service=service, product=storable"
+        },
+        {
+          "name": "uom_id",
+          "type": "int",
+          "location": "body",
+          "description": "Uom id"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_create-purchase-order",
+      "description": "Create a new purchase order (RFQ). Required: partner_id. Optional: date_order, notes, payment_term_id (plus 1 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/purchase.order/create",
+      "params": [
+        {
+          "name": "date_order",
+          "type": "string",
+          "location": "body",
+          "description": "Date order"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "partner_id",
+          "type": "int",
+          "location": "body",
+          "description": "Vendor partner ID",
+          "required": true
+        },
+        {
+          "name": "payment_term_id",
+          "type": "int",
+          "location": "body",
+          "description": "Payment term id"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_create-sales-order",
+      "description": "Create a new sales order. Required: partner_id. Optional: date_order, note, payment_term_id (plus 2 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/sale.order/create",
+      "params": [
+        {
+          "name": "date_order",
+          "type": "string",
+          "location": "body",
+          "description": "Date order"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        },
+        {
+          "name": "partner_id",
+          "type": "int",
+          "location": "body",
+          "description": "Customer partner ID",
+          "required": true
+        },
+        {
+          "name": "payment_term_id",
+          "type": "int",
+          "location": "body",
+          "description": "Payment term id"
+        },
+        {
+          "name": "team_id",
+          "type": "int",
+          "location": "body",
+          "description": "Sales team ID"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "Salesperson ID"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-bom",
+      "description": "Get a single BOM by ID. Required: id. Returns the new Bom.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.bom/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-invoice",
+      "description": "Get a single invoice or bill by ID. Required: id. Returns the new Invoice.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/account.move/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-manufacturing-order",
+      "description": "Get a single manufacturing order by ID. Required: id. Returns the new ManufacturingOrder.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.production/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-partner",
+      "description": "Get a single partner by ID. Required: id. Returns the new Partner.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/res.partner/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-pricelist",
+      "description": "Get a single pricelist by ID. Required: id. Returns the new Pricelist.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.pricelist/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-product",
+      "description": "Get a single product template by ID. Required: id. Returns the new Product.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.template/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-purchase-order",
+      "description": "Get a single purchase order by ID. Required: id. Returns the new PurchaseOrder.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/purchase.order/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-sales-order",
+      "description": "Get a single sales order by ID. Required: id. Returns the new SaleOrder.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/sale.order/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-transfer",
+      "description": "Get a single transfer by ID. Required: id. Returns the new Transfer.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/stock.picking/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-accounts",
+      "description": "List chart of accounts. Optional: domain, limit (default: 200), offset (default: 0) (plus 1 more). Returns array of Account.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/account.account/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-boms",
+      "description": "List bills of materials. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of Bom.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.bom/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-inventory",
+      "description": "List stock quantities (on-hand inventory). Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of StockQuant.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/stock.quant/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON (e.g. [['location_id.usage','=','internal']])"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-invoices",
+      "description": "Calls execute_kw on account.move/search_read. Use domain to filter by move_type (out_invoice, in_invoice, out_refund, in_refund). Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of Invoice.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/account.move/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON (e.g. [['move_type','=','out_invoice']])"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-journal-entries",
+      "description": "List journal entry lines. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of JournalEntryLine.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/account.move.line/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-manufacturing-orders",
+      "description": "List manufacturing orders. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of ManufacturingOrder.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.production/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-partners",
+      "description": "List partners (customers and/or vendors). Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of Partner.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/res.partner/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-pricelists",
+      "description": "List customer pricelists. Optional: domain, limit (default: 80). Returns array of Pricelist.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.pricelist/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-products",
+      "description": "List product templates. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of Product.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.template/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-purchase-orders",
+      "description": "List purchase orders. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of PurchaseOrder.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/purchase.order/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-sales-orders",
+      "description": "Calls execute_kw on sale.order/search_read. Returns sales orders matching the optional domain filter. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/sale.order/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON (e.g. [['state','=','sale']])"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-stock-moves",
+      "description": "List stock moves. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of StockMove.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/stock.move/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-supplier-prices",
+      "description": "List supplier price rules. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of SupplierPrice.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.supplierinfo/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-transfers",
+      "description": "List stock transfers (pickings). Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of Transfer.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/stock.picking/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-workcenters",
+      "description": "List work centers. Optional: domain, limit (default: 80), offset (default: 0). Returns array of Workcenter.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.workcenter/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-workorders",
+      "description": "List work orders. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more). Returns array of Workorder.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mrp.workorder/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_update-product",
+      "description": "Update product template fields. Required: id. Optional: active, default_code, list_price (plus 2 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/product.template/write",
+      "params": [
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active"
+        },
+        {
+          "name": "default_code",
+          "type": "string",
+          "location": "body",
+          "description": "Default code"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "list_price",
+          "type": "float",
+          "location": "body",
+          "description": "List price"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "standard_price",
+          "type": "float",
+          "location": "body",
+          "description": "Standard price"
+        }
+      ]
+    }
+  ]
+}
