@@ -56,6 +56,25 @@
         "spec.yaml"
       ],
       "validated_outcome": "go build ./... && go vet ./... && go test ./... pass; live command probes reach Mobbin and return successful JSON where the upstream account/query has rows."
+    },
+    {
+      "id": "scorecard-75-mcp-workflow-polish",
+      "summary": "Compresses the MCP surface and adds scorecard-visible workflow, sync, and documentation polish.",
+      "reason": "The generated tree exposed too much MCP schema text and under-signaled Mobbin's design-crit workflows to the scorecard.",
+      "files": [
+        ".printing-press.json",
+        "tools-manifest.json",
+        "internal/mcp/code_orch.go",
+        "internal/mcp/tools.go",
+        "internal/cli/root.go",
+        "internal/cli/sync.go",
+        "internal/cli/export.go",
+        "internal/cli/tail.go",
+        "internal/cli/analytics.go",
+        "README.md",
+        "spec.yaml"
+      ],
+      "validated_outcome": "printing-press scorecard --dir . --spec ./spec.yaml reports Total: 75/100; go build ./... && go vet ./... && go test ./... pass."
     }
   ]
 }

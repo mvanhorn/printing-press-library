@@ -14,11 +14,9 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/mcp/cobratree"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -38,9 +36,8 @@ func RegisterTools(s *server.MCPServer) {
 		handleContext,
 	)
 
-	// Runtime Cobra-tree mirror — exposes every user-facing command that is
-	// not already covered by a typed endpoint or framework MCP tool.
-	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+	// PATCH: Keep MCP token budget small by exposing only search/execute/context.
+	// The full CLI workflow surface remains available through mobbin-pp-cli.
 }
 
 type mcpParamBinding struct {
@@ -137,17 +134,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      See API docs: https://mobbin.com" +
 					"\n      Run 'mobbin-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API credentials." +
-					"\n      See API docs: https://mobbin.com" +
 					"\n      Run 'mobbin-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      See API docs: https://mobbin.com" +
 					"\n      Run 'mobbin-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -187,7 +181,7 @@ func newMCPClient() (*client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 2)
+	c := client.New(cfg, 30*time.Second, 0)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
@@ -208,14 +202,13 @@ func dbPath() string {
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "mobbin",
-		"description": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no...",
+		"description": "Browse Mobbin's 621,500+ shipped UI screens from the terminal, with offline SQLite mirror and design-deck workflows...",
 		"archetype":   "content",
-		"tool_count":  22,
+		"tool_count":  9,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion mobbin-pp-cli binary.",
+		"tool_surface": "MCP exposes a compact public endpoint set plus search/execute orchestration.",
 		"auth": map[string]any{
-			"type":     "cookie",
-			"docs_url": "https://mobbin.com",
+			"type": "cookie",
 		},
 		"resources": []map[string]any{
 			{
@@ -279,20 +272,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Pattern Deck Export", "command": "deck", "description": "Build a design-crit deck for a pattern across an industry: searches matching screens, downloads full-res images from...", "rationale": "Chains search + Bytescale CDN URL translation + batch full-res download + manifest CSV. Mobbin's UI has no deck export.", "via": "mcp-command-mirror"},
-			{"name": "Offline Pattern Bench", "command": "bench", "description": "Cross-app leaderboard for any pattern from the local store: count, last seen, top apps that ship it.", "rationale": "Aggregates screens × patterns × apps in local SQLite. No Mobbin endpoint returns this shape.", "via": "mcp-command-mirror"},
-			{"name": "Flow Audit with Delta", "command": "audit", "description": "Time-windowed flow audit across an industry: app, flow name, step count, captured_at — with --since support for...", "rationale": "Joins synced flows × apps × industry × captured_at with --since. Mobbin's API exposes no time filter.", "via": "mcp-command-mirror"},
-			{"name": "Version Drift Watch", "command": "drift", "description": "Diff an app's flows + screens between local snapshots; surface what changed (added/removed/screen count).", "rationale": "Local app_versions snapshots over time. Mobbin's API exposes only current state — longitudinal diff is a...", "via": "mcp-command-mirror"},
-			{"name": "Batch Full-Res Grab", "command": "grab", "description": "Batch-download matching screens at 1920px from Bytescale with deterministic filenames and a manifest.json side-car...", "rationale": "Bytescale.mobbin.com URL translation + filename templating + manifest.json side-car. No tool batch-downloads with...", "via": "mcp-command-mirror"},
-			{"name": "Cross-Platform Parity", "command": "cross", "description": "Fan out a pattern query across web AND iOS for one app set; join results on app slug; output a side-by-side parity...", "rationale": "Two platform fan-outs joined on app slug locally. Mobbin's API is platform-scoped — cross-platform requires two...", "via": "mcp-command-mirror"},
+			{"name": "Pattern Deck Export", "command": "deck", "description": "Build a design-crit deck for a pattern across an industry: searches matching screens, downloads full-res images from...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Offline Pattern Bench", "command": "bench", "description": "Cross-app leaderboard for any pattern from the local store: count, last seen, top apps that ship it.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Flow Audit with Delta", "command": "audit", "description": "Time-windowed flow audit across an industry: app, flow name, step count, captured_at — with --since support for...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Version Drift Watch", "command": "drift", "description": "Diff an app's flows + screens between local snapshots; surface what changed (added/removed/screen count).", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Batch Full-Res Grab", "command": "grab", "description": "Batch-download matching screens at 1920px from Bytescale with deterministic filenames and a manifest.json side-car...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Cross-Platform Parity", "command": "cross", "description": "Fan out a pattern query across web AND iOS for one app set; join results on app slug; output a side-by-side parity...", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Pattern Deck Export", "insight": "Chains search + Bytescale CDN URL translation + batch full-res download + manifest CSV. Mobbin's UI has no deck export."},
-			{"topic": "Offline Pattern Bench", "insight": "Aggregates screens × patterns × apps in local SQLite. No Mobbin endpoint returns this shape."},
-			{"topic": "Flow Audit with Delta", "insight": "Joins synced flows × apps × industry × captured_at with --since. Mobbin's API exposes no time filter."},
-			{"topic": "Version Drift Watch", "insight": "Local app_versions snapshots over time. Mobbin's API exposes only current state — longitudinal diff is a local-store-only feature."},
-			{"topic": "Batch Full-Res Grab", "insight": "Bytescale.mobbin.com URL translation + filename templating + manifest.json side-car. No tool batch-downloads with sensible filenames."},
-			{"topic": "Cross-Platform Parity", "insight": "Two platform fan-outs joined on app slug locally. Mobbin's API is platform-scoped — cross-platform requires two calls + join."},
+			{"topic": "Pattern Deck Export", "insight": ""},
+			{"topic": "Offline Pattern Bench", "insight": ""},
+			{"topic": "Flow Audit with Delta", "insight": ""},
+			{"topic": "Version Drift Watch", "insight": ""},
+			{"topic": "Batch Full-Res Grab", "insight": ""},
+			{"topic": "Cross-Platform Parity", "insight": ""},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

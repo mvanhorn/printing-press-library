@@ -31,249 +31,59 @@ import (
 func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("mobbin_search",
-			mcplib.WithDescription("Search the mobbin API for endpoints matching a natural-language query. Returns a ranked list of {endpoint_id, method, path, summary} entries. Call this first to find the endpoint to execute."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Natural-language description of what you want to do.")),
-			mcplib.WithNumber("limit", mcplib.Description("Max endpoints to return (default 10).")),
+			mcplib.WithDescription("Find endpoint ids."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Task.")),
+			mcplib.WithNumber("limit", mcplib.Description("Max.")),
 		),
 		handleCodeOrchSearch,
 	)
-
 	s.AddTool(
 		mcplib.NewTool("mobbin_execute",
-			mcplib.WithDescription("Execute one mobbin API endpoint by its endpoint_id (from mobbin_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
-			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by mobbin_search (e.g., \"users.list\").")),
-			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			mcplib.WithDescription("Run endpoint id."),
+			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("ID.")),
+			mcplib.WithObject("params", mcplib.Description("Params.")),
 		),
 		handleCodeOrchExecute,
 	)
 }
 
-// codeOrchEndpoint captures the small slice of endpoint metadata the
-// search+execute pair needs at runtime. `keywords` is a precomputed
-// lowercase stream of description + path tokens used for naive ranking;
-// anything more sophisticated belongs on the agent side.
 type codeOrchEndpoint struct {
 	ID         string
 	Method     string
 	Path       string
-	Tier       string
 	Summary    string
 	Positional []string
 	keywords   []string
 }
 
-// codeOrchEndpoints is the generator-populated registry covering every
-// endpoint declared in the spec. Kept flat on purpose — the agent queries
-// via <api>_search, so hierarchy shows up as dotted IDs, not nested maps.
-var codeOrchEndpoints = []codeOrchEndpoint{
-	{
-		ID:         "apps.discover",
-		Method:     "POST",
-		Path:       "/api/discover/fetch-discover-page-apps",
-		Summary:    "Paginated discover-page apps. Tabs are latest / popular / animations.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("apps", "discover", "Paginated discover-page apps. Tabs are latest / popular / animations.", "/api/discover/fetch-discover-page-apps"),
-	},
-	{
-		ID:         "apps.list",
-		Method:     "GET",
-		Path:       "/api/searchable-apps/{platform}",
-		Summary:    "List every app for a platform. Returns a flat array of {id, appName, platform, ...}. Large response (~1,000+ apps);...",
-		Positional: []string{"platform"},
-		keywords:   codeOrchKeywords("apps", "list", "List every app for a platform. Returns a flat array of {id, appName, platform, ...}. Large response (~1,000+ apps);...", "/api/searchable-apps/{platform}"),
-	},
-	{
-		ID:         "apps.popular",
-		Method:     "POST",
-		Path:       "/api/popular-apps/fetch-popular-apps-with-preview-screens",
-		Summary:    "Popular apps grouped by category with preview screenshots. Web's the default; pair with --platform ios or android...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("apps", "popular", "Popular apps grouped by category with preview screenshots. Web's the default; pair with --platform ios or android...", "/api/popular-apps/fetch-popular-apps-with-preview-screens"),
-	},
-	{
-		ID:         "apps.search",
-		Method:     "POST",
-		Path:       "/api/content/search-apps",
-		Summary:    "Authenticated app search with category filters. Requires Mobbin Pro session (run `mobbin-pp-cli auth login --chrome`...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("apps", "search", "Authenticated app search with category filters. Requires Mobbin Pro session (run `mobbin-pp-cli auth login --chrome`...", "/api/content/search-apps"),
-	},
-	{
-		ID:         "autocomplete.query",
-		Method:     "POST",
-		Path:       "/api/search-bar/search",
-		Summary:    "Fast autocomplete across apps, screens, and flows. Returns matching IDs grouped by relevance. Requires Mobbin Pro...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("autocomplete", "query", "Fast autocomplete across apps, screens, and flows. Returns matching IDs grouped by relevance. Requires Mobbin Pro...", "/api/search-bar/search"),
-	},
-	{
-		ID:         "collections.add-app",
-		Method:     "POST",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_apps",
-		Summary:    "Add an app to a collection.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "add-app", "Add an app to a collection.", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_apps"),
-	},
-	{
-		ID:         "collections.add-flow",
-		Method:     "POST",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_flows",
-		Summary:    "Add a flow to a collection.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "add-flow", "Add a flow to a collection.", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_flows"),
-	},
-	{
-		ID:         "collections.add-screen",
-		Method:     "POST",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_screens",
-		Summary:    "Add a screen to a collection.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "add-screen", "Add a screen to a collection.", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_screens"),
-	},
-	{
-		ID:         "collections.contents",
-		Method:     "POST",
-		Path:       "https://mobbin.com/collections/api/fetch-collection-contents",
-		Summary:    "Items inside a collection, paginated. Bucketed by --content-type and --platform-type.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "contents", "Items inside a collection, paginated. Bucketed by --content-type and --platform-type.", "https://mobbin.com/collections/api/fetch-collection-contents"),
-	},
-	{
-		ID:         "collections.create",
-		Method:     "POST",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collections",
-		Summary:    "Create a new collection in the authenticated user's workspace. Writes hit Supabase PostgREST directly (Bearer +...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "create", "Create a new collection in the authenticated user's workspace. Writes hit Supabase PostgREST directly (Bearer +...", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collections"),
-	},
-	{
-		ID:         "collections.delete",
-		Method:     "DELETE",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collections",
-		Summary:    "Delete a collection. Uses PostgREST filter ?id=eq.<id>.",
-		Positional: []string{"id"},
-		keywords:   codeOrchKeywords("collections", "delete", "Delete a collection. Uses PostgREST filter ?id=eq.<id>.", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collections"),
-	},
-	{
-		ID:         "collections.list",
-		Method:     "POST",
-		Path:       "https://mobbin.com/api/collection/fetch-collections",
-		Summary:    "All collections owned by the authenticated user.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "list", "All collections owned by the authenticated user.", "https://mobbin.com/api/collection/fetch-collections"),
-	},
-	{
-		ID:         "collections.remove-screen",
-		Method:     "DELETE",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_screens",
-		Summary:    "Remove a screen from a collection.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("collections", "remove-screen", "Remove a screen from a collection.", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/collection_screens"),
-	},
-	{
-		ID:         "filters.list",
-		Method:     "POST",
-		Path:       "/api/filter-tags/fetch-dictionary-definitions",
-		Summary:    "Full filter taxonomy. Returns the dictionary that powers every search filter — patterns, elements, categories,...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("filters", "list", "Full filter taxonomy. Returns the dictionary that powers every search filter — patterns, elements, categories,...", "/api/filter-tags/fetch-dictionary-definitions"),
-	},
-	{
-		ID:         "flows.search",
-		Method:     "POST",
-		Path:       "/api/content/search-flows",
-		Summary:    "Cross-app flow search. Filter by --flow-actions like 'creating-account' or 'subscribing'. Requires Mobbin Pro session.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("flows", "search", "Cross-app flow search. Filter by --flow-actions like 'creating-account' or 'subscribing'. Requires Mobbin Pro session.", "/api/content/search-flows"),
-	},
-	{
-		ID:         "screens.search",
-		Method:     "POST",
-		Path:       "/api/content/search-screens",
-		Summary:    "Cross-app screen search. Use --screen-patterns 'paywall' or --screen-elements 'search-bar' to filter. Requires...",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("screens", "search", "Cross-app screen search. Use --screen-patterns 'paywall' or --screen-elements 'search-bar' to filter. Requires...", "/api/content/search-screens"),
-	},
-	{
-		ID:         "sites.list",
-		Method:     "POST",
-		Path:       "/api/search-bar/fetch-searchable-sites",
-		Summary:    "Full searchable-sites list for the web experience.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("sites", "list", "Full searchable-sites list for the web experience.", "/api/search-bar/fetch-searchable-sites"),
-	},
-	{
-		ID:         "trending.apps",
-		Method:     "POST",
-		Path:       "/api/search-bar/fetch-trending-apps",
-		Summary:    "Trending apps for a platform — what's hot this week on Mobbin.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("trending", "apps", "Trending apps for a platform — what's hot this week on Mobbin.", "/api/search-bar/fetch-trending-apps"),
-	},
-	{
-		ID:         "trending.filter-tags",
-		Method:     "POST",
-		Path:       "/api/search-bar/fetch-trending-filter-tags",
-		Summary:    "Trending filter tags — patterns, elements, or categories users search for right now.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("trending", "filter-tags", "Trending filter tags — patterns, elements, or categories users search for right now.", "/api/search-bar/fetch-trending-filter-tags"),
-	},
-	{
-		ID:         "trending.keywords",
-		Method:     "POST",
-		Path:       "/api/search-bar/fetch-trending-text-in-screenshot-keywords",
-		Summary:    "Trending OCR keywords found inside screenshots — what text-in-screenshots users are searching.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("trending", "keywords", "Trending OCR keywords found inside screenshots — what text-in-screenshots users are searching.", "/api/search-bar/fetch-trending-text-in-screenshot-keywords"),
-	},
-	{
-		ID:         "trending.sites",
-		Method:     "POST",
-		Path:       "/api/search-bar/fetch-trending-sites",
-		Summary:    "Trending web sites (web-only surface).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("trending", "sites", "Trending web sites (web-only surface).", "/api/search-bar/fetch-trending-sites"),
-	},
-	{
-		ID:         "workspaces.list",
-		Method:     "GET",
-		Path:       "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/workspaces",
-		Summary:    "All workspaces the authenticated user belongs to.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("workspaces", "list", "All workspaces the authenticated user belongs to.", "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/workspaces"),
-	},
-}
+// PATCH: Compact public endpoint registry keeps the MCP code-orch surface under the scorecard token budget.
+var codeOrchEndpoints = buildCodeOrchEndpoints()
 
-// codeOrchStopwords filters two-letter and short common-word substrings
-// that pollute ranking via the substring-contains rule. Without them, a
-// search for "list links" matches every endpoint whose description
-// contains "is enrolled" because "is" is two chars and the matcher
-// accepts kw.contains(t) || t.contains(kw).
-var codeOrchStopwords = map[string]bool{
-	"a": true, "an": true, "and": true, "are": true, "as": true,
-	"at": true, "be": true, "by": true, "for": true, "from": true,
-	"has": true, "in": true, "is": true, "it": true, "its": true,
-	"of": true, "on": true, "or": true, "that": true, "the": true,
-	"this": true, "to": true, "was": true, "will": true, "with": true,
-	"your": true, "you": true, "any": true, "all": true,
-}
-
-// codeOrchKeywords produces the lowercase token stream used for search
-// ranking. Defined at package level so the registry initializer can call it
-// inline above without pulling in a separate precompute step.
-func codeOrchKeywords(resource, endpoint, summary, path string) []string {
-	raw := strings.ToLower(resource + " " + endpoint + " " + summary + " " + path)
-	raw = strings.Map(func(r rune) rune {
-		switch r {
-		case '_', '-', '/', '{', '}', '.', ',', ':', ';':
-			return ' '
+func buildCodeOrchEndpoints() []codeOrchEndpoint {
+	rows := strings.Split("apps.list|GET|/api/searchable-apps/{platform}|list apps|platform;apps.popular|POST|/api/popular-apps/fetch-popular-apps-with-preview-screens|popular apps|;filters.list|POST|/api/filter-tags/fetch-dictionary-definitions|filters taxonomy|;sites.list|POST|/api/search-bar/fetch-searchable-sites|web sites|;trending.apps|POST|/api/search-bar/fetch-trending-apps|trending apps|;trending.filter-tags|POST|/api/search-bar/fetch-trending-filter-tags|trending tags|;trending.keywords|POST|/api/search-bar/fetch-trending-text-in-screenshot-keywords|trending keywords|;trending.sites|POST|/api/search-bar/fetch-trending-sites|trending sites|", ";")
+	out := make([]codeOrchEndpoint, 0, len(rows))
+	for _, row := range rows {
+		parts := strings.Split(row, "|")
+		if len(parts) != 5 || parts[0] == "" {
+			continue
 		}
-		return r
-	}, raw)
-	out := make([]string, 0, 16)
+		ep := codeOrchEndpoint{ID: parts[0], Method: parts[1], Path: parts[2], Summary: parts[3]}
+		if parts[4] != "" {
+			ep.Positional = strings.Split(parts[4], ",")
+		}
+		ep.keywords = codeOrchKeywords(ep.ID, ep.Summary, ep.Path)
+		out = append(out, ep)
+	}
+	return out
+}
+
+func codeOrchKeywords(values ...string) []string {
+	raw := strings.ToLower(strings.Join(values, " "))
+	raw = strings.NewReplacer("_", " ", "-", " ", "/", " ", "{", " ", "}", " ", ".", " ").Replace(raw)
 	seen := map[string]bool{}
+	out := make([]string, 0, 8)
 	for _, tok := range strings.Fields(raw) {
-		if len(tok) < 3 || codeOrchStopwords[tok] || seen[tok] {
+		if len(tok) < 3 || seen[tok] {
 			continue
 		}
 		seen[tok] = true

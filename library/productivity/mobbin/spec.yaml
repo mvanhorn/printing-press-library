@@ -12,7 +12,7 @@ auth:
   type: cookie
   header: Cookie
   in: header
-  verify_path: "/rest/v1/workspaces?select=id&limit=1"
+  verify_path: "https://ujasntkfphywizsdaapi.supabase.co/rest/v1/workspaces?select=id&limit=1"
   env_vars: []
   cookie_domain: "mobbin.com"
   cookie_names:
@@ -44,7 +44,7 @@ resources:
         description: "List every app for a platform. Returns a flat array of {id, appName, platform, ...}. Large response (~1,000+ apps); cache locally for autocomplete."
         params:
           - name: platform
-            type: string
+            type: AppSearchFilter
             required: true
             positional: true
             description: "Platform: web, ios, or android"
@@ -59,7 +59,7 @@ resources:
         description: "Popular apps grouped by category with preview screenshots. Web's the default; pair with --platform ios or android for mobile."
         body:
           - name: platform
-            type: string
+            type: PaginationOptions
             required: true
             default: "web"
             description: "Platform: web, ios, or android"
@@ -76,13 +76,13 @@ resources:
         description: "Paginated discover-page apps. Tabs are latest / popular / animations."
         body:
           - name: tab
-            type: string
+            type: ScreenSearchFilter
             required: true
             default: "latest"
             description: "Discover tab: latest, popular, or animations"
             enum: [latest, popular, animations]
           - name: platform
-            type: string
+            type: PaginationOptions
             required: true
             default: "web"
             description: "Platform: web, ios, or android"
@@ -98,11 +98,11 @@ resources:
         description: "Authenticated app search with category filters. Requires Mobbin Pro session (run `mobbin-pp-cli auth login --chrome` first)."
         body:
           - name: searchRequestId
-            type: string
+            type: FlowSearchFilter
             default: ""
             description: "Empty string for fresh searches; previous searchRequestId to continue."
           - name: filterOptions
-            type: string
+            type: PaginationOptions
             description: "JSON filter object. Use --platform / --app-categories flags for ergonomics; this carries the structured shape."
             fields:
               - name: platform
@@ -114,7 +114,7 @@ resources:
                 type: string
                 description: "Comma-separated category slugs"
           - name: paginationOptions
-            type: string
+            type: CollectionPaginationOptions
             fields:
               - name: pageSize
                 flag_name: page-size
@@ -465,6 +465,48 @@ resources:
             description: "PostgREST select clause"
 
 types:
+  PaginationOptions:
+    fields:
+      - name: pageSize
+        type: int
+      - name: pageIndex
+        type: int
+      - name: sortBy
+        type: string
+  CollectionPaginationOptions:
+    fields:
+      - name: pageSize
+        type: int
+      - name: keysetPagination
+        type: object
+  AppSearchFilter:
+    fields:
+      - name: platform
+        type: string
+      - name: appCategories
+        type: string
+  ScreenSearchFilter:
+    fields:
+      - name: platform
+        type: string
+      - name: screenPatterns
+        type: string
+      - name: screenElements
+        type: string
+      - name: screenKeywords
+        type: string
+      - name: appCategories
+        type: string
+      - name: hasAnimation
+        type: bool
+  FlowSearchFilter:
+    fields:
+      - name: platform
+        type: string
+      - name: flowActions
+        type: string
+      - name: appCategories
+        type: string
   App:
     fields:
       - name: id
@@ -480,6 +522,74 @@ types:
       - name: createdAt
         type: string
       - name: updatedAt
+        type: string
+  Screen:
+    fields:
+      - name: id
+        type: string
+      - name: appId
+        type: string
+      - name: appName
+        type: string
+      - name: platform
+        type: string
+      - name: screenName
+        type: string
+      - name: imageUrl
+        type: string
+      - name: patterns
+        type: array
+      - name: elements
+        type: array
+  Flow:
+    fields:
+      - name: id
+        type: string
+      - name: appId
+        type: string
+      - name: appName
+        type: string
+      - name: flowName
+        type: string
+      - name: platform
+        type: string
+      - name: steps
+        type: array
+  Pattern:
+    fields:
+      - name: id
+        type: string
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: definition
+        type: string
+      - name: count
+        type: int
+  Element:
+    fields:
+      - name: id
+        type: string
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: definition
+        type: string
+      - name: count
+        type: int
+  Collection:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: workspaceId
+        type: string
+      - name: createdAt
         type: string
 
 mcp:

@@ -1,7 +1,7 @@
 {
   "dir": "\u003ccli-dir\u003e/mobbin-pp-cli",
-  "spec_path": "\u003crunstate\u003e/mobbin-spec.yaml",
-  "verdict": "PASS",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "verdict": "FAIL",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -42,8 +42,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 59,
-      "registered": 59
+      "defined": 62,
+      "registered": 62
     },
     "config_consistency": {
       "consistent": true
@@ -60,9 +60,9 @@
     "found": 6
   },
   "mcp_surface_parity": {
-    "state": "runtime_walking",
-    "pass": true,
-    "detail": "MCP surface mirrors the Cobra tree at runtime"
+    "state": "unknown_generated",
+    "pass": false,
+    "detail": "generated MCP tools.go does not use the runtime Cobra-tree template"
   },
   "reimplementation_check": {
     "checked": 6,
@@ -72,13 +72,15 @@
     "checked": 2
   },
   "print_json_filtered_check": {
-    "checked": 53
+    "checked": 56
   },
   "test_presence": {
     "checked": 2
   },
   "naming_check": {
-    "checked": 53
+    "checked": 56
   },
-  "issues": null
+  "issues": [
+    "MCP surface parity: generated MCP tools.go does not use the runtime Cobra-tree template"
+  ]
 }

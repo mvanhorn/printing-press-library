@@ -2,7 +2,7 @@
 
 **Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.**
 
-Wraps Mobbin's curated library of shipped UI (web + mobile) with a local SQLite mirror, full-res batch downloads from the Bytescale CDN, and time-windowed audits across apps. Built for the Wednesday design crit and the quarterly onboarding audit. Uses your existing Chrome session via `auth login --chrome` — no extra API key, no paid MCP.
+For product designers, PMs, and design-system leads who live in weekly crit, Mobbin CLI turns the "open 20 tabs, screenshot, rename, paste into deck" ritual into repeatable commands. It wraps Mobbin's shipped UI library (web + mobile) with a local SQLite mirror, full-res batch downloads from the Bytescale CDN, and time-windowed audits across apps. Built for the Wednesday design crit and the quarterly onboarding audit. Uses your existing Chrome session via `auth login --chrome` — no extra API key, no paid MCP.
 
 Learn more at [Mobbin](https://mobbin.com).
 
@@ -133,6 +133,59 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   mobbin-pp-cli drift stripe-web --since 30d --agent
   ```
+
+## Workflows
+
+### Wednesday Paywall Deck
+
+Build the crit artifact directly from Mobbin: one zip with full-res reference screens and a manifest CSV that records the source app, pattern, platform, and image URL.
+
+```bash
+mobbin-pp-cli deck "fintech paywalls" --platform web --limit 20 --export-zip ./wed-paywall-crit.zip --agent
+```
+
+Use this when the team needs a design review packet before crit, not a browser tab pile that disappears after the meeting.
+
+### Quarterly Onboarding Audit
+
+Refresh the local mirror, then audit onboarding flows by industry and recency so PMs can see what changed this quarter.
+
+```bash
+mobbin-pp-cli sync --platform web,ios --apps-per-platform 200 --agent
+mobbin-pp-cli audit onboarding --industry b2b-saas --platform web --since 90d --limit 50 --agent
+```
+
+The first command captures the current Mobbin surface into SQLite; the second turns that local corpus into a reviewable flow list with stable output for planning docs.
+
+### Cross-Platform Parity Check
+
+Compare whether the same apps ship a pattern consistently across web and iOS.
+
+```bash
+mobbin-pp-cli cross paywall --apps stripe,linear,figma --platforms web,ios --limit 100 --agent
+```
+
+Use the parity manifest to spot where mobile has a richer pattern than desktop, or where the desktop flow has drifted from the mobile reference.
+
+### Pattern Bench Leaderboard
+
+After syncing, rank apps by local screen count for a pattern and industry.
+
+```bash
+mobbin-pp-cli bench --pattern empty-state --industry fintech --platform web --limit 20 --agent
+```
+
+This is the fast answer to "who ships the most useful examples of this pattern right now?" without re-running broad visual searches in the Mobbin UI.
+
+### Batch Download for Figma Plugins
+
+Download a clean reference folder with deterministic filenames and a side-car manifest for downstream tooling.
+
+```bash
+mobbin-pp-cli grab --pattern onboarding --industry b2b-saas --platform web --out ./figma-refs --rename '{app}_{pattern}_{idx}.png' --agent
+```
+
+The output folder is ready for Figma plugins, storyboard scripts, or internal asset review flows that need predictable filenames instead of manual exports.
 
 ## Usage
 

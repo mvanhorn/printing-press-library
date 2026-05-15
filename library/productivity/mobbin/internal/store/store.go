@@ -54,6 +54,10 @@ func (db *DB) UpsertApp(ctx context.Context, app map[string]any) error {
 	if id == "" {
 		return fmt.Errorf("app id is required")
 	}
+	slug := firstString(app, "slug")
+	if slug == "" {
+		slug = appURLSlug(firstString(app, "appName", "app_name", "name"), firstString(app, "platform"), id)
+	}
 	raw, synced := rawJSON(app), now()
 	return db.withTx(ctx, func(tx *sql.Tx) error {
 		_, err := tx.ExecContext(ctx, `INSERT INTO apps
@@ -62,7 +66,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(id) DO UPDATE SET slug=excluded.slug, app_name=excluded.app_name, platform=excluded.platform,
 app_categories=excluded.app_categories, thumbnail_url=excluded.thumbnail_url, latest_version_id=excluded.latest_version_id,
 created_at=excluded.created_at, updated_at=excluded.updated_at, raw_json=excluded.raw_json, synced_at=excluded.synced_at`,
-			id, firstString(app, "slug"), firstString(app, "appName", "app_name", "name"), firstString(app, "platform"),
+			id, slug, firstString(app, "appName", "app_name", "name"), firstString(app, "platform"),
 			jsonString(firstValue(app, "appCategories", "app_categories", "categories")), firstString(app, "thumbnailUrl", "thumbnail_url", "iconUrl"),
 			firstString(app, "latestVersionId", "latest_version_id"), firstString(app, "createdAt", "created_at"),
 			firstString(app, "updatedAt", "updated_at"), raw, synced)
@@ -140,6 +144,26 @@ func (db *DB) UpsertElement(ctx context.Context, e map[string]any) error {
 	return db.upsertDictionary(ctx, "elements", e)
 }
 
+func (db *DB) UpsertFlowAction(ctx context.Context, a map[string]any) error {
+	return db.upsertDictionary(ctx, "flow_actions", a)
+}
+
+func (db *DB) UpsertScreenPattern(ctx context.Context, screenID, patternSlug string) error {
+	if screenID == "" || patternSlug == "" {
+		return fmt.Errorf("screen id and pattern slug are required")
+	}
+	_, err := db.ExecContext(ctx, `INSERT OR IGNORE INTO screen_patterns(screen_id, pattern_slug) VALUES (?, ?)`, screenID, patternSlug)
+	return err
+}
+
+func (db *DB) UpsertScreenElement(ctx context.Context, screenID, elementSlug string) error {
+	if screenID == "" || elementSlug == "" {
+		return fmt.Errorf("screen id and element slug are required")
+	}
+	_, err := db.ExecContext(ctx, `INSERT OR IGNORE INTO screen_elements(screen_id, element_slug) VALUES (?, ?)`, screenID, elementSlug)
+	return err
+}
+
 func (db *DB) UpsertCollection(ctx context.Context, c map[string]any) error {
 	id := firstString(c, "id", "collectionId")
 	if id == "" {
@@ -214,7 +238,7 @@ func (db *DB) upsertDictionary(ctx context.Context, table string, item map[strin
 (id, slug, name, category, definition, platform, raw_json, synced_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(id) DO UPDATE SET slug=excluded.slug, name=excluded.name, category=excluded.category,
 definition=excluded.definition, platform=excluded.platform, raw_json=excluded.raw_json, synced_at=excluded.synced_at`, table),
-			id, firstString(item, "slug"), firstString(item, "name", "label"), firstString(item, "category"),
+			id, firstString(item, "slug"), firstString(item, "name", "label", "displayName"), firstString(item, "category"),
 			firstString(item, "definition", "description"), firstString(item, "platform"), rawJSON(item), now())
 		return err
 	})
@@ -345,6 +369,38 @@ func rawJSON(v any) string {
 
 func now() string {
 	return time.Now().UTC().Format(time.RFC3339)
+}
+
+func appURLSlug(name, platform, id string) string {
+	name = strings.ToLower(strings.TrimSpace(name))
+	var b strings.Builder
+	lastDash := false
+	for _, r := range name {
+		ok := r >= 'a' && r <= 'z' || r >= '0' && r <= '9'
+		if ok {
+			b.WriteRune(r)
+			lastDash = false
+			continue
+		}
+		if !lastDash && b.Len() > 0 {
+			b.WriteByte('-')
+			lastDash = true
+		}
+	}
+	slug := strings.Trim(b.String(), "-")
+	if platform != "" {
+		if slug != "" {
+			slug += "-"
+		}
+		slug += platform
+	}
+	if id != "" {
+		if slug != "" {
+			slug += "-"
+		}
+		slug += id
+	}
+	return slug
 }
 
 func firstSQLToken(sqlText string) string {

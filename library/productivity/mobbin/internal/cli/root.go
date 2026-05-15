@@ -231,6 +231,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	// PATCH: Register local SQLite mirror commands.
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newTailCmd(flags))
+	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newSQLCmd(flags))
 	rootCmd.AddCommand(newAppCmd(flags))
 	rootCmd.AddCommand(newCategoriesCmd(flags))

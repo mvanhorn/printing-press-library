@@ -78,6 +78,16 @@ var schemaStatements = []string{
   raw_json TEXT,
   synced_at TEXT
 );`,
+	`CREATE TABLE IF NOT EXISTS flow_actions (
+  id TEXT PRIMARY KEY,
+  slug TEXT,
+  name TEXT,
+  category TEXT,
+  definition TEXT,
+  platform TEXT,
+  raw_json TEXT,
+  synced_at TEXT
+);`,
 	`CREATE TABLE IF NOT EXISTS screen_patterns (
   screen_id TEXT,
   pattern_slug TEXT,
