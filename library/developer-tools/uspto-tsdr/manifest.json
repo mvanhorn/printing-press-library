@@ -1,6 +1,6 @@
 {
   "manifest_version": "0.3",
-  "name": "tsdr-pp-mcp",
+  "name": "uspto-tsdr-pp-mcp",
   "display_name": "Tsdr",
   "version": "4.2.0",
   "description": "Tsdr API surface as MCP tools.",
@@ -10,9 +10,9 @@
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/tsdr-pp-mcp",
+    "entry_point": "bin/uspto-tsdr-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/tsdr-pp-mcp",
+      "command": "${__dirname}/bin/uspto-tsdr-pp-mcp",
       "args": [],
       "env": {
         "TSDR_APIKEY_HEADER": "${user_config.tsdr_apikey_header}"
