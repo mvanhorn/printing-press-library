@@ -30,6 +30,11 @@
       "files": ["internal/evals/evals.go"],
       "summary": "Embed default fixture dataset and add LoadDefaultFixtures helper",
       "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/config/config.go"],
+      "summary": "ClearTokens also clears LdbwsApiToken and AuthHeaderVal so `auth logout` is effective for non-OAuth auth modes",
+      "upstream": "cli-printing-press#1249"
     }
   ]
 }

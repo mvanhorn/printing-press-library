@@ -135,6 +135,10 @@ func (c *Config) SaveCredential(token string) error {
 	return c.save()
 }
 
+// PATCH(upstream cli-printing-press#1249): also clear api_key and auth_header
+// credentials so `auth logout` is actually effective for non-OAuth auth modes.
+// AuthHeader() reads AuthHeaderVal first, then LdbwsApiToken — leaving either
+// in place after logout means subsequent commands re-authenticate silently.
 func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
