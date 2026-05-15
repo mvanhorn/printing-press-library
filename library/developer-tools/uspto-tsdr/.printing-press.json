@@ -12,7 +12,7 @@
   "spec_format": "openapi3",
   "spec_checksum": "sha256:e34b1552df12095b868e4a83d5623556e9b083731f8c904c3b728d587dc5ca4d",
   "run_id": "20260509-135942",
-  "mcp_binary": "uspto-tsdr-pp-mcp",
+  "mcp_binary": "tsdr-pp-mcp",
   "mcp_tool_count": 24,
   "mcp_ready": "full",
   "api_version": "version 1",
@@ -20,6 +20,7 @@
   "auth_env_vars": [
     "TSDR_APIKEY_HEADER"
   ],
+  "auth_key_url": "https://account.uspto.gov/api-manager",
   "novel_features": [
     {
       "name": "Trademark One-Look Status",

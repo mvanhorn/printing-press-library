@@ -15,8 +15,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/uspto-tsdr/internal/store"
@@ -35,7 +35,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/caseMultiStatus/{type}", []mcpParamBinding{{PublicName: "from", WireName: "from", Location: "query"},{PublicName: "to", WireName: "to", Location: "query"},{PublicName: "ids", WireName: "ids", Location: "query"},{PublicName: "type", WireName: "type", Location: "path"}, }, []string{"type", }),
+		makeAPIHandler("GET", "/caseMultiStatus/{type}", []mcpParamBinding{{PublicName: "from", WireName: "from", Location: "query"}, {PublicName: "to", WireName: "to", Location: "query"}, {PublicName: "ids", WireName: "ids", Location: "query"}, {PublicName: "type", WireName: "type", Location: "path"}}, []string{"type"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedoc_content-pdf_get-document",
@@ -46,7 +46,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/content.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"},{PublicName: "docid", WireName: "docid", Location: "path"}, }, []string{"caseid","docid", }),
+		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/content.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, {PublicName: "docid", WireName: "docid", Location: "path"}}, []string{"caseid", "docid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedoc_content-zip_get-document",
@@ -57,7 +57,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/content.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"},{PublicName: "docid", WireName: "docid", Location: "path"}, }, []string{"caseid","docid", }),
+		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/content.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, {PublicName: "docid", WireName: "docid", Location: "path"}}, []string{"caseid", "docid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedoc_download-pdf_get-document-content-pdf-download",
@@ -68,7 +68,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/download.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"},{PublicName: "docid", WireName: "docid", Location: "path"}, }, []string{"caseid","docid", }),
+		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/download.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, {PublicName: "docid", WireName: "docid", Location: "path"}}, []string{"caseid", "docid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedoc_download-zip_get-document-content-zip-download",
@@ -79,7 +79,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/download.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"},{PublicName: "docid", WireName: "docid", Location: "path"}, }, []string{"caseid","docid", }),
+		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/download.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, {PublicName: "docid", WireName: "docid", Location: "path"}}, []string{"caseid", "docid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedoc_info_get-document-xml",
@@ -90,7 +90,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"},{PublicName: "docid", WireName: "docid", Location: "path"}, }, []string{"caseid","docid", }),
+		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, {PublicName: "docid", WireName: "docid", Location: "path"}}, []string{"caseid", "docid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedoc_media_get-page-content",
@@ -102,7 +102,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/{pageid}/media", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"},{PublicName: "docid", WireName: "docid", Location: "path"},{PublicName: "pageid", WireName: "pageid", Location: "path"}, }, []string{"caseid","docid","pageid", }),
+		makeAPIHandler("GET", "/casedoc/{caseid}/{docid}/{pageid}/media", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, {PublicName: "docid", WireName: "docid", Location: "path"}, {PublicName: "pageid", WireName: "pageid", Location: "path"}}, []string{"caseid", "docid", "pageid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_get-bundle-info-pdf",
@@ -118,7 +118,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/bundle.pdf", []mcpParamBinding{{PublicName: "rn", WireName: "rn", Location: "query"},{PublicName: "sn", WireName: "sn", Location: "query"},{PublicName: "ref", WireName: "ref", Location: "query"},{PublicName: "ir", WireName: "ir", Location: "query"},{PublicName: "category", WireName: "category", Location: "query"},{PublicName: "type", WireName: "type", Location: "query"},{PublicName: "date", WireName: "date", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/casedocs/bundle.pdf", []mcpParamBinding{{PublicName: "rn", WireName: "rn", Location: "query"}, {PublicName: "sn", WireName: "sn", Location: "query"}, {PublicName: "ref", WireName: "ref", Location: "query"}, {PublicName: "ir", WireName: "ir", Location: "query"}, {PublicName: "category", WireName: "category", Location: "query"}, {PublicName: "type", WireName: "type", Location: "query"}, {PublicName: "date", WireName: "date", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_get-bundle-info-xml",
@@ -134,7 +134,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/bundle.xml", []mcpParamBinding{{PublicName: "rn", WireName: "rn", Location: "query"},{PublicName: "sn", WireName: "sn", Location: "query"},{PublicName: "ref", WireName: "ref", Location: "query"},{PublicName: "ir", WireName: "ir", Location: "query"},{PublicName: "fromdate", WireName: "fromdate", Location: "query"},{PublicName: "todate", WireName: "todate", Location: "query"},{PublicName: "sort", WireName: "sort", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/casedocs/bundle.xml", []mcpParamBinding{{PublicName: "rn", WireName: "rn", Location: "query"}, {PublicName: "sn", WireName: "sn", Location: "query"}, {PublicName: "ref", WireName: "ref", Location: "query"}, {PublicName: "ir", WireName: "ir", Location: "query"}, {PublicName: "fromdate", WireName: "fromdate", Location: "query"}, {PublicName: "todate", WireName: "todate", Location: "query"}, {PublicName: "sort", WireName: "sort", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_get-bundle-info-zip",
@@ -147,7 +147,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/bundle.zip", []mcpParamBinding{{PublicName: "rn", WireName: "rn", Location: "query"},{PublicName: "sn", WireName: "sn", Location: "query"},{PublicName: "ref", WireName: "ref", Location: "query"},{PublicName: "ir", WireName: "ir", Location: "query"}, }, []string{ }),
+		makeAPIHandler("GET", "/casedocs/bundle.zip", []mcpParamBinding{{PublicName: "rn", WireName: "rn", Location: "query"}, {PublicName: "sn", WireName: "sn", Location: "query"}, {PublicName: "ref", WireName: "ref", Location: "query"}, {PublicName: "ir", WireName: "ir", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_bundle_get-case-content-xml",
@@ -157,7 +157,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/{caseid}/bundle", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casedocs/{caseid}/bundle", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_content-pdf_get-case-docs-pdf",
@@ -167,7 +167,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/{caseid}/content.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casedocs/{caseid}/content.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_content-zip_get-case-docs-zip",
@@ -177,7 +177,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/{caseid}/content.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casedocs/{caseid}/content.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_download-pdf_get-case-docs-pdf-download",
@@ -187,7 +187,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/{caseid}/download.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casedocs/{caseid}/download.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_download-zip_get-case-docs-zip-download",
@@ -197,7 +197,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/{caseid}/download.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casedocs/{caseid}/download.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casedocs_info_get-case-docs-xml",
@@ -207,7 +207,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casedocs/{caseid}/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casedocs/{caseid}/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_content-html_get-case-status-info",
@@ -217,7 +217,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/content.html", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/content.html", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_content-pdf_get-case-status-info",
@@ -227,7 +227,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/content.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/content.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_content-zip_get-case-status-info",
@@ -237,7 +237,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/content.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/content.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_download-pdf_get-case-status-info-pdf-download",
@@ -247,7 +247,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/download.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/download.pdf", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_download-zip_get-case-status-info-zip-download",
@@ -257,7 +257,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/download.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/download.zip", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_info_load-xml",
@@ -267,7 +267,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("casestatus_v1_load-old-xml",
@@ -277,7 +277,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/casestatus/{caseid}/v1/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}, }, []string{"caseid", }),
+		makeAPIHandler("GET", "/casestatus/{caseid}/v1/info", []mcpParamBinding{{PublicName: "caseid", WireName: "caseid", Location: "path"}}, []string{"caseid"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("raw-image_get-image",
@@ -287,7 +287,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/rawImage/{serial_number}", []mcpParamBinding{{PublicName: "serial_number", WireName: "serial_number", Location: "path"}, }, []string{"serial_number", }),
+		makeAPIHandler("GET", "/rawImage/{serial_number}", []mcpParamBinding{{PublicName: "serial_number", WireName: "serial_number", Location: "path"}}, []string{"serial_number"}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -399,11 +399,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			data, _, err = c.Post(path, bodyArgs)
+			body, _ := json.Marshal(bodyArgs)
+			data, _, err = c.Post(path, body)
 		case "PUT":
-			data, _, err = c.Put(path, bodyArgs)
+			body, _ := json.Marshal(bodyArgs)
+			data, _, err = c.Put(path, body)
 		case "PATCH":
-			data, _, err = c.Patch(path, bodyArgs)
+			body, _ := json.Marshal(bodyArgs)
+			data, _, err = c.Patch(path, body)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:
@@ -419,17 +422,20 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key: export TSDR_APIKEY_HEADER=<your-key>" +
-					"\n      Run 'uspto-tsdr-pp-cli doctor' to check auth status."), nil
+					"\n      Get a key at: https://account.uspto.gov/api-manager" +
+					"\n      Run 'tsdr-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
 					"\n      Set it with: export TSDR_APIKEY_HEADER=<your-key>" +
-					"\n      Run 'uspto-tsdr-pp-cli doctor' to check auth status."), nil
+					"\n      Get a key at: https://account.uspto.gov/api-manager" +
+					"\n      Run 'tsdr-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
 					"\n      Set it with: export TSDR_APIKEY_HEADER=<your-key>" +
-					"\n      Run 'uspto-tsdr-pp-cli doctor' to check auth status."), nil
+					"\n      Get a key at: https://account.uspto.gov/api-manager" +
+					"\n      Run 'tsdr-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
 					return mcplib.NewToolResultText("already deleted (no-op)"), nil
@@ -463,7 +469,7 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 
 func newMCPClient() (*client.Client, error) {
 	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "uspto-tsdr-pp-cli", "config.toml")
+	cfgPath := filepath.Join(home, ".config", "tsdr-pp-cli", "config.toml")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
@@ -480,8 +486,9 @@ func newMCPClient() (*client.Client, error) {
 
 func dbPath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "uspto-tsdr-pp-cli", "data.db")
+	return filepath.Join(home, ".local", "share", "tsdr-pp-cli", "data.db")
 }
+
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
@@ -597,18 +604,12 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		if err := rows.Scan(ptrs...); err != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
-		}
+		rows.Scan(ptrs...)
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
-	}
-
-	if err := rows.Err(); err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("iterating rows: %v", err)), nil
 	}
 
 	data, _ := json.MarshalIndent(results, "", "  ")
@@ -617,53 +618,54 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
-		"api":         "uspto-tsdr",
+		"api":         "tsdr",
 		"description": "Beginning on October 2, 2020, you will need an API key to access the TSDR REST API See...",
 		"archetype":   "content",
 		"tool_count":  24,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion uspto-tsdr-pp-cli binary.",
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion tsdr-pp-cli binary.",
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{
 				{
-					"name": "TSDR_APIKEY_HEADER",
-					"kind": "per_call",
-					"required": true,
-					"sensitive": true,
+					"name":        "TSDR_APIKEY_HEADER",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
 					"description": "Set to your API credential.",
 				},
 			},
+			"key_url": "https://account.uspto.gov/api-manager",
 		},
 		"resources": []map[string]any{
 			{
-				"name": "case-multi-status",
+				"name":        "case-multi-status",
 				"description": "Manage case multi status",
-				"endpoints": []string{"get-list",  },
-				"searchable": true,
+				"endpoints":   []string{"get-list"},
+				"searchable":  true,
 			},
 			{
-				"name": "casedoc",
+				"name":        "casedoc",
 				"description": "Manage casedoc",
-				"endpoints": []string{ },
+				"endpoints":   []string{},
 			},
 			{
-				"name": "casedocs",
+				"name":        "casedocs",
 				"description": "Manage casedocs",
-				"endpoints": []string{"get-bundle-info-pdf", "get-bundle-info-xml", "get-bundle-info-zip",  },
-				"syncable": true,
-				"searchable": true,
+				"endpoints":   []string{"get-bundle-info-pdf", "get-bundle-info-xml", "get-bundle-info-zip"},
+				"syncable":    true,
+				"searchable":  true,
 			},
 			{
-				"name": "casestatus",
+				"name":        "casestatus",
 				"description": "Manage casestatus",
-				"endpoints": []string{ },
+				"endpoints":   []string{},
 			},
 			{
-				"name": "raw-image",
+				"name":        "raw-image",
 				"description": "Manage raw image",
-				"endpoints": []string{"get-image",  },
-				"searchable": true,
+				"endpoints":   []string{"get-image"},
+				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
@@ -672,6 +674,24 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Trademark One-Look Status", "command": "trademark status", "description": "Full current state of a trademark in one command — mark text, status, owner, classes, filing/registration dates,...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Prosecution Timeline", "command": "trademark timeline", "description": "Every prosecution event in chronological order — office actions, examiner reviews, publication events, and...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Deadline Calculator", "command": "trademark deadlines", "description": "Calculate Section 8, 9, and 15 maintenance deadlines with window-open dates and days-away countdown", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Portfolio Watch", "command": "trademark watch", "description": "Monitor multiple trademarks for status changes — caches previous statuses locally and flags any changes since last...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Batch Status Check", "command": "trademark batch", "description": "Batch status lookup for multiple trademarks using the multi-case endpoint or individual fallback with rate-limit...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Document Listing", "command": "trademark docs", "description": "List all documents in the prosecution file — office actions, responses, specimens, registration certificates —...", "rationale": "", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "Trademark One-Look Status", "insight": ""},
+			{"topic": "Prosecution Timeline", "insight": ""},
+			{"topic": "Deadline Calculator", "insight": ""},
+			{"topic": "Portfolio Watch", "insight": ""},
+			{"topic": "Batch Status Check", "insight": ""},
+			{"topic": "Document Listing", "insight": ""},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")
