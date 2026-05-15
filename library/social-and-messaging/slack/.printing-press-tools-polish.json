@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-15T21:59:59.3777391Z",
+  "cli_dir": "\u003ccli-dir\u003e\\slack-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 9,
+    "captured": "2026-05-15T21:53:11.8965279Z"
+  }
+}

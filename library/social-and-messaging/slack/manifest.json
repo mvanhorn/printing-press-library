@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "slack-web-pp-mcp",
+  "display_name": "Slack Web",
+  "version": "4.6.1",
+  "description": "Slack Web API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/slack-web-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/slack-web-pp-mcp",
+      "args": [],
+      "env": {
+        "SLACK_BOT_TOKEN": "${user_config.slack_bot_token}",
+        "SLACK_USER_TOKEN": "${user_config.slack_user_token}"
+      }
+    }
+  },
+  "user_config": {
+    "slack_bot_token": {
+      "type": "string",
+      "title": "SLACK_BOT_TOKEN",
+      "description": "Optional. Optional bot token (xoxb-...) for post-only flows. Set this OR SLACK_USER_TOKEN.",
+      "sensitive": true
+    },
+    "slack_user_token": {
+      "type": "string",
+      "title": "SLACK_USER_TOKEN",
+      "description": "Slack user token (xoxp-...) for the AtomChat workspace. Falls back to ~/.claude/slack-user-token.env if env var unset.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

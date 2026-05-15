@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "calls-info_calls_info": "Fetch the current state of a Slack Call by its id (the id returned from calls.add). Required: id. Returns the Call object — join URL, title, participant list, and start/end timestamps — or an error if the Call does not exist. Read-only; requires the calls:read scope. Use this to check whether a Call is still active or to list its participants before calls.participants.add or calls.end."
+  }
+}

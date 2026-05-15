@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T22:24:23.2529214Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "slack",
+  "display_name": "Slack Web",
+  "cli_name": "slack-pp-cli",
+  "owner": "erick-holm",
+  "printer": "claude-opus-4-7",
+  "printer_name": "Claude Code (Opus 4.7)",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:a2286609a36d051d20130aab72975d2846f6f5de8e235436de0c7dc042f5c706",
+  "run_id": "20260515-080828",
+  "mcp_binary": "slack-web-pp-mcp",
+  "mcp_tool_count": 174,
+  "mcp_ready": "full",
+  "api_version": "1.7.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SLACK_USER_TOKEN",
+    "SLACK_BOT_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "SLACK_USER_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Slack user token (xoxp-...) for the AtomChat workspace. Falls back to ~/.claude/slack-user-token.env if env var unset."
+    },
+    {
+      "name": "SLACK_BOT_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Optional bot token (xoxb-...) for post-only flows. Set this OR SLACK_USER_TOKEN."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Customer Intel Deep",
+      "command": "customer-intel-deep",
+      "description": "A one-screen, time-ordered timeline for a customer joining Slack mentions, the Attio deal stage at that moment, open Asana tasks, and Fathom call action items — every line cited with a permalink."
+    },
+    {
+      "name": "DM Engagement",
+      "command": "dm-engagement",
+      "description": "One volume row per direct report: DM count with you, Asana tasks created and completed, and Fathom calls attended over a time window."
+    },
+    {
+      "name": "Action Follow-through",
+      "command": "action-followthrough",
+      "description": "For each Fathom call action item assigned to a CSM, whether that person mentioned the company in Slack within the window — with the matching permalink when they did."
+    },
+    {
+      "name": "Goal Channel Pulse",
+      "command": "goal-channel-pulse",
+      "description": "Per active Asana Rock in the current quarter, the mapped Slack channel's 7-day message count, unique participants, total reactions, and a stalled flag when discussion is zero."
+    },
+    {
+      "name": "Reactions Summarize",
+      "command": "reactions summarize",
+      "description": "Aggregates emoji reactions across every message in a channel over a window: top messages by reaction count, emoji distribution, and a fixed emoji-class bucket count."
+    },
+    {
+      "name": "Unreads Priority",
+      "command": "unreads",
+      "description": "An inventory of unread DMs, at-mentions, and involved threads, bucketed by priority — DM over partner channel over internal channel over broadcast — with per-bucket counts."
+    },
+    {
+      "name": "Usergroups Render",
+      "command": "usergroups list",
+      "description": "Lists usergroups with handle and members, and renders subteam mentions in all output as readable @handles instead of raw \u003c!subteam^S...\u003e IDs."
+    },
+    {
+      "name": "Agent Audit",
+      "command": "agent-audit",
+      "description": "Shows which agents and cron jobs read which Slack DMs and channels over a window, sourced from the CLI's own append-only DM-read audit log."
+    }
+  ]
+}

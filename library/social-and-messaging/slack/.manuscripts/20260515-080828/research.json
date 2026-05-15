@@ -1,0 +1,272 @@
+{
+  "api_name": "slack",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "modelcontextprotocol/servers (slack, archived)",
+      "url": "https://github.com/modelcontextprotocol/servers-archived",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "korotovsky/slack-mcp-server",
+      "url": "https://github.com/korotovsky/slack-mcp-server",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rusq/slackdump",
+      "url": "https://github.com/rusq/slackdump",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "piekstra/slack-mcp-server",
+      "url": "https://github.com/piekstra/slack-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T08:12:00Z",
+  "novel_features": [
+    {
+      "name": "Customer Intel Deep",
+      "command": "customer-intel-deep",
+      "description": "A one-screen, time-ordered timeline for a customer joining Slack mentions, the Attio deal stage at that moment, open Asana tasks, and Fathom call action items — every line cited with a permalink.",
+      "rationale": "Requires four co-located SQLite mirrors (pp-slack, pp-attio, pp-asana, pp-fathom) and an ATTACH DATABASE join no MCP or single API call can produce.",
+      "example": "slack-pp-cli customer-intel-deep \"Sonria\" --window 14d --agent",
+      "why_it_matters": "Reach for this when an alert fires and you need the full cross-source history of a customer in one call, not Slack chatter alone.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "DM Engagement",
+      "command": "dm-engagement",
+      "description": "One volume row per direct report: DM count with you, Asana tasks created and completed, and Fathom calls attended over a time window.",
+      "rationale": "A three-mirror join across pp-slack, pp-asana, and pp-fathom that no single Slack API call spans.",
+      "example": "slack-pp-cli dm-engagement --report all --window 14d --agent",
+      "why_it_matters": "Use before 1:1s or scorecard reviews to see real engagement volumes per report instead of scrolling DMs.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "Action Follow-through",
+      "command": "action-followthrough",
+      "description": "For each Fathom call action item assigned to a CSM, whether that person mentioned the company in Slack within the window — with the matching permalink when they did.",
+      "rationale": "pp-fathom owns the action items and pp-slack owns the full-text search of mentions; the join only works with both mirrors local.",
+      "example": "slack-pp-cli action-followthrough --report marjorie --window 14d --agent",
+      "why_it_matters": "Use in L10 prep to audit whether commitments made on calls were actually acted on.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "Goal Channel Pulse",
+      "command": "goal-channel-pulse",
+      "description": "Per active Asana Rock in the current quarter, the mapped Slack channel's 7-day message count, unique participants, total reactions, and a stalled flag when discussion is zero.",
+      "rationale": "Joins pp-asana goal data with pp-slack message data co-located on disk — a conversation-level signal beyond pp-asana's task-level drift.",
+      "example": "slack-pp-cli goal-channel-pulse --quarter current --agent",
+      "why_it_matters": "Use in L10 prep to see whether the team is actually talking about each Rock, not just whether tasks moved.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "Reactions Summarize",
+      "command": "reactions summarize",
+      "description": "Aggregates emoji reactions across every message in a channel over a window: top messages by reaction count, emoji distribution, and a fixed emoji-class bucket count.",
+      "rationale": "A mechanical GROUP BY over the local reactions table joined to messages; the MCP returns per-message reactions only, so cross-message aggregation costs N round-trips.",
+      "example": "slack-pp-cli reactions summarize --channel \"#the-wolf-of-atom\" --window 7d --agent",
+      "why_it_matters": "Use for a daily attention pulse on which messages drew the most team reaction.",
+      "group": "Local-mirror aggregation"
+    },
+    {
+      "name": "Unreads Priority",
+      "command": "unreads",
+      "description": "An inventory of unread DMs, at-mentions, and involved threads, bucketed by priority — DM over partner channel over internal channel over broadcast — with per-bucket counts.",
+      "rationale": "Scans the local mirror's per-channel last-read cursor against message timestamps; a window-based attention sweep cannot produce a read-now shape.",
+      "example": "slack-pp-cli unreads --priority --agent",
+      "why_it_matters": "Use as the morning triage of what actually needs reading right now.",
+      "group": "Local-mirror aggregation"
+    },
+    {
+      "name": "Usergroups Render",
+      "command": "usergroups list",
+      "description": "Lists usergroups with handle and members, and renders subteam mentions in all output as readable @handles instead of raw \u003c!subteam^S...\u003e IDs.",
+      "rationale": "Needs a local usergroups lookup table and an emit-time substitution pass; fixes a known mis-render bug in the weekly-digest workflow.",
+      "example": "slack-pp-cli usergroups list --agent",
+      "why_it_matters": "Use so digests and channel reads render subteam mentions as human handles, not opaque IDs.",
+      "group": "Local-mirror aggregation"
+    },
+    {
+      "name": "Agent Audit",
+      "command": "agent-audit",
+      "description": "Shows which agents and cron jobs read which Slack DMs and channels over a window, sourced from the CLI's own append-only DM-read audit log.",
+      "rationale": "A read over pp-slack's own audit_log table — no other tool can see which automated callers touched DM data.",
+      "example": "slack-pp-cli agent-audit --window 7d --agent",
+      "why_it_matters": "Use for privacy governance — to know which automated agents accessed DM content.",
+      "group": "Privacy governance"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Customer Intel Deep",
+      "command": "customer-intel-deep",
+      "description": "A one-screen, time-ordered timeline for a customer joining Slack mentions, the Attio deal stage at that moment, open Asana tasks, and Fathom call action items — every line cited with a permalink.",
+      "rationale": "Requires four co-located SQLite mirrors (pp-slack, pp-attio, pp-asana, pp-fathom) and an ATTACH DATABASE join no MCP or single API call can produce.",
+      "example": "slack-pp-cli customer-intel-deep \"Sonria\" --window 14d --agent",
+      "why_it_matters": "Reach for this when an alert fires and you need the full cross-source history of a customer in one call, not Slack chatter alone.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "DM Engagement",
+      "command": "dm-engagement",
+      "description": "One volume row per direct report: DM count with you, Asana tasks created and completed, and Fathom calls attended over a time window.",
+      "rationale": "A three-mirror join across pp-slack, pp-asana, and pp-fathom that no single Slack API call spans.",
+      "example": "slack-pp-cli dm-engagement --report all --window 14d --agent",
+      "why_it_matters": "Use before 1:1s or scorecard reviews to see real engagement volumes per report instead of scrolling DMs.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "Action Follow-through",
+      "command": "action-followthrough",
+      "description": "For each Fathom call action item assigned to a CSM, whether that person mentioned the company in Slack within the window — with the matching permalink when they did.",
+      "rationale": "pp-fathom owns the action items and pp-slack owns the full-text search of mentions; the join only works with both mirrors local.",
+      "example": "slack-pp-cli action-followthrough --report marjorie --window 14d --agent",
+      "why_it_matters": "Use in L10 prep to audit whether commitments made on calls were actually acted on.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "Goal Channel Pulse",
+      "command": "goal-channel-pulse",
+      "description": "Per active Asana Rock in the current quarter, the mapped Slack channel's 7-day message count, unique participants, total reactions, and a stalled flag when discussion is zero.",
+      "rationale": "Joins pp-asana goal data with pp-slack message data co-located on disk — a conversation-level signal beyond pp-asana's task-level drift.",
+      "example": "slack-pp-cli goal-channel-pulse --quarter current --agent",
+      "why_it_matters": "Use in L10 prep to see whether the team is actually talking about each Rock, not just whether tasks moved.",
+      "group": "Cross-source mirror joins"
+    },
+    {
+      "name": "Reactions Summarize",
+      "command": "reactions summarize",
+      "description": "Aggregates emoji reactions across every message in a channel over a window: top messages by reaction count, emoji distribution, and a fixed emoji-class bucket count.",
+      "rationale": "A mechanical GROUP BY over the local reactions table joined to messages; the MCP returns per-message reactions only, so cross-message aggregation costs N round-trips.",
+      "example": "slack-pp-cli reactions summarize --channel \"#the-wolf-of-atom\" --window 7d --agent",
+      "why_it_matters": "Use for a daily attention pulse on which messages drew the most team reaction.",
+      "group": "Local-mirror aggregation"
+    },
+    {
+      "name": "Unreads Priority",
+      "command": "unreads",
+      "description": "An inventory of unread DMs, at-mentions, and involved threads, bucketed by priority — DM over partner channel over internal channel over broadcast — with per-bucket counts.",
+      "rationale": "Scans the local mirror's per-channel last-read cursor against message timestamps; a window-based attention sweep cannot produce a read-now shape.",
+      "example": "slack-pp-cli unreads --priority --agent",
+      "why_it_matters": "Use as the morning triage of what actually needs reading right now.",
+      "group": "Local-mirror aggregation"
+    },
+    {
+      "name": "Usergroups Render",
+      "command": "usergroups list",
+      "description": "Lists usergroups with handle and members, and renders subteam mentions in all output as readable @handles instead of raw \u003c!subteam^S...\u003e IDs.",
+      "rationale": "Needs a local usergroups lookup table and an emit-time substitution pass; fixes a known mis-render bug in the weekly-digest workflow.",
+      "example": "slack-pp-cli usergroups list --agent",
+      "why_it_matters": "Use so digests and channel reads render subteam mentions as human handles, not opaque IDs.",
+      "group": "Local-mirror aggregation"
+    },
+    {
+      "name": "Agent Audit",
+      "command": "agent-audit",
+      "description": "Shows which agents and cron jobs read which Slack DMs and channels over a window, sourced from the CLI's own append-only DM-read audit log.",
+      "rationale": "A read over pp-slack's own audit_log table — no other tool can see which automated callers touched DM data.",
+      "example": "slack-pp-cli agent-audit --window 7d --agent",
+      "why_it_matters": "Use for privacy governance — to know which automated agents accessed DM content.",
+      "group": "Privacy governance"
+    }
+  ],
+  "narrative": {
+    "display_name": "Slack",
+    "headline": "Every Slack Web API endpoint, plus a local SQLite mirror that unlocks compound queries and cross-source customer timelines no other Slack tool can produce.",
+    "value_prop": "slack-pp-cli wraps the full 174-endpoint Slack Web API and keeps a local SQLite mirror of channels, users, messages, threads, reactions, and usergroups. The mirror powers offline FTS5 search and transcendence verbs — customer-intel-deep joins Slack against co-located Attio, Asana, and Fathom mirrors; dm-engagement and goal-channel-pulse compose cross-source volumes; agent-audit reads the CLI's own DM-access log. Every write verb supports --dry-run for cron safety.",
+    "auth_narrative": "Auth is an xoxp Slack user token. Set SLACK_USER_TOKEN, or let the CLI fall back to ~/.claude/slack-user-token.env. A bot token (xoxb) works for post-only flows via SLACK_BOT_TOKEN.",
+    "quickstart": [
+      {
+        "command": "slack-pp-cli doctor",
+        "comment": "Confirm the token resolves and the workspace is reachable before anything else."
+      },
+      {
+        "command": "slack-pp-cli sync",
+        "comment": "Hydrate the local SQLite mirror — channels, users, messages, threads, reactions, usergroups."
+      },
+      {
+        "command": "slack-pp-cli who-said \"Sonria\" --window 14d",
+        "comment": "Offline FTS5 search across every synced channel — no rate limit."
+      },
+      {
+        "command": "slack-pp-cli customer-intel-deep \"Sonria\" --window 14d --agent",
+        "comment": "The headline verb — a cross-source timeline for one customer."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "not_authed or invalid_auth on every call",
+        "fix": "Confirm SLACK_USER_TOKEN holds a valid xoxp token; run slack-pp-cli doctor to see which source resolved."
+      },
+      {
+        "symptom": "conversations history returns far fewer messages than --limit requested",
+        "fix": "Slack's May-2025 page-size cap may be active for the token; the CLI logs a silent-truncation warning — re-run sync which paginates with Retry-After respect."
+      },
+      {
+        "symptom": "customer-intel-deep reports a missing sibling mirror",
+        "fix": "It needs the pp-attio / pp-asana / pp-fathom SQLite mirrors co-located; run their sync commands or pass --skip-missing to degrade gracefully."
+      }
+    ],
+    "when_to_use": "Reach for slack-pp-cli when an agent task needs Slack workspace data composed with history — weekly customer sweeps, L10 prep, pre-1:1 engagement volumes, cron-posted alerts — rather than a single live lookup. Its local mirror makes repeated and offline queries cheap, and its cross-source verbs answer questions no single Slack API call can. For a one-off read of one channel, the Slack MCP is lighter.",
+    "recipes": [
+      {
+        "title": "Weekly customer sweep",
+        "command": "slack-pp-cli customer-intel \"Petroautos\" --window 7d --agent --select messages.channel,messages.ts,messages.text",
+        "explanation": "Narrows the cross-channel customer timeline to just the fields an agent needs, keeping the payload small."
+      },
+      {
+        "title": "Pre-1:1 engagement scan",
+        "command": "slack-pp-cli dm-engagement --report all --window 14d --agent",
+        "explanation": "One volume row per direct report — DM count, Asana tasks, Fathom calls — for fast 1:1 prep."
+      },
+      {
+        "title": "Cron-safe alert post",
+        "command": "slack-pp-cli post --channel \"#csm-signals\" --text \"alert body\" --dry-run",
+        "explanation": "Shows the exact request a cron would send without sending it; drop --dry-run to post."
+      },
+      {
+        "title": "Daily attention pulse",
+        "command": "slack-pp-cli reactions summarize --channel \"#the-wolf-of-atom\" --window 7d --agent",
+        "explanation": "Top messages by reaction count plus emoji-class buckets for the channel."
+      }
+    ],
+    "trigger_phrases": [
+      "search Slack for",
+      "what did Slack say about",
+      "customer intel for",
+      "prep my 1:1",
+      "post to Slack",
+      "use slack-pp-cli",
+      "run slack-pp-cli"
+    ]
+  }
+}
