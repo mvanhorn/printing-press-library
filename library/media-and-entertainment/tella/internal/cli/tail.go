@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -61,7 +62,15 @@ native streaming instead of polling.`,
 			}
 			c.NoCache = true
 
-			path := "/" + resource
+			// syncResourcePath owns the resource→endpoint mapping
+			// (e.g. webhooks → /v1/webhooks/messages, not
+			// /v1/webhooks); sharing it with sync keeps tail accurate
+			// as new resources are added. Previously this hand-built
+			// `"/" + resource` and silently 404'd on every resource.
+			path, pathErr := syncResourcePath(resource)
+			if pathErr != nil {
+				return usageErr(fmt.Errorf("%w (known resources: %s)", pathErr, strings.Join(tailKnownResources(), ", ")))
+			}
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)

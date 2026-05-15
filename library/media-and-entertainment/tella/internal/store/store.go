@@ -1330,6 +1330,12 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 	}
 
 	var matches []string
+	// lastErr holds the most recent per-field query/scan/iter failure.
+	// If every matchFields entry yielded a failure (or none was safe) and
+	// the final `case 0` not-found path is reached, surface lastErr so
+	// the user can distinguish a legitimate not-found from a database
+	// error masquerading as one.
+	var lastErr error
 	for _, field := range matchFields {
 		// Defense-in-depth: field is interpolated into a json_extract path
 		// via fmt.Sprintf and cannot be parameterized. No CLI caller passes
@@ -1345,13 +1351,29 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,
 		)
-		rows, err := s.db.Query(query, resourceType, input)
-		if err != nil {
+		rows, queryErr := s.db.Query(query, resourceType, input)
+		if queryErr != nil {
+			// A per-field query failure (e.g. malformed JSON in
+			// one row's data column) shouldn't poison resolution
+			// across the remaining safe fields, but the user
+			// gets a chance to see what went wrong via the
+			// final error if no matches are found at all.
+			lastErr = queryErr
 			continue
 		}
-		for rows.Next() {
-			var id string
-			if rows.Scan(&id) == nil {
+		// Use a local function so defer fires after each
+		// allowlisted field's query, not at function exit. Without
+		// this, the loop could pile up unclosed rows on a long
+		// matchFields slice and surface a "too many open" SQLite
+		// error rather than the natural not-found path.
+		func() {
+			defer rows.Close()
+			for rows.Next() {
+				var id string
+				if scanErr := rows.Scan(&id); scanErr != nil {
+					lastErr = scanErr
+					return
+				}
 				// Deduplicate
 				found := false
 				for _, m := range matches {
@@ -1364,12 +1386,17 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 					matches = append(matches, id)
 				}
 			}
-		}
-		rows.Close()
+			if iterErr := rows.Err(); iterErr != nil {
+				lastErr = iterErr
+			}
+		}()
 	}
 
 	switch len(matches) {
 	case 0:
+		if lastErr != nil {
+			return "", fmt.Errorf("resolving %s %q: %w", resourceType, input, lastErr)
+		}
 		return "", fmt.Errorf("%s %q not found in local store. Run 'sync' first, or use the UUID directly", resourceType, input)
 	case 1:
 		return matches[0], nil

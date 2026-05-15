@@ -334,7 +334,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading column metadata: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -342,15 +345,25 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if scanErr := rows.Scan(ptrs...); scanErr != nil {
+			// Partial result + explicit error beats a silently
+			// truncated result set with the broken row missing.
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row %d: %v", len(results), scanErr)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	if iterErr := rows.Err(); iterErr != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("iterating result set: %v", iterErr)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
+	data, marshalErr := json.MarshalIndent(results, "", "  ")
+	if marshalErr != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", marshalErr)), nil
+	}
 	return mcplib.NewToolResultText(string(data)), nil
 }
 

@@ -152,12 +152,14 @@ func newTranscriptsSyncCmd(flags *rootFlags) *cobra.Command {
 
 // listAllVideoIDs returns up to max video IDs (or all when max <= 0) by reading
 // the live `GET /v1/videos` endpoint and extracting `id` from each entry.
+// Walks every cursor page (via paginatedListIDs) — previously this issued
+// a single c.Get, so transcripts sync silently missed every video past the
+// first API page on larger workspaces.
 func listAllVideoIDs(c *client.Client, max int) ([]string, error) {
-	data, err := c.Get("/v1/videos", nil)
+	ids, err := paginatedListIDs(c, "/v1/videos", nil, "videos")
 	if err != nil {
 		return nil, err
 	}
-	ids := extractIDs(data, "videos")
 	if max > 0 && len(ids) > max {
 		ids = ids[:max]
 	}

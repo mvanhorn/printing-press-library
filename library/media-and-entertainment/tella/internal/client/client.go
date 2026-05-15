@@ -359,9 +359,16 @@ func (c *Client) refreshAccessToken() error {
 		return nil
 	}
 
+	// Tella authenticates via a static bearer (TELLA_API_KEY); the
+	// OAuth refresh-token grant flow below is reachable only if a future
+	// build wires a tokenURL into Config. Until that happens, returning
+	// nil silently here would leave authHeader() handing back an
+	// expired access token on the next request, producing 401s with no
+	// breadcrumbs. Surface the unsupported-flow signal explicitly so
+	// the user can switch to a static bearer.
 	tokenURL := ""
 	if tokenURL == "" {
-		return nil
+		return fmt.Errorf("oauth refresh-token flow is not configured for this CLI; set TELLA_API_KEY to a static bearer token instead")
 	}
 
 	params := url.Values{

@@ -42,7 +42,7 @@ but do not stop the import.`,
 			c.DryRun = dryRun
 
 			resource := args[0]
-			path := "/" + resource
+			path := "/v1/" + resource
 
 			var reader io.Reader
 			if inputFile == "-" || inputFile == "" {

@@ -59,6 +59,20 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			totalSynced := 0
 
 			for _, resource := range resources {
+				// syncResourcePath owns the resource→endpoint mapping
+				// (e.g. webhooks → /v1/webhooks/messages, not
+				// /v1/webhooks). Sharing the map with `sync` keeps
+				// the archive workflow and the explicit sync command
+				// in lockstep as new resources are added; previously
+				// this command hand-built `"/"+resource` and 404'd
+				// every fetch on workspaces with a real webhook
+				// inbox.
+				path, pathErr := syncResourcePath(resource)
+				if pathErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, pathErr)
+					continue
+				}
+
 				cursor := ""
 				if !full {
 					existing, _, _, err := s.GetSyncState(resource)
@@ -76,7 +90,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 				count := 0
 				for {
-					data, fetchErr := c.Get("/"+resource, params)
+					data, fetchErr := c.Get(path, params)
 					if fetchErr != nil {
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
@@ -115,7 +129,9 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				}
 
 				if count > 0 {
-					s.SaveSyncState(resource, cursor, count)
+					if err := s.SaveSyncState(resource, cursor, count); err != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: saving %s sync state: %v\n", resource, err)
+					}
 				}
 				totalSynced += count
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, count)
