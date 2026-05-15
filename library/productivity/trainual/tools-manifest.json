@@ -1,0 +1,443 @@
+{
+  "api_name": "trainual",
+  "base_url": "https://app.trainual.com/api/v1",
+  "description": "Employee training and SOP documentation platform API for managing people, content assignments, and training progress.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "TRAINUAL_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TRAINUAL_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "roles_list",
+      "description": "List all roles with optional assigned user data. Optional: page, per_page, assigned_users.",
+      "method": "GET",
+      "path": "/roles",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "assigned_users",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include users assigned to each role"
+        }
+      ]
+    },
+    {
+      "name": "subjects_get",
+      "description": "Get a specific subject by ID. Required: id.",
+      "method": "GET",
+      "path": "/subjects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Subject ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subjects_list",
+      "description": "List all subjects with optional assigned user data. Optional: page, per_page, assigned_users.",
+      "method": "GET",
+      "path": "/subjects",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "assigned_users",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include assigned users with completion data"
+        }
+      ]
+    },
+    {
+      "name": "tests_get",
+      "description": "Get a specific test. Required: subject_id, id.",
+      "method": "GET",
+      "path": "/subjects/{subject_id}/tests/{id}",
+      "params": [
+        {
+          "name": "subject_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent subject ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Test ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tests_list",
+      "description": "List all tests for a subject. Required: subject_id. Optional: page, per_page.",
+      "method": "GET",
+      "path": "/subjects/{subject_id}/tests",
+      "params": [
+        {
+          "name": "subject_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent subject ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "topics_get",
+      "description": "Get a specific topic. Required: subject_id, id.",
+      "method": "GET",
+      "path": "/subjects/{subject_id}/topics/{id}",
+      "params": [
+        {
+          "name": "subject_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent subject ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Topic ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "topics_list",
+      "description": "List all topics for a subject. Required: subject_id. Optional: page, per_page.",
+      "method": "GET",
+      "path": "/subjects/{subject_id}/topics",
+      "params": [
+        {
+          "name": "subject_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent subject ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "users_archive",
+      "description": "Archive (deactivate) a user. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_assign-roles",
+      "description": "Assign roles to a user. Required: id, role_ids.",
+      "method": "POST",
+      "path": "/users/{id}/assign_roles",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "role_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated role IDs to assign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_assign-subjects",
+      "description": "Assign subjects (curriculums) to a user. Required: id, subject_ids.",
+      "method": "POST",
+      "path": "/users/{id}/assign_subjects",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "subject_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated subject IDs to assign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_create",
+      "description": "Invite a new user (triggers invitation email, consumes seat). Required: email, first_name, last_name. Optional: title, department, role.",
+      "method": "POST",
+      "path": "/users",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "User email address",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "User first name",
+          "required": true
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "User last name",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "department",
+          "type": "string",
+          "location": "body",
+          "description": "Department name"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Role name"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a specific user by ID. Required: id.",
+      "method": "GET",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List all users with optional completion and assignment data. Optional: page, per_page, curriculums_assigned (plus 1 more).",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page (max 50)"
+        },
+        {
+          "name": "curriculums_assigned",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include assigned curriculum data with completion percentages"
+        },
+        {
+          "name": "roles_assigned",
+          "type": "boolean",
+          "location": "query",
+          "description": "Include assigned role data"
+        }
+      ]
+    },
+    {
+      "name": "users_unarchive",
+      "description": "Restore an archived user. Required: id.",
+      "method": "POST",
+      "path": "/users/{id}/unarchive",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_unassign-roles",
+      "description": "Remove role assignments from a user. Required: id, role_ids.",
+      "method": "POST",
+      "path": "/users/{id}/unassign_roles",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "role_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated role IDs to unassign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_unassign-subjects",
+      "description": "Remove subject assignments from a user. Required: id, subject_ids.",
+      "method": "POST",
+      "path": "/users/{id}/unassign_subjects",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "subject_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated subject IDs to unassign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_update",
+      "description": "Update user details. Required: id. Optional: email, first_name, last_name (plus 1 more). Partial update.",
+      "method": "PATCH",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "User ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "User email address"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "User first name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "User last name"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "trainual-pp-mcp",
+  "display_name": "Trainual",
+  "version": "4.6.1",
+  "description": "Trainual API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/trainual-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/trainual-pp-mcp",
+      "args": [],
+      "env": {
+        "TRAINUAL_API_KEY": "${user_config.trainual_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "trainual_api_key": {
+      "type": "string",
+      "title": "TRAINUAL_API_KEY",
+      "description": "Sets TRAINUAL_API_KEY for the Trainual MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

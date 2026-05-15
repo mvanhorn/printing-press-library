@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-05-15T23:28:35.309616Z",
+  "cli_dir": "/tmp/printing-press/publish/trainual-kbQeWR/package/library/productivity/trainual",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 339,
+      "column": 38,
+      "matched_span": "jane.doe@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside README Cookbook code block demonstrating `users create` command. Uses standards-reserved @example.com TLD (RFC 2606)."
+    }
+  ],
+  "findings_count_before": 0
+}

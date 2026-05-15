@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T23:19:43.629341Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "trainual",
+  "display_name": "Trainual",
+  "cli_name": "trainual-pp-cli",
+  "owner": "devin",
+  "printer_name": "Devin",
+  "spec_path": "/Users/devin/printing-press/.runstate/devin-26117293/runs/20260515-111854/research/trainual-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:58f8f73bc764d959e0d341989179cd03e27f7aa2a996d1cbf495d666ff658a97",
+  "run_id": "20260515-111854",
+  "mcp_binary": "trainual-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "TRAINUAL_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Compliance Audit",
+      "command": "compliance-audit",
+      "description": "Surface every employee below a completion threshold, grouped by role \u2014 the Monday compliance check in one command."
+    },
+    {
+      "name": "Assignment Gap Detector",
+      "command": "assignment-gaps",
+      "description": "Detect users missing subject assignments that peers in their role have \u2014 catch forgotten onboarding assignments before managers complain."
+    },
+    {
+      "name": "Content Quality Audit",
+      "command": "content-audit",
+      "description": "List all curriculums with course counts, test counts, and enrollment \u2014 flag empty, untested, and orphaned content in one table."
+    },
+    {
+      "name": "Onboarding Progress Tracker",
+      "command": "onboarding-status",
+      "description": "Show new hires from the last N days with their assignment completeness and completion percentage, grouped by role."
+    },
+    {
+      "name": "Training Coverage Matrix",
+      "command": "coverage-matrix",
+      "description": "Produce a role-by-subject matrix showing completion percentage per cell \u2014 the exact report ops managers build by hand in Excel."
+    },
+    {
+      "name": "Role Completion Leaderboard",
+      "command": "role-completion",
+      "description": "Rank roles by average completion percentage \u2014 instantly see which venues or teams are ahead or behind."
+    },
+    {
+      "name": "Completion Trend Tracker",
+      "command": "completion-trend",
+      "description": "Show how a user's completion percentage has changed over successive syncs \u2014 week-over-week training progress."
+    },
+    {
+      "name": "Bulk Role-Based Assignment",
+      "command": "bulk-assign",
+      "description": "Assign subjects to all users in a role with one command \u2014 the role-based fan-out that individual assign-subjects can't do."
+    }
+  ],
+  "printer": "b0stwickvibes",
+  "category": "productivity"
+}

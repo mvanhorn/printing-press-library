@@ -1,0 +1,315 @@
+name: trainual
+display_name: Trainual
+version: v1
+base_url: https://app.trainual.com/api/v1
+description: Employee training and SOP documentation platform API for managing people, content assignments, and training progress.
+
+auth:
+  type: bearer_token
+  header: Authorization
+  in: header
+  env_vars:
+    - TRAINUAL_API_KEY
+
+resources:
+  users:
+    description: Manage employees and their training assignments
+    endpoints:
+      list:
+        method: GET
+        path: /users
+        description: List all users with optional completion and assignment data
+        params:
+          - name: page
+            in: query
+            type: integer
+            description: Page number for pagination
+          - name: per_page
+            in: query
+            type: integer
+            description: Results per page (max 50)
+          - name: curriculums_assigned
+            in: query
+            type: boolean
+            description: Include assigned curriculum data with completion percentages
+          - name: roles_assigned
+            in: query
+            type: boolean
+            description: Include assigned role data
+      get:
+        method: GET
+        path: /users/{id}
+        description: Get a specific user by ID
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+      create:
+        method: POST
+        path: /users
+        description: Invite a new user (triggers invitation email, consumes seat)
+        params:
+          - name: email
+            in: body
+            type: string
+            required: true
+            description: User email address
+          - name: first_name
+            in: body
+            type: string
+            required: true
+            description: User first name
+          - name: last_name
+            in: body
+            type: string
+            required: true
+            description: User last name
+          - name: title
+            in: body
+            type: string
+            description: Job title
+          - name: department
+            in: body
+            type: string
+            description: Department name
+          - name: role
+            in: body
+            type: string
+            description: Role name
+      update:
+        method: PATCH
+        path: /users/{id}
+        description: Update user details
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+          - name: email
+            in: body
+            type: string
+            description: User email address
+          - name: first_name
+            in: body
+            type: string
+            description: User first name
+          - name: last_name
+            in: body
+            type: string
+            description: User last name
+          - name: title
+            in: body
+            type: string
+            description: Job title
+      archive:
+        method: DELETE
+        path: /users/{id}
+        description: Archive (deactivate) a user
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+      unarchive:
+        method: POST
+        path: /users/{id}/unarchive
+        description: Restore an archived user
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+      assign-subjects:
+        method: POST
+        path: /users/{id}/assign_subjects
+        description: Assign subjects (curriculums) to a user
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+          - name: subject_ids
+            in: body
+            type: string
+            required: true
+            description: Comma-separated subject IDs to assign
+      unassign-subjects:
+        method: POST
+        path: /users/{id}/unassign_subjects
+        description: Remove subject assignments from a user
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+          - name: subject_ids
+            in: body
+            type: string
+            required: true
+            description: Comma-separated subject IDs to unassign
+      assign-roles:
+        method: POST
+        path: /users/{id}/assign_roles
+        description: Assign roles to a user
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+          - name: role_ids
+            in: body
+            type: string
+            required: true
+            description: Comma-separated role IDs to assign
+      unassign-roles:
+        method: POST
+        path: /users/{id}/unassign_roles
+        description: Remove role assignments from a user
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: User ID
+          - name: role_ids
+            in: body
+            type: string
+            required: true
+            description: Comma-separated role IDs to unassign
+
+  subjects:
+    description: Training subjects (curriculums) containing courses and tests
+    endpoints:
+      list:
+        method: GET
+        path: /subjects
+        description: List all subjects with optional assigned user data
+        params:
+          - name: page
+            in: query
+            type: integer
+            description: Page number
+          - name: per_page
+            in: query
+            type: integer
+            description: Results per page
+          - name: assigned_users
+            in: query
+            type: boolean
+            description: Include assigned users with completion data
+      get:
+        method: GET
+        path: /subjects/{id}
+        description: Get a specific subject by ID
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: Subject ID
+
+  topics:
+    description: Topics (courses) within a subject
+    endpoints:
+      list:
+        method: GET
+        path: /subjects/{subject_id}/topics
+        description: List all topics for a subject
+        params:
+          - name: subject_id
+            in: path
+            type: string
+            required: true
+            description: Parent subject ID
+          - name: page
+            in: query
+            type: integer
+            description: Page number
+          - name: per_page
+            in: query
+            type: integer
+            description: Results per page
+      get:
+        method: GET
+        path: /subjects/{subject_id}/topics/{id}
+        description: Get a specific topic
+        params:
+          - name: subject_id
+            in: path
+            type: string
+            required: true
+            description: Parent subject ID
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: Topic ID
+
+  tests:
+    description: Tests (surveys/quizzes) within a subject
+    endpoints:
+      list:
+        method: GET
+        path: /subjects/{subject_id}/tests
+        description: List all tests for a subject
+        params:
+          - name: subject_id
+            in: path
+            type: string
+            required: true
+            description: Parent subject ID
+          - name: page
+            in: query
+            type: integer
+            description: Page number
+          - name: per_page
+            in: query
+            type: integer
+            description: Results per page
+      get:
+        method: GET
+        path: /subjects/{subject_id}/tests/{id}
+        description: Get a specific test
+        params:
+          - name: subject_id
+            in: path
+            type: string
+            required: true
+            description: Parent subject ID
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: Test ID
+
+  roles:
+    description: Roles (groups) for organizing users and assignments
+    endpoints:
+      list:
+        method: GET
+        path: /roles
+        description: List all roles with optional assigned user data
+        params:
+          - name: page
+            in: query
+            type: integer
+            description: Page number
+          - name: per_page
+            in: query
+            type: integer
+            description: Results per page
+          - name: assigned_users
+            in: query
+            type: boolean
+            description: Include users assigned to each role
+
+mcp:
+  transport: [stdio, http]

@@ -1,0 +1,240 @@
+{
+  "api_name": "trainual",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T11:18:54Z",
+  "novel_features": [
+    {
+      "name": "Compliance Audit",
+      "command": "compliance-audit",
+      "description": "Surface every employee below a completion threshold, grouped by role — the Monday compliance check in one command.",
+      "rationale": "Requires joining users, subjects, roles, and completion data across local SQLite tables; no single API call provides this cross-entity view.",
+      "example": "trainual-pp-cli compliance-audit --threshold 80 --role \"Front Desk\" --agent",
+      "why_it_matters": "Use when an agent needs to identify training compliance gaps across an organization without clicking through dozens of Trainual UI screens.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Assignment Gap Detector",
+      "command": "assignment-gaps",
+      "description": "Detect users missing subject assignments that peers in their role have — catch forgotten onboarding assignments before managers complain.",
+      "rationale": "Computes set-difference across role memberships and subject assignments in local SQLite; the API has no endpoint for 'what's missing'.",
+      "example": "trainual-pp-cli assignment-gaps --by-role --json",
+      "why_it_matters": "Use when an agent needs to verify assignment completeness across roles — catches partial gaps, not just fully unassigned users.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Content Quality Audit",
+      "command": "content-audit",
+      "description": "List all curriculums with course counts, test counts, and enrollment — flag empty, untested, and orphaned content in one table.",
+      "rationale": "Aggregates counts across subjects, topics, tests, and enrollment in local SQLite; requires clicking through each curriculum individually in the web UI.",
+      "example": "trainual-pp-cli content-audit --show-empty --show-untested --agent",
+      "why_it_matters": "Use when an agent needs to identify structural training content problems (empty curriculums, missing tests) across the entire content library.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Onboarding Progress Tracker",
+      "command": "onboarding-status",
+      "description": "Show new hires from the last N days with their assignment completeness and completion percentage, grouped by role.",
+      "rationale": "Filters users by creation date and joins to assignments and completion data in local SQLite; no API endpoint provides a cohort onboarding view.",
+      "example": "trainual-pp-cli onboarding-status --days 30 --json --select user,role,completion_percentage",
+      "why_it_matters": "Use when an agent needs to check whether recent hires are on track with their training assignments.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Training Coverage Matrix",
+      "command": "coverage-matrix",
+      "description": "Produce a role-by-subject matrix showing completion percentage per cell — the exact report ops managers build by hand in Excel.",
+      "rationale": "Pivots users across roles and subjects in local SQLite with aggregate completion; requires manual spreadsheet work without this command.",
+      "example": "trainual-pp-cli coverage-matrix --json",
+      "why_it_matters": "Use when an agent needs a complete training coverage snapshot across all roles and subjects in one structured output.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Role Completion Leaderboard",
+      "command": "role-completion",
+      "description": "Rank roles by average completion percentage — instantly see which venues or teams are ahead or behind.",
+      "rationale": "Groups users by role and computes AVG(completion_percentage) in local SQLite; no API endpoint provides role-level aggregation.",
+      "example": "trainual-pp-cli role-completion --sort avg_completion --agent",
+      "why_it_matters": "Use when an agent needs to compare training progress across organizational units (venues, departments, teams).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Completion Trend Tracker",
+      "command": "completion-trend",
+      "description": "Show how a user's completion percentage has changed over successive syncs — week-over-week training progress.",
+      "rationale": "Reads timestamped completion snapshots from a local sync_history table; the API provides no historical completion data.",
+      "example": "trainual-pp-cli completion-trend 1618115 --weeks 8 --json",
+      "why_it_matters": "Use when an agent needs to track whether a flagged employee's training is actually improving over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk Role-Based Assignment",
+      "command": "bulk-assign",
+      "description": "Assign subjects to all users in a role with one command — the role-based fan-out that individual assign-subjects can't do.",
+      "rationale": "Lists users by role from local SQLite, then calls the assign_subjects API for each user; combines local data with API writes.",
+      "example": "trainual-pp-cli bulk-assign --role \"Kitchen\" --subjects 101,102,103 --dry-run",
+      "why_it_matters": "Use when an agent needs to ensure all members of a role have consistent subject assignments without iterating manually.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compliance Audit",
+      "command": "compliance-audit",
+      "description": "Surface every employee below a completion threshold, grouped by role — the Monday compliance check in one command.",
+      "rationale": "Requires joining users, subjects, roles, and completion data across local SQLite tables; no single API call provides this cross-entity view.",
+      "example": "trainual-pp-cli compliance-audit --threshold 80 --role \"Front Desk\" --agent",
+      "why_it_matters": "Use when an agent needs to identify training compliance gaps across an organization without clicking through dozens of Trainual UI screens.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Assignment Gap Detector",
+      "command": "assignment-gaps",
+      "description": "Detect users missing subject assignments that peers in their role have — catch forgotten onboarding assignments before managers complain.",
+      "rationale": "Computes set-difference across role memberships and subject assignments in local SQLite; the API has no endpoint for 'what's missing'.",
+      "example": "trainual-pp-cli assignment-gaps --by-role --json",
+      "why_it_matters": "Use when an agent needs to verify assignment completeness across roles — catches partial gaps, not just fully unassigned users.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Content Quality Audit",
+      "command": "content-audit",
+      "description": "List all curriculums with course counts, test counts, and enrollment — flag empty, untested, and orphaned content in one table.",
+      "rationale": "Aggregates counts across subjects, topics, tests, and enrollment in local SQLite; requires clicking through each curriculum individually in the web UI.",
+      "example": "trainual-pp-cli content-audit --show-empty --show-untested --agent",
+      "why_it_matters": "Use when an agent needs to identify structural training content problems (empty curriculums, missing tests) across the entire content library.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Onboarding Progress Tracker",
+      "command": "onboarding-status",
+      "description": "Show new hires from the last N days with their assignment completeness and completion percentage, grouped by role.",
+      "rationale": "Filters users by creation date and joins to assignments and completion data in local SQLite; no API endpoint provides a cohort onboarding view.",
+      "example": "trainual-pp-cli onboarding-status --days 30 --json --select user,role,completion_percentage",
+      "why_it_matters": "Use when an agent needs to check whether recent hires are on track with their training assignments.",
+      "group": "Training intelligence"
+    },
+    {
+      "name": "Training Coverage Matrix",
+      "command": "coverage-matrix",
+      "description": "Produce a role-by-subject matrix showing completion percentage per cell — the exact report ops managers build by hand in Excel.",
+      "rationale": "Pivots users across roles and subjects in local SQLite with aggregate completion; requires manual spreadsheet work without this command.",
+      "example": "trainual-pp-cli coverage-matrix --json",
+      "why_it_matters": "Use when an agent needs a complete training coverage snapshot across all roles and subjects in one structured output.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Role Completion Leaderboard",
+      "command": "role-completion",
+      "description": "Rank roles by average completion percentage — instantly see which venues or teams are ahead or behind.",
+      "rationale": "Groups users by role and computes AVG(completion_percentage) in local SQLite; no API endpoint provides role-level aggregation.",
+      "example": "trainual-pp-cli role-completion --sort avg_completion --agent",
+      "why_it_matters": "Use when an agent needs to compare training progress across organizational units (venues, departments, teams).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Completion Trend Tracker",
+      "command": "completion-trend",
+      "description": "Show how a user's completion percentage has changed over successive syncs — week-over-week training progress.",
+      "rationale": "Reads timestamped completion snapshots from a local sync_history table; the API provides no historical completion data.",
+      "example": "trainual-pp-cli completion-trend 1618115 --weeks 8 --json",
+      "why_it_matters": "Use when an agent needs to track whether a flagged employee's training is actually improving over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk Role-Based Assignment",
+      "command": "bulk-assign",
+      "description": "Assign subjects to all users in a role with one command — the role-based fan-out that individual assign-subjects can't do.",
+      "rationale": "Lists users by role from local SQLite, then calls the assign_subjects API for each user; combines local data with API writes.",
+      "example": "trainual-pp-cli bulk-assign --role \"Kitchen\" --subjects 101,102,103 --dry-run",
+      "why_it_matters": "Use when an agent needs to ensure all members of a role have consistent subject assignments without iterating manually.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Trainual",
+    "headline": "Every Trainual feature plus compliance audit, assignment gap detection, and training analytics no other tool provides.",
+    "value_prop": "Sync your entire Trainual account to a local SQLite database, then run compliance audits, detect assignment gaps, and produce coverage matrices that would take hours of manual spreadsheet work. Works offline, pipes to jq, and outputs agent-native JSON.",
+    "auth_narrative": "Trainual uses Bearer token authentication. Generate your API key in Trainual Settings \u003e Integrations \u003e API, then set TRAINUAL_API_KEY in your environment.",
+    "quickstart": [
+      {
+        "command": "trainual-pp-cli doctor",
+        "comment": "Verify API key is valid and Trainual is reachable"
+      },
+      {
+        "command": "trainual-pp-cli sync --full",
+        "comment": "Pull all users, subjects, topics, tests, and roles into local SQLite"
+      },
+      {
+        "command": "trainual-pp-cli compliance-audit --threshold 80",
+        "comment": "See who's behind on training across all curriculums"
+      },
+      {
+        "command": "trainual-pp-cli assignment-gaps --by-role --json",
+        "comment": "Detect users missing assignments their peers have"
+      },
+      {
+        "command": "trainual-pp-cli coverage-matrix",
+        "comment": "Role-by-subject completion matrix for stakeholder reporting"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "Regenerate your API key in Trainual Settings \u003e Integrations \u003e API and update TRAINUAL_API_KEY"
+      },
+      {
+        "symptom": "completion_percentage shows 0 for users with progress",
+        "fix": "Use completion_percentage field (not avg_completion which is broken in the Trainual API)"
+      },
+      {
+        "symptom": "sync takes too long",
+        "fix": "Trainual API paginates at 50/page max. Large orgs (500+ users) may take a few minutes on first sync."
+      },
+      {
+        "symptom": "assignment-gaps shows false positives",
+        "fix": "Some roles intentionally have different subject sets. Use --role to scope to a specific role for accurate gap detection."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need training compliance data, onboarding tracking, or content quality audits for a Trainual account. It is the right choice for any task that requires correlating users, subjects, roles, and completion data — questions the Trainual web UI cannot answer without manual spreadsheet work.",
+    "recipes": [
+      {
+        "title": "Monday compliance check",
+        "command": "trainual-pp-cli compliance-audit --threshold 80 --json --select user.name,user.email,subject.name,completion_percentage",
+        "explanation": "Show everyone below 80% completion with only the fields a manager needs to act on."
+      },
+      {
+        "title": "New hire onboarding report",
+        "command": "trainual-pp-cli onboarding-status --days 14 --agent",
+        "explanation": "Check all users who joined in the last 2 weeks and their training progress."
+      },
+      {
+        "title": "Content quality sweep",
+        "command": "trainual-pp-cli content-audit --show-empty --show-untested --json",
+        "explanation": "Find curriculums with no courses or no tests — the structural gaps in your training library."
+      },
+      {
+        "title": "Role comparison for stakeholders",
+        "command": "trainual-pp-cli role-completion --sort avg_completion --agent --select role.name,avg_completion,user_count",
+        "explanation": "Rank venues/teams by training completion for leadership reporting."
+      },
+      {
+        "title": "Bulk onboarding setup",
+        "command": "trainual-pp-cli bulk-assign --role \"New Hire\" --subjects 1340738,1295262 --dry-run",
+        "explanation": "Preview what would happen before assigning mandatory subjects to all new hires in a role."
+      }
+    ],
+    "trigger_phrases": [
+      "who is behind on training",
+      "check trainual compliance",
+      "trainual onboarding status",
+      "which curriculums have no tests",
+      "training completion by role",
+      "use trainual",
+      "run trainual"
+    ]
+  }
+}
