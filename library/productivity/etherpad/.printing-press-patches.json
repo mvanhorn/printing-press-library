@@ -64,6 +64,15 @@
       ],
       "validated_outcome": "save() now snapshots and zeros c.EtherpadOpenid (using AuthSource == \"env:ETHERPAD_OPENID\" as the durable signal) before toml.Marshal, then restores it so in-memory state is preserved for the rest of the run. ClearTokens() additionally zeros AccessToken/RefreshToken/TokenExpiry/ClientID/ClientSecret/EtherpadOpenid/AuthHeaderVal in memory so a `logout` followed by another command in the same process honours the logout, not just the next process start.",
       "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should not persist any field that Load() also reads from an env var, since the env var is by definition ephemeral and persisting it changes the auth-source semantics under the user's feet."
+    },
+    {
+      "id": "auth-status-cover-all-credential-paths",
+      "summary": "`auth status` now considers a user authenticated when AuthHeader() can produce a Bearer — i.e. AuthHeaderVal, EtherpadOpenid, or AccessToken — instead of only AccessToken.",
+      "reason": "Greptile P1 on PR #396 final review: `authed := cfg.AccessToken != \"\"` did not cover the env-var ($ETHERPAD_OPENID → EtherpadOpenid) or static-header (auth_header → AuthHeaderVal) credential paths that AuthHeader() reads from. So users authenticating via $ETHERPAD_OPENID or a TOML-set auth_header saw `authenticated: false` and \"Not authenticated\" output even though every API call succeeded with a valid Bearer token.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "Inlines AuthHeader()'s precedence (auth_header > env openid > access token) without calling it (AuthHeader has a write side-effect on AuthSource that would overwrite the value Load() already set, e.g. flipping \"config\" → \"oauth2\" when an AccessToken from disk is present). auth status now reports authenticated for all three credential shapes."
     }
   ]
 }

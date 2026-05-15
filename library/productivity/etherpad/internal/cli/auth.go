@@ -206,7 +206,16 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			w := cmd.OutOrStdout()
-			authed := cfg.AccessToken != ""
+			// PATCH(auth-status-cover-all-credential-paths): treat the user as
+			// authenticated whenever any credential path AuthHeader() reads
+			// from is populated — static auth_header, env-var ETHERPAD_OPENID,
+			// or OAuth AccessToken. Checking only AccessToken made env-var
+			// and static-header users see "Not authenticated" even though
+			// every API call succeeded. Mirrors AuthHeader()'s precedence
+			// without calling it (it has a write side-effect on AuthSource
+			// that would shadow the value Load() already set). See
+			// .printing-press-patches.json patches[6].
+			authed := cfg.AuthHeaderVal != "" || cfg.EtherpadOpenid != "" || cfg.AccessToken != ""
 			// JSON envelope: {authenticated, verified, source, config}.
 			if flags.asJSON {
 				out := map[string]any{
