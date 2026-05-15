@@ -358,6 +358,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			if attempt < maxRetries {
+				backoff := time.Duration(1<<uint(attempt)) * time.Second
+				fmt.Fprintf(os.Stderr, "network error on %s %s, retrying in %s (attempt %d/%d): %v\n", method, path, backoff, attempt+1, maxRetries, err)
+				time.Sleep(backoff)
+			}
 			continue
 		}
 

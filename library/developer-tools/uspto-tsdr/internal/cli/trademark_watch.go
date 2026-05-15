@@ -101,7 +101,9 @@ detect changes. First run always reports all marks as new.`,
 				// Save current status to cache
 				if db != nil {
 					entryJSON, _ := json.Marshal(entry)
-					_, _, _ = db.UpsertBatch("watch", []json.RawMessage{entryJSON})
+					if _, _, cacheErr := db.UpsertBatch("watch", []json.RawMessage{entryJSON}); cacheErr != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to cache status for %s: %v\n", serial, cacheErr)
+					}
 				}
 
 				entries = append(entries, entry)

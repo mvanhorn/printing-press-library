@@ -1908,14 +1908,53 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 	return ""
 }
 
+// allowedDomainTables is the set of known domain tables that ListIDs may
+// query by name interpolation. Any resourceType not in this set falls through
+// to the parameterized resources-table query, preventing SQL injection via
+// crafted resource type strings.
+var allowedDomainTables = map[string]bool{
+	"bundle":                  true,
+	"casedoc_content_pdf":     true,
+	"casedoc_content_zip":     true,
+	"casedoc_download_pdf":    true,
+	"casedoc_download_zip":    true,
+	"casedoc_info":            true,
+	"casedocs_content_pdf":    true,
+	"casedocs_content_zip":    true,
+	"casedocs_download_pdf":   true,
+	"casedocs_download_zip":   true,
+	"casedocs_info":           true,
+	"casestatus_content_pdf":  true,
+	"casestatus_content_zip":  true,
+	"casestatus_download_pdf": true,
+	"casestatus_download_zip": true,
+	"casestatus_info":         true,
+	"content_html":            true,
+	"media":                   true,
+	"resources":               true,
+	"v1":                      true,
+}
+
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
-	if err != nil {
-		// Fall back to generic resources table
+	var rows *sql.Rows
+	var err error
+
+	// Only interpolate table name if it is in the known allowlist to prevent
+	// SQL injection via crafted resourceType values.
+	if allowedDomainTables[resourceType] {
+		query := fmt.Sprintf(`SELECT id FROM "%s"`, resourceType)
+		rows, err = s.db.Query(query)
+		if err != nil {
+			// Fall back to generic resources table
+			rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		// Unknown table name — use only the parameterized generic query
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
 		if err != nil {
 			return nil, err

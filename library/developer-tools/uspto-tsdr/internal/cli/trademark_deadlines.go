@@ -15,7 +15,8 @@ type tmDeadline struct {
 	DueDate    string `json:"dueDate"`
 	WindowOpen string `json:"windowOpen"`
 	DaysAway   int    `json:"daysAway"`
-	Status     string `json:"status"` // "upcoming", "open", "overdue", "completed"
+	Status     string `json:"status"`   // "upcoming", "open", "overdue", "expired"
+	Optional   bool   `json:"optional"` // true for filings that are available but not mandatory (e.g., Section 15)
 }
 
 func newTrademarkDeadlinesCmd(flags *rootFlags) *cobra.Command {
@@ -33,7 +34,7 @@ maintenance deadlines:
   Section 15 (Incontestability): Optional, available after 5 years of
   continuous use post-registration.
 
-Shows past deadlines as completed and highlights the next upcoming window.`,
+Shows past deadlines as expired and highlights the next upcoming window.`,
 		Example: strings.Trim(`
   uspto-tsdr-pp-cli trademark deadlines 97123456
   uspto-tsdr-pp-cli trademark deadlines 97123456 --json
@@ -100,7 +101,7 @@ Shows past deadlines as completed and highlights the next upcoming window.`,
 					indicator = yellow("◦ ")
 				case "overdue":
 					indicator = red("! ")
-				case "completed":
+				case "expired":
 					indicator = "  "
 				}
 				fmt.Fprintf(w, "%s%-30s  Due: %s  Window: %s  (%s)\n",
@@ -119,15 +120,19 @@ func computeDeadlines(regDate, now time.Time) []tmDeadline {
 	// Section 9: Every 10 years
 	// Section 15: Available after 5 years (optional, one-time)
 
-	// Section 15 — Incontestability (optional, available after 5 years)
+	// Section 15 — Incontestability (optional, available after 5 years of
+	// continuous use). This is NOT a mandatory filing — a trademark owner may
+	// choose to file it but is never required to. Modeled as an availability
+	// marker, not a mandatory deadline.
 	sec15Due := regDate.AddDate(5, 0, 0)
 	sec15Window := regDate.AddDate(5, 0, 0) // Can file anytime after 5 years
 	deadlines = append(deadlines, tmDeadline{
-		Type:       "Section 15 (Incontestability)",
+		Type:       "Section 15 (Incontestability — optional)",
 		DueDate:    sec15Due.Format("2006-01-02"),
 		WindowOpen: sec15Window.Format("2006-01-02"),
 		DaysAway:   daysUntil(now, sec15Due),
 		Status:     deadlineStatus(now, sec15Window, sec15Due),
+		Optional:   true,
 	})
 
 	// Section 8: First declaration due between 5th and 6th year
@@ -169,7 +174,7 @@ func deadlineStatus(now, windowOpen, dueDate time.Time) string {
 		// Grace period: 6 months after due date
 		grace := dueDate.AddDate(0, 6, 0)
 		if now.After(grace) {
-			return "completed"
+			return "expired"
 		}
 		return "overdue"
 	}
