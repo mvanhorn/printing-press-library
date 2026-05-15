@@ -4,6 +4,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/bird/internal/cliutil"
@@ -147,6 +148,27 @@ campaign.`,
 					}
 				}
 				result.Retries = retries
+				// PATCH: persist the retried rows back into the stored batch so
+				// a subsequent `sms reconcile <batch-id>` call can audit the
+				// new MessageIDs. Without this write-back the retries live only
+				// in memory; the persisted batch keeps the original
+				// MessageID == "" entries and reconcile-loop line 90 skips
+				// them on the next pass, making the retried deliveries
+				// untrackable. Greptile P1 (third-pass review on PR #417).
+				if len(retries) > 0 {
+					retryByKey := make(map[string]sendBatchRow, len(retries))
+					for _, r := range retries {
+						retryByKey[r.IdempotencyKey] = r
+					}
+					for i, row := range batch.Rows {
+						if r, ok := retryByKey[row.IdempotencyKey]; ok {
+							batch.Rows[i] = r
+						}
+					}
+					if err := persistBatch(db, batch); err != nil {
+						fmt.Fprintf(os.Stderr, "warning: failed to persist retries for batch %s: %v\n", batch.BatchID, err)
+					}
+				}
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
