@@ -67,8 +67,8 @@
     },
     {
       "id": "greptile-cleartokens-cookies",
-      "summary": "ClearTokens() also zeroes c.AmazonCookies before save().",
-      "reason": "AmazonCookies is a toml:-tagged field populated by Load() from the AMAZON_COOKIES env var. Without zeroing it in ClearTokens(), running `auth logout` while the env var was active wrote the live session to ~/.config/amazon-orders-pp-cli/config.toml — a silent persistence the user couldn't detect until they unset the env var and re-ran `auth status`.",
+      "summary": "ClearTokens() zeroes every toml:-tagged auth-bearing field (AmazonCookies, AuthHeaderVal, AccessToken) before save().",
+      "reason": "AuthHeader() checks AuthHeaderVal, AmazonCookies, and AccessToken in priority order; any one left non-empty keeps the CLI authenticated, and toml.Marshal re-serializes every toml:-tagged field. Without clearing all three, `auth logout` while AMAZON_COOKIES is set (or an auth_header is configured on disk) silently persists the live session to ~/.config/amazon-orders-pp-cli/config.toml.",
       "files": [
         "internal/config/config.go"
       ]

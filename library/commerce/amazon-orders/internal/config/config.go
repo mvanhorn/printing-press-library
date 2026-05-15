@@ -126,17 +126,20 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
-// PATCH(greptile-cleartokens-cookies): also zero AmazonCookies so `auth logout` does not persist an env-var session to disk via toml.Marshal.
+// PATCH(greptile-cleartokens-cookies): also zero every toml:-tagged auth-bearing field so `auth logout` actually deauthenticates instead of re-serializing the live session.
 func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
-	// AmazonCookies is populated by Load() from the AMAZON_COOKIES env var,
-	// and toml.Marshal serializes every toml:-tagged field. Without zeroing
-	// here, `auth logout` while the env var is active writes `cookies = "..."`
-	// to config.toml — a silent persistence of the session that survives
-	// unsetting the env var.
+	// AmazonCookies, AuthHeaderVal, and AccessToken are all checked by
+	// AuthHeader() in priority order; any one of them left in place would
+	// keep AuthHeader() returning a non-empty value, and toml.Marshal
+	// serializes every toml:-tagged field. Without zeroing all three here,
+	// `auth logout` while AMAZON_COOKIES is set (or an auth_header is
+	// configured on disk) silently persists the live session to
+	// ~/.config/amazon-orders-pp-cli/config.toml.
 	c.AmazonCookies = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 
