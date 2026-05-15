@@ -27,6 +27,12 @@ type Config struct {
 	ClientSecret   string `toml:"client_secret"`
 	Path           string `toml:"-"`
 	EtherpadOpenid string `toml:"openid"`
+	// fileOpenid snapshots the on-disk `openid` value Load() reads from
+	// the TOML config before any $ETHERPAD_OPENID override. save() uses
+	// it to write back the user's persisted value even when the running
+	// process is currently authenticated via the env-var token. Tagged
+	// `toml:"-"` so it never round-trips to disk itself.
+	fileOpenid string `toml:"-"`
 }
 
 // PATCH(oidc-urls-from-base-url): OIDCIssuer field + oidcBase()/AuthURL()/TokenURL()
@@ -87,6 +93,13 @@ func Load(configPath string) (*Config, error) {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
 		}
 	}
+
+	// Snapshot the on-disk openid value before any env-var override, so
+	// save() can preserve it when the running process is using the env
+	// token. Without this snapshot, save() can't distinguish "env-only"
+	// from "env-overriding-config" and ends up wiping the user's
+	// persisted openid in the both-set case.
+	cfg.fileOpenid = cfg.EtherpadOpenid
 
 	// Env var overrides
 	if v := os.Getenv("ETHERPAD_OPENID"); v != "" {
@@ -180,15 +193,20 @@ func (c *Config) save() error {
 		return fmt.Errorf("creating config dir: %w", err)
 	}
 
-	// Snapshot + zero env-derived fields so they don't get marshaled to
-	// disk. AuthSource is the durable signal of where each field came
-	// from (set in Load() and not persisted via TOML tag `-`); restoring
-	// the snapshot after marshal keeps the running process's in-memory
-	// state intact for subsequent AuthHeader() calls in the same run.
+	// Restore the on-disk openid value for marshaling so:
+	//   - env-only auth: env value never lands on disk (fileOpenid is "");
+	//   - env-overriding-config: the user's persisted openid in the TOML
+	//     file is preserved (fileOpenid carries it);
+	//   - config-only auth: AuthSource isn't "env:…", so this branch
+	//     doesn't fire and EtherpadOpenid (== fileOpenid) marshals normally.
+	// AuthSource is the durable signal of where the current EtherpadOpenid
+	// came from (set in Load() and tagged `toml:"-"`). The snapshot/restore
+	// keeps the running process's in-memory state intact for subsequent
+	// AuthHeader() calls in the same run.
 	envOpenid := ""
 	if c.AuthSource == "env:ETHERPAD_OPENID" {
 		envOpenid = c.EtherpadOpenid
-		c.EtherpadOpenid = ""
+		c.EtherpadOpenid = c.fileOpenid
 	}
 
 	data, marshalErr := toml.Marshal(c)
