@@ -94,6 +94,7 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 	key += "|base_url=" + c.BaseURL
 	if c.Config != nil {
 		key += "|auth_source=" + c.Config.AuthSource
+		// PATCH(upstream cli-printing-press#1249): capture AuthHeader() once per cacheKey call.
 		if authHeader := c.Config.AuthHeader(); authHeader != "" {
 			authHash := sha256.Sum256([]byte(authHeader))
 			key += "|auth=" + hex.EncodeToString(authHash[:8])

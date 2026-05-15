@@ -45,6 +45,7 @@ func newGoCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer s.Close()
 
+			// PATCH(upstream cli-printing-press#1249): split apiErr vs notFoundErr — store.Get returns (nil, nil) on miss, not (nil, ErrNoRows).
 			raw, err := s.Get("saved_route", args[0])
 			if err != nil {
 				return apiErr(err)

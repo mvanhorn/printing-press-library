@@ -1,0 +1,35 @@
+{
+  "notes": "Hand-authored fixes applied to this printed CLI for Greptile findings on PR #416 and the CWD-relative eval-dataset bug. Tracked in upstream cli-printing-press#1249. Remove these entries and the matching PATCH markers once the template-side fixes land in the Printing Press and uk-train-goat is reprinted.",
+  "patches": [
+    {
+      "files": ["internal/cli/journey.go"],
+      "summary": "Nil-guard for enrichWithStatus when c.Service returns (nil, nil)",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/cli/go.go"],
+      "summary": "Split apiErr vs notFoundErr on saved-route miss since store.Get returns (nil, nil) on miss",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/store/store.go"],
+      "summary": "SQL injection guard: reject non-safe-ident resource and JSON-field names before splicing into ListIDs and ResolveByName",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/client/client.go"],
+      "summary": "Capture AuthHeader() once per cacheKey call instead of invoking it twice",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/cli/eval.go"],
+      "summary": "Default to embedded fixtures when --dataset is empty so installed binary works from any CWD",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/evals/evals.go"],
+      "summary": "Embed default fixture dataset and add LoadDefaultFixtures helper",
+      "upstream": "cli-printing-press#1249"
+    }
+  ]
+}

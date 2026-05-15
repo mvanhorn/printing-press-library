@@ -148,6 +148,7 @@ func enrichWithStatus(c *openldbws.Client, journeys []map[string]any) []map[stri
 		if sid == "" {
 			continue
 		}
+		// PATCH(upstream cli-printing-press#1249): guard nil ServiceDetails — c.Service can return (nil, nil) on no-details responses.
 		details, err := c.Service(sid)
 		if err != nil || details == nil {
 			errMsg := "no details returned"

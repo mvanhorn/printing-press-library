@@ -62,6 +62,8 @@ func LoadFixtures(path string) ([]Fixture, error) {
 
 // LoadDefaultFixtures parses the dataset embedded into the binary at build
 // time, so `eval` works for installed binaries run from any directory.
+//
+// PATCH(upstream cli-printing-press#1249): added so default --dataset doesn't depend on CWD-relative resolution.
 func LoadDefaultFixtures() ([]Fixture, error) {
 	var ds Dataset
 	if err := toml.Unmarshal(defaultDatasetBytes, &ds); err != nil {

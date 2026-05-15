@@ -51,6 +51,7 @@ EVAL_AGENT_MODEL env var.`,
 				fixtures []evals.Fixture
 				err      error
 			)
+			// PATCH(upstream cli-printing-press#1249): default to embedded fixtures so the installed binary works from any CWD.
 			if datasetPath == "" {
 				fixtures, err = evals.LoadDefaultFixtures()
 				if err != nil {

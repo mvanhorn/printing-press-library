@@ -26,6 +26,8 @@ var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]
 // safeIdentPattern matches identifiers safe to splice into SQL: leading
 // letter or underscore, then letters / digits / underscores. Used to gate
 // table and JSON-field names that cannot be passed as bound parameters.
+//
+// PATCH(upstream cli-printing-press#1249): SQL injection guard for ListIDs and ResolveByName splicing.
 var safeIdentPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // IsUUID returns true if the input looks like a UUID.
