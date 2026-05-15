@@ -86,14 +86,24 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
 						break
 					}
+					// Try to extract "results" array from OpenFDA's
+					// {"meta": {...}, "results": [...]} envelope.
 					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
-						// Might be a single object, not array
-						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
+					var envelope struct {
+						Results json.RawMessage `json:"results"`
+					}
+					if err := json.Unmarshal(data, &envelope); err == nil && len(envelope.Results) > 0 {
+						json.Unmarshal(envelope.Results, &items)
+					}
+					if len(items) == 0 {
+						// Fallback: try parsing as a bare array or single object.
+						if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
+							if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
+							}
+							count++
+							break
 						}
-						count++
-						break
 					}
 					if len(items) == 0 {
 						break

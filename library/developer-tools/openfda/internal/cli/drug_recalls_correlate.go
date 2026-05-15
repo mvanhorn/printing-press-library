@@ -103,9 +103,12 @@ Uses a configurable time window (default 90 days) before and after each recall.`
 				return recalls[i].ParsedDate.Before(recalls[j].ParsedDate)
 			})
 
-			// 2. Find all adverse events for this drug with dates
+			// 2. Find all adverse events for this drug with dates.
+			// The json_each join on $.patient.drug produces duplicate rows when a
+			// report lists multiple matching drugs. Dedup by safetyreportid.
 			eventQuery := `
-				SELECT json_extract(r.data, '$.receiptdate')
+				SELECT json_extract(r.data, '$.receiptdate'),
+				       json_extract(r.data, '$.safetyreportid')
 				FROM resources r, json_each(json_extract(r.data, '$.patient.drug')) je
 				WHERE r.resource_type = 'drug-events'
 				AND UPPER(json_extract(je.value, '$.medicinalproduct')) LIKE ?
@@ -117,10 +120,17 @@ Uses a configurable time window (default 90 days) before and after each recall.`
 			}
 
 			var eventDates []time.Time
+			seenEvents := make(map[string]bool)
 			for eventRows.Next() {
-				var dateStr string
-				if err := eventRows.Scan(&dateStr); err != nil {
+				var dateStr, reportID string
+				if err := eventRows.Scan(&dateStr, &reportID); err != nil {
 					continue
+				}
+				if reportID != "" && seenEvents[reportID] {
+					continue
+				}
+				if reportID != "" {
+					seenEvents[reportID] = true
 				}
 				parsed := parseFDADate(dateStr)
 				if !parsed.IsZero() {

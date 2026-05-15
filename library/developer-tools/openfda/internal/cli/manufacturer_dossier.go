@@ -255,8 +255,8 @@ func queryDossierCategoryEvents(db *store.Store, resourceType, firmUpper string,
 		RecentItems []map[string]interface{} `json:"recent_items,omitempty"`
 	}{Category: resourceType}
 
-	// Search in companynumber field
-	countQuery := `SELECT COUNT(*) FROM resources r WHERE r.resource_type = ? AND UPPER(json_extract(r.data, '$.companynumber')) LIKE ?`
+	// Search in companynumb field (FDA's actual FAERS field name)
+	countQuery := `SELECT COUNT(*) FROM resources r WHERE r.resource_type = ? AND UPPER(json_extract(r.data, '$.companynumb')) LIKE ?`
 	var count int
 	row, err := db.Query(countQuery, resourceType, "%"+firmUpper+"%")
 	if err == nil {
@@ -267,7 +267,7 @@ func queryDossierCategoryEvents(db *store.Store, resourceType, firmUpper string,
 	}
 	result.Count = count
 
-	dataQuery := `SELECT r.data FROM resources r WHERE r.resource_type = ? AND UPPER(json_extract(r.data, '$.companynumber')) LIKE ? ORDER BY r.updated_at DESC LIMIT ?`
+	dataQuery := `SELECT r.data FROM resources r WHERE r.resource_type = ? AND UPPER(json_extract(r.data, '$.companynumb')) LIKE ? ORDER BY r.updated_at DESC LIMIT ?`
 	rows, err := db.Query(dataQuery, resourceType, "%"+firmUpper+"%", limit)
 	if err == nil {
 		for rows.Next() {

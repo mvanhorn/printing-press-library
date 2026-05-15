@@ -138,38 +138,38 @@ CSV must have a header row with at least one of: product_code, device_name.`,
 					recallRows.Close()
 				}
 
-				// Check device-events
+				// Check device-events — use a single query with OR to avoid
+				// double-counting reports that match both brand_name and product_code.
 				eventCount := 0
-				eventQuery := `
-					SELECT COUNT(DISTINCT r.id)
-					FROM resources r, json_each(json_extract(r.data, '$.device')) je
-					WHERE r.resource_type = 'device-events'
-					AND UPPER(json_extract(je.value, '$.brand_name')) LIKE ?
-				`
-				row, err := db.Query(eventQuery, "%"+searchUpper+"%")
-				if err == nil {
-					if row.Next() {
-						row.Scan(&eventCount)
-					}
-					row.Close()
-				}
-
-				// Also check by product code in device-events if we have one
 				if productCode != "" {
-					pcQuery := `
+					pcUpper := strings.ToUpper(productCode)
+					combinedQuery := `
 						SELECT COUNT(DISTINCT r.id)
 						FROM resources r, json_each(json_extract(r.data, '$.device')) je
 						WHERE r.resource_type = 'device-events'
-						AND UPPER(json_extract(je.value, '$.device_report_product_code')) LIKE ?
+						AND (UPPER(json_extract(je.value, '$.brand_name')) LIKE ?
+						  OR UPPER(json_extract(je.value, '$.device_report_product_code')) LIKE ?)
 					`
-					pcRow, err := db.Query(pcQuery, "%"+strings.ToUpper(productCode)+"%")
+					row, err := db.Query(combinedQuery, "%"+searchUpper+"%", "%"+pcUpper+"%")
 					if err == nil {
-						var pcCount int
-						if pcRow.Next() {
-							pcRow.Scan(&pcCount)
+						if row.Next() {
+							row.Scan(&eventCount)
 						}
-						pcRow.Close()
-						eventCount += pcCount
+						row.Close()
+					}
+				} else {
+					eventQuery := `
+						SELECT COUNT(DISTINCT r.id)
+						FROM resources r, json_each(json_extract(r.data, '$.device')) je
+						WHERE r.resource_type = 'device-events'
+						AND UPPER(json_extract(je.value, '$.brand_name')) LIKE ?
+					`
+					row, err := db.Query(eventQuery, "%"+searchUpper+"%")
+					if err == nil {
+						if row.Next() {
+							row.Scan(&eventCount)
+						}
+						row.Close()
 					}
 				}
 
