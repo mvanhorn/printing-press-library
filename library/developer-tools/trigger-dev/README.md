@@ -82,7 +82,6 @@ To install:
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
-<!-- pp-hermes-install-anchor -->
 ## Authentication
 
 Authentication uses a Trigger.dev secret key in the `Authorization: Bearer` header. Set `TRIGGER_SECRET_KEY` to your environment's key — `tr_dev_…` for development, `tr_prod_…` for production, `tr_pat_…` for personal access tokens. Each key is environment-scoped: a dev key cannot manage prod runs.

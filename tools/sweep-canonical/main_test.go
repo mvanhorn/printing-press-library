@@ -415,6 +415,51 @@ desktop body.
 	}
 }
 
+func TestPatchReadmeHermesOpenClaw_StripsAnchorInsideMovedClaudeDesktop(t *testing.T) {
+	// Pre-PR layout for trigger-dev had the pp-hermes-install-anchor
+	// comment sitting at the end of the ## Use with Claude Desktop
+	// section, just before the next H2. Without explicit stripping, the
+	// anchor rides along when the section is moved to canonical
+	// position — and produces a duplicate alongside the canonical anchor
+	// we re-insert. Both copies survive future sweep runs (idempotent
+	// with the duplicate), so the regression persists silently.
+	body := `# X CLI
+
+## Install
+
+cli body.
+
+## Install for Hermes
+
+hermes body.
+
+## Install for OpenClaw
+
+openclaw body.
+
+## Use with Claude Desktop
+
+desktop body.
+
+<!-- pp-hermes-install-anchor -->
+## Authentication
+
+auth body.
+`
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
+	got := patchReadmeHermesOpenClaw(body, ctx)
+
+	if n := strings.Count(got, "<!-- pp-hermes-install-anchor -->"); n != 1 {
+		t.Errorf("anchor should appear exactly once after sweep; got %d:\n%s", n, got)
+	}
+	if !strings.Contains(got, "## Use with Claude Desktop") {
+		t.Errorf("Claude Desktop section was lost:\n%s", got)
+	}
+	if !strings.Contains(got, "desktop body.") {
+		t.Errorf("Claude Desktop section body was lost:\n%s", got)
+	}
+}
+
 func TestPatchReadmeHermesOpenClaw_NoClaudeDesktopSection(t *testing.T) {
 	// Not every CLI ships an MCPB bundle. When ## Use with Claude
 	// Desktop is absent, the sweep must not invent one.

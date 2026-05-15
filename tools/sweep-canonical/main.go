@@ -897,6 +897,15 @@ func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
 	// and this stays empty — the canonical block omits the Claude
 	// Desktop line entirely.
 	claudeDesktopSection := extractH2Section(body, "## Use with Claude Desktop")
+	// Strip any anchor comment that fell inside the extracted section
+	// (e.g., trigger-dev's pre-PR layout had the anchor sitting between
+	// the Claude Desktop body and the next H2). Without this, the
+	// stale anchor rides along to the canonical position and produces
+	// a duplicate alongside the canonical anchor we re-insert below.
+	// Both are stripped from the rest of `body` later, but the
+	// extracted section needs its own pass.
+	claudeDesktopSection = strings.ReplaceAll(claudeDesktopSection, "<!-- pp-hermes-install-anchor -->\n", "")
+	claudeDesktopSection = strings.ReplaceAll(claudeDesktopSection, "<!-- pp-hermes-install-anchor -->", "")
 
 	// Strip the redundant ## Use with Claude Code section entirely.
 	// Its content is now covered by the canonical `## Install` block
