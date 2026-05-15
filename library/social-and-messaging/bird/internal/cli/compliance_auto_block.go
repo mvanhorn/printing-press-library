@@ -4,6 +4,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -29,6 +30,22 @@ type autoBlockReport struct {
 }
 
 var stopKeywords = []string{"stop", "stopall", "unsubscribe", "cancel", "end", "quit", "optout", "opt-out"}
+
+// PATCH: word-boundary-aware keyword matcher. The previous implementation used
+// a mix of strings.EqualFold / Contains(" KW ") / HasPrefix(KW), where the
+// HasPrefix arm matched any body that *starts* with a keyword regardless of
+// the next character. A body like "STOPPER SERVICE" therefore matched the
+// "stop" keyword and, under --apply, would submit that recipient to the bulk-
+// block endpoint. The pre-compiled regex below anchors each keyword between
+// regex word boundaries (`\b`), so only standalone occurrences trigger an
+// opt-out candidate. Surfaced by Greptile P1 in PR #417 review.
+var stopKeywordRE = func() *regexp.Regexp {
+	parts := make([]string, len(stopKeywords))
+	for i, kw := range stopKeywords {
+		parts[i] = regexp.QuoteMeta(kw)
+	}
+	return regexp.MustCompile(`(?i)\b(?:` + strings.Join(parts, "|") + `)\b`)
+}()
 
 func newComplianceAutoBlockCmd(flags *rootFlags) *cobra.Command {
 	var (
@@ -125,17 +142,19 @@ func scanOptOuts(db *store.Store, cutoff time.Time) ([]optOutCandidate, error) {
 		if dir, _ := m["direction"].(string); dir != "incoming" {
 			continue
 		}
-		body := strings.ToUpper(strings.TrimSpace(extractBodyText(m)))
-		matched := ""
-		for _, kw := range stopKeywords {
-			if strings.EqualFold(body, kw) || strings.Contains(body, " "+strings.ToUpper(kw)+" ") || strings.HasPrefix(body, strings.ToUpper(kw)) {
-				matched = strings.ToUpper(kw)
-				break
-			}
-		}
-		if matched == "" {
+		body := strings.TrimSpace(extractBodyText(m))
+		// PATCH: keyword match must respect word boundaries (see stopKeywordRE
+		// definition above). The previous strings.HasPrefix arm matched any
+		// message starting with a keyword character sequence, regardless of
+		// whether the keyword was a full word -- so "STOPPER SERVICE" matched
+		// "stop" and, with --apply, would block the sender. The regex
+		// canonicalises the keyword to upper case before assignment so the
+		// downstream consumer continues to see "STOP" / "UNSUBSCRIBE" etc.
+		hit := stopKeywordRE.FindString(body)
+		if hit == "" {
 			continue
 		}
+		matched := strings.ToUpper(hit)
 		// PATCH: messages with no createdAt or an unparseable timestamp must be
 		// excluded by the --since window, not silently included. The previous
 		// guard only skipped when createdAt parsed AND was older than cutoff,
