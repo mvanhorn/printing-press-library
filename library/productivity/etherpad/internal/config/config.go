@@ -159,25 +159,18 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
-// PATCH(no-env-bleed-on-save): `auth logout` and any other code path that
-// calls save() previously leaked env-var-loaded credentials to disk —
-// Load() copies $ETHERPAD_OPENID into c.EtherpadOpenid, then toml.Marshal
-// writes the whole struct, persisting the env token under `openid` in
-// ~/.config/etherpad-pp-cli/config.toml. After the user unsets the env
-// var, the next load reads the persisted token from the file and
-// AuthHeader() keeps returning "Bearer <token>" — auth survives
-// "logout" for env-derived credentials. ClearTokens() also wipes the
-// in-memory env-loaded fields so the running process honours the
-// logout for the rest of its lifetime, not just the next start.
-// See .printing-press-patches.json patches[5] (Greptile P1).
+// ClearTokens wipes the OAuth-issued credentials and persists the clear.
+// Static `auth_header` and `openid` set directly in the user's config file
+// are NOT cleared here — those are user-managed persistent credentials,
+// not OAuth login state. Logout for an env-var-only user does not unset
+// $ETHERPAD_OPENID either; that has to happen in the parent shell. The
+// env-derived token still does not leak to disk on this save() call
+// because save() snapshots and zeros env-loaded EtherpadOpenid around
+// toml.Marshal (see save() and .printing-press-patches.json patches[5]).
 func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
-	c.ClientID = ""
-	c.ClientSecret = ""
-	c.EtherpadOpenid = ""
-	c.AuthHeaderVal = ""
 	return c.save()
 }
 

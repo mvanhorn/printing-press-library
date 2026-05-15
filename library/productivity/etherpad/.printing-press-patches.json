@@ -57,12 +57,12 @@
     },
     {
       "id": "no-env-bleed-on-save",
-      "summary": "Stop save() from persisting env-var-loaded credentials to disk, and have ClearTokens() also wipe in-memory env-loaded auth fields.",
+      "summary": "Stop save() from persisting env-var-loaded credentials to disk.",
       "reason": "Load() copies $ETHERPAD_OPENID into c.EtherpadOpenid (and tags the source as `env:ETHERPAD_OPENID`), then toml.Marshal in save() writes the whole struct — persisting the env token under `openid` in ~/.config/etherpad-pp-cli/config.toml. After the user unsets the env var, subsequent CLI invocations still find the token in the config file and AuthHeader() returns `Bearer <token>`, so `auth logout` effectively does not log out for API-key users. Same side-effect occurs on `auth login` (which calls SaveTokens → save()) when the env var is set during login. Greptile P1 on PR #396.",
       "files": [
         "internal/config/config.go"
       ],
-      "validated_outcome": "save() now snapshots and zeros c.EtherpadOpenid (using AuthSource == \"env:ETHERPAD_OPENID\" as the durable signal) before toml.Marshal, then restores it so in-memory state is preserved for the rest of the run. ClearTokens() additionally zeros AccessToken/RefreshToken/TokenExpiry/ClientID/ClientSecret/EtherpadOpenid/AuthHeaderVal in memory so a `logout` followed by another command in the same process honours the logout, not just the next process start.",
+      "validated_outcome": "save() now snapshots and zeros c.EtherpadOpenid (using AuthSource == \"env:ETHERPAD_OPENID\" as the durable signal) before toml.Marshal, then restores it so in-memory state is preserved for the rest of the run. ClearTokens() intentionally still only wipes the OAuth-issued AccessToken / RefreshToken / TokenExpiry — wiping AuthHeaderVal or EtherpadOpenid in ClearTokens would persist `auth_header = \"\"` / `openid = \"\"` to disk via save() (no `omitempty` on those TOML tags), destroying a user's manually-configured static credentials on logout (caught as a follow-up Greptile P1).",
       "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should not persist any field that Load() also reads from an env var, since the env var is by definition ephemeral and persisting it changes the auth-source semantics under the user's feet."
     },
     {
