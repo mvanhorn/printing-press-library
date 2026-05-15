@@ -1,5 +1,6 @@
 // Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
 
+// PATCH novel-commands: hand-built transcripts find/status/export (local SQLite aggregation, not in the Fireflies API).
 package cli
 
 import (

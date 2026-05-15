@@ -219,6 +219,8 @@ If you modify a published CLI under `library/<cat>/<slug>/` beyond what the gene
 
 This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; code lives in the source files; the inline `// PATCH:` comment carries the local semantics. Keep `summary` and `reason` short — if you find yourself writing tables of field renames or SQL transformations, that detail belongs in the source comment or commit message, not here. A fresh print from the generator overwrites this tree, and the manifest is what tells the next agent (or regeneration tooling) what was customized and why.
 
+**Delete stale workaround entries.** A `reason` field that describes a verifier or pipeline bug (e.g. *"the package verifier currently treats X as Y; this entry exists to silence the false positive"*) is a placeholder, not a real customization. When the underlying bug is fixed, delete the entry — leaving it behind makes future contributors think there's a hand-edit to preserve when there isn't.
+
 A worked example lives at `library/payments/kalshi/.printing-press-patches.json`.
 
 ## CLI `root.go` shape

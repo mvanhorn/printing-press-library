@@ -84,7 +84,12 @@ def library_cli_dir_for(path: str) -> Path | None:
     return REPO_ROOT / parts[0] / parts[1] / parts[2]
 
 
-def changed_cli_dirs(base_ref: str) -> list[Path]:
+def changed_cli_dirs(base_ref: str) -> tuple[list[Path], dict[Path, set[str]]]:
+    """Return (sorted touched CLI dirs, mapping of cli_dir → set of changed file
+    paths relative to that cli_dir). The relative set lets callers scope their
+    checks to files that actually moved in the diff, instead of re-validating
+    untouched state every time any file in the dir changes.
+    """
     result = run_git(["diff", "--name-status", "-z", f"{base_ref}...HEAD", "--", "library"])
     if result.returncode != 0:
         print(result.stderr, file=sys.stderr)
@@ -95,6 +100,7 @@ def changed_cli_dirs(base_ref: str) -> list[Path]:
         fields.pop()
 
     dirs: set[Path] = set()
+    files_by_dir: dict[Path, set[str]] = {}
     i = 0
     while i < len(fields):
         status = fields[i]
@@ -107,10 +113,14 @@ def changed_cli_dirs(base_ref: str) -> list[Path]:
         i += path_count
         for path in paths:
             cli_dir = library_cli_dir_for(path)
-            if cli_dir is not None and cli_dir.is_dir():
-                dirs.add(cli_dir)
+            if cli_dir is None or not cli_dir.is_dir():
+                continue
+            dirs.add(cli_dir)
+            rel_parts = PurePosixPath(path).parts[3:]
+            if rel_parts:
+                files_by_dir.setdefault(cli_dir, set()).add(PurePosixPath(*rel_parts).as_posix())
 
-    return sorted(dirs, key=rel)
+    return sorted(dirs, key=rel), files_by_dir
 
 
 def is_new_cli(base_ref: str, cli_dir: Path) -> bool:
@@ -342,14 +352,16 @@ def candidate_patch_marker_files(cli_dir: Path) -> Iterable[Path]:
 #
 #     // PATCH: <one-line summary>
 #     // PATCH(upstream cli-printing-press#<n>): ...
+#     // PATCH <patch-id>: <one-line summary>
 #
-# Anchored on the `// PATCH` comment prefix immediately followed by `:` or `(`
-# — exactly the two documented forms. Intentionally excludes bare HTTP method
-# literals like "PATCH" that appear in generated client/handler code
-# (case "PATCH":, makeAPIHandler("PATCH", ...), {"pp:method": "PATCH"}, etc.),
-# which are not hand-authored customizations and would otherwise false-positive
-# on any printed CLI for an API that exposes HTTP PATCH endpoints.
-_PATCH_MARKER_RE = re.compile(r"//\s*PATCH\s*[:(]")
+# Anchored on the `// PATCH` comment prefix followed by an optional patch id
+# (matching the same `id` shape used in .printing-press-patches.json) and then
+# `:` or `(`. Intentionally excludes bare HTTP method literals like "PATCH"
+# that appear in generated client/handler code (case "PATCH":,
+# makeAPIHandler("PATCH", ...), {"pp:method": "PATCH"}, etc.), which are not
+# hand-authored customizations and would otherwise false-positive on any
+# printed CLI for an API that exposes HTTP PATCH endpoints.
+_PATCH_MARKER_RE = re.compile(r"//\s*PATCH(?:\s+[A-Za-z0-9_\-]+)?\s*[:(]")
 
 
 def has_patch_marker(path: Path) -> bool:
@@ -359,7 +371,18 @@ def has_patch_marker(path: Path) -> bool:
         return False
 
 
-def validate_patch_manifest(cli_dir: Path) -> list[Problem]:
+def validate_patch_manifest(
+    cli_dir: Path,
+    changed_files: set[str] | None,
+) -> list[Problem]:
+    """Validate `.printing-press-patches.json`.
+
+    When `changed_files` is non-None (typical PR mode), the verifier only runs
+    if the patches manifest itself or a file it references is in the diff —
+    this stops unrelated PRs (e.g. a docs-only README sweep) from re-validating
+    months-old patch state. Pass `None` to force validation regardless of the
+    diff (used by the strict path for newly added CLIs).
+    """
     problems: list[Problem] = []
     patch_path = cli_dir / ".printing-press-patches.json"
     if not patch_path.exists():
@@ -375,6 +398,17 @@ def validate_patch_manifest(cli_dir: Path) -> list[Problem]:
     if not isinstance(patches, list):
         problems.append(Problem(patch_path, "patches must be an array"))
         return problems
+
+    if changed_files is not None:
+        relevant_paths = {".printing-press-patches.json"}
+        for patch in patches:
+            if not isinstance(patch, dict):
+                continue
+            for file_name in patch.get("files") or []:
+                if isinstance(file_name, str) and file_name:
+                    relevant_paths.add(file_name)
+        if not (changed_files & relevant_paths):
+            return problems
 
     source_markers = [path for path in candidate_patch_marker_files(cli_dir) if has_patch_marker(path)]
     if source_markers and not patches:
@@ -410,11 +444,16 @@ def validate_patch_manifest(cli_dir: Path) -> list[Problem]:
                     )
                 )
 
-        if referenced_files and not any(path.exists() and has_patch_marker(path) for path in referenced_files):
+        # Marker check applies only to .go files: JSON/YAML manifest tweaks
+        # (the `.printing-press.json` schema bump, a `spec.json` redaction)
+        # are real customizations recorded in patches[] but can't carry an
+        # inline `// PATCH:` comment. The manifest entry IS the marker.
+        go_files = [p for p in referenced_files if p.suffix == ".go"]
+        if go_files and not any(path.exists() and has_patch_marker(path) for path in go_files):
             problems.append(
                 Problem(
                     patch_path,
-                    f"patches[{idx}] does not point at a file containing a PATCH marker.",
+                    f"patches[{idx}] does not point at a Go file containing a PATCH marker.",
                 )
             )
 
@@ -516,7 +555,11 @@ def pr_body_suggestions(body: str | None, new_dirs: list[Path]) -> list[str]:
     return suggestions
 
 
-def validate_cli_dir(cli_dir: Path, strict: bool) -> list[Problem]:
+def validate_cli_dir(
+    cli_dir: Path,
+    strict: bool,
+    changed_files: set[str] | None,
+) -> list[Problem]:
     problems: list[Problem] = []
     pp_path = cli_dir / ".printing-press.json"
     manifest = read_json(pp_path, problems) if pp_path.exists() else None
@@ -525,7 +568,10 @@ def validate_cli_dir(cli_dir: Path, strict: bool) -> list[Problem]:
         problems.extend(validate_required_artifacts(cli_dir, manifest))
 
     problems.extend(validate_manifest_identity(cli_dir, manifest, strict))
-    problems.extend(validate_patch_manifest(cli_dir))
+    # For new CLIs, force a full patch-manifest validation regardless of diff
+    # scope; for touched-but-existing CLIs, scope the check to the files the
+    # PR actually moved.
+    problems.extend(validate_patch_manifest(cli_dir, None if strict else changed_files))
 
     if strict:
         problems.extend(validate_manuscripts(cli_dir, manifest))
@@ -545,7 +591,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
-    touched_dirs = changed_cli_dirs(args.base_ref)
+    touched_dirs, files_by_dir = changed_cli_dirs(args.base_ref)
     if not touched_dirs:
         print("No changed library CLI packages to validate.")
         return 0
@@ -557,7 +603,7 @@ def main(argv: list[str]) -> int:
     for cli_dir in touched_dirs:
         strict = cli_dir in new_dirs
         print(f"::group::{rel(cli_dir)}")
-        problems.extend(validate_cli_dir(cli_dir, strict))
+        problems.extend(validate_cli_dir(cli_dir, strict, files_by_dir.get(cli_dir, set())))
         print("::endgroup::")
 
     suggestions = pr_body_suggestions(read_pr_body(args), new_dirs)
