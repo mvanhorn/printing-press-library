@@ -1,0 +1,1445 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Operon Ad Network API",
+    "description": "Operon is an ad network for AI agents. Three audiences integrate with this API:\n\n- **Publishers** (agent developers monetizing responses) call `POST /placement` to request a sponsored placement at the moment of intent. The `@operon/sdk` package wraps this surface.\n- **Advertisers** (agents/protocols seeking distribution) create funded campaigns via `POST /x402/campaign` using the x402 payment flow on Base.\n- **Developers** registering for production-quota access call `POST /developers` once after running `npx @operon/sdk register`.\n\nThe network is closed and quality-weighted: trust outweighs bid in placement ranking. There is no open exchange or RTB. The protocol-handling layer is agnostic across agent protocols.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Operon",
+      "url": "https://operon.so"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.operon.so",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "publisher",
+      "description": "Endpoints called by publisher agents to request placements and read the demand index. Primary consumer is @operon/sdk."
+    },
+    {
+      "name": "developer",
+      "description": "One-time developer registration for the sandbox-to-production graduation path."
+    },
+    {
+      "name": "advertiser",
+      "description": "Self-serve advertiser campaign lifecycle. Funded via x402 on Base."
+    },
+    {
+      "name": "operational",
+      "description": "Click-tracking redirects and health probes. Not typically called by integrators directly."
+    }
+  ],
+  "paths": {
+    "/placement": {
+      "post": {
+        "operationId": "requestPlacement",
+        "tags": [
+          "publisher"
+        ],
+        "summary": "Request a sponsored placement",
+        "description": "Returns a ranked placement (sponsored or blocked) for the current impression. Two auth lanes:\n\n- **Production lane**: pass a Bearer API key in `Authorization`. Quotas: 60 requests/minute per key. Auction draws from the live demand pool.\n- **Sandbox lane**: pass a stable UUID in `X-Operon-Client` (no Bearer). Quotas: 60 requests/minute per IP, 100 requests/hour per UUID, plus a global per-replica ceiling. Auction draws from `sandbox_fixture` placeholders only. Used by `npx @operon/sdk test` first-run callers.\n\nWhen `X-Operon-Client` is present (either lane), the response includes a `_meta` block with sandbox state and a developer-facing message.",
+        "security": [
+          {
+            "bearerAuth": []
+          },
+          {
+            "operonClient": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OperonClientHeader"
+          },
+          {
+            "$ref": "#/components/parameters/OperonSourceHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlacementRequest"
+              },
+              "examples": {
+                "swap": {
+                  "summary": "Token-swap intent",
+                  "value": {
+                    "impressionContext": {
+                      "publisher": "DeFi Analyst",
+                      "slotType": "recommendation",
+                      "requestContext": {
+                        "query": "Best way to swap USDC for SOL with low slippage?",
+                        "category": "defi",
+                        "asset": "USDC",
+                        "amount": "1000",
+                        "intent": "swap"
+                      },
+                      "responseContext": {
+                        "actions": [
+                          "compare_routes",
+                          "recommend_venue"
+                        ],
+                        "sentiment": "neutral"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Auction completed. Response shape varies on `decision`.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacementResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body (malformed JSON or impressionContext validation failure).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Neither Bearer key nor X-Operon-Client present (production). Sandbox lane requires at minimum a valid UUID header.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded. Headers carry `Retry-After`. Errors distinguish per-key, per-UUID, per-IP, and sandbox-quota cases.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Seconds until retry is permitted."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Sandbox lane global ceiling exceeded. Includes `Retry-After`. Surfaced as `OperonRetryableError` by @operon/sdk.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/demand": {
+      "get": {
+        "operationId": "listDemand",
+        "tags": [
+          "publisher"
+        ],
+        "summary": "List the active demand index",
+        "description": "Returns the public projection of active production-lane advertisers. The response strips operational fields (`endpoint`, `clickUrl`, `creative`) and commercial terms (`bid`). Sandbox fixtures are never surfaced.\n\nGated on a well-formed `X-Operon-Client` UUID in production to prevent anonymous scraping by competing networks. Dev mode is permissive.\n\nRate limits: 30 requests/minute per UUID, 600 requests/minute global ceiling.",
+        "security": [
+          {
+            "operonClient": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OperonClientHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active advertiser projection. Array of trust-surface entries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DemandIndexEntry"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or malformed X-Operon-Client header.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-UUID demand-read rate limit exceeded (30/min).",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Global demand-read ceiling exceeded.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/developers": {
+      "post": {
+        "operationId": "registerDeveloper",
+        "tags": [
+          "developer"
+        ],
+        "summary": "Register for production-quota access",
+        "description": "One-time developer registration. Lifts the caller's UUID from the 100-call/hour sandbox quota to the 1000-call/hour registered quota and queues them for the production demand pool. Invoked by `npx @operon/sdk register` after a successful `npx @operon/sdk test`.\n\nIdempotent: re-registering the same client_uuid returns the same success shape without resending confirmation emails.\n\nRate limits: per-IP and per-email caps both enforced (1 hour windows).",
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OperonSourceHeader"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeveloperRegistration"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration accepted (new or idempotent re-register).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeveloperRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failure (missing field, invalid email, control chars, length).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-IP or per-email rate limit exceeded.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Registration not yet open (feature flag). Production has this enabled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/x402/campaign": {
+      "post": {
+        "operationId": "createCampaign",
+        "tags": [
+          "advertiser"
+        ],
+        "summary": "Create and fund an advertiser campaign",
+        "description": "x402-gated. First call (no `X-PAYMENT` header) returns HTTP 402 with a JSON body containing the payment challenge per the x402 protocol. Construct a `PaymentPayload` from the challenge's `accepts[0]`, base64-encode the JSON, send it as the `X-PAYMENT` request header, and retry. On verification + on-chain settlement the campaign is registered for trust monitoring and enters the quality-weighted auction. Trust score is null at creation and populates as behavioral signal accrues.\n\nRate limit: 10 requests/minute per IP.\n\nThe full advertiser sub-spec including the x402 payment-flow detail lives at `/x402/openapi.json` and is the authoritative reference for the campaign lifecycle.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "X-PAYMENT",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "x402 payment payload. Base64-encoded JSON `PaymentPayload` constructed against the challenge returned by the 402 response. Absent on the initial request, present on the retry."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campaign created and funded. The `X-PAYMENT-RESPONSE` header carries the base64-encoded settlement receipt (`success`, `transaction`, `network`, `payer`).",
+            "headers": {
+              "X-PAYMENT-RESPONSE": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Base64-encoded JSON. Settlement receipt: `{success, transaction, network, payer}`."
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request (unreachable service_url, unknown category, missing field, malformed X-PAYMENT payload).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required, or payment verification/settlement failed. Body is the x402 challenge. Construct a PaymentPayload against `accepts[0]`, base64-encode, set as `X-PAYMENT` header, retry. `error` is `null` on the initial challenge and populated (e.g. `payment verification failed`, `payment settlement failed`) when a submitted payment fails.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/X402PaymentChallenge"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeded the x402 body size cap.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-IP campaign-create rate limit (10/min) exceeded.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "x402 onboarding not enabled in this environment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/x402/campaign/{id}": {
+      "get": {
+        "operationId": "readCampaign",
+        "tags": [
+          "advertiser"
+        ],
+        "summary": "Read campaign state",
+        "description": "Returns current balance, stats, status, and trust score. Bearer token issued at creation. Rate limit: 60/min per IP.",
+        "security": [
+          {
+            "campaignBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Campaign id (cmp_ prefix)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignReadResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Campaign not found or invalid bearer token. The server intentionally unifies these two cases into a single 401 response to prevent campaign-id enumeration. No 404 is returned for missing campaigns.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-IP read rate limit (60/min) exceeded.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "x402 onboarding not enabled in this environment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "cancelCampaign",
+        "tags": [
+          "advertiser"
+        ],
+        "summary": "Cancel a campaign and refund unspent balance",
+        "description": "Marks the campaign cancelled and returns unspent USDC to the funding wallet. Bearer token issued at creation. Rate limit: 60/min per IP.",
+        "security": [
+          {
+            "campaignBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign cancelled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignCancelResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Campaign not found or invalid bearer token. The server intentionally unifies these two cases into a single 401 to prevent campaign-id enumeration. No 404 is returned for missing campaigns.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Per-IP cancel rate limit (60/min) exceeded.",
+            "headers": {
+              "Retry-After": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "x402 onboarding not enabled in this environment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/c/{impressionId}": {
+      "get": {
+        "operationId": "trackClick",
+        "tags": [
+          "operational"
+        ],
+        "summary": "Click-tracking redirect",
+        "description": "Public 302 redirect endpoint. Logs the click against the impression (with idempotent dedup) and forwards to the winning advertiser's `clickUrl`. Validates the URL scheme defensively and falls back to `https://operon.so` on any error - all error paths are documented as 302 because the endpoint never returns a 4xx (graceful fallback is intentional, so end users mid-click never see an error page).\n\nNot called by integrators directly; this URL is emitted in `placement.clickUrl` for `campaign` and `sandbox_fixture` winners.",
+        "security": [],
+        "parameters": [
+          {
+            "name": "impressionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^imp_[a-f0-9]{16}$"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to the advertiser landing page, or `https://operon.so` on any lookup or validation failure.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "tags": [
+          "operational"
+        ],
+        "summary": "Liveness probe",
+        "description": "Returns 200 OK with body `ok` when the server is up. Never returns 4xx; liveness probes that fail return 5xx or connection errors, not structured responses.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Server is up.",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Publisher API key issued by Operon ops. Authorization: Bearer <key>."
+      },
+      "operonClient": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Operon-Client",
+        "description": "Stable UUID identifying a publisher client installation. Generated and persisted by @operon/sdk on first run. Used to gate the sandbox lane on /placement and to authorize /demand reads."
+      },
+      "campaignBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Bearer token issued at campaign creation. Authorizes read and cancel operations on that specific campaign id."
+      }
+    },
+    "parameters": {
+      "OperonClientHeader": {
+        "name": "X-Operon-Client",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Stable client UUID set by @operon/sdk. Required on /demand in production. Optional on /placement (presence routes into the sandbox lane when no Bearer key is sent)."
+      },
+      "OperonSourceHeader": {
+        "name": "X-Operon-Source",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9-_]+$"
+        },
+        "description": "Marketplace / distribution attribution tag (e.g. `claude-skill`, `cursor`, `npm`). Validated server-side; malformed values are dropped silently rather than rejected."
+      }
+    },
+    "schemas": {
+      "PlacementRequest": {
+        "type": "object",
+        "required": [
+          "impressionContext"
+        ],
+        "properties": {
+          "impressionContext": {
+            "$ref": "#/components/schemas/ImpressionContext"
+          },
+          "placement_context": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Optional free-form text the publisher provides for downstream context. Trimmed; empty strings dropped."
+          }
+        }
+      },
+      "ImpressionContext": {
+        "type": "object",
+        "required": [
+          "publisher",
+          "slotType",
+          "requestContext",
+          "responseContext"
+        ],
+        "properties": {
+          "publisher": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Publisher display name. Overridden server-side with the registered name when a Bearer key authenticates the request."
+          },
+          "slotType": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Caller-provided slot category (e.g. `recommendation`, `inline`)."
+          },
+          "requestContext": {
+            "type": "object",
+            "required": [
+              "query",
+              "category",
+              "asset",
+              "amount",
+              "intent"
+            ],
+            "properties": {
+              "query": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "category": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "May be empty; server auto-classifies from `query` when absent."
+              },
+              "asset": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "amount": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "intent": {
+                "type": "string",
+                "maxLength": 200
+              }
+            }
+          },
+          "responseContext": {
+            "type": "object",
+            "required": [
+              "actions",
+              "sentiment"
+            ],
+            "properties": {
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "sentiment": {
+                "type": "string",
+                "maxLength": 200
+              }
+            }
+          }
+        }
+      },
+      "PlacementResponse": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PlacementFilled"
+          },
+          {
+            "$ref": "#/components/schemas/PlacementBlocked"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "decision",
+          "mapping": {
+            "filled": "#/components/schemas/PlacementFilled",
+            "blocked": "#/components/schemas/PlacementBlocked"
+          }
+        }
+      },
+      "PlacementFilled": {
+        "type": "object",
+        "required": [
+          "decision",
+          "reason",
+          "placement",
+          "auction"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "filled"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "placement": {
+            "$ref": "#/components/schemas/PlacementDetails"
+          },
+          "auction": {
+            "$ref": "#/components/schemas/AuctionResult"
+          },
+          "_meta": {
+            "$ref": "#/components/schemas/PlacementMeta"
+          }
+        }
+      },
+      "PlacementBlocked": {
+        "type": "object",
+        "required": [
+          "decision",
+          "reason"
+        ],
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "blocked"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "_meta": {
+            "$ref": "#/components/schemas/PlacementMeta"
+          }
+        }
+      },
+      "PlacementDetails": {
+        "type": "object",
+        "required": [
+          "sponsored",
+          "advertiserId",
+          "service",
+          "serviceType",
+          "category",
+          "description",
+          "routable",
+          "endpoint",
+          "scoutScore",
+          "rank",
+          "bidPrice",
+          "type",
+          "creative",
+          "clickUrl",
+          "disclosure"
+        ],
+        "properties": {
+          "sponsored": {
+            "type": "boolean"
+          },
+          "advertiserId": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "serviceType": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "routable": {
+            "type": "boolean"
+          },
+          "endpoint": {
+            "type": "string",
+            "nullable": true,
+            "description": "Routable URL (agent-type winners only). null for campaign/sandbox_fixture."
+          },
+          "scoutScore": {
+            "type": "number",
+            "description": "Trust score 0-100."
+          },
+          "rank": {
+            "type": "number",
+            "description": "Internal ranking value emitted by the auction. Not part of the stable contract; may be removed in a future release. Trust outweighs bid in the underlying formula."
+          },
+          "bidPrice": {
+            "type": "integer",
+            "description": "Bid in basis points (1 USDC = 10_000 basis points)."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "campaign",
+              "sandbox_fixture"
+            ]
+          },
+          "creative": {
+            "type": "string",
+            "nullable": true
+          },
+          "clickUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Tracked redirect URL. For campaign/sandbox_fixture winners this points at `/c/<impressionId>` on api.operon.so."
+          },
+          "disclosure": {
+            "type": "string",
+            "nullable": true,
+            "description": "Category-specific disclosure microcopy (e.g. lottery/gambling). null when no extra disclosure is needed."
+          }
+        }
+      },
+      "AuctionResult": {
+        "type": "object",
+        "required": [
+          "candidates",
+          "eligible",
+          "winner",
+          "ranking"
+        ],
+        "properties": {
+          "candidates": {
+            "type": "integer"
+          },
+          "eligible": {
+            "type": "integer"
+          },
+          "winner": {
+            "type": "string"
+          },
+          "ranking": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "service",
+                "score",
+                "bid",
+                "rank",
+                "eligible",
+                "reason"
+              ],
+              "properties": {
+                "service": {
+                  "type": "string"
+                },
+                "score": {
+                  "type": "number"
+                },
+                "bid": {
+                  "type": "number"
+                },
+                "rank": {
+                  "type": "number"
+                },
+                "eligible": {
+                  "type": "boolean"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PlacementMeta": {
+        "type": "object",
+        "required": [
+          "is_sandbox",
+          "message",
+          "client_uuid"
+        ],
+        "description": "Returned only when X-Operon-Client is set. Indicates sandbox vs production posture and carries a human-readable status message the SDK surfaces in `test` / `status` output.",
+        "properties": {
+          "is_sandbox": {
+            "type": "boolean",
+            "description": "True when the request had no Bearer key (sandbox lane)."
+          },
+          "message": {
+            "type": "string",
+            "description": "Developer-facing status string. SDK 0.2.0 still detects registration state by checking whether this starts with `You're queued`; structured `_meta.registered` is on the roadmap."
+          },
+          "client_uuid": {
+            "type": "string",
+            "nullable": true
+          },
+          "fixture": {
+            "type": "boolean",
+            "description": "Present and true when the served placement came from the sandbox fixture pool. Absent on production fills or blocked responses."
+          }
+        }
+      },
+      "DemandIndexEntry": {
+        "type": "object",
+        "description": "Public projection of an active production-lane advertiser. Strips endpoint/clickUrl/creative/bid. Sandbox fixtures are excluded.",
+        "required": [
+          "id",
+          "service",
+          "serviceType",
+          "category",
+          "description",
+          "domain",
+          "assets",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "service": {
+            "type": "string"
+          },
+          "serviceType": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "campaign"
+            ]
+          }
+        }
+      },
+      "DeveloperRegistration": {
+        "type": "object",
+        "required": [
+          "client_uuid",
+          "email",
+          "framework",
+          "agent_description",
+          "expected_monthly_calls"
+        ],
+        "properties": {
+          "client_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The same UUID the SDK uses on X-Operon-Client. Links this registration to prior sandbox traffic."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "framework": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "Agent framework (e.g. `elizaos`, `langchain`, `vercel-ai`, `mastra`, `custom`)."
+          },
+          "agent_description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "expected_monthly_calls": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "DeveloperRegistrationResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "quota_multiplier"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "registered"
+            ]
+          },
+          "quota_multiplier": {
+            "type": "integer",
+            "description": "Quota multiplier applied to this client UUID after registration. 10 = 1000 calls/hour (vs 100 sandbox)."
+          }
+        }
+      },
+      "CampaignCreateRequest": {
+        "type": "object",
+        "required": [
+          "service_url",
+          "service_name",
+          "category"
+        ],
+        "description": "Advertiser-side campaign create body. Full advertiser spec including the x402 payment-flow detail lives at /x402/openapi.json.",
+        "properties": {
+          "service_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Where the advertiser's service lives. Must be reachable. The server HEAD-pings before accepting the campaign; 200/30x = pass."
+          },
+          "service_name": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Display name shown in placements."
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "asset": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Optional. Free-form targeting narrower (e.g. `ETH`, `yield-farming`)."
+          },
+          "intent": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Optional intent qualifier. Free-form string (max 64 chars); the server does not enforce a fixed taxonomy. Common values: `research`, `comparison`, `recommendation`, `transaction`."
+          },
+          "bid_per_placement": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 100,
+            "description": "Optional. USDC. Must be greater than zero and at most 100 USDC. Defaults to the mid-range CPM for the category when omitted."
+          },
+          "daily_cap": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "description": "Optional. USDC. Must be greater than zero. Spreads balance across days; campaign auto-pauses at end-of-day until reset."
+          }
+        }
+      },
+      "CampaignCreateResponse": {
+        "type": "object",
+        "required": [
+          "campaign_id",
+          "balance_usdc",
+          "category",
+          "bid_per_placement",
+          "status",
+          "created_at",
+          "x402_payer_wallet",
+          "bearer_token"
+        ],
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "balance_usdc": {
+            "type": "number",
+            "format": "float",
+            "description": "Funded balance in USDC. Starts at the minimum deposit."
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "asset": {
+            "type": "string",
+            "nullable": true
+          },
+          "intent": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64,
+            "description": "Optional intent qualifier. Free-form string; the server does not enforce a fixed taxonomy. Common values: `research`, `comparison`, `recommendation`, `transaction`. Null when unset."
+          },
+          "bid_per_placement": {
+            "type": "number",
+            "format": "float",
+            "description": "Resolved bid (input value or category default)."
+          },
+          "daily_cap": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "trust_score": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 100,
+            "description": "0-100 trust score. Null at creation; populates as Operon's trust monitoring gathers behavioral signal."
+          },
+          "status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "x402_payer_wallet": {
+            "type": "string",
+            "description": "Redacted wallet address (first 6 / last 4 of the x402 payer). Refunds route back to the full wallet stored in the DB."
+          },
+          "bearer_token": {
+            "type": "string",
+            "description": "Bearer token for subsequent GET/DELETE on this campaign id. Returned ONCE at creation; never on reads."
+          }
+        }
+      },
+      "CampaignReadResponse": {
+        "type": "object",
+        "required": [
+          "campaign_id",
+          "balance_usdc",
+          "balance_spent_usdc",
+          "category",
+          "bid_per_placement",
+          "status",
+          "stats",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "balance_usdc": {
+            "type": "number",
+            "format": "float",
+            "description": "Remaining USDC in funded balance."
+          },
+          "balance_spent_usdc": {
+            "type": "number",
+            "format": "float",
+            "description": "Cumulative spent USDC."
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "asset": {
+            "type": "string",
+            "nullable": true
+          },
+          "intent": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 64,
+            "description": "Optional intent qualifier. Free-form string; the server does not enforce a fixed taxonomy. Common values: `research`, `comparison`, `recommendation`, `transaction`. Null when unset."
+          },
+          "bid_per_placement": {
+            "type": "number",
+            "format": "float"
+          },
+          "daily_cap": {
+            "type": "number",
+            "format": "float",
+            "nullable": true
+          },
+          "daily_cap_resets_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "ISO8601 next UTC midnight. Null when no cap is set."
+          },
+          "trust_score": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 100
+          },
+          "status": {
+            "$ref": "#/components/schemas/CampaignStatus"
+          },
+          "stats": {
+            "type": "object",
+            "required": [
+              "impressions_served",
+              "wins",
+              "click_throughs",
+              "average_clearing_price_usdc"
+            ],
+            "properties": {
+              "impressions_served": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "wins": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "click_throughs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "average_clearing_price_usdc": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CampaignCancelResponse": {
+        "type": "object",
+        "required": [
+          "campaign_id",
+          "status",
+          "refund_amount_usdc",
+          "refund_destination_wallet",
+          "refund_status",
+          "refund_eta"
+        ],
+        "description": "On idempotent cancel (already cancelled), refund_amount_usdc = 0, refund_status = `already_processed`, refund_eta = null.",
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "cancelled"
+            ]
+          },
+          "refund_amount_usdc": {
+            "type": "number",
+            "format": "float",
+            "description": "Equal to balance_usdc at the time of cancellation. Spent balance is not refundable. Zero on idempotent re-cancel."
+          },
+          "refund_destination_wallet": {
+            "type": "string",
+            "description": "Redacted wallet (first 6 / last 4). Equal to the x402 payer captured at creation."
+          },
+          "refund_status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "already_processed"
+            ]
+          },
+          "refund_eta": {
+            "type": "string",
+            "nullable": true,
+            "description": "Refund processing window. v1 is manual within 7 days. Null when already_processed.",
+            "example": "within 7 days"
+          }
+        }
+      },
+      "X402PaymentChallenge": {
+        "type": "object",
+        "description": "402 response body per the x402 protocol. Sent on the initial unauthenticated call and again on any verify/settle failure.",
+        "required": [
+          "x402Version",
+          "accepts",
+          "error"
+        ],
+        "properties": {
+          "x402Version": {
+            "type": "integer",
+            "enum": [
+              1
+            ],
+            "description": "x402 protocol version."
+          },
+          "accepts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/PaymentRequirements"
+            },
+            "description": "List of acceptable payment requirements. Construct a PaymentPayload against the first entry and retry with `X-PAYMENT` set."
+          },
+          "error": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null on the initial challenge. Populated with a reason string when a submitted X-PAYMENT failed verification or settlement."
+          }
+        }
+      },
+      "PaymentRequirements": {
+        "type": "object",
+        "description": "x402 protocol payment requirement. Carries the network, asset, amount, and pay-to wallet required to satisfy the challenge. Shape is defined by the x402 protocol (https://x402.org) and may evolve independently of this spec; clients should treat unknown fields permissively.",
+        "additionalProperties": true
+      },
+      "Category": {
+        "type": "string",
+        "description": "Targeting category. Mirrors the publisher SDK targeting taxonomy.",
+        "enum": [
+          "defi",
+          "fintech",
+          "travel",
+          "insurance",
+          "ecommerce",
+          "saas",
+          "health",
+          "education",
+          "gambling",
+          "general"
+        ]
+      },
+      "CampaignStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "paused",
+          "depleted",
+          "cancelled"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Human-readable error string. Specific enough to action without parsing."
+          }
+        }
+      }
+    }
+  }
+}

@@ -26,6 +26,40 @@ The normal flow is:
 
 Use this distinction in your own language: **generator repo** or **Printing Press** for `cli-printing-press`; **published library** or **catalog repo** for this repo; **local library** for the generated working-copy library, commonly `~/printing-press/library`.
 
+## Claim an issue before you start working on it
+
+Multiple agents and humans work this repo simultaneously. Before touching code for an issue, **claim it visibly** and **check whether someone else already has** — otherwise two agents land overlapping PRs and one of you wasted a session.
+
+**Before starting, check both signals for an existing claim:**
+
+```bash
+# 1. Is the issue assigned to someone?
+gh issue view <num> --json assignees,state,title
+
+# 2. Has anyone commented claiming it (look for phrases like "I'll take this",
+#    "claiming this", "working on this", or another agent's claim comment)?
+gh issue view <num> --comments
+```
+
+If `assignees` is non-empty OR a recent comment claims the issue, **don't start work**. Pick a different issue. If the existing claim looks stale (no follow-up activity for more than a few days and no linked PR), leave a polite comment asking the original claimer if they're still working on it before you proceed — don't just take it.
+
+**To claim an issue yourself, do both:**
+
+```bash
+# 1. Try to self-assign. This may fail silently or with a permissions error
+#    on forks or for accounts without write access — that's expected.
+gh issue edit <num> --add-assignee @me 2>/dev/null || true
+
+# 2. Always leave a claim comment. This is the durable signal that works
+#    regardless of repo permissions and is visible to humans skimming the
+#    issue thread.
+gh issue comment <num> --body "Claiming this — starting work now. Will open a PR within <reasonable timeframe>."
+```
+
+The comment is mandatory, the self-assign is best-effort. Self-assign needs write access on the repo (which agents running from forks, lower-trust accounts, or unauthenticated CI contexts often don't have), and even when it succeeds it isn't surfaced in `gh issue list` output the same way comments are. The comment is the convention; the assignee is a courtesy when permissions allow.
+
+**If you abandon a claim** (the task turned out larger than expected, you got blocked, etc.), leave a follow-up comment saying so and `gh issue edit <num> --remove-assignee @me` if you self-assigned successfully. Don't silently disappear — the next agent looking at the issue uses your claim comment to decide whether the issue is still in flight.
+
 ## Adding a new CLI or reprinting an existing one — use the Printing Press, not a hand-built PR
 
 **New CLI additions and reprints do not start in this repo.** They are produced by `cli-printing-press` and shipped here through the publish phase of `/printing-press` (which invokes the `/printing-press-publish` skill at the end of a run). Hand-constructed PRs that try to assemble the canonical CLI shape from scratch in this repo systematically miss things: wrong directory layout (`<slug>-pp-cli/` instead of `<slug>/`), missing `.manuscripts/<run-id>/{research,proofs}/`, missing `dogfood-results.json`, hand-authored `cli-skills/pp-<slug>/SKILL.md` (which is a generated mirror), wrong PR title scope (`feat(library)` instead of `feat(<slug>)`), wrong branch name (`add-<slug>` instead of `feat/<slug>`), and PR descriptions that are free-form prose instead of the validation-table-bearing template the publish skill produces. We get those PRs every week and they are not mergeable as-is.
@@ -265,19 +299,15 @@ Two files in this repo are **generated outputs**, regenerated post-merge by CI w
 | File | Source of truth | Generator | Workflow trigger |
 |---|---|---|---|
 | `registry.json` | `library/**/.printing-press.json` + `manifest.json` + `.goreleaser.yaml` | `tools/generate-registry/main.go` | `library/**` or generator changes on main |
-| `cli-skills/pp-<slug>/SKILL.md` | `library/<category>/<slug>/SKILL.md` | `tools/generate-skills/main.go` | `registry.json`, `library/**/.printing-press.json`, or generator changes on main |
+| `cli-skills/pp-<slug>/SKILL.md` | `library/<category>/<slug>/SKILL.md` | `tools/generate-skills/main.go` | `library/**/SKILL.md`, `library/**/README.md`, `library/**/.printing-press.json`, `registry.json`, or generator changes on main |
 
-**When you change `library/**/SKILL.md` or `library/**/internal/cli/**`:**
+**When you change `library/<cat>/<slug>/SKILL.md`:**
 
-**Edit `library/<cat>/<slug>/SKILL.md`, never `cli-skills/pp-<slug>/SKILL.md` directly.** The mirror is verbatim-regenerated from the library copy — any direct edit to `cli-skills/` will be silently overwritten on the next regen. Same rule for README.md.
+**Edit `library/<cat>/<slug>/SKILL.md`, never `cli-skills/pp-<slug>/SKILL.md` directly.** The mirror is verbatim-regenerated from the library copy — any direct edit to `cli-skills/` will be silently overwritten on the next regen.
 
-The workflow's trigger paths don't include SKILL.md or `internal/cli/**`. Until those triggers expand, run the generator locally and commit the result alongside your library change:
+**Don't commit `cli-skills/pp-*` changes in your PR at all** — drop them from the diff. The post-merge regen (`generate-skills.yml`, triggered on `library/**/SKILL.md` and `library/**/README.md` changes) updates the mirror after your PR lands. On the PR itself, the `cli-skills mirror parity` step in `verify-library-conventions.yml` runs the generator and auto-commits any drift back to the branch as `github-actions[bot]`, so the mirror is current before merge without you committing anything.
 
-```bash
-go run ./tools/generate-skills/main.go
-```
-
-Then commit the regenerated `cli-skills/pp-*/SKILL.md` files alongside your library change.
+The `Guard against hand-edits to cli-skills mirror` step in the same workflow **hard-fails** the PR if a non-bot commit touches `cli-skills/pp-*/SKILL.md` — this catches `go run ./tools/generate-skills/main.go && git add cli-skills/` workflows that bypass the bot path. If you see that failure, drop the `cli-skills/` changes from your branch (`git restore --staged cli-skills/ && git checkout -- cli-skills/`, or `git reset` the offending commit) and let the bot mirror the library change instead. See [cli-skills/AGENTS.md](cli-skills/AGENTS.md) for the directory-local version of this rule.
 
 **When you change `library/**/.printing-press.json`, `manifest.json`, or `.goreleaser.yaml`:**
 

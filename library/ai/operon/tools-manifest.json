@@ -1,0 +1,206 @@
+{
+  "api_name": "operon-ad-network",
+  "base_url": "https://api.operon.so",
+  "description": "Operon is an ad network for AI agents. Three audiences integrate with this API:\n\n- **Publishers** (agent developers monetizing responses) call `POST /placement` to request a sponsored placement at the moment of intent. The `@operon/sdk` package wraps this surface.\n- **Advertisers** (agents/protocols seeking distribution) create funded campaigns via `POST /x402/campaign` using the x402 payment flow on Base.\n- **Developers** registering for production-quota access call `POST /developers` once after running `npx @operon/sdk register`.\n\nThe network is closed and quality-weighted: trust outweighs bid in placement ranking. There is no open exchange or RTB. The protocol-handling layer is agnostic across agent protocols.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "OPERON_AD_NETWORK_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OPERON_AD_NETWORK_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "c_track-click",
+      "description": "Public 302 redirect endpoint. Logs the click against the impression (with idempotent dedup) and forwards to the winning advertiser's `clickUrl`. Validates the URL scheme defensively and falls back to `https://operon.so` on any error - all error paths are documented as 302 because the endpoint never returns a 4xx (graceful fallback is intentional, so end users mid-click never see an error page). Not called by integrators directly; this URL is emitted in `placement.clickUrl` for `campaign` and `sandbox_fixture` winners. Required: impressionId.",
+      "method": "GET",
+      "path": "/c/{impressionId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "impressionId",
+          "type": "string",
+          "location": "path",
+          "description": "Impression id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "demand_list",
+      "description": "Returns the public projection of active production-lane advertisers. The response strips operational fields (`endpoint`, `clickUrl`, `creative`) and commercial terms (`bid`). Sandbox fixtures are never surfaced. Gated on a well-formed `X-Operon-Client` UUID in production to prevent anonymous scraping by competing networks. Dev mode is permissive. Rate limits: 30 requests/minute per UUID, 600 requests/minute global ceiling.",
+      "method": "GET",
+      "path": "/demand",
+      "params": []
+    },
+    {
+      "name": "developers_register",
+      "description": "One-time developer registration. Lifts the caller's UUID from the 100-call/hour sandbox quota to the 1000-call/hour registered quota and queues them for the production demand pool. Invoked by `npx @operon/sdk register` after a successful `npx @operon/sdk test`. Idempotent: re-registering the same client_uuid returns the same success shape without resending confirmation emails. Rate limits: per-IP and per-email caps both enforced (1 hour windows). Required: agent_description, client_uuid, email, expected_monthly_calls, framework.",
+      "method": "POST",
+      "path": "/developers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent_description",
+          "type": "string",
+          "location": "body",
+          "description": "Agent description",
+          "required": true
+        },
+        {
+          "name": "client_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "The same UUID the SDK uses on X-Operon-Client. Links this registration to prior sandbox traffic.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "expected_monthly_calls",
+          "type": "float",
+          "location": "body",
+          "description": "Expected monthly calls",
+          "required": true
+        },
+        {
+          "name": "framework",
+          "type": "string",
+          "location": "body",
+          "description": "Agent framework (e.g. `elizaos`, `langchain`, `vercel-ai`, `mastra`, `custom`).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "operon-ad-network-health_check",
+      "description": "Returns 200 OK with body `ok` when the server is up. Never returns 4xx; liveness probes that fail return 5xx or connection errors, not structured responses.",
+      "method": "GET",
+      "path": "/health",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "placement_request",
+      "description": "Returns a ranked placement (sponsored or blocked) for the current impression. Two auth lanes: - **Production lane**: pass a Bearer API key in `Authorization`. Quotas: 60 requests/minute per key. Auction draws from the live demand pool. - **Sandbox lane**: pass a stable UUID in `X-Operon-Client` (no Bearer). Quotas: 60 requests/minute per IP, 100 requests/hour per UUID, plus a global per-replica ceiling. Auction draws from `sandbox_fixture` placeholders only. Used by `npx @operon/sdk test` first-run callers. When `X-Operon-Client` is present (either lane), the response includes a `_meta` block with sandbox state and a developer-facing message. Required: impressionContext. Optional: placement_context.",
+      "method": "POST",
+      "path": "/placement",
+      "params": [
+        {
+          "name": "impressionContext",
+          "type": "object",
+          "location": "body",
+          "description": "Impression context",
+          "required": true
+        },
+        {
+          "name": "placement_context",
+          "type": "string",
+          "location": "body",
+          "description": "Optional free-form text the publisher provides for downstream context. Trimmed; empty strings dropped."
+        }
+      ]
+    },
+    {
+      "name": "x402_cancel-campaign",
+      "description": "Marks the campaign cancelled and returns unspent USDC to the funding wallet. Bearer token issued at creation. Rate limit: 60/min per IP. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/x402/campaign/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "x402_create-campaign",
+      "description": "x402-gated. First call (no `X-PAYMENT` header) returns HTTP 402 with a JSON body containing the payment challenge per the x402 protocol. Construct a `PaymentPayload` from the challenge's `accepts[0]`, base64-encode the JSON, send it as the `X-PAYMENT` request header, and retry. On verification + on-chain settlement the campaign is registered for trust monitoring and enters the quality-weighted auction. Trust score is null at creation and populates as behavioral signal accrues. Rate limit: 10 requests/minute per IP. The full advertiser sub-spec including the x402 payment-flow detail lives at `/x402/openapi.json` and is the authoritative reference for the campaign lifecycle. Required: category, service_name, service_url. Optional: asset, bid_per_placement, daily_cap (plus 1 more).",
+      "method": "POST",
+      "path": "/x402/campaign",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "asset",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Free-form targeting narrower (e.g. `ETH`, `yield-farming`)."
+        },
+        {
+          "name": "bid_per_placement",
+          "type": "float",
+          "location": "body",
+          "description": "Optional. USDC. Must be greater than zero and at most 100 USDC. Defaults to the mid-range CPM for the category when omitted."
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Targeting category. Mirrors the publisher SDK targeting taxonomy.",
+          "required": true
+        },
+        {
+          "name": "daily_cap",
+          "type": "float",
+          "location": "body",
+          "description": "Optional. USDC. Must be greater than zero. Spreads balance across days; campaign auto-pauses at end-of-day until reset."
+        },
+        {
+          "name": "intent",
+          "type": "string",
+          "location": "body",
+          "description": "Optional intent qualifier. Free-form string (max 64 chars); the server does not enforce a fixed taxonomy. Common values: `research`, `comparison`, `recommendation`, `transaction`."
+        },
+        {
+          "name": "service_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name shown in placements.",
+          "required": true
+        },
+        {
+          "name": "service_url",
+          "type": "string",
+          "location": "body",
+          "description": "Where the advertiser's service lives. Must be reachable. The server HEAD-pings before accepting the campaign; 200/30x = pass.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "x402_read-campaign",
+      "description": "Returns current balance, stats, status, and trust score. Bearer token issued at creation. Rate limit: 60/min per IP. Required: id.",
+      "method": "GET",
+      "path": "/x402/campaign/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Campaign id (cmp_ prefix).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -131,6 +131,73 @@ jobs:
         with:
           go-version: '1.26.3'
 
+      - name: Guard against hand-edits to cli-skills mirror
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # cli-skills/pp-*/SKILL.md files are bot-regenerated mirrors of
+          # library/<cat>/<slug>/SKILL.md. A hand-edit in a PR is silently overwritten on the
+          # next post-merge regen by generate-skills.yml and creates needless
+          # merge conflicts in the meantime (see #454). The legitimate flow
+          # is: edit library/<cat>/<slug>/SKILL.md and let the bot mirror it.
+          #
+          # The auto-fix step further down can recover from drift on
+          # same-repo PRs, but it does so silently, so the contributing
+          # agent never learns the rule. This step makes the rule visible.
+          #
+          # Bot-authored commits (the parity auto-fix step itself, and the
+          # post-merge generate-skills regen) are exempt so the workflow
+          # doesn't fail on its own output.
+
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
+            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+          fi
+
+          # Collect commits on this PR branch that touch the generated
+          # mirrors (cli-skills/pp-*/SKILL.md) and were NOT authored by
+          # github-actions[bot]. The author email is the durable signal;
+          # committer can be set to the bot by a rebase even when authorship
+          # is human. Pathspec is scoped to pp-*/SKILL.md so meta files in
+          # cli-skills/ (e.g., AGENTS.md) are not flagged.
+          #
+          # Format is `%H|%ae` (no subject) so a `|` in a commit message
+          # can't confuse the downstream parser. grep -F treats the bot
+          # email literally, so [bot] is not interpreted as a regex class.
+          non_bot_shas=$(
+            git log "${base_remote_ref}..HEAD" \
+              --format='%H|%ae' \
+              -- 'cli-skills/pp-*/SKILL.md' \
+              | { grep -vF '|github-actions[bot]@users.noreply.github.com' || true; } \
+              | cut -d'|' -f1
+          )
+
+          if [ -z "$non_bot_shas" ]; then
+            echo "No human commits touch cli-skills/pp-*/SKILL.md."
+            exit 0
+          fi
+
+          echo "::error::cli-skills/pp-*/SKILL.md is a bot-regenerated mirror of library/<cat>/<slug>/SKILL.md. Hand-edits are silently overwritten on the next regen. Drop the cli-skills/ changes from this PR and edit the library/ source instead. See AGENTS.md \"Generated artifacts: registry.json, cli-skills/\" and cli-skills/AGENTS.md for the full rule."
+          echo
+          echo "Offending commits:"
+          while read -r sha; do
+            [ -z "$sha" ] && continue
+            author=$(git show -s --format='%ae' "$sha")
+            subject=$(git show -s --format='%s' "$sha")
+            echo "  ${sha:0:12} by ${author}: ${subject}"
+            files=$(git show --name-only --format= "$sha" -- 'cli-skills/pp-*/SKILL.md')
+            while IFS= read -r file; do
+              [ -z "$file" ] && continue
+              echo "::error file=${file}::Hand-edit to generated mirror in commit ${sha:0:12}. Edit library/<cat>/<slug>/SKILL.md instead."
+            done <<< "$files"
+          done <<< "$non_bot_shas"
+
+          exit 1
+
       - name: cli-skills mirror parity
         id: skill-diff
         env:

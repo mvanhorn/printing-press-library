@@ -1,0 +1,334 @@
+{
+  "api_name": "operon",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "zuckerbot",
+      "url": "https://github.com/DatalisHQ/zuckerbot",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@operon/sdk",
+      "url": "https://www.npmjs.com/package/@operon/sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T02:05:00Z",
+  "novel_features": [
+    {
+      "name": "Similar advertisers",
+      "command": "demand similar",
+      "description": "Find advertisers with overlapping category, assets, and serviceType to a given advertiser.",
+      "rationale": "Live demand fetch plus in-memory set intersection. Trivial in one CLI call; expensive to brute-force over the API.",
+      "example": "operon-pp-cli demand similar adv_changenow --json",
+      "why_it_matters": "Pre-bid competitive analysis: 'who else is competing for this category?'",
+      "group": "Live composition"
+    },
+    {
+      "name": "Click chain verifier",
+      "command": "click follow",
+      "description": "Walk the /c/{impressionId} redirect chain, validate the URL scheme, and confirm the final landing matches the advertiser's clickUrl.",
+      "rationale": "Multi-step HTTP verification with scheme allowlist validation. The API does not expose this introspection.",
+      "example": "operon-pp-cli click follow imp_a1b2c3d4e5f60718",
+      "why_it_matters": "End-to-end attribution debugging in one command instead of three curl invocations.",
+      "group": "Live composition"
+    },
+    {
+      "name": "Spec drift detector",
+      "command": "spec verify",
+      "description": "Re-fetch the published OpenAPI spec, compare schemas against what the live API actually returns, flag drift.",
+      "rationale": "Requires correlating spec schemas with live response bodies. The spec is published statically; drift is invisible until something breaks.",
+      "example": "operon-pp-cli spec verify --json",
+      "why_it_matters": "Catches contract drift the same way the press scorecard would - before downstream integrators do.",
+      "group": "Live composition"
+    },
+    {
+      "name": "Local demand mirror",
+      "command": "sync",
+      "description": "Fetch /demand and upsert into a local SQLite store so freshness, replay, watch, and trust-history queries work offline.",
+      "rationale": "The API exposes the current projection only; freshness, history, and replay all require a local mirror.",
+      "example": "operon-pp-cli sync --json",
+      "why_it_matters": "Prerequisite for every offline-readable transcendence command; turns a stateless API into one with a history.",
+      "group": "Local store"
+    },
+    {
+      "name": "Stale demand finder",
+      "command": "demand stale",
+      "description": "List demand entries the local mirror hasn't seen refreshed within the last N hours.",
+      "rationale": "The API does not expose first/last-seen timestamps. Without a local log there is no way to detect churned advertisers.",
+      "example": "operon-pp-cli demand stale --hours 48",
+      "why_it_matters": "Spot churned advertisers before placing campaigns against names that are about to disappear from the pool.",
+      "group": "Local store"
+    },
+    {
+      "name": "Demand index health report",
+      "command": "demand health",
+      "description": "Composite freshness + coverage + trust report across the locally synced demand index.",
+      "rationale": "Aggregates last_seen_at, scoutscore_history, and a known-categories diff into one report. Multi-query, no API equivalent.",
+      "example": "operon-pp-cli demand health --json",
+      "why_it_matters": "Single-call health dashboard for the index; tells you immediately whether a category has zero coverage.",
+      "group": "Local store"
+    },
+    {
+      "name": "Placement replay diff",
+      "command": "placement replay",
+      "description": "Re-issue a previously logged placement request to the live API and diff the new winner, scoutScore, decision, and ranking size against the original.",
+      "rationale": "Requires a stored request context plus a live POST; impossible without the local log.",
+      "example": "operon-pp-cli placement replay imp_a1b2c3d4e5f60718",
+      "why_it_matters": "Catches ranking and scoutScore drift between two timepoints — useful when an advertiser keeps losing to the same competitor.",
+      "group": "Local store"
+    },
+    {
+      "name": "Placement log tailer",
+      "command": "placement watch",
+      "description": "Poll the local placement log and stream new auction outcomes as a compact line or JSONL stream.",
+      "rationale": "API has no streaming endpoint; the local log is the only durable record per publisher.",
+      "example": "operon-pp-cli placement watch --duration 30s --json",
+      "why_it_matters": "Live tail for in-flight auction outcomes so a publisher can see decisions land in real time.",
+      "group": "Local store"
+    },
+    {
+      "name": "Auction ranking explainer",
+      "command": "auction explain",
+      "description": "Decode the auction.ranking[] from a logged placement into a sorted human table (rank, service, score, bid, eligible, reason).",
+      "rationale": "The API returns ranking as a nested object; reading it requires a parser. This command does the work.",
+      "example": "operon-pp-cli auction explain imp_a1b2c3d4e5f60718",
+      "why_it_matters": "Turns an opaque JSON blob into a readable explanation of *why* a given advertiser won (or didn't).",
+      "group": "Local store"
+    },
+    {
+      "name": "Trust-score time series",
+      "command": "campaign trust-history",
+      "description": "Render a sparkline + table of locally observed trust scores for a campaign or advertiser id.",
+      "rationale": "The API returns the current score only. The local mirror logs each observation per sync run.",
+      "example": "operon-pp-cli campaign trust-history adv_changenow",
+      "why_it_matters": "Visual trust audit trail — watch a campaign's score drift up or down over weeks.",
+      "group": "Local store"
+    },
+    {
+      "name": "Campaign-by-wallet grouper",
+      "command": "campaign group-by-wallet",
+      "description": "Group locally mirrored campaigns by x402 payer wallet with per-wallet count, total balance, and category list.",
+      "rationale": "API surfaces campaigns one at a time. Wallet-level rollups need a local mirror.",
+      "example": "operon-pp-cli campaign group-by-wallet --json",
+      "why_it_matters": "Spot one advertiser running multiple campaigns from the same wallet (common with agencies).",
+      "group": "Local store"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Similar advertisers",
+      "command": "demand similar",
+      "description": "Find advertisers with overlapping category, assets, and serviceType to a given advertiser.",
+      "rationale": "Live demand fetch plus in-memory set intersection. Trivial in one CLI call; expensive to brute-force over the API.",
+      "example": "operon-pp-cli demand similar adv_changenow --json",
+      "why_it_matters": "Pre-bid competitive analysis: 'who else is competing for this category?'",
+      "group": "Live composition"
+    },
+    {
+      "name": "Click chain verifier",
+      "command": "click follow",
+      "description": "Walk the /c/{impressionId} redirect chain, validate the URL scheme, and confirm the final landing matches the advertiser's clickUrl.",
+      "rationale": "Multi-step HTTP verification with scheme allowlist validation. The API does not expose this introspection.",
+      "example": "operon-pp-cli click follow imp_a1b2c3d4e5f60718",
+      "why_it_matters": "End-to-end attribution debugging in one command instead of three curl invocations.",
+      "group": "Live composition"
+    },
+    {
+      "name": "Spec drift detector",
+      "command": "spec verify",
+      "description": "Re-fetch the published OpenAPI spec, compare schemas against what the live API actually returns, flag drift.",
+      "rationale": "Requires correlating spec schemas with live response bodies. The spec is published statically; drift is invisible until something breaks.",
+      "example": "operon-pp-cli spec verify --json",
+      "why_it_matters": "Catches contract drift the same way the press scorecard would - before downstream integrators do.",
+      "group": "Live composition"
+    },
+    {
+      "name": "Local demand mirror",
+      "command": "sync",
+      "description": "Fetch /demand and upsert into a local SQLite store so freshness, replay, watch, and trust-history queries work offline.",
+      "rationale": "The API exposes the current projection only; freshness, history, and replay all require a local mirror.",
+      "example": "operon-pp-cli sync --json",
+      "why_it_matters": "Prerequisite for every offline-readable transcendence command; turns a stateless API into one with a history.",
+      "group": "Local store"
+    },
+    {
+      "name": "Stale demand finder",
+      "command": "demand stale",
+      "description": "List demand entries the local mirror hasn't seen refreshed within the last N hours.",
+      "rationale": "The API does not expose first/last-seen timestamps. Without a local log there is no way to detect churned advertisers.",
+      "example": "operon-pp-cli demand stale --hours 48",
+      "why_it_matters": "Spot churned advertisers before placing campaigns against names that are about to disappear from the pool.",
+      "group": "Local store"
+    },
+    {
+      "name": "Demand index health report",
+      "command": "demand health",
+      "description": "Composite freshness + coverage + trust report across the locally synced demand index.",
+      "rationale": "Aggregates last_seen_at, scoutscore_history, and a known-categories diff into one report. Multi-query, no API equivalent.",
+      "example": "operon-pp-cli demand health --json",
+      "why_it_matters": "Single-call health dashboard for the index; tells you immediately whether a category has zero coverage.",
+      "group": "Local store"
+    },
+    {
+      "name": "Placement replay diff",
+      "command": "placement replay",
+      "description": "Re-issue a previously logged placement request to the live API and diff the new winner, scoutScore, decision, and ranking size against the original.",
+      "rationale": "Requires a stored request context plus a live POST; impossible without the local log.",
+      "example": "operon-pp-cli placement replay imp_a1b2c3d4e5f60718",
+      "why_it_matters": "Catches ranking and scoutScore drift between two timepoints — useful when an advertiser keeps losing to the same competitor.",
+      "group": "Local store"
+    },
+    {
+      "name": "Placement log tailer",
+      "command": "placement watch",
+      "description": "Poll the local placement log and stream new auction outcomes as a compact line or JSONL stream.",
+      "rationale": "API has no streaming endpoint; the local log is the only durable record per publisher.",
+      "example": "operon-pp-cli placement watch --duration 30s --json",
+      "why_it_matters": "Live tail for in-flight auction outcomes so a publisher can see decisions land in real time.",
+      "group": "Local store"
+    },
+    {
+      "name": "Auction ranking explainer",
+      "command": "auction explain",
+      "description": "Decode the auction.ranking[] from a logged placement into a sorted human table (rank, service, score, bid, eligible, reason).",
+      "rationale": "The API returns ranking as a nested object; reading it requires a parser. This command does the work.",
+      "example": "operon-pp-cli auction explain imp_a1b2c3d4e5f60718",
+      "why_it_matters": "Turns an opaque JSON blob into a readable explanation of *why* a given advertiser won (or didn't).",
+      "group": "Local store"
+    },
+    {
+      "name": "Trust-score time series",
+      "command": "campaign trust-history",
+      "description": "Render a sparkline + table of locally observed trust scores for a campaign or advertiser id.",
+      "rationale": "The API returns the current score only. The local mirror logs each observation per sync run.",
+      "example": "operon-pp-cli campaign trust-history adv_changenow",
+      "why_it_matters": "Visual trust audit trail — watch a campaign's score drift up or down over weeks.",
+      "group": "Local store"
+    },
+    {
+      "name": "Campaign-by-wallet grouper",
+      "command": "campaign group-by-wallet",
+      "description": "Group locally mirrored campaigns by x402 payer wallet with per-wallet count, total balance, and category list.",
+      "rationale": "API surfaces campaigns one at a time. Wallet-level rollups need a local mirror.",
+      "example": "operon-pp-cli campaign group-by-wallet --json",
+      "why_it_matters": "Spot one advertiser running multiple campaigns from the same wallet (common with agencies).",
+      "group": "Local store"
+    }
+  ],
+  "narrative": {
+    "display_name": "Operon",
+    "headline": "Every Operon API endpoint plus 10 compound queries the API does not expose: similar-advertiser lookup, click-chain verification, spec drift detection, a local SQLite mirror with sync, demand freshness and health, placement replay and watch, auction explain, trust-score history, and campaign group-by-wallet.",
+    "value_prop": "operon-pp-cli is the agent-native CLI and MCP server for Operon, the ad network for AI agents. It wraps the full placement and demand surface with agent-native UX (typed exit codes, --json/--select/--compact, --dry-run on every mutation), adds three live-composition queries on top of the API (demand similar, click follow, spec verify), and ships a local SQLite store + sync command that unlocks seven more transcendence queries (demand stale, demand health, placement replay, placement watch, auction explain, campaign trust-history, campaign group-by-wallet).",
+    "auth_narrative": "Two auth lanes. For read-only inspection and the sandbox /placement lane, set X-Operon-Client to any well-formed UUID via the auto-generated config file. For production placements, set OPERON_AD_NETWORK_BEARER_AUTH to a Bearer key issued by Operon ops. The doctor command reports which lane is active.",
+    "quickstart": [
+      {
+        "command": "operon-pp-cli doctor",
+        "comment": "Verify auth setup, network reachability, and spec contract."
+      },
+      {
+        "command": "operon-pp-cli sync --json",
+        "comment": "Sync /demand into the local SQLite store. Prerequisite for every transcendence command below."
+      },
+      {
+        "command": "operon-pp-cli demand health --json",
+        "comment": "Composite freshness + coverage report over the locally synced demand index."
+      },
+      {
+        "command": "operon-pp-cli demand similar adv_changenow --json",
+        "comment": "Find advertisers overlapping with adv_changenow on category, serviceType, or assets."
+      },
+      {
+        "command": "operon-pp-cli auction explain imp_a1b2c3d4e5f60718 --json",
+        "comment": "Decode the stored ranking[] for an impression into a sorted table."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on /demand",
+        "fix": "Set X-Operon-Client header to a well-formed UUID v4. Run `operon-pp-cli doctor` to confirm the header is sent. The config file generated at first run includes a default UUID."
+      },
+      {
+        "symptom": "429 Too Many Requests on /placement",
+        "fix": "60/min per Bearer key, 100/hour per UUID in the sandbox lane. Wait the Retry-After interval; use --dry-run to iterate without consuming quota."
+      },
+      {
+        "symptom": "503 on /developers",
+        "fix": "Registration is feature-flagged on the server. Email support@<vendor> if you hit this in production."
+      },
+      {
+        "symptom": "spec verify reports endpoint drift",
+        "fix": "Spec mismatches are real findings. If drift appears, file an issue with the probe output."
+      },
+      {
+        "symptom": "demand stale / demand health reports `No demand entries synced`",
+        "fix": "Run `operon-pp-cli sync` to populate the local SQLite store before invoking local-read commands."
+      }
+    ],
+    "when_to_use": "Reach for operon-pp-cli when you need to debug an Operon integration outside of @operon/sdk's Node-only surface, when you need cross-advertiser composition queries the API does not expose (similar-advertiser lookup, click chain walking, spec drift detection, freshness, replay, auction explain, trust history, wallet rollups), or when you want to expose Operon as MCP tools to a non-Node agent runtime via the bundled operon-pp-mcp binary.",
+    "recipes": [
+      {
+        "title": "Sanity-check a placement request before integrating @operon/sdk",
+        "command": "operon-pp-cli placement --impression-context-request-context-query \"swap USDC for SOL\" --impression-context-request-context-category DeFi --impression-context-request-context-intent swap --impression-context-request-context-asset USDC --dry-run --json",
+        "explanation": "Submit a synthetic impression context via --dry-run. Returns the request payload without sending so you can verify the contract shape before integrating from @operon/sdk."
+      },
+      {
+        "title": "Find DeFi advertisers competing for swap intent",
+        "command": "operon-pp-cli demand similar adv_changenow --json --select id,service,serviceType,category",
+        "explanation": "Live set-intersection over the demand index. Useful before submitting a new advertiser to see who else is in the same lane."
+      },
+      {
+        "title": "Verify the published spec matches live API behavior",
+        "command": "operon-pp-cli spec verify --json",
+        "explanation": "Re-fetches operon.so/openapi.json, probes documented GET endpoints with a short timeout, and reports any drift between documented and actual response shapes."
+      },
+      {
+        "title": "Walk a click attribution chain end-to-end",
+        "command": "operon-pp-cli click follow imp_a1b2c3d4e5f60718 --json",
+        "explanation": "Reads the /c/{impressionId} redirect Location header, validates the URL scheme (https/http only), detects the operon.so fallback, and HEADs the landing URL to confirm it responds."
+      },
+      {
+        "title": "Refresh the local mirror and inspect index health",
+        "command": "operon-pp-cli sync --json \u0026\u0026 operon-pp-cli demand health --json",
+        "explanation": "One sync run, then a single-call health report covering totals, fresh vs stale entries, per-category counts, average trust score per category, and any known categories that lack coverage."
+      },
+      {
+        "title": "Replay a placement to detect ranking drift",
+        "command": "operon-pp-cli placement replay imp_a1b2c3d4e5f60718 --json",
+        "explanation": "Re-POST the original /placement request and diff the new winner, scoutScore, decision, and ranking size against what was logged the first time."
+      }
+    ],
+    "trigger_phrases": [
+      "test operon placement",
+      "list operon demand",
+      "operon doctor",
+      "operon sync",
+      "sync operon demand",
+      "operon demand stale",
+      "operon demand health",
+      "operon placement replay",
+      "operon placement watch",
+      "operon auction explain",
+      "operon campaign trust-history",
+      "operon campaign group-by-wallet",
+      "check operon trust score",
+      "use operon-pp-cli",
+      "run operon-pp-cli"
+    ]
+  }
+}

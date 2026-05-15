@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T04:00:15.1117328Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "operon",
+  "display_name": "Operon Ad Network",
+  "cli_name": "operon-pp-cli",
+  "owner": "yaooooooooooooooo",
+  "printer": "yaooooooooooooooo",
+  "printer_name": "yaooooooooooooooo",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:0b8e154645404668603ed062b43047e63c103c6587c2688f9e45ca07073b6fdc",
+  "run_id": "20260514-185949",
+  "mcp_binary": "operon-ad-network-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "OPERON_AD_NETWORK_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Similar advertisers",
+      "command": "demand similar",
+      "description": "Find advertisers with overlapping category, assets, and serviceType to a given advertiser."
+    },
+    {
+      "name": "Click chain verifier",
+      "command": "click follow",
+      "description": "Walk the /c/{impressionId} redirect chain, validate the URL scheme, and confirm the final landing matches the advertiser's clickUrl."
+    },
+    {
+      "name": "Spec drift detector",
+      "command": "spec verify",
+      "description": "Re-fetch the published OpenAPI spec, compare schemas against what the live API actually returns, flag drift."
+    },
+    {
+      "name": "Local demand mirror",
+      "command": "sync",
+      "description": "Fetch /demand and upsert into a local SQLite store so freshness, replay, watch, and trust-history queries work offline."
+    },
+    {
+      "name": "Stale demand finder",
+      "command": "demand stale",
+      "description": "List demand entries the local mirror hasn't seen refreshed within the last N hours."
+    },
+    {
+      "name": "Demand index health report",
+      "command": "demand health",
+      "description": "Composite freshness + coverage + trust report across the locally synced demand index."
+    },
+    {
+      "name": "Placement replay diff",
+      "command": "placement replay",
+      "description": "Re-issue a previously logged placement request to the live API and diff the new winner, scoutScore, decision, and ranking size against the original."
+    },
+    {
+      "name": "Placement log tailer",
+      "command": "placement watch",
+      "description": "Poll the local placement log and stream new auction outcomes as a compact line or JSONL stream."
+    },
+    {
+      "name": "Auction ranking explainer",
+      "command": "auction explain",
+      "description": "Decode the auction.ranking[] from a logged placement into a sorted human table (rank, service, score, bid, eligible, reason)."
+    },
+    {
+      "name": "Trust-score time series",
+      "command": "campaign trust-history",
+      "description": "Render a sparkline + table of locally observed trust scores for a campaign or advertiser id."
+    },
+    {
+      "name": "Campaign-by-wallet grouper",
+      "command": "campaign group-by-wallet",
+      "description": "Group locally mirrored campaigns by x402 payer wallet with per-wallet count, total balance, and category list."
+    }
+  ]
+}

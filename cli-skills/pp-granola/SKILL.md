@@ -11,6 +11,11 @@ metadata:
       bins:
         - granola-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/productivity/granola/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 <!-- // PATCH(skill-doc-auth-rewrite): Auth Setup section rewritten for the
      encrypted-cache install flow (Keychain prompt on first sync, no API key,

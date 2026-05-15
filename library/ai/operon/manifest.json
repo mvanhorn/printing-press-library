@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "operon-ad-network-pp-mcp",
+  "display_name": "Operon Ad Network",
+  "version": "4.6.1",
+  "description": "Operon Ad Network API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/operon-ad-network-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/operon-ad-network-pp-mcp",
+      "args": [],
+      "env": {
+        "OPERON_AD_NETWORK_BEARER_AUTH": "${user_config.operon_ad_network_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "operon_ad_network_bearer_auth": {
+      "type": "string",
+      "title": "OPERON_AD_NETWORK_BEARER_AUTH",
+      "description": "Sets OPERON_AD_NETWORK_BEARER_AUTH for the Operon Ad Network MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

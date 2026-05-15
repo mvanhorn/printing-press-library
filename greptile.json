@@ -22,6 +22,10 @@
         "rule": "These files are auto-regenerated post-merge by tools/generate-skills/ and tools/generate-registry/. A PR that hand-edits them in the same change as adding library/<cat>/<slug>/.printing-press.json indicates the author is bypassing the printing-press publish flow. Flag and recommend re-running /printing-press."
       },
       {
+        "scope": ["cli-skills/pp-*/SKILL.md"],
+        "rule": "P0. cli-skills/pp-*/SKILL.md is a verbatim bot-regenerated mirror of library/<category>/<slug>/SKILL.md. Any commit authored by a human or coding-agent that modifies a file under cli-skills/pp-*/SKILL.md is silently overwritten on the next regen (post-merge by generate-skills.yml, on-PR by the parity step in verify-library-conventions.yml) and produces needless merge conflicts in the meantime — exactly what burned PR #454. Flag every non-bot commit that touches cli-skills/pp-*/SKILL.md, regardless of whether the content happens to match what regeneration would produce: the auto-fix step covers correctness, not author behavior. The fix is to drop the cli-skills/ changes from the diff entirely and edit library/<category>/<slug>/SKILL.md instead; the post-merge regen will update the mirror after the library change lands. The repo also enforces this via the Guard against hand-edits to cli-skills mirror step in verify-library-conventions.yml and the cli-skills/AGENTS.md file."
+      },
+      {
         "scope": ["library/**/.printing-press.json"],
         "rule": "For PRs adding this manifest, the branch name must be exactly feat/<slug> and the PR title must be exactly feat(<slug>): add <slug>. Flag titles like feat(library): add <slug>, feat(<slug>): add <slug> — <description>, branches like add-<slug>, and Co-Authored-By or 🤖 Generated with Claude Code trailers."
       },
