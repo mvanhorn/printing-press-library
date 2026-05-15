@@ -27,11 +27,6 @@
       "description": "Stream changes by polling."
     },
     {
-      "name": "Compound Archive Workflow",
-      "command": "workflow archive",
-      "description": "Archive a full instance to local store."
-    },
-    {
       "name": "Bulk JSONL Import",
       "command": "import",
       "description": "Bulk import from JSONL."

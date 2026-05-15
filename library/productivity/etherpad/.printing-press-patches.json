@@ -66,6 +66,17 @@
       "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should not persist any field that Load() also reads from an env var, since the env var is by definition ephemeral and persisting it changes the auth-source semantics under the user's feet."
     },
     {
+      "id": "drop-workflow-archive-novel-feature",
+      "summary": "Drop `workflow archive` from .printing-press.json novel_features for the same reason `sync` was dropped — empty resource list, silent no-op on Etherpad's RPC-shaped API.",
+      "reason": "Greptile P1 on PR #396: `channel_workflow.go` declares `resources := []string{}`, so `etherpad-pp-cli workflow archive` loops over zero resources, prints \"Archived 0 items across 0 resources\", and exits 0. Identical in behavior to the `sync` stub that was dropped from `novel_features` in patches[4]. The root cause is the same — every Etherpad list endpoint returns scalar IDs (`{\"data\":{\"padIDs\":[...]}}`) rather than hydratable objects, and `workflow archive` is built on the same sync machinery.",
+      "files": [
+        ".printing-press.json",
+        "internal/cli/channel_workflow.go"
+      ],
+      "validated_outcome": "novel_features now lists only the three commands that work end-to-end against Etherpad's API shape: tail, import, agent-context. channel_workflow.go carries an inline `// PATCH(drop-workflow-archive-novel-feature)` comment explaining why the resource list is empty so the next regen reviewer doesn't try to remove the comment as dead code.",
+      "upstream_issue": "Same upstream root cause as patches[4] (drop-sync-and-analytics-novel-features) — generator should detect scalar-ID-list APIs and either skip the sync-derived workflow features or emit a per-resource fan-out adapter."
+    },
+    {
       "id": "auth-status-cover-all-credential-paths",
       "summary": "`auth status` now considers a user authenticated when AuthHeader() can produce a Bearer — i.e. AuthHeaderVal, EtherpadOpenid, or AccessToken — instead of only AccessToken.",
       "reason": "Greptile P1 on PR #396 final review: `authed := cfg.AccessToken != \"\"` did not cover the env-var ($ETHERPAD_OPENID → EtherpadOpenid) or static-header (auth_header → AuthHeaderVal) credential paths that AuthHeader() reads from. So users authenticating via $ETHERPAD_OPENID or a TOML-set auth_header saw `authenticated: false` and \"Not authenticated\" output even though every API call succeeded with a valid Bearer token.",
