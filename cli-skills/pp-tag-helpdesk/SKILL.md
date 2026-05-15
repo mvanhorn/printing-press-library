@@ -1,7 +1,7 @@
 ---
-name: pp-cf-domain
-description: "Printing Press CLI for Cf Domain. Agent-native CLI for Cloudflare Registrar domain search, check, and registration."
-author: "Danny Shmueli"
+name: pp-tag-helpdesk
+description: "Printing Press CLI for Tag Helpdesk. Odoo 18 CE helpdesk ticket management for tag.msg.it. Connects to the Odoo XML-RPC external API at /xmlrpc/2/common..."
+author: "Andrea M. Piovesana"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -9,44 +9,56 @@ metadata:
   openclaw:
     requires:
       bins:
-        - cf-domain-pp-cli
+        - tag-helpdesk-pp-cli
 ---
 <!-- GENERATED FILE — DO NOT EDIT.
-     This file is a verbatim mirror of library/cloud/cf-domain/SKILL.md,
+     This file is a verbatim mirror of library/project-management/tag-helpdesk/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
      silently overwritten on the next regen. Edit the library/ source instead.
      See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
-# Cf Domain — Printing Press CLI
+# Tag Helpdesk — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
-This skill drives the `cf-domain-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+This skill drives the `tag-helpdesk-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install cf-domain --cli-only
+   npx -y @mvanhorn/printing-press install tag-helpdesk --cli-only
    ```
-2. Verify: `cf-domain-pp-cli --version`
+2. Verify: `tag-helpdesk-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/cmd/cf-domain-pp-cli@latest
-```
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Agent-native CLI for Cloudflare Registrar domain search, check, and registration.
+Odoo 18 CE helpdesk ticket management for tag.msg.it.
+
+Connects to the Odoo XML-RPC external API at /xmlrpc/2/common (auth)
+and /xmlrpc/2/object (ORM). Syncs helpdesk.ticket records into a local
+SQLite cache for offline analysis and Claude-native pipelines.
+
+Auth: set ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY environment variables.
+Generate an API key in Odoo via Settings → Users → your user → Account Security.
 
 ## Command Reference
 
-**registrar** — Manage registrar
+**xmlrpc** — Manage xmlrpc
 
-- `cf-domain-pp-cli registrar domain-check` — Real-time domain availability and pricing check. Must be run immediately before registration.
-- `cf-domain-pp-cli registrar domain-register` — Register a domain through Cloudflare Registrar using account default registrant/payment settings. Dangerous: caller...
-- `cf-domain-pp-cli registrar domain-search` — Search Cloudflare Registrar for domain suggestions and availability hints. Use domain-check for live final pricing...
+- `tag-helpdesk-pp-cli xmlrpc authenticate` — Calls common.authenticate(db, username, api_key, {}) via XML-RPC. Returns integer UID used in all subsequent object...
+- `tag-helpdesk-pp-cli xmlrpc count-tickets` — Count tickets matching a domain
+- `tag-helpdesk-pp-cli xmlrpc create-ticket` — Create a new helpdesk ticket
+- `tag-helpdesk-pp-cli xmlrpc get-ticket` — Calls execute_kw(db, uid, api_key, 'helpdesk.ticket', 'read', [[id]], {fields}).
+- `tag-helpdesk-pp-cli xmlrpc get-ticket-messages` — Calls execute_kw on mail.message with domain [('res_model','=','helpdesk.ticket'),('res_id','=',id)]. Returns...
+- `tag-helpdesk-pp-cli xmlrpc list-categories` — List ticket categories
+- `tag-helpdesk-pp-cli xmlrpc list-stages` — List ticket stages
+- `tag-helpdesk-pp-cli xmlrpc list-tags` — List ticket tags
+- `tag-helpdesk-pp-cli xmlrpc list-teams` — List helpdesk teams
+- `tag-helpdesk-pp-cli xmlrpc list-tickets` — Calls execute_kw(db, uid, api_key, 'helpdesk.ticket', 'search_read', [domain], {fields, limit, offset, order})....
+- `tag-helpdesk-pp-cli xmlrpc post-note` — Post an internal note on a ticket
+- `tag-helpdesk-pp-cli xmlrpc update-ticket` — Update ticket fields
 
 
 ### Finding the right command
@@ -54,22 +66,21 @@ Agent-native CLI for Cloudflare Registrar domain search, check, and registration
 When you know what you want to do but not which command does it, ask the CLI directly:
 
 ```bash
-cf-domain-pp-cli which "<capability in your own words>"
+tag-helpdesk-pp-cli which "<capability in your own words>"
 ```
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Auth Setup
-
-Run `cf-domain-pp-cli auth setup` for the URL and steps to obtain a token (add `--launch` to open the URL). Then store it:
+Run `tag-helpdesk-pp-cli auth setup` to print the URL and steps for getting a key (add `--launch` to open the URL). Then set:
 
 ```bash
-cf-domain-pp-cli auth set-token YOUR_TOKEN_HERE
+export TAG_HELPDESK_API_KEY="<your-key>"
 ```
 
-Or set `CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH` as an environment variable.
+Or persist it in `~/.config/tag-helpdesk-pp-cli/config.toml`.
 
-Run `cf-domain-pp-cli doctor` to verify setup.
+Run `tag-helpdesk-pp-cli doctor` to verify setup.
 
 ## Agent Mode
 
@@ -79,37 +90,23 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  cf-domain-pp-cli registrar domain-check mock-value --domain-name example-resource --agent --select id,name,status
+  tag-helpdesk-pp-cli xmlrpc authenticate --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
-- **Offline-friendly** — sync/search commands can use the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success
-
-### Response envelope
-
-Commands that read from the local store or the API wrap output in a provenance envelope:
-
-```json
-{
-  "meta": {"source": "live" | "local", "synced_at": "...", "reason": "..."},
-  "results": <data>
-}
-```
-
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
 
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:
 
 ```
-cf-domain-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
-cf-domain-pp-cli feedback --stdin < notes.txt
-cf-domain-pp-cli feedback list --json --limit 10
+tag-helpdesk-pp-cli feedback "the --since flag is inclusive but docs say exclusive"
+tag-helpdesk-pp-cli feedback --stdin < notes.txt
+tag-helpdesk-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.cf-domain-pp-cli/feedback.jsonl`. They are never POSTed unless `CF_DOMAIN_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `CF_DOMAIN_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.tag-helpdesk-pp-cli/feedback.jsonl`. They are never POSTed unless `TAG_HELPDESK_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `TAG_HELPDESK_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -130,11 +127,11 @@ Unknown schemes are refused with a structured error naming the supported set. We
 A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
 
 ```
-cf-domain-pp-cli profile save briefing --json
-cf-domain-pp-cli --profile briefing registrar domain-check mock-value --domain-name example-resource
-cf-domain-pp-cli profile list --json
-cf-domain-pp-cli profile show briefing
-cf-domain-pp-cli profile delete briefing --yes
+tag-helpdesk-pp-cli profile save briefing --json
+tag-helpdesk-pp-cli --profile briefing xmlrpc authenticate
+tag-helpdesk-pp-cli profile list --json
+tag-helpdesk-pp-cli profile show briefing
+tag-helpdesk-pp-cli profile delete briefing --yes
 ```
 
 Explicit flags always win over profile values; profile values win over defaults. `agent-context` lists all available profiles under `available_profiles` so introspecting agents discover them at runtime.
@@ -155,7 +152,7 @@ Explicit flags always win over profile values; profile values win over defaults.
 
 Parse `$ARGUMENTS`:
 
-1. **Empty, `help`, or `--help`** → show `cf-domain-pp-cli --help` output
+1. **Empty, `help`, or `--help`** → show `tag-helpdesk-pp-cli --help` output
 2. **Starts with `install`** → ends with `mcp` → MCP installation; otherwise → see Prerequisites above
 3. **Anything else** → Direct Use (execute as CLI command with `--agent`)
 
@@ -164,18 +161,18 @@ Parse `$ARGUMENTS`:
 Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
 
 ```bash
-claude mcp add cf-domain-pp-mcp -- cf-domain-pp-mcp
+claude mcp add tag-helpdesk-pp-mcp -- tag-helpdesk-pp-mcp
 ```
 
 Verify: `claude mcp list`
 
 ## Direct Use
 
-1. Check if installed: `which cf-domain-pp-cli`
+1. Check if installed: `which tag-helpdesk-pp-cli`
    If not found, offer to install (see Prerequisites at the top of this skill).
 2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
 3. Execute with the `--agent` flag:
    ```bash
-   cf-domain-pp-cli <command> [subcommand] [args] --agent
+   tag-helpdesk-pp-cli <command> [subcommand] [args] --agent
    ```
-4. If ambiguous, drill into subcommand help: `cf-domain-pp-cli <command> --help`.
+4. If ambiguous, drill into subcommand help: `tag-helpdesk-pp-cli <command> --help`.

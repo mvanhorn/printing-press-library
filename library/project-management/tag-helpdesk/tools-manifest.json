@@ -1,0 +1,306 @@
+{
+  "api_name": "tag-helpdesk",
+  "base_url": "https://tag.msg.it",
+  "description": "Odoo 18 CE helpdesk ticket management for tag.msg.it.\n\nConnects to the Odoo XML-RPC external API at /xmlrpc/2/common (auth)\nand /xmlrpc/2/object (ORM). Syncs helpdesk.ticket records into a local\nSQLite cache for offline analysis and Claude-native pipelines.\n\nAuth: set ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY environment variables.\nGenerate an API key in Odoo via Settings → Users → your user → Account Security.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-Odoo-API-Key",
+    "in": "header",
+    "env_vars": [
+      "TAG_HELPDESK_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TAG_HELPDESK_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "xmlrpc_authenticate",
+      "description": "Calls common.authenticate(db, username, api_key, {}) via XML-RPC. Returns integer UID used in all subsequent object calls. Optional: api_key, db, username.",
+      "method": "POST",
+      "path": "/xmlrpc/2/common",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Api key"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "body",
+          "description": "Db"
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_count-tickets",
+      "description": "Count tickets matching a domain. Optional: domain.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket/search_count",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Domain"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_create-ticket",
+      "description": "Create a new helpdesk ticket. Required: description, name. Optional: category_id, channel_id, partner_email (plus 6 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket/create",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "body",
+          "description": "Category id"
+        },
+        {
+          "name": "channel_id",
+          "type": "int",
+          "location": "body",
+          "description": "Channel id"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Body (plain text or HTML)",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "partner_email",
+          "type": "string",
+          "location": "body",
+          "description": "Partner email"
+        },
+        {
+          "name": "partner_id",
+          "type": "int",
+          "location": "body",
+          "description": "Partner id"
+        },
+        {
+          "name": "partner_name",
+          "type": "string",
+          "location": "body",
+          "description": "Partner name"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids"
+        },
+        {
+          "name": "team_id",
+          "type": "int",
+          "location": "body",
+          "description": "Team id"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-ticket",
+      "description": "Calls execute_kw(db, uid, api_key, 'helpdesk.ticket', 'read', [[id]], {fields}). Required: id. Returns the new Ticket.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket/read",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_get-ticket-messages",
+      "description": "Calls execute_kw on mail.message with domain [('res_model','=','helpdesk.ticket'),('res_id','=',id)]. Returns message log including internal notes and customer replies. Required: ticket_id.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mail.message/search_read",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "int",
+          "location": "query",
+          "description": "Ticket id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_list-categories",
+      "description": "List ticket categories. Returns array of XmlrpcListCategoriesItem.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket.category/search_read",
+      "params": []
+    },
+    {
+      "name": "xmlrpc_list-stages",
+      "description": "List ticket stages. Returns array of Stage.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket.stage/search_read",
+      "params": []
+    },
+    {
+      "name": "xmlrpc_list-tags",
+      "description": "List ticket tags. Returns array of XmlrpcListTagsItem.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket.tag/search_read",
+      "params": []
+    },
+    {
+      "name": "xmlrpc_list-teams",
+      "description": "List helpdesk teams. Returns array of Team.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket.team/search_read",
+      "params": []
+    },
+    {
+      "name": "xmlrpc_list-tickets",
+      "description": "Calls execute_kw(db, uid, api_key, 'helpdesk.ticket', 'search_read', [domain], {fields, limit, offset, order}). Returns list of ticket records. Optional: domain, limit (default: 80), offset (default: 0) (plus 1 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket/search_read",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "Odoo domain filter as JSON (e.g. [['closed','=',false]])"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_post-note",
+      "description": "Post an internal note on a ticket. Required: body, ticket_id. Optional: subtype_id.",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/mail.message/create",
+      "params": [
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "subtype_id",
+          "type": "int",
+          "location": "body",
+          "description": "1=comment, 2=note"
+        },
+        {
+          "name": "ticket_id",
+          "type": "int",
+          "location": "body",
+          "description": "Ticket id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "xmlrpc_update-ticket",
+      "description": "Update ticket fields. Required: id. Optional: kanban_state, priority, stage_id (plus 2 more).",
+      "method": "POST",
+      "path": "/xmlrpc/2/object/helpdesk.ticket/write",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "kanban_state",
+          "type": "string",
+          "location": "body",
+          "description": "Kanban state"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "stage_id",
+          "type": "int",
+          "location": "body",
+          "description": "Stage id"
+        },
+        {
+          "name": "tag_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Tag ids"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    }
+  ]
+}

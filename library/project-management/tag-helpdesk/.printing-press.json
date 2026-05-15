@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T13:07:05.522454386Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "tag-helpdesk",
+  "display_name": "Tag Helpdesk",
+  "cli_name": "tag-helpdesk-pp-cli",
+  "owner": "andreampiovesana",
+  "printer": "andreampiovesana",
+  "printer_name": "Andrea M. Piovesana",
+  "spec_path": "/home/odoo-dev/printing-press/.runstate/cli-printing-press-49485651/runs/20260515-122102/tag-helpdesk.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:76f131435550059d5597a151395ee9a045054eae7ff7b0a4649d6fb8a685f23b",
+  "run_id": "20260515-122102",
+  "mcp_binary": "tag-helpdesk-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TAG_HELPDESK_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Ticket Analysis",
+      "command": "analyze",
+      "description": "Structured ticket detail and chatter history for Claude analysis pipelines"
+    },
+    {
+      "name": "Bulk Analysis",
+      "command": "bulk-analyze",
+      "description": "Dump all open tickets as JSON lines for batch Claude analysis"
+    },
+    {
+      "name": "Agent Workload",
+      "command": "by-agent",
+      "description": "Open ticket count and average age per assigned agent"
+    },
+    {
+      "name": "Category Breakdown",
+      "command": "by-category",
+      "description": "Open ticket counts grouped by product/service category"
+    },
+    {
+      "name": "Team Breakdown",
+      "command": "by-team",
+      "description": "Open ticket counts grouped by support team"
+    },
+    {
+      "name": "Overdue Tickets",
+      "command": "overdue",
+      "description": "High/urgent priority open tickets older than N days"
+    },
+    {
+      "name": "Stale Tickets",
+      "command": "stale",
+      "description": "Open tickets with no activity in N days"
+    },
+    {
+      "name": "KPI Summary",
+      "command": "summary",
+      "description": "Structured KPI snapshot of open tickets for Claude pipelines"
+    },
+    {
+      "name": "Unattended Tickets",
+      "command": "unattended",
+      "description": "Tickets stuck in unattended stages with no response"
+    },
+    {
+      "name": "Internal Note",
+      "command": "note",
+      "description": "Post an internal note on a ticket without notifying the customer"
+    }
+  ]
+}

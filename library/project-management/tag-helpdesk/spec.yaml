@@ -1,0 +1,361 @@
+openapi: "3.1.0"
+info:
+  title: "Tag Helpdesk"
+  description: |
+    Odoo 18 CE helpdesk ticket management for tag.msg.it.
+
+    Connects to the Odoo XML-RPC external API at /xmlrpc/2/common (auth)
+    and /xmlrpc/2/object (ORM). Syncs helpdesk.ticket records into a local
+    SQLite cache for offline analysis and Claude-native pipelines.
+
+    Auth: set ODOO_URL, ODOO_DB, ODOO_USER, ODOO_API_KEY environment variables.
+    Generate an API key in Odoo via Settings → Users → your user → Account Security.
+  version: "1.0.0"
+  x-auth-instructions: "Generate an API key in Odoo: Settings → Users → your user → Account Security tab."
+  x-display-name: "Tag Helpdesk"
+
+x-auth-type: "api-key"
+x-auth-env-var: "ODOO_API_KEY"
+x-auth-key-url: "https://tag.msg.it/odoo/settings?modules=base_setup"
+
+servers:
+  - url: "https://tag.msg.it"
+    description: "Odoo 18 CE instance"
+
+paths:
+  /xmlrpc/2/common:
+    post:
+      operationId: "authenticate"
+      summary: "Authenticate and get UID"
+      description: |
+        Calls common.authenticate(db, username, api_key, {}) via XML-RPC.
+        Returns integer UID used in all subsequent object calls.
+      tags: ["auth"]
+      x-auth-skip: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                db: { type: string }
+                username: { type: string }
+                api_key: { type: string }
+      responses:
+        "200":
+          description: "UID returned"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /xmlrpc/2/object/helpdesk.ticket/search_read:
+    post:
+      operationId: "listTickets"
+      summary: "List helpdesk tickets"
+      description: |
+        Calls execute_kw(db, uid, api_key, 'helpdesk.ticket', 'search_read', [domain], {fields, limit, offset, order}).
+        Returns list of ticket records.
+      tags: ["tickets"]
+      parameters:
+        - name: domain
+          in: query
+          description: "Odoo domain filter as JSON (e.g. [[\"closed\",\"=\",false]])"
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 80 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: order
+          in: query
+          schema: { type: string, default: "priority desc, id desc" }
+      responses:
+        "200":
+          description: "List of tickets"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ticket"
+
+  /xmlrpc/2/object/helpdesk.ticket/read:
+    post:
+      operationId: "getTicket"
+      summary: "Get a single ticket by ID"
+      description: |
+        Calls execute_kw(db, uid, api_key, 'helpdesk.ticket', 'read', [[id]], {fields}).
+      tags: ["tickets"]
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Ticket record"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticket"
+
+  /xmlrpc/2/object/helpdesk.ticket/search_count:
+    post:
+      operationId: "countTickets"
+      summary: "Count tickets matching a domain"
+      tags: ["tickets"]
+      parameters:
+        - name: domain
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: "Count"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /xmlrpc/2/object/helpdesk.ticket/create:
+    post:
+      operationId: "createTicket"
+      summary: "Create a new helpdesk ticket"
+      tags: ["tickets"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, description]
+              properties:
+                name: { type: string, description: "Title" }
+                description: { type: string, description: "Body (plain text or HTML)" }
+                partner_id: { type: integer }
+                partner_name: { type: string }
+                partner_email: { type: string }
+                team_id: { type: integer }
+                user_id: { type: integer }
+                priority: { type: string, enum: ["0","1","2","3"] }
+                category_id: { type: integer }
+                channel_id: { type: integer }
+                tag_ids: { type: array, items: { type: integer } }
+      responses:
+        "200":
+          description: "New ticket ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /xmlrpc/2/object/helpdesk.ticket/write:
+    post:
+      operationId: "updateTicket"
+      summary: "Update ticket fields"
+      tags: ["tickets"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer }
+                stage_id: { type: integer }
+                user_id: { type: integer }
+                priority: { type: string, enum: ["0","1","2","3"] }
+                kanban_state: { type: string, enum: ["normal","done","blocked"] }
+                tag_ids: { type: array, items: { type: integer } }
+      responses:
+        "200":
+          description: "True on success"
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+  /xmlrpc/2/object/mail.message/search_read:
+    post:
+      operationId: "getTicketMessages"
+      summary: "Get chatter messages for a ticket"
+      description: |
+        Calls execute_kw on mail.message with domain [('res_model','=','helpdesk.ticket'),('res_id','=',id)].
+        Returns message log including internal notes and customer replies.
+      tags: ["messages"]
+      parameters:
+        - name: ticket_id
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: "Messages"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+
+  /xmlrpc/2/object/mail.message/create:
+    post:
+      operationId: "postNote"
+      summary: "Post an internal note on a ticket"
+      tags: ["messages"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ticket_id, body]
+              properties:
+                ticket_id: { type: integer }
+                body: { type: string }
+                subtype_id: { type: integer, description: "1=comment, 2=note" }
+      responses:
+        "200":
+          description: "Message ID"
+          content:
+            application/json:
+              schema:
+                type: integer
+
+  /xmlrpc/2/object/helpdesk.ticket.team/search_read:
+    post:
+      operationId: "listTeams"
+      summary: "List helpdesk teams"
+      tags: ["teams"]
+      responses:
+        "200":
+          description: "Teams"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Team"
+
+  /xmlrpc/2/object/helpdesk.ticket.stage/search_read:
+    post:
+      operationId: "listStages"
+      summary: "List ticket stages"
+      tags: ["stages"]
+      responses:
+        "200":
+          description: "Stages"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stage"
+
+  /xmlrpc/2/object/helpdesk.ticket.tag/search_read:
+    post:
+      operationId: "listTags"
+      summary: "List ticket tags"
+      tags: ["tags"]
+      responses:
+        "200":
+          description: "Tags"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    name: { type: string }
+
+  /xmlrpc/2/object/helpdesk.ticket.category/search_read:
+    post:
+      operationId: "listCategories"
+      summary: "List ticket categories"
+      tags: ["categories"]
+      responses:
+        "200":
+          description: "Categories"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    name: { type: string }
+
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        id: { type: integer }
+        number: { type: string, description: "Ticket reference number (e.g. T0042)" }
+        name: { type: string, description: "Ticket title" }
+        description: { type: string, description: "Body (HTML)" }
+        partner_id: { description: "Customer contact [id, name]" }
+        partner_name: { type: string }
+        partner_email: { type: string }
+        user_id: { description: "Assigned agent [id, name]" }
+        team_id: { description: "Support team [id, name]" }
+        stage_id: { description: "Current stage [id, name]" }
+        priority:
+          type: string
+          enum: ["0","1","2","3"]
+          description: "0=Low, 1=Medium, 2=High, 3=Very High"
+        kanban_state:
+          type: string
+          enum: ["normal","done","blocked"]
+        tag_ids: { type: array, items: { type: integer } }
+        category_id: { description: "Category [id, name]" }
+        channel_id: { description: "Source channel [id, name]" }
+        company_id: { description: "Company [id, name]" }
+        assigned_date: { type: string, format: date-time }
+        closed_date: { type: string, format: date-time }
+        closed: { type: boolean }
+        unattended: { type: boolean }
+        last_stage_update: { type: string, format: date-time }
+        active: { type: boolean }
+        color: { type: integer }
+
+    Message:
+      type: object
+      properties:
+        id: { type: integer }
+        body: { type: string, description: "Message body (HTML)" }
+        author_id: { description: "Author [id, name]" }
+        date: { type: string, format: date-time }
+        message_type: { type: string }
+        subtype_id: { description: "Subtype [id, name]" }
+
+    Team:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        user_ids: { type: array, items: { type: integer } }
+
+    Stage:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        closed: { type: boolean }
+        unattended: { type: boolean }
+        sequence: { type: integer }
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-Odoo-API-Key
+      description: "Odoo API key (used as password in XML-RPC calls)"
+
+security:
+  - apiKey: []
