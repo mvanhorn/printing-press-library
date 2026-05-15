@@ -2,9 +2,10 @@
 
 package cli
 
-// PATCH: feat-comments-and-handle-resolution — HTML-unescape the title returned by fetchVideoTitle so --with-title in markdown/iframe formats doesn't render as Don&#39;t Look Up (raw entity in markdown alt-text) or &amp;#39; (double-escape in HTML figcaption via escapeHTML). Boundary handling matches search_bulk and videos_related.
+// PATCH: feat-comments-and-handle-resolution — HTML-unescape the title returned by fetchVideoTitle so --with-title in markdown/iframe formats doesn't render as Don&#39;t Look Up (raw entity in markdown alt-text) or &amp;#39; (double-escape in HTML figcaption via escapeHTML). Boundary handling matches search_bulk and videos_related. Also threads cmd.Context() into fetchVideoTitle via Client.WithContext so --timeout / Ctrl+C honor the in-flight videos.list call, matching the other novel commands.
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -54,7 +55,7 @@ func newYoutubeVideosEmbedCmd(flags *rootFlags) *cobra.Command {
 
 			title := fmt.Sprintf("YouTube video %s", videoID)
 			if withTitle && format != "url" && !dryRunOK(flags) {
-				if t, err := fetchVideoTitle(flags, videoID); err == nil && t != "" {
+				if t, err := fetchVideoTitle(cmd.Context(), flags, videoID); err == nil && t != "" {
 					title = t
 				}
 			}
@@ -129,11 +130,12 @@ func escapeHTML(s string) string {
 }
 
 // fetchVideoTitle calls videos.list?part=snippet&id=<id> to pull just the title.
-func fetchVideoTitle(flags *rootFlags, videoID string) (string, error) {
+func fetchVideoTitle(ctx context.Context, flags *rootFlags, videoID string) (string, error) {
 	c, err := flags.newClient()
 	if err != nil {
 		return "", err
 	}
+	c = c.WithContext(ctx)
 	data, err := c.GetWithHeaders("/youtube/v3/videos", map[string]string{
 		"id":   videoID,
 		"part": "snippet",

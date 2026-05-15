@@ -189,6 +189,7 @@ func newYoutubeChannelUploadsCmd(flags *rootFlags) *cobra.Command {
 					items = append(items, channelUpload{
 						VideoID:      vid,
 						Title:        html.UnescapeString(it.Snippet.Title),
+						Description:  html.UnescapeString(it.Snippet.Description),
 						PublishedAt:  pubAt,
 						WatchURL:     fmt.Sprintf("https://www.youtube.com/watch?v=%s", vid),
 						EmbedURL:     fmt.Sprintf("https://www.youtube.com/embed/%s", vid),
