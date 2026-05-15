@@ -124,8 +124,16 @@ func queryFailures(db *store.Store, cutoff time.Time) ([]failureMessageRow, erro
 		if !isTerminalFailure(mtype) && !isTerminalFailure(status) {
 			continue
 		}
+		// PATCH: --since must exclude messages whose timestamp can't be
+		// resolved (NULL or non-RFC3339 in both `timestamp` and `created_at`)
+		// instead of silently including them. The previous guard
+		// `!t.IsZero() && t.Before(cutoff)` evaluated false for zero times,
+		// so messages without a usable timestamp bypassed the window and
+		// inflated `--group-by reason` counts with arbitrarily old failures.
+		// Same shape as the compliance_auto_block.go fix; surfaced by
+		// Greptile P1 in the PR #417 sixth review pass.
 		t := pickTime(tsStr, createdAtStr)
-		if !t.IsZero() && t.Before(cutoff) {
+		if t.IsZero() || t.Before(cutoff) {
 			continue
 		}
 		out = append(out, failureMessageRow{
