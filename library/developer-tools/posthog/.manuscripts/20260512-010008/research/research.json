@@ -1,0 +1,296 @@
+{
+  "api_name": "posthog",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "@posthog/cli",
+      "url": "https://github.com/PostHog/posthog/tree/master/cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PostHog MCP (official)",
+      "url": "https://github.com/PostHog/posthog/tree/master/services/mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 27,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "heygen-com/posthog-mcp",
+      "url": "https://github.com/heygen-com/posthog-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 41,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "posthog-go",
+      "url": "https://github.com/PostHog/posthog-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 48,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "posthog-python",
+      "url": "https://github.com/PostHog/posthog-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 54,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T08:10:00Z",
+  "novel_features": [
+    {
+      "name": "Flag Blast Radius",
+      "command": "flags blast-radius",
+      "description": "Find every insight, dashboard, experiment, and survey that references a flag before you archive or rename it.",
+      "rationale": "Requires scanning insights, dashboards, experiments, and surveys for flag-key references in one pass — no cross-resource search exists in the UI or API.",
+      "example": "posthog-pp-cli flags blast-radius --key my-checkout-v2 --json",
+      "why_it_matters": "Use before archiving or renaming a flag to prevent breaking dashboards and experiments silently.",
+      "group": "Flag safety"
+    },
+    {
+      "name": "Flag Rollout Health",
+      "command": "flags rollout-health",
+      "description": "Go/no-go confidence for a flag ramp — error rate and key metric movement correlated with flag exposure.",
+      "rationale": "Requires time-windowed join of three event streams (flag_called, errors, success metric) that only the local store can correlate sub-second.",
+      "example": "posthog-pp-cli flags rollout-health --key new-checkout --window 24h --agent",
+      "why_it_matters": "Use before ramping a flag to 100% to catch regressions that aren't visible in overall metrics.",
+      "group": "Flag safety"
+    },
+    {
+      "name": "LLM Cost Attribution",
+      "command": "llm cost-attribution",
+      "description": "Break down LLM spend by feature flag variant — see whether the expensive model variant pays for itself.",
+      "rationale": "Requires joining LLM trace costs against feature_flag_called events on distinct_id + session window. Neither the LLM nor flags UI does this join.",
+      "example": "posthog-pp-cli llm cost-attribution --flag model-tier --agent",
+      "why_it_matters": "Use when evaluating whether to promote a more expensive LLM variant based on actual cost-per-conversion.",
+      "group": "LLM observability"
+    },
+    {
+      "name": "Persons At-Risk",
+      "command": "persons at-risk",
+      "description": "Surface which users in a cohort are going quiet and recently hit errors — before they churn.",
+      "rationale": "Requires per-person event-frequency baseline from the events store correlated with error records by distinct_id across a cohort.",
+      "example": "posthog-pp-cli persons at-risk --cohort paying-users --silent-days 14 --json",
+      "why_it_matters": "Use in weekly retention reviews to prioritize proactive outreach before churn events.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Event Property Drift",
+      "command": "events property-drift",
+      "description": "Catch tracking regressions — properties that silently disappeared from an event between two time windows.",
+      "rationale": "Requires bucketing event records from two distinct time slices and diffing property key sets. The UI shows current state only.",
+      "example": "posthog-pp-cli events property-drift checkout_completed --agent",
+      "why_it_matters": "Use after a deploy to catch silent schema changes that corrupt ongoing experiments and dashboards.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Experiment Pre-Check",
+      "command": "experiments pre-check",
+      "description": "Know today whether an experiment will reach significance this sprint, or needs traffic adjustment now.",
+      "rationale": "Combines live exposure counts with required sample size and a power projection formula — PostHog shows current count only.",
+      "example": "posthog-pp-cli experiments pre-check --agent",
+      "why_it_matters": "Use at the start of each sprint to surface experiments that need traffic changes before they run out of time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Flag Stale Finder",
+      "command": "flags stale",
+      "description": "List flags that haven't been evaluated in N days — cleanup candidates before they accumulate.",
+      "rationale": "Cross-references flag last_updated timestamps with event definitions to find flags with zero recent evaluation coverage.",
+      "example": "posthog-pp-cli flags stale --days 30 --json",
+      "why_it_matters": "Use in quarterly flag cleanup sprints to identify dead code paths safely.",
+      "group": "Flag safety"
+    },
+    {
+      "name": "Dashboard Health",
+      "command": "dashboard health",
+      "description": "Find broken dashboards before a stakeholder meeting does — stale data, deleted cohorts, archived flags.",
+      "rationale": "Joins dashboard filter definitions against live cohort/flag/event state in the local store. No cross-dashboard audit surface exists in PostHog.",
+      "example": "posthog-pp-cli dashboard health --stale-days 7 --agent",
+      "why_it_matters": "Use before weekly business reviews to catch broken insight tiles that would embarrass the data team.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Flag Blast Radius",
+      "command": "flags blast-radius",
+      "description": "Find every insight, dashboard, experiment, and survey that references a flag before you archive or rename it.",
+      "rationale": "Requires scanning insights, dashboards, experiments, and surveys for flag-key references in one pass — no cross-resource search exists in the UI or API.",
+      "example": "posthog-pp-cli flags blast-radius --key my-checkout-v2 --json",
+      "why_it_matters": "Use before archiving or renaming a flag to prevent breaking dashboards and experiments silently.",
+      "group": "Flag safety"
+    },
+    {
+      "name": "Flag Rollout Health",
+      "command": "flags rollout-health",
+      "description": "Go/no-go confidence for a flag ramp — error rate and key metric movement correlated with flag exposure.",
+      "rationale": "Requires time-windowed join of three event streams (flag_called, errors, success metric) that only the local store can correlate sub-second.",
+      "example": "posthog-pp-cli flags rollout-health --key new-checkout --window 24h --agent",
+      "why_it_matters": "Use before ramping a flag to 100% to catch regressions that aren't visible in overall metrics.",
+      "group": "Flag safety"
+    },
+    {
+      "name": "LLM Cost Attribution",
+      "command": "llm cost-attribution",
+      "description": "Break down LLM spend by feature flag variant — see whether the expensive model variant pays for itself.",
+      "rationale": "Requires joining LLM trace costs against feature_flag_called events on distinct_id + session window. Neither the LLM nor flags UI does this join.",
+      "example": "posthog-pp-cli llm cost-attribution --flag model-tier --agent",
+      "why_it_matters": "Use when evaluating whether to promote a more expensive LLM variant based on actual cost-per-conversion.",
+      "group": "LLM observability"
+    },
+    {
+      "name": "Persons At-Risk",
+      "command": "persons at-risk",
+      "description": "Surface which users in a cohort are going quiet and recently hit errors — before they churn.",
+      "rationale": "Requires per-person event-frequency baseline from the events store correlated with error records by distinct_id across a cohort.",
+      "example": "posthog-pp-cli persons at-risk --cohort paying-users --silent-days 14 --json",
+      "why_it_matters": "Use in weekly retention reviews to prioritize proactive outreach before churn events.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Event Property Drift",
+      "command": "events property-drift",
+      "description": "Catch tracking regressions — properties that silently disappeared from an event between two time windows.",
+      "rationale": "Requires bucketing event records from two distinct time slices and diffing property key sets. The UI shows current state only.",
+      "example": "posthog-pp-cli events property-drift checkout_completed --agent",
+      "why_it_matters": "Use after a deploy to catch silent schema changes that corrupt ongoing experiments and dashboards.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Experiment Pre-Check",
+      "command": "experiments pre-check",
+      "description": "Know today whether an experiment will reach significance this sprint, or needs traffic adjustment now.",
+      "rationale": "Combines live exposure counts with required sample size and a power projection formula — PostHog shows current count only.",
+      "example": "posthog-pp-cli experiments pre-check --agent",
+      "why_it_matters": "Use at the start of each sprint to surface experiments that need traffic changes before they run out of time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Flag Stale Finder",
+      "command": "flags stale",
+      "description": "List flags that haven't been evaluated in N days — cleanup candidates before they accumulate.",
+      "rationale": "Cross-references flag last_updated timestamps with event definitions to find flags with zero recent evaluation coverage.",
+      "example": "posthog-pp-cli flags stale --days 30 --json",
+      "why_it_matters": "Use in quarterly flag cleanup sprints to identify dead code paths safely.",
+      "group": "Flag safety"
+    },
+    {
+      "name": "Dashboard Health",
+      "command": "dashboard health",
+      "description": "Find broken dashboards before a stakeholder meeting does — stale data, deleted cohorts, archived flags.",
+      "rationale": "Joins dashboard filter definitions against live cohort/flag/event state in the local store. No cross-dashboard audit surface exists in PostHog.",
+      "example": "posthog-pp-cli dashboard health --stale-days 7 --agent",
+      "why_it_matters": "Use before weekly business reviews to catch broken insight tiles that would embarrass the data team.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "PostHog",
+    "headline": "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no dashboard can do.",
+    "value_prop": "posthog-pp-cli syncs your flags, insights, experiments, persons, errors, and LLM traces to a local SQLite store. Query anything offline, run compound analytics across resources the UI keeps separate, and pipe results directly to agents or scripts.",
+    "auth_narrative": "Uses your PostHog personal API key (phx_...). Set POSTHOG_API_KEY or run `posthog-pp-cli auth set-token`. Supports both US (app.posthog.com) and EU (eu.posthog.com) instances via POSTHOG_HOST.",
+    "quickstart": [
+      {
+        "command": "posthog-pp-cli auth set-token",
+        "comment": "Connect to your PostHog instance with your personal API key"
+      },
+      {
+        "command": "posthog-pp-cli sync --full",
+        "comment": "Sync flags, insights, experiments, persons, and errors to local store"
+      },
+      {
+        "command": "posthog-pp-cli flags list --json",
+        "comment": "List all feature flags with rollout rules"
+      },
+      {
+        "command": "posthog-pp-cli query run --sql \"SELECT event, count() FROM events WHERE timestamp \u003e now() - INTERVAL 7 DAY GROUP BY event ORDER BY count() DESC LIMIT 20\"",
+        "comment": "Run HogQL to see your top events"
+      },
+      {
+        "command": "posthog-pp-cli flags blast-radius my-checkout-v2",
+        "comment": "Find everything that references a flag before archiving"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Run `posthog-pp-cli auth set-token` and paste your phx_ personal API key (not the project token)"
+      },
+      {
+        "symptom": "Empty results after sync",
+        "fix": "Check your project ID: `posthog-pp-cli projects list` — then set POSTHOG_PROJECT_ID"
+      },
+      {
+        "symptom": "EU instance not connecting",
+        "fix": "Set POSTHOG_HOST=https://eu.posthog.com and re-run sync"
+      },
+      {
+        "symptom": "Query rate limit (429)",
+        "fix": "PostHog limits analytics queries to 240/min. Add --delay 500 flag or reduce query frequency"
+      }
+    ],
+    "when_to_use": "Use posthog-pp-cli when an agent task requires querying, diffing, or combining PostHog data across more than one resource type — flag state vs error events, LLM costs vs variant performance, experiment exposure vs significance. It is faster than the web UI for bulk reads and produces structured JSON that agents can consume directly without parsing HTML.",
+    "recipes": [
+      {
+        "title": "Find flags safe to archive",
+        "command": "posthog-pp-cli flags stale --days 60 --json | jq '.[].key'",
+        "explanation": "List flag keys with no evaluation events in 60 days — safe cleanup candidates"
+      },
+      {
+        "title": "Pre-ramp safety check",
+        "command": "posthog-pp-cli flags rollout-health new-checkout --metric purchase --error-event exception --window 48h --agent --select flag_key,error_rate_delta,metric_delta",
+        "explanation": "Check error rate and purchase metric delta for flag-exposed users before ramping to 100%"
+      },
+      {
+        "title": "Weekly experiment briefing",
+        "command": "posthog-pp-cli experiments summary --status running --json | jq '.[] | {key, winner, significance, days_remaining}'",
+        "explanation": "Cross-experiment winner summary for Monday standup — only running experiments with significance scores"
+      },
+      {
+        "title": "LLM cost by flag variant",
+        "command": "posthog-pp-cli llm cost-attribution --flag model-tier --days 30 --agent --select variant,total_cost_usd,avg_cost_per_call",
+        "explanation": "Compare LLM spend across A/B variants to decide if GPT-4o outperforms GPT-4o-mini in your context"
+      },
+      {
+        "title": "Dashboard audit before all-hands",
+        "command": "posthog-pp-cli dashboard health --warn-stale-days 7 --json | jq '.[] | select(.issues | length \u003e 0)'",
+        "explanation": "Surface dashboards with broken filters or stale data before a stakeholder presentation"
+      }
+    ],
+    "trigger_phrases": [
+      "check my PostHog feature flags",
+      "query PostHog events",
+      "show experiment results in PostHog",
+      "what errors are spiking in PostHog",
+      "LLM costs in PostHog",
+      "is it safe to ramp this flag",
+      "use posthog"
+    ]
+  }
+}
