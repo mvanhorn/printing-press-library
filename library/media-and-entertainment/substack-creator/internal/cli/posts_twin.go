@@ -45,10 +45,10 @@ generally remain accessible cross-publication).`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				// Honor dry-run before any DB/API work
-				return nil
-			}
+			// No dryRunOK early-return: the preview block below depends on
+			// the same DB reads as the real path, so dry-run must fall
+			// through to render the documented "would create draft in ..."
+			// summary instead of silently exiting.
 			if toPublication == "" {
 				return usageErr(fmt.Errorf("--to <publication> is required"))
 			}
