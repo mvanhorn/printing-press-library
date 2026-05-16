@@ -24,11 +24,13 @@ func newLastOrderCmd(flags *rootFlags) *cobra.Command {
 				// PATCH: Keep documentation/example validation offline-safe while
 				// still showing the command's stable output shape.
 				return printJSONFiltered(cmd.OutOrStdout(), lastOrderOutput{
-					Restaurant: "mixsushibarlin",
-					Items:      []store.OrderItem{{ItemID: "fixture-1", Name: "Fixture item", Quantity: 2, Price: 8.99}},
-					Totals:     orderTotals{Subtotal: 17.98, Tax: 1.85, Tip: 0.90, Total: 20.73},
-					Payment:    "browser",
-					Points:     20,
+					Restaurant:     "mixsushibarlin",
+					RestID:         "72",
+					RestaurantSlug: "mixsushibarlin",
+					Items:          []store.OrderItem{{ItemID: "fixture-1", Name: "Fixture item", Quantity: 2, Price: 8.99}},
+					Totals:         orderTotals{Subtotal: 17.98, Tax: 1.85, Tip: 0.90, Total: 20.73},
+					Payment:        "browser",
+					Points:         20,
 				}, flags)
 			}
 			db, err := store.OpenWithContext(cmd.Context(), defaultDBPath("ordertogo-pp-cli"))
