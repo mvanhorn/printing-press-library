@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "api_name": "youtube-creator",
+  "run_id": "20260516-163043",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 8,
+  "tests_passed": 8,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "oauth2",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "live_tests": [
+    {
+      "name": "auth login (OAuth2 device-less code flow)",
+      "result": "pass",
+      "evidence": "Authentication successful! Token expires at 2026-05-16T21:44:36+02:00. Refresh token persisted in config.toml."
+    },
+    {
+      "name": "doctor",
+      "result": "pass",
+      "evidence": "OK Config / OK Auth / OK Env Vars / OK API reachable"
+    },
+    {
+      "name": "channels-list --mine (real Data API read)",
+      "result": "pass",
+      "evidence": "Returned authenticated channel: Valknut (@valknutgermania, 11 subs, 6624 views, 10 videos)"
+    },
+    {
+      "name": "mod queue --since 30d",
+      "result": "pass",
+      "evidence": "Returned count=0 (empty held-for-review queue), quota_cost=1. Initially failed with HTTP 400 missing filter; fixed by resolving channel ID via channels.list?mine=true first."
+    },
+    {
+      "name": "digest analytics --since 7d --markdown",
+      "result": "pass",
+      "evidence": "Returned full Markdown digest: 158 views, 573 min watched, +1 sub, 2 likes, top traffic YT_SEARCH (127 views). Initially failed with 401 (insufficient permission) and 400 (Unknown identifier 'impressions'); fixed by adding yt-analytics scopes to OAuth login and removing impressions metric."
+    },
+    {
+      "name": "quota meter --json",
+      "result": "pass",
+      "evidence": "Tracked 9 units spent today across 3 ops (channels-list:1, comment-threads-list:2, analytics-query:6). Remaining: 9991."
+    },
+    {
+      "name": "pubsub verify",
+      "result": "pass",
+      "evidence": "Probed example.com/test, returned verification=false with HTTP 404 and actual_body containing example.com HTML (correct — example.com is not a real callback handler)."
+    },
+    {
+      "name": "bulk metadata --title-contains test (dry preview)",
+      "result": "pass",
+      "evidence": "Enumerated channel uploads via playlistItems.list (quota-cheap), matched 5 videos with 'test' in title, returned dry-run preview with no mutations applied."
+    },
+    {
+      "name": "recipes n8n list",
+      "result": "pass",
+      "evidence": "Returned 6 ready-to-paste n8n workflow JSON snippets (ab-thumbnail-loop, backup-weekly, bulk-metadata-monthly, daily-digest, held-comment-mod, upload-trigger)."
+    }
+  ],
+  "fixes_applied_during_live_testing": [
+    "mod.go: Resolve authenticated channel ID via channels.list?mine=true before commentThreads.list call (API requires one of allThreadsRelatedToChannelId/channelId/videoId/postId/id)",
+    "digest.go: Removed unsupported metrics ('impressions', 'impressionClickThroughRate', 'cpm', 'dislikes') from overall analytics query — they are not available without channel-owner premium access",
+    "auth.go: Added yt-analytics.readonly and yt-analytics-monetary.readonly OAuth2 scopes (the Data API spec doesn't include them; Analytics + Reporting APIs require them)"
+  ]
+}

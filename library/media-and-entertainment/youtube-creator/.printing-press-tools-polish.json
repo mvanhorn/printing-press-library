@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-05-16T15:42:17.8076899Z",
+  "cli_dir": "\u003ccli-dir\u003e\\youtube-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "group-items",
+      "file": "group-items.go",
+      "line": 11,
+      "evidence": "Manage group items",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the YouTube Analytics groupItems API; needs generator-template fix to emit a richer Short (retro candidate)"
+    },
+    {
+      "kind": "thin-short",
+      "command": "groups",
+      "file": "groups.go",
+      "line": 11,
+      "evidence": "Manage groups",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the YouTube Analytics groups API; needs generator-template fix to emit a richer Short (retro candidate)"
+    },
+    {
+      "kind": "thin-short",
+      "command": "reports",
+      "file": "youtube-reporting-jobs_reports.go",
+      "line": 11,
+      "evidence": "Manage reports",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for YouTube Reporting jobs/reports listing; agents reach leaf get/list directly so the parent Short is rarely the call site (retro candidate for generator improvement)"
+    },
+    {
+      "kind": "thin-short",
+      "command": "youtube",
+      "file": "youtube.go",
+      "line": 11,
+      "evidence": "Manage youtube",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the YouTube Data v3 surface (60+ subcommands); the parent dispatches and Hidden=true is set on similar groupers — leaf commands carry the operation-specific Shorts (retro candidate for generator improvement)"
+    }
+  ]
+}

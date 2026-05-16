@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-16T15:45:57.8963453Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "youtube-creator",
+  "display_name": "Youtube",
+  "cli_name": "youtube-creator-pp-cli",
+  "owner": "jimpresting",
+  "printer": "jimpresting",
+  "printer_name": "JimPresting",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1316ca7da44ae404b14f58a3a6b1b4e4062d20fc922f92e432f1e0ba5e82c045",
+  "run_id": "20260516-163043",
+  "category": "media-and-entertainment",
+  "mcp_binary": "youtube-creator-pp-mcp",
+  "mcp_tool_count": 92,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "YOUTUBE_DATA_OAUTH2C"
+  ],
+  "novel_features": [
+    {
+      "name": "Held-for-review moderation queue",
+      "command": "mod queue",
+      "description": "Pull every comment YouTube held for review, batch-approve or reject with optional author-ban in one verb."
+    },
+    {
+      "name": "Pattern-based comment auto-mod",
+      "command": "mod auto",
+      "description": "Apply YAML-defined regex/keyword rules (and optional LLM classify hook) to incoming or held comments."
+    },
+    {
+      "name": "Daily/weekly analytics digest",
+      "command": "digest analytics",
+      "description": "Pre-baked Analytics API queries packaged as a Markdown report (top videos, CTR, watch time, traffic sources, revenue, Shorts vs long-form)."
+    },
+    {
+      "name": "Per-video deep-dive digest",
+      "command": "digest video",
+      "description": "Single-video performance digest: retention curve, traffic sources, demographics, devices, end-screen impressions."
+    },
+    {
+      "name": "Bulk metadata operations",
+      "command": "bulk metadata",
+      "description": "Filter the full video catalog by jq-style predicate, apply set/append/replace mutations, with dry-run diff."
+    },
+    {
+      "name": "Playlist hygiene",
+      "command": "playlist hygiene",
+      "description": "Auto-add new uploads to playlists by tag/title pattern; reorder existing playlists by view count."
+    },
+    {
+      "name": "PubSubHubbub subscribe + verify",
+      "command": "pubsub subscribe",
+      "description": "Subscribe a webhook callback to a channel's upload feed via WebSub; helper command verifies and prints the GET challenge response."
+    },
+    {
+      "name": "Quota meter",
+      "command": "quota meter",
+      "description": "Print remaining quota estimate based on local-stored per-call cost log, and the cost of the next planned command."
+    },
+    {
+      "name": "Backup own channel",
+      "command": "backup",
+      "description": "Wraps yt-dlp with cookies-from-browser to archive own videos, captions, thumbnails, info-json to local or S3-compatible target."
+    },
+    {
+      "name": "A/B thumbnail testing",
+      "command": "ab thumbnails",
+      "description": "Schedule thumbnail rotation via thumbnails.set, track CTR via Analytics API, compute statistical significance."
+    },
+    {
+      "name": "Reporting API warehouse sync",
+      "command": "reporting sync",
+      "description": "Enumerate report types, ensure jobs exist, poll for completed reports, download CSV via redirect."
+    },
+    {
+      "name": "n8n recipe pack",
+      "command": "recipes n8n",
+      "description": "Prints ready-to-paste n8n workflow JSON snippets for the six highest-value automations."
+    },
+    {
+      "name": "Auto-chapters from transcript",
+      "command": "chapters auto",
+      "description": "Pull captions via yt-dlp, run an LLM provider to propose chapter timestamps, write back to description via videos.update."
+    }
+  ]
+}

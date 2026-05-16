@@ -1,0 +1,412 @@
+{
+  "api_name": "youtube",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "ytstudio-cli",
+      "url": "https://github.com/jdwit/ytstudio-cli",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-cli (danvega)",
+      "url": "https://github.com/danvega/youtube-cli",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-cli (HRSPROJECT)",
+      "url": "https://github.com/HRSPROJECT/youtube-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-youtube (anaisbetts)",
+      "url": "https://github.com/anaisbetts/mcp-youtube",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-mcp-server (dannySubsense)",
+      "url": "https://github.com/dannySubsense/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-comment-scraper-cli",
+      "url": "https://github.com/philbot9/youtube-comment-scraper-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-comment-suite",
+      "url": "https://github.com/mattwright324/youtube-comment-suite",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T16:30:43Z",
+  "novel_features": [
+    {
+      "name": "Held-for-review moderation queue",
+      "command": "mod queue",
+      "description": "Pull every comment YouTube held for review, batch-approve or reject with optional author-ban in one verb.",
+      "rationale": "Combines commentThreads.list?moderationStatus=heldForReview with batch comments.setModerationStatus across pages, plus optional banAuthor flag — Studio requires three clicks per comment; no other CLI exposes this filter.",
+      "example": "youtube-pp-cli mod queue --since 7d --apply approve --ban-author",
+      "why_it_matters": "When automating creator workflows, this is the highest-frequency moderation task and the single endpoint Studio's UX hides behind multiple panes.",
+      "group": "Moderation as a verb"
+    },
+    {
+      "name": "Pattern-based comment auto-mod",
+      "command": "mod auto",
+      "description": "Apply YAML-defined regex/keyword rules (and optional LLM classify hook) to incoming or held comments.",
+      "rationale": "Reads local rules.yaml, fetches matching comments, calls comments.setModerationStatus in batch. Studio's blocked-words list cannot be modified via any official API.",
+      "example": "youtube-pp-cli mod auto --rules rules.yaml --since 1h --apply",
+      "why_it_matters": "Lets an agent enforce site-specific moderation policy without manual queue review.",
+      "group": "Moderation as a verb"
+    },
+    {
+      "name": "Daily/weekly analytics digest",
+      "command": "digest analytics",
+      "description": "Pre-baked Analytics API queries packaged as a Markdown report (top videos, CTR, watch time, traffic sources, revenue, Shorts vs long-form).",
+      "rationale": "Wraps reports.query across the 6-8 dimensions a creator actually cares about, joins with local store for video-title resolution, formats as Markdown.",
+      "example": "youtube-pp-cli digest analytics --since 7d --markdown",
+      "why_it_matters": "Drop into n8n Schedule Trigger → digest analytics → Send Email. One command replaces a hand-built dashboard.",
+      "group": "Daily creator rituals"
+    },
+    {
+      "name": "Per-video deep-dive digest",
+      "command": "digest video",
+      "description": "Single-video performance digest: retention curve, traffic sources, demographics, devices, end-screen impressions.",
+      "rationale": "Aggregates 4-5 Analytics queries for one videoId, formatted as Markdown.",
+      "example": "youtube-pp-cli digest video dQw4w9WgXcQ --markdown",
+      "why_it_matters": "When a new upload spikes or flops, this is the first question creators ask.",
+      "group": "Daily creator rituals"
+    },
+    {
+      "name": "Bulk metadata operations",
+      "command": "bulk metadata",
+      "description": "Filter the full video catalog by jq-style predicate, apply set/append/replace mutations, with dry-run diff.",
+      "rationale": "Enumerates uploads via playlistItems.list (1 quota unit) not search.list (100 units), applies videos.update in batches. No other CLI exposes the cheap-enumeration shortcut.",
+      "example": "youtube-pp-cli bulk metadata --category 22 --append-description footer.md --dry-run",
+      "why_it_matters": "Re-tag or footer-stamp an entire back catalog without manually paging through Studio.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Playlist hygiene",
+      "command": "playlist hygiene",
+      "description": "Auto-add new uploads to playlists by tag/title pattern; reorder existing playlists by view count.",
+      "rationale": "Pattern → playlist mapping kept in a local rules file; playlistItems.insert and playlistItems.update applied in a single pass with quota accounting.",
+      "example": "youtube-pp-cli playlist hygiene --rules rules.yaml --apply",
+      "why_it_matters": "Keeps playlists curated without Studio drag-and-drop.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "PubSubHubbub subscribe + verify",
+      "command": "pubsub subscribe",
+      "description": "Subscribe a webhook callback to a channel's upload feed via WebSub; helper command verifies and prints the GET challenge response.",
+      "rationale": "PubSubHubbub is not in any OpenAPI surface; this is hand-built POST + verify-helper. No other CLI does this; n8n integration is the killer use case.",
+      "example": "youtube-pp-cli pubsub subscribe --channel UCxxx --callback https://n8n.example.com/webhook/yt --hub https://pubsubhubbub.appspot.com/",
+      "why_it_matters": "Switches uploads from polling (quota-burning, slow) to push-trigger in n8n. Real-time competitor-monitoring and own-upload pipelines.",
+      "group": "Reachability and triggers"
+    },
+    {
+      "name": "Quota meter",
+      "command": "quota meter",
+      "description": "Print remaining quota estimate based on local-stored per-call cost log, and the cost of the next planned command.",
+      "rationale": "Every API call is logged to a local quota_log table with its declared unit cost; meter shows daily rollup + per-resource breakdown.",
+      "example": "youtube-pp-cli quota meter --json",
+      "why_it_matters": "Prevents the n8n-blow-the-daily-quota-in-one-execution disaster. Every other command honors --show-quota to print cost before execution.",
+      "group": "Quota-aware operation"
+    },
+    {
+      "name": "Backup own channel",
+      "command": "backup",
+      "description": "Wraps yt-dlp with cookies-from-browser to archive own videos, captions, thumbnails, info-json to local or S3-compatible target.",
+      "rationale": "yt-dlp is the only path to bytes; this wrapper handles auth-cookie discovery, batch-file generation from sync'd video list, archive indexing in the local store.",
+      "example": "youtube-pp-cli backup --since 30d --captions --thumbnails --info-json --out ./archive/",
+      "why_it_matters": "Weekly cron via n8n → never lose your channel.",
+      "group": "Archive and recovery"
+    },
+    {
+      "name": "A/B thumbnail testing",
+      "command": "ab thumbnails",
+      "description": "Schedule thumbnail rotation via thumbnails.set, track CTR via Analytics API, compute statistical significance.",
+      "rationale": "Studio's native Test \u0026 Compare results are not in any API. This is the only API-only A/B path: rotate variants on a cron, sample impressions/CTR daily, compute z-test locally.",
+      "example": "youtube-pp-cli ab thumbnails start --video dQw4w9WgXcQ --variants a.png,b.png --rotate 24h",
+      "why_it_matters": "Existing third-party tools charge SaaS pricing for this. CLI replaces them.",
+      "group": "Growth automation"
+    },
+    {
+      "name": "Reporting API warehouse sync",
+      "command": "reporting sync",
+      "description": "Enumerate report types, ensure jobs exist, poll for completed reports, download CSV via redirect.",
+      "rationale": "The Reporting API is async (jobs + reports model); no CLI handles the full create-poll-download chain. This command is idempotent and cron-safe.",
+      "example": "youtube-pp-cli reporting sync --types content_owner_a1,channel_basic_a2 --since 30d --out ./reports/",
+      "why_it_matters": "Drop-in for a daily warehouse pull when Analytics API queries are too expensive at scale.",
+      "group": "Warehouse-style ingestion"
+    },
+    {
+      "name": "n8n recipe pack",
+      "command": "recipes n8n",
+      "description": "Prints ready-to-paste n8n workflow JSON snippets for the six highest-value automations.",
+      "rationale": "Each recipe wires the CLI into an Execute Command node plus Schedule/Webhook trigger; the snippets are byte-for-byte importable into n8n.",
+      "example": "youtube-pp-cli recipes n8n print held-comment-mod",
+      "why_it_matters": "Closes the loop on n8n integration — the user-stated goal.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Auto-chapters from transcript",
+      "command": "chapters auto",
+      "description": "Pull captions via yt-dlp, run an LLM provider to propose chapter timestamps, write back to description via videos.update.",
+      "rationale": "Combines yt-dlp caption pull with a pluggable LLM provider and the chapter-format requirements YouTube enforces in description bodies.",
+      "example": "youtube-pp-cli chapters auto dQw4w9WgXcQ --provider claude --apply",
+      "why_it_matters": "Saves 10-15 minutes of manual chapter authoring per video.",
+      "group": "Growth automation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Held-for-review moderation queue",
+      "command": "mod queue",
+      "description": "Pull every comment YouTube held for review, batch-approve or reject with optional author-ban in one verb.",
+      "rationale": "Combines commentThreads.list?moderationStatus=heldForReview with batch comments.setModerationStatus across pages, plus optional banAuthor flag — Studio requires three clicks per comment; no other CLI exposes this filter.",
+      "example": "youtube-pp-cli mod queue --since 7d --apply approve --ban-author",
+      "why_it_matters": "When automating creator workflows, this is the highest-frequency moderation task and the single endpoint Studio's UX hides behind multiple panes.",
+      "group": "Moderation as a verb"
+    },
+    {
+      "name": "Pattern-based comment auto-mod",
+      "command": "mod auto",
+      "description": "Apply YAML-defined regex/keyword rules (and optional LLM classify hook) to incoming or held comments.",
+      "rationale": "Reads local rules.yaml, fetches matching comments, calls comments.setModerationStatus in batch. Studio's blocked-words list cannot be modified via any official API.",
+      "example": "youtube-pp-cli mod auto --rules rules.yaml --since 1h --apply",
+      "why_it_matters": "Lets an agent enforce site-specific moderation policy without manual queue review.",
+      "group": "Moderation as a verb"
+    },
+    {
+      "name": "Daily/weekly analytics digest",
+      "command": "digest analytics",
+      "description": "Pre-baked Analytics API queries packaged as a Markdown report (top videos, CTR, watch time, traffic sources, revenue, Shorts vs long-form).",
+      "rationale": "Wraps reports.query across the 6-8 dimensions a creator actually cares about, joins with local store for video-title resolution, formats as Markdown.",
+      "example": "youtube-pp-cli digest analytics --since 7d --markdown",
+      "why_it_matters": "Drop into n8n Schedule Trigger → digest analytics → Send Email. One command replaces a hand-built dashboard.",
+      "group": "Daily creator rituals"
+    },
+    {
+      "name": "Per-video deep-dive digest",
+      "command": "digest video",
+      "description": "Single-video performance digest: retention curve, traffic sources, demographics, devices, end-screen impressions.",
+      "rationale": "Aggregates 4-5 Analytics queries for one videoId, formatted as Markdown.",
+      "example": "youtube-pp-cli digest video dQw4w9WgXcQ --markdown",
+      "why_it_matters": "When a new upload spikes or flops, this is the first question creators ask.",
+      "group": "Daily creator rituals"
+    },
+    {
+      "name": "Bulk metadata operations",
+      "command": "bulk metadata",
+      "description": "Filter the full video catalog by jq-style predicate, apply set/append/replace mutations, with dry-run diff.",
+      "rationale": "Enumerates uploads via playlistItems.list (1 quota unit) not search.list (100 units), applies videos.update in batches. No other CLI exposes the cheap-enumeration shortcut.",
+      "example": "youtube-pp-cli bulk metadata --category 22 --append-description footer.md --dry-run",
+      "why_it_matters": "Re-tag or footer-stamp an entire back catalog without manually paging through Studio.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "Playlist hygiene",
+      "command": "playlist hygiene",
+      "description": "Auto-add new uploads to playlists by tag/title pattern; reorder existing playlists by view count.",
+      "rationale": "Pattern → playlist mapping kept in a local rules file; playlistItems.insert and playlistItems.update applied in a single pass with quota accounting.",
+      "example": "youtube-pp-cli playlist hygiene --rules rules.yaml --apply",
+      "why_it_matters": "Keeps playlists curated without Studio drag-and-drop.",
+      "group": "Bulk operations"
+    },
+    {
+      "name": "PubSubHubbub subscribe + verify",
+      "command": "pubsub subscribe",
+      "description": "Subscribe a webhook callback to a channel's upload feed via WebSub; helper command verifies and prints the GET challenge response.",
+      "rationale": "PubSubHubbub is not in any OpenAPI surface; this is hand-built POST + verify-helper. No other CLI does this; n8n integration is the killer use case.",
+      "example": "youtube-pp-cli pubsub subscribe --channel UCxxx --callback https://n8n.example.com/webhook/yt --hub https://pubsubhubbub.appspot.com/",
+      "why_it_matters": "Switches uploads from polling (quota-burning, slow) to push-trigger in n8n. Real-time competitor-monitoring and own-upload pipelines.",
+      "group": "Reachability and triggers"
+    },
+    {
+      "name": "Quota meter",
+      "command": "quota meter",
+      "description": "Print remaining quota estimate based on local-stored per-call cost log, and the cost of the next planned command.",
+      "rationale": "Every API call is logged to a local quota_log table with its declared unit cost; meter shows daily rollup + per-resource breakdown.",
+      "example": "youtube-pp-cli quota meter --json",
+      "why_it_matters": "Prevents the n8n-blow-the-daily-quota-in-one-execution disaster. Every other command honors --show-quota to print cost before execution.",
+      "group": "Quota-aware operation"
+    },
+    {
+      "name": "Backup own channel",
+      "command": "backup",
+      "description": "Wraps yt-dlp with cookies-from-browser to archive own videos, captions, thumbnails, info-json to local or S3-compatible target.",
+      "rationale": "yt-dlp is the only path to bytes; this wrapper handles auth-cookie discovery, batch-file generation from sync'd video list, archive indexing in the local store.",
+      "example": "youtube-pp-cli backup --since 30d --captions --thumbnails --info-json --out ./archive/",
+      "why_it_matters": "Weekly cron via n8n → never lose your channel.",
+      "group": "Archive and recovery"
+    },
+    {
+      "name": "A/B thumbnail testing",
+      "command": "ab thumbnails",
+      "description": "Schedule thumbnail rotation via thumbnails.set, track CTR via Analytics API, compute statistical significance.",
+      "rationale": "Studio's native Test \u0026 Compare results are not in any API. This is the only API-only A/B path: rotate variants on a cron, sample impressions/CTR daily, compute z-test locally.",
+      "example": "youtube-pp-cli ab thumbnails start --video dQw4w9WgXcQ --variants a.png,b.png --rotate 24h",
+      "why_it_matters": "Existing third-party tools charge SaaS pricing for this. CLI replaces them.",
+      "group": "Growth automation"
+    },
+    {
+      "name": "Reporting API warehouse sync",
+      "command": "reporting sync",
+      "description": "Enumerate report types, ensure jobs exist, poll for completed reports, download CSV via redirect.",
+      "rationale": "The Reporting API is async (jobs + reports model); no CLI handles the full create-poll-download chain. This command is idempotent and cron-safe.",
+      "example": "youtube-pp-cli reporting sync --types content_owner_a1,channel_basic_a2 --since 30d --out ./reports/",
+      "why_it_matters": "Drop-in for a daily warehouse pull when Analytics API queries are too expensive at scale.",
+      "group": "Warehouse-style ingestion"
+    },
+    {
+      "name": "n8n recipe pack",
+      "command": "recipes n8n",
+      "description": "Prints ready-to-paste n8n workflow JSON snippets for the six highest-value automations.",
+      "rationale": "Each recipe wires the CLI into an Execute Command node plus Schedule/Webhook trigger; the snippets are byte-for-byte importable into n8n.",
+      "example": "youtube-pp-cli recipes n8n print held-comment-mod",
+      "why_it_matters": "Closes the loop on n8n integration — the user-stated goal.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Auto-chapters from transcript",
+      "command": "chapters auto",
+      "description": "Pull captions via yt-dlp, run an LLM provider to propose chapter timestamps, write back to description via videos.update.",
+      "rationale": "Combines yt-dlp caption pull with a pluggable LLM provider and the chapter-format requirements YouTube enforces in description bodies.",
+      "example": "youtube-pp-cli chapters auto dQw4w9WgXcQ --provider claude --apply",
+      "why_it_matters": "Saves 10-15 minutes of manual chapter authoring per video.",
+      "group": "Growth automation"
+    }
+  ],
+  "narrative": {
+    "display_name": "YouTube",
+    "headline": "Every YouTube Data, Analytics, and Reporting API endpoint, plus offline sync, the moderation verbs Studio hides, and a quota meter that keeps n8n from burning your daily limit.",
+    "value_prop": "Wraps the three official Google YouTube APIs (Data v3, Analytics v2, Reporting v1) as one CLI with sub-modules, adds the high-frequency operations creators actually need (held-comment moderation queue, daily analytics digest, bulk metadata, PubSubHubbub upload triggers, A/B thumbnail testing, channel backup via yt-dlp), and persists state in a local SQLite with FTS5 search. Designed for n8n Execute Command nodes: every command emits JSON on stdout with typed exit codes.",
+    "auth_narrative": "Authenticates via OAuth2 device flow (run `auth login` once, refresh token persisted at ~/.config/youtube-pp-cli/auth.json) or via a read-only YouTube API key for public-data commands. The auth flow handles scope escalation — re-running `auth login --scope yt-analytics-monetary.readonly` adds revenue access without re-doing the full flow. n8n calls the binary as a subprocess; the binary loads the persisted token. members.list requires a Google access-approval form separately; doctor surfaces this status.",
+    "quickstart": [
+      {
+        "command": "youtube-pp-cli auth login",
+        "comment": "One-time OAuth device flow; persists refresh token."
+      },
+      {
+        "command": "youtube-pp-cli sync",
+        "comment": "Pull videos, playlists, comments into local SQLite for offline queries."
+      },
+      {
+        "command": "youtube-pp-cli mod queue --since 7d --json",
+        "comment": "Show held-for-review comments — the highest-value daily workflow."
+      },
+      {
+        "command": "youtube-pp-cli digest analytics --since 7d --markdown",
+        "comment": "Weekly digest, pipe to mail or Slack via n8n."
+      },
+      {
+        "command": "youtube-pp-cli quota meter --json",
+        "comment": "Check remaining quota before running expensive bulk operations."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 unauthorized after `auth login`",
+        "fix": "Run `youtube-pp-cli auth status` to see granted scopes; if the operation needs Analytics, re-run `auth login --scope yt-analytics.readonly`."
+      },
+      {
+        "symptom": "quotaExceeded error mid-run",
+        "fix": "Run `youtube-pp-cli quota meter` to see today's spend. Bulk ops should use `bulk metadata --filter` not `search.list` — the meter prints cost hints."
+      },
+      {
+        "symptom": "`members.list` returns 403",
+        "fix": "members.list requires Google access approval. Run `doctor` to see status, then apply at the link printed."
+      },
+      {
+        "symptom": "PubSubHubbub callback never fires",
+        "fix": "Run `pubsub subscribe --verify-only` to confirm the hub accepted your callback; the helper prints the GET challenge."
+      },
+      {
+        "symptom": "yt-dlp not found for `backup`",
+        "fix": "`backup` shells out to yt-dlp. Install with `pip install -U yt-dlp` or set `--yt-dlp /path/to/binary`."
+      }
+    ],
+    "when_to_use": "Use youtube-pp-cli when you need to automate YouTube channel management from a server, cron job, or n8n workflow — especially for the moderation queue, daily analytics, and bulk metadata operations that Studio either makes tedious or hides entirely. Best when your YouTube identity is OAuth-authenticated and you want one binary covering all three official APIs with a single auth store. Skip it if you're a casual viewer or only need to download videos (yt-dlp alone is enough for that).",
+    "recipes": [
+      {
+        "title": "Daily moderation digest into Slack",
+        "command": "youtube-pp-cli mod queue --since 24h --json --select 'items.snippet.topLevelComment.snippet.{authorDisplayName,textOriginal,publishedAt}'",
+        "explanation": "Held-for-review comments emitted as filtered JSON for piping into n8n's Slack node."
+      },
+      {
+        "title": "Weekly analytics roll-up to email",
+        "command": "youtube-pp-cli digest analytics --since 7d --markdown \u003e /tmp/yt-week.md",
+        "explanation": "Markdown digest ready for n8n Send Email body — covers views, watch time, top videos, CTR, and revenue."
+      },
+      {
+        "title": "Append legal footer to every video posted this month",
+        "command": "youtube-pp-cli bulk metadata --published-after 2026-05-01 --append-description ./footer.md",
+        "explanation": "Dry-run prints the videos that would be updated; remove `--dry-run` to apply. Quota-cheap because it enumerates via playlistItems.list."
+      },
+      {
+        "title": "PubSubHubbub upload-trigger into n8n",
+        "command": "youtube-pp-cli pubsub subscribe --channel UCxxx --callback https://n8n.example.com/webhook/yt-upload --hub https://pubsubhubbub.appspot.com/",
+        "explanation": "Switches from polling for new uploads (quota-burning) to push triggers."
+      },
+      {
+        "title": "Backup the last 30 days of your channel weekly",
+        "command": "youtube-pp-cli backup --since 30d --captions --thumbnails --info-json --out s3://backups/yt/",
+        "explanation": "Wraps yt-dlp with the right auth cookies; the index is recorded in the local SQLite store so future runs skip already-archived videos."
+      }
+    ],
+    "trigger_phrases": [
+      "moderate my youtube comments",
+      "youtube analytics digest",
+      "bulk update youtube video metadata",
+      "youtube channel backup",
+      "youtube ab thumbnail test",
+      "use youtube",
+      "run youtube"
+    ]
+  }
+}

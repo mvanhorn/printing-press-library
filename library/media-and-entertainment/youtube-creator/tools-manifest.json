@@ -1,0 +1,4155 @@
+{
+  "api_name": "youtube-creator",
+  "base_url": "https://youtube.googleapis.com",
+  "description": "Combined CLI for multiple API services",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "YOUTUBE_DATA_OAUTH2C"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YOUTUBE_DATA_OAUTH2C",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "group-items_delete",
+      "description": "Removes an item from a group. Optional: id. Returns the EmptyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/groupItems",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The `id` parameter specifies the YouTube group item ID of the group item that is being deleted."
+        }
+      ]
+    },
+    {
+      "name": "group-items_insert",
+      "description": "Creates a group item. Optional: errors, etag, groupId (plus 3 more). Returns the new GroupItem.",
+      "method": "POST",
+      "path": "/v2/groupItems",
+      "params": [
+        {
+          "name": "errors",
+          "type": "object",
+          "location": "body",
+          "description": "Request Error information. The presence of an error field signals that the operation has failed."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "The Etag of this resource."
+        },
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the group that contains the item."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the `channel`, `video`, `playlist`, or `asset` resource that is included in the group. Note that this ID refers specifically to the inclusion of that resource in a particular group and is different than the channel ID, video ID, playlist ID, or asset ID that uniquely identifies the resource itself. The `resource.id` property's value specifies the unique channel, video, playlist, or asset ID."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies the API resource's type. The value will be `youtube#groupItem`."
+        },
+        {
+          "name": "resource",
+          "type": "object",
+          "location": "body",
+          "description": "Resource"
+        }
+      ]
+    },
+    {
+      "name": "group-items_list",
+      "description": "Returns a collection of group items that match the API request parameters. Optional: groupId.",
+      "method": "GET",
+      "path": "/v2/groupItems",
+      "params": [
+        {
+          "name": "groupId",
+          "type": "string",
+          "location": "query",
+          "description": "The `groupId` parameter specifies the unique ID of the group for which you want to retrieve group items."
+        }
+      ]
+    },
+    {
+      "name": "groups_delete",
+      "description": "Deletes a group. Optional: id. Returns the EmptyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/groups",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The `id` parameter specifies the YouTube group ID of the group that is being deleted."
+        }
+      ]
+    },
+    {
+      "name": "groups_insert",
+      "description": "Creates a group. Optional: contentDetails, errors, etag (plus 3 more). Returns the new Group.",
+      "method": "POST",
+      "path": "/v2/groups",
+      "params": [
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "A group's content details."
+        },
+        {
+          "name": "errors",
+          "type": "object",
+          "location": "body",
+          "description": "Request Error information. The presence of an error field signals that the operation has failed."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "The Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the group."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies the API resource's type. The value will be `youtube#group`."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "A group snippet."
+        }
+      ]
+    },
+    {
+      "name": "groups_list",
+      "description": "Returns a collection of groups that match the API request parameters. For example, you can retrieve all groups that the authenticated user owns, or you can retrieve one or more groups by their unique IDs. Optional: id, mine, pageToken.",
+      "method": "GET",
+      "path": "/v2/groups",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The `id` parameter specifies a comma-separated list of the YouTube group ID(s) for the resource(s) that are being retrieved. Each group must be owned by the authenticated user. In a `group` resource, the `id` property specifies the group's YouTube group ID. Note that if you do not specify a value for the `id` parameter, then you must set the `mine` parameter to `true`."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request. Set this parameter's value to true to retrieve all groups owned by the authenticated user."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The `pageToken` parameter identifies a specific page in the result set that should be returned. In an API response, the `nextPageToken` property identifies the next page that can be retrieved."
+        }
+      ]
+    },
+    {
+      "name": "groups_update",
+      "description": "Modifies a group. For example, you could change a group's title. Optional: contentDetails, errors, etag (plus 3 more). Returns the updated Group.",
+      "method": "PUT",
+      "path": "/v2/groups",
+      "params": [
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "A group's content details."
+        },
+        {
+          "name": "errors",
+          "type": "object",
+          "location": "body",
+          "description": "Request Error information. The presence of an error field signals that the operation has failed."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "The Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the group."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies the API resource's type. The value will be `youtube#group`."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "A group snippet."
+        }
+      ]
+    },
+    {
+      "name": "media_download",
+      "description": "Method for media download. Download is supported on the URI `/v1/media/{+name}?alt=media`. Required: resourceName. Returns the GdataMedia.",
+      "method": "GET",
+      "path": "/v1/media/{resourceName}",
+      "params": [
+        {
+          "name": "resourceName",
+          "type": "string",
+          "location": "path",
+          "description": "Name of the media that is being downloaded.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "report-types_list",
+      "description": "Lists report types. Optional: includeSystemManaged, pageSize, pageToken. Returns the ListReportTypesResponse.",
+      "method": "GET",
+      "path": "/v1/reportTypes",
+      "params": [
+        {
+          "name": "includeSystemManaged",
+          "type": "bool",
+          "location": "query",
+          "description": "If set to true, also system-managed report types will be returned; otherwise only the report types that can be used to create new reporting jobs will be returned."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Requested page size. Server may return fewer report types than requested. If unspecified, server will pick an appropriate default."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A token identifying a page of results the server should return. Typically, this is the value of ListReportTypesResponse.next_page_token returned in response to the previous call to the `ListReportTypes` method."
+        }
+      ]
+    },
+    {
+      "name": "reports_query",
+      "description": "Retrieve your YouTube Analytics reports. Optional: currency, dimensions, endDate (plus 8 more). Returns the QueryResponse.",
+      "method": "GET",
+      "path": "/v2/reports",
+      "params": [
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "The currency to which financial metrics should be converted. The default is US Dollar (USD). If the result contains no financial metrics, this flag will be ignored. Responds with an error if the specified currency is not recognized.', pattern: [A-Z]{3}"
+        },
+        {
+          "name": "dimensions",
+          "type": "string",
+          "location": "query",
+          "description": "A comma-separated list of YouTube Analytics dimensions, such as `views` or `ageGroup,gender`. See the [Available Reports](/youtube/analytics/v2/available_reports) document for a list of the reports that you can retrieve and the dimensions used for those reports. Also see the [Dimensions](/youtube/analytics/v2/dimsmets/dims) document for definitions of those dimensions.' pattern: [0-9a-zA-Z,]+"
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "The end date for fetching YouTube Analytics data. The value should be in `YYYY-MM-DD` format. required: true, pattern: [0-9]{4}-[0-9]{2}-[0-9]{2}"
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "query",
+          "description": "A list of filters that should be applied when retrieving YouTube Analytics data. The [Available Reports](/youtube/analytics/v2/available_reports) document identifies the dimensions that can be used to filter each report, and the [Dimensions](/youtube/analytics/v2/dimsmets/dims) document defines those dimensions. If a request uses multiple filters, join them together with a semicolon (`;`), and the returned result table will satisfy both filters. For example, a filters parameter value of `video==dMH0bHeiRNg;country==IT` restricts the result set to include data for the given video in Italy.',"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies the YouTube channel or content owner for which you are retrieving YouTube Analytics data. - To request data for a YouTube user, set the `ids` parameter value to `channel==CHANNEL_ID`, where `CHANNEL_ID` specifies the unique YouTube channel ID. - To request data for a YouTube CMS content owner, set the `ids` parameter value to `contentOwner==OWNER_NAME`, where `OWNER_NAME` is the CMS name of the content owner. required: true, pattern: [a-zA-Z]+==[a-zA-Z0-9_+-]+"
+        },
+        {
+          "name": "includeHistoricalChannelData",
+          "type": "bool",
+          "location": "query",
+          "description": "If set to true historical data (i.e. channel data from before the linking of the channel to the content owner) will be retrieved.',"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of rows to include in the response.', minValue: 1"
+        },
+        {
+          "name": "metrics",
+          "type": "string",
+          "location": "query",
+          "description": "A comma-separated list of YouTube Analytics metrics, such as `views` or `likes,dislikes`. See the [Available Reports](/youtube/analytics/v2/available_reports) document for a list of the reports that you can retrieve and the metrics available in each report, and see the [Metrics](/youtube/analytics/v2/dimsmets/mets) document for definitions of those metrics. required: true, pattern: [0-9a-zA-Z,]+"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "A comma-separated list of dimensions or metrics that determine the sort order for YouTube Analytics data. By default the sort order is ascending. The '`-`' prefix causes descending sort order.', pattern: [-0-9a-zA-Z,]+"
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "The start date for fetching YouTube Analytics data. The value should be in `YYYY-MM-DD` format. required: true, pattern: '[0-9]{4}-[0-9]{2}-[0-9]{2}"
+        },
+        {
+          "name": "startIndex",
+          "type": "int",
+          "location": "query",
+          "description": "An index of the first entity to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter (one-based, inclusive).', minValue: 1"
+        }
+      ]
+    },
+    {
+      "name": "youtube_abuse-reports-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: abuseTypes, description, relatedEntities (plus 1 more). Returns the new AbuseReport.",
+      "method": "POST",
+      "path": "/youtube/v3/abuseReports",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation.",
+          "required": true
+        },
+        {
+          "name": "abuseTypes",
+          "type": "array",
+          "location": "body",
+          "description": "Abuse types"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "relatedEntities",
+          "type": "array",
+          "location": "body",
+          "description": "Related entities"
+        },
+        {
+          "name": "subject",
+          "type": "object",
+          "location": "body",
+          "description": "Subject"
+        }
+      ]
+    },
+    {
+      "name": "youtube_activities-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, home, maxResults (plus 5 more). Returns the ActivityListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/activities",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more activity resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in an activity resource, the snippet property contains other properties that identify the type of activity, a display title for the activity, and so forth. If you set *part=snippet*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel id"
+        },
+        {
+          "name": "home",
+          "type": "bool",
+          "location": "query",
+          "description": "Home"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Mine"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "publishedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Published after"
+        },
+        {
+          "name": "publishedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Published before"
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Region code"
+        }
+      ]
+    },
+    {
+      "name": "youtube_captions-delete",
+      "description": "Deletes a resource. Required: id. Optional: onBehalfOf, onBehalfOfContentOwner. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/captions",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOf",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the Google+ Page for the channel that the request is be on behalf of"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_captions-download",
+      "description": "Downloads a caption track. Required: id. Optional: onBehalfOf, onBehalfOfContentOwner, tfmt (plus 1 more).",
+      "method": "GET",
+      "path": "/youtube/v3/captions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the caption track to download, required for One Platform.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOf",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the Google+ Page for the channel that the request is be on behalf of"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "tfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Convert the captions into this format. Supported options are sbv, srt, and vtt."
+        },
+        {
+          "name": "tlang",
+          "type": "string",
+          "location": "query",
+          "description": "tlang is the language code; machine translate the captions into this language."
+        }
+      ]
+    },
+    {
+      "name": "youtube_captions-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: onBehalfOf, onBehalfOfContentOwner, sync (plus 4 more). Returns the new Caption.",
+      "method": "POST",
+      "path": "/youtube/v3/captions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the caption resource parts that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOf",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the Google+ Page for the channel that the request is be on behalf of"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "sync",
+          "type": "bool",
+          "location": "query",
+          "description": "Extra parameter to allow automatically syncing the uploaded caption/transcript with the audio."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the caption track."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#caption'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a caption track, such as its language and name."
+        }
+      ]
+    },
+    {
+      "name": "youtube_captions-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part, videoId. Optional: id, onBehalfOf, onBehalfOfContentOwner. Returns the CaptionListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/captions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more caption resource parts that the API response will include. The part names that you can include in the parameter value are id and snippet.",
+          "required": true
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the captions for the specified video.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Returns the captions with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "onBehalfOf",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the Google+ Page for the channel that the request is on behalf of."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_captions-update",
+      "description": "Updates an existing resource. Required: part. Optional: onBehalfOf, onBehalfOfContentOwner, sync (plus 4 more). Returns the updated Caption.",
+      "method": "PUT",
+      "path": "/youtube/v3/captions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more caption resource parts that the API response will include. The part names that you can include in the parameter value are id and snippet.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOf",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the Google+ Page for the channel that the request is on behalf of."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "sync",
+          "type": "bool",
+          "location": "query",
+          "description": "Extra parameter to allow automatically syncing the uploaded caption/transcript with the audio."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the caption track."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#caption'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a caption track, such as its language and name."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channel-banners-insert",
+      "description": "Inserts a new resource into this collection. Optional: channelId, onBehalfOfContentOwner, onBehalfOfContentOwnerChannel (plus 3 more). Returns the new ChannelBannerResource.",
+      "method": "POST",
+      "path": "/youtube/v3/channelBanners/insert",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Unused, channel_id is currently derived from the security context of the requestor."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag"
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#channelBannerResource'."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL of this banner image."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channel-sections-delete",
+      "description": "Deletes a resource. Required: id. Optional: onBehalfOfContentOwner. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/channelSections",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channel-sections-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, contentDetails (plus 6 more). Returns the new ChannelSection.",
+      "method": "POST",
+      "path": "/youtube/v3/channelSections",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The part names that you can include in the parameter value are snippet and contentDetails.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about a channelsection, including playlists and channels."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the channel section."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#channelSection'."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "Localizations for different languages"
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a channel section, including title, style and position."
+        },
+        {
+          "name": "targeting",
+          "type": "object",
+          "location": "body",
+          "description": "ChannelSection targeting setting."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channel-sections-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, hl, id (plus 2 more). Returns the ChannelSectionListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/channelSections",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more channelSection resource properties that the API response will include. The part names that you can include in the parameter value are id, snippet, and contentDetails. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a channelSection resource, the snippet property contains other properties, such as a display title for the channelSection. If you set *part=snippet*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the ChannelSections owned by the specified channel ID."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Return content in specified language"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the ChannelSections with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the ChannelSections owned by the authenticated user."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channel-sections-update",
+      "description": "Updates an existing resource. Required: part. Optional: onBehalfOfContentOwner, contentDetails, etag (plus 5 more). Returns the updated ChannelSection.",
+      "method": "PUT",
+      "path": "/youtube/v3/channelSections",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The part names that you can include in the parameter value are snippet and contentDetails.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about a channelsection, including playlists and channels."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the channel section."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#channelSection'."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "Localizations for different languages"
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a channel section, including title, style and position."
+        },
+        {
+          "name": "targeting",
+          "type": "object",
+          "location": "body",
+          "description": "ChannelSection targeting setting."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channels-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: categoryId, forUsername, hl (plus 7 more). Returns the ChannelListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/channels",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more channel resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a channel resource, the contentDetails property contains other properties, such as the uploads properties. As such, if you set *part=contentDetails*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the channels within the specified guide category ID."
+        },
+        {
+          "name": "forUsername",
+          "type": "string",
+          "location": "query",
+          "description": "Return the channel associated with a YouTube username."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized. The field is filled with the default metadata if there is no localization in the specified language. The parameter value must be a language code included in the list returned by the i18nLanguages.list method (e.g. en_US, es_MX)."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the channels with the specified IDs."
+        },
+        {
+          "name": "managedByMe",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the channels managed by the authenticated user."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the ids of channels owned by the authenticated user."
+        },
+        {
+          "name": "mySubscribers",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the channels subscribed to the authenticated user"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_channels-update",
+      "description": "Updates an existing resource. Required: part. Optional: onBehalfOfContentOwner, auditDetails, brandingSettings (plus 11 more). Returns the updated Channel.",
+      "method": "PUT",
+      "path": "/youtube/v3/channels",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The API currently only allows the parameter value to be set to either brandingSettings or invideoPromotion. (You cannot update both of those parts with a single request.) Note that this method overrides the existing values for all of the mutable properties that are contained in any parts that the parameter value specifies.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "The *onBehalfOfContentOwner* parameter indicates that the authenticated user is acting on behalf of the content owner specified in the parameter value. This parameter is intended for YouTube content partners that own and manage many different YouTube channels. It allows content owners to authenticate once and get access to all their video and channel data, without having to provide authentication credentials for each individual channel. The actual CMS account that the user authenticates with needs to be linked to the specified YouTube content owner."
+        },
+        {
+          "name": "auditDetails",
+          "type": "object",
+          "location": "body",
+          "description": "The auditDetails object encapsulates channel data that is relevant for YouTube Partners during the audit process."
+        },
+        {
+          "name": "brandingSettings",
+          "type": "object",
+          "location": "body",
+          "description": "Branding properties of a YouTube channel."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about the content of a channel."
+        },
+        {
+          "name": "contentOwnerDetails",
+          "type": "object",
+          "location": "body",
+          "description": "The contentOwnerDetails object encapsulates channel data that is relevant for YouTube Partners linked with the channel."
+        },
+        {
+          "name": "conversionPings",
+          "type": "object",
+          "location": "body",
+          "description": "The conversionPings object encapsulates information about conversion pings that need to be respected by the channel."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the channel."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#channel'."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "Localizations for different languages"
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a channel, including title, description and thumbnails."
+        },
+        {
+          "name": "statistics",
+          "type": "object",
+          "location": "body",
+          "description": "Statistics about a channel: number of subscribers, number of videos in the channel, etc."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "JSON template for the status part of a channel."
+        },
+        {
+          "name": "topicDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Freebase topic information related to the channel."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comment-threads-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: etag, id, kind (default: youtube#commentThread) (plus 2 more). Returns the new CommentThread.",
+      "method": "POST",
+      "path": "/youtube/v3/commentThreads",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter identifies the properties that the API response will include. Set the parameter value to snippet. The snippet part has a quota cost of 2 units.",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the comment thread."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#commentThread'."
+        },
+        {
+          "name": "replies",
+          "type": "object",
+          "location": "body",
+          "description": "Comments written in (direct or indirect) reply to the top level comment."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a comment thread."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comment-threads-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: allThreadsRelatedToChannelId, channelId, id (plus 7 more). Returns the CommentThreadListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/commentThreads",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more commentThread resource properties that the API response will include.",
+          "required": true
+        },
+        {
+          "name": "allThreadsRelatedToChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the comment threads of all videos of the channel and the channel comments as well."
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the comment threads for all the channel comments (ie does not include comments left on videos)."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Returns the comment threads with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "moderationStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Limits the returned comment threads to those with the specified moderation status. Not compatible with the 'id' filter. Valid values: published, heldForReview, likelySpam."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "searchTerms",
+          "type": "string",
+          "location": "query",
+          "description": "Limits the returned comment threads to those matching the specified key words. Not compatible with the 'id' filter."
+        },
+        {
+          "name": "textFormat",
+          "type": "string",
+          "location": "query",
+          "description": "The requested text format for the returned comments."
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the comment threads of the specified video."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comments-delete",
+      "description": "Deletes a resource. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/comments",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_comments-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: etag, id, kind (default: youtube#comment) (plus 1 more). Returns the new Comment.",
+      "method": "POST",
+      "path": "/youtube/v3/comments",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter identifies the properties that the API response will include. Set the parameter value to snippet. The snippet part has a quota cost of 2 units.",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the comment."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#comment'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a comment, such as its author and text."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comments-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: id, maxResults, pageToken (plus 2 more). Returns the CommentListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/comments",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more comment resource properties that the API response will include.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Returns the comments with the given IDs for One Platform."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "parentId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns replies to the specified comment. Note, currently YouTube features only one level of replies (ie replies to top level comments). However replies to replies may be supported in the future."
+        },
+        {
+          "name": "textFormat",
+          "type": "string",
+          "location": "query",
+          "description": "The requested text format for the returned comments."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comments-mark-as-spam",
+      "description": "Expresses the caller's opinion that one or more comments should be flagged as spam. Required: id.",
+      "method": "POST",
+      "path": "/youtube/v3/comments/markAsSpam",
+      "params": [
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Flags the comments with the given IDs as spam in the caller's opinion.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_comments-set-moderation-status",
+      "description": "Sets the moderation status of one or more comments. Required: id, moderationStatus. Optional: banAuthor.",
+      "method": "POST",
+      "path": "/youtube/v3/comments/setModerationStatus",
+      "params": [
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Modifies the moderation status of the comments with the given IDs",
+          "required": true
+        },
+        {
+          "name": "moderationStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Specifies the requested moderation status. Note, comments can be in statuses, which are not available through this call. For example, this call does not allow to mark a comment as 'likely spam'. Valid values: MODERATION_STATUS_PUBLISHED, MODERATION_STATUS_HELD_FOR_REVIEW, MODERATION_STATUS_REJECTED.",
+          "required": true
+        },
+        {
+          "name": "banAuthor",
+          "type": "bool",
+          "location": "query",
+          "description": "If set to true the author of the comment gets added to the ban list. This means all future comments of the author will autmomatically be rejected. Only valid in combination with STATUS_REJECTED."
+        }
+      ]
+    },
+    {
+      "name": "youtube_comments-update",
+      "description": "Updates an existing resource. Required: part. Optional: etag, id, kind (default: youtube#comment) (plus 1 more). Returns the updated Comment.",
+      "method": "PUT",
+      "path": "/youtube/v3/comments",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter identifies the properties that the API response will include. You must at least include the snippet part in the parameter value since that part contains all of the properties that the API request can update.",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the comment."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#comment'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a comment, such as its author and text."
+        }
+      ]
+    },
+    {
+      "name": "youtube_i18n-languages-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns the I18nLanguageListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/i18nLanguages",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the i18nLanguage resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
+        }
+      ]
+    },
+    {
+      "name": "youtube_i18n-regions-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns the I18nRegionListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/i18nRegions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the i18nRegion resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-bind",
+      "description": "Bind a broadcast to a stream. Required: id, part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, streamId. Returns the new LiveBroadcast.",
+      "method": "POST",
+      "path": "/youtube/v3/liveBroadcasts/bind",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Broadcast to bind to the stream",
+          "required": true
+        },
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more liveBroadcast resource...",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "streamId",
+          "type": "string",
+          "location": "query",
+          "description": "Stream to bind, if not set unbind the current one."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-delete",
+      "description": "Delete a given broadcast. Required: id. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/liveBroadcasts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Broadcast to delete.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-insert",
+      "description": "Inserts a new stream for the authenticated user. Required: part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, contentDetails (plus 6 more). Returns the new LiveBroadcast.",
+      "method": "POST",
+      "path": "/youtube/v3/liveBroadcasts",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The part properties that you can include in the parameter value are id, snippet, contentDetails, and status.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Detailed settings of a broadcast."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the broadcast."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#liveBroadcast'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic broadcast information."
+        },
+        {
+          "name": "statistics",
+          "type": "object",
+          "location": "body",
+          "description": "Statistics about the live broadcast. These represent a snapshot of the values at the time of the request. Statistics are only returned for live broadcasts."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Live broadcast state."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-insert-cuepoint",
+      "description": "Insert cuepoints in a broadcast. Optional: id, onBehalfOfContentOwner, onBehalfOfContentOwnerChannel (plus 6 more). Returns the new Cuepoint.",
+      "method": "POST",
+      "path": "/youtube/v3/liveBroadcasts/cuepoint",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Broadcast to insert ads to, or equivalently `external_video_id` for internal use."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more liveBroadcast resource..."
+        },
+        {
+          "name": "cueType",
+          "type": "string",
+          "location": "body",
+          "description": "Cue type"
+        },
+        {
+          "name": "durationSecs",
+          "type": "int",
+          "location": "body",
+          "description": "The duration of this cuepoint."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag"
+        },
+        {
+          "name": "insertionOffsetTimeMs",
+          "type": "string",
+          "location": "body",
+          "description": "The time when the cuepoint should be inserted by offset to the broadcast actual start time."
+        },
+        {
+          "name": "walltimeMs",
+          "type": "string",
+          "location": "body",
+          "description": "The wall clock time at which the cuepoint should be inserted. Only one of insertion_offset_time_ms and walltime_ms may be set at a time."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-list",
+      "description": "Retrieve the list of broadcasts associated with the given channel. Required: part. Optional: broadcastStatus, broadcastType, id (plus 5 more). Returns the LiveBroadcastListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/liveBroadcasts",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more liveBroadcast resource properties that the API response will include. The part names that you can include in the parameter value are id, snippet, contentDetails, status and statistics.",
+          "required": true
+        },
+        {
+          "name": "broadcastStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Return broadcasts with a certain status, e.g. active broadcasts."
+        },
+        {
+          "name": "broadcastType",
+          "type": "string",
+          "location": "query",
+          "description": "Return only broadcasts with the selected type."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return broadcasts with the given ids from Stubby or Apiary."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Mine"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-transition",
+      "description": "Transition a broadcast to a given status. Required: broadcastStatus, id, part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel. Returns the new LiveBroadcast.",
+      "method": "POST",
+      "path": "/youtube/v3/liveBroadcasts/transition",
+      "params": [
+        {
+          "name": "broadcastStatus",
+          "type": "string",
+          "location": "query",
+          "description": "The status to which the broadcast is going to transition.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Broadcast to transition.",
+          "required": true
+        },
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more liveBroadcast resource...",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-broadcasts-update",
+      "description": "Updates an existing broadcast for the authenticated user. Required: part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, contentDetails (plus 6 more). Returns the updated LiveBroadcast.",
+      "method": "PUT",
+      "path": "/youtube/v3/liveBroadcasts",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The part properties that you can include in the parameter value are id, snippet, contentDetails, and status. Note that this method will override the existing values for all of the mutable properties that are contained in any parts that the parameter value specifies. For example, a broadcast's privacy status is defined in the status part. As such, if your request is updating a private or unlisted broadcast, and the request's part parameter value includes the status part, the broadcast's privacy setting will be updated to whatever value the request body specifies. If the request body does not specify a value, the existing privacy setting will be removed and the broadcast will revert to the default privacy setting.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Detailed settings of a broadcast."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the broadcast."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#liveBroadcast'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic broadcast information."
+        },
+        {
+          "name": "statistics",
+          "type": "object",
+          "location": "body",
+          "description": "Statistics about the live broadcast. These represent a snapshot of the values at the time of the request. Statistics are only returned for live broadcasts."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Live broadcast state."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-bans-delete",
+      "description": "Deletes a chat ban. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/liveChat/bans",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-bans-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: etag, id, kind (default: youtube#liveChatBan) (plus 1 more). Returns the new LiveChatBan.",
+      "method": "POST",
+      "path": "/youtube/v3/liveChat/bans",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response returns. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the ban."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string `'youtube#liveChatBan'`."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Snippet"
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-messages-delete",
+      "description": "Deletes a chat message. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/liveChat/messages",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-messages-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: authorDetails, etag, id (plus 2 more). Returns the new LiveChatMessage.",
+      "method": "POST",
+      "path": "/youtube/v3/liveChat/messages",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes. It identifies the properties that the write operation will set as well as the properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "authorDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Author details"
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the message."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#liveChatMessage'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Next ID: 33"
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-messages-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: liveChatId, part. Optional: hl, maxResults, pageToken (plus 1 more). Returns the LiveChatMessageListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/liveChat/messages",
+      "params": [
+        {
+          "name": "liveChatId",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the live chat for which comments should be returned.",
+          "required": true
+        },
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the liveChatComment resource parts that the API response will include. Supported values are id and snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Specifies the localization language in which the system messages should be returned."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned. In an API response, the nextPageToken property identify other pages that could be retrieved."
+        },
+        {
+          "name": "profileImageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Specifies the size of the profile image that should be returned for each user."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-moderators-delete",
+      "description": "Deletes a chat moderator. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/liveChat/moderators",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-moderators-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: etag, id, kind (default: youtube#liveChatModerator) (plus 1 more). Returns the new LiveChatModerator.",
+      "method": "POST",
+      "path": "/youtube/v3/liveChat/moderators",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response returns. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the moderator."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#liveChatModerator'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Snippet"
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-chat-moderators-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: liveChatId, part. Optional: maxResults, pageToken. Returns the LiveChatModeratorListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/liveChat/moderators",
+      "params": [
+        {
+          "name": "liveChatId",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the live chat for which moderators should be returned.",
+          "required": true
+        },
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the liveChatModerator resource parts that the API response will include. Supported values are id and snippet.",
+          "required": true
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-streams-delete",
+      "description": "Deletes an existing stream for the authenticated user. Required: id. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/liveStreams",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-streams-insert",
+      "description": "Inserts a new stream for the authenticated user. Required: part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, cdn (plus 6 more). Returns the new LiveStream.",
+      "method": "POST",
+      "path": "/youtube/v3/liveStreams",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The part properties that you can include in the parameter value are id, snippet, cdn, content_details, and status.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "cdn",
+          "type": "object",
+          "location": "body",
+          "description": "Brief description of the live stream cdn settings."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Detailed settings of a stream."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the stream."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#liveStream'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Snippet"
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Brief description of the live stream status."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-streams-list",
+      "description": "Retrieve the list of streams associated with the given channel. --. Required: part. Optional: id, maxResults, mine (plus 3 more). Returns the LiveStreamListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/liveStreams",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more liveStream resource properties that the API response will include. The part names that you can include in the parameter value are id, snippet, cdn, and status.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return LiveStreams with the given ids from Stubby or Apiary."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Mine"
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_live-streams-update",
+      "description": "Updates an existing stream for the authenticated user. Required: part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, cdn (plus 6 more). Returns the updated LiveStream.",
+      "method": "PUT",
+      "path": "/youtube/v3/liveStreams",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. The part properties that you can include in the parameter value are id, snippet, cdn, and status. Note that this method will override the existing values for all of the mutable properties that are contained in any parts that the parameter value specifies. If the request body does not specify a value for a mutable property, the existing value for that property will be removed.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "cdn",
+          "type": "object",
+          "location": "body",
+          "description": "Brief description of the live stream cdn settings."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Detailed settings of a stream."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube assigns to uniquely identify the stream."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#liveStream'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Snippet"
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Brief description of the live stream status."
+        }
+      ]
+    },
+    {
+      "name": "youtube_members-list",
+      "description": "Retrieves a list of members that match the request criteria for a channel. Required: part. Optional: filterByMemberChannelId, hasAccessToLevel, maxResults (plus 2 more). Returns the MemberListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/members",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the member resource parts that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "filterByMemberChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Comma separated list of channel IDs. Only data about members that are part of this list will be included in the response."
+        },
+        {
+          "name": "hasAccessToLevel",
+          "type": "string",
+          "location": "query",
+          "description": "Filter members in the results set to the ones that have access to a level."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Parameter that specifies which channel members to return."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_memberships-levels-list",
+      "description": "Retrieves a list of all pricing levels offered by a creator to the fans. Required: part. Returns the MembershipsLevelListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/membershipsLevels",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the membershipsLevel resource parts that the API response will include. Supported values are id and snippet.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlist-items-delete",
+      "description": "Deletes a resource. Required: id. Optional: onBehalfOfContentOwner. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/playlistItems",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlist-items-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: onBehalfOfContentOwner, contentDetails, etag (plus 4 more). Returns the new PlaylistItem.",
+      "method": "POST",
+      "path": "/youtube/v3/playlistItems",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Content details"
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the playlist item."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#playlistItem'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a playlist, including title, description and thumbnails. Basic details of a YouTube Playlist item provided by the author. Next ID: 15"
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Information about the playlist item's privacy status."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlist-items-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: id, maxResults, onBehalfOfContentOwner (plus 3 more). Returns the PlaylistItemListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/playlistItems",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more playlistItem resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a playlistItem resource, the snippet property contains numerous fields, including the title, description, position, and resourceId properties. As such, if you set *part=snippet*, the API response will contain all of those properties.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "playlistId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the playlist items within the given playlist."
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the playlist items associated with the given video ID."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlist-items-update",
+      "description": "Updates an existing resource. Required: part. Optional: onBehalfOfContentOwner, contentDetails, etag (plus 4 more). Returns the updated PlaylistItem.",
+      "method": "PUT",
+      "path": "/youtube/v3/playlistItems",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. Note that this method will override the existing values for all of the mutable properties that are contained in any parts that the parameter value specifies. For example, a playlist item can specify a start time and end time, which identify the times portion of the video that should play when users watch the video in the playlist. If your request is updating a playlist item that sets these values, and the request's part parameter value includes the contentDetails part, the playlist item's start and end times will be updated to whatever value the request body specifies. If the request body does not specify values, the existing start and end times will be removed and replaced with the default settings.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Content details"
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the playlist item."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#playlistItem'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a playlist, including title, description and thumbnails. Basic details of a YouTube Playlist item provided by the author. Next ID: 15"
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Information about the playlist item's privacy status."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlists-delete",
+      "description": "Deletes a resource. Required: id. Optional: onBehalfOfContentOwner. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlists-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: onBehalfOfContentOwner, onBehalfOfContentOwnerChannel, contentDetails (plus 7 more). Returns the new Playlist.",
+      "method": "POST",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Content details"
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the playlist."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#playlist'."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "Localizations for different languages"
+        },
+        {
+          "name": "player",
+          "type": "object",
+          "location": "body",
+          "description": "Player"
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a playlist, including title, description and thumbnails."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlists-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, hl, id (plus 5 more). Returns the PlaylistListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more playlist resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a playlist resource, the snippet property contains properties like author, title, description, tags, and timeCreated. As such, if you set *part=snippet*, the API response will contain all of those properties.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the playlists owned by the specified channel ID."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Return content in specified language"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the playlists with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the playlists owned by the authenticated user."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlists-update",
+      "description": "Updates an existing resource. Required: part. Optional: onBehalfOfContentOwner, contentDetails, etag (plus 6 more). Returns the updated Playlist.",
+      "method": "PUT",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. Note that this method will override the existing values for mutable properties that are contained in any parts that the request body specifies. For example, a playlist's description is contained in the snippet part, which must be included in the request body. If the request does not specify a value for the snippet.description property, the playlist's existing description will be deleted.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Content details"
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the playlist."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#playlist'."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "Localizations for different languages"
+        },
+        {
+          "name": "player",
+          "type": "object",
+          "location": "body",
+          "description": "Player"
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a playlist, including title, description and thumbnails."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "youtube_search-list",
+      "description": "Retrieves a list of search resources. Required: part. Optional: channelId, channelType, eventType (plus 27 more). Returns the SearchListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/search",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more search resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on resources belonging to this channelId."
+        },
+        {
+          "name": "channelType",
+          "type": "string",
+          "location": "query",
+          "description": "Add a filter on the channel search."
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the livestream status of the videos."
+        },
+        {
+          "name": "forContentOwner",
+          "type": "bool",
+          "location": "query",
+          "description": "Search owned by a content owner."
+        },
+        {
+          "name": "forDeveloper",
+          "type": "bool",
+          "location": "query",
+          "description": "Restrict the search to only retrieve videos uploaded using the project id of the authenticated user."
+        },
+        {
+          "name": "forMine",
+          "type": "bool",
+          "location": "query",
+          "description": "Search for the private videos of the authenticated user."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on location of the video"
+        },
+        {
+          "name": "locationRadius",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on distance from the location (specified above)."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order of the results."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        },
+        {
+          "name": "publishedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on resources published after this date."
+        },
+        {
+          "name": "publishedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on resources published before this date."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Textual search terms to match."
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Display the content as seen by viewers in this country."
+        },
+        {
+          "name": "relatedToVideoId",
+          "type": "string",
+          "location": "query",
+          "description": "Search related to a resource."
+        },
+        {
+          "name": "relevanceLanguage",
+          "type": "string",
+          "location": "query",
+          "description": "Return results relevant to this language."
+        },
+        {
+          "name": "safeSearch",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates whether the search results should include restricted content as well as standard content."
+        },
+        {
+          "name": "topicId",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to a particular topic."
+        },
+        {
+          "name": "type",
+          "type": "array",
+          "location": "query",
+          "description": "Restrict results to a particular set of resource types from One Platform."
+        },
+        {
+          "name": "videoCaption",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the presence of captions on the videos."
+        },
+        {
+          "name": "videoCategoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on videos in a specific category."
+        },
+        {
+          "name": "videoDefinition",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the definition of the videos."
+        },
+        {
+          "name": "videoDimension",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on 3d videos."
+        },
+        {
+          "name": "videoDuration",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the duration of the videos."
+        },
+        {
+          "name": "videoEmbeddable",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on embeddable videos."
+        },
+        {
+          "name": "videoLicense",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the license of the videos."
+        },
+        {
+          "name": "videoSyndicated",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on syndicated videos."
+        },
+        {
+          "name": "videoType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on videos of a specific type."
+        }
+      ]
+    },
+    {
+      "name": "youtube_subscriptions-delete",
+      "description": "Deletes a resource. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/subscriptions",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_subscriptions-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: contentDetails, etag, id (plus 3 more). Returns the new Subscription.",
+      "method": "POST",
+      "path": "/youtube/v3/subscriptions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation.",
+          "required": true
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about the content to witch a subscription refers."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the subscription."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#subscription'."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a subscription, including title, description and thumbnails of the subscribed item."
+        },
+        {
+          "name": "subscriberSnippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a subscription's subscriber including title, description, channel ID and thumbnails."
+        }
+      ]
+    },
+    {
+      "name": "youtube_subscriptions-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: channelId, forChannelId, id (plus 8 more). Returns the SubscriptionListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/subscriptions",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more subscription resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a subscription resource, the snippet property contains other properties, such as a display title for the subscription. If you set *part=snippet*, the API response will also contain all of those nested properties.",
+          "required": true
+        },
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the subscriptions of the given channel owner."
+        },
+        {
+          "name": "forChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the subscriptions to the subset of these channels that the authenticated user is subscribed to."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the subscriptions with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Flag for returning the subscriptions of the authenticated user."
+        },
+        {
+          "name": "myRecentSubscribers",
+          "type": "bool",
+          "location": "query",
+          "description": "My recent subscribers"
+        },
+        {
+          "name": "mySubscribers",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the subscribers of the given channel owner."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "The order of the returned subscriptions"
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_super-chat-events-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl, maxResults, pageToken. Returns the SuperChatEventListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/superChatEvents",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the superChatEvent resource parts that the API response will include. This parameter is currently not supported.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Return rendered funding amounts in specified language."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in..."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned."
+        }
+      ]
+    },
+    {
+      "name": "youtube_tests-insert",
+      "description": "POST method. Required: part. Optional: externalChannelId, featuredPart, gaia (plus 2 more). Returns the new TestItem.",
+      "method": "POST",
+      "path": "/youtube/v3/tests",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "Part",
+          "required": true
+        },
+        {
+          "name": "externalChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "External channel id"
+        },
+        {
+          "name": "featuredPart",
+          "type": "bool",
+          "location": "body",
+          "description": "Featured part"
+        },
+        {
+          "name": "gaia",
+          "type": "string",
+          "location": "body",
+          "description": "Gaia"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Snippet"
+        }
+      ]
+    },
+    {
+      "name": "youtube_third-party-links-delete",
+      "description": "Deletes a resource. Required: linkingToken, type. Optional: externalChannelId, part. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/thirdPartyLinks",
+      "params": [
+        {
+          "name": "linkingToken",
+          "type": "string",
+          "location": "query",
+          "description": "Delete the partner links with the given linking token.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of the link to be deleted.",
+          "required": true
+        },
+        {
+          "name": "externalChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID to which changes should be applied, for delegation."
+        },
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "Do not use. Required for compatibility."
+        }
+      ]
+    },
+    {
+      "name": "youtube_third-party-links-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: externalChannelId, etag, kind (default: youtube#thirdPartyLink) (plus 3 more). Returns the new ThirdPartyLink.",
+      "method": "POST",
+      "path": "/youtube/v3/thirdPartyLinks",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the thirdPartyLink resource parts that the API request and response will include. Supported values are linkingToken, status, and snippet.",
+          "required": true
+        },
+        {
+          "name": "externalChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID to which changes should be applied, for delegation."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource"
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#thirdPartyLink'."
+        },
+        {
+          "name": "linkingToken",
+          "type": "string",
+          "location": "body",
+          "description": "The linking_token identifies a YouTube account and channel with which the third party account is linked."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic information about a third party account link, including its type and type-specific information."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "The third-party link status object contains information about the status of the link."
+        }
+      ]
+    },
+    {
+      "name": "youtube_third-party-links-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: externalChannelId, linkingToken, type. Returns the ThirdPartyLinkListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/thirdPartyLinks",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the thirdPartyLink resource parts that the API response will include. Supported values are linkingToken, status, and snippet.",
+          "required": true
+        },
+        {
+          "name": "externalChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID to which changes should be applied, for delegation."
+        },
+        {
+          "name": "linkingToken",
+          "type": "string",
+          "location": "query",
+          "description": "Get a third party link with the given linking token."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Get a third party link of the given type."
+        }
+      ]
+    },
+    {
+      "name": "youtube_third-party-links-update",
+      "description": "Updates an existing resource. Required: part. Optional: externalChannelId, etag, kind (default: youtube#thirdPartyLink) (plus 3 more). Returns the updated ThirdPartyLink.",
+      "method": "PUT",
+      "path": "/youtube/v3/thirdPartyLinks",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the thirdPartyLink resource parts that the API request and response will include. Supported values are linkingToken, status, and snippet.",
+          "required": true
+        },
+        {
+          "name": "externalChannelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel ID to which changes should be applied, for delegation."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource"
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#thirdPartyLink'."
+        },
+        {
+          "name": "linkingToken",
+          "type": "string",
+          "location": "body",
+          "description": "The linking_token identifies a YouTube account and channel with which the third party account is linked."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic information about a third party account link, including its type and type-specific information."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "The third-party link status object contains information about the status of the link."
+        }
+      ]
+    },
+    {
+      "name": "youtube_thumbnails-set",
+      "description": "As this is not an insert in a strict sense (it supports uploading/setting of a thumbnail for multiple videos, which doesn't result in creation of a single resource), I use a custom verb here. Required: videoId. Optional: onBehalfOfContentOwner. Returns the new ThumbnailSetResponse.",
+      "method": "POST",
+      "path": "/youtube/v3/thumbnails/set",
+      "params": [
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Returns the Thumbnail with the given video IDs for Stubby or Apiary.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_update-comment-threads",
+      "description": "Updates an existing resource. Optional: part, etag, id (plus 3 more). Returns the updated CommentThread.",
+      "method": "PUT",
+      "path": "/youtube/v3/commentThreads",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of commentThread resource properties that the API response will include. You must at least include the snippet part in the parameter value since that part contains all of the properties that the API request can update."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the comment thread."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#commentThread'."
+        },
+        {
+          "name": "replies",
+          "type": "object",
+          "location": "body",
+          "description": "Comments written in (direct or indirect) reply to the top level comment."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a comment thread."
+        }
+      ]
+    },
+    {
+      "name": "youtube_video-abuse-report-reasons-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl. Returns the VideoAbuseReportReasonListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/videoAbuseReportReasons",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the videoCategory resource parts that the API response will include. Supported values are id and snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
+        }
+      ]
+    },
+    {
+      "name": "youtube_video-categories-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: hl, id, regionCode. Returns the VideoCategoryListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/videoCategories",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies the videoCategory resource properties that the API response will include. Set the parameter value to snippet.",
+          "required": true
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Hl"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Returns the video categories with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Region code"
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-delete",
+      "description": "Deletes a resource. Required: id. Optional: onBehalfOfContentOwner. Destructive.",
+      "method": "DELETE",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-get-rating",
+      "description": "Retrieves the ratings that the authorized user gave to a list of specified videos. Required: id. Optional: onBehalfOfContentOwner. Returns the VideoGetRatingResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/videos/getRating",
+      "params": [
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-insert",
+      "description": "Inserts a new resource into this collection. Required: part. Optional: autoLevels, notifySubscribers, onBehalfOfContentOwner (plus 20 more). Returns the new Video.",
+      "method": "POST",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. Note that not all parts contain properties that can be set when inserting or updating a video. For example, the statistics object encapsulates statistics that YouTube calculates for a video and does not contain values that you can set or modify. If the parameter value specifies a part that does not contain mutable values, that part will still be included in the API response.",
+          "required": true
+        },
+        {
+          "name": "autoLevels",
+          "type": "bool",
+          "location": "query",
+          "description": "Should auto-levels be applied to the upload."
+        },
+        {
+          "name": "notifySubscribers",
+          "type": "bool",
+          "location": "query",
+          "description": "Notify the channel subscribers about the new video. As default, the notification is enabled."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request."
+        },
+        {
+          "name": "stabilize",
+          "type": "bool",
+          "location": "query",
+          "description": "Should stabilize be applied to the upload."
+        },
+        {
+          "name": "ageGating",
+          "type": "object",
+          "location": "body",
+          "description": "Age gating"
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about the content of a YouTube Video."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "fileDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Describes original video file properties, including technical details about audio and video streams, but also metadata information like content length, digitization time, or geotagging information."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the video."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#video'."
+        },
+        {
+          "name": "liveStreamingDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about the live streaming metadata."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "The localizations object contains localized versions of the basic details about the video, such as its title and description."
+        },
+        {
+          "name": "monetizationDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about monetization of a YouTube Video."
+        },
+        {
+          "name": "player",
+          "type": "object",
+          "location": "body",
+          "description": "Player to be used for a video playback."
+        },
+        {
+          "name": "processingDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Describes processing status and progress and availability of some other Video resource parts."
+        },
+        {
+          "name": "projectDetails",
+          "type": "object",
+          "location": "body",
+          "description": "DEPRECATED. b/157517979: This part was never populated after it was added. However, it sees non-zero traffic because there is generated client code in the wild that refers to it [1]. We keep this field and do NOT remove it because otherwise V3 would return an error when this part gets requested [2]. [1] https://developers.google.com/resources/api-libraries/documentation/youtube/v3/csharp/latest/classGoogle_1_1Apis_1_1YouTube_1_1v3_1_1Data_1_1VideoProjectDetails.html [2] http://google3/video/youtube/src/python/servers/data_api/common.py?l=1565-1569\u0026rcl=344141677"
+        },
+        {
+          "name": "recordingDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Recording information associated with the video."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a video, including title, description, uploader, thumbnails and category."
+        },
+        {
+          "name": "statistics",
+          "type": "object",
+          "location": "body",
+          "description": "Statistics about the video, such as the number of times the video was viewed or liked."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a video category, such as its localized title. Next Id: 18"
+        },
+        {
+          "name": "suggestions",
+          "type": "object",
+          "location": "body",
+          "description": "Specifies suggestions on how to improve video content, including encoding hints, tag suggestions, and editor suggestions."
+        },
+        {
+          "name": "topicDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Freebase topic information related to the video."
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-list",
+      "description": "Retrieves a list of resources, possibly filtered. Required: part. Optional: chart, hl, id (plus 9 more). Returns the VideoListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter specifies a comma-separated list of one or more video resource properties that the API response will include. If the parameter identifies a property that contains child properties, the child properties will be included in the response. For example, in a video resource, the snippet property contains the channelId, title, description, tags, and categoryId properties. As such, if you set *part=snippet*, the API response will contain all of those properties.",
+          "required": true
+        },
+        {
+          "name": "chart",
+          "type": "string",
+          "location": "query",
+          "description": "Return the videos that are in the specified chart."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized. The field is filled with the default metadata if there is no localization in the specified language. The parameter value must be a language code included in the list returned by the i18nLanguages.list method (e.g. en_US, es_MX)."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return videos with the given ids."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        },
+        {
+          "name": "maxHeight",
+          "type": "int",
+          "location": "query",
+          "description": "Max height"
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "The *maxResults* parameter specifies the maximum number of items that should be returned in the result set. *Note:* This parameter is supported for use in conjunction with the myRating and chart parameters, but it is not supported for use in conjunction with the id parameter."
+        },
+        {
+          "name": "maxWidth",
+          "type": "int",
+          "location": "query",
+          "description": "Return the player with maximum height specified in"
+        },
+        {
+          "name": "myRating",
+          "type": "string",
+          "location": "query",
+          "description": "Return videos liked/disliked by the authenticated user. Does not support RateType.RATED_TYPE_NONE."
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "The *pageToken* parameter identifies a specific page in the result set that should be returned. In an API response, the nextPageToken and prevPageToken properties identify other pages that could be retrieved. *Note:* This parameter is supported for use in conjunction with the myRating and chart parameters, but it is not supported for use in conjunction with the id parameter."
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Use a chart that is specific to the specified region"
+        },
+        {
+          "name": "videoCategoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Use chart that is specific to the specified video category"
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-rate",
+      "description": "Adds a like or dislike rating to a video or removes a rating from a video. Required: id, rating.",
+      "method": "POST",
+      "path": "/youtube/v3/videos/rate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "rating",
+          "type": "string",
+          "location": "query",
+          "description": "Rating",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-report-abuse",
+      "description": "Report abuse for a video. Optional: onBehalfOfContentOwner, comments, language (plus 3 more).",
+      "method": "POST",
+      "path": "/youtube/v3/videos/reportAbuse",
+      "params": [
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "comments",
+          "type": "string",
+          "location": "body",
+          "description": "Additional comments regarding the abuse report."
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "body",
+          "description": "The language that the content was viewed in."
+        },
+        {
+          "name": "reasonId",
+          "type": "string",
+          "location": "body",
+          "description": "The high-level, or primary, reason that the content is abusive. The value is an abuse report reason ID."
+        },
+        {
+          "name": "secondaryReasonId",
+          "type": "string",
+          "location": "body",
+          "description": "The specific, or secondary, reason that this content is abusive (if available). The value is an abuse report reason ID that is a valid secondary reason for the primary reason."
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the video."
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-update",
+      "description": "Updates an existing resource. Required: part. Optional: onBehalfOfContentOwner, ageGating, contentDetails (plus 16 more). Returns the updated Video.",
+      "method": "PUT",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "part",
+          "type": "array",
+          "location": "query",
+          "description": "The *part* parameter serves two purposes in this operation. It identifies the properties that the write operation will set as well as the properties that the API response will include. Note that this method will override the existing values for all of the mutable properties that are contained in any parts that the parameter value specifies. For example, a video's privacy setting is contained in the status part. As such, if your request is updating a private video, and the request's part parameter value includes the status part, the video's privacy setting will be updated to whatever value the request body specifies. If the request body does not specify a value, the existing privacy setting will be removed and the video will revert to the default privacy setting. In addition, not all parts contain properties that can be set when inserting or updating a video. For example, the statistics object encapsulates statistics that YouTube calculates for a video and does not contain values that you can set or modify. If the parameter value specifies a part that does not contain mutable values, that part will still be included in the API response.",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "ageGating",
+          "type": "object",
+          "location": "body",
+          "description": "Age gating"
+        },
+        {
+          "name": "contentDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about the content of a YouTube Video."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "Etag of this resource."
+        },
+        {
+          "name": "fileDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Describes original video file properties, including technical details about audio and video streams, but also metadata information like content length, digitization time, or geotagging information."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID that YouTube uses to uniquely identify the video."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies what kind of resource this is. Value: the fixed string 'youtube#video'."
+        },
+        {
+          "name": "liveStreamingDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about the live streaming metadata."
+        },
+        {
+          "name": "localizations",
+          "type": "object",
+          "location": "body",
+          "description": "The localizations object contains localized versions of the basic details about the video, such as its title and description."
+        },
+        {
+          "name": "monetizationDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Details about monetization of a YouTube Video."
+        },
+        {
+          "name": "player",
+          "type": "object",
+          "location": "body",
+          "description": "Player to be used for a video playback."
+        },
+        {
+          "name": "processingDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Describes processing status and progress and availability of some other Video resource parts."
+        },
+        {
+          "name": "projectDetails",
+          "type": "object",
+          "location": "body",
+          "description": "DEPRECATED. b/157517979: This part was never populated after it was added. However, it sees non-zero traffic because there is generated client code in the wild that refers to it [1]. We keep this field and do NOT remove it because otherwise V3 would return an error when this part gets requested [2]. [1] https://developers.google.com/resources/api-libraries/documentation/youtube/v3/csharp/latest/classGoogle_1_1Apis_1_1YouTube_1_1v3_1_1Data_1_1VideoProjectDetails.html [2] http://google3/video/youtube/src/python/servers/data_api/common.py?l=1565-1569\u0026rcl=344141677"
+        },
+        {
+          "name": "recordingDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Recording information associated with the video."
+        },
+        {
+          "name": "snippet",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a video, including title, description, uploader, thumbnails and category."
+        },
+        {
+          "name": "statistics",
+          "type": "object",
+          "location": "body",
+          "description": "Statistics about the video, such as the number of times the video was viewed or liked."
+        },
+        {
+          "name": "status",
+          "type": "object",
+          "location": "body",
+          "description": "Basic details about a video category, such as its localized title. Next Id: 18"
+        },
+        {
+          "name": "suggestions",
+          "type": "object",
+          "location": "body",
+          "description": "Specifies suggestions on how to improve video content, including encoding hints, tag suggestions, and editor suggestions."
+        },
+        {
+          "name": "topicDetails",
+          "type": "object",
+          "location": "body",
+          "description": "Freebase topic information related to the video."
+        }
+      ]
+    },
+    {
+      "name": "youtube_watermarks-set",
+      "description": "Allows upload of watermark image and setting it for a channel. Required: channelId. Optional: onBehalfOfContentOwner, imageBytes, imageUrl (plus 3 more).",
+      "method": "POST",
+      "path": "/youtube/v3/watermarks/set",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        },
+        {
+          "name": "imageBytes",
+          "type": "string",
+          "location": "body",
+          "description": "The bytes the uploaded image. Only used in api to youtube communication."
+        },
+        {
+          "name": "imageUrl",
+          "type": "string",
+          "location": "body",
+          "description": "The url of the uploaded image. Only used in apiary to api communication."
+        },
+        {
+          "name": "position",
+          "type": "object",
+          "location": "body",
+          "description": "Describes the spatial position of a visual widget inside a video. It is a union of various position types, out of which only will be set one."
+        },
+        {
+          "name": "targetChannelId",
+          "type": "string",
+          "location": "body",
+          "description": "The channel to which this branding links. If not present it defaults to the current channel."
+        },
+        {
+          "name": "timing",
+          "type": "object",
+          "location": "body",
+          "description": "Describes a temporal position of a visual widget inside a video."
+        }
+      ]
+    },
+    {
+      "name": "youtube_watermarks-unset",
+      "description": "Allows removal of channel watermark. Required: channelId. Optional: onBehalfOfContentOwner.",
+      "method": "POST",
+      "path": "/youtube/v3/watermarks/unset",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Channel id",
+          "required": true
+        },
+        {
+          "name": "onBehalfOfContentOwner",
+          "type": "string",
+          "location": "query",
+          "description": "*Note:* This parameter is intended exclusively for YouTube content partners."
+        }
+      ]
+    },
+    {
+      "name": "youtube-reporting-jobs_create",
+      "description": "Creates a job and returns it. Optional: createTime, expireTime, id (plus 3 more).",
+      "method": "POST",
+      "path": "/v1/jobs",
+      "params": [
+        {
+          "name": "createTime",
+          "type": "string",
+          "location": "body",
+          "description": "The creation date/time of the job."
+        },
+        {
+          "name": "expireTime",
+          "type": "string",
+          "location": "body",
+          "description": "The date/time when this job will expire/expired. After a job expired, no new reports are generated."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "The server-generated ID of the job (max. 40 characters)."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the job (max. 100 characters)."
+        },
+        {
+          "name": "reportTypeId",
+          "type": "string",
+          "location": "body",
+          "description": "The type of reports this job creates. Corresponds to the ID of a ReportType."
+        },
+        {
+          "name": "systemManaged",
+          "type": "bool",
+          "location": "body",
+          "description": "True if this a system-managed job that cannot be modified by the user; otherwise false."
+        }
+      ]
+    },
+    {
+      "name": "youtube-reporting-jobs_delete",
+      "description": "Deletes a job. Required: jobId. Returns the Empty. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/jobs/{jobId}",
+      "params": [
+        {
+          "name": "jobId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube-reporting-jobs_get",
+      "description": "Gets a job. Required: jobId. Returns the Job.",
+      "method": "GET",
+      "path": "/v1/jobs/{jobId}",
+      "params": [
+        {
+          "name": "jobId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube-reporting-jobs_list",
+      "description": "Lists jobs. Optional: includeSystemManaged, pageSize, pageToken. Returns the ListJobsResponse.",
+      "method": "GET",
+      "path": "/v1/jobs",
+      "params": [
+        {
+          "name": "includeSystemManaged",
+          "type": "bool",
+          "location": "query",
+          "description": "If set to true, also system-managed jobs will be returned; otherwise only user-created jobs will be returned. System-managed jobs can neither be modified nor deleted."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Requested page size. Server may return fewer jobs than requested. If unspecified, server will pick an appropriate default."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A token identifying a page of results the server should return. Typically, this is the value of ListReportTypesResponse.next_page_token returned in response to the previous call to the `ListJobs` method."
+        }
+      ]
+    },
+    {
+      "name": "youtube-reporting-jobs_reports_get",
+      "description": "Gets the metadata of a specific report. Required: jobId, reportId. Returns the Report.",
+      "method": "GET",
+      "path": "/v1/jobs/{jobId}/reports/{reportId}",
+      "params": [
+        {
+          "name": "jobId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job.",
+          "required": true
+        },
+        {
+          "name": "reportId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the report to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "youtube-reporting-jobs_reports_list",
+      "description": "Lists reports created by a specific job. Returns NOT_FOUND if the job does not exist. Required: jobId. Optional: createdAfter, pageSize, pageToken (plus 2 more).",
+      "method": "GET",
+      "path": "/v1/jobs/{jobId}/reports",
+      "params": [
+        {
+          "name": "jobId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the job.",
+          "required": true
+        },
+        {
+          "name": "createdAfter",
+          "type": "string",
+          "location": "query",
+          "description": "If set, only reports created after the specified date/time are returned."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Requested page size. Server may return fewer report types than requested. If unspecified, server will pick an appropriate default."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "A token identifying a page of results the server should return. Typically, this is the value of ListReportsResponse.next_page_token returned in response to the previous call to the `ListReports` method."
+        },
+        {
+          "name": "startTimeAtOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "If set, only reports whose start time is greater than or equal the specified date/time are returned."
+        },
+        {
+          "name": "startTimeBefore",
+          "type": "string",
+          "location": "query",
+          "description": "If set, only reports whose start time is smaller than the specified date/time are returned."
+        }
+      ]
+    }
+  ]
+}
