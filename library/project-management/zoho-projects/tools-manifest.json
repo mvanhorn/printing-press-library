@@ -1,0 +1,1083 @@
+{
+  "api_name": "zoho-projects",
+  "base_url": "https://projectsapi.zoho.com",
+  "description": "Project management, task tracking, time logging, and issue tracking. This CLI provides a local SQLite store, offline FTS over task/issue/project names and descriptions, and cross-entity insights (stale tasks, overdue projects, workload by owner) on top of the v3 REST API.\n\nAuth: OAuth 2.0. Set ZOHOPROJECTS_REFRESH_TOKEN, ZOHOPROJECTS_CLIENT_ID, ZOHOPROJECTS_CLIENT_SECRET, and ZOHOPROJECTS_PORTAL_ID.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "ZOHOPROJECTS_REFRESH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZOHOPROJECTS_REFRESH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "issues_list-my",
+      "description": "List issues assigned to the authenticated user. Required: portal_id. Returns the IssuesListMyResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/issues/my",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "issues_list-portal",
+      "description": "List issues across the portal. Required: portal_id. Optional: index, range, status (plus 1 more). Returns the IssuesListPortalResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/issues",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "query",
+          "description": "Index"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Range"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "severity",
+          "type": "string",
+          "location": "query",
+          "description": "Severity"
+        }
+      ]
+    },
+    {
+      "name": "portal_get",
+      "description": "Get portal details. Required: portal_id. Returns the Portal.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "portals_list",
+      "description": "Lists all portals the authenticated user has access to. Returns the PortalsListResponse.",
+      "method": "GET",
+      "path": "/api/v3/portals",
+      "params": []
+    },
+    {
+      "name": "projects_create",
+      "description": "Create a project. Required: portal_id. Optional: description, end_date, name (plus 3 more). Returns the new Project.",
+      "method": "POST",
+      "path": "/api/v3/portal/{portal_id}/projects",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "owner_id",
+          "type": "string",
+          "location": "body",
+          "description": "Owner id"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "template_id",
+          "type": "string",
+          "location": "body",
+          "description": "Template id"
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Move a project to trash. Required: portal_id, project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Get a project. Required: portal_id, project_id. Returns the Project.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List projects in a portal. Required: portal_id. Optional: index, range, status. Returns the ProjectsListResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "query",
+          "description": "Index"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Range"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "Update a project. Required: portal_id, project_id. Optional: description, end_date, name (plus 1 more). Returns the updated Project.",
+      "method": "PATCH",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_create",
+      "description": "Create an issue. Required: portal_id, project_id. Optional: assignee, description, due_date (plus 3 more). Returns the new Issue.",
+      "method": "POST",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/issues",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "location": "body",
+          "description": "Assignee"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "due_date",
+          "type": "string",
+          "location": "body",
+          "description": "Due date"
+        },
+        {
+          "name": "reporter",
+          "type": "string",
+          "location": "body",
+          "description": "Reporter"
+        },
+        {
+          "name": "severity",
+          "type": "string",
+          "location": "body",
+          "description": "Severity"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_get",
+      "description": "Get issue details. Required: portal_id, project_id, issue_id. Returns the Issue.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/issues/{issue_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_list-project",
+      "description": "List issues in a project. Required: portal_id, project_id. Returns the IssuesListProjectResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/issues",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_issues_update",
+      "description": "Update an issue. Required: portal_id, project_id, issue_id. Optional: assignee, description, due_date (plus 3 more). Returns the updated Issue.",
+      "method": "PATCH",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/issues/{issue_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue id",
+          "required": true
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "location": "body",
+          "description": "Assignee"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "due_date",
+          "type": "string",
+          "location": "body",
+          "description": "Due date"
+        },
+        {
+          "name": "severity",
+          "type": "string",
+          "location": "body",
+          "description": "Severity"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "projects_phases_create",
+      "description": "Create a phase. Required: portal_id, project_id. Optional: end_date, name, owner_id (plus 1 more). Returns the new Phase.",
+      "method": "POST",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/phases",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "owner_id",
+          "type": "string",
+          "location": "body",
+          "description": "Owner id"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        }
+      ]
+    },
+    {
+      "name": "projects_phases_delete",
+      "description": "Delete a phase. Required: portal_id, project_id, phase_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/phases/{phase_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "phase_id",
+          "type": "string",
+          "location": "path",
+          "description": "Phase id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_phases_get",
+      "description": "Get phase details. Required: portal_id, project_id, phase_id. Returns the Phase.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/phases/{phase_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "phase_id",
+          "type": "string",
+          "location": "path",
+          "description": "Phase id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_phases_list-project",
+      "description": "List phases in a project. Required: portal_id, project_id. Returns the PhasesListProjectResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/phases",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_phases_update",
+      "description": "Update a phase. Required: portal_id, project_id, phase_id. Optional: end_date, name, status. Returns the updated Phase.",
+      "method": "PATCH",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/phases/{phase_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "phase_id",
+          "type": "string",
+          "location": "path",
+          "description": "Phase id",
+          "required": true
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "projects_restore_project",
+      "description": "Restore a project that was previously moved to trash via projects_delete_project. The project becomes active again with its tasks, milestones, and history intact. Required: portal_id (path), project_id (path). Returns HTTP 200 on success.",
+      "method": "POST",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/restore",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_tasklists_create-task-list",
+      "description": "Create a task list. Required: portal_id, project_id. Optional: flag, milestone_id, name. Returns the new TaskList.",
+      "method": "POST",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasklists",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "flag",
+          "type": "string",
+          "location": "body",
+          "description": "Flag"
+        },
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "location": "body",
+          "description": "Milestone id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "projects_tasklists_delete-task-list",
+      "description": "Delete a task list. Required: portal_id, project_id, tasklist_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasklists/{tasklist_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "tasklist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Tasklist id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_tasklists_list-task-lists",
+      "description": "List task lists in a project. Required: portal_id, project_id. Returns the TasklistsListTaskListsResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasklists",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_tasklists_update-task-list",
+      "description": "Update a task list. Required: portal_id, project_id, tasklist_id. Optional: milestone_id, name. Returns the updated TaskList.",
+      "method": "PATCH",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasklists/{tasklist_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "tasklist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Tasklist id",
+          "required": true
+        },
+        {
+          "name": "milestone_id",
+          "type": "string",
+          "location": "body",
+          "description": "Milestone id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "projects_tasks_create",
+      "description": "Create a task. Required: portal_id, project_id. Optional: description, duration, end_date (plus 5 more). Returns the new Task.",
+      "method": "POST",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasks",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "duration",
+          "type": "string",
+          "location": "body",
+          "description": "Duration"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "owners",
+          "type": "string",
+          "location": "body",
+          "description": "comma-separated owner IDs"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Start date"
+        },
+        {
+          "name": "tasklist_id",
+          "type": "string",
+          "location": "body",
+          "description": "Tasklist id"
+        }
+      ]
+    },
+    {
+      "name": "projects_tasks_delete",
+      "description": "Delete a task. Required: portal_id, project_id, task_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_tasks_get",
+      "description": "Get task details. Required: portal_id, project_id, task_id. Returns the Task.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_tasks_list-project",
+      "description": "List tasks in a project. Required: portal_id, project_id. Optional: index, range, status (plus 2 more). Returns the TasksListProjectResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasks",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "query",
+          "description": "Index"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Range"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "query",
+          "description": "Owner"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "query",
+          "description": "Priority"
+        }
+      ]
+    },
+    {
+      "name": "projects_tasks_update",
+      "description": "Update a task. Required: portal_id, project_id, task_id. Optional: description, end_date, name (plus 4 more). Returns the updated Task.",
+      "method": "PATCH",
+      "path": "/api/v3/portal/{portal_id}/projects/{project_id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "body",
+          "description": "End date"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "owners",
+          "type": "string",
+          "location": "body",
+          "description": "Owners"
+        },
+        {
+          "name": "percent_complete",
+          "type": "string",
+          "location": "body",
+          "description": "Percent complete"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "tasks_list-portal",
+      "description": "List tasks across all portal projects. Required: portal_id. Optional: index, range, status (plus 1 more). Returns the TasksListPortalResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/tasks",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        },
+        {
+          "name": "index",
+          "type": "int",
+          "location": "query",
+          "description": "Index"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Range"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "query",
+          "description": "Owner"
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List users in the portal. Required: portal_id. Returns the UsersListResponse.",
+      "method": "GET",
+      "path": "/api/v3/portal/{portal_id}/users",
+      "params": [
+        {
+          "name": "portal_id",
+          "type": "string",
+          "location": "path",
+          "description": "Portal id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

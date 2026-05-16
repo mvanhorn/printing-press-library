@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoho-projects-pp-mcp",
+  "display_name": "Zoho Projects",
+  "version": "4.6.1",
+  "description": "Zoho Projects API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoho-projects-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoho-projects-pp-mcp",
+      "args": [],
+      "env": {
+        "ZOHOPROJECTS_REFRESH_TOKEN": "${user_config.zohoprojects_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "zohoprojects_refresh_token": {
+      "type": "string",
+      "title": "ZOHOPROJECTS_REFRESH_TOKEN",
+      "description": "Sets ZOHOPROJECTS_REFRESH_TOKEN for the Zoho Projects MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

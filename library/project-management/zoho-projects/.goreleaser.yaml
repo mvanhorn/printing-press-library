@@ -1,0 +1,51 @@
+version: 2
+project_name: zoho-projects-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: zoho-projects-pp-cli
+    main: ./cmd/zoho-projects-pp-cli
+    binary: zoho-projects-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/project-management/zoho-projects/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: zoho-projects-pp-mcp
+    main: ./cmd/zoho-projects-pp-mcp
+    binary: zoho-projects-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: zoho-projects-pp-cli
+    repository:
+      owner: dan-bronson
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Zoho Projects API endpoint, plus portal-wide insights (overdue, stale, workload, issue heat) no native view..."
+    install: |
+      bin.install "zoho-projects-pp-cli"
+      bin.install "zoho-projects-pp-mcp"

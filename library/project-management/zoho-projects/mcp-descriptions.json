@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "projects_restore_project": "Restore a project that was previously moved to trash via projects_delete_project. The project becomes active again with its tasks, milestones, and history intact. Required: portal_id (path), project_id (path). Returns HTTP 200 on success."
+  }
+}

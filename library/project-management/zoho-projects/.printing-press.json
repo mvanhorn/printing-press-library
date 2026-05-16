@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T23:02:47.53001Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "zoho-projects",
+  "display_name": "Zoho Projects",
+  "cli_name": "zoho-projects-pp-cli",
+  "owner": "dan-bronson",
+  "printer_name": "Dan Bronson",
+  "spec_path": "/Users/danbronson/printing-press/.runstate/code-3ad4c651/runs/20260515-175732/research/zoho-projects-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ad5f2270b410fa767c6a3cffcad5af6b0f8991a79974b69bc19cb1ca45de8fff",
+  "run_id": "20260515-175732",
+  "mcp_binary": "zoho-projects-pp-mcp",
+  "mcp_tool_count": 30,
+  "mcp_ready": "full",
+  "api_version": "3.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ZOHOPROJECTS_REFRESH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Overdue tasks across portal",
+      "command": "overdue",
+      "description": "List tasks whose end_date is in the past but status isn't 'closed'/'completed'."
+    },
+    {
+      "name": "Stale projects detector",
+      "command": "stale-projects",
+      "description": "Active projects with no task activity in N days."
+    },
+    {
+      "name": "Workload by owner",
+      "command": "workload",
+      "description": "Open tasks + issues per user with mean/stddev/Gini across the portal."
+    },
+    {
+      "name": "Conversational FTS",
+      "command": "grep",
+      "description": "Search task names/descriptions, issue titles/descriptions, project names/descriptions locally."
+    },
+    {
+      "name": "Issue heat map by project",
+      "command": "issue-heat",
+      "description": "Per-project open-issue counts grouped by severity, surfacing projects with concentrated bugs."
+    },
+    {
+      "name": "Project burn (planned vs actual)",
+      "command": "project-burn",
+      "description": "Per-project completed-task ratio with projected completion date based on 4-week velocity."
+    },
+    {
+      "name": "Unassigned items radar",
+      "command": "unassigned",
+      "description": "Open tasks and issues with no owner across active projects."
+    },
+    {
+      "name": "My focus today",
+      "command": "my-focus",
+      "description": "Tasks + issues assigned to the authenticated user across all portals, ranked by due date."
+    }
+  ],
+  "printer": "armydan"
+}

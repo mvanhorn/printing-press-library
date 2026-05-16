@@ -1,0 +1,692 @@
+openapi: 3.0.0
+info:
+  title: Zoho Projects API
+  version: "3.0"
+  description: |
+    Project management, task tracking, time logging, and issue tracking. This CLI provides a local SQLite store, offline FTS over task/issue/project names and descriptions, and cross-entity insights (stale tasks, overdue projects, workload by owner) on top of the v3 REST API.
+
+    Auth: OAuth 2.0. Set ZOHOPROJECTS_REFRESH_TOKEN, ZOHOPROJECTS_CLIENT_ID, ZOHOPROJECTS_CLIENT_SECRET, and ZOHOPROJECTS_PORTAL_ID.
+x-mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+servers:
+  - url: https://projectsapi.zoho.com
+components:
+  securitySchemes:
+    OAuth2:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Zoho-oauthtoken <access_token>"
+      x-auth-env-vars:
+        - ZOHOPROJECTS_REFRESH_TOKEN
+  schemas:
+    Portal:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        company_name: { type: string }
+        default: { type: boolean }
+        gmt_time_zone: { type: string }
+        time_zone: { type: string }
+        is_premium: { type: boolean }
+    Project:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string }
+        owner_id: { type: string }
+        owner_name: { type: string }
+        description: { type: string }
+        start_date: { type: string }
+        end_date: { type: string }
+        created_date: { type: string }
+        last_modified_date: { type: string }
+        task_count: { type: object }
+        portal: { type: object }
+        layout_details: { type: object }
+        bug_count: { type: object }
+        milestone_count: { type: object }
+        billing_status: { type: string }
+        custom_fields: { type: array, items: { type: object } }
+    Task:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        details: { type: object }
+        status: { type: object }
+        priority: { type: string }
+        percent_complete: { type: string }
+        created_time: { type: string }
+        last_modified_time: { type: string }
+        start_date: { type: string }
+        end_date: { type: string }
+        duration: { type: string }
+        owners: { type: array, items: { type: object } }
+        tasklist: { type: object }
+        custom_fields: { type: array, items: { type: object } }
+    TaskList:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        flag: { type: string }
+        milestone: { type: object }
+        view_type: { type: string }
+        created_time: { type: string }
+        sequence: { type: integer }
+    Phase:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        start_date: { type: string }
+        end_date: { type: string }
+        status: { type: object }
+        owner: { type: object }
+        flag: { type: string }
+    Issue:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        status: { type: object }
+        severity: { type: object }
+        classification: { type: object }
+        module: { type: object }
+        reporter_id: { type: string }
+        assignee_id: { type: string }
+        created_time: { type: string }
+        closed_time: { type: string }
+        due_date: { type: string }
+        project: { type: object }
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        email: { type: string }
+        role: { type: string }
+        status: { type: string }
+        zuid: { type: string }
+security:
+  - OAuth2: []
+paths:
+  /api/v3/portals:
+    get:
+      operationId: listPortals
+      summary: List portals
+      description: Lists all portals the authenticated user has access to.
+      tags: [Portals]
+      responses:
+        '200':
+          description: portals list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  portals:
+                    type: array
+                    items: { $ref: '#/components/schemas/Portal' }
+  /api/v3/portal/{portal_id}:
+    get:
+      operationId: getPortal
+      summary: Get portal details
+      tags: [Portals]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: portal details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Portal' }
+  /api/v3/portal/{portal_id}/projects:
+    get:
+      operationId: listProjects
+      summary: List projects in a portal
+      tags: [Projects]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: index, in: query, schema: { type: integer } }
+        - { name: range, in: query, schema: { type: integer } }
+        - { name: status, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: projects list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items: { $ref: '#/components/schemas/Project' }
+    post:
+      operationId: createProject
+      summary: Create a project
+      tags: [Projects]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                template_id: { type: string }
+                owner_id: { type: string }
+                start_date: { type: string }
+                end_date: { type: string }
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Project' }
+  /api/v3/portal/{portal_id}/projects/{project_id}:
+    get:
+      operationId: getProject
+      summary: Get a project
+      tags: [Projects]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: project details
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Project' }
+    patch:
+      operationId: updateProject
+      summary: Update a project
+      tags: [Projects]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                status: { type: string }
+                end_date: { type: string }
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Project' }
+    delete:
+      operationId: deleteProject
+      summary: Move a project to trash
+      tags: [Projects]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: trashed }
+  /api/v3/portal/{portal_id}/projects/{project_id}/restore:
+    post:
+      operationId: restoreProject
+      summary: Restore a trashed project
+      tags: [Projects]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: restored }
+  /api/v3/portal/{portal_id}/projects/{project_id}/tasks:
+    get:
+      operationId: listProjectTasks
+      summary: List tasks in a project
+      tags: [Tasks]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: index, in: query, schema: { type: integer } }
+        - { name: range, in: query, schema: { type: integer } }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: owner, in: query, schema: { type: string } }
+        - { name: priority, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: tasks list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items: { $ref: '#/components/schemas/Task' }
+    post:
+      operationId: createTask
+      summary: Create a task
+      tags: [Tasks]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                tasklist_id: { type: string }
+                owners: { type: string, description: "comma-separated owner IDs" }
+                start_date: { type: string }
+                end_date: { type: string }
+                priority: { type: string }
+                duration: { type: string }
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+  /api/v3/portal/{portal_id}/tasks:
+    get:
+      operationId: listPortalTasks
+      summary: List tasks across all portal projects
+      tags: [Tasks]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: index, in: query, schema: { type: integer } }
+        - { name: range, in: query, schema: { type: integer } }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: owner, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: tasks list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items: { $ref: '#/components/schemas/Task' }
+  /api/v3/portal/{portal_id}/projects/{project_id}/tasks/{task_id}:
+    get:
+      operationId: getTask
+      summary: Get task details
+      tags: [Tasks]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: task_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: task
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+    patch:
+      operationId: updateTask
+      summary: Update a task
+      tags: [Tasks]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: task_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                status: { type: string }
+                priority: { type: string }
+                end_date: { type: string }
+                percent_complete: { type: string }
+                owners: { type: string }
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Task' }
+    delete:
+      operationId: deleteTask
+      summary: Delete a task
+      tags: [Tasks]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: task_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: deleted }
+  /api/v3/portal/{portal_id}/projects/{project_id}/tasklists:
+    get:
+      operationId: listTaskLists
+      summary: List task lists in a project
+      tags: [TaskLists]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: task lists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasklists:
+                    type: array
+                    items: { $ref: '#/components/schemas/TaskList' }
+    post:
+      operationId: createTaskList
+      summary: Create a task list
+      tags: [TaskLists]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                flag: { type: string }
+                milestone_id: { type: string }
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaskList' }
+  /api/v3/portal/{portal_id}/projects/{project_id}/tasklists/{tasklist_id}:
+    patch:
+      operationId: updateTaskList
+      summary: Update a task list
+      tags: [TaskLists]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: tasklist_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                milestone_id: { type: string }
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TaskList' }
+    delete:
+      operationId: deleteTaskList
+      summary: Delete a task list
+      tags: [TaskLists]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: tasklist_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: deleted }
+  /api/v3/portal/{portal_id}/projects/{project_id}/phases:
+    get:
+      operationId: listProjectPhases
+      summary: List phases in a project
+      tags: [Phases]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: phases
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  phases:
+                    type: array
+                    items: { $ref: '#/components/schemas/Phase' }
+    post:
+      operationId: createPhase
+      summary: Create a phase
+      tags: [Phases]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                start_date: { type: string }
+                end_date: { type: string }
+                owner_id: { type: string }
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Phase' }
+  /api/v3/portal/{portal_id}/projects/{project_id}/phases/{phase_id}:
+    get:
+      operationId: getPhase
+      summary: Get phase details
+      tags: [Phases]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: phase_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: phase
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Phase' }
+    patch:
+      operationId: updatePhase
+      summary: Update a phase
+      tags: [Phases]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: phase_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                end_date: { type: string }
+                status: { type: string }
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Phase' }
+    delete:
+      operationId: deletePhase
+      summary: Delete a phase
+      tags: [Phases]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: phase_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: deleted }
+  /api/v3/portal/{portal_id}/issues:
+    get:
+      operationId: listPortalIssues
+      summary: List issues across the portal
+      tags: [Issues]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: index, in: query, schema: { type: integer } }
+        - { name: range, in: query, schema: { type: integer } }
+        - { name: status, in: query, schema: { type: string } }
+        - { name: severity, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: issues
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bugs:
+                    type: array
+                    items: { $ref: '#/components/schemas/Issue' }
+  /api/v3/portal/{portal_id}/projects/{project_id}/issues:
+    get:
+      operationId: listProjectIssues
+      summary: List issues in a project
+      tags: [Issues]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: issues
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bugs:
+                    type: array
+                    items: { $ref: '#/components/schemas/Issue' }
+    post:
+      operationId: createIssue
+      summary: Create an issue
+      tags: [Issues]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                assignee: { type: string }
+                severity: { type: string }
+                reporter: { type: string }
+                due_date: { type: string }
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Issue' }
+  /api/v3/portal/{portal_id}/projects/{project_id}/issues/{issue_id}:
+    get:
+      operationId: getIssue
+      summary: Get issue details
+      tags: [Issues]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: issue_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: issue
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Issue' }
+    patch:
+      operationId: updateIssue
+      summary: Update an issue
+      tags: [Issues]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+        - { name: project_id, in: path, required: true, schema: { type: string } }
+        - { name: issue_id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { type: string }
+                severity: { type: string }
+                assignee: { type: string }
+                due_date: { type: string }
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Issue' }
+  /api/v3/portal/{portal_id}/issues/my:
+    get:
+      operationId: listMyIssues
+      summary: List issues assigned to the authenticated user
+      tags: [Issues]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: my issues
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bugs:
+                    type: array
+                    items: { $ref: '#/components/schemas/Issue' }
+  /api/v3/portal/{portal_id}/users:
+    get:
+      operationId: listUsers
+      summary: List users in the portal
+      tags: [Users]
+      parameters:
+        - { name: portal_id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }

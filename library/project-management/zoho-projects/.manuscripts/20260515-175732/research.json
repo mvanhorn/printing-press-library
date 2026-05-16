@@ -1,0 +1,252 @@
+{
+  "api_name": "zoho-projects",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Zoho's official ZohoProjects MCP",
+      "url": "https://www.zoho.com/projects/",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T22:58:00Z",
+  "novel_features": [
+    {
+      "name": "Overdue tasks across portal",
+      "command": "overdue",
+      "description": "List tasks whose end_date is in the past but status isn't 'closed'/'completed'.",
+      "rationale": "Joins tasks × projects locally — no native portal-wide overdue view; existing ZohoProjects UI filters are per-project.",
+      "example": "zoho-projects-pp-cli overdue --json --select id,name,project,owner,end_date,days_overdue",
+      "why_it_matters": "Use this for daily standup — who's behind on which projects, in one shot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale projects detector",
+      "command": "stale-projects",
+      "description": "Active projects with no task activity in N days.",
+      "rationale": "Joins projects × tasks locally — Zoho's portal stats only show counts, not last-activity recency.",
+      "example": "zoho-projects-pp-cli stale-projects --days 14 --json",
+      "why_it_matters": "Use this in weekly portfolio review to find projects that have lost momentum.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Workload by owner",
+      "command": "workload",
+      "description": "Open tasks + issues per user with mean/stddev/Gini across the portal.",
+      "rationale": "Local group-by on owner_id across tasks AND issues — no native combined view.",
+      "example": "zoho-projects-pp-cli workload --sort spread --json",
+      "why_it_matters": "Use this for sprint planning — surfaces who's stretched across multiple projects.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversational FTS",
+      "command": "grep",
+      "description": "Search task names/descriptions, issue titles/descriptions, project names/descriptions locally.",
+      "rationale": "SQLite FTS5 over locally-synced content — Zoho's search is module-scoped and rate-limited.",
+      "example": "zoho-projects-pp-cli grep 'payment gateway' --in tasks,issues --json",
+      "why_it_matters": "Use this to recall the right ticket/task without paginating per-module search endpoints.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Issue heat map by project",
+      "command": "issue-heat",
+      "description": "Per-project open-issue counts grouped by severity, surfacing projects with concentrated bugs.",
+      "rationale": "Groups locally by project_id + severity; no native portal heat-map exists.",
+      "example": "zoho-projects-pp-cli issue-heat --json --select project,critical,high,medium,low",
+      "why_it_matters": "Use this in monthly QA review to find projects accumulating critical issues.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Project burn (planned vs actual)",
+      "command": "project-burn",
+      "description": "Per-project completed-task ratio with projected completion date based on 4-week velocity.",
+      "rationale": "Computes velocity from tasks.last_modified_time + percent_complete locally; no native projection.",
+      "example": "zoho-projects-pp-cli project-burn --json --select project,pct_complete,velocity,projected_end_date",
+      "why_it_matters": "Use this to call out projects likely to slip end-dates before the customer notices.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unassigned items radar",
+      "command": "unassigned",
+      "description": "Open tasks and issues with no owner across active projects.",
+      "rationale": "Joins tasks + issues locally where owner is empty — common project-hygiene gap.",
+      "example": "zoho-projects-pp-cli unassigned --json",
+      "why_it_matters": "Use this Friday afternoon to clean up orphaned work before the weekend.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "My focus today",
+      "command": "my-focus",
+      "description": "Tasks + issues assigned to the authenticated user across all portals, ranked by due date.",
+      "rationale": "Joins tasks × issues × users locally; surfaces top-N items the user needs to touch today.",
+      "example": "zoho-projects-pp-cli my-focus --limit 10 --json",
+      "why_it_matters": "Use this every morning to plan the day without clicking through every project board.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Overdue tasks across portal",
+      "command": "overdue",
+      "description": "List tasks whose end_date is in the past but status isn't 'closed'/'completed'.",
+      "rationale": "Joins tasks × projects locally — no native portal-wide overdue view; existing ZohoProjects UI filters are per-project.",
+      "example": "zoho-projects-pp-cli overdue --json --select id,name,project,owner,end_date,days_overdue",
+      "why_it_matters": "Use this for daily standup — who's behind on which projects, in one shot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale projects detector",
+      "command": "stale-projects",
+      "description": "Active projects with no task activity in N days.",
+      "rationale": "Joins projects × tasks locally — Zoho's portal stats only show counts, not last-activity recency.",
+      "example": "zoho-projects-pp-cli stale-projects --days 14 --json",
+      "why_it_matters": "Use this in weekly portfolio review to find projects that have lost momentum.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Workload by owner",
+      "command": "workload",
+      "description": "Open tasks + issues per user with mean/stddev/Gini across the portal.",
+      "rationale": "Local group-by on owner_id across tasks AND issues — no native combined view.",
+      "example": "zoho-projects-pp-cli workload --sort spread --json",
+      "why_it_matters": "Use this for sprint planning — surfaces who's stretched across multiple projects.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversational FTS",
+      "command": "grep",
+      "description": "Search task names/descriptions, issue titles/descriptions, project names/descriptions locally.",
+      "rationale": "SQLite FTS5 over locally-synced content — Zoho's search is module-scoped and rate-limited.",
+      "example": "zoho-projects-pp-cli grep 'payment gateway' --in tasks,issues --json",
+      "why_it_matters": "Use this to recall the right ticket/task without paginating per-module search endpoints.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Issue heat map by project",
+      "command": "issue-heat",
+      "description": "Per-project open-issue counts grouped by severity, surfacing projects with concentrated bugs.",
+      "rationale": "Groups locally by project_id + severity; no native portal heat-map exists.",
+      "example": "zoho-projects-pp-cli issue-heat --json --select project,critical,high,medium,low",
+      "why_it_matters": "Use this in monthly QA review to find projects accumulating critical issues.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Project burn (planned vs actual)",
+      "command": "project-burn",
+      "description": "Per-project completed-task ratio with projected completion date based on 4-week velocity.",
+      "rationale": "Computes velocity from tasks.last_modified_time + percent_complete locally; no native projection.",
+      "example": "zoho-projects-pp-cli project-burn --json --select project,pct_complete,velocity,projected_end_date",
+      "why_it_matters": "Use this to call out projects likely to slip end-dates before the customer notices.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Unassigned items radar",
+      "command": "unassigned",
+      "description": "Open tasks and issues with no owner across active projects.",
+      "rationale": "Joins tasks + issues locally where owner is empty — common project-hygiene gap.",
+      "example": "zoho-projects-pp-cli unassigned --json",
+      "why_it_matters": "Use this Friday afternoon to clean up orphaned work before the weekend.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "My focus today",
+      "command": "my-focus",
+      "description": "Tasks + issues assigned to the authenticated user across all portals, ranked by due date.",
+      "rationale": "Joins tasks × issues × users locally; surfaces top-N items the user needs to touch today.",
+      "example": "zoho-projects-pp-cli my-focus --limit 10 --json",
+      "why_it_matters": "Use this every morning to plan the day without clicking through every project board.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zoho Projects",
+    "headline": "Every Zoho Projects API endpoint, plus portal-wide insights (overdue, stale, workload, issue heat) no native view supports.",
+    "value_prop": "Full coverage of Zoho Projects portals, projects, tasks, task-lists, phases, issues, and users — plus FTS5 over locally-synced content, portal-wide overdue/stale detection, workload fairness, project burn projection, and unassigned-items radar. Built on a synced local SQLite store so PMs and team leads can plan without clicking through every project board.",
+    "auth_narrative": "Zoho Projects uses OAuth 2.0. You need a self-client refresh token, client ID/secret, and your portal ID. Set ZOHOPROJECTS_REFRESH_TOKEN, ZOHOPROJECTS_CLIENT_ID, ZOHOPROJECTS_CLIENT_SECRET, ZOHOPROJECTS_PORTAL_ID — or run `zoho-projects-pp-cli auth set-token` to store them. The CLI auto-refreshes access tokens.",
+    "quickstart": [
+      {
+        "command": "zoho-projects-pp-cli doctor --json",
+        "comment": "Validates OAuth creds + portal_id + API reachability."
+      },
+      {
+        "command": "zoho-projects-pp-cli sync --full",
+        "comment": "Populates SQLite with all portals, projects, tasks, issues, users."
+      },
+      {
+        "command": "zoho-projects-pp-cli my-focus --limit 10 --json",
+        "comment": "Top 10 items assigned to you, ranked by due date."
+      },
+      {
+        "command": "zoho-projects-pp-cli overdue --json --select id,name,project,owner,end_date",
+        "comment": "Portal-wide overdue tasks."
+      },
+      {
+        "command": "zoho-projects-pp-cli workload --json --select owner,open_count",
+        "comment": "Per-user open-task counts."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "INVALID_OAUTHTOKEN",
+        "fix": "Re-run `zoho-projects-pp-cli auth set-token` with a fresh self-client refresh token from accounts.zoho.com/developerconsole. Scopes needed: ZohoProjects.portals.READ, projects.READ, tasks.ALL, bugs.ALL."
+      },
+      {
+        "symptom": "Portal not found",
+        "fix": "Check ZOHOPROJECTS_PORTAL_ID matches a portal the token has access to. `zoho-projects-pp-cli portals list --json` lists every portal your token can see."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Zoho Projects limits to ~10 req/s per org. The CLI retries with backoff; for large initial syncs use `sync --concurrency 1`."
+      },
+      {
+        "symptom": "grep returns nothing",
+        "fix": "FTS index is populated by `sync`. Run `sync --resources tasks,issues,projects` first."
+      }
+    ],
+    "when_to_use": "Reach for zoho-projects-pp-cli when you need to plan or report across projects — portal-wide overdue/stale/workload views, cross-project search, project burn projection, and unassigned-items cleanup. For one-off CRUD operations on a single ticket or task, the API or MCP is fine; use this CLI when local cache, FTS, or cross-project joins matter.",
+    "recipes": [
+      {
+        "title": "Morning focus",
+        "command": "zoho-projects-pp-cli my-focus --limit 10 --json --select id,name,kind,project,end_date,priority",
+        "explanation": "Top 10 items assigned to you, ranked by due date — across every portal you have access to."
+      },
+      {
+        "title": "Portal overdue report",
+        "command": "zoho-projects-pp-cli overdue --json --select project,owner,name,end_date,days_overdue",
+        "explanation": "Every task/issue past its end_date that isn't closed. Pipe into Slack."
+      },
+      {
+        "title": "Workload check (deep --select)",
+        "command": "zoho-projects-pp-cli workload --sort spread --json --select owner,open_tasks,open_issues,total_open,share_pct",
+        "explanation": "Per-user open-work distribution — surfaces who's overcommitted."
+      },
+      {
+        "title": "Stale project audit",
+        "command": "zoho-projects-pp-cli stale-projects --days 14 --json --select id,name,owner,days_inactive,task_count",
+        "explanation": "Active projects with no task activity in 2 weeks."
+      },
+      {
+        "title": "Cross-module FTS",
+        "command": "zoho-projects-pp-cli grep 'payment gateway' --in tasks,issues --json --select id,kind,name,project",
+        "explanation": "FTS5 across task + issue content — finds related work no native search returns."
+      }
+    ],
+    "trigger_phrases": [
+      "what's overdue in zoho projects",
+      "show me stale projects",
+      "team workload zoho projects",
+      "my zoho projects tasks today",
+      "search zoho projects",
+      "use zoho-projects-pp",
+      "run zoho-projects-pp"
+    ]
+  }
+}
