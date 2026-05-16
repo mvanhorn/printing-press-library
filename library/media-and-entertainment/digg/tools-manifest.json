@@ -1,7 +1,7 @@
 {
   "api_name": "digg",
   "base_url": "https://di.gg",
-  "description": "Digg AI: tail the Digg AI 1000 leaderboard, ranking-change history, and live ingestion pipeline events from the terminal. Read-only.",
+  "description": "Digg: tail the AI story leaderboard, GitHub feeds (stars/new/activity/recent), ranking-change history, and live ingestion pipeline events from the terminal. Read-only.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -38,6 +38,38 @@
       "description": "Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress). Returns the TrendingStatus.",
       "method": "GET",
       "path": "/api/trending/status",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "github_stars",
+      "description": "Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Returns the RawHTML; structured records are extracted by the CLI from the embedded RSC payload.",
+      "method": "GET",
+      "path": "/ai/github/stars",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "github_new",
+      "description": "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator). Returns the RawHTML; CLI extracts the per-event records.",
+      "method": "GET",
+      "path": "/ai/github/new",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "github_activity",
+      "description": "Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window. Returns the RawHTML; CLI extracts the leaderboard table rows.",
+      "method": "GET",
+      "path": "/ai/github/activity",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "github_recent",
+      "description": "Live GitHub activity feed: per-event entries with the GitHub URL (issue/PR/commit/repo), the user who acted, and a short description of the target. Returns the RawHTML; CLI extracts the per-event tuples.",
+      "method": "GET",
+      "path": "/ai/github/recent",
       "no_auth": true,
       "params": []
     }

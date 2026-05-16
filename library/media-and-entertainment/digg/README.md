@@ -1,8 +1,8 @@
-# Digg AI CLI
+# Digg CLI
 
-**Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and rank-history nobody else surfaces.**
+**Tail Digg's news cycle from the terminal — read-only, with the full pipeline event stream, GitHub feeds, and rank-history nobody else surfaces.**
 
-Digg AI is a curated leaderboard of 1,000 AI accounts on X and the story clusters they surface. The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, and exposes Digg's own replacement rationale and gravity components so an agent can answer 'why this story?' and 'what got dropped overnight?' with structured data.
+Digg is a curated AI-news leaderboard powered by tracked accounts on X and a parallel GitHub feed (stars / new / activity / recent). The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, exposes Digg's own replacement rationale and gravity components, and surfaces the four GitHub feeds as structured data.
 
 ## Install
 
@@ -73,8 +73,16 @@ digg-pp-cli events --since 1h --type fast_climb
 digg-pp-cli replaced --since 24h
 
 
-# The Digg AI 1000's top influencers by Digg's score
+# Top influencers tracked by Digg, ranked by Digg's score
 digg-pp-cli authors top --by influence --limit 25
+
+
+# Top AI repos by starring activity from Digg-tracked accounts
+digg-pp-cli github stars --limit 10 --json
+
+
+# Live GitHub activity feed: who starred / committed / opened issues, in real time
+digg-pp-cli github recent --limit 20 --json
 
 ```
 
@@ -170,7 +178,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli crossref iq7usf9e
   ```
-- **`authors top`** — Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.
+- **`authors top`** — Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
 
   _Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable._
 
@@ -216,10 +224,19 @@ Run `digg-pp-cli --help` for the full command reference and flag list.
 
 ### feed
 
-Top-level AI story feed (HTML page; CLI parses the embedded RSC stream)
+Top-level story feed (HTML page; CLI parses the embedded RSC stream)
 
 - **`digg-pp-cli feed raw`** - Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly.
 - **`digg-pp-cli feed story_raw`** - Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly.
+
+### github
+
+GitHub feeds Digg surfaces alongside the X-account leaderboard. Four flavors, each parsed from the embedded RSC stream.
+
+- **`digg-pp-cli github stars`** - Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification.
+- **`digg-pp-cli github new`** - Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).
+- **`digg-pp-cli github activity`** - Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos.
+- **`digg-pp-cli github recent`** - Live activity feed: per-event entries with the GitHub URL and the user who acted.
 
 ### search
 
@@ -229,10 +246,10 @@ Topic search across the full Digg window
 
 ### authors
 
-Inspect the Digg AI 1000 leaderboard
+Inspect Digg's tracked AI-news accounts (the /ai/1000 roster).
 
 - **`digg-pp-cli authors get <handle>`** - Look up any X handle (1000 + off-1000); off-1000 records include `subject_peer_follow_count`, the rank-1000 `nearest_in_1000` anchor, and `peer_follow_gap`. Flag: `--limit` (fuzzy fallback).
-- **`digg-pp-cli authors list`** - Full ranked AI 1000 from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
+- **`digg-pp-cli authors list`** - Full ranked roster from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
 - **`digg-pp-cli authors top`** - Top contributors by influence, post count, or reach.
 
 ### posts
