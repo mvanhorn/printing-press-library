@@ -176,7 +176,7 @@ embed URL, thumbnail, and description.`,
 						ThumbnailURL: thumb,
 						EmbedURL:     fmt.Sprintf("https://www.youtube.com/embed/%s", vid),
 						WatchURL:     fmt.Sprintf("https://www.youtube.com/watch?v=%s", vid),
-						Description:  it.Snippet.Description,
+						Description:  html.UnescapeString(it.Snippet.Description),
 					})
 				}
 				out.Terms = append(out.Terms, group)
