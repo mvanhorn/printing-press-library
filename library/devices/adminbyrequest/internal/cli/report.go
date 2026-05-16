@@ -119,6 +119,9 @@ func newReportComplianceCmd(flags *rootFlags) *cobra.Command {
 				}
 				data = append(data, r)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating auditlog rows: %w", err)
+			}
 			if data == nil {
 				data = []complianceRow{}
 			}
