@@ -72,7 +72,11 @@ func emitGithub(cmd *cobra.Command, flags *rootFlags, items any, limit int) erro
 		var arr []json.RawMessage
 		if json.Unmarshal(raw, &arr) == nil && len(arr) > limit {
 			arr = arr[:limit]
-			raw, _ = json.Marshal(arr)
+			trimmed, merr := json.Marshal(arr)
+			if merr != nil {
+				return fmt.Errorf("trimming output to --limit %d: %w", limit, merr)
+			}
+			raw = trimmed
 		}
 	}
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {

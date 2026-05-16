@@ -190,8 +190,18 @@ var tdNumberPattern = regexp.MustCompile(`"children":"(\d[\d,]*)"`)
 
 // ParseGithubActivity extracts the contributor leaderboard from
 // /ai/github/activity. The page renders each row as <td> cells around a
-// "user":{...} JSON object; we extract every user record and look back to
-// the two numeric cells that precede it for contribution / repo counts.
+// "user":{...} JSON object; we extract every user record and look for the
+// two numeric cells that precede the table-row anchor for contribution
+// and repo counts.
+//
+// A given username can appear many times in the RSC stream (once per
+// avatar component instance that references that user), so a naive
+// strings.Index lookup of the first occurrence can land on an avatar
+// reference whose preceding td numbers belong to a *different* user's
+// row. We iterate every occurrence and pick the first one whose lookback
+// ends right next to two numeric td cells (the table-row anchor) —
+// avatar-reference occurrences typically don't have td-children patterns
+// in immediate proximity.
 func ParseGithubActivity(html []byte) ([]GithubContributor, error) {
 	decoded := DecodeRSC(html)
 	if decoded == "" {
@@ -226,20 +236,30 @@ func ParseGithubActivity(html []byte) ([]GithubContributor, error) {
 			ClassificationTLDR: u.ClassificationTLDR,
 		}
 		needle := `"username":"` + u.Username + `"`
-		idx := strings.Index(decoded, needle)
-		if idx > 0 {
-			start := idx - 800
+		pos := 0
+		for {
+			rel := strings.Index(decoded[pos:], needle)
+			if rel < 0 {
+				break
+			}
+			abs := pos + rel
+			start := abs - 800
 			if start < 0 {
 				start = 0
 			}
-			window := decoded[start:idx]
+			window := decoded[start:abs]
 			nums := tdNumberPattern.FindAllStringSubmatch(window, -1)
+			// Take the first occurrence whose lookback contains at least
+			// two numeric td cells — that's the table-row anchor. Other
+			// occurrences (avatar component references later in the
+			// stream) typically sit inside non-numeric children. Data
+			// sections lack td-children patterns entirely.
 			if len(nums) >= 2 {
 				c.Contributions = atoiSafe(nums[len(nums)-2][1])
 				c.ReposCount = atoiSafe(nums[len(nums)-1][1])
-			} else if len(nums) == 1 {
-				c.ReposCount = atoiSafe(nums[0][1])
+				break
 			}
+			pos = abs + len(needle)
 		}
 		out = append(out, c)
 	}
