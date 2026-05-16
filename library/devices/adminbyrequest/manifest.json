@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "adminbyrequest-pp-mcp",
+  "display_name": "Adminbyrequest",
+  "version": "4.5.2",
+  "description": "Adminbyrequest API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/adminbyrequest-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/adminbyrequest-pp-mcp",
+      "args": [],
+      "env": {
+        "ADMINBYREQUEST_API_KEY": "${user_config.adminbyrequest_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "adminbyrequest_api_key": {
+      "type": "string",
+      "title": "ADMINBYREQUEST_API_KEY",
+      "description": "Sets ADMINBYREQUEST_API_KEY for the Adminbyrequest MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
