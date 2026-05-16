@@ -16,7 +16,8 @@ var contractInt int
 func rootContract() {
 	rootCmd := &cobra.Command{Use: "zohomail-pp-cli"}
 	rootCmd.PersistentFlags().StringVar(&contractString, "output", "", "")
-	rootCmd.PersistentFlags().StringVar(&contractString, "account-id", "", "")
+	rootCmd.PersistentFlags().StringVar(&contractString, "mail-base", "", "")
+	rootCmd.PersistentFlags().StringVar(&contractString, "accounts-base", "", "")
 	rootCmd.AddCommand(newLoginCmd())
 	rootCmd.AddCommand(newClientSetupCmd())
 	rootCmd.AddCommand(newAuthSaveCmd())
@@ -101,7 +102,6 @@ func newAuthClientCredentialsCmd() *cobra.Command {
 	cmd.Flags().StringVar(&contractString, "client-id", "", "")
 	cmd.Flags().StringVar(&contractString, "client-secret", "", "")
 	cmd.Flags().StringVar(&contractString, "scopes", "", "")
-	cmd.Flags().BoolVar(&contractBool, "save", false, "")
 	return cmd
 }
 
@@ -110,9 +110,8 @@ func newAuthDeviceCmd() *cobra.Command {
 	cmd.Flags().StringVar(&contractString, "client-id", "", "")
 	cmd.Flags().StringVar(&contractString, "client-secret", "", "")
 	cmd.Flags().StringVar(&contractString, "scopes", "", "")
+	cmd.Flags().BoolVar(&contractBool, "save", false, "")
 	cmd.Flags().BoolVar(&contractBool, "no-open", false, "")
-	cmd.Flags().StringVar(&contractString, "interval", "", "")
-	cmd.Flags().StringVar(&contractString, "timeout", "", "")
 	return cmd
 }
 
@@ -137,13 +136,16 @@ func newAccountsCmd() *cobra.Command {
 }
 
 func newFoldersCmd() *cobra.Command {
-	return &cobra.Command{Use: "folders"}
+	cmd := &cobra.Command{Use: "folders"}
+	cmd.Flags().StringVar(&contractString, "account-id", "", "")
+	return cmd
 }
 
 func newInboxCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "inbox"}
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
+	cmd.Flags().StringVar(&contractString, "sort-by", "", "")
 	return cmd
 }
 
@@ -151,6 +153,7 @@ func newSentCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "sent"}
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
+	cmd.Flags().StringVar(&contractString, "sort-by", "", "")
 	return cmd
 }
 
@@ -158,6 +161,7 @@ func newSpamCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "spam"}
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
+	cmd.Flags().StringVar(&contractString, "sort-by", "", "")
 	return cmd
 }
 
@@ -165,6 +169,7 @@ func newTrashCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "trash"}
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
+	cmd.Flags().StringVar(&contractString, "sort-by", "", "")
 	return cmd
 }
 
@@ -172,14 +177,15 @@ func newArchiveCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "archive"}
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
+	cmd.Flags().StringVar(&contractString, "sort-by", "", "")
 	return cmd
 }
 
 func newListCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "list"}
+	cmd.Flags().StringVar(&contractString, "account-id", "", "")
 	cmd.Flags().StringVar(&contractString, "folder", "", "")
 	cmd.Flags().StringVar(&contractString, "folder-id", "", "")
-	cmd.Flags().StringVar(&contractString, "view", "", "")
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
 	cmd.Flags().StringVar(&contractString, "sort-by", "", "")
@@ -188,6 +194,7 @@ func newListCmd() *cobra.Command {
 
 func newSearchCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "search"}
+	cmd.Flags().StringVar(&contractString, "account-id", "", "")
 	cmd.Flags().StringVar(&contractString, "search-key", "", "")
 	cmd.Flags().IntVar(&contractInt, "start", 0, "")
 	cmd.Flags().IntVar(&contractInt, "limit", 0, "")
@@ -196,17 +203,22 @@ func newSearchCmd() *cobra.Command {
 
 func newReadCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "read"}
+	cmd.Flags().StringVar(&contractString, "account-id", "", "")
 	cmd.Flags().StringVar(&contractString, "folder", "", "")
 	cmd.Flags().StringVar(&contractString, "folder-id", "", "")
 	cmd.Flags().StringVar(&contractString, "message-id", "", "")
 	cmd.Flags().StringVar(&contractString, "mode", "", "")
+	cmd.Flags().BoolVar(&contractBool, "include-block-content", false, "")
 	return cmd
 }
 
 func newSendCmd() *cobra.Command {
 	cmd := &cobra.Command{Use: "send"}
+	cmd.Flags().StringVar(&contractString, "account-id", "", "")
 	cmd.Flags().StringVar(&contractString, "from", "", "")
 	cmd.Flags().StringVar(&contractString, "to", "", "")
+	cmd.Flags().StringVar(&contractString, "cc", "", "")
+	cmd.Flags().StringVar(&contractString, "bcc", "", "")
 	cmd.Flags().StringVar(&contractString, "subject", "", "")
 	cmd.Flags().StringVar(&contractString, "content", "", "")
 	cmd.Flags().StringVar(&contractString, "content-file", "", "")
