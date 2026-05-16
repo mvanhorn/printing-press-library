@@ -27,11 +27,22 @@ func newDeltaEventsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH(delta-events-prefer-header): /me/events/delta rejects $top
+			// (HTTP 400 ErrorInvalidUrlQuery — "The '$top' parameter is not
+			// supported with change tracking..."). Page size must be expressed
+			// via the Prefer: odata.maxpagesize header instead. Other endpoints
+			// (events list, calendarView) still take $top normally.
 			path := "/me/events/delta"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "delta", path, map[string]string{
+			params := map[string]string{
 				"$deltatoken": fmt.Sprintf("%v", flagDeltatoken),
-				"$top":        fmt.Sprintf("%v", flagTop),
-			}, nil, flagAll, "", "", "")
+			}
+			var headers map[string]string
+			if flagTop > 0 {
+				headers = map[string]string{
+					"Prefer": fmt.Sprintf("odata.maxpagesize=%d", flagTop),
+				}
+			}
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "delta", path, params, headers, flagAll, "", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

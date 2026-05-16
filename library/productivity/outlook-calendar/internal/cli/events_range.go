@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -36,10 +37,41 @@ func newEventsRangeCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH(events-range-date-shortcuts): resolve human shortcuts (today, now,
+			// +Nd, +Nw, -Nh, etc.) to RFC3339 before sending to Graph. The generated
+			// code passed the raw string through, so `--from today` produced
+			// `HTTP 400 ErrorInvalidParameter` from /me/calendarView. ISO 8601 inputs
+			// continue to round-trip unchanged via parseHumanTime's format list.
+			now := time.Now()
+			startStr := flagStartDateTime
+			if startStr != "" {
+				t, perr := parseHumanTime(startStr, now)
+				if perr != nil {
+					return usageErr(fmt.Errorf("--from %q: %w", startStr, perr))
+				}
+				startStr = t.Format(time.RFC3339)
+			}
+			endStr := flagEndDateTime
+			if endStr != "" {
+				// Anchor relative --to on resolved --from so `--from today --to +1d`
+				// means "1 day after today's start", not "1 day from now".
+				anchor := now
+				if startStr != "" {
+					if t, perr := time.Parse(time.RFC3339, startStr); perr == nil {
+						anchor = t
+					}
+				}
+				t, perr := parseHumanTime(endStr, anchor)
+				if perr != nil {
+					return usageErr(fmt.Errorf("--to %q: %w", endStr, perr))
+				}
+				endStr = t.Format(time.RFC3339)
+			}
+
 			path := "/me/calendarView"
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "events", path, map[string]string{
-				"startDateTime": fmt.Sprintf("%v", flagStartDateTime),
-				"endDateTime":   fmt.Sprintf("%v", flagEndDateTime),
+				"startDateTime": startStr,
+				"endDateTime":   endStr,
 				"$top":          fmt.Sprintf("%v", flagTop),
 				"$orderby":      fmt.Sprintf("%v", flagOrderby),
 				"$select":       fmt.Sprintf("%v", flagSelect),

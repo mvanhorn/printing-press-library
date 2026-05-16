@@ -1,9 +1,21 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-10",
+  "applied_at": "2026-05-15",
   "base_run_id": "20260510-094714",
   "base_printing_press_version": "4.2.2",
   "patches": [
+    {
+      "id": "events-range-date-shortcuts",
+      "summary": "Resolve --from/--to human shortcuts (today, now, +Nd, +Nw, -Nh, etc.) to RFC3339 before passing to /me/calendarView; add +Nw to parseHumanTime.",
+      "reason": "The README's canonical example `events range --from today --to +7d` was broken — the generated code forwarded the literal string to Graph, producing `HTTP 400 ErrorInvalidParameter — The value 'today' of parameter 'StartDateTime' is invalid`. The local-feature commands (conflicts, freetime, etc.) already used parseHumanTime in novel_events.go; events range now reuses it so behavior matches the docs. The relative `--to` anchors on the resolved `--from` so `--from today --to +1d` means '1 day after today's start'.",
+      "files": ["internal/cli/events_range.go", "internal/cli/novel_events.go"]
+    },
+    {
+      "id": "delta-events-prefer-header",
+      "summary": "Send page size for /me/events/delta via `Prefer: odata.maxpagesize=N` header instead of `$top`.",
+      "reason": "Graph rejects `$top` on the SyncEvents change-tracking endpoint: `HTTP 400 ErrorInvalidUrlQuery — The '$top' parameter is not supported with change tracking over the 'SyncEvents' resource as page size cannot be guaranteed. Express page size preference using the 'Prefer' header instead.` Scoped to delta_events.go only; events list / events range still pass $top as before.",
+      "files": ["internal/cli/delta_events.go"]
+    },
     {
       "id": "greptile-p1-listids-sql-injection",
       "summary": "Validate resourceType via parameterized sqlite_master lookup before interpolating into SELECT in Store.ListIDs.",

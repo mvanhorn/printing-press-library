@@ -277,6 +277,9 @@ func parseHumanTime(s string, anchor time.Time) (time.Time, error) {
 					return anchor.Add(time.Duration(sign*n) * time.Hour), nil
 				case 'm':
 					return anchor.Add(time.Duration(sign*n) * time.Minute), nil
+				// PATCH(events-range-date-shortcuts): accept +Nw/-Nw as advertised in README examples.
+				case 'w':
+					return anchor.AddDate(0, 0, sign*n*7), nil
 				}
 			}
 		}
@@ -287,5 +290,5 @@ func parseHumanTime(s string, anchor time.Time) (time.Time, error) {
 			return t, nil
 		}
 	}
-	return time.Time{}, errors.New("unrecognised time format (use ISO 8601, today, tomorrow, +Nd, -Nh)")
+	return time.Time{}, errors.New("unrecognised time format (use ISO 8601, today, tomorrow, +Nd, +Nw, -Nh)")
 }
