@@ -407,6 +407,21 @@ def validate_patch_manifest(
             for file_name in patch.get("files") or []:
                 if isinstance(file_name, str) and file_name:
                     relevant_paths.add(file_name)
+        # When patches[] is empty, relevant_paths covers only the manifest
+        # itself, so a PR that adds // PATCH: markers to source files
+        # without updating the manifest would be silently skipped here
+        # and never reach the markers-without-manifest check below.
+        # Expand to every candidate marker file under cli_dir for that
+        # case. When patches[] is populated, the manifest's own file list
+        # is the source of truth and we keep the tighter scope.
+        if not patches:
+            for candidate in candidate_patch_marker_files(cli_dir):
+                try:
+                    relevant_paths.add(
+                        PurePosixPath(*candidate.relative_to(cli_dir).parts).as_posix()
+                    )
+                except ValueError:
+                    continue
         if not (changed_files & relevant_paths):
             return problems
 

@@ -279,6 +279,52 @@ class PublishPackageVerifierTest(unittest.TestCase):
             msg=f"patches manifest changed → marker check should fire; got {[p.message for p in problems]}",
         )
 
+    def test_marker_added_with_empty_patches_array_is_caught(self) -> None:
+        """Regression for greptile-flagged scope-guard bug on #587: if a PR
+        adds a // PATCH: marker to a source file but the CLI's
+        .printing-press-patches.json has patches: [], the prior scope guard
+        only added the manifest path to relevant_paths so the diff (which
+        touched only the .go file) bypassed the check entirely. Validation
+        must still fire and report markers-without-manifest.
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "legacy"
+        # Seed pre-existing state on main: empty-patches manifest +
+        # marker-free source file.
+        self.git("checkout", "-B", "scenario-main", self.base)
+        self.write(
+            "library/cloud/legacy/.printing-press.json",
+            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
+        )
+        self.write(
+            "library/cloud/legacy/.printing-press-patches.json",
+            json.dumps({"schema_version": 1, "applied_at": "2026-05-09", "patches": []}),
+        )
+        self.write("library/cloud/legacy/internal/cli/legacy.go", "package cli\n")
+        self.git("add", ".")
+        self.git("commit", "-m", "seed legacy CLI with empty patches[]")
+        new_base = self.git("rev-parse", "HEAD").stdout.strip()
+        self.git("switch", "feature")
+        self.git("merge", "--ff-only", "scenario-main")
+
+        # PR adds a PATCH marker to the Go file without touching the manifest.
+        self.write(
+            "library/cloud/legacy/internal/cli/legacy.go",
+            "// PATCH: tweak request envelope\npackage cli\n",
+        )
+        self.git("add", ".")
+        self.git("commit", "-m", "add patch marker but forget manifest entry")
+
+        _, files_by_dir = verifier.changed_cli_dirs(new_base)
+        problems = verifier.validate_cli_dir(
+            cli_dir,
+            strict=False,
+            changed_files=files_by_dir.get(cli_dir, set()),
+        )
+        self.assertTrue(
+            any("PATCH markers but patches[] is empty" in p.message for p in problems),
+            msg=f"empty patches[] + new marker should fire; got {[p.message for p in problems]}",
+        )
+
     def test_patch_entry_with_only_non_go_files_skips_marker_check(self) -> None:
         """JSON/YAML-only customizations (e.g. spec.json redaction, schema
         bump in .printing-press.json) record the patch in the manifest but
