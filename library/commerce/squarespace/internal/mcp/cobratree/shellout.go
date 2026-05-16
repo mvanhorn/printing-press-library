@@ -97,6 +97,7 @@ func cliArgsFromMCP(args map[string]any) []string {
 	return out
 }
 
+// PATCH: splitShellArgs now handles single-quoted tokens in addition to double-quoted.
 // splitShellArgs whitespace-splits with double- and single-quoted-token preservation.
 func splitShellArgs(s string) []string {
 	var tokens []string

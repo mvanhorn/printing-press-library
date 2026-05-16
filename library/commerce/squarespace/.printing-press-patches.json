@@ -14,7 +14,7 @@
       "id": "single-quote-shellargs",
       "summary": "Add single-quote support to splitShellArgs in the MCP shell-out parser.",
       "reason": "Only double quotes were handled; single-quoted multi-word arguments were incorrectly split into separate tokens.",
-      "files": ["internal/mcp/cobratree/shellout.go", "internal/mcp/cobratree/shellout_test.go"]
+      "files": ["internal/mcp/cobratree/shellout.go"]
     }
   ]
 }
