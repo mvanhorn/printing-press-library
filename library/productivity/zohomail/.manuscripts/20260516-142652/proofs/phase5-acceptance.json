@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "api_name": "zohomail",
+  "run_id": "20260516-142652",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "oauth2",
+    "live_credentials_available": false,
+    "skip_reason": "Zoho Mail OAuth credentials are user-specific and were not included in the public publish package."
+  },
+  "verification": [
+    "GOTOOLCHAIN=go1.26.3 go test ./...",
+    "GOTOOLCHAIN=go1.26.3 go build ./...",
+    "GOTOOLCHAIN=go1.26.3 go vet ./...",
+    "GOTOOLCHAIN=go1.26.3 go run golang.org/x/vuln/cmd/govulncheck@v1.3.0 ./...",
+    "python3 .github/scripts/verify-skill/verify_skill.py --dir library/productivity/zohomail/",
+    "GOTOOLCHAIN=go1.26.3 go run ./cmd/printing-press publish validate --dir /Users/jacques/DevFolder/printing-press-library/library/productivity/zohomail --json"
+  ]
+}

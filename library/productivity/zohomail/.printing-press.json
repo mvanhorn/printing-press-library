@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T22:00:00Z",
+  "printing_press_version": "1.3.2",
+  "run_id": "20260516-142652",
+  "api_name": "zohomail",
+  "display_name": "Zoho Mail",
+  "cli_name": "zohomail-pp-cli",
+  "printer": "jlwainwright",
+  "printer_name": "Jacques Wainwright",
+  "description": "Read, search, inspect, and send Zoho Mail messages from the terminal with OAuth-backed account, folder, message, and send commands.",
+  "category": "productivity",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "ZOHO_MAIL_ACCESS_TOKEN",
+    "ZOHO_REFRESH_TOKEN",
+    "ZOHO_CLIENT_ID",
+    "ZOHO_CLIENT_SECRET"
+  ],
+  "novel_features": [
+    {
+      "name": "Headless client credentials",
+      "command": "auth-client-credentials",
+      "description": "Exchange client credentials for a short-lived access token without browser interaction — useful for scripted or CI environments."
+    },
+    {
+      "name": "Device authorization flow",
+      "command": "auth-device",
+      "description": "Polls for approval after printing a verification URL and user code — lets agents authenticate on headless machines without a redirect URI."
+    },
+    {
+      "name": "Bitwarden/rbw auth loading",
+      "command": "auth-rbw",
+      "description": "Reads ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, and ZOHO_REFRESH_TOKEN from a Bitwarden item via rbw so credentials never touch the shell history."
+    },
+    {
+      "name": "Message search",
+      "command": "search",
+      "description": "Search messages with Zoho's searchKey syntax (e.g. from:, subject:, hasAttachment:true)."
+    },
+    {
+      "name": "Send email",
+      "command": "send",
+      "description": "Compose and send email via Zoho Mail REST API with from, to, subject, and content flags."
+    }
+  ]
+}

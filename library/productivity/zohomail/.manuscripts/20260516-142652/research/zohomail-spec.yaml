@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Zoho Mail REST API subset
+  version: public-subset
+servers:
+  - url: https://mail.zoho.com
+paths:
+  /api/accounts:
+    get:
+      summary: List Zoho Mail accounts visible to the authenticated user.
+  /api/accounts/{accountId}/folders:
+    get:
+      summary: List folders for a Zoho Mail account.
+  /api/accounts/{accountId}/messages/view:
+    get:
+      summary: List or search messages.
+  /api/accounts/{accountId}/folders/{folderId}/messages/{messageId}/content:
+    get:
+      summary: Read message content.
+  /api/accounts/{accountId}/messages:
+    post:
+      summary: Send an email message.
+components:
+  securitySchemes:
+    ZohoOAuth:
+      type: http
+      scheme: bearer
+security:
+  - ZohoOAuth: []
