@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "harvest-pp-mcp",
+  "display_name": "Harvest",
+  "version": "4.6.1",
+  "description": "Harvest API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/harvest-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/harvest-pp-mcp",
+      "args": [],
+      "env": {
+        "HARVEST_ACCOUNT_AUTH": "${user_config.harvest_account_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "harvest_account_auth": {
+      "type": "string",
+      "title": "HARVEST_ACCOUNT_AUTH",
+      "description": "Sets HARVEST_ACCOUNT_AUTH for the Harvest MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

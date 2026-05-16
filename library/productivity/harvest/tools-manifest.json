@@ -1,0 +1,4072 @@
+{
+  "api_name": "harvest",
+  "base_url": "https://api.harvestapp.com/v2",
+  "description": "Time tracking, project management, and invoicing for service-based businesses. This CLI provides a local SQLite store, offline FTS over time-entry notes, and cross-entity insights (project burn, client margin, utilization, timesheet gaps) on top of the v2 REST API.\n\nAuth: Personal Access Token. Set HARVEST_ACCESS_TOKEN + HARVEST_ACCOUNT_ID.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Harvest-Account-Id",
+    "in": "header",
+    "env_vars": [
+      "HARVEST_ACCOUNT_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HARVEST_ACCOUNT_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "clients_create",
+      "description": "Creates a new client object. Returns a client object and a 201 Created response code if the call succeeded. Required: name. Optional: address, currency, is_active.",
+      "method": "POST",
+      "path": "/clients",
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "A textual representation of the client’s physical address. May include new line characters."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency used by the client. If not provided, the company’s currency will be used. See a list of supported currencies"
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the client is active, or archived. Defaults to true."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A textual description of the client.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clients_delete",
+      "description": "Delete a client. Deleting a client is only possible if it has no projects, invoices, or estimates associated with it. Returns a 200 OK response code if the call succeeded. Required: clientId. Destructive.",
+      "method": "DELETE",
+      "path": "/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clients_list",
+      "description": "Returns a list of your clients. The clients are returned sorted by creation date, with the most recently created clients appearing first. The response contains an object with a clients property that contains an array of up to per_page clients. Each entry in the array is a separate client object. If no more clients are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your clients. Optional: is_active, updated_since, page (plus 2 more).",
+      "method": "GET",
+      "path": "/clients",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active clients and false to return inactive clients."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return clients that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "clients_retrieve",
+      "description": "Retrieves the client with the given ID. Returns a client object and a 200 OK response code if a valid identifier was provided. Required: clientId.",
+      "method": "GET",
+      "path": "/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clients_update",
+      "description": "Updates the specific client by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a client object and a 200 OK response code if the call succeeded. Required: clientId. Optional: address, currency, is_active (plus 1 more).",
+      "method": "PATCH",
+      "path": "/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "A textual representation of the client’s physical address. May include new line characters."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency used by the client. See a list of supported currencies"
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the client is active, or archived."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A textual description of the client."
+        }
+      ]
+    },
+    {
+      "name": "company_retrieve",
+      "description": "Retrieves the company for the currently authenticated user. Returns a company object and a 200 OK response code.",
+      "method": "GET",
+      "path": "/company",
+      "params": []
+    },
+    {
+      "name": "company_update",
+      "description": "Updates the company setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a company object and a 200 OK response code if the call succeeded. Optional: wants_timestamp_timers, weekly_capacity.",
+      "method": "PATCH",
+      "path": "/company",
+      "params": [
+        {
+          "name": "wants_timestamp_timers",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether time is tracked via duration or start and end times."
+        },
+        {
+          "name": "weekly_capacity",
+          "type": "int",
+          "location": "body",
+          "description": "The weekly capacity in seconds."
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Creates a new contact object. Returns a contact object and a 201 Created response code if the call succeeded. Required: client_id, first_name. Optional: email, fax, last_name (plus 3 more).",
+      "method": "POST",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client associated with this contact.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s email address."
+        },
+        {
+          "name": "fax",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s fax number."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "The first name of the contact.",
+          "required": true
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "The last name of the contact."
+        },
+        {
+          "name": "phone_mobile",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s mobile phone number."
+        },
+        {
+          "name": "phone_office",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s office phone number."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the contact."
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Delete a contact. Returns a 200 OK response code if the call succeeded. Required: contactId. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "Returns a list of your contacts. The contacts are returned sorted by creation date, with the most recently created contacts appearing first. The response contains an object with a contacts property that contains an array of up to per_page contacts. Each entry in the array is a separate contact object. If no more contacts are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your contacts. Optional: client_id, updated_since, page (plus 2 more).",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return contacts belonging to the client with the given ID."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return contacts that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "contacts_retrieve",
+      "description": "Retrieves the contact with the given ID. Returns a contact object and a 200 OK response code if a valid identifier was provided. Required: contactId.",
+      "method": "GET",
+      "path": "/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_update",
+      "description": "Updates the specific contact by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a contact object and a 200 OK response code if the call succeeded. Required: contactId. Optional: client_id, email, fax (plus 5 more).",
+      "method": "PATCH",
+      "path": "/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client associated with this contact."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s email address."
+        },
+        {
+          "name": "fax",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s fax number."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "The first name of the contact."
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "The last name of the contact."
+        },
+        {
+          "name": "phone_mobile",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s mobile phone number."
+        },
+        {
+          "name": "phone_office",
+          "type": "string",
+          "location": "body",
+          "description": "The contact’s office phone number."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the contact."
+        }
+      ]
+    },
+    {
+      "name": "estimate-item-categories_create-estimate-item-category",
+      "description": "Creates a new estimate item category object. Returns an estimate item category object and a 201 Created response code if the call succeeded. Required: name.",
+      "method": "POST",
+      "path": "/estimate_item_categories",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the estimate item category.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimate-item-categories_delete-estimate-item-category",
+      "description": "Delete an estimate item category. Returns a 200 OK response code if the call succeeded. Required: estimateItemCategoryId. Destructive.",
+      "method": "DELETE",
+      "path": "/estimate_item_categories/{estimateItemCategoryId}",
+      "params": [
+        {
+          "name": "estimateItemCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate item category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimate-item-categories_list",
+      "description": "Returns a list of your estimate item categories. The estimate item categories are returned sorted by creation date, with the most recently created estimate item categories appearing first. The response contains an object with a estimate_item_categories property that contains an array of up to per_page estimate item categories. Each entry in the array is a separate estimate item category object. If no more estimate item categories are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your estimate item categories. Optional: updated_since, page, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/estimate_item_categories",
+      "params": [
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return estimate item categories that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "estimate-item-categories_retrieve-estimate-item-category",
+      "description": "Retrieves the estimate item category with the given ID. Returns an estimate item category object and a 200 OK response code if a valid identifier was provided. Required: estimateItemCategoryId.",
+      "method": "GET",
+      "path": "/estimate_item_categories/{estimateItemCategoryId}",
+      "params": [
+        {
+          "name": "estimateItemCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate item category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimate-item-categories_update-estimate-item-category",
+      "description": "Updates the specific estimate item category by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an estimate item category object and a 200 OK response code if the call succeeded. Required: estimateItemCategoryId. Optional: name.",
+      "method": "PATCH",
+      "path": "/estimate_item_categories/{estimateItemCategoryId}",
+      "params": [
+        {
+          "name": "estimateItemCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate item category id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the estimate item category."
+        }
+      ]
+    },
+    {
+      "name": "estimates_create",
+      "description": "Creates a new estimate object. Returns an estimate object and a 201 Created response code if the call succeeded. Required: client_id. Optional: currency, discount, issue_date (plus 7 more).",
+      "method": "POST",
+      "path": "/estimates",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client this estimate belongs to.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency used by the estimate. If not provided, the client’s currency will be used. See a list of supported currencies"
+        },
+        {
+          "name": "discount",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is subtracted from the subtotal. Example: use 10.0 for 10.0%."
+        },
+        {
+          "name": "issue_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the estimate was issued. Defaults to today’s date."
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Array of line item parameters"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any additional notes to include on the estimate."
+        },
+        {
+          "name": "number",
+          "type": "string",
+          "location": "body",
+          "description": "If no value is set, the number will be automatically generated."
+        },
+        {
+          "name": "purchase_order",
+          "type": "string",
+          "location": "body",
+          "description": "The purchase order number."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The estimate subject."
+        },
+        {
+          "name": "tax",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        },
+        {
+          "name": "tax2",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        }
+      ]
+    },
+    {
+      "name": "estimates_delete",
+      "description": "Delete an estimate. Returns a 200 OK response code if the call succeeded. Required: estimateId. Destructive.",
+      "method": "DELETE",
+      "path": "/estimates/{estimateId}",
+      "params": [
+        {
+          "name": "estimateId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_list",
+      "description": "Returns a list of your estimates. The estimates are returned sorted by issue date, with the most recently issued estimates appearing first. The response contains an object with a estimates property that contains an array of up to per_page estimates. Each entry in the array is a separate estimate object. If no more estimates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your estimates. Optional: client_id, updated_since, from (plus 4 more).",
+      "method": "GET",
+      "path": "/estimates",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return estimates belonging to the client with the given ID."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return estimates that have been updated since the given date and time."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only return estimates with an issue_date on or after the given date."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only return estimates with an issue_date on or before the given date."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Only return estimates with a state matching the value provided. Options: draft, sent, accepted, or declined."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "estimates_retrieve",
+      "description": "Retrieves the estimate with the given ID. Returns an estimate object and a 200 OK response code if a valid identifier was provided. Required: estimateId.",
+      "method": "GET",
+      "path": "/estimates/{estimateId}",
+      "params": [
+        {
+          "name": "estimateId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_update",
+      "description": "Updates the specific estimate by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an estimate object and a 200 OK response code if the call succeeded. Required: estimateId. Optional: client_id, currency, discount (plus 8 more).",
+      "method": "PATCH",
+      "path": "/estimates/{estimateId}",
+      "params": [
+        {
+          "name": "estimateId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate id",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client this estimate belongs to."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency used by the estimate. If not provided, the client’s currency will be used. See a list of supported currencies"
+        },
+        {
+          "name": "discount",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is subtracted from the subtotal. Example: use 10.0 for 10.0%."
+        },
+        {
+          "name": "issue_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the estimate was issued."
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Array of line item parameters"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any additional notes to include on the estimate."
+        },
+        {
+          "name": "number",
+          "type": "string",
+          "location": "body",
+          "description": "If no value is set, the number will be automatically generated."
+        },
+        {
+          "name": "purchase_order",
+          "type": "string",
+          "location": "body",
+          "description": "The purchase order number."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The estimate subject."
+        },
+        {
+          "name": "tax",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        },
+        {
+          "name": "tax2",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        }
+      ]
+    },
+    {
+      "name": "estimates_messages_create-estimate",
+      "description": "Creates a new estimate message object. Returns an estimate message object and a 201 Created response code if the call succeeded. Required: estimateId, recipients. Optional: body, event_type, send_me_a_copy (plus 1 more).",
+      "method": "POST",
+      "path": "/estimates/{estimateId}/messages",
+      "params": [
+        {
+          "name": "estimateId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate id",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "The message body."
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "If provided, runs an event against the estimate. Options: “accept”, “decline”, “re-open”, or “send”."
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recipient parameters. See below for details.",
+          "required": true
+        },
+        {
+          "name": "send_me_a_copy",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, a copy of the message email will be sent to the current user. Defaults to false."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The message subject."
+        }
+      ]
+    },
+    {
+      "name": "estimates_messages_delete-estimate",
+      "description": "Delete an estimate message. Returns a 200 OK response code if the call succeeded. Required: estimateId, messageId. Destructive.",
+      "method": "DELETE",
+      "path": "/estimates/{estimateId}/messages/{messageId}",
+      "params": [
+        {
+          "name": "estimateId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate id",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_messages_list-for-estimate",
+      "description": "Returns a list of messages associated with a given estimate. The estimate messages are returned sorted by creation date, with the most recently created messages appearing first. The response contains an object with an estimate_messages property that contains an array of up to per_page messages. Each entry in the array is a separate message object. If no more messages are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your messages. Required: estimateId. Optional: updated_since, page, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/estimates/{estimateId}/messages",
+      "params": [
+        {
+          "name": "estimateId",
+          "type": "string",
+          "location": "path",
+          "description": "Estimate id",
+          "required": true
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return estimate messages that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "expense-categories_create-expense-category",
+      "description": "Creates a new expense category object. Returns an expense category object and a 201 Created response code if the call succeeded. Required: name. Optional: is_active, unit_name, unit_price.",
+      "method": "POST",
+      "path": "/expense_categories",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the expense category is active or archived. Defaults to true."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the expense category.",
+          "required": true
+        },
+        {
+          "name": "unit_name",
+          "type": "string",
+          "location": "body",
+          "description": "The unit name of the expense category."
+        },
+        {
+          "name": "unit_price",
+          "type": "float",
+          "location": "body",
+          "description": "The unit price of the expense category."
+        }
+      ]
+    },
+    {
+      "name": "expense-categories_delete-expense-category",
+      "description": "Delete an expense category. Returns a 200 OK response code if the call succeeded. Required: expenseCategoryId. Destructive.",
+      "method": "DELETE",
+      "path": "/expense_categories/{expenseCategoryId}",
+      "params": [
+        {
+          "name": "expenseCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense-categories_list",
+      "description": "Returns a list of your expense categories. The expense categories are returned sorted by creation date, with the most recently created expense categories appearing first. The response contains an object with a expense_categories property that contains an array of up to per_page expense categories. Each entry in the array is a separate expense category object. If no more expense categories are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your expense categories. Optional: is_active, updated_since, page (plus 2 more).",
+      "method": "GET",
+      "path": "/expense_categories",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active expense categories and false to return inactive expense categories."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return expense categories that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "expense-categories_retrieve-expense-category",
+      "description": "Retrieves the expense category with the given ID. Returns an expense category object and a 200 OK response code if a valid identifier was provided. Required: expenseCategoryId.",
+      "method": "GET",
+      "path": "/expense_categories/{expenseCategoryId}",
+      "params": [
+        {
+          "name": "expenseCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expense-categories_update-expense-category",
+      "description": "Updates the specific expense category by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an expense category object and a 200 OK response code if the call succeeded. Required: expenseCategoryId. Optional: is_active, name, unit_name (plus 1 more).",
+      "method": "PATCH",
+      "path": "/expense_categories/{expenseCategoryId}",
+      "params": [
+        {
+          "name": "expenseCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense category id",
+          "required": true
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the expense category is active or archived."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the expense category."
+        },
+        {
+          "name": "unit_name",
+          "type": "string",
+          "location": "body",
+          "description": "The unit name of the expense category."
+        },
+        {
+          "name": "unit_price",
+          "type": "float",
+          "location": "body",
+          "description": "The unit price of the expense category."
+        }
+      ]
+    },
+    {
+      "name": "expenses_create",
+      "description": "Creates a new expense object. Returns an expense object and a 201 Created response code if the call succeeded. Required: expense_category_id, project_id, spent_date. Optional: billable, notes, receipt (plus 3 more).",
+      "method": "POST",
+      "path": "/expenses",
+      "params": [
+        {
+          "name": "billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this expense is billable or not. Defaults to true."
+        },
+        {
+          "name": "expense_category_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the expense category this expense is being tracked against.",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Textual notes used to describe the expense."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the project associated with this expense.",
+          "required": true
+        },
+        {
+          "name": "receipt",
+          "type": "string",
+          "location": "body",
+          "description": "A receipt file to attach to the expense. If including a receipt, you must submit a multipart/form-data request."
+        },
+        {
+          "name": "spent_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the expense occurred.",
+          "required": true
+        },
+        {
+          "name": "total_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The total amount of the expense."
+        },
+        {
+          "name": "units",
+          "type": "int",
+          "location": "body",
+          "description": "The quantity of units to use in calculating the total_cost of the expense."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the user associated with this expense. Defaults to the ID of the currently authenticated user."
+        }
+      ]
+    },
+    {
+      "name": "expenses_delete",
+      "description": "Delete an expense. Returns a 200 OK response code if the call succeeded. Required: expenseId. Destructive.",
+      "method": "DELETE",
+      "path": "/expenses/{expenseId}",
+      "params": [
+        {
+          "name": "expenseId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expenses_list",
+      "description": "Returns a list of your expenses. If accessing this endpoint as an Administrator, all expenses in the account will be returned. If accessing this endpoint as a Manager, all expenses for assigned teammates and managed projects will be returned. The expenses are returned sorted by the spent_at date, with the most recent expenses appearing first. The response contains an object with a expenses property that contains an array of up to per_page expenses. Each entry in the array is a separate expense object. If no more expenses are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your expenses. Optional: user_id, client_id, project_id (plus 7 more).",
+      "method": "GET",
+      "path": "/expenses",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return expenses belonging to the user with the given ID."
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return expenses belonging to the client with the given ID."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return expenses belonging to the project with the given ID."
+        },
+        {
+          "name": "is_billed",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return expenses that have been invoiced and false to return expenses that have not been invoiced."
+        },
+        {
+          "name": "approval_status",
+          "type": "string",
+          "location": "query",
+          "description": "Only return expenses with the given approval status. Possible values: “unsubmitted”, “submitted”, or “approved”."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return expenses that have been updated since the given date and time."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only return expenses with a spent_date on or after the given date."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only return expenses with a spent_date on or before the given date."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "expenses_retrieve",
+      "description": "Retrieves the expense with the given ID. Returns an expense object and a 200 OK response code if a valid identifier was provided. Required: expenseId.",
+      "method": "GET",
+      "path": "/expenses/{expenseId}",
+      "params": [
+        {
+          "name": "expenseId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "expenses_update",
+      "description": "Updates the specific expense by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an expense object and a 200 OK response code if the call succeeded. Note that changes to project_id and expense_category_id will be silently dropped if the expense is locked. Users with sufficient permissions are able to update the rest of a locked expense’s attributes. Required: expenseId. Optional: billable, delete_receipt, expense_category_id (plus 6 more).",
+      "method": "PATCH",
+      "path": "/expenses/{expenseId}",
+      "params": [
+        {
+          "name": "expenseId",
+          "type": "string",
+          "location": "path",
+          "description": "Expense id",
+          "required": true
+        },
+        {
+          "name": "billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this expense is billable or not. Defaults to true."
+        },
+        {
+          "name": "delete_receipt",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether an attached expense receipt should be deleted. Pass true to delete the expense receipt."
+        },
+        {
+          "name": "expense_category_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the expense category this expense is being tracked against."
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Textual notes used to describe the expense."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the project associated with this expense."
+        },
+        {
+          "name": "receipt",
+          "type": "string",
+          "location": "body",
+          "description": "A receipt file to attach to the expense. If including a receipt, you must submit a multipart/form-data request."
+        },
+        {
+          "name": "spent_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the expense occurred."
+        },
+        {
+          "name": "total_cost",
+          "type": "float",
+          "location": "body",
+          "description": "The total amount of the expense."
+        },
+        {
+          "name": "units",
+          "type": "int",
+          "location": "body",
+          "description": "The quantity of units to use in calculating the total_cost of the expense."
+        }
+      ]
+    },
+    {
+      "name": "invoice-item-categories_create-invoice-item-category",
+      "description": "Creates a new invoice item category object. Returns an invoice item category object and a 201 Created response code if the call succeeded. Required: name.",
+      "method": "POST",
+      "path": "/invoice_item_categories",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the invoice item category.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoice-item-categories_delete-invoice-item-category",
+      "description": "Delete an invoice item category. Deleting an invoice item category is only possible if use_as_service and use_as_expense are both false. Returns a 200 OK response code if the call succeeded. Required: invoiceItemCategoryId. Destructive.",
+      "method": "DELETE",
+      "path": "/invoice_item_categories/{invoiceItemCategoryId}",
+      "params": [
+        {
+          "name": "invoiceItemCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice item category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoice-item-categories_list",
+      "description": "Returns a list of your invoice item categories. The invoice item categories are returned sorted by creation date, with the most recently created invoice item categories appearing first. The response contains an object with a invoice_item_categories property that contains an array of up to per_page invoice item categories. Each entry in the array is a separate invoice item category object. If no more invoice item categories are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your invoice item categories. Optional: updated_since, page, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/invoice_item_categories",
+      "params": [
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoice item categories that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "invoice-item-categories_retrieve-invoice-item-category",
+      "description": "Retrieves the invoice item category with the given ID. Returns an invoice item category object and a 200 OK response code if a valid identifier was provided. Required: invoiceItemCategoryId.",
+      "method": "GET",
+      "path": "/invoice_item_categories/{invoiceItemCategoryId}",
+      "params": [
+        {
+          "name": "invoiceItemCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice item category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoice-item-categories_update-invoice-item-category",
+      "description": "Updates the specific invoice item category by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an invoice item category object and a 200 OK response code if the call succeeded. Required: invoiceItemCategoryId. Optional: name.",
+      "method": "PATCH",
+      "path": "/invoice_item_categories/{invoiceItemCategoryId}",
+      "params": [
+        {
+          "name": "invoiceItemCategoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice item category id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the invoice item category."
+        }
+      ]
+    },
+    {
+      "name": "invoices_create",
+      "description": "Creates a new invoice object. Returns an invoice object and a 201 Created response code if the call succeeded. Required: client_id. Optional: currency, discount, due_date (plus 13 more).",
+      "method": "POST",
+      "path": "/invoices",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client this invoice belongs to.",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency used by the invoice. If not provided, the client’s currency will be used. See a list of supported currencies"
+        },
+        {
+          "name": "discount",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is subtracted from the subtotal. Example: use 10.0 for 10.0%."
+        },
+        {
+          "name": "due_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the invoice is due. Defaults to the issue_date if no payment_term is specified. To set a custom due_date the payment_term must also be set to custom, otherwise the value supplied in the request for due_date will be ignored and the due_date will be calculated using the issue_date and the payment_term."
+        },
+        {
+          "name": "estimate_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the estimate associated with this invoice."
+        },
+        {
+          "name": "issue_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the invoice was issued. Defaults to today’s date."
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Array of line item parameters"
+        },
+        {
+          "name": "line_items_import",
+          "type": "object",
+          "location": "body",
+          "description": "An line items import object"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any additional notes to include on the invoice."
+        },
+        {
+          "name": "number",
+          "type": "string",
+          "location": "body",
+          "description": "If no value is set, the number will be automatically generated."
+        },
+        {
+          "name": "payment_options",
+          "type": "array",
+          "location": "body",
+          "description": "The payment options available to pay the invoice. Your account must be configured with the appropriate options under Settings \u003e Integrations \u003e Online payment to assign them. Options: [ach, credit_card, paypal]"
+        },
+        {
+          "name": "payment_term",
+          "type": "string",
+          "location": "body",
+          "description": "The timeframe in which the invoice should be paid. Defaults to custom. Options: upon receipt, net 15, net 30, net 45, net 60, or custom."
+        },
+        {
+          "name": "purchase_order",
+          "type": "string",
+          "location": "body",
+          "description": "The purchase order number."
+        },
+        {
+          "name": "retainer_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the retainer you want to add funds to with this invoice. Note: retainers cannot be fully used (created, drawn against, closed, etc.) via the API at this time. The only available action is to add funds."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The invoice subject."
+        },
+        {
+          "name": "tax",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        },
+        {
+          "name": "tax2",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        }
+      ]
+    },
+    {
+      "name": "invoices_delete",
+      "description": "Delete an invoice. Returns a 200 OK response code if the call succeeded. Required: invoiceId. Destructive.",
+      "method": "DELETE",
+      "path": "/invoices/{invoiceId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_list",
+      "description": "Returns a list of your invoices. The invoices are returned sorted by issue date, with the most recently issued invoices appearing first. The response contains an object with a invoices property that contains an array of up to per_page invoices. Each entry in the array is a separate invoice object. If no more invoices are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your invoices. Optional: client_id, project_id, updated_since (plus 5 more).",
+      "method": "GET",
+      "path": "/invoices",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return invoices belonging to the client with the given ID."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return invoices associated with the project with the given ID."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoices that have been updated since the given date and time."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoices with an issue_date on or after the given date."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoices with an issue_date on or before the given date."
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoices with a state matching the value provided. Options: draft, open, paid, or closed."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination. For instance, if you make a list request and receive 100 records, your subsequent call can include page=2 to retrieve the next page of the list. (Default: 1)"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 100)"
+        }
+      ]
+    },
+    {
+      "name": "invoices_retrieve",
+      "description": "Retrieves the invoice with the given ID. Returns an invoice object and a 200 OK response code if a valid identifier was provided. Required: invoiceId.",
+      "method": "GET",
+      "path": "/invoices/{invoiceId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_update",
+      "description": "Updates the specific invoice by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an invoice object and a 200 OK response code if the call succeeded. Required: invoiceId. Optional: client_id, currency, discount (plus 13 more).",
+      "method": "PATCH",
+      "path": "/invoices/{invoiceId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client this invoice belongs to."
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "body",
+          "description": "The currency used by the invoice. If not provided, the client’s currency will be used. See a list of supported currencies"
+        },
+        {
+          "name": "discount",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is subtracted from the subtotal. Example: use 10.0 for 10.0%."
+        },
+        {
+          "name": "due_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the invoice is due."
+        },
+        {
+          "name": "estimate_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the estimate associated with this invoice."
+        },
+        {
+          "name": "issue_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the invoice was issued."
+        },
+        {
+          "name": "line_items",
+          "type": "array",
+          "location": "body",
+          "description": "Array of line item parameters"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any additional notes to include on the invoice."
+        },
+        {
+          "name": "number",
+          "type": "string",
+          "location": "body",
+          "description": "If no value is set, the number will be automatically generated."
+        },
+        {
+          "name": "payment_options",
+          "type": "array",
+          "location": "body",
+          "description": "The payment options available to pay the invoice. Your account must be configured with the appropriate options under Settings \u003e Integrations \u003e Online payment to assign them. Options: [ach, credit_card, paypal]"
+        },
+        {
+          "name": "payment_term",
+          "type": "string",
+          "location": "body",
+          "description": "The timeframe in which the invoice should be paid. Options: upon receipt, net 15, net 30, net 45, or net 60."
+        },
+        {
+          "name": "purchase_order",
+          "type": "string",
+          "location": "body",
+          "description": "The purchase order number."
+        },
+        {
+          "name": "retainer_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the retainer associated with this invoice."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The invoice subject."
+        },
+        {
+          "name": "tax",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        },
+        {
+          "name": "tax2",
+          "type": "float",
+          "location": "body",
+          "description": "This percentage is applied to the subtotal, including line items and discounts."
+        }
+      ]
+    },
+    {
+      "name": "invoices_messages_create-invoice",
+      "description": "Creates a new invoice message object and sends it. Returns an invoice message object and a 201 Created response code if the call succeeded. A note about the optional event_type parameter: If event_type is omitted in a request, its default value of null means the message will be sent. In such a request, if the recipients array is omitted or empty and send_me_a_copy is also omitted or set to false, the request will fail because the message has no recipients. When omitting event_type to create and send a message, be sure to include a recipients array as a parameter or ensure the send_me_a_copy parameter is included and set to true. Required: invoiceId. Optional: attach_pdf, body, event_type (plus 5 more).",
+      "method": "POST",
+      "path": "/invoices/{invoiceId}/messages",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "attach_pdf",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, a PDF of the invoice will be attached to the message email. Defaults to false."
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "The message body."
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "Omit when intending to create and send a message. If omitted, the default value is null and the message will be sent. See other sections below for including this parameter with the following options: close, draft, re-open, or send (which marks a draft invoice as sent, it does not send the message)."
+        },
+        {
+          "name": "include_link_to_client_invoice",
+          "type": "bool",
+          "location": "body",
+          "description": "DEPRECATED A link to the client invoice URL will be automatically included in the message email if payment_options have been assigned to the invoice. Setting to true will be ignored. Setting to false will clear all payment_options on the invoice."
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recipient parameters. See below for more details."
+        },
+        {
+          "name": "send_me_a_copy",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, a copy of the message email will be sent to the current user. Defaults to false."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The message subject."
+        },
+        {
+          "name": "thank_you",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to true, a thank you message email will be sent. Defaults to false."
+        }
+      ]
+    },
+    {
+      "name": "invoices_messages_delete-invoice",
+      "description": "Delete an invoice message. Returns a 200 OK response code if the call succeeded. Required: invoiceId, messageId. Destructive.",
+      "method": "DELETE",
+      "path": "/invoices/{invoiceId}/messages/{messageId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "messageId",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_messages_list-for-invoice",
+      "description": "Returns a list of messages associated with a given invoice. The invoice messages are returned sorted by creation date, with the most recently created messages appearing first. The response contains an object with an invoice_messages property that contains an array of up to per_page messages. Each entry in the array is a separate message object. If no more messages are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your messages. Required: invoiceId. Optional: updated_since, page, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/invoices/{invoiceId}/messages",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoice messages that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "invoices_messages_retrieve-invoice-subject-and-body-for-specific-invoice",
+      "description": "Returns the subject and body text as configured in Harvest of an invoice message for a specific invoice and a 200 OK response code if the call succeeded. Does not create the invoice message. If no parameters are passed, will return the subject and body of a general invoice message for the specific invoice. Required: invoiceId. Optional: thank_you, reminder.",
+      "method": "GET",
+      "path": "/invoices/{invoiceId}/messages/new",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "thank_you",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to return the subject and body of a thank-you invoice message for the specific invoice."
+        },
+        {
+          "name": "reminder",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true to return the subject and body of a reminder invoice message for the specific invoice."
+        }
+      ]
+    },
+    {
+      "name": "invoices_payments_create-invoice",
+      "description": "Creates a new invoice payment object. Returns an invoice payment object and a 201 Created response code if the call succeeded. Required: invoiceId, amount. Optional: notes, paid_at, paid_date (plus 1 more).",
+      "method": "POST",
+      "path": "/invoices/{invoiceId}/payments",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of the payment.",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any notes to be associated with the payment."
+        },
+        {
+          "name": "paid_at",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time the payment was made. Pass either paid_at or paid_date, but not both."
+        },
+        {
+          "name": "paid_date",
+          "type": "string",
+          "location": "body",
+          "description": "Date the payment was made. Pass either paid_at or paid_date, but not both."
+        },
+        {
+          "name": "send_thank_you",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not to send a thank you email (if enabled for your account in Invoices \u003e Configure \u003e Messages). Only sends an email if the invoice will be fully paid after creating this payment. Defaults to true."
+        }
+      ]
+    },
+    {
+      "name": "invoices_payments_delete-invoice",
+      "description": "Delete an invoice payment. Returns a 200 OK response code if the call succeeded. Required: invoiceId, paymentId. Destructive.",
+      "method": "DELETE",
+      "path": "/invoices/{invoiceId}/payments/{paymentId}",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "paymentId",
+          "type": "string",
+          "location": "path",
+          "description": "Payment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invoices_payments_list-for-invoice",
+      "description": "Returns a list of payments associate with a given invoice. The payments are returned sorted by creation date, with the most recently created payments appearing first. The response contains an object with an invoice_payments property that contains an array of up to per_page payments. Each entry in the array is a separate payment object. If no more payments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your payments. Required: invoiceId. Optional: updated_since, page, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/invoices/{invoiceId}/payments",
+      "params": [
+        {
+          "name": "invoiceId",
+          "type": "string",
+          "location": "path",
+          "description": "Invoice id",
+          "required": true
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return invoice payments that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "projects_create",
+      "description": "Creates a new project object. Returns a project object and a 201 Created response code if the call succeeded. Required: bill_by, budget_by, client_id, is_billable, name. Optional: budget, budget_is_monthly, code (plus 12 more).",
+      "method": "POST",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "bill_by",
+          "type": "string",
+          "location": "body",
+          "description": "The method by which the project is invoiced. Options: Project, Tasks, People, or none.",
+          "required": true
+        },
+        {
+          "name": "budget",
+          "type": "float",
+          "location": "body",
+          "description": "The budget in hours for the project when budgeting by time."
+        },
+        {
+          "name": "budget_by",
+          "type": "string",
+          "location": "body",
+          "description": "The method by which the project is budgeted. Options: project (Hours Per Project), project_cost (Total Project Fees), task (Hours Per Task), task_fees (Fees Per Task), person (Hours Per Person), none (No Budget).",
+          "required": true
+        },
+        {
+          "name": "budget_is_monthly",
+          "type": "bool",
+          "location": "body",
+          "description": "Option to have the budget reset every month. Defaults to false."
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client to associate this project with.",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The code associated with the project."
+        },
+        {
+          "name": "cost_budget",
+          "type": "float",
+          "location": "body",
+          "description": "The monetary budget for the project when budgeting by money."
+        },
+        {
+          "name": "cost_budget_include_expenses",
+          "type": "bool",
+          "location": "body",
+          "description": "Option for budget of Total Project Fees projects to include tracked expenses. Defaults to false."
+        },
+        {
+          "name": "ends_on",
+          "type": "string",
+          "location": "body",
+          "description": "Date the project will end."
+        },
+        {
+          "name": "fee",
+          "type": "float",
+          "location": "body",
+          "description": "The amount you plan to invoice for the project. Only used by fixed-fee projects."
+        },
+        {
+          "name": "hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "Rate for projects billed by Project Hourly Rate."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the project is active or archived. Defaults to true."
+        },
+        {
+          "name": "is_billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the project is billable or not.",
+          "required": true
+        },
+        {
+          "name": "is_fixed_fee",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the project is a fixed-fee project or not."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the project.",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Project notes."
+        },
+        {
+          "name": "notify_when_over_budget",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether Project Managers should be notified when the project goes over budget. Defaults to false."
+        },
+        {
+          "name": "over_budget_notification_percentage",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage value used to trigger over budget email alerts. Example: use 10.0 for 10.0%."
+        },
+        {
+          "name": "show_budget_to_all",
+          "type": "bool",
+          "location": "body",
+          "description": "Option to show project budget to all employees. Does not apply to Total Project Fee projects. Defaults to false."
+        },
+        {
+          "name": "starts_on",
+          "type": "string",
+          "location": "body",
+          "description": "Date the project was started."
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Deletes a project and any time entries or expenses tracked to it. However, invoices associated with the project will not be deleted. If you don’t want the project’s time entries and expenses to be deleted, you should archive the project instead. Required: projectId. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{projectId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "Returns a list of your projects. The projects are returned sorted by creation date, with the most recently created projects appearing first. The response contains an object with a projects property that contains an array of up to per_page projects. Each entry in the array is a separate project object. If no more projects are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your projects. Optional: is_active, client_id, updated_since (plus 3 more).",
+      "method": "GET",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active projects and false to return inactive projects."
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return projects belonging to the client with the given ID."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return projects that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "projects_retrieve",
+      "description": "Retrieves the project with the given ID. Returns a project object and a 200 OK response code if a valid identifier was provided. Required: projectId.",
+      "method": "GET",
+      "path": "/projects/{projectId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_update",
+      "description": "Updates the specific project by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a project object and a 200 OK response code if the call succeeded. Required: projectId. Optional: bill_by, budget, budget_by (plus 17 more).",
+      "method": "PATCH",
+      "path": "/projects/{projectId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "bill_by",
+          "type": "string",
+          "location": "body",
+          "description": "The method by which the project is invoiced. Options: Project, Tasks, People, or none."
+        },
+        {
+          "name": "budget",
+          "type": "float",
+          "location": "body",
+          "description": "The budget in hours for the project when budgeting by time."
+        },
+        {
+          "name": "budget_by",
+          "type": "string",
+          "location": "body",
+          "description": "The method by which the project is budgeted. Options: project (Hours Per Project), project_cost (Total Project Fees), task (Hours Per Task), task_fees (Fees Per Task), person (Hours Per Person), none (No Budget)."
+        },
+        {
+          "name": "budget_is_monthly",
+          "type": "bool",
+          "location": "body",
+          "description": "Option to have the budget reset every month. Defaults to false."
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the client to associate this project with."
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "The code associated with the project."
+        },
+        {
+          "name": "cost_budget",
+          "type": "float",
+          "location": "body",
+          "description": "The monetary budget for the project when budgeting by money."
+        },
+        {
+          "name": "cost_budget_include_expenses",
+          "type": "bool",
+          "location": "body",
+          "description": "Option for budget of Total Project Fees projects to include tracked expenses. Defaults to false."
+        },
+        {
+          "name": "ends_on",
+          "type": "string",
+          "location": "body",
+          "description": "Date the project will end."
+        },
+        {
+          "name": "fee",
+          "type": "float",
+          "location": "body",
+          "description": "The amount you plan to invoice for the project. Only used by fixed-fee projects."
+        },
+        {
+          "name": "hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "Rate for projects billed by Project Hourly Rate."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the project is active or archived. Defaults to true."
+        },
+        {
+          "name": "is_billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the project is billable or not."
+        },
+        {
+          "name": "is_fixed_fee",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the project is a fixed-fee project or not."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the project."
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Project notes."
+        },
+        {
+          "name": "notify_when_over_budget",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether Project Managers should be notified when the project goes over budget. Defaults to false."
+        },
+        {
+          "name": "over_budget_notification_percentage",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage value used to trigger over budget email alerts. Example: use 10.0 for 10.0%."
+        },
+        {
+          "name": "show_budget_to_all",
+          "type": "bool",
+          "location": "body",
+          "description": "Option to show project budget to all employees. Does not apply to Total Project Fee projects. Defaults to false."
+        },
+        {
+          "name": "starts_on",
+          "type": "string",
+          "location": "body",
+          "description": "Date the project was started."
+        }
+      ]
+    },
+    {
+      "name": "projects_task-assignments_create",
+      "description": "Creates a new task assignment object. Returns a task assignment object and a 201 Created response code if the call succeeded. Required: projectId, task_id. Optional: billable, budget, hourly_rate (plus 1 more).",
+      "method": "POST",
+      "path": "/projects/{projectId}/task_assignments",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the task assignment is billable or not. Defaults to false."
+        },
+        {
+          "name": "budget",
+          "type": "float",
+          "location": "body",
+          "description": "Budget used when the project’s budget_by is task or task_fees."
+        },
+        {
+          "name": "hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "Rate used when the project’s bill_by is Tasks. Defaults to null when billing by task hourly rate, otherwise 0."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the task assignment is active or archived. Defaults to true."
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the task to associate with the project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_task-assignments_delete",
+      "description": "Delete a task assignment. Deleting a task assignment is only possible if it has no time entries associated with it. Returns a 200 OK response code if the call succeeded. Required: projectId, taskAssignmentId. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{projectId}/task_assignments/{taskAssignmentId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "taskAssignmentId",
+          "type": "string",
+          "location": "path",
+          "description": "Task assignment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_task-assignments_list-for-specific-project",
+      "description": "Returns a list of your task assignments for the project identified by PROJECT_ID. The task assignments are returned sorted by creation date, with the most recently created task assignments appearing first. The response contains an object with a task_assignments property that contains an array of up to per_page task assignments. Each entry in the array is a separate task assignment object. If no more task assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your task assignments. Required: projectId. Optional: is_active, updated_since, page (plus 1 more).",
+      "method": "GET",
+      "path": "/projects/{projectId}/task_assignments",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active task assignments and false to return inactive task assignments."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return task assignments that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "projects_task-assignments_retrieve",
+      "description": "Retrieves the task assignment with the given ID. Returns a task assignment object and a 200 OK response code if a valid identifier was provided. Required: projectId, taskAssignmentId.",
+      "method": "GET",
+      "path": "/projects/{projectId}/task_assignments/{taskAssignmentId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "taskAssignmentId",
+          "type": "string",
+          "location": "path",
+          "description": "Task assignment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_task-assignments_update",
+      "description": "Updates the specific task assignment by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a task assignment object and a 200 OK response code if the call succeeded. Required: projectId, taskAssignmentId. Optional: billable, budget, hourly_rate (plus 1 more).",
+      "method": "PATCH",
+      "path": "/projects/{projectId}/task_assignments/{taskAssignmentId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "taskAssignmentId",
+          "type": "string",
+          "location": "path",
+          "description": "Task assignment id",
+          "required": true
+        },
+        {
+          "name": "billable",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the task assignment is billable or not."
+        },
+        {
+          "name": "budget",
+          "type": "float",
+          "location": "body",
+          "description": "Budget used when the project’s budget_by is task or task_fees."
+        },
+        {
+          "name": "hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "Rate used when the project’s bill_by is Tasks."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the task assignment is active or archived."
+        }
+      ]
+    },
+    {
+      "name": "projects_user-assignments_create",
+      "description": "Creates a new user assignment object. Returns a user assignment object and a 201 Created response code if the call succeeded. Required: projectId, user_id. Optional: budget, hourly_rate, is_active (plus 2 more).",
+      "method": "POST",
+      "path": "/projects/{projectId}/user_assignments",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "budget",
+          "type": "float",
+          "location": "body",
+          "description": "Budget used when the project’s budget_by is person."
+        },
+        {
+          "name": "hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "Custom rate used when the project’s bill_by is People and use_default_rates is false. Defaults to 0."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user assignment is active or archived. Defaults to true."
+        },
+        {
+          "name": "is_project_manager",
+          "type": "bool",
+          "location": "body",
+          "description": "Determines if the user has Project Manager permissions for the project. Defaults to false for users with Regular User permissions and true for those with Project Managers or Administrator permissions."
+        },
+        {
+          "name": "use_default_rates",
+          "type": "bool",
+          "location": "body",
+          "description": "Determines which billable rate(s) will be used on the project for this user when bill_by is People. When true, the project will use the user’s default billable rates. When false, the project will use the custom rate defined on this user assignment. Defaults to true."
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the user to associate with the project.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_user-assignments_delete",
+      "description": "Delete a user assignment. Deleting a user assignment is only possible if it has no time entries or expenses associated with it. Returns a 200 OK response code if the call succeeded. Required: projectId, userAssignmentId. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{projectId}/user_assignments/{userAssignmentId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "userAssignmentId",
+          "type": "string",
+          "location": "path",
+          "description": "User assignment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_user-assignments_list-for-specific-project",
+      "description": "Returns a list of user assignments for the project identified by PROJECT_ID. The user assignments are returned sorted by creation date, with the most recently created user assignments appearing first. The response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments. Required: projectId. Optional: user_id, is_active, updated_since (plus 2 more).",
+      "method": "GET",
+      "path": "/projects/{projectId}/user_assignments",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return user assignments belonging to the user with the given ID."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active user assignments and false to return inactive user assignments."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return user assignments that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "projects_user-assignments_retrieve",
+      "description": "Retrieves the user assignment with the given ID. Returns a user assignment object and a 200 OK response code if a valid identifier was provided. Required: projectId, userAssignmentId.",
+      "method": "GET",
+      "path": "/projects/{projectId}/user_assignments/{userAssignmentId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "userAssignmentId",
+          "type": "string",
+          "location": "path",
+          "description": "User assignment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_user-assignments_update",
+      "description": "Updates the specific user assignment by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a user assignment object and a 200 OK response code if the call succeeded. Required: projectId, userAssignmentId. Optional: budget, hourly_rate, is_active (plus 2 more).",
+      "method": "PATCH",
+      "path": "/projects/{projectId}/user_assignments/{userAssignmentId}",
+      "params": [
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "path",
+          "description": "Project id",
+          "required": true
+        },
+        {
+          "name": "userAssignmentId",
+          "type": "string",
+          "location": "path",
+          "description": "User assignment id",
+          "required": true
+        },
+        {
+          "name": "budget",
+          "type": "float",
+          "location": "body",
+          "description": "Budget used when the project’s budget_by is person."
+        },
+        {
+          "name": "hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "Custom rate used when the project’s bill_by is People and use_default_rates is false."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user assignment is active or archived."
+        },
+        {
+          "name": "is_project_manager",
+          "type": "bool",
+          "location": "body",
+          "description": "Determines if the user has Project Manager permissions for the project."
+        },
+        {
+          "name": "use_default_rates",
+          "type": "bool",
+          "location": "body",
+          "description": "Determines which billable rate(s) will be used on the project for this user when bill_by is People. When true, the project will use the user’s default billable rates. When false, the project will use the custom rate defined on this user assignment."
+        }
+      ]
+    },
+    {
+      "name": "reports_clients-expenses",
+      "description": "Clients Report. Required: from, to. Optional: page, per_page. Returns the ExpenseReportsResults.",
+      "method": "GET",
+      "path": "/reports/expenses/clients",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_clients-time",
+      "description": "Clients Report. Required: from, to. Optional: include_fixed_fee, page, per_page. Returns the TimeReportsResults.",
+      "method": "GET",
+      "path": "/reports/time/clients",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "include_fixed_fee",
+          "type": "string",
+          "location": "query",
+          "description": "When true, billable amounts will be calculated and included for fixed fee projects."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_expense-categories",
+      "description": "Expense Categories Report. Required: from, to. Optional: page, per_page. Returns the ExpenseReportsResults.",
+      "method": "GET",
+      "path": "/reports/expenses/categories",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_project-budget",
+      "description": "The response contains an object with a results property that contains an array of up to per_page results. Each entry in the array is a separate result object. If no more results are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your results. Optional: page, per_page, is_active. Returns the ProjectBudgetReportResults.",
+      "method": "GET",
+      "path": "/reports/project_budget",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active projects and false to return inactive projects."
+        }
+      ]
+    },
+    {
+      "name": "reports_projects-expenses",
+      "description": "Projects Report. Required: from, to. Optional: page, per_page. Returns the ExpenseReportsResults.",
+      "method": "GET",
+      "path": "/reports/expenses/projects",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_projects-time",
+      "description": "Projects Report. Required: from, to. Optional: include_fixed_fee, page, per_page. Returns the TimeReportsResults.",
+      "method": "GET",
+      "path": "/reports/time/projects",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "include_fixed_fee",
+          "type": "string",
+          "location": "query",
+          "description": "When true, billable amounts will be calculated and included for fixed fee projects."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_tasks",
+      "description": "Tasks Report. Required: from, to. Optional: include_fixed_fee, page, per_page. Returns the TimeReportsResults.",
+      "method": "GET",
+      "path": "/reports/time/tasks",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "include_fixed_fee",
+          "type": "string",
+          "location": "query",
+          "description": "When true, billable amounts will be calculated and included for fixed fee projects."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_team-expenses",
+      "description": "Team Report. Required: from, to. Optional: page, per_page. Returns the ExpenseReportsResults.",
+      "method": "GET",
+      "path": "/reports/expenses/team",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on expenses with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_team-time",
+      "description": "Team Report. Required: from, to. Optional: include_fixed_fee, page, per_page. Returns the TimeReportsResults.",
+      "method": "GET",
+      "path": "/reports/time/team",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "include_fixed_fee",
+          "type": "string",
+          "location": "query",
+          "description": "When true, billable amounts will be calculated and included for fixed fee projects."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "reports_uninvoiced",
+      "description": "The response contains an object with a results property that contains an array of up to per_page results. Each entry in the array is a separate result object. If no more results are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your results. Note: Each request requires both the from and to parameters to be supplied in the URL’s query string. The timeframe supplied cannot exceed 1 year (365 days). Required: from, to. Optional: include_fixed_fee, page, per_page. Returns the UninvoicedReportResults.",
+      "method": "GET",
+      "path": "/reports/uninvoiced",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries and expenses with a spent_date on or after the given date.",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only report on time entries and expenses with a spent_date on or before the given date.",
+          "required": true
+        },
+        {
+          "name": "include_fixed_fee",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether or not to include fixed-fee projects in the response. Fixed-fee uninvoiced fee amount will show as long as the selected date range is on or after the project start date (If project start date is not specified, it is project creation date). Otherwise, it will be 0. (Default: true)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "roles_create",
+      "description": "Creates a new role object. Returns a role object and a 201 Created response code if the call succeeded. Required: name. Optional: user_ids.",
+      "method": "POST",
+      "path": "/roles",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the role.",
+          "required": true
+        },
+        {
+          "name": "user_ids",
+          "type": "array",
+          "location": "body",
+          "description": "The IDs of the users assigned to this role."
+        }
+      ]
+    },
+    {
+      "name": "roles_delete",
+      "description": "Delete a role. Deleting a role will unlink it from any users it was assigned to. Returns a 200 OK response code if the call succeeded. Required: roleId. Destructive.",
+      "method": "DELETE",
+      "path": "/roles/{roleId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "roles_list",
+      "description": "Returns a list of roles in the account. The roles are returned sorted by creation date, with the most recently created roles appearing first. The response contains an object with a roles property that contains an array of up to per_page roles. Each entry in the array is a separate role object. If no more roles are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your roles. Optional: page, cursor, per_page.",
+      "method": "GET",
+      "path": "/roles",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "roles_retrieve",
+      "description": "Retrieves the role with the given ID. Returns a role object and a 200 OK response code if a valid identifier was provided. Required: roleId.",
+      "method": "GET",
+      "path": "/roles/{roleId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "roles_update",
+      "description": "Updates the specific role by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a role object and a 200 OK response code if the call succeeded. Required: roleId. Optional: name, user_ids.",
+      "method": "PATCH",
+      "path": "/roles/{roleId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the role."
+        },
+        {
+          "name": "user_ids",
+          "type": "array",
+          "location": "body",
+          "description": "The IDs of the users assigned to this role."
+        }
+      ]
+    },
+    {
+      "name": "task-assignments_list",
+      "description": "Returns a list of your task assignments. The task assignments are returned sorted by creation date, with the most recently created task assignments appearing first. The response contains an object with a task_assignments property that contains an array of up to per_page task assignments. Each entry in the array is a separate task assignment object. If no more task assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your task assignments. Optional: is_active, updated_since, page (plus 2 more).",
+      "method": "GET",
+      "path": "/task_assignments",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active task assignments and false to return inactive task assignments."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return task assignments that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "tasks_create",
+      "description": "Creates a new task object. Returns a task object and a 201 Created response code if the call succeeded. Required: name. Optional: billable_by_default, default_hourly_rate, is_active (plus 1 more).",
+      "method": "POST",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "billable_by_default",
+          "type": "bool",
+          "location": "body",
+          "description": "Used in determining whether default tasks should be marked billable when creating a new project. Defaults to true."
+        },
+        {
+          "name": "default_hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "The default hourly rate to use for this task when it is added to a project. Defaults to 0."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this task is active or archived. Defaults to true."
+        },
+        {
+          "name": "is_default",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this task should be automatically added to future projects. Defaults to false."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the task.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_delete",
+      "description": "Delete a task. Deleting a task is only possible if it has no time entries associated with it. Returns a 200 OK response code if the call succeeded. Required: taskId. Destructive.",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "params": [
+        {
+          "name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "Returns a list of your tasks. The tasks are returned sorted by creation date, with the most recently created tasks appearing first. The response contains an object with a tasks property that contains an array of up to per_page tasks. Each entry in the array is a separate task object. If no more tasks are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your tasks. Optional: is_active, updated_since, page (plus 2 more).",
+      "method": "GET",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active tasks and false to return inactive tasks."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return tasks that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "tasks_retrieve",
+      "description": "Retrieves the task with the given ID. Returns a task object and a 200 OK response code if a valid identifier was provided. Required: taskId.",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "params": [
+        {
+          "name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_update",
+      "description": "Updates the specific task by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a task object and a 200 OK response code if the call succeeded. Required: taskId. Optional: billable_by_default, default_hourly_rate, is_active (plus 2 more).",
+      "method": "PATCH",
+      "path": "/tasks/{taskId}",
+      "params": [
+        {
+          "name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "billable_by_default",
+          "type": "bool",
+          "location": "body",
+          "description": "Used in determining whether default tasks should be marked billable when creating a new project."
+        },
+        {
+          "name": "default_hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "The default hourly rate to use for this task when it is added to a project."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this task is active or archived."
+        },
+        {
+          "name": "is_default",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this task should be automatically added to future projects."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the task."
+        }
+      ]
+    },
+    {
+      "name": "time-entries_create-time-entry",
+      "description": "Creates a new time entry object. Returns a time entry object and a 201 Created response code if the call succeeded. You should only use this method to create time entries when your account is configured to track time via duration. You can verify this by visiting the Settings page in your Harvest account or by checking if wants_timestamp_timers is false in the Company API. Required: project_id, spent_date, task_id. Optional: ended_time, external_reference, hours (plus 3 more).",
+      "method": "POST",
+      "path": "/time_entries",
+      "params": [
+        {
+          "name": "ended_time",
+          "type": "string",
+          "location": "body",
+          "description": "The time the entry ended. If provided, is_running will be set to false. If not provided, is_running will be set to true."
+        },
+        {
+          "name": "external_reference",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing the id, group_id, account_id, and permalink of the external reference."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The current amount of time tracked. If provided, the time entry will be created with the specified hours and is_running will be set to false. If not provided, hours will be set to 0.0 and is_running will be set to true."
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any notes to be associated with the time entry."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the project to associate with the time entry.",
+          "required": true
+        },
+        {
+          "name": "spent_date",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO 8601 formatted date the time entry was spent.",
+          "required": true
+        },
+        {
+          "name": "started_time",
+          "type": "string",
+          "location": "body",
+          "description": "The time the entry started. Defaults to the current time. Example: “8:00am”."
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the task to associate with the time entry.",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the user to associate with the time entry. Defaults to the currently authenticated user’s ID."
+        }
+      ]
+    },
+    {
+      "name": "time-entries_delete-time-entry",
+      "description": "Delete a time entry. Deleting a time entry is only possible if it’s not closed and the associated project and task haven’t been archived. However, Admins can delete closed entries. Returns a 200 OK response code if the call succeeded. Required: timeEntryId. Destructive.",
+      "method": "DELETE",
+      "path": "/time_entries/{timeEntryId}",
+      "params": [
+        {
+          "name": "timeEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Time entry id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "time-entries_list",
+      "description": "Returns a list of time entries. The time entries are returned sorted by spent_date date. At this time, the sort option can’t be customized. The response contains an object with a time_entries property that contains an array of up to per_page time entries. Each entry in the array is a separate time entry object. If no more time entries are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your time entries. Optional: user_id, client_id, project_id (plus 10 more).",
+      "method": "GET",
+      "path": "/time_entries",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return time entries belonging to the user with the given ID."
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return time entries belonging to the client with the given ID."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return time entries belonging to the project with the given ID."
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return time entries belonging to the task with the given ID."
+        },
+        {
+          "name": "external_reference_id",
+          "type": "string",
+          "location": "query",
+          "description": "Only return time entries with the given external_reference ID."
+        },
+        {
+          "name": "is_billed",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return time entries that have been invoiced and false to return time entries that have not been invoiced."
+        },
+        {
+          "name": "is_running",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return running time entries and false to return non-running time entries."
+        },
+        {
+          "name": "approval_status",
+          "type": "string",
+          "location": "query",
+          "description": "Only return time entries with the given approval status. Possible values: “unsubmitted”, “submitted”, or “approved”."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return time entries that have been updated since the given date and time. Use the ISO 8601 Format."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Only return time entries with a spent_date on or after the given date."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only return time entries with a spent_date on or before the given date."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "time-entries_retrieve-time-entry",
+      "description": "Retrieves the time entry with the given ID. Returns a time entry object and a 200 OK response code if a valid identifier was provided. Required: timeEntryId.",
+      "method": "GET",
+      "path": "/time_entries/{timeEntryId}",
+      "params": [
+        {
+          "name": "timeEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Time entry id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "time-entries_update-time-entry",
+      "description": "Updates the specific time entry by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a time entry object and a 200 OK response code if the call succeeded. Required: timeEntryId. Optional: ended_time, external_reference, hours (plus 5 more).",
+      "method": "PATCH",
+      "path": "/time_entries/{timeEntryId}",
+      "params": [
+        {
+          "name": "timeEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Time entry id",
+          "required": true
+        },
+        {
+          "name": "ended_time",
+          "type": "string",
+          "location": "body",
+          "description": "The time the entry ended."
+        },
+        {
+          "name": "external_reference",
+          "type": "object",
+          "location": "body",
+          "description": "An object containing the id, group_id, account_id, and permalink of the external reference."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The current amount of time tracked."
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Any notes to be associated with the time entry."
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the project to associate with the time entry."
+        },
+        {
+          "name": "spent_date",
+          "type": "string",
+          "location": "body",
+          "description": "The ISO 8601 formatted date the time entry was spent."
+        },
+        {
+          "name": "started_time",
+          "type": "string",
+          "location": "body",
+          "description": "The time the entry started. Defaults to the current time. Example: “8:00am”."
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "body",
+          "description": "The ID of the task to associate with the time entry."
+        }
+      ]
+    },
+    {
+      "name": "time-entries_external-reference_delete-time-entry",
+      "description": "Delete a time entry’s external reference. Returns a 200 OK response code if the call succeeded. Required: timeEntryId. Destructive.",
+      "method": "DELETE",
+      "path": "/time_entries/{timeEntryId}/external_reference",
+      "params": [
+        {
+          "name": "timeEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Time entry id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "time-entries_restart_stopped-time-entry",
+      "description": "Restarting a time entry is only possible if it isn’t currently running. Returns a 200 OK response code if the call succeeded. Required: timeEntryId.",
+      "method": "PATCH",
+      "path": "/time_entries/{timeEntryId}/restart",
+      "params": [
+        {
+          "name": "timeEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Time entry id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "time-entries_stop_running-time-entry",
+      "description": "Stopping a time entry is only possible if it’s currently running. Returns a 200 OK response code if the call succeeded. Required: timeEntryId.",
+      "method": "PATCH",
+      "path": "/time_entries/{timeEntryId}/stop",
+      "params": [
+        {
+          "name": "timeEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "Time entry id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user-assignments_list",
+      "description": "Returns a list of your projects user assignments, active and archived. The user assignments are returned sorted by creation date, with the most recently created user assignments appearing first. The response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments. Optional: user_id, is_active, updated_since (plus 3 more).",
+      "method": "GET",
+      "path": "/user_assignments",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "query",
+          "description": "Only return user assignments belonging to the user with the given ID."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active user assignments and false to return inactive user assignments."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return user assignments that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_create",
+      "description": "Creates a new user object and sends an invitation email to the address specified in the email parameter. Returns a user object and a 201 Created response code if the call succeeded. Required: email, first_name, last_name. Optional: access_roles, cost_rate, default_hourly_rate (plus 6 more).",
+      "method": "POST",
+      "path": "/users",
+      "params": [
+        {
+          "name": "access_roles",
+          "type": "array",
+          "location": "body",
+          "description": "Access role(s) that determine the user’s permissions in Harvest. Possible values: administrator, manager or member. Users with the manager role can additionally be granted one or more of these roles: project_creator, billable_rates_manager, managed_projects_invoice_drafter, managed_projects_invoice_manager, client_and_task_manager, time_and_expenses_manager, estimates_manager."
+        },
+        {
+          "name": "cost_rate",
+          "type": "float",
+          "location": "body",
+          "description": "The cost rate to use for this user when calculating a project’s costs vs billable amount. Defaults to 0."
+        },
+        {
+          "name": "default_hourly_rate",
+          "type": "float",
+          "location": "body",
+          "description": "The billable rate to use for this user when they are added to a project. Defaults to 0."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the user.",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "The first name of the user.",
+          "required": true
+        },
+        {
+          "name": "has_access_to_all_future_projects",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user should be automatically added to future projects. Defaults to false."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user is active or archived. Defaults to true."
+        },
+        {
+          "name": "is_contractor",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user is a contractor or an employee. Defaults to false."
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "The last name of the user.",
+          "required": true
+        },
+        {
+          "name": "roles",
+          "type": "array",
+          "location": "body",
+          "description": "Descriptive names of the business roles assigned to this person. They can be used for filtering reports, and have no effect in their permissions in Harvest."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "The user’s timezone. Defaults to the company’s timezone. See a list of supported time zones."
+        },
+        {
+          "name": "weekly_capacity",
+          "type": "int",
+          "location": "body",
+          "description": "The number of hours per week this person is available to work in seconds. Defaults to 126000 seconds (35 hours)."
+        }
+      ]
+    },
+    {
+      "name": "users_delete",
+      "description": "Delete a user. Deleting a user is only possible if they have no time entries or expenses associated with them. Returns a 200 OK response code if the call succeeded. Required: userId. Destructive.",
+      "method": "DELETE",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "Returns a list of your users. The users are returned sorted by creation date, with the most recently created users appearing first. The response contains an object with a users property that contains an array of up to per_page users. Each entry in the array is a separate user object. If no more users are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your users. Optional: is_active, updated_since, page (plus 2 more).",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "query",
+          "description": "Pass true to only return active users and false to return inactive users."
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return users that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_list-active-project-assignments-for-the-currently-authenticated",
+      "description": "Returns a list of your active project assignments for the currently authenticated user. The project assignments are returned sorted by creation date, with the most recently created project assignments appearing first. The response contains an object with a project_assignments property that contains an array of up to per_page project assignments. Each entry in the array is a separate project assignment object. If no more project assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your project assignments. Optional: page, per_page.",
+      "method": "GET",
+      "path": "/users/me/project_assignments",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The page number to use in pagination."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_retrieve",
+      "description": "Retrieves the user with the given ID. Returns a user object and a 200 OK response code if a valid identifier was provided. Required: userId.",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_retrieve-the-currently-authenticated",
+      "description": "Retrieves the currently authenticated user. Returns a user object and a 200 OK response code.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    },
+    {
+      "name": "users_update",
+      "description": "Updates the specific user by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a user object and a 200 OK response code if the call succeeded. Required: userId. Optional: access_roles, email, first_name (plus 7 more).",
+      "method": "PATCH",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "access_roles",
+          "type": "array",
+          "location": "body",
+          "description": "Access role(s) that determine the user’s permissions in Harvest. Possible values: administrator, manager or member. Users with the manager role can additionally be granted one or more of these roles: project_creator, billable_rates_manager, managed_projects_invoice_drafter, managed_projects_invoice_manager, client_and_task_manager, time_and_expenses_manager, estimates_manager."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the user. Can’t be updated if the user is inactive."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "The first name of the user. Can’t be updated if the user is inactive."
+        },
+        {
+          "name": "has_access_to_all_future_projects",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user should be automatically added to future projects."
+        },
+        {
+          "name": "is_active",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user is active or archived."
+        },
+        {
+          "name": "is_contractor",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the user is a contractor or an employee."
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "The last name of the user. Can’t be updated if the user is inactive."
+        },
+        {
+          "name": "roles",
+          "type": "array",
+          "location": "body",
+          "description": "Descriptive names of the business roles assigned to this person. They can be used for filtering reports, and have no effect in their permissions in Harvest."
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body",
+          "description": "The user’s timezone. Defaults to the company’s timezone. See a list of supported time zones."
+        },
+        {
+          "name": "weekly_capacity",
+          "type": "int",
+          "location": "body",
+          "description": "The number of hours per week this person is available to work in seconds."
+        }
+      ]
+    },
+    {
+      "name": "users_billable-rates_create",
+      "description": "Creates a new billable rate object. Returns a billable rate object and a 201 Created response code if the call succeeded. Creating a billable rate with no start_date will replace a user’s existing rate(s). Creating a billable rate with a start_date that is before a user’s existing rate(s) will replace those billable rates with the new one. Required: userId, amount. Optional: start_date.",
+      "method": "POST",
+      "path": "/users/{userId}/billable_rates",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of the billable rate.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "The date the billable rate is effective. Cannot be a date in the future."
+        }
+      ]
+    },
+    {
+      "name": "users_billable-rates_list-for-specific-user",
+      "description": "Returns a list of billable rates for the user identified by USER_ID. The billable rates are returned sorted by start_date, with the oldest starting billable rates appearing first. The response contains an object with a billable_rates property that contains an array of up to per_page billable rates. Each entry in the array is a separate billable rate object. If no more billable rates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your billable rates. Required: userId. Optional: page, cursor, per_page.",
+      "method": "GET",
+      "path": "/users/{userId}/billable_rates",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_billable-rates_retrieve",
+      "description": "Retrieves the billable rate with the given ID. Returns a billable rate object and a 200 OK response code if a valid identifier was provided. Required: userId, billableRateId.",
+      "method": "GET",
+      "path": "/users/{userId}/billable_rates/{billableRateId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "billableRateId",
+          "type": "string",
+          "location": "path",
+          "description": "Billable rate id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_cost-rates_create",
+      "description": "Creates a new cost rate object. Returns a cost rate object and a 201 Created response code if the call succeeded. Creating a cost rate with no start_date will replace a user’s existing rate(s). Creating a cost rate with a start_date that is before a user’s existing rate(s) will replace those cost rates with the new one. Required: userId, amount. Optional: start_date.",
+      "method": "POST",
+      "path": "/users/{userId}/cost_rates",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "The amount of the cost rate.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "body",
+          "description": "The date the cost rate is effective. Cannot be a date in the future."
+        }
+      ]
+    },
+    {
+      "name": "users_cost-rates_list-for-specific-user",
+      "description": "Returns a list of cost rates for the user identified by USER_ID. The cost rates are returned sorted by start_date, with the oldest starting cost rates appearing first. The response contains an object with a cost_rates property that contains an array of up to per_page cost rates. Each entry in the array is a separate cost rate object. If no more cost rates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your cost rates. Required: userId. Optional: page, cursor, per_page.",
+      "method": "GET",
+      "path": "/users/{userId}/cost_rates",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_cost-rates_retrieve",
+      "description": "Retrieves the cost rate with the given ID. Returns a cost rate object and a 200 OK response code if a valid identifier was provided. Required: userId, costRateId.",
+      "method": "GET",
+      "path": "/users/{userId}/cost_rates/{costRateId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "costRateId",
+          "type": "string",
+          "location": "path",
+          "description": "Cost rate id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_project-assignments_list-active",
+      "description": "Returns a list of active project assignments for the user identified by USER_ID. The project assignments are returned sorted by creation date, with the most recently created project assignments appearing first. The response contains an object with a project_assignments property that contains an array of up to per_page project assignments. Each entry in the array is a separate project assignment object. If no more project assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your project assignments. Required: userId. Optional: updated_since, page, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/users/{userId}/project_assignments",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "updated_since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return project assignments that have been updated since the given date and time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_teammates_list-assigned-for-specific-user",
+      "description": "Returns a list of assigned teammates for the user identified by USER_ID. The USER_ID must belong to a user that is a Manager, if not, a 422 Unprocessable Entity status code will be returned. The response contains an object with a teammates property that contains an array of up to per_page teammates. Each entry in the array is a separate teammate object. If no more teammates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your teammates. Required: userId. Optional: page, cursor, per_page.",
+      "method": "GET",
+      "path": "/users/{userId}/teammates",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "DEPRECATED The page number to use in pagination. For instance, if you make a list request and receive 100 records, your subsequent call can include page=2 to retrieve the next page of the list. (Default: 1)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "The number of records to return per page. Can range between 1 and 2000. (Default: 2000)"
+        }
+      ]
+    },
+    {
+      "name": "users_teammates_update-user-assigned",
+      "description": "Updates the the assigned teammates for a specific user. Returns list of assigned teammates and a 200 OK response code if the call succeeded. The USER_ID must belong to a user that is a Manager, if not, a 422 Unprocessable Entity status code will be returned. Adding teammates for the first time will add the people_manager access role to the Manager. Any IDs not included in the teammate_ids that are currently assigned will be unassigned from the Manager. Use an empty array to unassign all users. This will also remove the people_manager access role from the Manager. Required: userId, teammate_ids.",
+      "method": "PATCH",
+      "path": "/users/{userId}/teammates",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "teammate_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Full list of user IDs to be assigned to the Manager.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

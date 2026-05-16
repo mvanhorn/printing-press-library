@@ -1,0 +1,337 @@
+{
+  "api_name": "harvest",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "ianaleck/harvest-mcp-server",
+      "url": "https://github.com/ianaleck/harvest-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "taiste/harvest-mcp-server",
+      "url": "https://github.com/taiste/harvest-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "standardbeagle/harvest-mcp",
+      "url": "https://github.com/standardbeagle/harvest-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "kgajera/hrvst-cli",
+      "url": "https://github.com/kgajera/hrvst-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lucasconstantino/harvest-cli",
+      "url": "https://github.com/lucasconstantino/harvest-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "droath/harvest-toolkit",
+      "url": "https://github.com/droath/harvest-toolkit",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zenhob/hcl",
+      "url": "https://github.com/zenhob/hcl",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "simplyspoke/node-harvest",
+      "url": "https://github.com/simplyspoke/node-harvest",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T21:36:00Z",
+  "novel_features": [
+    {
+      "name": "Project burn + projection",
+      "command": "project burn",
+      "description": "See which projects have burned \u003e80% of budget with a projected exhaust date based on 4-week velocity.",
+      "rationale": "Joins projects.budget with aggregated time_entries — no single API call returns burn % with velocity-based projection; harvest-toolkit only does flat reports.",
+      "example": "harvest-pp-cli project burn --threshold 80 --projection --json",
+      "why_it_matters": "Use this to answer 'which projects are about to blow their budget?' in one call — exit code 2 makes it cron-friendly.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Notes full-text search",
+      "command": "notes search",
+      "description": "FTS5 search across all your time-entry notes, with filters for user/project/date.",
+      "rationale": "SQLite FTS5 over locally-synced time_entries.notes — no Harvest API endpoint supports text search, and no competing tool offers offline FTS.",
+      "example": "harvest-pp-cli notes search 'auth refactor' --mine --from 2026-01-01 --json --select id,spent_date,hours,notes",
+      "why_it_matters": "Use this to recall what you logged without re-paginating the API or scrolling Harvest's web UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Timesheet gap detection",
+      "command": "timesheet gaps",
+      "description": "List workdays where a user logged less than a threshold (default 6 hours), to chase missing time.",
+      "rationale": "Joins users × time_entries × workday calendar locally; surfaces 'who has gaps this week' that no competitor exposes.",
+      "example": "harvest-pp-cli timesheet gaps --from 2026-05-11 --to 2026-05-15 --min-hours 6 --json",
+      "why_it_matters": "Use this on Friday to chase missing entries without manual CSV exports.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Client margin / realization",
+      "command": "client margin",
+      "description": "Per-client revenue (billable hours × billable_rate) minus cost (hours × cost_rate), with realization %.",
+      "rationale": "Joins time_entries × billable_rates × cost_rates × clients locally — Harvest API exposes the rates but not the joined margin.",
+      "example": "harvest-pp-cli client margin --client 'Acme Corp' --from 2026-04-01 --to 2026-04-30 --json",
+      "why_it_matters": "Use this to answer 'is client X profitable?' without exporting to a spreadsheet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Utilization trend",
+      "command": "utilization",
+      "description": "Billable percentage per user over a range, with rolling 4-week trend.",
+      "rationale": "Local group-by on time_entries.billable per ISO week per user; the agency-defining KPI that no CLI surfaces.",
+      "example": "harvest-pp-cli utilization --weeks 12 --json --select user,week,billable_pct",
+      "why_it_matters": "Use this to monitor team utilization trends without rebuilding Google Sheets pivots.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Day reconstruction stubs",
+      "command": "day reconstruct",
+      "description": "For a given user+date, emit JSON stub entries that fill the day to target hours, proportional to that user's recent project mix.",
+      "rationale": "Reads existing entries, computes deficit, generates stubs from recent project ratio — mechanical, pipes into `time-entries create --stdin`.",
+      "example": "harvest-pp-cli day reconstruct --user me --date 2026-05-14 --target-hours 8 --json | harvest-pp-cli time-entries create --stdin --dry-run",
+      "why_it_matters": "Use this for Friday backfill — generate plausible stubs, edit notes, then commit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Entry repeat",
+      "command": "time-entries repeat",
+      "description": "Repost an existing time entry to a new date or N consecutive workdays with the same project/task/hours/notes.",
+      "rationale": "Idempotent via natural key (user+date+project+task+notes-hash); skips dates that already have a matching entry.",
+      "example": "harvest-pp-cli time-entries repeat 12345 --days 5 --dry-run --json",
+      "why_it_matters": "Use this for recurring work (standup, planning) — one command per week instead of typing the same flags daily.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local reconcile",
+      "command": "reconcile",
+      "description": "Diff local SQLite vs the Harvest API for a date range; surface rows that drifted (edits made after the last sync).",
+      "rationale": "Re-fetches the range, compares against local snapshot, prints drifted IDs and field-level changes — supports cron-driven workflows that the MCP servers can't.",
+      "example": "harvest-pp-cli reconcile --from 2026-05-01 --to 2026-05-15 --json",
+      "why_it_matters": "Use this nightly to detect retroactive edits and trigger re-aggregation for stale dashboards.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Project burn + projection",
+      "command": "project burn",
+      "description": "See which projects have burned \u003e80% of budget with a projected exhaust date based on 4-week velocity.",
+      "rationale": "Joins projects.budget with aggregated time_entries — no single API call returns burn % with velocity-based projection; harvest-toolkit only does flat reports.",
+      "example": "harvest-pp-cli project burn --threshold 80 --projection --json",
+      "why_it_matters": "Use this to answer 'which projects are about to blow their budget?' in one call — exit code 2 makes it cron-friendly.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Notes full-text search",
+      "command": "notes search",
+      "description": "FTS5 search across all your time-entry notes, with filters for user/project/date.",
+      "rationale": "SQLite FTS5 over locally-synced time_entries.notes — no Harvest API endpoint supports text search, and no competing tool offers offline FTS.",
+      "example": "harvest-pp-cli notes search 'auth refactor' --mine --from 2026-01-01 --json --select id,spent_date,hours,notes",
+      "why_it_matters": "Use this to recall what you logged without re-paginating the API or scrolling Harvest's web UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Timesheet gap detection",
+      "command": "timesheet gaps",
+      "description": "List workdays where a user logged less than a threshold (default 6 hours), to chase missing time.",
+      "rationale": "Joins users × time_entries × workday calendar locally; surfaces 'who has gaps this week' that no competitor exposes.",
+      "example": "harvest-pp-cli timesheet gaps --from 2026-05-11 --to 2026-05-15 --min-hours 6 --json",
+      "why_it_matters": "Use this on Friday to chase missing entries without manual CSV exports.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Client margin / realization",
+      "command": "client margin",
+      "description": "Per-client revenue (billable hours × billable_rate) minus cost (hours × cost_rate), with realization %.",
+      "rationale": "Joins time_entries × billable_rates × cost_rates × clients locally — Harvest API exposes the rates but not the joined margin.",
+      "example": "harvest-pp-cli client margin --client 'Acme Corp' --from 2026-04-01 --to 2026-04-30 --json",
+      "why_it_matters": "Use this to answer 'is client X profitable?' without exporting to a spreadsheet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Utilization trend",
+      "command": "utilization",
+      "description": "Billable percentage per user over a range, with rolling 4-week trend.",
+      "rationale": "Local group-by on time_entries.billable per ISO week per user; the agency-defining KPI that no CLI surfaces.",
+      "example": "harvest-pp-cli utilization --weeks 12 --json --select user,week,billable_pct",
+      "why_it_matters": "Use this to monitor team utilization trends without rebuilding Google Sheets pivots.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Day reconstruction stubs",
+      "command": "day reconstruct",
+      "description": "For a given user+date, emit JSON stub entries that fill the day to target hours, proportional to that user's recent project mix.",
+      "rationale": "Reads existing entries, computes deficit, generates stubs from recent project ratio — mechanical, pipes into `time-entries create --stdin`.",
+      "example": "harvest-pp-cli day reconstruct --user me --date 2026-05-14 --target-hours 8 --json | harvest-pp-cli time-entries create --stdin --dry-run",
+      "why_it_matters": "Use this for Friday backfill — generate plausible stubs, edit notes, then commit.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Entry repeat",
+      "command": "time-entries repeat",
+      "description": "Repost an existing time entry to a new date or N consecutive workdays with the same project/task/hours/notes.",
+      "rationale": "Idempotent via natural key (user+date+project+task+notes-hash); skips dates that already have a matching entry.",
+      "example": "harvest-pp-cli time-entries repeat 12345 --days 5 --dry-run --json",
+      "why_it_matters": "Use this for recurring work (standup, planning) — one command per week instead of typing the same flags daily.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Local reconcile",
+      "command": "reconcile",
+      "description": "Diff local SQLite vs the Harvest API for a date range; surface rows that drifted (edits made after the last sync).",
+      "rationale": "Re-fetches the range, compares against local snapshot, prints drifted IDs and field-level changes — supports cron-driven workflows that the MCP servers can't.",
+      "example": "harvest-pp-cli reconcile --from 2026-05-01 --to 2026-05-15 --json",
+      "why_it_matters": "Use this nightly to detect retroactive edits and trigger re-aggregation for stale dashboards.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Harvest",
+    "headline": "Every Harvest CLI feature, plus a local SQLite store and offline FTS no other tool has.",
+    "value_prop": "Every feature in hrvst-cli, hcl, and the MCP servers — for time entries, projects, invoices, and reports — plus offline full-text search over your notes, project burn projection, client margin, utilization trends, and timesheet-gap detection. All built on a synced local SQLite store so cron-driven scripts and AI agents can query without hammering the rate-limited API.",
+    "auth_narrative": "Harvest uses Personal Access Tokens (PATs). Set `HARVEST_ACCESS_TOKEN` and `HARVEST_ACCOUNT_ID` in your environment, or run `harvest-pp-cli auth set-token` to store them locally. `harvest-pp-cli doctor` validates the token and surfaces the authenticated user.",
+    "quickstart": [
+      {
+        "command": "harvest-pp-cli doctor --json",
+        "comment": "Validates HARVEST_ACCESS_TOKEN + HARVEST_ACCOUNT_ID and confirms the API is reachable."
+      },
+      {
+        "command": "harvest-pp-cli sync --full",
+        "comment": "Populates the local SQLite store with all time entries, projects, clients, users, tasks."
+      },
+      {
+        "command": "harvest-pp-cli users me --json --select first_name,timezone,weekly_capacity",
+        "comment": "Sanity check that the right account is wired up."
+      },
+      {
+        "command": "harvest-pp-cli notes search 'auth refactor' --mine --json --select id,spent_date,hours",
+        "comment": "Demo of the offline FTS feature."
+      },
+      {
+        "command": "harvest-pp-cli project burn --threshold 80 --json",
+        "comment": "List active projects burning \u003e80% of budget — exit 2 if any."
+      },
+      {
+        "command": "harvest-pp-cli timesheet gaps --from 2026-05-11 --to 2026-05-15 --min-hours 6 --json",
+        "comment": "Friday chase: who has gaps this week."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Check HARVEST_ACCESS_TOKEN is set (`harvest-pp-cli auth status`). Tokens are personal-access-tokens, NOT OAuth bearer tokens — get one at https://id.getharvest.com/developers."
+      },
+      {
+        "symptom": "404 Not Found on a known-good account",
+        "fix": "Confirm HARVEST_ACCOUNT_ID matches the account that owns the PAT. Account IDs are numeric; tokens are per-account."
+      },
+      {
+        "symptom": "429 Too Many Requests during sync",
+        "fix": "Harvest limits to 100 requests / 15-second window. The CLI retries with backoff; for large backfills add `--rate-limit-window 15s` or run during off-hours."
+      },
+      {
+        "symptom": "sync --full takes forever",
+        "fix": "Use `sync --since YYYY-MM-DD` or `sync --resources time-entries` for targeted refreshes. The full sync hits every endpoint with `updated_since` cursors."
+      },
+      {
+        "symptom": "Notes search returns nothing",
+        "fix": "FTS index is populated by `sync`. Run `sync --resources time-entries` first; the SQLite FTS5 index lives in your local DB."
+      }
+    ],
+    "when_to_use": "Reach for harvest-pp-cli when you need to query Harvest data programmatically — cron scripts that fan out across many entries, AI agents asking 'what did I do last week,' invoicing automations that join time entries with rates, or any task where the rate-limited API would be too slow. For interactive time-entry CRUD an agent could call the API directly; use this CLI when the local store, FTS, or cross-entity joins matter.",
+    "recipes": [
+      {
+        "title": "Friday timesheet chase",
+        "command": "harvest-pp-cli timesheet gaps --from \"$(date -v-Mon +%Y-%m-%d)\" --to \"$(date +%Y-%m-%d)\" --min-hours 6 --json --select user_name,date,total_hours",
+        "explanation": "Run on Friday to surface every team member with gaps for the current week, in agent-friendly JSON. (Sync first with: harvest-pp-cli sync --resources time-entries)"
+      },
+      {
+        "title": "Project burn alert (cron)",
+        "command": "harvest-pp-cli project burn --threshold 80 --json --select project,client,pct_used,projected_exhaust_date || echo 'project budget breach'",
+        "explanation": "Cron-friendly — exit 2 when any active project crosses 80% used. Pipe to Slack or PagerDuty."
+      },
+      {
+        "title": "Find that auth-refactor entry",
+        "command": "harvest-pp-cli notes search 'auth refactor' --mine --from 2026-01-01 --json --select id,spent_date,hours,project,notes",
+        "explanation": "FTS5 over your local notes — finds entries without paginating the API."
+      },
+      {
+        "title": "Recurring weekly work",
+        "command": "harvest-pp-cli time-entries repeat 12345 --days 5 --dry-run --json",
+        "explanation": "Dry-run shows what would be posted. Drop --dry-run to commit. Idempotent — re-running skips dates already filled."
+      },
+      {
+        "title": "Month-end realization check (deep --select)",
+        "command": "harvest-pp-cli client margin --client 'Acme Corp' --from 2026-04-01 --to 2026-04-30 --json --select client.name,revenue,cost,realization_pct,hours_billable,hours_non_billable",
+        "explanation": "Joins time entries × rates × client locally. Use the dotted `--select` paths to pull only the fields your dashboard needs."
+      }
+    ],
+    "trigger_phrases": [
+      "log my time",
+      "check timesheet gaps",
+      "project burn rate",
+      "client margin",
+      "search harvest notes",
+      "use harvest-pp",
+      "run harvest-pp"
+    ]
+  }
+}

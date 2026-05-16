@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T22:11:08.846578Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "harvest",
+  "display_name": "Harvest",
+  "cli_name": "harvest-pp-cli",
+  "owner": "dan-bronson",
+  "printer_name": "Dan Bronson",
+  "spec_path": "/Users/danbronson/printing-press/.runstate/code-3ad4c651/runs/20260515-163515/research/harvest-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:880437548cc21779e9573e310907d8c62cc09ac5a2da7d5d18a8b1542bf3bcb4",
+  "run_id": "20260515-163515",
+  "mcp_binary": "harvest-pp-mcp",
+  "mcp_tool_count": 113,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "HARVEST_ACCOUNT_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Project burn + projection",
+      "command": "project burn",
+      "description": "See which projects have burned >80% of budget with a projected exhaust date based on 4-week velocity."
+    },
+    {
+      "name": "Notes full-text search",
+      "command": "notes search",
+      "description": "FTS5 search across all your time-entry notes, with filters for user/project/date."
+    },
+    {
+      "name": "Timesheet gap detection",
+      "command": "timesheet gaps",
+      "description": "List workdays where a user logged less than a threshold (default 6 hours), to chase missing time."
+    },
+    {
+      "name": "Client margin / realization",
+      "command": "client margin",
+      "description": "Per-client revenue (billable hours \u00d7 billable_rate) minus cost (hours \u00d7 cost_rate), with realization %."
+    },
+    {
+      "name": "Utilization trend",
+      "command": "utilization",
+      "description": "Billable percentage per user over a range, with rolling 4-week trend."
+    },
+    {
+      "name": "Day reconstruction stubs",
+      "command": "day reconstruct",
+      "description": "For a given user+date, emit JSON stub entries that fill the day to target hours, proportional to that user's recent project mix."
+    },
+    {
+      "name": "Entry repeat",
+      "command": "time-entries repeat",
+      "description": "Repost an existing time entry to a new date or N consecutive workdays with the same project/task/hours/notes."
+    },
+    {
+      "name": "Local reconcile",
+      "command": "reconcile",
+      "description": "Diff local SQLite vs the Harvest API for a date range; surface rows that drifted (edits made after the last sync)."
+    }
+  ],
+  "printer": "armydan"
+}
