@@ -1,0 +1,58 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ValidationRuleCriteria",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/layouts/{layoutId}/validationRules/criteriaFields" : {
+      "get" : {
+        "tags" : [ "ValidationRuleCriteria" ],
+        "summary" : "Get Validation Rule Criteria",
+        "description" : "This API lists the fields that can be used in criteria of a specified module in validation rules. Available pre-defined values may contain ${EMPTY}, ${NOTEMPTY}, ${OPEN}, ${CLOSED}, ${CURRENTTIME}. Available types are Text, Date, DateTime, Text, Boolean and Arithmetic.",
+        "operationId" : "getValidationRuleCriteria",
+        "parameters" : [ {
+          "name" : "category",
+          "in" : "query",
+          "description" : "Category for getting the field criteria for primary or secondary fields",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Category for getting the field criteria for primary or secondary fields",
+            "enum" : [ "primary", "secondary" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "layoutId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./LayoutRuleCriteria.json#/components/responses/getCriteriaResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "x-entity" : "ValidationRuleCriteria"
+}

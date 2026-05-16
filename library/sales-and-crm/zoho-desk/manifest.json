@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoho-desk-pp-mcp",
+  "display_name": "Zoho Desk",
+  "version": "4.6.1",
+  "description": "Zoho Desk API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoho-desk-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoho-desk-pp-mcp",
+      "args": [],
+      "env": {
+        "ZOHODESK_REFRESH_TOKEN": "${user_config.zohodesk_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "zohodesk_refresh_token": {
+      "type": "string",
+      "title": "ZOHODESK_REFRESH_TOKEN",
+      "description": "Sets ZOHODESK_REFRESH_TOKEN for the Zoho Desk MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

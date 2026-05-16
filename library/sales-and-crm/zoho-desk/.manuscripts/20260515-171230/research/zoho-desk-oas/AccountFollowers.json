@@ -1,0 +1,275 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "AccountFollowers",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/accounts/{accountId}/removeFollowers" : {
+      "post" : {
+        "tags" : [ "AccountFollowers" ],
+        "summary" : "Remove account followers",
+        "description" : "This API removes one or more users from the followers list of an account",
+        "operationId" : "removeAccountFollowers",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/removeFollowers"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "404" : {
+            "$ref" : "./errors.json#/components/responses/commonErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/addFollowers" : {
+      "post" : {
+        "tags" : [ "AccountFollowers" ],
+        "summary" : "Add account followers",
+        "description" : "This API adds one or more users to the followers list of an account",
+        "operationId" : "addAccountFollowers",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addFollowers"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./errors.json#/components/responses/commonErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/followers" : {
+      "get" : {
+        "tags" : [ "AccountFollowers" ],
+        "summary" : "Get account followers",
+        "description" : "This API fetches the list of users following an account.",
+        "operationId" : "getAccountFollowers",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getFollowersResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "followerDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "followersDataResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./AccountFollowers.json#/components/schemas/followerDetails"
+        }
+      }
+    },
+    "responses" : {
+      "getFollowersResponse" : {
+        "description" : "getFollowersResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./AccountFollowers.json#/components/schemas/followersDataResponse"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "firstName" : "",
+                    "lastName" : "agent",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/5000000012903/photo",
+                    "id" : "5000000012903",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }, {
+                    "firstName" : "",
+                    "lastName" : "deskagent",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/5000000012902/photo",
+                    "id" : "5000000012902",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "accountId" : {
+        "name" : "accountId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "removeFollowers" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "followerIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                }
+              },
+              "required" : [ "followerIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "followerIds" : [ 5000000013292 ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "addFollowers" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "followerIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                }
+              },
+              "required" : [ "followerIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "followerIds" : [ 5000000013292 ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "AccountFollowers"
+}

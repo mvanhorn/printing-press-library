@@ -1,0 +1,144 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "AutomationFeatureCount",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/automationFeatureCount" : {
+      "get" : {
+        "tags" : [ "AutomationFeatureCount" ],
+        "summary" : "Get Automation Feature Count",
+        "description" : "This API is used to Get Automation Feature Limits, For BusinessHours and HoldiayList, There are no mandatory params, For Workflows valid and mandatory params are @module@ and @departmentId@, Valid module param values for Workflows are @tickets@,@contacts@,@contracts@,@accounts@,@tasks@,@products@,@timeEntry@. For Skills and SkillTye @departmentId@ is mandatory param",
+        "operationId" : "getUsedCountForAutomationFeature",
+        "parameters" : [ {
+          "name" : "feature",
+          "in" : "query",
+          "description" : "Feature, allowed values @businesshours@,@holidaylist@,@Skills@,@SkillType@,@workflows@,@blueprints@,@automationAlerts@,@fieldUpdates@,@automationTasks@,@customFunctions@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Feature, allowed values @businesshours@,@holidaylist@,@Skills@,@SkillType@,@workflows@,@blueprints@,@automationAlerts@,@fieldUpdates@,@automationTasks@,@customFunctions@",
+            "enum" : [ "workflows", "businesshours", "holidaylist", "blueprints", "Skills", "SkillType", "SupportPlans", "automationAlerts", "fieldUpdates", "automationTasks", "customFunctions" ]
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Department Id",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Module, allowed values @tickets@,@contacts@,@contracts@,@accounts@,@tasks@,@products@,@timeEntry@,@events@,@calls@,@customModule@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Module, allowed values @tickets@,@contacts@,@contracts@,@accounts@,@tasks@,@products@,@timeEntry@,@events@,@calls@,@customModule@",
+            "enum" : [ "tickets", "contacts", "contracts", "accounts", "tasks", "products", "timeEntry", "events", "calls", "customModule" ]
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/automationFeatureCountJSONResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "automationFeatureCountJSONResponse" : {
+        "description" : "automationFeatureCountJSONResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "featureName" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "workflows", "businesshours", "holidaylist", "blueprints", "Skills", "SkillType", "SupportPlans", "automationAlerts", "fieldUpdates", "automationTasks", "customFunctions" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "maxTotalCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "maxActiveCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "usedCountInfo" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 2,
+                  "minProperties" : 2,
+                  "properties" : {
+                    "usedTotalCount" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "usedActiveCount" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "usedActiveCount", "usedTotalCount" ]
+                }
+              },
+              "required" : [ "featureName", "maxActiveCount", "maxTotalCount", "usedCountInfo" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "featureName" : "workflows",
+                  "maxTotalCount" : "40",
+                  "maxActiveCount" : "20",
+                  "usedCountInfo" : {
+                    "usedTotalCount" : "3",
+                    "usedActiveCount" : "2"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "AutomationFeatureCount"
+}

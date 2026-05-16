@@ -1,0 +1,402 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TaskAttachment",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tasks/{taskId}/attachments" : {
+      "get" : {
+        "tags" : [ "TaskAttachment" ],
+        "summary" : "List Task attachments",
+        "description" : "This API lists the files attached to a task.",
+        "operationId" : "getTaskAttachments",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "description" : "",
+              "enum" : [ "creator" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "",
+            "maximum" : 100,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "",
+            "enum" : [ "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/taskId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllAttachmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tasks.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "TaskAttachment" ],
+        "summary" : "Create Task attachment",
+        "description" : "This API attaches a file to a task",
+        "operationId" : "createTaskAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/taskId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary",
+                    "description" : ""
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/attachmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tasks.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/attachments/{attachmentId}" : {
+      "delete" : {
+        "tags" : [ "TaskAttachment" ],
+        "summary" : "Delete Task attachment",
+        "description" : "This API removes an attachment from a task.",
+        "operationId" : "deleteTaskAttachment",
+        "parameters" : [ {
+          "name" : "attachmentId",
+          "in" : "path",
+          "description" : "",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/taskId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tasks.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "attachmentResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "previewurl" : {
+            "type" : [ "string", "null" ],
+            "description" : "",
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "",
+            "pattern" : "([0-9]+)"
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "description" : "",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "description" : "",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "",
+            "pattern" : "([0-9]+)"
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "description" : "",
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "createdTime", "creatorId", "href", "id", "name", "previewurl", "size" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./TaskAttachment.json#/components/schemas/attachmentResponse"
+        }
+      }
+    },
+    "responses" : {
+      "listAllAttachmentResponse" : {
+        "description" : "listAllAttachmentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "creator" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "description" : "",
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "description" : "",
+                              "maxLength" : 40,
+                              "minLength" : 0
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "description" : "",
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "description" : "",
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "description" : "",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "description" : "",
+                              "maxLength" : 255,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./TaskAttachment.json#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : { }
+              }
+            }
+          }
+        }
+      },
+      "attachmentResponse" : {
+        "description" : "attachmentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "previewurl" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "",
+                  "maxLength" : 16000000,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "size" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "",
+                  "pattern" : "([0-9]+)"
+                },
+                "creatorId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "",
+                  "pattern" : "([0-9]+)"
+                },
+                "href" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "",
+                  "maxLength" : 16000000,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                }
+              },
+              "required" : [ "createdTime", "creatorId", "href", "id", "name", "previewurl", "size" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : { }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "taskId" : {
+        "name" : "taskId",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TaskAttachment"
+}

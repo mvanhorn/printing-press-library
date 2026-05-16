@@ -1,0 +1,602 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "EventComments",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/events/{eventId}/comments" : {
+      "get" : {
+        "tags" : [ "EventComments" ],
+        "summary" : "List all event comments",
+        "description" : "This API lists a particular number of comments recorded on a event, based on the limit specified.",
+        "operationId" : "getEventComments",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the comments. Value allowed is @mentions@, which returns the details of users mentioned in the comments.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Secondary information related to the comments. Value allowed is @mentions@, which returns the details of users mentioned in the comments.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "mentions" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "No. of comments to fetch",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "No. of comments to fetch",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number starting from which the comments must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number starting from which the comments must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort comments by the @commentedTime@ attribute. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort comments by the @commentedTime@ attribute. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "-?(commentedTime)"
+          }
+        }, {
+          "name" : "eventId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/listEventComment"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.activities.events.READ", "Desk.tasks.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "EventComments" ],
+        "summary" : "Create a event comment",
+        "description" : "This API adds a comment to a event.",
+        "operationId" : "createEventComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/eventId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createComment_addEventCommentRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/addEventComment"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.activities.events.UPDATE", "Desk.tasks.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/events/{eventId}/comments/{commentId}" : {
+      "get" : {
+        "tags" : [ "EventComments" ],
+        "summary" : "Get a event comment",
+        "description" : "This API fetches a event comment from the portal.",
+        "operationId" : "getEventComment",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the comments. Value allowed is @mentions@, which returns the details of users mentioned in the comments.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Secondary information related to the comments. Value allowed is @mentions@, which returns the details of users mentioned in the comments.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "mentions" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/eventId"
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getEventComment"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.activities.events.READ", "Desk.tasks.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "put" : {
+        "tags" : [ "EventComments" ],
+        "summary" : "Update a event comment",
+        "description" : "This API updates an existing event comment.",
+        "operationId" : "updateEventComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/eventId"
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addEventCommentRequest"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addEventComment"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.activities.events.UPDATE", "Desk.tasks.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "addEventComment" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachments" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false
+            },
+            "uniqueItems" : false
+          },
+          "encodedContent" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "commenter" : {
+            "$ref" : "./TicketComment.json#/components/schemas/commenter"
+          },
+          "impersonatedUser" : {
+            "$ref" : "./TicketComment.json#/components/schemas/impersonatedUser"
+          }
+        },
+        "required" : [ "attachments", "commentedTime", "commenter", "commenterId", "content", "contentType", "encodedContent", "id", "impersonatedUser", "modifiedTime" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./EventComments.json#/components/schemas/addEventComment"
+        }
+      },
+      "mention" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "null", "object" ],
+          "additionalProperties" : false,
+          "maxProperties" : 9,
+          "minProperties" : 9,
+          "properties" : {
+            "firstName" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 50,
+              "minLength" : 0
+            },
+            "lastName" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 50,
+              "minLength" : 0
+            },
+            "photoURL" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "offset" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "length" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "type" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "AGENT", "TEAM" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "email" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+            },
+            "zuid" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "email", "firstName", "id", "lastName", "length", "offset", "photoURL", "type", "zuid" ]
+        },
+        "uniqueItems" : false
+      }
+    },
+    "responses" : {
+      "listEventComment" : {
+        "description" : "listEventComment template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "mention" : {
+                          "$ref" : "#/components/schemas/mention"
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./EventComments.json#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : null,
+                    "commentedTime" : 1485270287000,
+                    "id" : "4000000530005",
+                    "contentType" : "plainText",
+                    "commenterId" : "4000000008692",
+                    "content" : "Sample zsu[@user:55616589]zsu and zsu[@team:31138000001254025_new team]zsu testing",
+                    "mention" : [ {
+                      "firstName" : "",
+                      "lastName" : "pandees",
+                      "photoURL" : null,
+                      "offSet" : "7",
+                      "length" : "28",
+                      "id" : "31138000000573164",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "zuid" : "55616589"
+                    }, {
+                      "offSet" : "39",
+                      "length" : "46",
+                      "name" : "new team",
+                      "id" : "31138000001254025",
+                      "type" : "TEAM"
+                    } ],
+                    "commenter" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/4000000008692/photo",
+                      "name" : "Jade Tywin",
+                      "roleName" : "LightAgent",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  }, {
+                    "modifiedTime" : 1485269780000,
+                    "attachments" : [ {
+                      "size" : "12734",
+                      "name" : "Attachment_list.png",
+                      "id" : "4000000008994",
+                      "href" : "https://desk.zoho.com/api/v1/events/4000000528005/comments/4000000529001/attachments/4000000008994/content"
+                    } ],
+                    "commentedTime" : 1485269673000,
+                    "id" : "4000000530003",
+                    "contentType" : "html",
+                    "commenterId" : "4000000008692",
+                    "content" : "Edit Event comment",
+                    "mention" : [ ],
+                    "commenter" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/portalUser/4000000008692/photo",
+                      "name" : "Jade Tywin",
+                      "roleName" : "PortalUser",
+                      "type" : "END_USER",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getEventComment" : {
+        "description" : "getEventComment template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/addEventComment"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "mention" : {
+                    "$ref" : "#/components/schemas/mention"
+                  }
+                }
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : null,
+                  "attachments" : [ {
+                    "size" : "12734",
+                    "name" : "Attachment.png",
+                    "id" : "4000000008994",
+                    "href" : "https://desk.zoho.com/api/v1/events/4000000528005/comments/4000000529001/attachments/4000000008994/content"
+                  } ],
+                  "commentedTime" : 1485269673534,
+                  "id" : "4000000530003",
+                  "contentType" : "html",
+                  "content" : "First Event comment.",
+                  "commenterId" : "4000000008692",
+                  "commenter" : {
+                    "firstName" : "Jade",
+                    "lastName" : "Tywin",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/4000000008692/photo",
+                    "name" : "Jade Tywin",
+                    "roleName" : "LightAgent",
+                    "type" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "addEventComment" : {
+        "description" : "addEventComment template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/addEventComment"
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : null,
+                  "attachments" : [ {
+                    "size" : "12734",
+                    "name" : "Attachment.png",
+                    "id" : "4000000008994",
+                    "href" : "https://desk.zoho.com/api/v1/events/4000000528005/comments/4000000529001/attachments/4000000008994/content"
+                  } ],
+                  "commentedTime" : 1485269673534,
+                  "id" : "4000000530003",
+                  "contentType" : "html",
+                  "content" : "First Event comment.",
+                  "commenterId" : "4000000008692",
+                  "commenter" : {
+                    "firstName" : "Jade",
+                    "lastName" : "Tywin",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/4000000008692/photo",
+                    "name" : "Jade Tywin",
+                    "roleName" : "LightAgent",
+                    "type" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "eventId" : {
+        "name" : "eventId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "commentId" : {
+        "name" : "commentId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "addEventCommentRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "html", "plainText" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "content" : "Edit Event comment"
+                }
+              }
+            }
+          }
+        }
+      },
+      "createComment_addEventCommentRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "html", "plainText" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "content" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contentType" : "html",
+                  "content" : "First Event comment."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "EventComments"
+}

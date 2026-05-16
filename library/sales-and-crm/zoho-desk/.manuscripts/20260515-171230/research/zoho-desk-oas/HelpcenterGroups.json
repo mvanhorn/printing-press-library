@@ -1,0 +1,1040 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "HelpcenterGroups",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/groups/{groupId}/users" : {
+      "get" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "List users in a group",
+        "description" : "This API lists a particular number of users in a group, based on the limit defined.",
+        "operationId" : "getHelpCenterGroupUsers",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/groupId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/userListViewJson"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.settings.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/groups/{groupId}" : {
+      "get" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "Get details of group",
+        "description" : "This API fetches the details of a particular user group.",
+        "operationId" : "getHelpCenterGroup",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/groupId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addGroupResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "Delete helpcenter user group",
+        "description" : "This API deletes a user group from your help center.",
+        "operationId" : "deleteHelpCenterUserGroup",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/groupId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.DELETE", "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "Update group",
+        "description" : "This API helps update the details of a user group.",
+        "operationId" : "updateHelpCenterUserGroup",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/groupId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateGroupInput"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addGroupResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/groups/{groupId}/users/remove" : {
+      "post" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "Remove users from group",
+        "description" : "This API removes particular users from a group. ",
+        "operationId" : "deleteHCGroupUsers",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/groupId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/removeUserInput"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/groups" : {
+      "get" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "List helpcenter groups",
+        "description" : "This API lists a particular number of groups, based on the limit defined.",
+        "operationId" : "getHelpCenterGroupList",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of groups to list. The default value and the maximum value allowed is 50.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of groups to list. The default value and the maximum value allowed is 50.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "searchBy",
+          "in" : "query",
+          "description" : "Search keyword to use for finding a particular group The keyword must contain at least two characters.        Three types of search are supported: @keyword*@ (search for values that start with the keyword, @*keyword*@ (search for values that contain the keyword),          and @keyword@ (search for values that are exact matches of the keyword).",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Search keyword to use for finding a particular group The keyword must contain at least two characters.        Three types of search are supported: @keyword*@ (search for values that start with the keyword, @*keyword*@ (search for values that contain the keyword),          and @keyword@ (search for values that are exact matches of the keyword).",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the groups must be fetched. The default value is 1. ",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the groups must be fetched. The default value is 1. ",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the list of groups by a particular attribute: -(@createdTime@, @modifiedTime@, @name@, or @count@)",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts the list of groups by a particular attribute: -(@createdTime@, @modifiedTime@, @name@, or @count@)",
+            "enum" : [ "name", "modifiedTime", "createdTime", "count" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "helpCenterId",
+          "in" : "query",
+          "description" : "ID of the help center from which the resource must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the help center from which the resource must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/listOfGroupResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "Create user groups",
+        "description" : "This API creates a user group in your help center.",
+        "operationId" : "addHelpCenterGroup",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addGroupInput"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addGroupResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.CREATE", "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/groups/{groupId}/users/add" : {
+      "post" : {
+        "tags" : [ "HelpcenterGroups" ],
+        "summary" : "Add users to group",
+        "description" : "This API adds users to a particular group.",
+        "operationId" : "addHelpCenterGroupUsers",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/groupId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addUserInput"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "userDefaultJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoUrl" ]
+      },
+      "userDetailJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./HelpcenterGroups.json#/components/schemas/userDefaultJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "emailAddress" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+            },
+            "creator" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "maxProperties" : 3,
+              "minProperties" : 3,
+              "properties" : {
+                "photoUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "id", "name", "photoUrl" ]
+            },
+            "addedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "userType" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "ENDUSER", "SUPPORTREP" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "label" : {
+              "$ref" : "./Label.json#/components/schemas/labelMetaResponse"
+            },
+            "status" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "ACTIVE", "DISABLED", "DELETED" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "addedTime", "creator", "emailAddress", "label", "status", "userType" ]
+        } ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./HelpcenterGroups.json#/components/schemas/userDetailJson"
+        }
+      },
+      "addGroupResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "creator" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 3,
+            "minProperties" : 3,
+            "properties" : {
+              "photoUrl" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+              },
+              "name" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              },
+              "id" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            },
+            "required" : [ "id", "name", "photoUrl" ]
+          },
+          "modifier" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 3,
+            "minProperties" : 3,
+            "properties" : {
+              "photoUrl" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+              },
+              "name" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              },
+              "id" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            },
+            "required" : [ "id", "name", "photoUrl" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "count" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "helpCenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isAssociated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "logoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "count", "createdTime", "creator", "description", "helpCenterId", "id", "isAssociated", "logoUrl", "modifiedTime", "modifier", "name", "status" ]
+      },
+      "groupsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./HelpcenterGroups.json#/components/schemas/addGroupResponse"
+        }
+      },
+      "groupIdsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "groupMetaResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "addedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "helpCenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "logoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "addedTime", "helpCenterId", "id", "logoUrl", "name", "status" ]
+      }
+    },
+    "responses" : {
+      "userListViewJson" : {
+        "description" : "userListViewJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./HelpcenterGroups.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "photoUrl" : null,
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/portal/api/user/24073000000095005/photo?orgId=143315",
+                      "name" : "ZylCare Admin",
+                      "id" : "24073000000095005"
+                    },
+                    "emailAddress" : "PII_EMAIL_SENTINEL",
+                    "name" : "John ",
+                    "addedTime" : 1573225059000,
+                    "userType" : "ENDUSER",
+                    "label" : {
+                      "preferences" : {
+                        "shape" : "RECTANGLE",
+                        "bgColor" : "#6CD4DF",
+                        "textColor" : "#FFFFFF"
+                      },
+                      "name" : "Prime Customer",
+                      "id" : "24073000002132001"
+                    },
+                    "id" : "24073000001997453",
+                    "status" : "ACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "addGroupResponse" : {
+        "description" : "addGroupResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "creator" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 3,
+                  "minProperties" : 3,
+                  "properties" : {
+                    "photoUrl" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "id", "name", "photoUrl" ]
+                },
+                "modifier" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 3,
+                  "minProperties" : 3,
+                  "properties" : {
+                    "photoUrl" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "id", "name", "photoUrl" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "helpCenterId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "isAssociated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "logoUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "DISABLED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "count", "createdTime", "creator", "description", "helpCenterId", "id", "isAssociated", "logoUrl", "modifiedTime", "modifier", "name", "status" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1505797130000,
+                  "creator" : {
+                    "photoURL" : "https://desk.zoho.com/portal/api/user/6000000015895/photo?orgId=143315",
+                    "name" : "SupportAdmin",
+                    "id" : "310975130121"
+                  },
+                  "modifier" : {
+                    "photoURL" : "https://desk.zoho.com/portal/api/user/6000000015895/photo?orgId=143315",
+                    "name" : "SupportAdmin",
+                    "id" : "310975130121"
+                  },
+                  "name" : "Prime Customer",
+                  "count" : "0",
+                  "description" : "Prime customer will have special access to Knowledge base module and Community categories",
+                  "createdTime" : 1505797130000,
+                  "id" : "310975134902",
+                  "helpCenterId" : "31097519102",
+                  "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/310975130121?portalId=5c9470fcc808cc98932703e28221d6c302e105dc4da8b23fafb6719abeecaa48",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "listOfGroupResponse" : {
+        "description" : "listOfGroupResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./HelpcenterGroups.json#/components/schemas/groupsArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1505797130000,
+                    "creator" : {
+                      "photoURL" : "https://desk.zoho.com/portal/api/user/310975130121/photo?orgId=143315",
+                      "name" : "SupportAdmin",
+                      "id" : "310975130121"
+                    },
+                    "modifier" : {
+                      "photoURL" : "https://desk.zoho.com/portal/api/user/310975130121/photo?orgId=143315",
+                      "name" : "SupportAdmin",
+                      "id" : "310975130121"
+                    },
+                    "name" : "Pro Customer",
+                    "count" : "353",
+                    "description" : "Pro Customers paid customers of the org will avail 24x7 Support service",
+                    "createdTime" : 1505797130000,
+                    "id" : "310975130110",
+                    "helpCenterId" : "310975130119",
+                    "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/310975130133?portalId=5c9470fcc808cc98932703e28221d6c302e105dc4da8b23fafb6719abeecaa48",
+                    "status" : "ACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "groupId" : {
+        "name" : "groupId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "removeUserInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "userIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "userIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "userIds" : [ "17883000000013101", "17883000000094023" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateGroupInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the group",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "A brief description of the group",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "logoId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the logo to associate with the group",
+                  "pattern" : "([0-9]+)"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "name" : "MVP Customer",
+                  "description" : "Prime customer will have special access to Knowledge base module and Community categories",
+                  "logoId" : "310975130133",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addGroupInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the group",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "A brief description of the group",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "helpCenterId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the help center in which the group must be created",
+                  "pattern" : "([0-9]+)"
+                },
+                "logoId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the logo to associate with the group",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "helpCenterId", "name" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "name" : "Prime Customer",
+                  "description" : "Prime customer will have special access to Knowledge base module and Community categories",
+                  "helpCenterId" : "31097519102",
+                  "logoId" : "310975130121"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addUserInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "labelIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "groupIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "users" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 1,
+                    "minProperties" : 1,
+                    "properties" : {
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "id" ]
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : true
+                }
+              },
+              "required" : [ "users" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "users" : [ {
+                    "id" : "17883000000094001"
+                  }, {
+                    "id" : "17883000000094023"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "groupIds" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "groupIds" : {
+                  "$ref" : "./HelpcenterGroups.json#/components/schemas/groupIdsArr"
+                }
+              },
+              "required" : [ "groupIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "groupIds" : [ "24073000002957051", "24073000002932512", "24073000002953232" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "HelpcenterGroups"
+}

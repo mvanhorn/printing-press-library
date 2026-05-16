@@ -1,0 +1,115 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Statistics",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "responses" : {
+      "statisticsResponse" : {
+        "description" : "statisticsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "firstResponseTime" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "openTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "responseTime" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "spamTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "totalTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "customerHappiness" : {
+                  "$ref" : "./CustomerHappiness.json#/components/schemas/customerHappiness"
+                },
+                "resolutionTime" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "closedTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "channelWiseCount" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false
+                },
+                "escalatedTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "onholdTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "overdueTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "channelWiseCount", "closedTickets", "customerHappiness", "escalatedTickets", "firstResponseTime", "onholdTickets", "openTickets", "overdueTickets", "resolutionTime", "responseTime", "spamTickets", "totalTickets" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "firstResponseTime" : "120000",
+                  "openTickets" : "11",
+                  "responseTime" : "13150000",
+                  "spamTickets" : "0",
+                  "totalTickets" : "31",
+                  "customerHappiness" : {
+                    "badCount" : "50",
+                    "goodCount" : "0",
+                    "okCount" : "50"
+                  },
+                  "closedTickets" : "20",
+                  "resolutionTime" : "0",
+                  "channelWiseCount" : {
+                    "Web" : "15",
+                    "Forums" : "15",
+                    "Chat" : "1"
+                  },
+                  "onholdTickets" : "0",
+                  "escalatedTickets" : "0",
+                  "overdueTickets" : "0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Statistics"
+}

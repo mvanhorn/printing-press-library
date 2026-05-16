@@ -1,0 +1,323 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ArticleAttachment",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/articles/{articleId}/translations/{locale}/dissociateAttachments" : {
+      "post" : {
+        "tags" : [ "ArticleAttachment" ],
+        "summary" : "Dissociate attachments from translation",
+        "description" : "This API removes the file attachments from a translation.",
+        "operationId" : "removeAttachmentsFromArticleTranslation",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "./FAQTranslation.json#/components/requestBodies/dissociateAttachmentsFromFAQRequestBody"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articleAttachments" : {
+      "post" : {
+        "tags" : [ "ArticleAttachment" ],
+        "summary" : "Upload attachments",
+        "description" : "This API uploads files to your portal gallery.",
+        "operationId" : "uploadArticleAttachments",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/attachmentType"
+        }, {
+          "name" : "workspaceId",
+          "in" : "query",
+          "description" : "Workspace id to which the attachment should be uploaded",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Workspace id to which the attachement should be uploaded",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([a-zA-Z0-9]{37}|-1)$"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/uploadArticleAttachmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/{articleId}/translations/{locale}/attachments" : {
+      "get" : {
+        "tags" : [ "ArticleAttachment" ],
+        "summary" : "Get attachments",
+        "description" : "This API fetches the files attached to an article translation.",
+        "operationId" : "getArticleTranslationAttachments",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of attachments to fetch",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int32",
+            "description" : "Number of attachments to fetch",
+            "maximum" : 30,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number starting from which the article attachments must be fetched.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number starting from which the article attachments must be fetched.",
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./FAQTranslation.json#/components/responses/articleAttachments"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "ArticleAttachment" ],
+        "summary" : "Upload and associate attachments",
+        "description" : "This API uploads the files to the gallery section and attaches them to an article translation",
+        "operationId" : "addArticleTranslationAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/attachmentType"
+        }, {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "file" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./FAQ.json#/components/responses/attachments"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/{articleId}/translations/{locale}/associateAttachments" : {
+      "post" : {
+        "tags" : [ "ArticleAttachment" ],
+        "summary" : "Attach files to translation",
+        "description" : "This API attaches the files selected from the gallery to an article translation.",
+        "operationId" : "associateAttachmentsToArticleTranslation",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "./FAQTranslation.json#/components/requestBodies/associateAttachmentsWithFAQRequestBody"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./FAQTranslation.json#/components/responses/articleAttachments"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "uploadArticleAttachmentResponse" : {
+        "description" : "uploadArticleAttachmentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "resourceId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([a-zA-Z0-9]{37}|-1)$"
+                },
+                "extension" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 500,
+                  "minLength" : 0
+                },
+                "filesize" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "url" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                }
+              },
+              "required" : [ "extension", "filesize", "name", "resourceId", "url" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "resourceId" : "96b17694d63cd0f03eadbe4ae534f4ba993bb0",
+                  "extension" : "png",
+                  "name" : "Screen Shot 2018-12-28 at 7.21.58 PM.png",
+                  "filesize" : "62",
+                  "url" : "https://desk.zoho.com/galleryDocuments/edbsnf8e40a0174a649fa9b698be5f73211329e2a7513daad01207c771fbf50e1b3e33f3f5c1d654f5a4c7805862493f6bb8a?inline=true"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "attachmentType" : {
+        "name" : "attachmentType",
+        "in" : "query",
+        "description" : "Attachment type. Allowed values @file@, @blob@",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "string",
+          "description" : "Attachment type. Allowed values @file@, @blob@",
+          "enum" : [ "file" ]
+        }
+      },
+      "articleId" : {
+        "name" : "articleId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "locale" : {
+        "name" : "locale",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "ArticleAttachment"
+}

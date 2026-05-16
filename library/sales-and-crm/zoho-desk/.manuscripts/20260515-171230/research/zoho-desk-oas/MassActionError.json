@@ -1,0 +1,48 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "MassActionError",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "massActionErrorResponse" : {
+        "type" : [ "object", "null" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "errorCode" : {
+            "type" : "string",
+            "enum" : [ "UNPROCESSABLE_ENTITY", "UNAUTHORIZED", "FORBIDDEN", "INVALID_DATA", "SCHEDULED", "SUCCESS" ]
+          },
+          "httpCode" : {
+            "type" : [ "string", "integer" ],
+            "enum" : [ "401", "403", "422", "202", "200", 401, 403, 422, 202, 200 ]
+          },
+          "errorMessage" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "errorJson" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "error" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "errorCode", "httpCode" ]
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "MassActionError"
+}

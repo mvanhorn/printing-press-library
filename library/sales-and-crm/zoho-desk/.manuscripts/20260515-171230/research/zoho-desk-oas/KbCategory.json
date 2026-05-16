@@ -1,0 +1,116 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "KbCategory",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/kbCategory/{categoryId}/repositionArticles" : {
+      "get" : {
+        "tags" : [ "KbCategory" ],
+        "summary" : "Get articles for manual sorting",
+        "description" : "This API lists the positions of help articles to enable manual sorting. Only leaf categories that have a maximum of 1000 articles can be repositioned.",
+        "operationId" : "getArticlesForRepositioning",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/categoryId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "./Article.json#/components/responses/listAllArticleForRepositioning"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "KbCategory" ],
+        "summary" : "Update article position",
+        "description" : "This API helps you manually sort articles in your knowledge base. Only leaf categories that have a maximum of 1000 articles can be repositioned.",
+        "operationId" : "updateKBArticlesRepositioning",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/categoryId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "./Article.json#/components/requestBodies/articleIdsJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "groupJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "logoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "id", "logoUrl", "name" ]
+      },
+      "groupJsonArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./KbCategory.json#/components/schemas/groupJson"
+        }
+      }
+    },
+    "parameters" : {
+      "categoryId" : {
+        "name" : "categoryId",
+        "in" : "path",
+        "description" : "To get individual category details",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "To get individual category details",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "KbCategory"
+}

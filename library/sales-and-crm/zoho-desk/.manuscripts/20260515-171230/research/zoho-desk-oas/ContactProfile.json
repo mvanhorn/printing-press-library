@@ -1,0 +1,165 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ContactProfile",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/contacts/{contactId}/profiles" : {
+      "get" : {
+        "tags" : [ "ContactProfile" ],
+        "summary" : "Get Contact Profiles",
+        "description" : "This api fetches the list of profiles of this contact from various channels.",
+        "operationId" : "getContactProfiles",
+        "parameters" : [ {
+          "name" : "contactId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getContactProfilesResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "source" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "appName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "appPhotoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "appName", "appPhotoURL", "permalink" ]
+      },
+      "getContactProfileResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "displayName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z0-9_\\-]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "source" : {
+            "$ref" : "./ContactProfile.json#/components/schemas/source"
+          }
+        },
+        "required" : [ "channel", "displayName", "id", "name", "photoURL", "source" ]
+      },
+      "getContactProfilesArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ContactProfile.json#/components/schemas/getContactProfileResponse"
+        }
+      }
+    },
+    "responses" : {
+      "getContactProfilesResponse" : {
+        "description" : "getContactProfilesResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./ContactProfile.json#/components/schemas/getContactProfilesArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "photoURL" : "https://www.youtube.com/user/iwe3in2/photo",
+                    "displayName" : "Jade Vlogs",
+                    "name" : "Jade Zylker",
+                    "channel" : "YOUTUBE",
+                    "id" : "PII_PHONE_SENTINEL",
+                    "source" : {
+                      "appName" : "Youtube Sync App",
+                      "permalink" : "https://www.examplechannel.com/apps/redirect.php?entity=profile&id=3290dweiod",
+                      "appPhotoURL" : "https://desk.zoho.com/api/v1/channels/youtube/photo?orgId=666236571"
+                    }
+                  }, {
+                    "photoURL" : "https://www.intagram.com/johninsta/photo",
+                    "displayName" : "John Insta",
+                    "name" : "John Zylker",
+                    "channel" : "INSTAGRAM",
+                    "id" : "PII_PHONE_SENTINEL",
+                    "source" : {
+                      "appName" : "Instagram Syncing App",
+                      "permalink" : "https://www.examplechannel.com/apps/redirect.php?entity=profile&id=3290dweiod",
+                      "appPhotoURL" : "https://desk.zoho.com/api/v1/channels/instagram/photo?orgId=666236571"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "ContactProfile"
+}

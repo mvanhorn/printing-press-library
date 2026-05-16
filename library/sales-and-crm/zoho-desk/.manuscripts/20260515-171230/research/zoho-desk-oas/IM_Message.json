@@ -1,0 +1,511 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "IM_Message",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/im/channels/{channelId}/initiateSession" : {
+      "post" : {
+        "tags" : [ "IM_Message" ],
+        "summary" : "Initiate Session",
+        "description" : "This API initiates a session with a template message",
+        "operationId" : "initiateSessionUsingTemplate",
+        "parameters" : [ {
+          "name" : "channelId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/initiateSessionUsingTemplate"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getMessage_listView"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.InstantMessages.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/channels/{channel_id}/photo" : {
+      "post" : {
+        "tags" : [ "IM_Message" ],
+        "summary" : "Update Channel logo",
+        "description" : "This API updates the logo for the given channel. Logo of SYSTEM channels cannot be updated.",
+        "operationId" : "uploadChannelPhoto",
+        "parameters" : [ {
+          "name" : "channel_id",
+          "in" : "path",
+          "description" : "",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z0-9_\\-]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "photo" : {
+                    "type" : "string",
+                    "format" : "binary",
+                    "description" : ""
+                  }
+                },
+                "required" : [ "photo" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "meta" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./IM_Session.json#/components/schemas/meta"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "BOT_REPLY_STATUS" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "GC_TRANSFERRED" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "COST" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "RATING_STAR" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "DESK_KB_ARTICLE_TRANSLATION_ID" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "REACTION" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "GC_SELECTED" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "GC_SKIPPED" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "BOT_REPLY_STATUS", "COST", "DESK_KB_ARTICLE_TRANSLATION_ID", "GC_SELECTED", "GC_SKIPPED", "GC_TRANSFERRED", "RATING_STAR", "REACTION" ]
+        } ]
+      },
+      "attachment" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "size" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9]+"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "url" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "id", "name", "size", "type", "url" ]
+      },
+      "infoMessageTarget" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./IM_Channel.json#/components/schemas/agent"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "deskActorId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "deskActorId" ]
+        } ]
+      },
+      "infoMessageTargets" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./IM_Message.json#/components/schemas/infoMessageTarget"
+        }
+      },
+      "info" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actor" : {
+            "$ref" : "./IM_Session.json#/components/schemas/sessionActor"
+          },
+          "sessionStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "CREATED", "OPEN", "ON_PROGRESS", "ON_HOLD", "ENDED", "BLOCKED", "MISSED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "action" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "UN_IDENTIFIED", "END_SESSION", "BLOCK_SESSION", "UNBLOCK_SESSION", "CHAT_ACCEPT", "CHAT_REOPEN", "CHAT_TRANSFER", "ADD_PARTICIPANT", "REMOVE_PARTICIPANT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "targets" : {
+            "$ref" : "./IM_Message.json#/components/schemas/infoMessageTargets"
+          }
+        },
+        "required" : [ "action", "actor", "sessionStatus", "targets" ]
+      },
+      "location" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "latitude" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "longitude" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "latitude", "longitude" ]
+      },
+      "article" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65553,
+            "minLength" : 0
+          },
+          "owner" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/owner"
+          },
+          "translationId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "createdTime", "id", "owner", "summary", "title", "translationId", "webUrl" ]
+      },
+      "getMessage_listview_main" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "kbArticle" : {
+            "$ref" : "./IM_Message.json#/components/schemas/article"
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "isRead" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "index" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9]+"
+          },
+          "sessionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "TEXT", "INFO", "ATTACHMENT", "LOCATION", "TEMPLATE", "CAROUSEL", "LAYOUT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketWebUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "actor" : {
+            "$ref" : "./IM_Session.json#/components/schemas/sessionActor"
+          },
+          "displayMessage" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "attachment" : {
+            "$ref" : "./IM_Message.json#/components/schemas/attachment"
+          },
+          "meta" : {
+            "$ref" : "./IM_Message.json#/components/schemas/meta"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "statusUpdatedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "location" : {
+            "$ref" : "./IM_Message.json#/components/schemas/location"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "text/html", "text/plain", "application/json" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "IN", "OUT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SAVED", "QUEUED", "SENT", "DELIVERED", "READ", "FAILED", "DELETED", "MISSED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "info" : {
+            "$ref" : "./IM_Message.json#/components/schemas/info"
+          }
+        },
+        "required" : [ "actor", "attachment", "contentType", "createdTime", "direction", "displayMessage", "fullContentURL", "id", "index", "info", "isRead", "kbArticle", "location", "meta", "sessionId", "status", "statusUpdatedTime", "ticketWebUrl", "type" ]
+      },
+      "replyToMessage" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./IM_Message.json#/components/schemas/getMessage_listview_main"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "replyToMessage" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false
+            }
+          },
+          "required" : [ "replyToMessage" ]
+        } ]
+      },
+      "messageMetaArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./IM_Channel.json#/components/schemas/listOfIMChanneMeta"
+        }
+      }
+    },
+    "responses" : {
+      "getMessage_listView" : {
+        "description" : "getMessage_listView template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./IM_Message.json#/components/schemas/getMessage_listview_main"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "replyToMessage" : {
+                    "$ref" : "./IM_Message.json#/components/schemas/replyToMessage"
+                  }
+                },
+                "required" : [ "replyToMessage" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "initiateSessionUsingTemplate" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "receiverId" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "ID to which Message Has to be sent",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "receiverType" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Specifies receiverID type. Allowed value @PHONENUMBER@",
+                  "enum" : [ "PHONENUMBER" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "meta" : {
+                  "$ref" : "./IM_Message.json#/components/schemas/messageMetaArray"
+                },
+                "cannedMessageId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "TemplateMessageId to send that template",
+                  "pattern" : "([0-9]+)"
+                },
+                "language" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Language of Translation. Enter this input in ISO language code. For example @en@, @fr@, @de@, @bn@, @ta@ etc",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "af|sq|ar|az|bn|bg|ca|zh_CN|zh_HK|zh_TW|hr|cs|da|nl|en_GB|en_US|et|fil|fi|fr|ka|de|el|gu|ha|he|hi|hu|id|ga|it|ja|kn|kk|rw_RW|ko|ky_KG|lo|lv|lt|mk|ms|ml|mr|nb|fa|pl|pt_BR|pt_PT|pa|ro|ru|sr|sk|sl|es|es_AR|es_ES|es_MX|sw|sv|ta|te|th|tr|uk|ur|uz|vi|zu|en"
+                },
+                "message" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Content of the message",
+                  "maxLength" : 65535,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "cannedMessageId", "language", "message", "receiverId", "receiverType" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "receiverId" : "109000000002003",
+                  "receiverType" : "PHONENUMBER",
+                  "cannedMessageId" : "3942000001074175",
+                  "language" : "en",
+                  "message" : "Welcome to Tasty Bakery. What would you like to eat?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "IM_Message"
+}

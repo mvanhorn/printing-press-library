@@ -1,0 +1,634 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TicketApprovals",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/approvals" : {
+      "get" : {
+        "tags" : [ "TicketApprovals" ],
+        "summary" : "List approvals",
+        "description" : "This API lists the approvals submitted in your help desk.",
+        "operationId" : "getTicketApprovals",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listApprovalsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "TicketApprovals" ],
+        "summary" : "Create approval",
+        "description" : "This API creates an approval in your help desk.",
+        "operationId" : "createTicketApproval",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addApproval"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/addApprovalResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/approvals/{approvalId}" : {
+      "get" : {
+        "tags" : [ "TicketApprovals" ],
+        "summary" : "Get approval",
+        "description" : "This API fetches the details of an approval.",
+        "operationId" : "getTicketApproval",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/approvalId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getApprovalResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "TicketApprovals" ],
+        "summary" : "Update approval",
+        "description" : "This API updates the details of an existing ticket approval.",
+        "operationId" : "updateTicketApproval",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/approvalId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateApproval"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/updateApprovalResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "approvalActor" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "approvalDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "approver" : {
+            "$ref" : "./TicketApprovals.json#/components/schemas/approvalActor"
+          },
+          "requester" : {
+            "$ref" : "./TicketApprovals.json#/components/schemas/approvalActor"
+          },
+          "requestedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Approved", "Rejected", "Pending" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "processedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+          }
+        },
+        "required" : [ "approver", "description", "id", "processedTime", "requestedTime", "requester", "status", "subject" ]
+      },
+      "listApprovalsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./TicketApprovals.json#/components/schemas/approvalDetails"
+        }
+      }
+    },
+    "responses" : {
+      "listApprovalsResponse" : {
+        "description" : "listApprovalsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./TicketApprovals.json#/components/schemas/listApprovalsData"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "approver" : {
+                      "firstName" : "",
+                      "lastName" : "raj",
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000015001/photo",
+                      "id" : "4000000015001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "requester" : {
+                      "firstName" : "",
+                      "lastName" : "saran",
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000012629/photo",
+                      "id" : "4000000012629",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "requestedTime" : 1466514974000,
+                    "subject" : "Testing",
+                    "description" : "testing",
+                    "id" : "1892000001054081",
+                    "status" : "Approved",
+                    "processedTime" : 1517998355000
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getApprovalResponse" : {
+        "description" : "getApprovalResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "approver" : {
+                    "$ref" : "./TicketApprovals.json#/components/schemas/approvalActor"
+                  },
+                  "requester" : {
+                    "$ref" : "./TicketApprovals.json#/components/schemas/approvalActor"
+                  },
+                  "requestedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                  },
+                  "subject" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 1000,
+                    "minLength" : 0
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "status" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Approved", "Rejected", "Pending" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "processedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                  }
+                },
+                "required" : [ "approver", "description", "id", "processedTime", "requestedTime", "requester", "status", "subject" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "approver" : {
+                    "firstName" : "saran",
+                    "lastName" : "raj",
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000015001/photo",
+                    "id" : "4000000015001",
+                    "email" : null
+                  },
+                  "requester" : {
+                    "firstName" : "aravind",
+                    "lastName" : "a",
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000012629/photo",
+                    "id" : "4000000012629",
+                    "email" : null
+                  },
+                  "requestedTime" : 1466514974000,
+                  "subject" : "Testing",
+                  "processedTime " : 1517998355000,
+                  "description" : "testing",
+                  "id" : "1892000001054081",
+                  "status" : "Rejected"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addApprovalResponse" : {
+        "description" : "addApprovalResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "approvals" : {
+                    "$ref" : "./TicketApprovals.json#/components/schemas/listApprovalsData"
+                  }
+                },
+                "required" : [ "approvals" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "approvals" : [ {
+                    "approver" : {
+                      "firstName" : "saran",
+                      "lastName" : "raj",
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000015001/photo",
+                      "id" : "4000000015001",
+                      "email" : null
+                    },
+                    "requester" : {
+                      "firstName" : "aravind",
+                      "lastName" : "a",
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000012629/photo",
+                      "id" : "4000000012629",
+                      "email" : null
+                    },
+                    "requestedTime" : 1466514974000,
+                    "subject" : "Testing",
+                    "description" : "testing",
+                    "id" : "1892000001054081",
+                    "status" : "PENDING",
+                    "processedTime" : null
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateApprovalResponse" : {
+        "description" : "updateApprovalResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "approver" : {
+                    "$ref" : "./TicketApprovals.json#/components/schemas/approvalActor"
+                  },
+                  "requester" : {
+                    "$ref" : "./TicketApprovals.json#/components/schemas/approvalActor"
+                  },
+                  "requestedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                  },
+                  "subject" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 1000,
+                    "minLength" : 0
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "status" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Approved", "Rejected", "Pending" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "processedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                  }
+                },
+                "required" : [ "approver", "description", "id", "processedTime", "requestedTime", "requester", "status", "subject" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "approver" : {
+                    "firstName" : "saran",
+                    "lastName" : "raj",
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000015001/photo",
+                    "id" : "4000000015001",
+                    "email" : null
+                  },
+                  "requester" : {
+                    "firstName" : "aravind",
+                    "lastName" : "a",
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agent/4000000012629/photo",
+                    "id" : "4000000012629",
+                    "email" : null
+                  },
+                  "requesterId" : "1892000000042001",
+                  "requestedTime" : 1466514974000,
+                  "approverId" : "1892000000042001",
+                  "subject" : "Testing",
+                  "description" : "testing",
+                  "id" : "1892000001054081",
+                  "status" : "Approved",
+                  "processedTime" : 1517998355000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "approvalId" : {
+        "name" : "approvalId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "addApproval" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "approverIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "approverIds", "subject" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "approverIds" : [ "1892000000042001" ],
+                  "subject" : "New approval",
+                  "description" : "new app desc"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateApproval" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "Approved", "Rejected" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "status" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "status" : "Approved/Rejected"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TicketApprovals"
+}

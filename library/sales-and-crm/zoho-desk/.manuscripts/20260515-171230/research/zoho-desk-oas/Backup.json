@@ -1,0 +1,448 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Backup",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/bulkExport" : {
+      "post" : {
+        "tags" : [ "Backup" ],
+        "summary" : "Initiate Bulk Export",
+        "description" : "To initiate module Exports.",
+        "operationId" : "initiateBulkExport",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/getExportReqpObj"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getExportRespObject"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.exports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/bulkExport/{exportId}" : {
+      "get" : {
+        "tags" : [ "Backup" ],
+        "summary" : "Get Bulk Export",
+        "description" : "To get Bulk Export details.",
+        "operationId" : "getBulkExport",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/exportId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getExportRespObject"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.exports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/downloadBulkExportFile" : {
+      "get" : {
+        "tags" : [ "Backup" ],
+        "summary" : "Download Bulk Export File",
+        "description" : "To download the exported data as a ZIP file",
+        "operationId" : "downloadBulkExportFile",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/exportId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.exports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "criteriaFieldsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "null", "object" ],
+          "additionalProperties" : false,
+          "maxProperties" : 3,
+          "minProperties" : 3,
+          "properties" : {
+            "condition" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "field" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "maxProperties" : 3,
+              "minProperties" : 3,
+              "properties" : {
+                "apiName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\s\\P{InBasicLatin}.$@,\\?\\:]+"
+                },
+                "fieldLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "apiName", "fieldLabel", "module" ]
+            },
+            "value" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "maxProperties" : 2,
+              "minProperties" : 2,
+              "properties" : {
+                "primitive" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 1,
+                    "minProperties" : 1,
+                    "properties" : {
+                      "key" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      }
+                    },
+                    "required" : [ "key" ]
+                  },
+                  "uniqueItems" : false
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "primitive", "type" ]
+            }
+          },
+          "required" : [ "condition", "field", "value" ]
+        }
+      },
+      "criteriaObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "criteriaFields" : {
+            "$ref" : "./Backup.json#/components/schemas/criteriaFieldsArr"
+          },
+          "criteriaPattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "criteriaFields", "criteriaPattern" ]
+      }
+    },
+    "responses" : {
+      "getExportRespObject" : {
+        "description" : "getExportRespObject template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedAfter" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "exportTimeFilter" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 4,
+                  "minProperties" : 4,
+                  "properties" : {
+                    "duration" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "endDate" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "filterField" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "startDate" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    }
+                  },
+                  "required" : [ "duration", "endDate", "filterField", "startDate" ]
+                },
+                "callBackUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "criteria" : {
+                  "$ref" : "./Backup.json#/components/schemas/criteriaObject"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets", "contacts", "departments", "agents", "products", "accounts", "tasks", "timeEntry", "solutions", "topics", "teams", "comments", "attachments", "calls", "events" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "fields" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                },
+                "exportId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "INITIATED", "INPROGRESS", "INIT_FAILED", "COMPLETED", "SUSPENDED", "FAILED", "DELETED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "limitPerFile" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "callBackUrl", "criteria", "exportId", "exportTimeFilter", "fields", "limitPerFile", "modifiedAfter", "module", "status" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedAfter" : 1557166837733,
+                  "callBackUrl" : "https://webhook.site/c57564f2-f262-4092-adc4-7c416d401d50",
+                  "viewId" : "5000000031695",
+                  "hasNextPage" : "false",
+                  "module" : "tickets",
+                  "departmentId" : "5000000031695",
+                  "fields" : [ "email", "subject", "status", "isSpam" ],
+                  "exportId" : "5000001003083",
+                  "limitPerFile" : "100000",
+                  "status" : "INITIATED"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "exportId" : {
+        "name" : "exportId",
+        "in" : "path",
+        "description" : "the id of the export which was initiated for first time",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "the id of the export which was initiated for first time",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "getExportReqpObj" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedAfter" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "exportTimeFilter" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 4,
+                  "minProperties" : 4,
+                  "properties" : {
+                    "duration" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "endDate" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "filterField" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "startDate" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    }
+                  },
+                  "required" : [ "duration", "endDate", "filterField", "startDate" ]
+                },
+                "callBackUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "apiNameAsHeader" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "criteria" : {
+                  "$ref" : "./Backup.json#/components/schemas/criteriaObject"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets", "contacts", "departments", "agents", "products", "accounts", "tasks", "timeEntry", "solutions", "topics", "teams", "comments", "attachments", "calls", "events" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "fields" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                },
+                "limitPerFile" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "module" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "modifiedAfter" : 1557166837733,
+                  "exportTimeFilter" : {
+                    "duration" : "CUSTOM_IN_DATE",
+                    "endDate" : "06-06-2024",
+                    "filterField" : "4000000250354",
+                    "startDate" : "06-05-2024"
+                  },
+                  "callBackUrl" : "https://webhook.site/c57564f2-f262-4092-adc4-7c416d401d50",
+                  "viewId" : "5000000031695",
+                  "criteria" : {
+                    "criteriaFields" : [ {
+                      "condition" : "is",
+                      "field" : {
+                        "apiName" : "contactId",
+                        "module" : "tickets",
+                        "fieldLabel" : "Contact Name"
+                      },
+                      "value" : {
+                        "primitive" : [ {
+                          "key" : "13735000002029311"
+                        } ],
+                        "type" : "primitive"
+                      }
+                    }, {
+                      "condition" : "is not empty",
+                      "field" : {
+                        "apiName" : "contactId",
+                        "module" : "tickets",
+                        "fieldLabel" : "Contact Name"
+                      },
+                      "value" : {
+                        "primitive" : [ ],
+                        "type" : "primitive"
+                      }
+                    }, {
+                      "condition" : "is CLOSED",
+                      "field" : {
+                        "apiName" : "status",
+                        "module" : "tickets",
+                        "fieldLabel" : "Status"
+                      },
+                      "value" : {
+                        "primitive" : [ ],
+                        "type" : "primitive"
+                      }
+                    } ],
+                    "criteriaPattern" : "((1and2)and3)"
+                  },
+                  "module" : "tickets",
+                  "departmentId" : "5000000031695",
+                  "fields" : [ "email", "subject", "status", "isSpam" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Backup"
+}

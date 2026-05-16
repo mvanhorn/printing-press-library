@@ -1,0 +1,440 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "AccountDeduplication",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/accountsDeduplication/defaultFieldName" : {
+      "get" : {
+        "tags" : [ "AccountDeduplication" ],
+        "summary" : "Get Default Field Name",
+        "description" : "This API fetches the name of the field set as the default field for account deduplication.",
+        "operationId" : "getDefaultFieldNameForAccountDeduplication",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getDefaultFieldResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "AccountDeduplication" ],
+        "summary" : "Set default field for account deduplication",
+        "description" : "This API sets the field you specify as the default field for deduplicating accounts.",
+        "operationId" : "setDefaultFieldNameForAccountDeduplication",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/setDefaultField"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./errors.json#/components/responses/commonErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/groupAccountDuplicateValues" : {
+      "get" : {
+        "tags" : [ "AccountDeduplication" ],
+        "summary" : "List duplicate accounts",
+        "description" : "This API lists the duplicate entries of an account.The _fieldName_ parameters is mandatory in the API request   <br/></br/>_Note:_<br/> If you encounter a 202 status code while executing this API request, it means there are 100,000 or more accounts in the help desk portal. Matching the records and finding duplicates will be time-consuming in such a scenario. Therefore, the deduplication request will be accepted, and after the process is completed, an automated report will be sent to the user who initiated the deduplication.",
+        "operationId" : "listGroupedDuplicateAccounts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/fieldName"
+        }, {
+          "name" : "swFieldValue",
+          "in" : "query",
+          "description" : "Key that specifies the letter with which the field values must start",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that specifies the letter with which the field values must start",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([a-z0-9*#])$"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the accounts by a specific attribute: @count@ or @fieldValue@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts the accounts by a specific attribute: @count@ or @fieldValue@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "count", "fieldValue" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listDuplicateAccountsCountsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/groupAccounts" : {
+      "get" : {
+        "tags" : [ "AccountDeduplication" ],
+        "summary" : "List details of duplicate accounts",
+        "description" : "This API lists all the details of duplicate accounts.The _fieldName_ and _fieldValues_ parameters are mandatory in the API request",
+        "operationId" : "listDuplicateAccounts",
+        "parameters" : [ {
+          "name" : "fieldName",
+          "in" : "query",
+          "description" : "Name of the field whose values must be matched for deduplication.Values allowed are: !@email,@! !@phone,@! and !@accountName@!",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the field whose values must be matched for deduplication.Values allowed are: !@email,@! !@phone,@! and !@accountName@!",
+            "enum" : [ "email", "phone", "accountName" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the accounts by a specific attribute: @accountName@ or @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts the accounts by a specific attribute: @accountName@ or @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "accountName", "createdTime" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "fieldValues",
+          "in" : "query",
+          "description" : "Actual values in each field related to the account",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Actual values in each field related to the account",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listDuplicateAccountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "accountsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Account.json#/components/schemas/accountListViewObject"
+        }
+      },
+      "duplicateResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "accounts" : {
+            "$ref" : "./AccountDeduplication.json#/components/schemas/accountsArray"
+          },
+          "fieldValue" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "accounts", "fieldValue" ]
+      },
+      "duplicateResponseData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./AccountDeduplication.json#/components/schemas/duplicateResponse"
+        }
+      }
+    },
+    "responses" : {
+      "getDefaultFieldResponse" : {
+        "description" : "getDefaultFieldResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "email", "phone", "accountName", null ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "fieldName" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "fieldName" : "email"
+                }
+              }
+            }
+          }
+        }
+      },
+      "listDuplicateAccountsCountsResponse" : {
+        "description" : "listDuplicateAccountsCountsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./ContactDeduplication.json#/components/schemas/counts"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "count" : 16,
+                    "fieldValue" : "Admin Account"
+                  }, {
+                    "count" : 2,
+                    "fieldValue" : "Agent Account"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "listDuplicateAccountResponse" : {
+        "description" : "listDuplicateAccountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./AccountDeduplication.json#/components/schemas/duplicateResponseData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "accounts" : [ {
+                      "website" : "112121",
+                      "accountName" : "Admin Account",
+                      "phone" : "121212",
+                      "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                      "createdTime" : 1424105864000,
+                      "zohoCRMAccount" : null,
+                      "id" : "1892000000052077",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }, {
+                      "website" : "112121",
+                      "accountName" : "Admin Account",
+                      "phone" : "121212",
+                      "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                      "createdTime" : 1424105864000,
+                      "zohoCRMAccount" : null,
+                      "id" : "1892000000052077",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    } ],
+                    "fieldValue" : "Admin Account"
+                  }, {
+                    "accounts" : [ {
+                      "website" : "112121",
+                      "accountName" : "Agent Account",
+                      "phone" : "121212",
+                      "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                      "createdTime" : 1424105864000,
+                      "zohoCRMAccount" : {
+                        "id" : "32754000000537001"
+                      },
+                      "id" : "1892000000052077",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }, {
+                      "website" : "112121",
+                      "accountName" : "Agent Account",
+                      "phone" : "121212",
+                      "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                      "createdTime" : 1424105864000,
+                      "zohoCRMAccount" : {
+                        "id" : "32754000000537001"
+                      },
+                      "id" : "1892000000052077",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    } ],
+                    "fieldValue" : "Agent Account"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "fieldName" : {
+        "name" : "fieldName",
+        "in" : "query",
+        "description" : "Name of the field whose values must be matched for deduplication.Values allowed are: !@email,@! !@phone,@! and !@accountName@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Name of the field whose values must be matched for deduplication.Values allowed are: !@email,@! !@phone,@! and !@accountName@!",
+          "enum" : [ "email", "phone", "accountName" ]
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of accounts to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of accounts to fetch",
+          "maximum" : 100,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number starting from which the accounts must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number starting from which the accounts must be fetched",
+          "minimum" : 0,
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "setDefaultField" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "email", "phone", "accountName" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "markDefault" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "fieldName", "markDefault" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldName" : "accountName",
+                  "markDefault" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "AccountDeduplication"
+}

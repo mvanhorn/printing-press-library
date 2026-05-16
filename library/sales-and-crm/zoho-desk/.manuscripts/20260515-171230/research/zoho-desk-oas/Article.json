@@ -1,0 +1,2523 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Article",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/articles" : {
+      "get" : {
+        "tags" : [ "Article" ],
+        "summary" : "List articles",
+        "description" : "This API fetches a specific number of articles from your knowledge base, based on the limit defined.",
+        "operationId" : "getArticles",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/permission"
+        }, {
+          "$ref" : "#/components/parameters/authorId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the articles based on a specific attribute: !@createdTime,@! or !@modifiedTime@! or     !@likeCount@! or !@viewCount@! or !@feedbackCount@! or !@dislikeCount@! or !@positionArticle@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Key that sorts the articles based on a specific attribute: !@createdTime,@! or !@modifiedTime@! or     !@likeCount@! or !@viewCount@! or !@feedbackCount@! or !@dislikeCount@! or !@positionArticle@!",
+            "enum" : [ "createdTime", "modifiedTime", "likeCount", "viewCount", "feedbackCount", "dislikeCount", "-createdTime", "-modifiedTime", "-likeCount", "-viewCount", "-feedbackCount", "-dislikeCount" ]
+          }
+        }, {
+          "name" : "modifiedTimeRange",
+          "in" : "query",
+          "description" : "Key that filters articles modified within a specific date and time range. Enter the dates in the ISO date format of 'yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ'",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that filters articles modified within a specific date and time range. Enter the dates in the ISO date format of 'yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ'",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+          }
+        }, {
+          "name" : "expiryTimeRange",
+          "in" : "query",
+          "description" : "Key that filters articles which will expire within a specific date and time range. Enter the dates in the ISO date format of 'yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ'",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that filters articles which will expire within a specific date and time range. Enter the dates in the ISO date format of 'yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ'",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+          }
+        }, {
+          "$ref" : "#/components/parameters/categoryId"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllNewArticle"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Article" ],
+        "summary" : "Create an article",
+        "description" : "This API creates an article in your helpdesk.",
+        "operationId" : "createArticle",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        }, {
+          "$ref" : "#/components/parameters/templateId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addArticleJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/articleCUDJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/{id}" : {
+      "get" : {
+        "tags" : [ "Article" ],
+        "summary" : "Get article",
+        "description" : "This API fetches an article from your knowledge base.",
+        "operationId" : "getArticle",
+        "parameters" : [ {
+          "name" : "version",
+          "in" : "query",
+          "description" : "Version number of the article",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Version number of the article",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getArticleNewJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Article" ],
+        "summary" : "Update an article",
+        "description" : "This API updates an existing article.",
+        "operationId" : "updateArticle",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        }, {
+          "$ref" : "#/components/parameters/templateId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateArticleJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/articleCUDJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/checkPermalinkAvailability" : {
+      "post" : {
+        "tags" : [ "Article" ],
+        "summary" : "Validate permalink",
+        "description" : "This API validates if a permalink is available for a help article.",
+        "operationId" : "checkArticlePermalinkAvailability",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/validatePermalinkRequestBody"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/validatePermalinkResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/count" : {
+      "get" : {
+        "tags" : [ "Article" ],
+        "summary" : "Get article count",
+        "description" : "This API returns the number of articles published in the knowledge base of your help desk portal.",
+        "operationId" : "getArticleCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/permission"
+        }, {
+          "$ref" : "#/components/parameters/authorId"
+        }, {
+          "$ref" : "#/components/parameters/categoryId"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/articlesCountJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/preview" : {
+      "post" : {
+        "tags" : [ "Article" ],
+        "summary" : "Preview article",
+        "description" : "This API shows a preview of help articles, through which you can check the content for formatting, alignment, and grammar/spelling errors and get the look and feel of the help article even before publishing it.",
+        "operationId" : "previewArticle",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/previewJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/previewJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/moveToTrash" : {
+      "post" : {
+        "tags" : [ "Article" ],
+        "summary" : "Move articles to trash",
+        "description" : "This API moves articles to the Recycle Bin",
+        "operationId" : "deleteArticle",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/trashArticles_articleIdsJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/articleSuggestion" : {
+      "get" : {
+        "tags" : [ "Article" ],
+        "summary" : "Suggest relevant articles for ticket",
+        "description" : "This API suggests help articles that could be relevant to resolving a ticket.",
+        "operationId" : "suggestArticlesForTicket",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "ID of the department to which the help article belongs. If you want to include help articles from all departments, pass 0 as the value of this key",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the department to which the help article belongs. If you want to include help articles from all departments, pass 0 as the value of this key",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "ticketId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./ArticleTranslation.json#/components/responses/translationListWithRecycleBinEntityWrapper"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "repositionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "authorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "authorId", "id", "title", "webUrl" ]
+      },
+      "repositioningData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Article.json#/components/schemas/repositionJson"
+        }
+      },
+      "articleIdsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "availableLocaleTranslationsObjectNew" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "latestVersionStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished", "Auto-translate Pending" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isTrashed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "translationId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "latestVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isLocked" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "latestPublishedVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "locale" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+          },
+          "authorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "translationState" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "OUTDATED", "UP-TO-DATE", "AUTO-TRANSLATE INPROGRESS", "AUTO-TRANSLATE FAILED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished", "Auto-translate Pending" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "authorId", "href", "isLocked", "isTrashed", "latestPublishedVersion", "latestVersion", "latestVersionStatus", "locale", "status", "translationId", "translationState" ]
+      },
+      "availableLocaleTranslationsNew" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Article.json#/components/schemas/availableLocaleTranslationsObjectNew"
+        }
+      },
+      "seo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "keywords" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "description", "isEnabled", "keywords", "title" ]
+      },
+      "metrics" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "feedbackCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "templateUsageCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "unlikeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "lastUsageTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "dislikeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "likeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "viewCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "lastActivityTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "usageCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "dislikeCount", "feedbackCount", "lastActivityTime", "lastUsageTime", "likeCount", "templateUsageCount", "unlikeCount", "usageCount", "viewCount" ]
+      },
+      "getArticleNewJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "dislikeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "modifierId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "likeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "latestVersionModifierId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "translationState" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "OUTDATED", "UP-TO-DATE", "AUTO-TRANSLATE INPROGRESS", "AUTO-TRANSLATE FAILED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isTrashed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isTemplate" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isLocked" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "translationSource" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/translationSourceJson"
+          },
+          "latestVersionStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/author"
+          },
+          "reviewedBy" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/reviewedBy"
+          },
+          "currentVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "commentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "tags" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "[a-z0-9_\\-+%\\P{InBasicLatin}\\s]+"
+            },
+            "uniqueItems" : false
+          },
+          "sourceLocale" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+          },
+          "translationId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "feedbackCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "latestPublishedVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "position" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "metrics" : {
+            "$ref" : "./Article.json#/components/schemas/metrics"
+          },
+          "templateUsageCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "templateUsedUsersCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "templateLastUpdatedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+          },
+          "latestVersionModifiedBy" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/modifiedBy"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "attachments" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/attachmentArr"
+          },
+          "reviewedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "locale" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "expiryDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/modifiedBy"
+          },
+          "viewCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "seo" : {
+            "$ref" : "./Article.json#/components/schemas/seo"
+          },
+          "owner" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/owner"
+          },
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65553,
+            "minLength" : 0
+          },
+          "isFollowing" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "myVote" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permission" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "authorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "usageCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "rootCategoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "answer" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16777215,
+            "minLength" : 0
+          },
+          "createdBy" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/createdBy"
+          },
+          "latestVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "portalUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "availableLocaleTranslations" : {
+            "$ref" : "./Article.json#/components/schemas/availableLocaleTranslationsNew"
+          },
+          "category" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/category"
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "answer", "attachmentCount", "attachmentCount", "attachments", "author", "authorId", "availableLocaleTranslations", "category", "categoryId", "commentCount", "commentCount", "createdBy", "createdTime", "creatorId", "currentVersion", "departmentId", "dislikeCount", "expiryDate", "feedbackCount", "id", "isFollowing", "isLocked", "isTemplate", "isTrashed", "latestPublishedVersion", "latestVersion", "latestVersionModifiedBy", "latestVersionModifierId", "latestVersionStatus", "likeCount", "locale", "metrics", "modifiedBy", "modifiedTime", "modifierId", "myVote", "owner", "ownerId", "permalink", "permission", "portalUrl", "position", "reviewedBy", "reviewedTime", "rootCategoryId", "seo", "sourceLocale", "status", "summary", "tags", "templateLastUpdatedTime", "templateUsageCount", "templateUsedUsersCount", "title", "translationId", "translationSource", "translationState", "translationState", "usageCount", "viewCount", "webUrl" ]
+      },
+      "articleCommonJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65553,
+            "minLength" : 0
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "latestVersionStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permission" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "authorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "latestVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "latestPublishedVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "authorId", "createdTime", "id", "latestPublishedVersion", "latestVersion", "latestVersionStatus", "modifiedTime", "permalink", "permission", "status", "summary", "title", "webUrl" ]
+      },
+      "articleNewJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Article.json#/components/schemas/articleCommonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "departmentId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "creatorId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "modifierId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "dislikeCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "likeCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "locale" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+            },
+            "ownerId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "latestVersionModifierId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "translationState" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "OUTDATED", "UP-TO-DATE", "AUTO-TRANSLATE INPROGRESS", "AUTO-TRANSLATE FAILED" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "isTrashed" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isTemplate" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "templateUsageCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "templateUsedUsersCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "templateLastUpdatedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "isLocked" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "modifiedBy" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/modifiedBy"
+            },
+            "viewCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "translationSource" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/translationSourceJson"
+            },
+            "owner" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/owner"
+            },
+            "author" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/author"
+            },
+            "usageCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "commentCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "rootCategoryId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "sourceLocale" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+            },
+            "translationId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "createdBy" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/createdBy"
+            },
+            "portalUrl" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 500,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "feedbackCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "attachmentCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "availableLocaleTranslations" : {
+              "$ref" : "./Article.json#/components/schemas/availableLocaleTranslationsNew"
+            },
+            "position" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "category" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/category"
+            },
+            "categoryId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "latestVersionModifiedBy" : {
+              "$ref" : "./ArticleTranslation.json#/components/schemas/modifiedBy"
+            }
+          },
+          "required" : [ "attachmentCount", "author", "availableLocaleTranslations", "category", "category", "categoryId", "commentCount", "createdBy", "creatorId", "departmentId", "dislikeCount", "feedbackCount", "isLocked", "isTemplate", "isTrashed", "latestVersionModifiedBy", "latestVersionModifierId", "likeCount", "locale", "modifiedBy", "modifierId", "owner", "ownerId", "portalUrl", "position", "rootCategoryId", "sourceLocale", "templateLastUpdatedTime", "templateUsageCount", "templateUsedUsersCount", "translationId", "translationSource", "translationState", "usageCount", "viewCount" ]
+        } ]
+      },
+      "datanew" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Article.json#/components/schemas/articleNewJson"
+        }
+      }
+    },
+    "responses" : {
+      "listAllArticleForRepositioning" : {
+        "description" : "listAllArticleForRepositioning template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Article.json#/components/schemas/repositioningData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/22372000000281023",
+                    "id" : "22372000000281023",
+                    "title" : "Importance of a Knowledge Base",
+                    "authorId" : "4000000012931"
+                  }, {
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/22372000000209871",
+                    "id" : "22372000000209871",
+                    "title" : "Importance of a Knowledge Base",
+                    "authorId" : "4000000012931"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "articleCUDJson" : {
+        "description" : "articleCUDJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Article.json#/components/schemas/getArticleNewJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "quickEdit" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/quickEditResponseTemplate"
+                  }
+                },
+                "required" : [ "quickEdit" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "isTemplate" : false,
+                  "modifiedTime" : 1592999203000,
+                  "departmentId" : "24073000000006907",
+                  "dislikeCount" : "0",
+                  "modifierId" : "4000000000059",
+                  "likeCount" : "0",
+                  "latestVersionModifierId" : "4000000000060",
+                  "ownerId" : "4000000000059",
+                  "translationState" : "UP-TO-DATE",
+                  "isTrashed" : false,
+                  "quickEdit" : {
+                    "modifierId" : null,
+                    "modifiedBy" : null
+                  },
+                  "createdTime" : 1592999203000,
+                  "id" : "4000000019059",
+                  "translationSource" : null,
+                  "latestVersionStatus" : "Published",
+                  "author" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "reviewedBy" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "currentVersion" : "1.0",
+                  "commentCount" : "0",
+                  "tags" : [ "first ticket" ],
+                  "sourceLocale" : "en",
+                  "translationId" : "4000000017294",
+                  "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/4000000019059/en",
+                  "feedbackCount" : "0",
+                  "latestPublishedVersion" : "1.0",
+                  "metrics" : {
+                    "feedbackCount" : "0",
+                    "unlikeCount" : "0",
+                    "dislikeCount" : "0",
+                    "lastUsageTime" : null,
+                    "likeCount" : "0",
+                    "viewCount" : "0",
+                    "lastActivityTime" : null,
+                    "usageCount" : "0"
+                  },
+                  "position" : "28",
+                  "permalink" : "answering-your-first-ticket",
+                  "latestVersionModifiedBy" : {
+                    "photoURL" : null,
+                    "name" : "will smith",
+                    "id" : "4000000000060",
+                    "status" : "ACTIVE",
+                    "zuid" : "234544"
+                  },
+                  "status" : "Draft",
+                  "attachments" : [ ],
+                  "reviewedTime" : 1592999203000,
+                  "creatorId" : "4000000000059",
+                  "locale" : "en",
+                  "title" : "Answering your first ticket.",
+                  "expiryDate" : null,
+                  "modifiedBy" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "viewCount" : "0",
+                  "seo" : {
+                    "keywords" : "helpcenter, knowledge base",
+                    "isEnabled" : true,
+                    "description" : "Knowledge base",
+                    "title" : "Helpcenter and knowledge base"
+                  },
+                  "owner" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "summary" : "Zoho Desk packs a bunch of features that are expressly there to help you respond to tickets smartly. The first of these, you've already discovered: Auto-Suggest Articles. Zoho Desk pulls up relevant articles on the ticket's content—so you can save ...",
+                  "isFollowing" : true,
+                  "myVote" : null,
+                  "permission" : "AGENTS",
+                  "authorId" : "22372000000094004",
+                  "usageCount" : "0",
+                  "rootCategoryId" : "4000000017276",
+                  "answer" : "The knowledge base is a key component of a good help center. This is where you can share the basics of using your products or services to your customers. Help articles and FAQs are great assets when it comes to answering the most fundamental questions your customers might have regarding your offerings. Help articles also ease the burden of your customer support agents by enabling self-service.",
+                  "createdBy" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "latestVersion" : "1.0",
+                  "portalUrl" : "https://desk.zoho.com/portal/zylker/en/kb/articles/answering-your-first-ticket",
+                  "attachmentCount" : "0",
+                  "availableLocaleTranslations" : [ {
+                    "latestVersionStatus" : "Published",
+                    "translationId" : "24073000007814015",
+                    "isTrashed" : false,
+                    "latestVersion" : "1.0",
+                    "isLocked" : false,
+                    "latestPublishedVersion" : "1.0",
+                    "href" : "https://desk.zoho.com/api/v1/articles/24073000007814013/translations/en?orgId=54325703",
+                    "authorId" : "24073000000095005",
+                    "locale" : "en",
+                    "translationState" : "UP-TO-DATE",
+                    "status" : "Published"
+                  } ],
+                  "category" : {
+                    "name" : "General",
+                    "id" : "4000000017287",
+                    "locale" : "en"
+                  },
+                  "categoryId" : "22372000000094160",
+                  "templateUsageCount" : "2",
+                  "templateUsedUsersCount" : "2",
+                  "templateLastUpdatedTime" : "2019-12-31T09:45:52.000Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getArticleNewJson" : {
+        "description" : "getArticleNewJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "quickEdit" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "modifierId" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "modifiedBy" : {
+                        "type" : [ "null", "object" ],
+                        "additionalProperties" : false,
+                        "maxProperties" : 5,
+                        "minProperties" : 5,
+                        "properties" : {
+                          "photoURL" : {
+                            "type" : [ "string", "null" ],
+                            "maxLength" : 100,
+                            "minLength" : 0,
+                            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                          },
+                          "name" : {
+                            "type" : [ "string", "null" ],
+                            "maxLength" : 50,
+                            "minLength" : 0
+                          },
+                          "id" : {
+                            "type" : [ "string", "null", "integer" ],
+                            "format" : "int64",
+                            "pattern" : "([0-9]+)"
+                          },
+                          "status" : {
+                            "type" : [ "string", "null" ],
+                            "enum" : [ "ACTIVE", "DISABLED", "LICENSE_DOWNGRADED", "DELETED", "ANONYMIZED", "CLOSED" ],
+                            "maxLength" : 100,
+                            "minLength" : 0
+                          },
+                          "zuid" : {
+                            "type" : [ "string", "null", "integer" ],
+                            "format" : "int32",
+                            "pattern" : "([0-9]+)"
+                          }
+                        },
+                        "required" : [ "id", "name", "photoURL", "status", "zuid" ]
+                      }
+                    },
+                    "required" : [ "modifiedBy", "modifierId" ]
+                  },
+                  "secondaryTitles" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 500,
+                      "minLength" : 0
+                    },
+                    "uniqueItems" : false
+                  },
+                  "followersCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "modifiedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "departmentId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "dislikeCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "modifierId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "likeCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "ownerId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "latestVersionModifierId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "translationState" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "OUTDATED", "UP-TO-DATE", "AUTO-TRANSLATE INPROGRESS", "AUTO-TRANSLATE FAILED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "isTrashed" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "isTemplate" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "isLocked" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "createdTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "translationSource" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/translationSourceJson"
+                  },
+                  "latestVersionStatus" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "author" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/author"
+                  },
+                  "reviewedBy" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/reviewedBy"
+                  },
+                  "currentVersion" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "commentCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "tags" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "[a-z0-9_\\-+%\\P{InBasicLatin}\\s]+"
+                    },
+                    "uniqueItems" : false
+                  },
+                  "sourceLocale" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+                  },
+                  "translationId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "webUrl" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 500,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "feedbackCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "latestPublishedVersion" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "position" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "metrics" : {
+                    "$ref" : "./Article.json#/components/schemas/metrics"
+                  },
+                  "templateUsageCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "templateUsedUsersCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "templateLastUpdatedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "permalink" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 500,
+                    "minLength" : 0,
+                    "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+                  },
+                  "latestVersionModifiedBy" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/modifiedBy"
+                  },
+                  "status" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Published", "Draft", "Review", "Expired", "Unpublished" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "attachments" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/attachmentArr"
+                  },
+                  "reviewedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "creatorId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "locale" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+                  },
+                  "title" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 500,
+                    "minLength" : 0
+                  },
+                  "expiryDate" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "modifiedBy" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/modifiedBy"
+                  },
+                  "viewCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "seo" : {
+                    "$ref" : "./Article.json#/components/schemas/seo"
+                  },
+                  "owner" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/owner"
+                  },
+                  "summary" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 65553,
+                    "minLength" : 0
+                  },
+                  "isFollowing" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "myVote" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "permission" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "authorId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "usageCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "rootCategoryId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "answer" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 16777215,
+                    "minLength" : 0
+                  },
+                  "createdBy" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/createdBy"
+                  },
+                  "latestVersion" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "portalUrl" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 500,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "attachmentCount" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "availableLocaleTranslations" : {
+                    "$ref" : "./Article.json#/components/schemas/availableLocaleTranslationsNew"
+                  },
+                  "category" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/category"
+                  },
+                  "categoryId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "answer", "attachmentCount", "attachmentCount", "attachments", "author", "authorId", "availableLocaleTranslations", "category", "categoryId", "commentCount", "commentCount", "createdBy", "createdTime", "creatorId", "currentVersion", "departmentId", "dislikeCount", "expiryDate", "feedbackCount", "id", "isFollowing", "isLocked", "isTemplate", "isTrashed", "latestPublishedVersion", "latestVersion", "latestVersionModifiedBy", "latestVersionModifierId", "latestVersionStatus", "likeCount", "locale", "metrics", "modifiedBy", "modifiedTime", "modifierId", "myVote", "owner", "ownerId", "permalink", "permission", "portalUrl", "position", "reviewedBy", "reviewedTime", "rootCategoryId", "seo", "sourceLocale", "status", "summary", "tags", "templateLastUpdatedTime", "templateUsageCount", "templateUsedUsersCount", "title", "translationId", "translationSource", "translationState", "translationState", "usageCount", "viewCount", "webUrl" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1592999203000,
+                  "departmentId" : "24073000002376045",
+                  "dislikeCount" : "0",
+                  "modifierId" : "4000000000059",
+                  "likeCount" : "0",
+                  "latestVersionModifierId" : "4000000000060",
+                  "ownerId" : "4000000000059",
+                  "translationState" : "UP-TO-DATE",
+                  "isTrashed" : false,
+                  "isTemplate" : false,
+                  "quickEdit" : {
+                    "modifierId" : "24073000007464062",
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/24073000007464062/photo?orgId=54325703",
+                      "name" : "Tony Stark",
+                      "id" : "24073000007464062",
+                      "status" : "ACTIVE",
+                      "zuid" : "70425988"
+                    }
+                  },
+                  "createdTime" : 1592999203000,
+                  "id" : "4000000019059",
+                  "translationSource" : null,
+                  "latestVersionStatus" : "Published",
+                  "author" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "reviewedBy" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "currentVersion" : "1.0",
+                  "commentCount" : "0",
+                  "tags" : [ "first ticket" ],
+                  "sourceLocale" : "en",
+                  "translationId" : "4000000017294",
+                  "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/4000000019059/en",
+                  "feedbackCount" : "0",
+                  "latestPublishedVersion" : "1.0",
+                  "position" : "6",
+                  "templateUsageCount" : "2",
+                  "templateUsedUsersCount" : "2",
+                  "templateLastUpdatedTime" : "2019-12-31T09:45:52.000Z",
+                  "metrics" : {
+                    "feedbackCount" : "2",
+                    "unlikeCount" : "2",
+                    "dislikeCount" : "2",
+                    "lastUsageTime" : null,
+                    "likeCount" : "1",
+                    "viewCount" : "257",
+                    "lastActivityTime" : 1676985967000,
+                    "usageCount" : "0",
+                    "templateUsageCount" : "2"
+                  },
+                  "permalink" : "answering-your-first-ticket",
+                  "latestVersionModifiedBy" : {
+                    "photoURL" : null,
+                    "name" : "will smith",
+                    "id" : "4000000000060",
+                    "status" : "ACTIVE",
+                    "zuid" : "234544"
+                  },
+                  "status" : "Published",
+                  "attachments" : [ {
+                    "resourceId" : "mvfyda9fcc4df229b4065a04fba88a5b81b33",
+                    "extension" : "jpg",
+                    "size" : "3028238",
+                    "name" : "bird_2.jpg",
+                    "downloadUrl" : "https://desk.zoho.com/api/v1/articles/24073000005321222/translations/en/attachments/mvfyda9fcc4df229b4065a04fba88a5b81b33/content?orgId=54325703&inline=false",
+                    "viewUrl" : "https://desk.zoho.com/api/v1/articles/24073000005321222/translations/en/attachments/mvfyda9fcc4df229b4065a04fba88a5b81b33/content?orgId=54325703",
+                    "createdTime" : 1635829881000
+                  } ],
+                  "reviewedTime" : 1592999203000,
+                  "creatorId" : "4000000000059",
+                  "locale" : "en",
+                  "title" : "Answering your first ticket.",
+                  "expiryDate" : null,
+                  "modifiedBy" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "viewCount" : "0",
+                  "seo" : {
+                    "keywords" : "helpcenter, knowledge base",
+                    "isEnabled" : true,
+                    "description" : "Knowledge base",
+                    "title" : "Helpcenter and knowledge base"
+                  },
+                  "owner" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "summary" : "Zoho Desk packs a bunch of features that are expressly there to help you respond to tickets smartly. The first of these, you've already discovered: Auto-Suggest Articles. Zoho Desk pulls up relevant articles on the ticket's content—so you can save ...",
+                  "isFollowing" : true,
+                  "myVote" : null,
+                  "permission" : "AGENTS",
+                  "authorId" : "4000000000059",
+                  "usageCount" : "0",
+                  "rootCategoryId" : "4000000017276",
+                  "answer" : "<p>Zoho Desk packs a bunch of features that are expressly there to help you respond to tickets smartly.<br><br>The first of these, you've already discovered: Auto-Suggest Articles. Zoho Desk pulls up relevant articles on the ticket's content—so you can save time on frequently asked questions.<br><br>Every action that you can perform with respect to a ticket has a corresponding keyboard shortcut. With these, you can optimize the time you spend on each ticket. (And the shortcut to access these shortcuts is Shift + ? ).When you need to quickly consult a colleague, you can tag them in a ticket comment without having to leave this screen. That's like a quick chat, without even leaving your place, and with the full context of the ticket.<br><br>With these, you're good to go.<br><br>Go on, save the world from bad customer service!</p>",
+                  "createdBy" : {
+                    "photoURL" : null,
+                    "name" : "Hill",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "latestVersion" : "1.0",
+                  "portalUrl" : "https://desk.zoho.com/portal/zylker/en/kb/articles/answering-your-first-ticket",
+                  "attachmentCount" : "0",
+                  "availableLocaleTranslations" : [ {
+                    "latestVersionStatus" : "Published",
+                    "translationId" : "24073000005321224",
+                    "isTrashed" : false,
+                    "latestVersion" : "19.0",
+                    "isLocked" : false,
+                    "latestPublishedVersion" : "19.0",
+                    "href" : "https://desk.zoho.com/api/v1/articles/24073000005321222/translations/en?orgId=54325703",
+                    "authorId" : "24073000000095005",
+                    "locale" : "en",
+                    "translationState" : "UP-TO-DATE",
+                    "status" : "Published"
+                  }, {
+                    "latestVersionStatus" : "Draft",
+                    "translationId" : "24073000005321260",
+                    "isTrashed" : false,
+                    "latestVersion" : "0.1",
+                    "isLocked" : false,
+                    "latestPublishedVersion" : null,
+                    "href" : "https://desk.zoho.com/api/v1/articles/24073000005321222/translations/zh?orgId=54325703",
+                    "authorId" : "24073000000095005",
+                    "locale" : "zh",
+                    "translationState" : "OUTDATED",
+                    "status" : "Draft"
+                  } ],
+                  "category" : {
+                    "name" : "General",
+                    "id" : "4000000017287",
+                    "locale" : "en"
+                  },
+                  "categoryId" : "4000000017287"
+                }
+              }
+            }
+          }
+        }
+      },
+      "validatePermalinkResponse" : {
+        "description" : "validatePermalinkResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isAvailable" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "suggestion" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 500,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+                }
+              },
+              "required" : [ "isAvailable", "suggestion" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "isAvailable" : false,
+                  "suggestion" : "how-to-open-account-2-18-12-2017"
+                }
+              }
+            }
+          }
+        }
+      },
+      "listAllNewArticle" : {
+        "description" : "listAllNewArticle template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "secondaryTitles" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 1,
+                          "minProperties" : 1,
+                          "properties" : {
+                            "secondaryTitles" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "string", "null" ],
+                                "maxLength" : 500,
+                                "minLength" : 0
+                              },
+                              "uniqueItems" : false
+                            }
+                          },
+                          "required" : [ "secondaryTitles" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Article.json#/components/schemas/datanew"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1592999203000,
+                    "departmentId" : "24073000000006907",
+                    "creatorId" : "4000000000059",
+                    "dislikeCount" : "0",
+                    "modifierId" : "4000000000059",
+                    "likeCount" : "0",
+                    "locale" : "en",
+                    "latestVersionModifierId" : "4000000000060",
+                    "ownerId" : "4000000000059",
+                    "title" : "Answering your first ticket.",
+                    "translationState" : "UP-TO-DATE",
+                    "isTrashed" : false,
+                    "isTemplate" : false,
+                    "createdTime" : 1592999203000,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/24073000000095005/photo?orgId=54325703",
+                      "name" : "Hill",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "id" : "4000000019059",
+                    "viewCount" : "0",
+                    "translationSource" : null,
+                    "owner" : {
+                      "photoURL" : null,
+                      "name" : "Hill",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "summary" : "Zoho Desk packs a bunch of features that are expressly there to help you respond to tickets smartly. The first of these, you've already discovered: Auto-Suggest Articles. Zoho Desk pulls up relevant articles on the ticket's content—so you can save ...",
+                    "latestVersionStatus" : "Published",
+                    "author" : {
+                      "photoURL" : null,
+                      "name" : "Hill",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "permission" : "AGENTS",
+                    "authorId" : "4000000000059",
+                    "usageCount" : "0",
+                    "templateUsageCount" : "2",
+                    "templateUsedUsersCount" : "2",
+                    "templateLastUpdatedTime" : "2019-12-31T09:45:52.000Z",
+                    "commentCount" : "0",
+                    "rootCategoryId" : "4000000017276",
+                    "sourceLocale" : "en",
+                    "translationId" : "4000000017294",
+                    "createdBy" : {
+                      "photoURL" : null,
+                      "name" : "Hill",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "latestVersion" : "1.0",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/4000000019059/en",
+                    "feedbackCount" : "0",
+                    "portalUrl" : "https://desk.zoho.com/portal/zylker/en/kb/articles/answering-your-first-ticket",
+                    "attachmentCount" : "0",
+                    "latestPublishedVersion" : "1.0",
+                    "position" : "1",
+                    "availableLocaleTranslations" : [ {
+                      "latestVersionStatus" : "Published",
+                      "translationId" : "24073000000095164",
+                      "isTrashed" : false,
+                      "latestVersion" : "1.0",
+                      "isLocked" : false,
+                      "latestPublishedVersion" : "1.0",
+                      "href" : "https://desk.zoho.com/api/v1/articles/24073000002823830/translations/en?orgId=54325703",
+                      "authorId" : "24073000000095005",
+                      "locale" : "en",
+                      "translationState" : "UP-TO-DATE",
+                      "status" : "Published"
+                    } ],
+                    "category" : {
+                      "name" : "General",
+                      "id" : "4000000017287",
+                      "locale" : "en"
+                    },
+                    "permalink" : "answering-your-first-ticket",
+                    "categoryId" : "4000000017287",
+                    "latestVersionModifiedBy" : {
+                      "photoURL" : null,
+                      "name" : "will smith",
+                      "id" : "4000000000060",
+                      "status" : "ACTIVE",
+                      "zuid" : "234544"
+                    },
+                    "status" : "Published"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "articlesCountJson" : {
+        "description" : "articlesCountJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "5"
+                }
+              }
+            }
+          }
+        }
+      },
+      "previewJson" : {
+        "description" : "previewJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "answer" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 16777215,
+                  "minLength" : 0
+                },
+                "title" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 500,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "answer", "title" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "answer" : "<div>Demo for article preview<br /></div><div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. <br /></div>",
+                  "title" : "Demo for article preview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "templateId" : {
+        "name" : "templateId",
+        "in" : "header",
+        "description" : "ID of the template mapped with the article",
+        "required" : false,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of tags to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of articles to fetch",
+          "maximum" : 50,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number starting from which the tags must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number starting from which the articles must be fetched.",
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "permission" : {
+        "name" : "permission",
+        "in" : "query",
+        "description" : "Permission of the article.Values allowed are <br>ALL</br><br>REGISTEREDUSERS</br><br>AGENTS",
+        "required" : false,
+        "style" : "simple",
+        "explode" : true,
+        "schema" : {
+          "type" : "array",
+          "description" : "Access permission for the article. Values allowed are: @ALL@, @REGISTEREDUSERS@, and @AGENTS@",
+          "items" : {
+            "type" : "string",
+            "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ]
+          },
+          "uniqueItems" : true
+        }
+      },
+      "id" : {
+        "name" : "id",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "authorId" : {
+        "name" : "authorId",
+        "in" : "query",
+        "description" : "ID of article owner",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of article owner",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "categoryId" : {
+        "name" : "categoryId",
+        "in" : "query",
+        "description" : "ID of the category to which the article belongs",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the category to which the article belongs",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "status" : {
+        "name" : "status",
+        "in" : "query",
+        "description" : "Publishing status of the article. Values allowed are Draft, Published, Review, Expired, Unpublished",
+        "required" : false,
+        "style" : "simple",
+        "explode" : true,
+        "schema" : {
+          "type" : "array",
+          "description" : "Publishing status of the article. Values allowed are @Draft@, @Published@, @Review@, @Expired@, @Unpublished@",
+          "items" : {
+            "type" : "string",
+            "enum" : [ "Draft", "Published", "Review", "Expired", "Unpublished" ]
+          },
+          "uniqueItems" : true
+        }
+      }
+    },
+    "requestBodies" : {
+      "articleIdsJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./Article.json#/components/schemas/articleIdsData"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "4000000083313", "4000000082105" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateArticlesUsage_articleIdsJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./Article.json#/components/schemas/articleIdsData"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "1000000022005", "1000000034567" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "addArticleJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "seoDescription" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "SEO description of article",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "permission" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Permission of the article.Values allowed are !@ALL@!  !@REGISTEREDUSERS@! !@AGENTS@!",
+                  "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "title" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The title of article",
+                  "maxLength" : 500,
+                  "minLength" : 0
+                },
+                "authorId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "The owner of the article",
+                  "pattern" : "([0-9]+)"
+                },
+                "seoTitle" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "SEO title of the article",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "seoKeywords" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "SEO keywords of the article",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9_\\-+%\\P{InBasicLatin}\\s]+"
+                  },
+                  "uniqueItems" : false
+                },
+                "expiryDate" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Schedule the expiry date of the article. format : (YYYY-MM-DD HH:MM)",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "isSEOEnabled" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "SEO enabled status of an article"
+                },
+                "isTemplate" : {
+                  "type" : "boolean",
+                  "default" : false,
+                  "description" : "Is it a template"
+                },
+                "answer" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The answer part of article",
+                  "maxLength" : 16777215,
+                  "minLength" : 0
+                },
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^([a-zA-Z0-9]{37}|-1)$"
+                  },
+                  "uniqueItems" : false
+                },
+                "permalink" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The permalink of article",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+                },
+                "categoryId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "The Category",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Status of the article !@Draft@! !@Published@! !@Review@! ",
+                  "enum" : [ "Draft", "Published", "Review" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "answer", "categoryId", "locale", "status", "title" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "seoDescription" : "Knowledge Base for your product",
+                  "permission" : "ALL",
+                  "title" : "Importance of a Knowledge Base",
+                  "authorId" : 22372000000094004,
+                  "seoTitle" : "Knowledge Base",
+                  "seoKeywords" : "Helpcenter, Knowledge Base",
+                  "tags" : [ "knowledge base", "helpcenter" ],
+                  "expiryDate" : 1526882100000,
+                  "isSEOEnabled" : true,
+                  "answer" : "The knowledge base is a key component of a good help center. This is where you can share the basics of using your products or services to your customers. Help articles and FAQs are great assets when it comes to answering the most fundamental questions your customers might have regarding your offerings. Help articles also ease the burden of your customer support agents by enabling self-service.",
+                  "permalink" : "knowledgebase",
+                  "categoryId" : 22372000000094160,
+                  "status" : "Draft"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateArticleJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "seoDescription" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "SEO Description of the article",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "permission" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Permission of the article.Values allowed are !@ALL@!  !@REGISTEREDUSERS@! !@AGENTS@!",
+                  "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "title" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The title of Article",
+                  "maxLength" : 500,
+                  "minLength" : 0
+                },
+                "authorId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "The owner of the article",
+                  "pattern" : "([0-9]+)"
+                },
+                "seoTitle" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "SEO Title of article",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "seoKeywords" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "SEO Keywords of the article",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9_\\-+%\\P{InBasicLatin}\\s]+"
+                  },
+                  "uniqueItems" : false
+                },
+                "expiryDate" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Schedule the expiry date of the article. format : (YYYY-MM-DD HH:MM)",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "isSEOEnabled" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "SEO enabled status of the article"
+                },
+                "answer" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The answer part of the article",
+                  "maxLength" : 16777215,
+                  "minLength" : 0
+                },
+                "permalink" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The permalink of the article",
+                  "maxLength" : 500,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+                },
+                "categoryId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "The Category",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Status of the article !@Draft@! !@Published@! !@Review@! !@Unpublished@!",
+                  "enum" : [ "Draft", "Published", "Review", "Unpublished" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "expiryDate" : 1526882100000,
+                  "isSEOEnabled" : true,
+                  "answer" : "The knowledge base is a key component of a good help center. This is where you can share the basics of using your products or services to your customers. Help articles and FAQs are great assets when it comes to answering the most fundamental questions your customers might have regarding your offerings. Help articles also ease the burden of your customer support agents by enabling self-service.",
+                  "seoDescription" : "Knowledge base for your product",
+                  "permission" : "REGISTEREDUSERS",
+                  "title" : "Importance of a Knowledge Base",
+                  "authorId" : 22372000000094004,
+                  "seoTitle" : "Knowledge base",
+                  "seoKeywords" : "Knowledge base, Helpcenter",
+                  "categoryId" : 22372000000094160,
+                  "status" : "Draft",
+                  "tags" : [ "helpcenter", "knowledge base" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "validatePermalinkRequestBody" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "permalink" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The permalink of Solution",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[A-Za-z0-9%\\-+\\/=\\P{InBasicLatin}]+"
+                },
+                "locale" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Language",
+                  "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+                }
+              },
+              "required" : [ "locale", "permalink" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "permalink" : "how-to-open-account-2"
+                }
+              }
+            }
+          }
+        }
+      },
+      "previewJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "answer" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The answer part of article",
+                  "maxLength" : 16777215,
+                  "minLength" : 0
+                },
+                "title" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "The title of article",
+                  "maxLength" : 500,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "answer", "title" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "answer" : "<div>Demo for article preview<br /></div><div>Lorem Ipsum is simply dummy text of the printing and typesetting industry. <br /></div>",
+                  "title" : "Demo for article preview"
+                }
+              }
+            }
+          }
+        }
+      },
+      "trashArticles_articleIdsJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./Article.json#/components/schemas/articleIdsData"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "2345678987654323", "3456789087654567" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Article"
+}

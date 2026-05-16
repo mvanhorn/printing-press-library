@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T22:56:31.812081Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "zoho-desk",
+  "display_name": "Zoho Desk",
+  "cli_name": "zoho-desk-pp-cli",
+  "owner": "dan-bronson",
+  "printer_name": "Dan Bronson",
+  "spec_path": "/Users/danbronson/printing-press/.runstate/code-3ad4c651/runs/20260515-171230/research/zoho-desk-merged.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:11ae82fecaf6db11f4dba9086d98844b5bbcfae9415103b3e065cee268270f56",
+  "run_id": "20260515-171230",
+  "mcp_binary": "zoho-desk-pp-mcp",
+  "mcp_tool_count": 698,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ZOHODESK_REFRESH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "SLA breach radar",
+      "command": "at-risk",
+      "description": "List tickets at risk of breaching SLA in the next N hours, optionally filtered by unassigned."
+    },
+    {
+      "name": "Aging triage",
+      "command": "aging",
+      "description": "Open tickets where the last agent reply was more than N days ago."
+    },
+    {
+      "name": "Conversational full-text search",
+      "command": "grep",
+      "description": "FTS5 search across ticket subject, description, threads, and comments."
+    },
+    {
+      "name": "Workload fairness",
+      "command": "workload",
+      "description": "Per-agent open-ticket counts with mean/stddev/Gini across the team."
+    },
+    {
+      "name": "Reopen-pattern detector",
+      "command": "reopens",
+      "description": "Tickets that have been closed and reopened at least N times within a window."
+    },
+    {
+      "name": "Reassignment helper",
+      "command": "suggest-agent",
+      "description": "Suggests the least-loaded active agent in a ticket's department for reassignment."
+    },
+    {
+      "name": "Customer 360 view",
+      "command": "contact-history",
+      "description": "All tickets, accounts, and ticket stats for a contact in one query."
+    },
+    {
+      "name": "Escalation audit",
+      "command": "escalations",
+      "description": "Tickets reassigned to N or more distinct agents \u2014 surfaces ownership churn."
+    }
+  ],
+  "printer": "armydan"
+}

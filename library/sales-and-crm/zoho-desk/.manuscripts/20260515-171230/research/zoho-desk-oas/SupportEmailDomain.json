@@ -1,0 +1,183 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "SupportEmailDomain",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/supportEmailDomain" : {
+      "get" : {
+        "tags" : [ "SupportEmailDomain" ],
+        "summary" : "Get SupportEmailAddress SubDomain",
+        "description" : "This API fetches the subdomain of the support email address.",
+        "operationId" : "getSupportEmailAddressDomain",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getSupportEmailDomainResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "put" : {
+        "tags" : [ "SupportEmailDomain" ],
+        "summary" : "Update SupportEmailAddress SubDomain",
+        "description" : "This API updates the subdomain (the \"~mycompany~\" part) of the support email address.!!1. Only the primary contact of the organization can update the subdomain of the support email address.!2. The new support email address will be PII_EMAIL_SENTINEL.!3. The updated support email address will be used for fetching emails, henceforth. So make sure that you update the new address in the forwarding configurations of your mailbox.!4. The new support email address is applicable only for the default department.!5. All existing email aliases along with the old support email address will be permanently deleted from your account.<br/>6. Emails forwarded to the old support address will not be fetched in.",
+        "operationId" : "updateSupportEmailAddressDomain",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateSupportEmailPayload"
+        },
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/updateSupportEmailDomainResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "getSupportEmailDomainResponse" : {
+        "description" : "getSupportEmailDomainResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "updatedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "updatedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "supportEmailDomain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "oldDomain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "oldDomain", "supportEmailDomain", "updatedBy", "updatedTime" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "updatedTime" : 1383564067000,
+                  "updatedBy" : "4000000007089",
+                  "supportEmailDomain" : "zylkernew.zohodesk.com",
+                  "oldDomain" : "zylker.zohodesk.com"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateSupportEmailDomainResponse" : {
+        "description" : "updateSupportEmailDomainResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "updatedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "updatedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "supportEmailDomain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "oldDomain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "oldDomain", "supportEmailDomain", "updatedBy", "updatedTime" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "updatedTime" : 1383564067000,
+                  "updatedBy" : "4000000007089",
+                  "supportEmailDomain" : "zylkernew.zohodesk.com",
+                  "oldDomain" : "zylker.zohodesk.com"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "updateSupportEmailPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "supportEmailDomain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-z0-9]+"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "supportEmailDomain" : "zylkernew"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "SupportEmailDomain"
+}

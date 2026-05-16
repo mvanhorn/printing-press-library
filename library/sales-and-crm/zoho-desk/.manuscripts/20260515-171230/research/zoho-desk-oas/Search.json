@@ -1,0 +1,3932 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Search",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Tickets",
+        "description" : "This API searches for tickets in your help desk.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values. <br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchTickets",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketNumber"
+        }, {
+          "$ref" : "#/components/parameters/accountName"
+        }, {
+          "$ref" : "#/components/parameters/subject"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "channel",
+          "in" : "query",
+          "description" : "The channel through which the ticket was received !@exact match@! !@empty check@! !@not empty check@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "The channel through which the ticket was received !@exact match@! !@empty check@! !@not empty check@!",
+            "x-dynamic-enum" : true
+          }
+        }, {
+          "name" : "customerResponseTimeRange",
+          "in" : "query",
+          "description" : "Key that filters tickets in which customer responses were recorded in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! customerResponseTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z2017-11-05T13:15:30.000Z,2018-09-05T13:15:30.000Z",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that filters tickets in which customer responses were recorded in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! customerResponseTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z2017-11-05T13:15:30.000Z,2018-09-05T13:15:30.000Z",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+          }
+        }, {
+          "name" : "description",
+          "in" : "query",
+          "description" : "Description of the ticket !@wildcard search@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Description of the ticket !@wildcard search@!",
+            "maxLength" : 65535,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/productName"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/dueDateRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,! !@modifiedTime@,! !@createdTime@,!  !@customerResponseTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,! !@modifiedTime@,! !@createdTime@,!  !@customerResponseTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime", "customerResponseTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "name" : "tag",
+          "in" : "query",
+          "description" : "The tag associated with the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "The tag associated with the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+            "maxLength" : 100,
+            "minLength" : 3,
+            "pattern" : "([0-9a-zA-Z_\\-\\*\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]{3,}|\\$\\{(?i)(Empty|NotEmpty)\\})"
+          }
+        }, {
+          "$ref" : "#/components/parameters/productId"
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "name" : "contactName",
+          "in" : "query",
+          "description" : "The name of the contact who raised the ticket !@wildcard search@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "The name of the contact who raised the ticket !@wildcard search@!",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/priority"
+        }, {
+          "$ref" : "#/components/parameters/assigneeId"
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "category",
+          "in" : "query",
+          "description" : "The category of the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "The category of the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+            "x-dynamic-enum" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchTicketsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/{moduleApiName}/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search  Records",
+        "description" : "This API searches for records in your help desk.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values.<br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchRecords",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "name" : "moduleApiName",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 5,
+            "pattern" : "(cm_[a-zA-Z0-9_]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchRecordsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.custommodule.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/calls/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Calls",
+        "description" : "This API searches for the calls in your help desk portal.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values.<br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchCalls",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketNumber"
+        }, {
+          "$ref" : "#/components/parameters/startDateRange"
+        }, {
+          "$ref" : "#/components/parameters/subject"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/priority"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchCallsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.calls.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Accounts",
+        "description" : "This API searches for accounts in your help desk.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values. <br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchAccounts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountName"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@,!  !@accountName@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@,!  !@accountName@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime", "accountName" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchAccountsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Articles",
+        "description" : "This API searches for help articles in your help desk.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values.<br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchSolutions",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "name" : "title",
+          "in" : "query",
+          "description" : "title of the help article !@wildcard search@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "title of the help article !@wildcard search@!",
+            "maxLength" : 500,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "categoryId",
+          "in" : "query",
+          "description" : "ID of the Category ",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the Category ",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchSolutionsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Products",
+        "description" : "This API searches for the products in your help desk portal.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values.<br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchProducts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/productName"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "name" : "productCode",
+          "in" : "query",
+          "description" : "Code of the product !@wildcard search@! !@empty check@! !@not empty check@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Code of the product !@wildcard search@! !@empty check@! !@not empty check@!",
+            "maxLength" : 100,
+            "minLength" : 3,
+            "pattern" : "[0-9a-zA-Z\\-\\.\\$@\\?\\:\\'\\/\\!\\P{InBasicLatin}\\s]{4,}"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@,!  !@productName@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@,!  !@productName@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime", "productName" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchProductsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.search.READ", "Desk.products.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Contacts",
+        "description" : "This API searches for contacts in your help desk.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values. <br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchContacts",
+        "parameters" : [ {
+          "name" : "lastName",
+          "in" : "query",
+          "description" : "Last name of the contact !@wildcard search@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Last name of the contact !@wildcard search@!",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "firstName",
+          "in" : "query",
+          "description" : "First name of the contact !@wildcard search@! !@empty check@! !@not empty check@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "First name of the contact !@wildcard search@! !@empty check@! !@not empty check@!",
+            "maxLength" : 40,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/accountName"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "fullName",
+          "in" : "query",
+          "description" : "Full name of the contact !@wildcard search@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Full name of the contact !@wildcard search@!",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@,!  !@lastName@,!  !@firstName@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@,!  !@lastName@,!  !@firstName@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime", "lastName", "firstName" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchContactsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/activities/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Activities",
+        "description" : "This API searches for the activities in your help desk portal.<br/> You can provide comma-separated values, which will perform the search on the field using any of the provided values.<br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchActivities",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketNumber"
+        }, {
+          "$ref" : "#/components/parameters/subject"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/priority"
+        }, {
+          "$ref" : "#/components/parameters/assigneeId"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/activitiesSearchResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.activities.calls.READ", "Desk.activities.tasks.READ", "Desk.activities.events.READ", "Desk.calls.READ", "Desk.events.READ", "Desk.tasks.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search across modules",
+        "description" : "This API returns information from all modules or a specific module, based on the value of the module query param.",
+        "operationId" : "doSearch",
+        "parameters" : [ {
+          "name" : "searchStr",
+          "in" : "query",
+          "description" : "Keyword or phrase to search",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Keyword or phrase to search",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Module to search in: @tickets@, @accounts@, @contacts@ or @tasks@. The default response includes all modules.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Module to search in: @tickets@, @accounts@, @contacts@ or @tasks@. The default response includes all modules.",
+            "enum" : [ "tickets" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by a specific attribute: @relevance@ or @modifiedTime@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by a specific attribute: @relevance@ or @modifiedTime@",
+            "enum" : [ "relevance", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/doSearchResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.tickets.READ", "Desk.tasks.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tasks/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Tasks",
+        "description" : "This API searches for tasks in your help desk.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values. <br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchTasks",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketNumber"
+        }, {
+          "$ref" : "#/components/parameters/subject"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/priority"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/dueDateRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchTasksResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.activities.calls.READ", "Desk.activities.tasks.READ", "Desk.activities.events.READ", "Desk.tasks.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/events/search" : {
+      "get" : {
+        "tags" : [ "Search" ],
+        "summary" : "Search Events",
+        "description" : "This API searches for the events in your help desk portal.<br/> You can provide multiple values separated by commas, and the search will be performed on the field using any of the provided values.<br/><br/> <a href='#Search'>Learn more about search and how it works.</a>",
+        "operationId" : "searchEvents",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketNumber"
+        }, {
+          "$ref" : "#/components/parameters/startDateRange"
+        }, {
+          "$ref" : "#/components/parameters/subject"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/priority"
+        }, {
+          "$ref" : "#/components/parameters/_all"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "SortBy can be: !@relevance@,!  !@modifiedTime@,!  !@createdTime@! To specify sorting order, use as given below: !For descending order: sortBy=@-@modifiedTime! !For ascending order: sortBy=modifiedTime!",
+            "enum" : [ "relevance", "modifiedTime", "createdTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/searchEventsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.events.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "subModuleAccountFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "website" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[0-9a-zA-Z][-.\\w]*(:[0-9])*(/?)([a-zA-Z0-9\\-\\.\\?\\,|\\:\\'\\/\\+=&amp;%\\$#_\\[\\]@!\\(\\)\\*;~]*)?$)|[*]"
+          },
+          "accountName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "accountName", "id", "website" ]
+      },
+      "ticketContactFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "account" : {
+            "$ref" : "./Search.json#/components/schemas/subModuleAccountFields"
+          }
+        },
+        "required" : [ "account", "email", "firstName", "id", "lastName", "mobile", "phone", "type" ]
+      },
+      "lastThread" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "isDraft" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isForward" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "channel", "direction", "isDraft", "isForward" ]
+      },
+      "assigneeFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "emailId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "emailId", "firstName", "id", "lastName", "photoURL", "zuid" ]
+      },
+      "departmentFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "teamFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "logoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "id", "logoUrl", "name" ]
+      },
+      "subModuleProductFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "productName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "productName" ]
+      },
+      "searchTicketResponseFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "subCategory" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "statusType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Open", "Closed", "On Hold" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "onholdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "language" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "sharedDepartments" : {
+            "$ref" : "./Ticket.json#/components/schemas/sharedDepartmentsWithNameArr"
+          },
+          "resolution" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "closedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isOverDue" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contact" : {
+            "$ref" : "./Search.json#/components/schemas/ticketContactFields"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customerResponseTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "threadCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "secondaryContacts" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "classification" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "commentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "assignee" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "isSpam" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "childTicketCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "entitySkills" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "isArchived" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isRead" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "responseDueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./Search.json#/components/schemas/departmentFields"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "product" : {
+            "$ref" : "./Search.json#/components/schemas/subModuleProductFields"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "slaId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "lastThread" : {
+            "$ref" : "./Search.json#/components/schemas/lastThread"
+          },
+          "team" : {
+            "$ref" : "./Search.json#/components/schemas/teamFields"
+          },
+          "assigneeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "teamId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isEscalated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "relationshipType" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "accountId", "assignee", "assigneeId", "category", "cf", "channel", "childTicketCount", "classification", "closedTime", "commentCount", "contact", "contactId", "createdBy", "createdTime", "customFields", "customerResponseTime", "department", "departmentId", "description", "dueDate", "email", "entitySkills", "id", "isArchived", "isEscalated", "isOverDue", "isOverDue", "isRead", "isSpam", "language", "lastThread", "layoutId", "modifiedBy", "modifiedTime", "onholdTime", "phone", "priority", "product", "productId", "resolution", "responseDueDate", "secondaryContacts", "sharedDepartments", "slaId", "status", "statusType", "subCategory", "subject", "team", "teamId", "threadCount", "ticketNumber", "webUrl" ]
+      },
+      "searchTicketsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchTicketResponseFields"
+        }
+      },
+      "activityModuleContactFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isSpam" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "secId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "accountId", "email", "firstName", "id", "isSpam", "lastName", "mobile", "phone", "secId" ]
+      },
+      "activityModuleTicketFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "isArchived" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "team" : {
+            "$ref" : "./Search.json#/components/schemas/teamFields"
+          },
+          "closedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "secId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "teamId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contact" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleContactFields"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "assignee" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "isSpam" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "assignee", "channel", "closedTime", "contact", "createdTime", "dueDate", "id", "isArchived", "isSpam", "phone", "secId", "status", "subject", "team", "teamId", "ticketNumber" ]
+      },
+      "searchCallResponseFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "statusType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "completedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "duration" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "isCommented" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contact" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleContactFields"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "startTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./Search.json#/components/schemas/departmentFields"
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "outbound", "inbound" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "reminder" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false
+            },
+            "maxItems" : 3,
+            "uniqueItems" : false
+          },
+          "ticket" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleTicketFields"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "assignee" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "activityType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Completed", "Scheduled", "Missed", "Canceled", "In Progress" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "activityType", "assignee", "cf", "completedTime", "contact", "contactId", "createdTime", "creatorId", "customFields", "department", "departmentId", "description", "direction", "duration", "id", "isCommented", "layoutId", "modifiedBy", "modifiedTime", "ownerId", "priority", "reminder", "startTime", "status", "statusType", "subject", "ticket", "ticketId", "webUrl" ]
+      },
+      "searchCallsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchCallResponseFields"
+        }
+      },
+      "accountFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "owner" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "website" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[0-9a-zA-Z][-.\\w]*(:[0-9])*(/?)([a-zA-Z0-9\\-\\.\\?\\,|\\:\\'\\/\\+=&amp;%\\$#_\\[\\]@!\\(\\)\\*;~]*)?$)|[*]"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "accountName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "accountName", "cf", "customFields", "email", "id", "owner", "phone", "webUrl", "website" ]
+      },
+      "searchAccountResponseFields" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/accountFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "owner" : {
+              "$ref" : "./Search.json#/components/schemas/assigneeFields"
+            },
+            "country" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "modifiedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "code" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "city" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "industry" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 120,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "ownerId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "layoutId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "annualrevenue" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+            },
+            "street" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 250,
+              "minLength" : 0
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "state" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "fax" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+            }
+          },
+          "required" : [ "annualrevenue", "annualrevenue", "city", "code", "country", "createdTime", "description", "fax", "industry", "layoutId", "modifiedTime", "owner", "ownerId", "state", "street" ]
+        } ]
+      },
+      "searchAccountsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchAccountResponseFields"
+        }
+      },
+      "contactFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "owner" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "secondaryEmail" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "zohoCRMContact" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customerHappiness" : {
+            "$ref" : "./Contact.json#/components/schemas/customerHappiness"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "account" : {
+            "$ref" : "./Search.json#/components/schemas/subModuleAccountFields"
+          }
+        },
+        "required" : [ "account", "accountId", "cf", "customFields", "customerHappiness", "email", "firstName", "id", "lastName", "mobile", "owner", "ownerId", "phone", "photoURL", "secondaryEmail", "type", "webUrl", "zohoCRMContact" ]
+      },
+      "searchContactResponseFields" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/contactFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "zip" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "owner" : {
+              "$ref" : "./Search.json#/components/schemas/assigneeFields"
+            },
+            "country" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "modifiedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "city" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "facebook" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "title" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "layoutId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "twitter" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "street" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 250,
+              "minLength" : 0
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "isEndUser" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "state" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "city", "country", "createdTime", "description", "facebook", "isEndUser", "layoutId", "modifiedTime", "owner", "state", "street", "title", "twitter", "zip" ]
+        } ]
+      },
+      "searchContactsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchContactResponseFields"
+        }
+      },
+      "searchEventResponseFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "statusType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "completedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "duration" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "isCommented" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contact" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleContactFields"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "startTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./Search.json#/components/schemas/departmentFields"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "reminder" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false
+            },
+            "maxItems" : 3,
+            "uniqueItems" : false
+          },
+          "ticket" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleTicketFields"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "assignee" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "activityType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "activityType", "assignee", "category", "cf", "completedTime", "contact", "contactId", "createdTime", "creatorId", "customFields", "department", "departmentId", "description", "duration", "id", "isCommented", "modifiedBy", "modifiedTime", "ownerId", "priority", "reminder", "startTime", "status", "statusType", "subject", "ticket", "ticketId", "webUrl" ]
+      },
+      "searchEventResponseFieldsWithModule" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/searchEventResponseFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "contacts", "tickets", "Tasks", "Calls", "Events" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "searchCallResponseFieldsWithModule" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/searchCallResponseFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "contacts", "tickets", "Tasks", "Calls", "Events" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "searchTaskResponseFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "statusType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "completedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isCommented" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contact" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleContactFields"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./Search.json#/components/schemas/departmentFields"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "ticket" : {
+            "$ref" : "./Search.json#/components/schemas/activityModuleTicketFields"
+          },
+          "reminder" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false
+            },
+            "maxItems" : 3,
+            "uniqueItems" : false
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "assignee" : {
+            "$ref" : "./Search.json#/components/schemas/assigneeFields"
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "activityType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "activityType", "assignee", "category", "cf", "completedTime", "contact", "contactId", "createdTime", "creatorId", "customFields", "department", "departmentId", "description", "dueDate", "id", "isCommented", "layoutId", "modifiedBy", "modifiedTime", "ownerId", "priority", "reminder", "status", "statusType", "subject", "ticket", "ticketId", "webUrl" ]
+      },
+      "searchTaskResponseFieldsWithModule" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/searchTaskResponseFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "contacts", "tickets", "Tasks", "Calls", "Events" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "activitiesSearchData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "./Search.json#/components/schemas/searchEventResponseFieldsWithModule"
+          }, {
+            "$ref" : "./Search.json#/components/schemas/searchCallResponseFieldsWithModule"
+          }, {
+            "$ref" : "./Search.json#/components/schemas/searchTaskResponseFieldsWithModule"
+          } ]
+        }
+      },
+      "categoryFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "author" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoURL" ]
+      },
+      "searchSolutionResponseFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "modifierId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "dislikeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "likeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "viewCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65553,
+            "minLength" : 0
+          },
+          "latestVersionStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Unpublished", "Draft", "Review", "Expired", "Auto-translate Pending", "Auto-translate Failed" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Search.json#/components/schemas/author"
+          },
+          "permission" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ALL", "REGISTEREDUSERS", "AGENTS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "authorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "usageCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "rootCategoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "latestVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "portalUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "feedbackCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "latestPublishedVersion" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+          },
+          "category" : {
+            "$ref" : "./Search.json#/components/schemas/categoryFields"
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Published", "Unpublished", "Draft", "Review", "Expired", "Auto-translate Pending", "Auto-translate Failed" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "author", "authorId", "category", "categoryId", "createdTime", "creatorId", "dislikeCount", "feedbackCount", "id", "latestPublishedVersion", "latestVersion", "latestVersionStatus", "likeCount", "modifiedTime", "modifierId", "permalink", "permission", "portalUrl", "rootCategoryId", "status", "summary", "title", "usageCount", "viewCount", "webUrl" ]
+      },
+      "searchSolutionsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchSolutionResponseFields"
+        }
+      },
+      "searchProductResponseFields" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "unitPrice" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "departmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : true
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "productName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "manufacturer" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "productCategory" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "productCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "cf", "createdBy", "createdTime", "customFields", "departmentIds", "description", "id", "layoutId", "manufacturer", "modifiedBy", "modifiedTime", "ownerId", "productCategory", "productCode", "productName", "unitPrice" ]
+      },
+      "searchProductsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchProductResponseFields"
+        }
+      },
+      "searchEventsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchEventResponseFields"
+        }
+      },
+      "searchTicketResponseFieldsWithModule" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/searchTicketResponseFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "contacts", "tickets", "Tasks", "Calls", "Events" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "searchContactResponseFieldsWithModule" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/searchContactResponseFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "contacts", "tickets", "Tasks", "Calls", "Events" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "searchAccountResponseFieldsWithModule" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Search.json#/components/schemas/searchAccountResponseFields"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "contacts", "tickets", "Tasks", "Calls", "Events" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "doSearchData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "./Search.json#/components/schemas/searchTicketResponseFieldsWithModule"
+          }, {
+            "$ref" : "./Search.json#/components/schemas/searchContactResponseFieldsWithModule"
+          }, {
+            "$ref" : "./Search.json#/components/schemas/searchAccountResponseFieldsWithModule"
+          }, {
+            "$ref" : "./Search.json#/components/schemas/searchTaskResponseFieldsWithModule"
+          } ]
+        }
+      },
+      "doSearchCount" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "tickets" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "calls" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "solutions" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accounts" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "community" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contacts" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "tasks" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "events" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "products" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "tickets" ]
+      },
+      "searchTasksData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Search.json#/components/schemas/searchTaskResponseFields"
+        }
+      }
+    },
+    "responses" : {
+      "searchTicketsResponse" : {
+        "description" : "searchTicketsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchTicketsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : "2016-06-21T13:16:14.000Z",
+                    "ticketNumber" : "101",
+                    "subCategory" : "Sub General",
+                    "statusType" : "Open",
+                    "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "dueDate" : "2016-06-21T16:16:16.000Z",
+                    "departmentId" : "1892000000006907",
+                    "isRead" : false,
+                    "channel" : "FORUMS",
+                    "onholdTime" : null,
+                    "description" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "resolution" : null,
+                    "sharedDepartments" : [ {
+                      "name" : "Sample Department Name",
+                      "id" : "1892000000006909",
+                      "type" : "READ_WRITE"
+                    }, {
+                      "name" : "Sample Department Name",
+                      "id" : "1892000000006911",
+                      "type" : "READ_ONLY"
+                    } ],
+                    "closedTime" : null,
+                    "isOverDue" : false,
+                    "contact" : {
+                      "lastName" : "Carol",
+                      "firstName" : "Lucas",
+                      "phone" : "PII_PHONE_SENTINEL",
+                      "mobile" : "PII_PHONE_SENTINEL",
+                      "id" : "1892000000042032",
+                      "type" : null,
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "account" : {
+                        "website" : "www.desk.com",
+                        "accountName" : "desk Account",
+                        "id" : "1892000000975382"
+                      }
+                    },
+                    "createdTime" : "2013-11-04T11:21:07.000Z",
+                    "modifiedBy" : "52338000000043001",
+                    "id" : "1892000000042034",
+                    "department" : {
+                      "name" : "dasdasdasd",
+                      "id" : "1892000000006907"
+                    },
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "customerResponseTime" : "2013-11-04T11:21:07.912Z",
+                    "product" : null,
+                    "cf" : {
+                      "cf_permanentaddress" : null,
+                      "cf_dateofpurchase" : null,
+                      "cf_phone" : null,
+                      "cf_numberofitems" : null,
+                      "cf_url" : null,
+                      "cf_secondaryemail" : null,
+                      "cf_severitypercentage" : "0.0",
+                      "cf_modelname" : "F3 2017"
+                    },
+                    "productId" : null,
+                    "contactId" : "1892000000042032",
+                    "threadCount" : "121",
+                    "lastThread" : {
+                      "channel" : "FEEDBACK",
+                      "isDraft" : false,
+                      "isForward" : false,
+                      "direction" : "in"
+                    },
+                    "team" : {
+                      "name" : "kjsdfjks",
+                      "id" : "8920000000069071",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                    },
+                    "priority" : "High",
+                    "classification" : null,
+                    "assigneeId" : "1892000000056007",
+                    "commentCount" : "1",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "createdBy" : "52338000000043001",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "teamId" : "8920000000069071",
+                    "isEscalated" : false,
+                    "isSpam" : false,
+                    "assignee" : {
+                      "firstName" : "dasca",
+                      "lastName" : "vins",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo?orgId=298902",
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "1892000000056007",
+                      "zuid" : "640954748"
+                    },
+                    "category" : "general",
+                    "status" : "Open"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchRecordsResponse" : {
+        "description" : "searchRecordsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Records.json#/components/schemas/listRecordResponseWithAdditionalData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "layout" : {
+                    "id" : "1000003000004",
+                    "layoutName" : "Standard - Department1"
+                  },
+                  "owner" : {
+                    "firstName" : "",
+                    "lastName" : "Kyle",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000329/photo?orgId=3981311",
+                    "id" : "4000000000329"
+                  },
+                  "modifiedTime" : "2024-04-22T14:09:41.000Z",
+                  "cf" : {
+                    "cf_doctor_description" : "Doctor 1 description change"
+                  },
+                  "createdBy" : {
+                    "firstName" : "",
+                    "lastName" : "Kyle",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000329/photo?orgId=3981311",
+                    "id" : "4000000000329"
+                  },
+                  "name" : "Doctor 1",
+                  "createdTime" : "2024-04-22T13:55:53.000Z",
+                  "modifiedBy" : {
+                    "firstName" : "",
+                    "lastName" : "Kyle",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000329/photo?orgId=3981311",
+                    "id" : "4000000000329"
+                  },
+                  "isPresence" : true,
+                  "id" : "1000003019049",
+                  "department" : {
+                    "name" : "Department1",
+                    "id" : "1000000025632"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchCallsResponse" : {
+        "description" : "searchCallsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchCallsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : "2016-07-26T17:32:11.000Z",
+                    "cf" : {
+                      "cf_permanentaddress" : "Menlo Park, California"
+                    },
+                    "ticket" : {
+                      "ticketNumber" : "101",
+                      "contact" : {
+                        "firstName" : null,
+                        "lastName" : "Lawrence",
+                        "phoneNumber" : "+PII_PHONE_SENTINEL",
+                        "id" : "3000000008749"
+                      },
+                      "id" : "3000000008753"
+                    },
+                    "subject" : "New Call",
+                    "completedTime" : "2016-07-26T17:32:11.000Z",
+                    "departmentId" : "3000000007043",
+                    "creatorId" : "3000000008692",
+                    "description" : null,
+                    "ownerId" : null,
+                    "priority" : "Normal",
+                    "duration" : "300",
+                    "createdTime" : "2016-07-26T17:32:11.000Z",
+                    "startTime" : "2016-07-25T16:52:11.000Z",
+                    "id" : "3000000018001",
+                    "assignee" : {
+                      "firstName" : "",
+                      "lastName" : "raja",
+                      "photoURL" : null,
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "36385000000120033",
+                      "zuid" : "55499215"
+                    },
+                    "ticketId" : "3000000008753",
+                    "direction" : "inbound",
+                    "status" : "completed"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchAccountsResponse" : {
+        "description" : "searchAccountsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchAccountsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "owner" : {
+                      "firstName" : "Twin",
+                      "lastName" : "john",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/52338000000691001/photo?t=user&ID=10657727",
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "3263000000057001",
+                      "zuid" : "10657727"
+                    },
+                    "country" : "USA",
+                    "modifiedTime" : "2015-03-02T14:49:18.000Z",
+                    "website" : "www.zylker.com",
+                    "code" : "3211",
+                    "cf" : {
+                      "cf_contactcount" : "1"
+                    },
+                    "accountName" : "Zylker",
+                    "city" : null,
+                    "description" : null,
+                    "industry" : "Automation",
+                    "ownerId" : "3263000000057001",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "street" : null,
+                    "annualrevenue" : null,
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : "2015-02-16T16:57:44.000Z",
+                    "state" : null,
+                    "id" : "3263000000074571",
+                    "fax" : "+1 444 8656 8732",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchContactsResponse" : {
+        "description" : "searchContactsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchContactsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "lastName" : "Lawrence",
+                    "modifiedTime" : "2016-05-04T09:57:17.000Z",
+                    "country" : null,
+                    "secondaryEmail" : null,
+                    "city" : null,
+                    "description" : null,
+                    "ownerId" : "1892000000042001",
+                    "type" : null,
+                    "title" : null,
+                    "photoURL" : "https://desk.zoho.com/api/v1/contacts/1892000000042032/photo",
+                    "twitter" : null,
+                    "street" : null,
+                    "createdTime" : "2013-11-04T11:21:07.000Z",
+                    "isEndUser" : "false",
+                    "zohoCRMContact" : {
+                      "id" : "5000000014010",
+                      "type" : "contacts_leads"
+                    },
+                    "customerHappiness" : {
+                      "badPercentage" : "22",
+                      "okPercentage" : "31",
+                      "goodPercentage" : "47"
+                    },
+                    "state" : null,
+                    "id" : "1892000000042032",
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "zip" : null,
+                    "owner" : {
+                      "firstName" : "Twin",
+                      "lastName" : "john",
+                      "photoURL" : null,
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "1892000000042001",
+                      "zuid" : "14345345"
+                    },
+                    "cf" : {
+                      "cf_permanentaddress" : "Menlo Park, California",
+                      "cf_lastcontactedon" : null
+                    },
+                    "facebook" : null,
+                    "mobile" : null,
+                    "accountId" : "1892000000975382",
+                    "firstName" : "Jennifer",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Contacts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "account" : {
+                      "website" : null,
+                      "accountName" : "Zylker",
+                      "id" : "1892000000975382"
+                    }
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "activitiesSearchResponse" : {
+        "description" : "activitiesSearchResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/activitiesSearchData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : "2016-09-13T12:14:41.000Z",
+                    "ticket" : null,
+                    "customFields" : { },
+                    "subject" : "Bug Fix #121",
+                    "completedTime" : null,
+                    "module" : "task",
+                    "departmentId" : "3000000007043",
+                    "dueDate" : "2016-09-19T12:27:26.000Z",
+                    "creatorId" : "3000000008692",
+                    "description" : null,
+                    "ownerId" : "3000000054002",
+                    "priority" : "High",
+                    "isCommented" : false,
+                    "createdTime" : "2016-08-14T08:27:26.000Z",
+                    "assignee" : {
+                      "firstName" : "",
+                      "lastName" : "jade",
+                      "photoURL" : "https://contacts.zoho.com/file?t=user&ID=10657727",
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "5000000009116",
+                      "zuid" : "10657727"
+                    },
+                    "id" : "3000000054004",
+                    "department" : {
+                      "name" : "Testing",
+                      "id" : "5000000007235"
+                    },
+                    "category" : null,
+                    "ticketId" : null,
+                    "status" : "Not Started"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchSolutionsResponse" : {
+        "description" : "searchSolutionsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Search.json#/components/schemas/searchSolutionsData"
+                  },
+                  "count" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "count", "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./ArticleTranslation.json#/components/schemas/articleTranslationListView"
+                  },
+                  "count" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "count", "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "summary" : "Help articles are vital resources in user education. They are the first building blocks of an effective self-service setup.",
+                    "modifiedTime" : "2018-07-16T06:48:08.000Z",
+                    "latestVersionStatus" : "Published",
+                    "author" : {
+                      "photoURL" : null,
+                      "name" : "HIll",
+                      "id" : "5000000015935"
+                    },
+                    "creatorId" : "4000000012931",
+                    "modifierId" : "4000000012931",
+                    "dislikeCount" : "1",
+                    "permission" : "AGENTS",
+                    "likeCount" : "2",
+                    "title" : "Importance of a Knowledge Base",
+                    "authorId" : "4000000012931",
+                    "usageCount" : "3",
+                    "latestVersion" : "1.0",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/22372000000281023",
+                    "portalUrl" : "https://desk.zoho.com/portal/zylker/kb/articles/importance-of-knowledge-base",
+                    "feedbackCount" : "1",
+                    "createdTime" : "2018-07-16T06:48:08.000Z",
+                    "latestPublishedVersion" : "1.0",
+                    "viewCount" : "3",
+                    "id" : "22372000000281023",
+                    "permalink" : "importance-of-a-knowledge-base",
+                    "category" : {
+                      "name" : "General",
+                      "id" : "5000000017008"
+                    },
+                    "categoryId" : "4000000013240",
+                    "status" : "Published"
+                  } ],
+                  "count" : 379
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchProductsResponse" : {
+        "description" : "searchProductsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchProductsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : "2017-11-02T10:31:35.000Z",
+                    "productCode" : "Search2",
+                    "cf" : {
+                      "cf_productTagName" : "secondary engine"
+                    },
+                    "createdBy" : "5000000009116",
+                    "description" : null,
+                    "createdTime" : "2017-11-02T10:31:35.000Z",
+                    "modifiedBy" : "5000000009116",
+                    "departmentIds" : [ "5000000007235" ],
+                    "id" : "5000000009882",
+                    "productName" : "Search2"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchEventsResponse" : {
+        "description" : "searchEventsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchEventsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : "2016-07-26T17:32:11.000Z",
+                    "ticket" : {
+                      "ticketNumber" : "101",
+                      "contact" : {
+                        "firstName" : null,
+                        "lastName" : "Lawrence",
+                        "id" : "3000000008749"
+                      },
+                      "id" : "3000000008753"
+                    },
+                    "customFields" : { },
+                    "subject" : "New Event",
+                    "completedTime" : "2016-07-26T17:32:11.000Z",
+                    "departmentId" : "3000000007043",
+                    "creatorId" : "3000000008692",
+                    "description" : null,
+                    "ownerId" : null,
+                    "priority" : "Normal",
+                    "duration" : "30",
+                    "createdTime" : "2016-07-26T16:32:11.000Z",
+                    "startTime" : "2016-07-26T17:02:11.000Z",
+                    "id" : "3000000018001",
+                    "assignee" : {
+                      "firstName" : "",
+                      "lastName" : "raja",
+                      "photoURL" : null,
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "36385000000120033",
+                      "zuid" : "55499215"
+                    },
+                    "category" : "Meeting",
+                    "ticketId" : "3000000008753",
+                    "status" : "completed"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "doSearchResponse" : {
+        "description" : "doSearchResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Search.json#/components/schemas/doSearchData"
+                  },
+                  "count" : {
+                    "$ref" : "./Search.json#/components/schemas/doSearchCount"
+                  }
+                },
+                "required" : [ "count", "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Search.json#/components/schemas/searchTicketsData"
+                  },
+                  "count" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "count", "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "subject" : "Zylker ticket",
+                    "departmentId" : "4000000007043",
+                    "dueDate" : null,
+                    "channel" : "Phone",
+                    "onholdTime" : null,
+                    "sharedDepartments" : [ ],
+                    "closedTime" : null,
+                    "number" : "104",
+                    "contact" : {
+                      "phone" : null,
+                      "mobile" : "PII_PHONE_SENTINEL",
+                      "name" : "Stephen",
+                      "id" : "4000000013012",
+                      "type" : null,
+                      "email" : null,
+                      "account" : {
+                        "website" : null,
+                        "name" : "Zylker Accounts",
+                        "id" : "4000000008850"
+                      }
+                    },
+                    "createdTime" : "2016-06-27T07:22:52.000Z",
+                    "id" : "4000000016009",
+                    "department" : {
+                      "name" : "Testing",
+                      "id" : "4000000007043"
+                    },
+                    "email" : null,
+                    "customerResponseTime" : "2016-06-27T07:22:52.117Z",
+                    "cf" : {
+                      "cf_featureRequest" : false,
+                      "cf_region" : "Asia"
+                    },
+                    "productId" : "4000000013043",
+                    "contactId" : "4000000013012",
+                    "module" : "tickets",
+                    "threadCount" : "0",
+                    "team" : {
+                      "name" : "TestingTeam",
+                      "id" : "4000000007235",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/4000000007235/logo?orgId=11278831"
+                    },
+                    "priority" : null,
+                    "assigneeId" : "4000000008692",
+                    "commentCount" : "0",
+                    "phone" : null,
+                    "assignee" : {
+                      "firstName" : "",
+                      "lastName" : "jade",
+                      "photoURL" : "https://contacts.zoho.com/file?t=user&ID=10657727",
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "4000000008692",
+                      "zuid" : "10657727"
+                    },
+                    "status" : "Open"
+                  }, {
+                    "cf" : {
+                      "cf_followUpDate" : "2016-07-07T19:30:00.000Z",
+                      "cf_severity" : "High"
+                    },
+                    "ticket" : null,
+                    "subject" : "Wifi adapter not working in zylker",
+                    "completedTime" : null,
+                    "module" : "tasks",
+                    "dueDate" : "2016-06-27T19:30:00.000Z",
+                    "description" : null,
+                    "ownerId" : "4000000008692",
+                    "priority" : "High",
+                    "isCommented" : false,
+                    "createdBy" : "4000000008692",
+                    "contact" : null,
+                    "createdTime" : "2016-06-27T06:39:48.000Z",
+                    "id" : "4000000013065",
+                    "assignee" : {
+                      "firstName" : "",
+                      "lastName" : "jade",
+                      "photoURL" : "https://contacts.zoho.com/file?t=user&ID=10657727",
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "5000000009116",
+                      "zuid" : "10657727"
+                    },
+                    "category" : null,
+                    "department" : {
+                      "name" : "Testing",
+                      "id" : "5000000007235"
+                    },
+                    "ticketId" : null,
+                    "status" : "Not Started"
+                  }, {
+                    "website" : null,
+                    "phone" : null,
+                    "accountName" : "Zylker India",
+                    "customFields" : {
+                      "city" : "Delhi",
+                      "state" : "India"
+                    },
+                    "module" : "accounts",
+                    "id" : "4000000013027",
+                    "email" : null
+                  }, {
+                    "lastName" : "Stephen",
+                    "accountId" : "4000000008850",
+                    "firstName" : "Henry",
+                    "photoURL" : null,
+                    "phone" : null,
+                    "customFields" : {
+                      "customerSince" : "2011",
+                      "editionUsed" : "Professional"
+                    },
+                    "module" : "contacts",
+                    "fullName" : "Henry Stephen",
+                    "id" : "4000000013012",
+                    "ownerId" : "4000000008692",
+                    "email" : null,
+                    "account" : {
+                      "website" : null,
+                      "name" : "Zylker India",
+                      "id" : "4000000008850"
+                    }
+                  } ],
+                  "count" : {
+                    "tickets" : 1,
+                    "accounts" : 1,
+                    "tasks" : 1,
+                    "contacts" : 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchTasksResponse" : {
+        "description" : "searchTasksResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Search.json#/components/schemas/searchTasksData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : "2016-09-13T12:14:41.000Z",
+                    "cf" : {
+                      "cf_permanentaddress" : "Menlo Park, California"
+                    },
+                    "ticket" : null,
+                    "subject" : "Bug Fix #121",
+                    "completedTime" : null,
+                    "departmentId" : "3000000007043",
+                    "dueDate" : "2016-09-19T12:27:26.000Z",
+                    "creatorId" : "3000000008692",
+                    "description" : null,
+                    "ownerId" : "3000000054002",
+                    "priority" : "High",
+                    "isCommented" : false,
+                    "createdTime" : "2016-08-14T08:27:26.000Z",
+                    "assignee" : {
+                      "firstName" : "",
+                      "lastName" : "jade",
+                      "photoURL" : "https://contacts.zoho.com/file?t=user&ID=10657727",
+                      "emailId" : "PII_EMAIL_SENTINEL",
+                      "id" : "5000000009116",
+                      "zuid" : "10657727"
+                    },
+                    "id" : "3000000054004",
+                    "department" : {
+                      "name" : "Testing",
+                      "id" : "5000000007235"
+                    },
+                    "category" : null,
+                    "ticketId" : null,
+                    "status" : "Not Started"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "ticketNumber" : {
+        "name" : "ticketNumber",
+        "in" : "query",
+        "description" : "The ticket's serial number !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "The ticket's serial number !@exact match@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "startDateRange" : {
+        "name" : "startDateRange",
+        "in" : "query",
+        "description" : "Key that filters calls that were made in a particular period. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! startDateRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters calls that were made in a particular period. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! startDateRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+        }
+      },
+      "productId" : {
+        "name" : "productId",
+        "in" : "query",
+        "description" : "ID of the product associated with the ticket !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the product associated with the ticket !@exact match@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "accountName" : {
+        "name" : "accountName",
+        "in" : "query",
+        "description" : "Name of the account associated with the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Name of the account associated with the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+          "maxLength" : 200,
+          "minLength" : 0
+        }
+      },
+      "contactId" : {
+        "name" : "contactId",
+        "in" : "query",
+        "description" : "ID of the contact who raised the ticket !@exact match@! ",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the contact who raised the ticket !@exact match@! ",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "subject" : {
+        "name" : "subject",
+        "in" : "query",
+        "description" : "Subject of the ticket !@wildcard search@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Subject of the ticket !@wildcard search@!",
+          "maxLength" : 1000,
+          "minLength" : 0
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department from which the entity must be fetched. If the ID is not passed, then searches in all permitted departments !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which the entity must be fetched. If the ID is not passed, then searches in all permitted departments !@exact match@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "createdTimeRange" : {
+        "name" : "createdTimeRange",
+        "in" : "query",
+        "description" : "Key that filters tickets created in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! createdTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters tickets created in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! createdTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+        }
+      },
+      "priority" : {
+        "name" : "priority",
+        "in" : "query",
+        "description" : "Priority of the ticket !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Priority of the ticket !@exact match@!",
+          "x-dynamic-enum" : true
+        }
+      },
+      "assigneeId" : {
+        "name" : "assigneeId",
+        "in" : "query",
+        "description" : "ID of the agent who is assigned to resolve the ticket !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the agent who is assigned to resolve the ticket !@exact match@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "productName" : {
+        "name" : "productName",
+        "in" : "query",
+        "description" : "Name of the product associated with the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Name of the product associated with the ticket !@wildcard search@! !@empty check@! !@not empty check@!",
+          "maxLength" : 200,
+          "minLength" : 0
+        }
+      },
+      "_all" : {
+        "name" : "_all",
+        "in" : "query",
+        "description" : "Key that includes all the columns in the tickets module for search !@wildcard search@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that includes all the columns in the tickets module for search !@wildcard search@!",
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "accountId" : {
+        "name" : "accountId",
+        "in" : "query",
+        "description" : "ID of the account associated with the ticket !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the account associated with the ticket !@exact match@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Specifies the number of tickets to be fetched. !@default : 10@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Specifies the number of tickets to be fetched. !@default : 10@!",
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "The starting index for fetching results. !@default : 0@! !@starts from 0@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "The starting index for fetching results. !@default : 0@! !@starts from 0@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "dueDateRange" : {
+        "name" : "dueDateRange",
+        "in" : "query",
+        "description" : "Key that filters tickets due in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! dueDateRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters tickets due in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! dueDateRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+        }
+      },
+      "modifiedTimeRange" : {
+        "name" : "modifiedTimeRange",
+        "in" : "query",
+        "description" : "Key that filters tickets modified in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! modifiedTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters tickets modified in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! modifiedTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+        }
+      },
+      "id" : {
+        "name" : "id",
+        "in" : "query",
+        "description" : "ID of the ticket !@exact match@! ",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the ticket !@exact match@! ",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "status" : {
+        "name" : "status",
+        "in" : "query",
+        "description" : "Status of the ticket inclusive of custom status. example: 1. status=open,in progress 2. status=${open}  !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Status of the ticket inclusive of custom status. example: 1. status=open,in progress 2. status=${open}  !@exact match@!",
+          "x-dynamic-enum" : true
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Search"
+}

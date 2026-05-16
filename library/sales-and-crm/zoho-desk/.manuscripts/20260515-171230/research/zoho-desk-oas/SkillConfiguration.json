@@ -1,0 +1,172 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "SkillConfiguration",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/skillConfiguration" : {
+      "get" : {
+        "tags" : [ "SkillConfiguration" ],
+        "summary" : "Get Skill Configuration",
+        "description" : "This API gets Configuration of Skill in a Department",
+        "operationId" : "getSkillConfiguration",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Department Id",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/skillConfigurationJson"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "SkillConfiguration" ],
+        "summary" : "Update Skill Configuration",
+        "description" : "This API updates Configuration of Skill in a Department",
+        "operationId" : "updateSkillConfiguration",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/skillConfigurationJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/skillConfigurationJson"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "skillConfigurationJson" : {
+        "description" : "skillConfigurationJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "autoSkillStamping" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "attachSkillsOption" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "AT_FIRST", "AT_THE_END", "BY_SKILL_ORDER" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "attachSkillsOption", "autoSkillStamping", "departmentId" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "autoSkillStamping" : "ACTIVE",
+                  "departmentId" : "1000000013248",
+                  "attachSkillsOption" : "AT_THE_END"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "skillConfigurationJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "autoSkillStamping" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "attachSkillsOption" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "AT_FIRST", "AT_THE_END", "BY_SKILL_ORDER" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "departmentId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "autoSkillStamping" : "INACTIVE",
+                  "departmentId" : "1000000013248",
+                  "attachSkillsOption" : "AT_FIRST"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "SkillConfiguration"
+}

@@ -1,0 +1,297 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Community",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/communityTopics/{topicId}/attachments/{attachmentId}/content" : {
+      "get" : {
+        "tags" : [ "Community" ],
+        "summary" : "Get community topic attachment",
+        "description" : "This API fetches a file attachment from a topic.",
+        "operationId" : "getCommunityTopicAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "#/components/parameters/attachmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/voters/trend" : {
+      "get" : {
+        "tags" : [ "Community" ],
+        "summary" : "Topic voters trend",
+        "description" : "To get trend of voters of a topic",
+        "operationId" : "getCommunityTopicVotersTrend",
+        "parameters" : [ {
+          "name" : "startTime",
+          "in" : "query",
+          "description" : "Starting time of the time range for which the statistics should be fetched. The value must be expressed according to the GMT time zone.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Starting time of the time range for which the statistics should be fetched. The value must be expressed according to the GMT time zone.",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          }
+        }, {
+          "name" : "endTime",
+          "in" : "query",
+          "description" : "Ending time of the time range for which the statistics should be fetched. The value must be expressed according to the GMT time zone.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Ending time of the time range for which the statistics should be fetched. The value must be expressed according to the GMT time zone.",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          }
+        }, {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/topicVoterTrendResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/moveToTrash" : {
+      "post" : {
+        "tags" : [ "Community" ],
+        "summary" : "Trash community topic",
+        "description" : "This API moves a forum topic to trash of your help desk portal.",
+        "operationId" : "deleteCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/replies/{replyId}/attachments/{attachmentId}/content" : {
+      "get" : {
+        "tags" : [ "Community" ],
+        "summary" : "Get community topic reply attachment",
+        "description" : "This API fetches a file attachment from a reply to a topic comment.",
+        "operationId" : "getCommunityTopicReplyAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "name" : "replyId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/attachmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/lock" : {
+      "post" : {
+        "tags" : [ "Community" ],
+        "summary" : "Lock community topic",
+        "description" : "This API helps lock a forum topic, so that further user actions are restricted.",
+        "operationId" : "lockCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/comments/{commentId}/attachments/{attachmentId}/content" : {
+      "get" : {
+        "tags" : [ "Community" ],
+        "summary" : "Get community topic comment attachment",
+        "description" : "This API fetches a file attachment from a topic comment.",
+        "operationId" : "getCommunityTopicCommentAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "name" : "commentId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/attachmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "trendDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "date" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "count" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "count", "date" ]
+      },
+      "commentsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Community.json#/components/schemas/trendDetails"
+        }
+      }
+    },
+    "responses" : {
+      "topicVoterTrendResponse" : {
+        "description" : "topicVoterTrendResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "topicVoterTrend" : {
+                  "$ref" : "./Community.json#/components/schemas/commentsArr"
+                }
+              },
+              "required" : [ "topicVoterTrend" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "topicVoterTrend" : [ {
+                    "date" : "May-2023",
+                    "count" : "0"
+                  }, {
+                    "date" : "Jun-2023",
+                    "count" : "0"
+                  }, {
+                    "date" : "Jul-2023",
+                    "count" : "0"
+                  }, {
+                    "date" : "Aug-2023",
+                    "count" : "0"
+                  }, {
+                    "date" : "Sep-2023",
+                    "count" : "1"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "topicId" : {
+        "name" : "topicId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "attachmentId" : {
+        "name" : "attachmentId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Community"
+}

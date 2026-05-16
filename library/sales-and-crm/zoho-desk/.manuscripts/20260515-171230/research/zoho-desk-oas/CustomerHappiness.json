@@ -1,0 +1,124 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "CustomerHappiness",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/customerHappinessLinkHolder" : {
+      "get" : {
+        "tags" : [ "CustomerHappiness" ],
+        "summary" : "Get the customer feedback placeholder link",
+        "description" : "This API provides an html placeholder to insert the customer feedback link into the reply mail. The link, when clicked by the email recipient, leads them to a feedback form where they can provide their feedback.",
+        "operationId" : "GetCustomerHappinessLinkHolder",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "languageCode",
+          "in" : "query",
+          "description" : "Localization languageCode of Customer Happiness page to be displayed",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Localization languageCode of Customer Happiness page to be displayed",
+            "enum" : [ "aa", "ab", "ae", "af-ZA", "ak", "am", "an", "ar-EG", "as-IN", "av", "ay", "az-AZ", "ba", "be-BY", "bg-BG", "bh-IN", "bi", "bm", "bn-IN", "bo", "br", "bs-BA", "ca-ES", "ce", "ch", "co", "cr", "cs-CZ", "cu", "cv", "cy", "da-DK", "de-DE", "dv-MV", "dz", "ee", "el-GR", "en-US", "eo", "es-ES", "et-EE", "eu-ES", "fa-IR", "ff", "fi-FI", "fj", "fo-FO", "fr-FR", "fy", "ga", "gd", "gl-ES", "gn", "gu-IN", "gv", "ha", "he-IL", "hi-IN", "ho", "hr-HR", "ht", "hu-HU", "hy-AM", "hz", "ia", "id-ID", "ie", "ig", "ii", "ik", "io", "is-IS", "it-IT", "iu", "ja-JP", "jv", "ka-GE", "kg", "ki", "kj", "kk-KZ", "kl", "km", "kn-IN", "ko-KR", "kr", "ks", "ku", "kv", "kw", "ky-KZ", "la", "lb", "lg", "li", "ln", "lo", "lt-LT", "lu", "lv-LV", "mg", "mh", "mi-NZ", "mk-MK", "ml-IN", "mn-MN", "mr-IN", "ms-MY", "mt-MT", "my-MM", "na", "nb-NO", "nd", "ne", "ng", "nl-NL", "nn-NO", "no", "nr", "nv", "ny", "oc", "oj", "om", "or", "os", "pa-IN", "pi", "pl-PL", "ps-AR", "pt-PT", "qu-BO", "rm", "rn", "ro-RO", "ru-RU", "rw", "sa-IN", "sc", "sd", "se-NO", "sg", "si", "sk-SK", "sl-SI", "sm", "sn", "so", "sq-AL", "sr-SP", "ss", "st", "su", "sv-SE", "sw-KE", "ta-IN", "te-IN", "tg", "th-TH", "ti", "tk", "tl-PH", "tn-ZA", "to", "tr-TR", "ts", "tt-RU", "tw", "ty", "ug", "uk-UA", "ur-PK", "uz-UZ", "ve", "vi-VN", "vo", "wa", "wo", "xh-ZA", "yi", "yo", "za", "zh-CN", "zu-ZA", "fr-CA", "en-GB", "zh-TW", "pt-BR" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/LinkHolderResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "customerHappiness" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "badCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "goodCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "okCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "badCount", "goodCount", "okCount" ]
+      }
+    },
+    "responses" : {
+      "LinkHolderResponse" : {
+        "description" : "LinkHolderResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "linkHolder" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 10000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "linkHolder" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "linkHolder" : "<div title=\"link:::\"></div><a href=\"javascript:void(0)\">How would you rate our customer service?</a><br/><div  style=\"line-height: 16px; cursor: pointer; float: left; color:#666; margin: 15px 10px 10px 0; background: #f5f5f5; border-radius: 50px; font-size: 13px; min-width: 100px; padding: 5px 10px 5px 5px;\"><img width=\"24\" height=\"24\" align=\"left\" style=\"margin-right:5px;background: transparent\" src=\"https://static.zohocdn.com/desk/app/images/emo-g.27152b145e7c33304a9b.png\" alt=\"\" ><div style=\"float: left; margin-top: 4px;\">Good</div> </div><div  style=\"line-height: 16px; cursor: pointer; float: left; color:#666; margin: 15px 10px 10px 0; background: #f5f5f5; border-radius: 50px; font-size: 13px; min-width: 100px; padding: 5px 10px 5px 5px;\"><img width=\"24\" height=\"24\" align=\"left\" style=\"margin-right:5px;background: transparent\" src=\"https://static.zohocdn.com/desk/app/images/emo-y.2c45cbbe146a58f59ee0.png\" alt=\"\"><div style=\"float: left; margin-top: 4px;\">Okay</div> </div><div  style=\"line-height: 16px; cursor: pointer; float: left; color:#666; margin: 15px 10px 10px 0; background: #f5f5f5; border-radius: 50px; font-size: 13px; min-width: 100px; padding: 5px 10px 5px 5px;\"><img width=\"24\" height=\"24\" align=\"left\" style=\"margin-right:5px;background: transparent\" src=\"https://static.zohocdn.com/desk/app/images/emo-r.8d4f8a095a2c3e1be1ab.png\" alt=\"\"><div style=\"float: left; margin-top: 4px;\">Bad</div> </div><div style=\"clear:both\"></div><div title=\"link:::\"></div></div>"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "Mandatory param to fetch the customer-happiness list for a given ID of the department. You can also provide department as @allDepartment@ to fetch customer happiness from all departments",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Mandatory param to fetch the customer-happiness list for a given ID of the department. You can also provide department as @allDepartment@ to fetch customer happiness from all departments",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "CustomerHappiness"
+}

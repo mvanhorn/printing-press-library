@@ -1,0 +1,812 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "DashboardMetrics",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/dashboards/onholdTickets" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "Get on hold tickets count",
+        "description" : "This API fetches the number of tickets that are in the on hold status.",
+        "operationId" : "getOnholdTickets",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/reopenedTickets"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/solvedTickets" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "Get closed tickets count",
+        "description" : "This API fetches the number of tickets that are resolved.",
+        "operationId" : "getSolvedTickets",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/reopenedTickets"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/backlogTickets" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "Get unresolved tickets count",
+        "description" : "This API fetches the number of tickets that have remained unresolved over a particular period.",
+        "operationId" : "getBacklogTickets",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "name" : "groupBy",
+          "in" : "query",
+          "description" : "Key that groups the ticket count according to a particular attribute.This value can be @date@ @channel@ @agent@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that groups the ticket count according to a particular attribute.This value can be @date@ @channel@ @agent@",
+            "enum" : [ "date", "channel", "agent" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/reopenedTickets"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/reopenedTickets" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "Get reopened tickets count",
+        "description" : "This API fetches the number of tickets that were reopened in your help desk portal.",
+        "operationId" : "getReopenedTickets",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/reopenedTickets"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/ticketsResolutionTime" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "List resolution times",
+        "description" : "This API lists the durations taken to resolve tickets.",
+        "operationId" : "getResolutionTime",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/resolutionTime"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/createdTickets" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "Get created tickets count",
+        "description" : "This API fetches the number of tickets created in a particular duration.",
+        "operationId" : "getCreatedTickets",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/reopenedTickets"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/responseCount" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "Get total response count",
+        "description" : "This API fetches the total number of responses sent/made by your agents.",
+        "operationId" : "getResponseCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/responseCount"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/dashboards/responseTime" : {
+      "get" : {
+        "tags" : [ "DashboardMetrics" ],
+        "summary" : "List response times",
+        "description" : "This API lists the durations taken to respond to tickets.",
+        "operationId" : "getResponseTime",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/duration"
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/teamId"
+        }, {
+          "$ref" : "#/components/parameters/channel"
+        }, {
+          "$ref" : "#/components/parameters/groupBy"
+        }, {
+          "name" : "isFirstResponse",
+          "in" : "query",
+          "description" : "Key that specifies if the response is the first response to the customer question",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that specifies if the response is the first response to the customer question"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/responseTime"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "countArrayObject" : {
+        "type" : [ "object", "null" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "count" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "value" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "referenceValue" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "count", "referenceValue", "value" ]
+      },
+      "countArray" : {
+        "type" : [ "array", "null" ],
+        "items" : {
+          "$ref" : "./DashboardMetrics.json#/components/schemas/countArrayObject"
+        }
+      },
+      "resolutionTimeObject" : {
+        "type" : [ "object", "null" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "avgSystemTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+          },
+          "ticketCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "avgAgentTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+          },
+          "value" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "referenceValue" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "avgAgentTime", "avgSystemTime", "referenceValue", "ticketCount", "value" ]
+      },
+      "resolutionTimeArray" : {
+        "type" : [ "array", "null" ],
+        "items" : {
+          "$ref" : "./DashboardMetrics.json#/components/schemas/resolutionTimeObject"
+        }
+      },
+      "responseTimeObject" : {
+        "type" : [ "object", "null" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "avgSystemTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+          },
+          "avgAgentTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+          },
+          "responseCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "value" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "referenceValue" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "avgAgentTime", "avgSystemTime", "referenceValue", "responseCount", "value" ]
+      },
+      "responseTimeArray" : {
+        "type" : [ "array", "null" ],
+        "items" : {
+          "$ref" : "./DashboardMetrics.json#/components/schemas/responseTimeObject"
+        }
+      }
+    },
+    "responses" : {
+      "reopenedTickets" : {
+        "description" : "reopenedTickets template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "totalTicketCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "avg" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+                },
+                "ticketCount" : {
+                  "$ref" : "./DashboardMetrics.json#/components/schemas/countArray"
+                },
+                "groupedBy" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "date", "channel", "agent", "hour" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "avg", "groupedBy", "ticketCount", "totalTicketCount" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "totalTicketCount" : "1",
+                  "avg" : "0.1",
+                  "ticketCount" : [ {
+                    "count" : "0",
+                    "value" : "2018-04-01",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-02",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-03",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-04",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-05",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "1",
+                    "value" : "2018-04-06",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-07",
+                    "referenceValue" : null
+                  } ],
+                  "groupedBy" : "date"
+                }
+              }
+            }
+          }
+        }
+      },
+      "resolutionTime" : {
+        "description" : "resolutionTime template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "totalAvgAgentTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+                },
+                "timeData" : {
+                  "$ref" : "./DashboardMetrics.json#/components/schemas/resolutionTimeArray"
+                },
+                "totalTicketCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "totalAvgSystemTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+                },
+                "groupedBy" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "date", "channel", "agent", "hour" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "groupedBy", "timeData", "totalAvgAgentTime", "totalAvgSystemTime", "totalTicketCount" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "totalAvgAgentTime" : "41:50 hrs",
+                  "timeData" : [ {
+                    "avgSystemTime" : "41:50 hrs",
+                    "ticketCount" : "1",
+                    "avgAgentTime" : "41:50 hrs",
+                    "value" : "Priyanka",
+                    "referenceValue" : "4000000012629"
+                  } ],
+                  "totalTicketCount" : "1",
+                  "totalAvgSystemTime" : "41:50 hrs",
+                  "groupedBy" : "agent"
+                }
+              }
+            }
+          }
+        }
+      },
+      "responseCount" : {
+        "description" : "responseCount template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "avg" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+                },
+                "groupedBy" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "date", "channel", "agent", "hour" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "totalResponseCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "responseCount" : {
+                  "$ref" : "./DashboardMetrics.json#/components/schemas/countArray"
+                }
+              },
+              "required" : [ "avg", "groupedBy", "responseCount", "totalResponseCount" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "avg" : "0.0",
+                  "groupedBy" : "date",
+                  "totalResponseCount" : "0",
+                  "responseCount" : [ {
+                    "count" : "0",
+                    "value" : "2018-04-06",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-07",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-08",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-09",
+                    "referenceValue" : null
+                  }, {
+                    "count" : "0",
+                    "value" : "2018-04-10",
+                    "referenceValue" : null
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "responseTime" : {
+        "description" : "responseTime template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "totalAvgAgentTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+                },
+                "timeData" : {
+                  "$ref" : "./DashboardMetrics.json#/components/schemas/responseTimeArray"
+                },
+                "totalAvgSystemTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "((^([0-9]*):([0-5][0-9]) hrs$)|null|undefined)"
+                },
+                "groupedBy" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "date", "channel", "agent", "hour" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "totalResponseCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "groupedBy", "timeData", "totalAvgAgentTime", "totalAvgSystemTime", "totalResponseCount" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "totalAvgAgentTime" : "41:50 hrs",
+                  "timeData" : [ {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Feedback Widget",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Email",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Web",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "41:50 hrs",
+                    "avgAgentTime" : "41:50 hrs",
+                    "responseCount" : "1",
+                    "value" : "Phone",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Forums",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Chat",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Twitter",
+                    "referenceValue" : null
+                  }, {
+                    "avgSystemTime" : "00:00 hrs",
+                    "avgAgentTime" : "00:00 hrs",
+                    "responseCount" : "0",
+                    "value" : "Facebook",
+                    "referenceValue" : null
+                  } ],
+                  "totalAvgSystemTime" : "41:50 hrs",
+                  "groupedBy" : "channel",
+                  "totalResponseCount" : "1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "duration" : {
+        "name" : "duration",
+        "in" : "query",
+        "description" : "Predefined time range from which the stats must be fetched",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Predefined time range from which the stats must be fetched",
+          "enum" : [ "LAST_30_DAYS", "LAST_7_DAYS", "THIS_WEEK", "LAST_WEEK", "THIS_MONTH", "LAST_MONTH" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "agentId" : {
+        "name" : "agentId",
+        "in" : "query",
+        "description" : "ID(s) of the agent(s) whose stats must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID(s) of the agent(s) whose stats must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID(s) of the department(s) from which the stats must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID(s) of the department(s) from which the stats must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "teamId" : {
+        "name" : "teamId",
+        "in" : "query",
+        "description" : "ID(s) of the team(s) from which the stats must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID(s) of the team(s) from which the stats must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "channel" : {
+        "name" : "channel",
+        "in" : "query",
+        "description" : "Channel through which the tickets were received",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Channel through which the tickets were received",
+          "x-dynamic-enum" : true
+        }
+      },
+      "groupBy" : {
+        "name" : "groupBy",
+        "in" : "query",
+        "description" : "To get customer happiness count via particular group.This value can be @date@ @channel@ @agent@ | @hour@",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "To get customer happiness count via particular group.This value can be @date@ @channel@ @agent@ | @hour@",
+          "enum" : [ "date", "channel", "agent", "hour" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "DashboardMetrics"
+}

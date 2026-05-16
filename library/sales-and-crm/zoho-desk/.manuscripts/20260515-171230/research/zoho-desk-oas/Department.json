@@ -1,0 +1,1099 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Department",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/departments/{departmentId}/associateAgents" : {
+      "post" : {
+        "tags" : [ "Department" ],
+        "summary" : "Associate agents to department",
+        "description" : "This API associates agents to a department.",
+        "operationId" : "associateAgentsToDepartment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateAgents_agentIdsArray"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/{departmentId}" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "Get department",
+        "description" : "This API fetches the details of a department from your help desk",
+        "operationId" : "getDepartment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getDepartmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Department" ],
+        "summary" : "Update department",
+        "description" : "This API updates the details of an existing department.",
+        "operationId" : "updateDepartment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateDepartmentJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getDepartmentResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/{departmentId}/logo" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "Get department logo",
+        "description" : "This API fetches the logo set for a department.",
+        "operationId" : "getDepartmentLogo",
+        "parameters" : [ {
+          "name" : "fileSize",
+          "in" : "query",
+          "description" : "Size of the image file to download. Values allowed are @THUMBNAIL@ (image with reduced dimensions and size) and @ACTUAL@ (image with actual dimensions and size). The default value is @ACTUAL@.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Size of the image file to download. Values allowed are @THUMBNAIL@ (image with reduced dimensions and size) and @ACTUAL@ (image with actual dimensions and size). The default value is @ACTUAL@.",
+            "enum" : [ "THUMBNAIL", "ACTUAL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Department" ],
+        "summary" : "Upload department logo",
+        "description" : "This API updates the logo set for a department.",
+        "operationId" : "updateDepartmentLogo",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "departmentLogo" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "departmentLogo" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Department" ],
+        "summary" : "Delete department logo",
+        "description" : "This API removes the logo set for a department.",
+        "operationId" : "deleteDepartmentLogo",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE", "Desk.basic.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/{departmentId}/enable" : {
+      "post" : {
+        "tags" : [ "Department" ],
+        "summary" : "Enable department",
+        "description" : "This API enables a department in your help desk portal.",
+        "operationId" : "enableDepartment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/{departmentId}/disable" : {
+      "post" : {
+        "tags" : [ "Department" ],
+        "summary" : "Disable department",
+        "description" : "This API disables a department in your help desk portal.",
+        "operationId" : "disableDepartment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/disableTransfer"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departmentsByIds" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "Get department details by department IDs",
+        "description" : "This API fetches the details of the departments whose IDs are passed in the API request.",
+        "operationId" : "getDepartmentsByIds",
+        "parameters" : [ {
+          "name" : "departmentIds",
+          "in" : "query",
+          "description" : "Comma-separated array of department IDs. Maximum number of IDs allowed is 50.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Comma-separated array of department IDs. Maximum number of IDs allowed is 50.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/departmentListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/{departmentId}/agents" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "List agents in department",
+        "description" : "This API lists the agents in a department.",
+        "operationId" : "getAgentsInDepartment",
+        "parameters" : [ {
+          "name" : "fieldName",
+          "in" : "query",
+          "description" : "Name of the field that must be used for searching and listing agents. Values allowed are: @firstName@, @lastName@, @name@, and @emailId@.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the field that must be used for searching and listing agents. Values allowed are: @firstName@, @lastName@, @name@, and @emailId@.",
+            "enum" : [ "firstName", "lastName", "emailId", "name" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/searchStr"
+        }, {
+          "name" : "isLightAgent",
+          "in" : "query",
+          "description" : "Key that denotes if the agents must be light or non light.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that denotes if the agents must be light or non light."
+          }
+        }, {
+          "name" : "sortOrder",
+          "in" : "query",
+          "description" : "To sort the available list of agents in either ascending or descending order. Values allowed are: @asc@ or @desc@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "To sort the available list of agents in either ascending or descending order. Values allowed are: @asc@ or @desc@",
+            "enum" : [ "asc", "desc" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "isConfirmed",
+          "in" : "query",
+          "description" : "Key that denotes if the agents must be confirmed or unconfirmed.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that denotes if the agents must be confirmed or unconfirmed."
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Key that filters agents, based on their activation status: @ACTIVE@ or @DISABLED@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that filters agents, based on their activation status: @ACTIVE@ or @DISABLED@",
+            "enum" : [ "ACTIVE", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "./Agent.json#/components/responses/agentListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/count" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "Get department count",
+        "description" : "This API returns the number of departments configured in your help desk portal.",
+        "operationId" : "getDepartmentsCount",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/deptCountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/{departmentId}/dissociateAgents" : {
+      "post" : {
+        "tags" : [ "Department" ],
+        "summary" : "Dissociate agents from department",
+        "description" : "This API dissociates agents from a department.",
+        "operationId" : "dissociateAgents",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/dissociateAgents_agentIdsArray"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "List departments",
+        "description" : "This API lists a particular number of departments, based on the limit specified.",
+        "operationId" : "getDepartments",
+        "parameters" : [ {
+          "name" : "chatStatus",
+          "in" : "query",
+          "description" : "Key that filters departments based on their chat status. Values allowed are @AVAILABLE@, @DISABLED@, @NOT_CREATED@, and @${UNAVAILABLE}@. @${UNAVAILABLE}@ refers to departments which are not available for chat.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that filters departments based on their chat status. Values allowed are @AVAILABLE@, @DISABLED@, @NOT_CREATED@, and @${UNAVAILABLE}@. @${UNAVAILABLE}@ refers to departments which are not available for chat.",
+            "enum" : [ "AVAILABLE", "DISABLED", "NOT_CREATED", "${UNAVAILABLE}" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/searchStr"
+        }, {
+          "name" : "isEnabled",
+          "in" : "query",
+          "description" : "Key that filters departments based on their enabled status",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that filters departments based on their enabled status"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/departmentListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Department" ],
+        "summary" : "Add department",
+        "description" : "This API adds a department to your help desk portal.",
+        "operationId" : "addDepartment",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addDepartmentJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getDepartmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE", "Desk.basic.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/departments/checkExists" : {
+      "get" : {
+        "tags" : [ "Department" ],
+        "summary" : "Check for duplicate departments",
+        "description" : "This API checks if multiple departments have the same name.",
+        "operationId" : "checkDepartmentNameExist",
+        "parameters" : [ {
+          "name" : "departmentName",
+          "in" : "query",
+          "description" : "Name of the department for which you want to check duplicate entries",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the department for which you want to check duplicate entries",
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/checkNameResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "agentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Agent.json#/components/schemas/agentIdsResponse"
+        }
+      },
+      "commonDepartmentResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isAssignToTeamEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "chatStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "AVAILABLE", "DISABLED", "NOT_CREATED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "hasLogo" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "sanitizedName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isVisibleInCustomerPortal" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "creatorId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isDefault" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "nameInCustomerPortal" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "chatStatus", "createdTime", "creatorId", "description", "hasLogo", "id", "isAssignToTeamEnabled", "isDefault", "isEnabled", "isVisibleInCustomerPortal", "name", "nameInCustomerPortal", "sanitizedName" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/commonDepartmentResponse"
+        }
+      },
+      "updateDepartmentJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isAssignToTeamEnabled" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that denotes if the assign to team functionality is enabled or not"
+          },
+          "nameInCustomerPortal" : {
+            "type" : [ "string", "null" ],
+            "description" : "Display name of the department in the help center",
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "isAssignToTeamEnabled", "nameInCustomerPortal" ]
+      },
+      "departmentObjectWithPrimaryDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      }
+    },
+    "responses" : {
+      "deptCountResponse" : {
+        "description" : "deptCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : 5
+                }
+              }
+            }
+          }
+        }
+      },
+      "getDepartmentResponse" : {
+        "description" : "getDepartmentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/commonDepartmentResponse"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "associatedAgentIds" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "uniqueItems" : false
+                  }
+                },
+                "required" : [ "associatedAgentIds" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "isAssignToTeamEnabled" : false,
+                  "chatStatus" : "NOT_CREATED",
+                  "hasLogo" : false,
+                  "isVisibleInCustomerPortal" : true,
+                  "creatorId" : "1892000000042001",
+                  "description" : "With the most advanced technology, the zPhone is the world’s largest selling smartphone.",
+                  "associatedAgentIds" : [ "1892000000042001", "1892000000056007" ],
+                  "isDefault" : false,
+                  "isEnabled" : true,
+                  "name" : "zPhone",
+                  "createdTime" : 1564146662000,
+                  "id" : "1892000000082085",
+                  "nameInCustomerPortal" : "zPhone"
+                }
+              }
+            }
+          }
+        }
+      },
+      "departmentListViewArray" : {
+        "description" : "departmentListViewArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "isAssignToTeamEnabled" : true,
+                    "chatStatus" : "AVAILABLE",
+                    "isDefault" : true,
+                    "hasLogo" : true,
+                    "isVisibleInCustomerPortal" : true,
+                    "isEnabled" : true,
+                    "name" : "Zylker",
+                    "creatorId" : "1892000000042001",
+                    "description" : "Zylker Inc. is a multinational technology company that designs, develops, and sells consumer electronics.",
+                    "createdTime" : 1564146662000,
+                    "id" : "1892000000082069",
+                    "nameInCustomerPortal" : "ZylCares"
+                  }, {
+                    "isAssignToTeamEnabled" : true,
+                    "chatStatus" : "AVAILABLE",
+                    "isDefault" : false,
+                    "hasLogo" : true,
+                    "isVisibleInCustomerPortal" : true,
+                    "isEnabled" : true,
+                    "name" : "zPad",
+                    "creatorId" : "1892000000042001",
+                    "description" : "zPad is the most advanced tablet that brings you the never-experienced-before processing power.",
+                    "createdTime" : 1566904321000,
+                    "id" : "1892000000082085",
+                    "nameInCustomerPortal" : "zPad"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "checkNameResponse" : {
+        "description" : "checkNameResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isDepartmentNameExist" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "isDepartmentNameExist" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "isDepartmentNameExist" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "searchStr" : {
+        "name" : "searchStr",
+        "in" : "query",
+        "description" : "String to search for agents by first name, last name, or email ID. The string must contain at least one character. Three search methods are supported: 1) string* - Searches for agents whose first name, last name, or email ID start with the string, 2) *string* - Searches for agents whose first name, last name, or email ID contain the string, 3) string - Searches for agents whose first name, last name, or email ID is an exact match for the string",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "String to search for agents by first name, last name, or email ID. The string must contain at least one character. Three search methods are supported: 1) string* - Searches for agents whose first name, last name, or email ID start with the string, 2) *string* - Searches for agents whose first name, last name, or email ID contain the string, 3) string - Searches for agents whose first name, last name, or email ID is an exact match for the string",
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of agents to fetch; default value is 10 and maximum value is 200",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of agents to fetch; default value is 10 and maximum value is 200",
+          "maximum" : 200,
+          "minimum" : 0,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the agents must be listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the agents must be listed",
+          "minimum" : 0,
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "agentIdsArray" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "agentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "agentIds" : [ 1892000000056007, 1892000000056008 ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "reInviteAgents_agentIdsArray" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "agentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "agentIds" : [ 1892000000056007, 1892000000056008 ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateAgents_agentIdsArray" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "agentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "agentIds" : [ "1892000000042001", "1892000000056007" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "disableTransfer" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "emailNewDepartment" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "agentNewDepartment" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "agentNewDepartment" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "emailNewDepartment" : "1892000000082069",
+                  "agentNewDepartment" : "1892000000082069"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dissociateAgents_agentIdsArray" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "agentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "agentIds" : [ "1892000000056007" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateDepartmentJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isAssignToTeamEnabled" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that denotes if the assign to team functionality is enabled or not"
+                },
+                "nameInCustomerPortal" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Display name of the department in the help center",
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isAssignToTeamEnabled" : true,
+                  "nameInCustomerPortal" : "zPhone Support"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addDepartmentJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/updateDepartmentJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "isVisibleInCustomerPortal" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that denotes if the department is visible in the help center or not"
+                  },
+                  "name" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Name of the department",
+                    "maxLength" : 200,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "A short description of the department",
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "associatedAgentIds" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "associatedAgentIds", "name" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isAssignToTeamEnabled" : false,
+                  "isVisibleInCustomerPortal" : true,
+                  "name" : "zPhone",
+                  "description" : "With the most advanced technology, the zPhone is the world’s largest selling smartphone.",
+                  "associatedAgentIds" : [ "1892000000042001", "1892000000056007" ],
+                  "nameInCustomerPortal" : "zPhone"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Department"
+}

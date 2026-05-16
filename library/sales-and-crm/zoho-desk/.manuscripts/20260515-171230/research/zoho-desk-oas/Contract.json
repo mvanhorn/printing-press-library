@@ -1,0 +1,1657 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Contract",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/contracts/updateMany" : {
+      "post" : {
+        "tags" : [ "Contract" ],
+        "summary" : "Update many contracts",
+        "description" : "This API updates multiple contracts at once.",
+        "operationId" : "updateMany",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/contractMassUpdate"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contracts" : {
+      "get" : {
+        "tags" : [ "Contract" ],
+        "summary" : "List all contracts",
+        "description" : "To get a list of contracts",
+        "operationId" : "getContracts",
+        "parameters" : [ {
+          "name" : "accountId",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "include",
+          "in" : "query",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "products", "slas", "owner", "departments" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "ownerIds",
+          "in" : "query",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "accountName", "contractName", "contractEndDate", "contractStartDate", "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "contractName",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 80,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        }, {
+          "name" : "departmentIds",
+          "in" : "query",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "fields",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllContractsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Contract" ],
+        "summary" : "Create a contract",
+        "description" : "This API creates a contract in your helpdesk.",
+        "operationId" : "createContract",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createContract_contractJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getContractJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contracts/{id}" : {
+      "get" : {
+        "tags" : [ "Contract" ],
+        "summary" : "Get a contract",
+        "description" : "This API fetches a single contract from your helpdesk.",
+        "operationId" : "getContract",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getContractJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Contract" ],
+        "summary" : "Update a contract",
+        "description" : "This API updates details of an existing contact.",
+        "operationId" : "updateContract",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/contractJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getContractJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contracts/count" : {
+      "get" : {
+        "tags" : [ "Contract" ],
+        "summary" : "Get contract count by custom view and department",
+        "description" : "This API return the count of contract based on the custom view and department specified. If ownerId is specified, it will return the count of contracts owned by the owner in the specified department.",
+        "operationId" : "getContractsCount",
+        "parameters" : [ {
+          "name" : "viewId",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "ownerId",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getContractsCount"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "listAllContractData" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "associatedSLAId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "endDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 80,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "associatedSupportPlanId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "supportPlan" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/contractSupportPlan"
+          },
+          "startDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          }
+        },
+        "required" : [ "accountId", "associatedSLAId", "associatedSupportPlanId", "contractName", "contractStatus", "departmentId", "endDate", "id", "ownerId", "productId", "startDate", "supportPlan" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Contract.json#/components/schemas/listAllContractData"
+        }
+      },
+      "listAllContractSupportPlanExcludeData" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "associatedSLAId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "endDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 80,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "startDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          }
+        },
+        "required" : [ "accountId", "associatedSLAId", "contractName", "contractStatus", "departmentId", "endDate", "id", "ownerId", "productId", "startDate" ]
+      },
+      "supportPlanExcludeJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Contract.json#/components/schemas/listAllContractSupportPlanExcludeData"
+        }
+      },
+      "tableViewContractData" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 80,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "supportPlan" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/contractSupportPlan"
+          },
+          "account" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 3,
+            "minProperties" : 3,
+            "properties" : {
+              "website" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0
+              },
+              "accountName" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 200,
+                "minLength" : 0
+              },
+              "id" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            },
+            "required" : [ "accountName", "id", "website" ]
+          }
+        },
+        "required" : [ "account", "accountId", "contractName", "contractStatus", "departmentId", "id", "ownerId", "supportPlan" ]
+      },
+      "listAllTableViewJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Contract.json#/components/schemas/tableViewContractData"
+        }
+      },
+      "tableViewContractSupportPlanExcludeData" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 80,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "account" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 3,
+            "minProperties" : 3,
+            "properties" : {
+              "website" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0
+              },
+              "accountName" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 200,
+                "minLength" : 0
+              },
+              "id" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            },
+            "required" : [ "accountName", "id", "website" ]
+          }
+        },
+        "required" : [ "account", "accountId", "contractName", "contractStatus", "departmentId", "id", "ownerId" ]
+      },
+      "supportPlanExcludelistAllTableViewJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Contract.json#/components/schemas/tableViewContractSupportPlanExcludeData"
+        }
+      }
+    },
+    "responses" : {
+      "listAllContractsResponse" : {
+        "description" : "listAllContractsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "owner" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 1,
+                          "minProperties" : 1,
+                          "properties" : {
+                            "data" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "null", "object" ],
+                                "additionalProperties" : false,
+                                "maxProperties" : 1,
+                                "minProperties" : 1,
+                                "properties" : {
+                                  "owner" : {
+                                    "type" : [ "null", "object" ],
+                                    "additionalProperties" : false,
+                                    "maxProperties" : 3,
+                                    "minProperties" : 3,
+                                    "properties" : {
+                                      "photoURL" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 200,
+                                        "minLength" : 0,
+                                        "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                                      },
+                                      "name" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 100,
+                                        "minLength" : 0
+                                      },
+                                      "id" : {
+                                        "type" : [ "string", "null", "integer" ],
+                                        "format" : "int64",
+                                        "pattern" : "([0-9]+)"
+                                      }
+                                    },
+                                    "required" : [ "id", "name", "photoURL" ]
+                                  }
+                                },
+                                "required" : [ "owner" ]
+                              },
+                              "uniqueItems" : false
+                            }
+                          },
+                          "required" : [ "data" ]
+                        },
+                        "product" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 1,
+                          "minProperties" : 1,
+                          "properties" : {
+                            "data" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "null", "object" ],
+                                "additionalProperties" : false,
+                                "maxProperties" : 1,
+                                "minProperties" : 1,
+                                "properties" : {
+                                  "product" : {
+                                    "type" : [ "null", "object" ],
+                                    "additionalProperties" : false,
+                                    "maxProperties" : 2,
+                                    "minProperties" : 2,
+                                    "properties" : {
+                                      "id" : {
+                                        "type" : [ "string", "null", "integer" ],
+                                        "format" : "int64",
+                                        "pattern" : "([0-9]+)"
+                                      },
+                                      "productName" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 200,
+                                        "minLength" : 0
+                                      }
+                                    },
+                                    "required" : [ "id", "productName" ]
+                                  }
+                                },
+                                "required" : [ "product" ]
+                              },
+                              "uniqueItems" : false
+                            }
+                          },
+                          "required" : [ "data" ]
+                        },
+                        "sla" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 1,
+                          "minProperties" : 1,
+                          "properties" : {
+                            "data" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "null", "object" ],
+                                "additionalProperties" : false,
+                                "maxProperties" : 1,
+                                "minProperties" : 1,
+                                "properties" : {
+                                  "sla" : {
+                                    "type" : [ "null", "object" ],
+                                    "additionalProperties" : false,
+                                    "maxProperties" : 2,
+                                    "minProperties" : 2,
+                                    "properties" : {
+                                      "name" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 100,
+                                        "minLength" : 0
+                                      },
+                                      "id" : {
+                                        "type" : [ "string", "null", "integer" ],
+                                        "format" : "int64",
+                                        "pattern" : "([0-9]+)"
+                                      }
+                                    },
+                                    "required" : [ "id", "name" ]
+                                  }
+                                },
+                                "required" : [ "sla" ]
+                              },
+                              "uniqueItems" : false
+                            }
+                          },
+                          "required" : [ "data" ]
+                        },
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 1,
+                          "minProperties" : 1,
+                          "properties" : {
+                            "data" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "null", "object" ],
+                                "additionalProperties" : false,
+                                "maxProperties" : 1,
+                                "minProperties" : 1,
+                                "properties" : {
+                                  "department" : {
+                                    "type" : [ "null", "object" ],
+                                    "additionalProperties" : false,
+                                    "maxProperties" : 2,
+                                    "minProperties" : 2,
+                                    "properties" : {
+                                      "name" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 200,
+                                        "minLength" : 0,
+                                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                                      },
+                                      "id" : {
+                                        "type" : [ "string", "null", "integer" ],
+                                        "format" : "int64",
+                                        "pattern" : "([0-9]+)"
+                                      }
+                                    },
+                                    "required" : [ "id", "name" ]
+                                  }
+                                },
+                                "required" : [ "department" ]
+                              },
+                              "uniqueItems" : false
+                            }
+                          },
+                          "required" : [ "data" ]
+                        },
+                        "account" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 1,
+                          "minProperties" : 1,
+                          "properties" : {
+                            "data" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "null", "object" ],
+                                "additionalProperties" : false,
+                                "maxProperties" : 1,
+                                "minProperties" : 1,
+                                "properties" : {
+                                  "account" : {
+                                    "type" : [ "null", "object" ],
+                                    "additionalProperties" : false,
+                                    "maxProperties" : 3,
+                                    "minProperties" : 3,
+                                    "properties" : {
+                                      "website" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 120,
+                                        "minLength" : 0
+                                      },
+                                      "accountName" : {
+                                        "type" : [ "string", "null" ],
+                                        "maxLength" : 200,
+                                        "minLength" : 0
+                                      },
+                                      "id" : {
+                                        "type" : [ "string", "null", "integer" ],
+                                        "format" : "int64",
+                                        "pattern" : "([0-9]+)"
+                                      }
+                                    },
+                                    "required" : [ "accountName", "id", "website" ]
+                                  }
+                                },
+                                "required" : [ "account" ]
+                              },
+                              "uniqueItems" : false
+                            }
+                          },
+                          "required" : [ "data" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "oneOf" : [ {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "data" : {
+                      "$ref" : "./Contract.json#/components/schemas/data"
+                    }
+                  },
+                  "required" : [ "data" ]
+                }, {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "data" : {
+                      "$ref" : "./Contract.json#/components/schemas/supportPlanExcludeJsonArray"
+                    }
+                  },
+                  "required" : [ "data" ]
+                }, {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "data" : {
+                      "$ref" : "./Contract.json#/components/schemas/listAllTableViewJsonArray"
+                    }
+                  },
+                  "required" : [ "data" ]
+                }, {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "data" : {
+                      "$ref" : "./Contract.json#/components/schemas/supportPlanExcludelistAllTableViewJsonArray"
+                    }
+                  },
+                  "required" : [ "data" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000265011",
+                    "contractStatus" : "FUTURE",
+                    "productId" : null,
+                    "endDate" : 1541808000000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "C2",
+                    "id" : "10000000270023",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Gold SLAs",
+                      "id" : "5000000007671",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1539129600000
+                  }, {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000265011",
+                    "contractStatus" : "EXPIRED",
+                    "productId" : null,
+                    "endDate" : 1536537600000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "New",
+                    "id" : "10000000270045",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Premium SLAs",
+                      "id" : "5000000007675",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1536451200000
+                  }, {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000272001",
+                    "contractStatus" : "ACTIVE",
+                    "productId" : null,
+                    "endDate" : 1544486400000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "THIRD",
+                    "id" : "10000000272013",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Gold SLAs",
+                      "id" : "5000000007671",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1536624000000
+                  }, {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000272037",
+                    "contractStatus" : "ACTIVE",
+                    "productId" : null,
+                    "endDate" : 1552262400000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "Fourth ACC",
+                    "id" : "10000000272049",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Silver SLAs",
+                      "id" : "5000000007673",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1536624000000
+                  }, {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000272071",
+                    "contractStatus" : "EXPIRED",
+                    "productId" : null,
+                    "endDate" : 1536710400000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "old",
+                    "id" : "10000000272083",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Gold SLAs",
+                      "id" : "5000000007671",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1505088000000
+                  }, {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000265011",
+                    "contractStatus" : "ACTIVE",
+                    "productId" : null,
+                    "endDate" : 1538265600000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "FUTURE 1",
+                    "id" : "10000000273003",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Silver SLAs",
+                      "id" : "5000000007673",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1536969600000
+                  }, {
+                    "associatedSLAId" : "10000000149109",
+                    "accountId" : "10000000265011",
+                    "contractStatus" : "FUTURE",
+                    "productId" : null,
+                    "endDate" : 1544486400000,
+                    "departmentId" : "10000000010762",
+                    "contractName" : "FUTURE 3",
+                    "id" : "10000000273025",
+                    "ownerId" : "10000000012902",
+                    "supportPlan" : {
+                      "supportType" : "UNLIMITED_SUPPORT",
+                      "name" : "SupportPlan with Gold SLAs",
+                      "id" : "5000000007671",
+                      "status" : "ACTIVE"
+                    },
+                    "startDate" : 1541894400000
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getContractJson" : {
+        "description" : "getContractJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "endDate" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                },
+                "customFields" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  }
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "ownerId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "notificationAgentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "contractName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 80,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "associatedSLAId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "owner" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 3,
+                  "minProperties" : 3,
+                  "properties" : {
+                    "photoURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "id", "name", "photoURL" ]
+                },
+                "product" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 2,
+                  "minProperties" : 2,
+                  "properties" : {
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "productName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0
+                    }
+                  },
+                  "required" : [ "id", "productName" ]
+                },
+                "cf" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  }
+                },
+                "contractStatus" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "productId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "notifyBefore" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "contractNumber" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "sla" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 2,
+                  "minProperties" : 2,
+                  "properties" : {
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "id", "name" ]
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "accountId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "notifyOn" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                },
+                "supportPlan" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/contractSupportPlan"
+                },
+                "startDate" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                },
+                "account" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 3,
+                  "minProperties" : 3,
+                  "properties" : {
+                    "website" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 120,
+                      "minLength" : 0
+                    },
+                    "accountName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "accountName", "id", "website" ]
+                }
+              },
+              "required" : [ "account", "accountId", "associatedSLAId", "cf", "contractName", "contractNumber", "contractStatus", "createdBy", "createdTime", "customFields", "departmentId", "description", "endDate", "id", "layoutId", "modifiedBy", "modifiedTime", "notificationAgentIds", "notifyBefore", "notifyOn", "owner", "ownerId", "product", "productId", "sla", "startDate", "supportPlan" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "associatedSLAId" : "10000000062047",
+                  "modifiedTime" : 1532417517075,
+                  "product" : {
+                    "id" : "500000001290",
+                    "productName" : "Desk"
+                  },
+                  "cf" : {
+                    "cf_mycustomfield1" : "Some Value"
+                  },
+                  "contractStatus" : "ACTIVE",
+                  "productId" : null,
+                  "endDate" : 1563840000000,
+                  "departmentId" : "10000000013228",
+                  "notifyBefore" : "3",
+                  "contractNumber" : "9495",
+                  "description" : "My Description",
+                  "sla" : {
+                    "name" : "Gold SLAs",
+                    "id" : "10000000062047"
+                  },
+                  "ownerId" : "10000000012816",
+                  "notificationAgentIds" : [ "10000000012816" ],
+                  "accountId" : "10000000012985",
+                  "createdBy" : "10000000012816",
+                  "notifyOn" : 1563580800000,
+                  "createdTime" : 1532417517075,
+                  "contractName" : "MyContractName",
+                  "modifiedBy" : "10000000012816",
+                  "id" : "10000000082016",
+                  "supportPlan" : {
+                    "supportType" : "UNLIMITED_SUPPORT",
+                    "name" : "SupportPlan with Gold SLAs",
+                    "id" : "5000000007671",
+                    "status" : "ACTIVE"
+                  },
+                  "startDate" : 1532304000000,
+                  "account" : {
+                    "website" : "https://www.zoho.com",
+                    "accountName" : "Zoho",
+                    "id" : "500000008909"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "getContractsCount" : {
+        "description" : "getContractsCount template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "10"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "id" : {
+        "name" : "id",
+        "in" : "path",
+        "description" : "ID of the contract",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the contract",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "contractMassUpdate" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isCustomField" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that denotes if the field is a user-defined field or not"
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : " Name of the field to update",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "fieldValue" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Value in the field",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "fieldName", "ids", "isCustomField" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldName" : "contractNumber",
+                  "isCustomField" : false,
+                  "ids" : [ "1892000000093303", "1892000000085009", "1892000000050003" ],
+                  "fieldValue" : "123"
+                }
+              }
+            }
+          }
+        }
+      },
+      "contractJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "associatedSLAId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the SLA associated with the contract",
+                  "pattern" : "([0-9]+)"
+                },
+                "cf" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  }
+                },
+                "productId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the product associated with the contract",
+                  "pattern" : "([0-9]+)"
+                },
+                "endDate" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Date until which the contract is valid",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                },
+                "customFields" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  }
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the department to which the contract belongs",
+                  "pattern" : "([0-9]+)"
+                },
+                "notifyBefore" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "description" : "Number of days before endDate when notifications about contract expiry must be sent to the agents concerned ",
+                  "pattern" : "([0-9]+)"
+                },
+                "contractNumber" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Serial number of the contract",
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "A short description of the contract",
+                  "maxLength" : 65535,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "associatedSupportPlanId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the Associated Support Plan",
+                  "pattern" : "([0-9]+)"
+                },
+                "ownerId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the contract owner",
+                  "pattern" : "([0-9]+)"
+                },
+                "notificationAgentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "accountId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the account associated with the contract",
+                  "pattern" : "([0-9]+)"
+                },
+                "contractName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the contract",
+                  "maxLength" : 80,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "startDate" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Date from which the contract is valid",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "createContract_contractJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "associatedSLAId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the SLA associated with the contract",
+                  "pattern" : "([0-9]+)"
+                },
+                "cf" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  }
+                },
+                "productId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the product associated with the contract",
+                  "pattern" : "([0-9]+)"
+                },
+                "endDate" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Date until which the contract is valid",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                },
+                "customFields" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  }
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the department to which the contract belongs",
+                  "pattern" : "([0-9]+)"
+                },
+                "notifyBefore" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "description" : "Number of days before endDate when notifications about contract expiry must be sent to the agents concerned ",
+                  "pattern" : "([0-9]+)"
+                },
+                "contractNumber" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Serial number of the contract",
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "A short description of the contract",
+                  "maxLength" : 65535,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "associatedSupportPlanId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the Associated Support Plan",
+                  "pattern" : "([0-9]+)"
+                },
+                "ownerId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the contract owner",
+                  "pattern" : "([0-9]+)"
+                },
+                "notificationAgentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "accountId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the account associated with the contract",
+                  "pattern" : "([0-9]+)"
+                },
+                "contractName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the contract",
+                  "maxLength" : 80,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "startDate" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Date from which the contract is valid",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+                }
+              },
+              "required" : [ "accountId", "associatedSLAId", "associatedSupportPlanId", "contractName", "departmentId", "ownerId", "startDate" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "cf" : {
+                    "cf_mycustomfield1" : "Some Value"
+                  },
+                  "productId" : null,
+                  "endDate" : 1563840000000,
+                  "departmentId" : "10000000013228",
+                  "notifyBefore" : "3",
+                  "description" : "My Description",
+                  "contractNumber" : 9495,
+                  "associatedSupportPlanId" : "5000000007671",
+                  "ownerId" : "10000000012816",
+                  "notificationAgentIds" : [ "10000000012816" ],
+                  "accountId" : "10000000012985",
+                  "contractName" : "MyContractName",
+                  "startDate" : 1532304000000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Contract"
+}

@@ -1,0 +1,451 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TicketCount",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/ticketsCount" : {
+      "get" : {
+        "tags" : [ "TicketCount" ],
+        "summary" : "Get tickets count",
+        "description" : "This API returns the ticket count of your help desk.",
+        "operationId" : "getTicketsCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/category"
+        }, {
+          "$ref" : "#/components/parameters/assigneeId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/ticketsCountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/ticketsCountByFieldValues" : {
+      "get" : {
+        "tags" : [ "TicketCount" ],
+        "summary" : "Get ticket count by field",
+        "description" : "This API returns the ticket count of your help desk, filtered by a specific field.",
+        "operationId" : "ticketsCountByFieldValues",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/createdTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/modifiedTimeRange"
+        }, {
+          "$ref" : "#/components/parameters/category"
+        }, {
+          "$ref" : "#/components/parameters/assigneeId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        }, {
+          "name" : "accountId",
+          "in" : "query",
+          "required" : false,
+          "description" : "ID of the account to which the ticket is mapped",
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "description" : "ID of the account to which the ticket is mapped",
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "field",
+          "in" : "query",
+          "required" : true,
+          "description" : "Field by which the ticket count must be filtered. Values allowed are. !@status,@! !@priority,@! !@channel,@! !@statusType,@! !@spam,@! !@escalated,@! !@overDue@!",
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "statusType", "status", "priority", "channel", "spam", "overDue", "escalated" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "description" : "Field by which the ticket count must be filtered. Values allowed are. !@status,@! !@priority,@! !@channel,@! !@statusType,@! !@spam,@! !@escalated,@! !@overDue@!"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/ticketsCountByFieldValuesResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "countResponse" : {
+        "type" : [ "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "count" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "count" ]
+      },
+      "spamResponse" : {
+        "type" : [ "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "spam" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "spam" ]
+      },
+      "escalatedResponse" : {
+        "type" : [ "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "escalated" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "escalated" ]
+      },
+      "overDueResponse" : {
+        "type" : [ "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "overDue" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "overDue" ]
+      },
+      "statusTypeResponse" : {
+        "type" : [ "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "statusType" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "value" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "OPEN", "ONHOLD", "CLOSED" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "count", "value" ]
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "statusType" ]
+      },
+      "statusResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "status" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "value" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "count", "value" ]
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "status" ]
+      },
+      "priorityResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "priority" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "value" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "count", "value" ]
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "priority" ]
+      },
+      "channelResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "channel" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "value" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "count", "value" ]
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "channel" ]
+      }
+    },
+    "responses" : {
+      "ticketsCountResponse" : {
+        "description" : "ticketsCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/countResponse"
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : 200
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticketsCountByFieldValuesResponse" : {
+        "description" : "ticketsCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "$ref" : "#/components/schemas/countResponse"
+              }, {
+                "$ref" : "#/components/schemas/spamResponse"
+              }, {
+                "$ref" : "#/components/schemas/escalatedResponse"
+              }, {
+                "$ref" : "#/components/schemas/overDueResponse"
+              }, {
+                "$ref" : "#/components/schemas/statusTypeResponse"
+              }, {
+                "$ref" : "#/components/schemas/statusResponse"
+              }, {
+                "$ref" : "#/components/schemas/priorityResponse"
+              }, {
+                "$ref" : "#/components/schemas/channelResponse"
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "overDue" : 2,
+                  "statusType" : [ {
+                    "count" : "13",
+                    "value" : "OPEN"
+                  }, {
+                    "count" : "0",
+                    "value" : "ONHOLD"
+                  }, {
+                    "count" : "0",
+                    "value" : "CLOSED"
+                  } ],
+                  "escalated" : 10,
+                  "channel" : [ {
+                    "count" : "6",
+                    "value" : "twitter"
+                  }, {
+                    "count" : "3",
+                    "value" : "forums"
+                  }, {
+                    "count" : "2",
+                    "value" : "chat"
+                  }, {
+                    "count" : "2",
+                    "value" : "web"
+                  } ],
+                  "priority" : [ {
+                    "count" : "8",
+                    "value" : "high"
+                  }, {
+                    "count" : "5",
+                    "value" : "medium"
+                  } ],
+                  "spam" : 10,
+                  "status" : [ {
+                    "count" : "9",
+                    "value" : "open"
+                  }, {
+                    "count" : "4",
+                    "value" : "escalated"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "contactId" : {
+        "name" : "contactId",
+        "in" : "query",
+        "description" : "ID of the contact who raised the ticket ",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the contact who raised the ticket ",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department from which ticket count must be fetched. If you do not pass this parameter in the API request, ticket count across all departments will be returned. ",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which ticket count must be fetched. If you do not pass this parameter in the API request, ticket count across all departments will be returned. ",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "createdTimeRange" : {
+        "name" : "createdTimeRange",
+        "in" : "query",
+        "description" : "Key that filters tickets created in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! createdTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters tickets created in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! createdTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+        }
+      },
+      "modifiedTimeRange" : {
+        "name" : "modifiedTimeRange",
+        "in" : "query",
+        "description" : "Key that filters tickets modified in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! modifiedTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters tickets modified in a particular period of time. !Enter the from and to dates in the ISO date format of yyyy-MM-ddThh:mm:ss.SSSZ;! !For example,! modifiedTimeRange=2017-11-05T00:00:00.000Z,2018-09-05T23:59:00.000Z",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+        }
+      },
+      "category" : {
+        "name" : "category",
+        "in" : "query",
+        "description" : "Category of the ticket",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Category of the ticket",
+          "x-dynamic-enum" : true
+        }
+      },
+      "assigneeId" : {
+        "name" : "assigneeId",
+        "in" : "query",
+        "description" : "ID of the agent assigned to resolve the ticket",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the agent assigned to resolve the ticket",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TicketCount"
+}

@@ -1,0 +1,229 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "EmailFailureAlert",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/emailFailureAlerts" : {
+      "get" : {
+        "tags" : [ "EmailFailureAlert" ],
+        "summary" : "List email delivery failure alerts",
+        "description" : "This API lists the email delivery failure alerts configured in a particular department.",
+        "operationId" : "getEmailFailureAlerts",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of alerts to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of alerts to list",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the alerts must be listed",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the alerts must be listed",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/department"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getEmailFailureResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "EmailFailureAlert" ],
+        "summary" : "Clear email delivery failure alerts",
+        "description" : "This API deletes all email delivery failure alerts configured in a particular department.",
+        "operationId" : "clearEmailFailureAlerts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/department"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "commonKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "departmentName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "threadId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "reason" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "errorMessage" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "assignee" : {
+            "$ref" : "./Ticket.json#/components/schemas/assignee"
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "assignee", "channel", "departmentId", "departmentName", "errorMessage", "reason", "subject", "threadId", "ticketId", "ticketNumber" ]
+      },
+      "emailFailureAlertsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./EmailFailureAlert.json#/components/schemas/commonKeys"
+        }
+      }
+    },
+    "responses" : {
+      "getEmailFailureResponse" : {
+        "description" : "getEmailFailureResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./EmailFailureAlert.json#/components/schemas/emailFailureAlertsArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "departmentName" : "Sales",
+                    "threadId" : "4000002350527",
+                    "ticketNumber" : "102",
+                    "reason" : "452 4.3.1 Temporary System Error",
+                    "subject" : "zPhone not working",
+                    "departmentId" : "4000000019077",
+                    "channel" : "EMAIL",
+                    "errorMessage" : "Error while processing the request! Unable to send message;",
+                    "assignee" : {
+                      "firstName" : "John",
+                      "lastName" : "Carol",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo",
+                      "id" : "1892000000056007",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "ticketId" : "4000000014345"
+                  }, {
+                    "departmentName" : "Marketing",
+                    "threadId" : "4000002353427",
+                    "ticketNumber" : "102",
+                    "reason" : "Email reply failed from being sent! Momentary issues with the mail server, Try resending this email again.",
+                    "subject" : "zPhone not working",
+                    "departmentId" : "4000000019067",
+                    "channel" : "TWITTER",
+                    "errorMessage" : "null",
+                    "assignee" : {
+                      "firstName" : "John",
+                      "lastName" : "Carol",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo",
+                      "id" : "1892000000056007",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "ticketId" : "4000000014335"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "department" : {
+        "name" : "department",
+        "in" : "query",
+        "description" : "ID of the department from which the email delivery failure alerts must be fetched. You can pass a specific department ID or @allDepartment@ in the API request.",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which the email delivery failure alerts must be fetched. You can pass a specific department ID or @allDepartment@ in the API request.",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "EmailFailureAlert"
+}

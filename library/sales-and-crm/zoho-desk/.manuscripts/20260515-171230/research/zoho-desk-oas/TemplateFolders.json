@@ -1,0 +1,867 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TemplateFolders",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/templateFolders" : {
+      "get" : {
+        "tags" : [ "TemplateFolders" ],
+        "summary" : "Listing Template Folders",
+        "description" : "List all Template Folders in alphabetical order",
+        "operationId" : "getTemplateFolders",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "the corresponding department to be fetched",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "the corresponding department to be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "number of folders to be retrieved Range 1-50, @DEFAULT 50@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "number of folders to be retrieved Range 1-50, @DEFAULT 50@",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "from index, @DEFAULT 1@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "from index, @DEFAULT 1@",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/folderListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "TemplateFolders" ],
+        "summary" : "Adding a Template Folder",
+        "description" : "Adding a Template Folder",
+        "operationId" : "addTemplateFolder",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addTemplateFolder_templateFolderjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/templateFolderResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/templateFolders/{folderId}" : {
+      "get" : {
+        "tags" : [ "TemplateFolders" ],
+        "summary" : "Getting a single Template Folder",
+        "description" : "Listing  a particular Template Folder",
+        "operationId" : "getTemplateFolder",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/folderId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/templateFolderResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "put" : {
+        "tags" : [ "TemplateFolders" ],
+        "summary" : "Updating a Template Folder",
+        "description" : "Updating a Template Folder",
+        "operationId" : "updateTemplateFolder",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/folderId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/templateFolderjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/templateFolderResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "TemplateFolders" ],
+        "summary" : "Delete Template Folder",
+        "description" : "Delete a Template Folder",
+        "operationId" : "deleteTemplateFolder",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/folderId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "templateFolderResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "folderDesc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "modifiedOn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "folderAccessDetails" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 5,
+            "minProperties" : 5,
+            "properties" : {
+              "teams" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "roles" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "type" : {
+                "type" : [ "string", "null" ],
+                "enum" : [ "onlyMe", "allAgents", "restrictedAccess" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              },
+              "rolesAndSubordinates" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "agents" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "agents", "roles", "rolesAndSubordinates", "teams", "type" ]
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "folderName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "CUSTOM_FOLDER", "DEFAULT_FOLDER" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdOn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "folderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "category", "createdBy", "createdOn", "departmentId", "folderAccessDetails", "folderDesc", "folderId", "folderName", "modifiedBy", "modifiedOn" ]
+      }
+    },
+    "responses" : {
+      "folderListResponse" : {
+        "description" : "folderListResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "$ref" : "./TemplateFolders.json#/components/schemas/templateFolderResponse"
+              }
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : [ {
+                  "folderDesc" : null,
+                  "modifiedOn" : 1588492006000,
+                  "createdBy" : "11000000038001",
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "restrictedAccess",
+                    "rolesAndSubordinates" : null,
+                    "agents" : [ "11000000038001", "11000000058011" ]
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : "11000000038001",
+                  "folderName" : "aaaa",
+                  "category" : "CUSTOM_FOLDER",
+                  "createdOn" : 1588460392000,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "1",
+                      "calls" : "0",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "contacts" : "0",
+                      "tasks" : "0",
+                      "events" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000065077"
+                }, {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : "11000000038001",
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "restrictedAccess",
+                    "rolesAndSubordinates" : null,
+                    "agents" : [ "11000000016526", "11000000038001" ]
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : null,
+                  "folderName" : "accesible by agent1",
+                  "category" : "CUSTOM_FOLDER",
+                  "createdOn" : 1588489754000,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "2",
+                      "calls" : "0",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "contacts" : "0",
+                      "tasks" : "0",
+                      "events" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000070193"
+                }, {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : null,
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "allAgents",
+                    "rolesAndSubordinates" : null,
+                    "agents" : null
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : null,
+                  "folderName" : "Agent Notification",
+                  "category" : "DEFAULT_FOLDER",
+                  "createdOn" : null,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "13",
+                      "kbCategory" : "10",
+                      "calls" : "4",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "events" : "4",
+                      "tasks" : "4",
+                      "contacts" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000013052"
+                }, {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : null,
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "allAgents",
+                    "rolesAndSubordinates" : null,
+                    "agents" : null
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : null,
+                  "folderName" : "Contact Notification",
+                  "category" : "DEFAULT_FOLDER",
+                  "createdOn" : null,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "9",
+                      "calls" : "0",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "contacts" : "0",
+                      "tasks" : "0",
+                      "events" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000013048"
+                }, {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : null,
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "allAgents",
+                    "rolesAndSubordinates" : null,
+                    "agents" : null
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : null,
+                  "folderName" : "Public SMS Templates",
+                  "category" : "DEFAULT_FOLDER",
+                  "createdOn" : null,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "0",
+                      "calls" : "0",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "contacts" : "0",
+                      "tasks" : "0",
+                      "events" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000013046"
+                }, {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : null,
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "allAgents",
+                    "rolesAndSubordinates" : null,
+                    "agents" : null
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : null,
+                  "folderName" : "Secondary Contacts Notification",
+                  "category" : "DEFAULT_FOLDER",
+                  "createdOn" : null,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "8",
+                      "calls" : "0",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "contacts" : "0",
+                      "tasks" : "0",
+                      "events" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000013054"
+                }, {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : null,
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "allAgents",
+                    "rolesAndSubordinates" : null,
+                    "agents" : null
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : null,
+                  "folderName" : "Team Notification",
+                  "category" : "DEFAULT_FOLDER",
+                  "createdOn" : null,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "6",
+                      "calls" : "3",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "events" : "3",
+                      "tasks" : "3",
+                      "contacts" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000013050"
+                }, {
+                  "folderDesc" : "tset",
+                  "modifiedOn" : 1588252173000,
+                  "createdBy" : "11000000016526",
+                  "folderAccessDetails" : {
+                    "teams" : null,
+                    "roles" : null,
+                    "type" : "restrictedAccess",
+                    "rolesAndSubordinates" : null,
+                    "agents" : [ "11000000016526", "11000000038001" ]
+                  },
+                  "departmentId" : "11000000013068",
+                  "modifiedBy" : "11000000016526",
+                  "folderName" : "zzmyfolder",
+                  "category" : "CUSTOM_FOLDER",
+                  "createdOn" : 1588243095000,
+                  "templatesCount" : [ {
+                    "templateType" : "Email",
+                    "count" : {
+                      "tickets" : "39",
+                      "calls" : "0",
+                      "solutions" : "0",
+                      "accounts" : "0",
+                      "contacts" : "0",
+                      "tasks" : "0",
+                      "events" : "0",
+                      "products" : "0"
+                    }
+                  } ],
+                  "folderId" : "11000000057021"
+                } ]
+              }
+            }
+          }
+        }
+      },
+      "templateFolderResponse" : {
+        "description" : "templateFolderResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "folderDesc" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                },
+                "modifiedOn" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "folderAccessDetails" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 5,
+                  "minProperties" : 5,
+                  "properties" : {
+                    "teams" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "roles" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "type" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "onlyMe", "allAgents", "restrictedAccess" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "rolesAndSubordinates" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "agents" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    }
+                  },
+                  "required" : [ "agents", "roles", "rolesAndSubordinates", "teams", "type" ]
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "folderName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "category" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "CUSTOM_FOLDER", "DEFAULT_FOLDER" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "createdOn" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "folderId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "category", "createdBy", "createdOn", "departmentId", "folderAccessDetails", "folderDesc", "folderId", "folderName", "modifiedBy", "modifiedOn" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "folderDesc" : null,
+                  "modifiedOn" : null,
+                  "createdBy" : null,
+                  "folderAccessDetails" : {
+                    "type" : "allAgents"
+                  },
+                  "departmentId" : "1892000000082069",
+                  "modifiedBy" : null,
+                  "folderName" : "Public Email Templates",
+                  "category" : "DEFAULT_FOLDER",
+                  "createdOn" : null,
+                  "folderId" : "1892000000082079"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "folderId" : {
+        "name" : "folderId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "templateFolderjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "folderDesc" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                },
+                "folderAccessDetails" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 5,
+                  "minProperties" : 5,
+                  "properties" : {
+                    "teams" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "roles" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "type" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "onlyMe", "allAgents", "restrictedAccess" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "rolesAndSubordinates" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "agents" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    }
+                  },
+                  "required" : [ "agents", "roles", "rolesAndSubordinates", "teams", "type" ]
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "folderName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "folderName" : "NEw Folder"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addTemplateFolder_templateFolderjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "folderDesc" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                },
+                "folderAccessDetails" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 5,
+                  "minProperties" : 5,
+                  "properties" : {
+                    "teams" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "roles" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "type" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "onlyMe", "allAgents", "restrictedAccess" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "rolesAndSubordinates" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "agents" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    }
+                  },
+                  "required" : [ "agents", "roles", "rolesAndSubordinates", "teams", "type" ]
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "folderName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "departmentId", "folderAccessDetails", "folderName" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "folderDesc" : "contains details",
+                  "folderAccessDetails" : {
+                    "type" : "allAgents"
+                  },
+                  "departmentId" : "4000000007039",
+                  "folderName" : "New my Folder"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TemplateFolders"
+}

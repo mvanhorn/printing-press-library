@@ -1,0 +1,4305 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Layout",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/layouts" : {
+      "get" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Get Layouts",
+        "description" : "This API lists all the layouts configured for a module.",
+        "operationId" : "getLayouts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "id",
+          "in" : "query",
+          "description" : "ID of the layout",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the layout",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getLayouts"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Create Layout",
+        "description" : "This API creates the layout",
+        "operationId" : "createLayout",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/layoutRequestJSON"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/createLayoutResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/standardLayoutFormat" : {
+      "get" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Get Standard Layout Format",
+        "description" : "This Api provides the standrd layout format for the given module with organisations fields that can be used for create layout",
+        "operationId" : "getStandardLayoutFormat",
+        "parameters" : [ {
+          "name" : "module",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "contacts", "accounts", "products", "calls", "tasks", "events", "timeEntry" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getStandardLayoutFormatResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/clone" : {
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Clone Layout",
+        "description" : "This API creates new Layout by cloning existing layout.",
+        "operationId" : "cloneLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/cloneLayoutJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/cloneLayoutResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/fields/{fieldId}/value" : {
+      "get" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Export PickList Values",
+        "description" : "This api behaves as below <br> (i)When Query param _fileType_=_CSV_ is passed  the picklist values gets downloaded in csv file with _*fieldlabel*_ as its name <br> (ii) When header param is not passed _empty 200_ response ",
+        "operationId" : "exportPickListValues",
+        "parameters" : [ {
+          "name" : "fileType",
+          "in" : "query",
+          "description" : "Export Format in which format should be shown.This value can be @CSV@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Export Format in which format should be shown.This value can be @CSV@",
+            "enum" : [ "CSV" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "#/components/parameters/fieldId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "400" : {
+            "$ref" : "./Common.json#/components/responses/badRequestErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/deactivate" : {
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Deactivate Layout",
+        "description" : "This Api deactivates existing layout",
+        "operationId" : "deactivateLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deactivateLayoutRequestJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/layoutJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}" : {
+      "get" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Get Layout",
+        "description" : "This API fetches a layout configured for a module",
+        "operationId" : "getLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getLayoutResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Delete Layout",
+        "description" : " This API deletes a layout",
+        "operationId" : "deleteLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Update Layout",
+        "description" : "This API updates details of an existing layout.",
+        "operationId" : "updateLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateLayout_layoutRequestJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/updateLayoutResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/activate" : {
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Activate Layout",
+        "description" : "This api activates the deactivated Layout.",
+        "operationId" : "activateLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/layoutJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/fields/{fieldId}/cloneFieldsInLayout" : {
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Clone Fields to other Layouts",
+        "description" : "This API is to clone a field to other layouts.",
+        "operationId" : "cloneFieldsToOtherLayouts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "#/components/parameters/fieldId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/layoutIdsJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/profiles" : {
+      "get" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Get Layout Profiles",
+        "description" : "This api returns the profiles associated with a layout",
+        "operationId" : "getLayoutProfiles",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/layoutProfilesData"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Associate Profiles To Layout",
+        "description" : "This api Associates the given profiles to the layout",
+        "operationId" : "associateProfilesToLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/layoutProfileIdsJsonObject"
+        },
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/myForm" : {
+      "get" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Get My Form",
+        "description" : "This API fetches details of a layout, based on the profile of the current user.",
+        "operationId" : "getMyForm",
+        "parameters" : [ {
+          "name" : "layoutId",
+          "in" : "query",
+          "description" : "ID of the layout",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the layout",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getMyFormResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/replaceValues" : {
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Replace PickList Value",
+        "description" : "This API replaces the old value with the new value for the PickList field type in all existing records only.<p><b>Note</b>: When a value that does not exist in the PickList values is provided as new value, then this API will create the new value without deleting the old one.</p>",
+        "operationId" : "replacePickListValue",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/replaceValueRequestJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/fields/{fieldId}" : {
+      "patch" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Update Layout Field",
+        "description" : "This API updates details of a field in the layout.",
+        "operationId" : "updateLayoutField",
+        "parameters" : [ {
+          "name" : "isMandatory",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "#/components/parameters/fieldId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateLayoutFieldRequestJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/commonFieldResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/fields/{fieldId}/unassociate" : {
+      "post" : {
+        "tags" : [ "Layout" ],
+        "summary" : "Remove Field From Layout",
+        "description" : "This API is to remove fields from a layout.",
+        "operationId" : "removeFieldFromLayout",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "#/components/parameters/fieldId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "basicLayoutJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isStandardLayout" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "hasLogo" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "layoutDisplayName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "isDefaultLayout" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "layoutDesc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "layoutName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "skipDeptAccessValidation" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "active", "inactive" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "createdBy", "createdTime", "hasLogo", "id", "isDefaultLayout", "isStandardLayout", "layoutDesc", "layoutDisplayName", "layoutName", "modifiedBy", "modifiedTime", "photoURL", "skipDeptAccessValidation", "status" ]
+      },
+      "layoutJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "layoutProfiles" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "maxProperties" : 4,
+                "minProperties" : 4,
+                "properties" : {
+                  "profileName" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 50,
+                    "minLength" : 0
+                  },
+                  "isDefault" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Administrator", "Standard", "Light", "Portal", "Custom" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "id", "isDefault", "profileName", "type" ]
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "layoutProfiles" ]
+        } ]
+      },
+      "layoutCommonResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/layoutJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "module" ]
+        } ]
+      },
+      "getLayoutSpecificModuleResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/layoutCommonResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "departmentId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "departmentId" ]
+        } ]
+      },
+      "layoutData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "anyOf" : [ {
+            "$ref" : "./Layout.json#/components/schemas/layoutCommonResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/getLayoutSpecificModuleResponse"
+          } ]
+        }
+      },
+      "commonFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Field.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "testFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormTextFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/testFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "integerFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormIntegerFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/integerFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "percentFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormPercentFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/percentFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "decimalFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "decimalPlaces" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "maximum" : 9,
+              "minimum" : 0,
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "decimalPlaces" ]
+        } ]
+      },
+      "myFormDecimalFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/decimalFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "currencyFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "decimalPlaces" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "maximum" : 9,
+              "minimum" : 0,
+              "pattern" : "([0-9]+)"
+            },
+            "roundingOption" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "roundOff", "roundDown", "roundUp", "normal" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "roundingPrecision" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "maximum" : 30,
+              "minimum" : 0,
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "decimalPlaces", "roundingOption", "roundingPrecision" ]
+        } ]
+      },
+      "myFormCurrencyFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/currencyFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "dateFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormDateFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/dateFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "dateTimeFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormDateTimeFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/dateTimeFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "emailFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormEmailFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/emailFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "phoneFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormPhoneFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/phoneFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "pickListFieldBasicResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "allowedValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            },
+            "defaultValue" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 120,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+            }
+          },
+          "required" : [ "allowedValues", "defaultValue" ]
+        } ]
+      },
+      "pickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/pickListFieldBasicResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "sortBy" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "alphabetical", "userDefined" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "sortBy" ]
+        } ]
+      },
+      "myFormPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/pickListFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "pickListFieldSimpleResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "allowedValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "allowedValues" ]
+        } ]
+      },
+      "urlFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormUrlFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/urlFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "textAreaFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormTextAreaFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/textAreaFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "booleanFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "defaultValue" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "true", "false" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "defaultValue" ]
+        } ]
+      },
+      "myFormBooleanFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/booleanFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "multiPickListFieldBasicResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "allowedValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            },
+            "defaultValue" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 120,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+            }
+          },
+          "required" : [ "allowedValues", "defaultValue" ]
+        } ]
+      },
+      "multiPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/multiPickListFieldBasicResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "sortBy" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "alphabetical", "userDefined" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "sortBy" ]
+        } ]
+      },
+      "myFormMultiPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/multiPickListFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "multiPickListFieldSimpleResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "allowedValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "allowedValues" ]
+        } ]
+      },
+      "faxFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormFaxFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/faxFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "autoNumberFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormAutoNumberFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/autoNumberFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "lookUpFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "myFormLookUpFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/lookUpFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "statusFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "allowedValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            },
+            "defaultValue" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 120,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+            },
+            "sortBy" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "alphabetical", "userDefined" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "allowedValues", "defaultValue", "sortBy" ]
+        } ]
+      },
+      "myFormStatusFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/statusFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "ticketStatusFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/statusFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "restoreOnReplyValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "restoreOnReplyValues" ]
+        } ]
+      },
+      "myFormTicketStatusFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/ticketStatusFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "layoutFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/testFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "toolTipType" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "placeHolder", "icon" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "toolTip" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "toolTip", "toolTipType" ]
+        } ]
+      },
+      "productDepartmentFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "allowedValues" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 120,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "allowedValues" ]
+        } ]
+      },
+      "myFormProductDepartmentFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/productDepartmentFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isReadOnly" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isReadOnly" ]
+        } ]
+      },
+      "secondaryContactFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isRemovable" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSystemMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isRemovable", "isSystemMandatory" ]
+        } ]
+      },
+      "nestedPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/pickListFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isNested" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isNested" ]
+        } ]
+      },
+      "nestedMultiPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/multiPickListFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isNested" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isNested" ]
+        } ]
+      },
+      "nestedTicketStatusFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/ticketStatusFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isNested" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isNested" ]
+        } ]
+      },
+      "myFormNestedTicketStatusFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/myFormTicketStatusFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isNested" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isNested" ]
+        } ]
+      },
+      "myFormNestedPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/myFormPickListFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isNested" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isNested" ]
+        } ]
+      },
+      "myFormNestedMultiPickListFieldResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/myFormMultiPickListFieldResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isNested" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isNested" ]
+        } ]
+      },
+      "layoutFieldsJson" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "anyOf" : [ {
+            "$ref" : "./Layout.json#/components/schemas/testFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormTextFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/integerFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormIntegerFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/percentFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormPercentFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/decimalFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormDecimalFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/currencyFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormCurrencyFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/dateFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormDateFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/dateTimeFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormDateTimeFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/emailFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormEmailFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/phoneFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormPhoneFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/pickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormPickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/pickListFieldBasicResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/pickListFieldSimpleResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/urlFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormUrlFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/textAreaFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormTextAreaFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/booleanFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormBooleanFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/multiPickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormMultiPickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/multiPickListFieldBasicResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/multiPickListFieldSimpleResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/faxFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormFaxFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/autoNumberFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormAutoNumberFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/lookUpFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormLookUpFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/statusFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormStatusFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/ticketStatusFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormTicketStatusFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/layoutFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/productDepartmentFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormProductDepartmentFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/secondaryContactFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/nestedPickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/nestedMultiPickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/nestedTicketStatusFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormNestedTicketStatusFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormNestedPickListFieldResponse"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/myFormNestedMultiPickListFieldResponse"
+          } ]
+        }
+      },
+      "sectionJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "fields" : {
+            "$ref" : "./Layout.json#/components/schemas/layoutFieldsJson"
+          }
+        },
+        "required" : [ "fields", "id", "name" ]
+      },
+      "sectionList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Layout.json#/components/schemas/sectionJSON"
+        }
+      },
+      "sectionJSONForLayout" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/sectionJSON"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isCustomSection" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isCustomSection" ]
+        } ]
+      },
+      "i18NSectionJSONForLayout" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/sectionJSONForLayout"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "i18NLabel" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            }
+          },
+          "required" : [ "i18NLabel" ]
+        } ]
+      },
+      "sectionListForLayout" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "anyOf" : [ {
+            "$ref" : "./Layout.json#/components/schemas/sectionJSONForLayout"
+          }, {
+            "$ref" : "./Layout.json#/components/schemas/i18NSectionJSONForLayout"
+          } ]
+        }
+      },
+      "cloneLayoutCommonResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "module" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "sections" : {
+              "$ref" : "./Layout.json#/components/schemas/sectionListForLayout"
+            }
+          },
+          "required" : [ "module", "sections" ]
+        } ]
+      },
+      "commonInputFieldJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isMandatory" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "id", "isMandatory" ]
+      },
+      "textFieldRequestJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Layout.json#/components/schemas/commonInputFieldJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "isMandatory" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "id", "isMandatory" ]
+        } ]
+      },
+      "layoutFieldRequestJson" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Layout.json#/components/schemas/textFieldRequestJson"
+        }
+      },
+      "sectionRequestJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "fields" : {
+            "$ref" : "./Layout.json#/components/schemas/layoutFieldRequestJson"
+          }
+        },
+        "required" : [ "fields", "id", "name" ]
+      },
+      "sectionRequestArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Layout.json#/components/schemas/sectionRequestJSON"
+        }
+      },
+      "layoutIdsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "layoutProfileIdsJson" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "layoutProfileJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "profileName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "isDefault" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Administrator", "Standard", "Light", "Portal", "Custom" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "isDefault", "profileName", "type" ]
+      },
+      "layoutProfileJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Layout.json#/components/schemas/layoutProfileJson"
+        }
+      }
+    },
+    "responses" : {
+      "getLayouts" : {
+        "description" : "getLayouts template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Layout.json#/components/schemas/layoutData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1557383050000,
+                    "departmentId" : "4000000012710",
+                    "module" : "Cases",
+                    "layoutDisplayName" : "New Layout For Tickets",
+                    "layoutDesc" : "DESC",
+                    "isDefaultLayout" : true,
+                    "layoutName" : "New Layout For Tickets",
+                    "skipDeptAccessValidation" : false,
+                    "layoutProfiles" : [ {
+                      "profileName" : "Support Administrator",
+                      "isDefault" : true,
+                      "id" : "4000000015183",
+                      "type" : "ADMIN"
+                    }, {
+                      "profileName" : "Agent",
+                      "isDefault" : true,
+                      "id" : "4000000015186",
+                      "type" : "STANDARD"
+                    }, {
+                      "profileName" : "Help Center",
+                      "isDefault" : true,
+                      "id" : "4000000015189",
+                      "type" : "PORTAL"
+                    } ],
+                    "createdBy" : "4000000015894",
+                    "createdTime" : 1556865393000,
+                    "modifiedBy" : "4000000015894",
+                    "id" : "4000000013464",
+                    "status" : "active"
+                  }, {
+                    "modifiedTime" : 1557107158000,
+                    "departmentId" : "4000000012710",
+                    "module" : "Cases",
+                    "layoutDisplayName" : "cloneLayout",
+                    "layoutDesc" : "DESC",
+                    "isDefaultLayout" : false,
+                    "layoutName" : "cloneLayout",
+                    "skipDeptAccessValidation" : false,
+                    "layoutProfiles" : [ {
+                      "profileName" : "Support Administrator",
+                      "isDefault" : true,
+                      "id" : "4000000015183",
+                      "type" : "ADMIN"
+                    }, {
+                      "profileName" : "Agent",
+                      "isDefault" : true,
+                      "id" : "4000000015186",
+                      "type" : "STANDARD"
+                    }, {
+                      "profileName" : "Help Center",
+                      "isDefault" : true,
+                      "id" : "4000000015189",
+                      "type" : "PORTAL"
+                    }, {
+                      "profileName" : "Supervisor",
+                      "isDefault" : false,
+                      "id" : "4000000015192",
+                      "type" : "CUSTOM"
+                    }, {
+                      "profileName" : "Support Manager",
+                      "isDefault" : false,
+                      "id" : "4000000015195",
+                      "type" : "CUSTOM"
+                    }, {
+                      "profileName" : "Newbie Agent",
+                      "isDefault" : false,
+                      "id" : "4000000015198",
+                      "type" : "CUSTOM"
+                    }, {
+                      "profileName" : "Light Agent",
+                      "isDefault" : true,
+                      "id" : "4000000015201",
+                      "type" : "LIGHT"
+                    } ],
+                    "createdBy" : "4000000015894",
+                    "createdTime" : 1557107158000,
+                    "modifiedBy" : "4000000015894",
+                    "id" : "4000000017001",
+                    "status" : "active"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getStandardLayoutFormatResponse" : {
+        "description" : "getStandardLayoutFormatResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Layout.json#/components/schemas/sectionList"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "name" : "Case Information",
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Department",
+                      "isCustomField" : false,
+                      "name" : "departmentId",
+                      "id" : "4000000000556",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 50,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Account Name",
+                      "isCustomField" : false,
+                      "name" : "accountId",
+                      "id" : "4000000000558",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Contact Name",
+                      "isCustomField" : false,
+                      "name" : "contactId",
+                      "id" : "4000000000560",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Email",
+                      "isCustomField" : false,
+                      "name" : "email",
+                      "id" : "4000000000562",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "isCustomField" : false,
+                      "name" : "phone",
+                      "id" : "4000000000564",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Phone",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Subject",
+                      "isCustomField" : false,
+                      "name" : "subject",
+                      "id" : "4000000000566",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "Text",
+                      "maxLength" : 255,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Description",
+                      "isCustomField" : false,
+                      "name" : "description",
+                      "id" : "4000000000568",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Status",
+                      "allowedValues" : [ "Open", "On Hold", "Escalated", "Closed" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "Open",
+                      "isSystemMandatory" : true,
+                      "type" : "Picklist",
+                      "restoreOnReplyValues" : [ "Open", "On Hold", "Escalated", "Closed" ],
+                      "name" : "status",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000570",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Product Name",
+                      "isCustomField" : false,
+                      "name" : "productId",
+                      "id" : "4000000000572",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Ticket Owner",
+                      "isCustomField" : false,
+                      "name" : "assigneeId",
+                      "id" : "4000000000574",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  }, {
+                    "name" : "Additional Information",
+                    "id" : 2,
+                    "fields" : [ {
+                      "displayLabel" : "Due Date",
+                      "isCustomField" : false,
+                      "name" : "dueDate",
+                      "id" : "4000000000610",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "DateTime",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Priority",
+                      "allowedValues" : [ "-None-", "High", "Medium", "Low" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "name" : "priority",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000614",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Channel",
+                      "allowedValues" : [ "Phone", "Email", "Web", "Twitter", "Facebook", "Chat", "Forums", "Feedback Widget" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "Phone",
+                      "name" : "channel",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000616",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Classification",
+                      "allowedValues" : [ "-None-", "Question", "Problem", "Feature", "Others" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "name" : "classification",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000622",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Resolution",
+                      "isCustomField" : false,
+                      "name" : "resolution",
+                      "id" : "4000000000624",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    } ]
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "cloneLayoutResponse" : {
+        "description" : "cloneLayoutResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "module" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "sections" : {
+                      "$ref" : "./Layout.json#/components/schemas/sectionListForLayout"
+                    }
+                  },
+                  "required" : [ "module", "sections" ]
+                } ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/cloneLayoutCommonResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "departmentId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "departmentId" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1557282094000,
+                  "module" : "Accounts",
+                  "layoutDisplayName" : "Clonned Account Layout",
+                  "layoutDesc" : "layout of the accounts",
+                  "isDefaultLayout" : false,
+                  "sections" : [ {
+                    "name" : "Account Information",
+                    "isCustomSection" : true,
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Account Name",
+                      "isCustomField" : false,
+                      "name" : "accountName",
+                      "id" : "4000000000404",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "Text",
+                      "maxLength" : 200,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Email",
+                      "isCustomField" : false,
+                      "name" : "email",
+                      "id" : "4000000000408",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "isCustomField" : false,
+                      "name" : "phone",
+                      "id" : "4000000000406",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Phone",
+                      "maxLength" : 30,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Website",
+                      "isCustomField" : false,
+                      "name" : "website",
+                      "id" : "4000000000410",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "URL",
+                      "maxLength" : 2083,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Country",
+                      "isCustomField" : false,
+                      "name" : "country",
+                      "id" : "4000000000438",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Text",
+                      "maxLength" : 30,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Account Owner",
+                      "isCustomField" : false,
+                      "name" : "ownerId",
+                      "id" : "4000000000412",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Education Type",
+                      "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                      "apiName" : "cf_education_type",
+                      "isCustomField" : true,
+                      "defaultValue" : "Education :: University :: Private",
+                      "isNested" : true,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000009999",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutName" : "cloneAccLayout1",
+                  "skipDeptAccessValidation" : false,
+                  "createdBy" : "4000000015894",
+                  "createdTime" : 1557282094000,
+                  "modifiedBy" : "4000000015894",
+                  "id" : "4000000039001",
+                  "status" : "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "createLayoutResponse" : {
+        "description" : "createLayoutResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "module" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "sections" : {
+                      "$ref" : "./Layout.json#/components/schemas/sectionListForLayout"
+                    }
+                  },
+                  "required" : [ "module", "sections" ]
+                } ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/cloneLayoutCommonResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "departmentId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "departmentId" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1557377577000,
+                  "departmentId" : "4000000012710",
+                  "module" : "Accounts",
+                  "layoutDisplayName" : "Clonned Account Layout",
+                  "layoutDesc" : "DESC",
+                  "isDefaultLayout" : false,
+                  "sections" : [ {
+                    "name" : "Account Information",
+                    "isCustomSection" : true,
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Account Name",
+                      "isCustomField" : false,
+                      "name" : "accountName",
+                      "id" : "4000000000404",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "Text",
+                      "maxLength" : 200,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Email",
+                      "isCustomField" : false,
+                      "name" : "email",
+                      "id" : "4000000000408",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "isCustomField" : false,
+                      "name" : "phone",
+                      "id" : "4000000000406",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Phone",
+                      "maxLength" : 30,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Website",
+                      "isCustomField" : false,
+                      "name" : "website",
+                      "id" : "4000000000410",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "URL",
+                      "maxLength" : 2083,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Country",
+                      "isCustomField" : false,
+                      "name" : "country",
+                      "id" : "4000000000438",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Text",
+                      "maxLength" : 30,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Account Owner",
+                      "isCustomField" : false,
+                      "name" : "ownerId",
+                      "id" : "4000000000412",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutName" : "accounts layout ",
+                  "skipDeptAccessValidation" : false,
+                  "createdBy" : "4000000015894",
+                  "createdTime" : 1557377577000,
+                  "modifiedBy" : "4000000015894",
+                  "id" : "4000000043004",
+                  "status" : "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "layoutJson" : {
+        "description" : "layoutJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "layoutProfiles" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 4,
+                      "minProperties" : 4,
+                      "properties" : {
+                        "profileName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 50,
+                          "minLength" : 0
+                        },
+                        "isDefault" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "type" : {
+                          "type" : [ "string", "null" ],
+                          "enum" : [ "Administrator", "Standard", "Light", "Portal", "Custom" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        }
+                      },
+                      "required" : [ "id", "isDefault", "profileName", "type" ]
+                    },
+                    "uniqueItems" : false
+                  }
+                },
+                "required" : [ "layoutProfiles" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1557394948000,
+                  "departmentId" : "4000000012710",
+                  "module" : "Cases",
+                  "layoutDisplayName" : "ClonedLayout",
+                  "layoutDesc" : "DESC",
+                  "isDefaultLayout" : false,
+                  "sections" : [ {
+                    "name" : "Case Information",
+                    "isCustomSection" : true,
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Department",
+                      "isCustomField" : false,
+                      "name" : "departmentId",
+                      "id" : "4000000000556",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 50,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Contact Name",
+                      "isCustomField" : false,
+                      "name" : "contactId",
+                      "id" : "4000000000560",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Account Name",
+                      "isCustomField" : false,
+                      "name" : "accountId",
+                      "id" : "4000000000558",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Email",
+                      "isCustomField" : false,
+                      "name" : "email",
+                      "id" : "4000000000562",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "isCustomField" : false,
+                      "name" : "phone",
+                      "id" : "4000000000564",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Phone",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Subject",
+                      "isCustomField" : false,
+                      "name" : "subject",
+                      "id" : "4000000000566",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "Text",
+                      "maxLength" : 255,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Description",
+                      "isCustomField" : false,
+                      "name" : "description",
+                      "id" : "4000000000568",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Status",
+                      "allowedValues" : [ "Open", "On Hold", "Escalated", "Closed" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "Open",
+                      "isNested" : false,
+                      "isSystemMandatory" : true,
+                      "type" : "Picklist",
+                      "restoreOnReplyValues" : [ "Open", "On Hold", "Escalated", "Closed" ],
+                      "name" : "status",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000570",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Ticket Owner",
+                      "isCustomField" : false,
+                      "name" : "assigneeId",
+                      "id" : "4000000000574",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Product Name",
+                      "isCustomField" : false,
+                      "name" : "productId",
+                      "id" : "4000000000572",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  }, {
+                    "name" : "Additional Information",
+                    "isCustomSection" : true,
+                    "id" : 2,
+                    "fields" : [ {
+                      "displayLabel" : "Due Date",
+                      "isCustomField" : false,
+                      "name" : "dueDate",
+                      "id" : "4000000000610",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "DateTime",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Priority",
+                      "allowedValues" : [ "-None-", "High", "Medium", "Low" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "name" : "priority",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000614",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Channel",
+                      "allowedValues" : [ "Phone", "Email", "Web", "Twitter", "Facebook", "Chat", "Forums", "Feedback Widget" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "Phone",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "name" : "channel",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000616",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Classification",
+                      "allowedValues" : [ "-None-", "Question", "Problem", "Feature", "Others" ],
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "name" : "classification",
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000622",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Resolution",
+                      "isCustomField" : false,
+                      "name" : "resolution",
+                      "id" : "4000000000624",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutName" : "Tickets New Layout 6",
+                  "skipDeptAccessValidation" : false,
+                  "createdBy" : "4000000015894",
+                  "createdTime" : 1557120606000,
+                  "modifiedBy" : "4000000015894",
+                  "id" : "4000000038033",
+                  "status" : "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getLayoutResponse" : {
+        "description" : "getLayoutResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "module" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "sections" : {
+                      "$ref" : "./Layout.json#/components/schemas/sectionListForLayout"
+                    }
+                  },
+                  "required" : [ "module", "sections" ]
+                } ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/cloneLayoutCommonResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "departmentId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "departmentId" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1498894564000,
+                  "skipDeptAccessValidation" : false,
+                  "createdBy" : "4000000009118",
+                  "departmentId" : "4000000007175",
+                  "layoutDisplayName" : "Default Ticket Layout",
+                  "createdTime" : 1498894564000,
+                  "modifiedBy" : "",
+                  "id" : "4000000007177",
+                  "isDefaultLayout" : true,
+                  "sections" : [ {
+                    "name" : "Ticket Information",
+                    "isCustomSection" : false,
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Department",
+                      "apiName" : "departmentId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000353",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 50,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Contact Name",
+                      "apiName" : "contactId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000357",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Account Name",
+                      "apiName" : "accountId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000355",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Email",
+                      "apiName" : "email",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000359",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "apiName" : "phone",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000361",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Phone",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Education Type",
+                      "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                      "apiName" : "cf_education_type",
+                      "isCustomField" : true,
+                      "defaultValue" : "Education :: University :: Private",
+                      "isNested" : true,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000009999",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Sub Category",
+                      "allowedValues" : [ "Sub General", "Sub Defects" ],
+                      "apiName" : "subCategory",
+                      "isCustomField" : false,
+                      "defaultValue" : "Sub General",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000423",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Category",
+                      "allowedValues" : [ "General", "Defects" ],
+                      "apiName" : "category",
+                      "isCustomField" : false,
+                      "defaultValue" : "General",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000421",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Subject",
+                      "apiName" : "subject",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000363",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "Text",
+                      "maxLength" : 255,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Description",
+                      "apiName" : "description",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000365",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Status",
+                      "allowedValues" : [ "Open", "Open_july", "On Hold", "Escalated", "Closed1", "Closed", "newDeptClosed" ],
+                      "apiName" : "status",
+                      "isCustomField" : false,
+                      "defaultValue" : "Open",
+                      "isNested" : false,
+                      "isSystemMandatory" : true,
+                      "type" : "Picklist",
+                      "restoreOnReplyValues" : [ "Open_july", "newDeptClosed", "Escalated", "On Hold", "Closed", "Closed1", "Open" ],
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000367",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Case Owner",
+                      "apiName" : "assigneeId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000371",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Product Name",
+                      "apiName" : "productId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000369",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  }, {
+                    "name" : "Additional Information",
+                    "isCustomSection" : false,
+                    "id" : 2,
+                    "fields" : [ {
+                      "displayLabel" : "Due Date",
+                      "apiName" : "dueDate",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000405",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "DateTime",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Priority",
+                      "allowedValues" : [ "-None-", "High", "Medium", "Low" ],
+                      "apiName" : "priority",
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000407",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Mode",
+                      "allowedValues" : [ "Phone", "Email", "Web", "Twitter", "Facebook", "Chat", "Forums", "Feedback Widget" ],
+                      "apiName" : "channel",
+                      "isCustomField" : false,
+                      "defaultValue" : "Phone",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000409",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Is Overdue",
+                      "apiName" : "Is Overdue",
+                      "isCustomField" : false,
+                      "defaultValue" : "true",
+                      "isEncryptedField" : false,
+                      "id" : "4000000000411",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Boolean",
+                      "maxLength" : 50,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Is Escalated",
+                      "apiName" : "Is Escalated",
+                      "isCustomField" : false,
+                      "defaultValue" : "true",
+                      "isEncryptedField" : false,
+                      "id" : "4000000000413",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Boolean",
+                      "maxLength" : 50,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Classification",
+                      "allowedValues" : [ "-None-", "Question", "Problem", "Feature", "Others" ],
+                      "apiName" : "classification",
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000415",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Resolution",
+                      "apiName" : "resolution",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000417",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Sample TextArea",
+                      "apiName" : "cf_sample_textarea",
+                      "isCustomField" : true,
+                      "toolTipType" : "placeHolder",
+                      "isEncryptedField" : false,
+                      "toolTip" : "Sample Field",
+                      "id" : "4000000000447",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutDesc" : "Default Layout of the Ticket",
+                  "layoutName" : "Default Ticket Layout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getMyFormResponse" : {
+        "description" : "getMyFormResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "module" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "sections" : {
+                      "$ref" : "./Layout.json#/components/schemas/sectionListForLayout"
+                    }
+                  },
+                  "required" : [ "module", "sections" ]
+                } ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/cloneLayoutCommonResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "departmentId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "departmentId" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1499682731000,
+                  "createdBy" : "4000000009118",
+                  "departmentId" : "4000000007175",
+                  "createdTime" : 1498894564000,
+                  "modifiedBy" : "4000000009118",
+                  "id" : "4000000007177",
+                  "isDefaultLayout" : true,
+                  "sections" : [ {
+                    "name" : "Ticket Information",
+                    "isCustomSection" : false,
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Department",
+                      "apiName" : "departmentId",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000353",
+                      "type" : "LookUp",
+                      "maxLength" : 50,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Contact Name",
+                      "apiName" : "contactId",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000357",
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Account Name",
+                      "apiName" : "accountId",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000355",
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Email",
+                      "apiName" : "email",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000359",
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "apiName" : "phone",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000361",
+                      "type" : "Phone",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Education Type",
+                      "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                      "apiName" : "cf_education_type",
+                      "isCustomField" : true,
+                      "defaultValue" : "Education :: University :: Private",
+                      "isNested" : true,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000009999",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Sub Category",
+                      "allowedValues" : [ "Sub General", "Sub Defects" ],
+                      "apiName" : "subCategory",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "defaultValue" : "Sub General",
+                      "isNested" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000423",
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Category",
+                      "allowedValues" : [ "General", "Defects", "ManojKumar" ],
+                      "apiName" : "category",
+                      "isCustomField" : false,
+                      "isReadOnly" : false,
+                      "defaultValue" : "General",
+                      "isNested" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000421",
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Subject",
+                      "apiName" : "subject",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000363",
+                      "type" : "Text",
+                      "maxLength" : 255,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Description",
+                      "apiName" : "description",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000365",
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Status",
+                      "allowedValues" : [ "Open", "Open_july", "Open_newDept", "On Hold", "Escalated", "Closed1", "Closed", "newDeptClosed", "julyDeptClosed", "julyDeptClosed1" ],
+                      "apiName" : "status",
+                      "isCustomField" : false,
+                      "defaultValue" : "Open",
+                      "isNested" : false,
+                      "type" : "Picklist",
+                      "isReadOnly" : false,
+                      "restoreOnReplyValues" : [ "Open_july", "newDeptClosed", "Open_newDept", "Escalated", "On Hold", "Closed", "Closed1", "julyDeptClosed", "julyDeptClosed1", "Open" ],
+                      "isEncryptedField" : false,
+                      "id" : "4000000000367",
+                      "maxLength" : 120,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Case Owner",
+                      "apiName" : "assigneeId",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000371",
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Product Name",
+                      "apiName" : "productId",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000369",
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  }, {
+                    "name" : "Additional Information",
+                    "isCustomSection" : false,
+                    "id" : 2,
+                    "fields" : [ {
+                      "displayLabel" : "Due Date",
+                      "apiName" : "dueDate",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000405",
+                      "type" : "DateTime",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Priority",
+                      "allowedValues" : [ "-None-", "High", "Medium", "Low" ],
+                      "apiName" : "priority",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000407",
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Mode",
+                      "allowedValues" : [ "Phone", "Email", "Web", "Twitter", "Facebook", "Chat", "Forums", "Feedback Widget" ],
+                      "apiName" : "channel",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "defaultValue" : "Phone",
+                      "isNested" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000409",
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Is Overdue",
+                      "apiName" : "Is Overdue",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "defaultValue" : "true",
+                      "isEncryptedField" : false,
+                      "id" : "4000000000411",
+                      "type" : "Boolean",
+                      "maxLength" : 50,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Is Escalated",
+                      "apiName" : "Is Escalated",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "defaultValue" : "true",
+                      "isEncryptedField" : false,
+                      "id" : "4000000000413",
+                      "type" : "Boolean",
+                      "maxLength" : 50,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Classification",
+                      "allowedValues" : [ "-None-", "Question", "Problem", "Feature", "Others" ],
+                      "apiName" : "classification",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000415",
+                      "type" : "Picklist",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Resolution",
+                      "apiName" : "resolution",
+                      "isReadOnly" : false,
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000417",
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Sample TextArea",
+                      "apiName" : "cf_sample_textarea",
+                      "isCustomField" : true,
+                      "toolTipType" : "placeHolder",
+                      "isEncryptedField" : false,
+                      "toolTip" : "Sample Field",
+                      "id" : "4000000000447",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutName" : "Default Ticket Layout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateLayoutResponse" : {
+        "description" : "updateLayoutResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/basicLayoutJson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "module" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "Cases", "Contacts", "Accounts", "Tasks", "Calls", "Events", "TimeEntry", "Contracts", "Products" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "sections" : {
+                      "$ref" : "./Layout.json#/components/schemas/sectionListForLayout"
+                    }
+                  },
+                  "required" : [ "module", "sections" ]
+                } ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Layout.json#/components/schemas/cloneLayoutCommonResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "departmentId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "departmentId" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1498894564000,
+                  "skipDeptAccessValidation" : false,
+                  "createdBy" : "4000000009118",
+                  "departmentId" : "4000000007175",
+                  "layoutDisplayName" : "ClonedLayout",
+                  "createdTime" : 1498894564000,
+                  "modifiedBy" : "",
+                  "id" : "4000000007177",
+                  "isDefaultLayout" : true,
+                  "sections" : [ {
+                    "name" : "Ticket Information",
+                    "isCustomSection" : false,
+                    "id" : 1,
+                    "fields" : [ {
+                      "displayLabel" : "Department",
+                      "apiName" : "departmentId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000353",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 50,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Contact Name",
+                      "apiName" : "contactId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000357",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Account Name",
+                      "apiName" : "accountId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000355",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Email",
+                      "apiName" : "email",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000359",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Email",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Phone",
+                      "apiName" : "phone",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000361",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Phone",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Education Type",
+                      "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                      "apiName" : "cf_education_type",
+                      "isCustomField" : true,
+                      "defaultValue" : "Education :: University :: Private",
+                      "isNested" : true,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000009999",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Sub Category",
+                      "allowedValues" : [ "Sub General", "Sub Defects" ],
+                      "apiName" : "subCategory",
+                      "isCustomField" : false,
+                      "defaultValue" : "Sub General",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000423",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Category",
+                      "allowedValues" : [ "General", "Defects" ],
+                      "apiName" : "category",
+                      "isCustomField" : false,
+                      "defaultValue" : "General",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000421",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Subject",
+                      "apiName" : "subject",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000363",
+                      "isSystemMandatory" : true,
+                      "isRemovable" : false,
+                      "type" : "Text",
+                      "maxLength" : 255,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Description",
+                      "apiName" : "description",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000365",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Status",
+                      "allowedValues" : [ "Open", "Open_july", "On Hold", "Escalated", "Closed1", "Closed", "newDeptClosed" ],
+                      "apiName" : "status",
+                      "isCustomField" : false,
+                      "defaultValue" : "Open",
+                      "isNested" : false,
+                      "isSystemMandatory" : true,
+                      "type" : "Picklist",
+                      "restoreOnReplyValues" : [ "Open_july", "newDeptClosed", "Escalated", "On Hold", "Closed", "Closed1", "Open" ],
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000367",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : true
+                    }, {
+                      "displayLabel" : "Case Owner",
+                      "apiName" : "assigneeId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000371",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Product Name",
+                      "apiName" : "productId",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000369",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "LookUp",
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    } ]
+                  }, {
+                    "name" : "Additional Information",
+                    "isCustomSection" : false,
+                    "id" : 2,
+                    "fields" : [ {
+                      "displayLabel" : "Due Date",
+                      "apiName" : "dueDate",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000405",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "DateTime",
+                      "maxLength" : 300,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Priority",
+                      "allowedValues" : [ "-None-", "High", "Medium", "Low" ],
+                      "apiName" : "priority",
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000407",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Mode",
+                      "allowedValues" : [ "Phone", "Email", "Web", "Twitter", "Facebook", "Chat", "Forums", "Feedback Widget" ],
+                      "apiName" : "channel",
+                      "isCustomField" : false,
+                      "defaultValue" : "Phone",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000409",
+                      "isRemovable" : false,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Is Overdue",
+                      "apiName" : "Is Overdue",
+                      "isCustomField" : false,
+                      "defaultValue" : "true",
+                      "isEncryptedField" : false,
+                      "id" : "4000000000411",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Boolean",
+                      "maxLength" : 50,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Is Escalated",
+                      "apiName" : "Is Escalated",
+                      "isCustomField" : false,
+                      "defaultValue" : "true",
+                      "isEncryptedField" : false,
+                      "id" : "4000000000413",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : true,
+                      "type" : "Boolean",
+                      "maxLength" : 50,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Classification",
+                      "allowedValues" : [ "-None-", "Question", "Problem", "Feature", "Others" ],
+                      "apiName" : "classification",
+                      "isCustomField" : false,
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "isSystemMandatory" : false,
+                      "type" : "Picklist",
+                      "isEncryptedField" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000415",
+                      "isRemovable" : true,
+                      "maxLength" : 120,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Resolution",
+                      "apiName" : "resolution",
+                      "isCustomField" : false,
+                      "isEncryptedField" : false,
+                      "id" : "4000000000417",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    }, {
+                      "displayLabel" : "Sample TextArea",
+                      "apiName" : "cf_sample_textarea",
+                      "isCustomField" : true,
+                      "toolTipType" : "placeHolder",
+                      "isEncryptedField" : false,
+                      "toolTip" : "Sample Field",
+                      "id" : "4000000000447",
+                      "isSystemMandatory" : false,
+                      "isRemovable" : false,
+                      "type" : "Textarea",
+                      "maxLength" : 1000000,
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutDesc" : "Layout cloned from default layout",
+                  "layoutName" : "Default Ticket Layout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "layoutProfilesData" : {
+        "description" : "layoutProfilesData template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Layout.json#/components/schemas/layoutProfileJsonArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "profileName" : "Support Administrator",
+                    "isDefault" : true,
+                    "id" : "4000000015183",
+                    "type" : "ADMIN"
+                  }, {
+                    "profileName" : "Agent",
+                    "isDefault" : true,
+                    "id" : "4000000015186",
+                    "type" : "STANDARD"
+                  }, {
+                    "profileName" : "Help Center",
+                    "isDefault" : true,
+                    "id" : "4000000015189",
+                    "type" : "PORTAL"
+                  }, {
+                    "profileName" : "Supervisor",
+                    "isDefault" : false,
+                    "id" : "4000000015192",
+                    "type" : "CUSTOM"
+                  }, {
+                    "profileName" : "Support Manager",
+                    "isDefault" : false,
+                    "id" : "4000000015195",
+                    "type" : "CUSTOM"
+                  }, {
+                    "profileName" : "Newbie Agent",
+                    "isDefault" : false,
+                    "id" : "4000000015198",
+                    "type" : "CUSTOM"
+                  }, {
+                    "profileName" : "Light Agent",
+                    "isDefault" : true,
+                    "id" : "4000000015201",
+                    "type" : "LIGHT"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "commonFieldResponse" : {
+        "description" : "commonFieldResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Field.json#/components/schemas/commonFieldResponse"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "isRemovable" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "isSystemMandatory" : {
+                    "type" : [ "boolean", "null" ]
+                  }
+                },
+                "required" : [ "isRemovable", "isSystemMandatory" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "displayLabel" : "Education Type",
+                  "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                  "apiName" : "cf_education_type",
+                  "isCustomField" : true,
+                  "defaultValue" : "Education :: University :: Private",
+                  "isNested" : true,
+                  "i18NLabel" : "Education Type",
+                  "isSystemMandatory" : false,
+                  "type" : "Picklist",
+                  "name" : "Education Type",
+                  "isEncryptedField" : false,
+                  "sortBy" : "userDefined",
+                  "id" : "21000000023005",
+                  "isRemovable" : true,
+                  "maxLength" : 120,
+                  "isMandatory" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "module" : {
+        "name" : "module",
+        "in" : "query",
+        "description" : " Name of the module whose layouts must be fetched. The allowed values are !@tickets, contacts, accounts, calls, events, tasks, timeEntry, products, and contracts@!",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : " Name of the module whose layouts must be fetched. The allowed values are !@tickets, contacts, accounts, calls, events, tasks, timeEntry, products, and contracts@!",
+          "enum" : [ "tickets", "contacts", "contracts", "accounts", "products", "calls", "tasks", "events", "timeEntry" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department in which the layouts are configured",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department in which the layouts are configured",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "layoutId" : {
+        "name" : "layoutId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "fieldId" : {
+        "name" : "fieldId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "cloneLayoutJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skipDeptAccessValidation" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "layoutDisplayName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "isDefaultLayout" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "false" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "layoutDesc" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "layoutName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "layoutName" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "skipDeptAccessValidation" : false,
+                  "layoutDisplayName" : "Clonned Account Layout",
+                  "isDefaultLayout" : false,
+                  "layoutDesc" : "Layout of the accounts",
+                  "layoutName" : "cloneAccLayout1"
+                }
+              }
+            }
+          }
+        }
+      },
+      "layoutRequestJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skipDeptAccessValidation" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that returns if the layout is common to all profiles of the organisation and not specific to the department"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of department in which the layout is configured",
+                  "pattern" : "([0-9]+)"
+                },
+                "layoutDisplayName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Display Name of the layout in HelpCenter",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "mdoule name",
+                  "enum" : [ "tickets", "contacts", "accounts", "tasks", "calls", "events", "timeEntry", "contracts", "products" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isDefaultLayout" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that returns if the layout is the default layout in the module"
+                },
+                "sections" : {
+                  "$ref" : "./Layout.json#/components/schemas/sectionRequestArr"
+                },
+                "layoutName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the layout",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "departmentId", "isDefaultLayout", "layoutDisplayName", "layoutName", "module", "sections", "skipDeptAccessValidation" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "skipDeptAccessValidation" : false,
+                  "module" : "accounts",
+                  "departmentId" : "4000000012710",
+                  "layoutDisplayName" : "Clonned Account Layout",
+                  "layoutDesc" : "DESC",
+                  "sections" : [ {
+                    "name" : "Account Information",
+                    "i18NLabel" : "Account Information",
+                    "isCustomSection" : false,
+                    "id" : 1,
+                    "fields" : [ {
+                      "id" : "4000000000404",
+                      "isMandatory" : true
+                    }, {
+                      "id" : "4000000000408",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000406",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000410",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000438",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000412",
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutName" : "accounts layout "
+                }
+              }
+            }
+          }
+        }
+      },
+      "deactivateLayoutRequestJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "transferToLayoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "transferToLayoutId" : "4000000038039"
+                }
+              }
+            }
+          }
+        }
+      },
+      "layoutIdsJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "layoutIds" : {
+                  "$ref" : "./Layout.json#/components/schemas/layoutIdsArray"
+                }
+              },
+              "required" : [ "layoutIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "layoutIds" : [ "4000000007187", "4000000007197" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "layoutProfileIdsJsonObject" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "layoutProfileIds" : {
+                  "$ref" : "./Layout.json#/components/schemas/layoutProfileIdsJson"
+                }
+              },
+              "required" : [ "layoutProfileIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "layoutProfileIds" : [ 4000000015183, 4000000015186, 4000000015189 ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateLayout_layoutRequestJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skipDeptAccessValidation" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that returns if the layout is common to all profiles of the organisation and not specific to the department"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of department in which the layout is configured",
+                  "pattern" : "([0-9]+)"
+                },
+                "layoutDisplayName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Display Name of the layout in HelpCenter",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "mdoule name",
+                  "enum" : [ "tickets", "contacts", "accounts", "tasks", "calls", "events", "timeEntry", "contracts", "products" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isDefaultLayout" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that returns if the layout is the default layout in the module"
+                },
+                "sections" : {
+                  "$ref" : "./Layout.json#/components/schemas/sectionRequestArr"
+                },
+                "layoutName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the layout",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "departmentId", "isDefaultLayout", "layoutName", "module", "sections", "skipDeptAccessValidation" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "skipDeptAccessValidation" : false,
+                  "layoutDisplayName" : "ClonedLayout",
+                  "layoutDesc" : "Layout cloned from default layout",
+                  "sections" : [ {
+                    "name" : "Ticket Information",
+                    "i18NLabel" : "Ticket Information",
+                    "id" : 1,
+                    "fields" : [ {
+                      "id" : "4000000000353",
+                      "isMandatory" : true
+                    }, {
+                      "id" : "4000000000357",
+                      "isMandatory" : true
+                    }, {
+                      "id" : "4000000000355",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000359",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000361",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                      "defaultValue" : "Education :: University :: Private",
+                      "isNested" : true,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000009999",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "Sub General", "Sub Defects" ],
+                      "defaultValue" : "Sub General",
+                      "isNested" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000423",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "General", "Defects" ],
+                      "defaultValue" : "General",
+                      "isNested" : false,
+                      "id" : "4000000000421",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000363",
+                      "isMandatory" : true
+                    }, {
+                      "id" : "4000000000365",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "Open", "Open_july", "On Hold", "Escalated", "Closed1", "Closed", "newDeptClosed" ],
+                      "restoreOnReplyValues" : [ "Open_july", "newDeptClosed", "Escalated", "On Hold", "Closed", "Closed1", "Open" ],
+                      "defaultValue" : "Open",
+                      "isNested" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000367",
+                      "isMandatory" : true
+                    }, {
+                      "id" : "4000000000371",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000369",
+                      "isMandatory" : false
+                    } ]
+                  }, {
+                    "name" : "Additional Information",
+                    "i18NLabel" : "Additional Information",
+                    "id" : 2,
+                    "fields" : [ {
+                      "id" : "4000000000405",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "-None-", "High", "Medium", "Low" ],
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "id" : "4000000000407",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "Phone", "Email", "Web", "Twitter", "Facebook", "Chat", "Forums", "Feedback Widget" ],
+                      "defaultValue" : "Phone",
+                      "isNested" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000409",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000411",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000413",
+                      "isMandatory" : false
+                    }, {
+                      "allowedValues" : [ "-None-", "Question", "Problem", "Feature", "Others" ],
+                      "defaultValue" : "-None-",
+                      "isNested" : false,
+                      "sortBy" : "userDefined",
+                      "id" : "4000000000415",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000417",
+                      "isMandatory" : false
+                    }, {
+                      "id" : "4000000000447",
+                      "isMandatory" : false
+                    } ]
+                  } ],
+                  "layoutName" : "ClonedLayout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "replaceValueRequestJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "newValue" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 120,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+                },
+                "oldValue" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 120,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+                },
+                "fieldId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "fieldId", "newValue", "oldValue" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "newValue" : "Sub Defects1235",
+                  "oldValue" : "Sub Defects",
+                  "fieldId" : "4000000000423"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateLayoutFieldRequestJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "allowedValues" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 120,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+                  },
+                  "uniqueItems" : false
+                },
+                "defaultValue" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 120,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+                },
+                "sortBy" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "alphabetical", "userDefined" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isMandatory" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "allowedValues", "defaultValue", "isMandatory", "sortBy" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "allowedValues" : [ "Education :: University :: Private", "Education :: University :: Public", "Education :: School :: Private", "Education :: School :: Public" ],
+                  "defaultValue" : "Education :: University :: Private",
+                  "isNested" : true,
+                  "sortBy" : "userDefined",
+                  "isMandatory" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Layout"
+}

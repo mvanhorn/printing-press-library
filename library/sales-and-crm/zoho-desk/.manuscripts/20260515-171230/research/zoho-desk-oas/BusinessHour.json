@@ -1,0 +1,1018 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "BusinessHour",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/businessHours/{businessHourId}" : {
+      "get" : {
+        "tags" : [ "BusinessHour" ],
+        "summary" : "Get business hours set",
+        "description" : "This API fetches the details of a business hours set configured in your help desk portal",
+        "operationId" : "getBusinessHour",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/businessHourId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/businessHourJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "BusinessHour" ],
+        "summary" : "Update business hours set",
+        "description" : "This API updates the details of a business hours set configured in your help desk portal",
+        "operationId" : "updateBusinessHour",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/businessHourId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/businessHourInputJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/businessHourJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/businessHours" : {
+      "get" : {
+        "tags" : [ "BusinessHour" ],
+        "summary" : "List business hour sets",
+        "description" : "This API lists a particular number of business hour sets, based on the limit specified",
+        "operationId" : "getBusinessHours",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "businessHourIds",
+          "in" : "query",
+          "description" : "The IDs of the BusinessHours to list separated by commas. You can pass upto 50 IDs.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "The IDs of the BusinessHours to list separated by commas. You can pass upto 50 IDs.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Activation status of the business hour sets. Values allowed are @ACTIVE@ and @INACTIVE@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Activation status of the business hour sets. Values allowed are @ACTIVE@ and @INACTIVE@",
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/businessHourListViewJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "BusinessHour" ],
+        "summary" : "Create business hours set",
+        "description" : "This API creates a business hours set in your help desk portal",
+        "operationId" : "createBusinessHour",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createBusinessHour_businessHourInputJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/businessHourJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/businessHours/{businessHourId}/relatedRules" : {
+      "get" : {
+        "tags" : [ "BusinessHour" ],
+        "summary" : "List associated automation rules for the business hour",
+        "description" : "This API lists a particular number of automation rules that include a business hours set,based on the limit specified",
+        "operationId" : "getRelatedRulesForBusinessHour",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/businessHourId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/relatedRuleListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "businessTimesJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "startTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "endTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$"
+          },
+          "day" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "SUNDAY|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY|SATURDAY"
+          }
+        },
+        "required" : [ "day", "endTime", "startTime" ]
+      },
+      "businessTimesList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./BusinessHour.json#/components/schemas/businessTimesJson"
+        }
+      },
+      "rulesListviewJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ruleType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUPERVISE", "MACRO", "WORKFLOW", "BLUEPRINT", "SLA", "SKILLS", "CUSTOMVIEW", "CONTRACTS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ruleName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "ruleId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "ruleId", "ruleName", "ruleType" ]
+      },
+      "relatedRulesData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./BusinessHour.json#/components/schemas/rulesListviewJson"
+        }
+      },
+      "businessHourJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "associatedHolidayList" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 3,
+            "minProperties" : 3,
+            "properties" : {
+              "holidayListStatus" : {
+                "type" : [ "string", "null" ],
+                "enum" : [ "ACTIVE", "INACTIVE" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              },
+              "holidayListId" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              },
+              "holidayListName" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 1,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            },
+            "required" : [ "holidayListId", "holidayListName", "holidayListStatus" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "businessTimes" : {
+            "$ref" : "./BusinessHour.json#/components/schemas/businessTimesList"
+          },
+          "timeZone" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 2,
+            "minProperties" : 2,
+            "properties" : {
+              "name" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              },
+              "id" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+              }
+            },
+            "required" : [ "id", "name" ]
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "24X7", "SPECIFIC", "CUSTOM" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "associatedHolidayList", "businessTimes", "createdBy", "createdTime", "id", "modifiedBy", "modifiedTime", "name", "status", "timeZone", "type" ]
+      },
+      "businessHourDataArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./BusinessHour.json#/components/schemas/businessHourJSON"
+        }
+      }
+    },
+    "responses" : {
+      "businessHourJSON" : {
+        "description" : "businessHourJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "associatedHolidayList" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 3,
+                  "minProperties" : 3,
+                  "properties" : {
+                    "holidayListStatus" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "ACTIVE", "INACTIVE" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "holidayListId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "holidayListName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 1,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    }
+                  },
+                  "required" : [ "holidayListId", "holidayListName", "holidayListStatus" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "businessTimes" : {
+                  "$ref" : "./BusinessHour.json#/components/schemas/businessTimesList"
+                },
+                "timeZone" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 2,
+                  "minProperties" : 2,
+                  "properties" : {
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    },
+                    "id" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                    }
+                  },
+                  "required" : [ "id", "name" ]
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "24X7", "SPECIFIC", "CUSTOM" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "associatedHolidayList", "businessTimes", "createdBy", "createdTime", "id", "modifiedBy", "modifiedTime", "name", "status", "timeZone", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1544426319796,
+                  "createdBy" : "4000000016079",
+                  "associatedHolidayList" : null,
+                  "name" : "BusinssHour Pakistan Shift",
+                  "businessTimes" : [ {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "MONDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "TUESDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "WEDNESDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "THURSDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "FRIDAY"
+                  }, {
+                    "startTime" : "00:00",
+                    "endTime" : "00:00",
+                    "day" : "SATURDAY"
+                  }, {
+                    "startTime" : "00:00",
+                    "endTime" : "00:00",
+                    "day" : "SUNDAY"
+                  } ],
+                  "timeZone" : {
+                    "name" : "( GMT 5:00 ) Pakistan Time( PLT )",
+                    "id" : "PLT"
+                  },
+                  "createdTime" : 1544426319796,
+                  "modifiedBy" : "4000000016079",
+                  "id" : "4000000186010",
+                  "type" : "SPECIFIC",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "relatedRuleListArray" : {
+        "description" : "relatedRuleListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./BusinessHour.json#/components/schemas/relatedRulesData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ruleType" : "SUPERVISE",
+                    "ruleName" : "TBA1",
+                    "ruleId" : "6000000019012"
+                  }, {
+                    "ruleType" : "SLA",
+                    "ruleName" : "Priority-based SLAs",
+                    "ruleId" : "6000000013508"
+                  }, {
+                    "ruleType" : "SLA",
+                    "ruleName" : "Bronze SLAs",
+                    "ruleId" : "6000000013514"
+                  }, {
+                    "ruleType" : "BLUEPRINT",
+                    "ruleName" : "Default Blueprint",
+                    "ruleId" : "6000000016083"
+                  }, {
+                    "ruleType" : "BLUEPRINT",
+                    "ruleName" : "BH BP",
+                    "ruleId" : "6000000018143"
+                  }, {
+                    "ruleType" : "BLUEPRINT",
+                    "ruleName" : "Third Bp",
+                    "ruleId" : "6000000023018"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "businessHourListViewJSON" : {
+        "description" : "businessHourListViewJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./BusinessHour.json#/components/schemas/businessHourDataArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1544425791265,
+                    "createdBy" : "4000000016079",
+                    "associatedHolidayList" : null,
+                    "name" : "BusinssHour Pak Shift",
+                    "businessTimes" : [ {
+                      "startTime" : 600,
+                      "endTime" : 960,
+                      "day" : "MONDAY"
+                    }, {
+                      "startTime" : 600,
+                      "endTime" : 960,
+                      "day" : "TUESDAY"
+                    }, {
+                      "startTime" : 600,
+                      "endTime" : 960,
+                      "day" : "WEDNESDAY"
+                    }, {
+                      "startTime" : 600,
+                      "endTime" : 960,
+                      "day" : "THURSDAY"
+                    }, {
+                      "startTime" : 600,
+                      "endTime" : 960,
+                      "day" : "FRIDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : "00:00",
+                      "day" : "SATURDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : "00:00",
+                      "day" : "SUNDAY"
+                    } ],
+                    "timeZone" : {
+                      "name" : "( GMT 5:00 ) Pakistan Time( PLT )",
+                      "id" : "PLT"
+                    },
+                    "createdTime" : 1544425791265,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000185071",
+                    "type" : "SPECIFIC",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1543920264258,
+                    "createdBy" : "4000000016079",
+                    "associatedHolidayList" : null,
+                    "name" : "Specific BH",
+                    "businessTimes" : [ {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "MONDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "TUESDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "WEDNESDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "THURSDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "FRIDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "SATURDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "SUNDAY"
+                    } ],
+                    "timeZone" : {
+                      "name" : "( GMT 0:00 ) Greenwich Mean Time( GMT )",
+                      "id" : "GMT"
+                    },
+                    "createdTime" : 1543404345082,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000101003",
+                    "type" : "SPECIFIC",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1543906124595,
+                    "createdBy" : "4000000016079",
+                    "associatedHolidayList" : {
+                      "holidayListStatus" : "INACTIVE",
+                      "holidayListId" : "4000000117001",
+                      "holidayListName" : "Overlapping Holidays"
+                    },
+                    "name" : "24X7 BusinessHour",
+                    "businessTimes" : [ {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "MONDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "TUESDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "WEDNESDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "THURSDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "FRIDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "SATURDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "SUNDAY"
+                    } ],
+                    "timeZone" : {
+                      "name" : "( GMT 0:00 ) Greenwich Mean Time( GMT )",
+                      "id" : "GMT"
+                    },
+                    "createdTime" : 1543404345082,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000103001",
+                    "type" : "24X7",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1543821419198,
+                    "createdBy" : "4000000016079",
+                    "associatedHolidayList" : null,
+                    "name" : "Indian Shift 2",
+                    "businessTimes" : [ {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "MONDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "TUESDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "WEDNESDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "THURSDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "FRIDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : "00:00",
+                      "day" : "SATURDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : "00:00",
+                      "day" : "SUNDAY"
+                    } ],
+                    "timeZone" : {
+                      "name" : "( GMT 0:00 ) Greenwich Mean Time( GMT )",
+                      "id" : "GMT"
+                    },
+                    "createdTime" : 1543408571781,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000104068",
+                    "type" : "SPECIFIC",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1543821419198,
+                    "createdBy" : "4000000016079",
+                    "associatedHolidayList" : {
+                      "holidayListStatus" : "INACTIVE",
+                      "holidayListId" : "4000000105030",
+                      "holidayListName" : "General HolidayList"
+                    },
+                    "name" : "UK 24X7 Shift",
+                    "businessTimes" : [ {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "MONDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "TUESDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "WEDNESDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "THURSDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "FRIDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "SATURDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : 1439,
+                      "day" : "SUNDAY"
+                    } ],
+                    "timeZone" : {
+                      "name" : "( GMT 0:00 ) Greenwich Mean Time( GMT )",
+                      "id" : "GMT"
+                    },
+                    "createdTime" : 1543404345082,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000101005",
+                    "type" : "24X7",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1543821419198,
+                    "createdBy" : "4000000016079",
+                    "associatedHolidayList" : {
+                      "holidayListStatus" : "INACTIVE",
+                      "holidayListId" : "4000000105030",
+                      "holidayListName" : "General HolidayList"
+                    },
+                    "name" : "UK Shift",
+                    "businessTimes" : [ {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "MONDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "TUESDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "WEDNESDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "THURSDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "FRIDAY"
+                    }, {
+                      "startTime" : "09:00",
+                      "endTime" : 1080,
+                      "day" : "SATURDAY"
+                    }, {
+                      "startTime" : "00:00",
+                      "endTime" : "00:00",
+                      "day" : "SUNDAY"
+                    } ],
+                    "timeZone" : {
+                      "name" : "( GMT 0:00 ) Greenwich Mean Time( GMT )",
+                      "id" : "GMT"
+                    },
+                    "createdTime" : 1543404345082,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000101009",
+                    "type" : "CUSTOM",
+                    "status" : "INACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of business hour sets to list",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of business hour sets to list",
+          "maximum" : 50,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "businessHourId" : {
+        "name" : "businessHourId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the business hour sets must be listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the business hour sets must be listed",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "businessHourInputJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "timeZoneId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "holidayListId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "businessTimes" : {
+                  "$ref" : "./BusinessHour.json#/components/schemas/businessTimesList"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "24X7", "SPECIFIC", "CUSTOM" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "holidayListId" : "4000000105030"
+                }
+              }
+            }
+          }
+        }
+      },
+      "createBusinessHour_businessHourInputJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "timeZoneId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "holidayListId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "businessTimes" : {
+                  "$ref" : "./BusinessHour.json#/components/schemas/businessTimesList"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "24X7", "SPECIFIC", "CUSTOM" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "businessTimes", "name", "status", "timeZoneId", "type" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "timeZoneId" : "PLT",
+                  "name" : "BusinssHour Pakistan Shift",
+                  "businessTimes" : [ {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "MONDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "TUESDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "WEDNESDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "THURSDAY"
+                  }, {
+                    "startTime" : 600,
+                    "endTime" : 960,
+                    "day" : "FRIDAY"
+                  } ],
+                  "type" : "SPECIFIC",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "BusinessHour"
+}

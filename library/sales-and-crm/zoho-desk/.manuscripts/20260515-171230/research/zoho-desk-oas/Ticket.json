@@ -1,0 +1,4198 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Ticket",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/resolution" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Get ticket resolution",
+        "description" : "This API fetches details related to the resolution of a ticket.",
+        "operationId" : "getTicketResolution",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getResolutionResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Delete ticket resolution",
+        "description" : "This API deletes a resolution added to a ticket.",
+        "operationId" : "deleteTicketResolution",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Update ticket resolution",
+        "description" : "This API updates the resolution field of a ticket.",
+        "operationId" : "updateTicketResolution",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/resolutionRequestBody"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/resolutionResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agentsTicketsCount" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "List all agentsTicketsCount",
+        "description" : "This API returns the number of tickets assigned to multiple agents.",
+        "operationId" : "getAgentsTicketsCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentIds"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getAgentsTicketCountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/moveToTrash" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Move Tickets to trash",
+        "description" : "This API moves tickets to the Recycle Bin",
+        "operationId" : "deleteTicket",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/moveRequestsToTrash"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/associatedTickets" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "List all associated tickets",
+        "description" : "This API lists a particular number of tickets that are associated to you from your help desk, based on the limit specified.",
+        "operationId" : "getAssociatedTickets",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Key that returns additional information related to a ticket. Values allowed are: contacts, products, and assignee. All three values can be passed by separating them with a comma in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Key that returns additional information related to a ticket. Values allowed are: contacts, products, and assignee. All three values can be passed by separating them with a comma in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "contacts", "products", "assignee" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "follower",
+          "in" : "query",
+          "description" : "Filter by followers of the ticket. Values allowed : a valid @agentId@.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Filter by followers of the ticket. Values allowed : a valid @agentId@.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "sharedDepartmentId",
+          "in" : "query",
+          "description" : "Fetches only the tickets shared from @departmentId@ to @sharedDepartmentId@. If @departmentId@ is not provided, fetches all the tickets shared to @sharedDepartmentId@. @sharedDepartmentId@ is given precedence only when @isShared@ is @false@/not given.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Fetches only the tickets shared from @departmentId@ to @sharedDepartmentId@. If @departmentId@ is not provided, fetches all the tickets shared to @sharedDepartmentId@. @sharedDepartmentId@ is given precedence only when @isShared@ is @false@/not given.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/assignee"
+        }, {
+          "$ref" : "#/components/parameters/receivedInDays"
+        }, {
+          "name" : "isShared",
+          "in" : "query",
+          "description" : "Filter all shared tickets actually belonging to @departmentId@ if @isShared@ is true. If @departmentId@ is not provided and if @isShared@ is true, shared tickets from all permitted departments will be listed. If @departmentId@ is provided and @isShared@ is @true@, tickets belonging to @departmentId@, but shared to any other department will be fetched. If @departmentId@ and @sharedDepartmentId@ is provided and @isShared@ is @true@, then tickets belonging to @departmentId@, but shared to @sharedDepartmentId@ will be fetched(Here permission checks are done on @departmentId@). If @departmentId@ and @sharedDepartmentId@ is provided and @isShared@ is @false@/not given, then tickets shared to @sharedDepartmentId@, but belonging to @departmentId@ will be fetched(Here permission checks are done on @sharedDepartmentId@).",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Filter all shared tickets actually belonging to @departmentId@ if @isShared@ is true. If @departmentId@ is not provided and if @isShared@ is true, shared tickets from all permitted departments will be listed. If @departmentId@ is provided and @isShared@ is @true@, tickets belonging to @departmentId@, but shared to any other department will be fetched. If @departmentId@ and @sharedDepartmentId@ is provided and @isShared@ is @true@, then tickets belonging to @departmentId@, but shared to @sharedDepartmentId@ will be fetched(Here permission checks are done on @departmentId@). If @departmentId@ and @sharedDepartmentId@ is provided and @isShared@ is @false@/not given, then tickets shared to @sharedDepartmentId@, but belonging to @departmentId@ will be fetched(Here permission checks are done on @sharedDepartmentId@)."
+          }
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "name" : "commenter",
+          "in" : "query",
+          "description" : "Filter by commenters of the ticket. Values allowed : a valid @agentId@. As of now, either @follower@ or @commenter@ is supported. If both params are given, @commenter@ will be ignored.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Filter by commenters of the ticket. Values allowed : a valid @agentId@. As of now, either @follower@ or @commenter@ is supported. If both params are given, @commenter@ will be ignored.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/ticketListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/updateMany" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Bulk update tickets",
+        "description" : "This API updates multiple tickets at once.",
+        "operationId" : "bulkUpdateTickets",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/tickets_massupdate"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/deleteSpam" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Delete spam tickets",
+        "description" : "This API deletes the given spam tickets",
+        "operationId" : "deleteSpamTickets",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteSpamTickets_moveRequestsToTrash"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/archivedTickets" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Get Archived Ticket List",
+        "description" : "This API gets the archived tickets list  in given department.",
+        "operationId" : "getArchivedTickets",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Key that returns additional information related to a ticket. Values allowed are: @contacts@, @products@,@departments@,@team@,@isRead@ and @assignee@. All six values can be passed by separating them with a comma in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Key that returns additional information related to a ticket. Values allowed are: @contacts@, @products@,@departments@,@team@,@isRead@ and @assignee@. All six values can be passed by separating them with a comma in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "products", "contacts", "isRead", "departments", "team", "assignee" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "viewType",
+          "in" : "query",
+          "description" : "View Type - Supported Values 1 for Compact view , 2 for Classic view ,4 for Table View. If view type is not specified, Classic View will be the default view",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "View Type - Supported Values 1 for Compact view , 2 for Classic view ,4 for Table View. If view type is not specified, Classic View will be the default view",
+            "enum" : [ "1", "2", "4" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/archivedTicketListResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/move" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Move ticket",
+        "description" : "This API helps move a ticket from one department to another.\n @Note:@ The departmentId query parameter will be deprecated soon. Therefore, going forward, the departmentId attribute must be passed in the body of the API request.",
+        "operationId" : "moveTicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/moveRequestjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/metrics" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Get ticket metrics",
+        "description" : "This API fetches details related to the response and resolution times of a ticket.",
+        "operationId" : "getTicketsMetrics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getTicketMetrics"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/merge" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Merge two tickets",
+        "description" : "This API merges two different tickets.",
+        "operationId" : "mergeTicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/mergejson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/ticketResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/emptySpam" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Empty spam tickets",
+        "description" : "This API deletes all spam tickets.",
+        "operationId" : "deleteAllSpamTickets",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/emptySpamResponse"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "202" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/notifyArticleUsage" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Map articles to tickets",
+        "description" : "This API maps tickets with help articles to automatically suggest the same articles for similar tickets that arrive later.",
+        "operationId" : "mapArticlesToTicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "./Article.json#/components/requestBodies/associateArticlesUsage_articleIdsJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/resolutionHistory" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Get resolution history",
+        "description" : "This API fetches the resolution history of a ticket",
+        "operationId" : "getTicketResolutionHistory",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getResolutionHistoryResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/markSpam" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Mark ticket as spam",
+        "description" : "This API marks tickets as spam.",
+        "operationId" : "markTicketAsSpam",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/tickets_updatespam"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/tickets" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "List tickets by contact",
+        "description" : "This API lists tickets received from a specific contact.",
+        "operationId" : "getTicketsByContact",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the tickets. Values allowed are: @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with a comma in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the tickets. Values allowed are: @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with a comma in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "products", "departments", "team", "assignee", "isRead" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/dueDate"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by a specific attribute: @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by a specific attribute: @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/isSpam"
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getTicketsByContactResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/markAsRead" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Mark as read",
+        "description" : "This API marks a ticket as read by the user.",
+        "operationId" : "markTicketAsRead",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "List all tickets",
+        "description" : "This API lists a particular number of tickets, based on the limit specified.",
+        "operationId" : "getTickets",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "contacts", "products", "departments", "team", "assignee" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/dueDate"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "channel",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "dueDate", "createdTime", "recentThread" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/assignee"
+        }, {
+          "name" : "teamIds",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/receivedInDays"
+        }, {
+          "name" : "closedTime",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "today", "yesterday", "currentWeek", "currentMonth", "last3days", "last7days", "last15days", "last30days" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/ticketListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Create a ticket",
+        "description" : "This API creates a ticket in your helpdesk.",
+        "operationId" : "createTicket",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addRequestjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "400" : {
+            "$ref" : "./Common.json#/components/responses/badRequestErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/ticketResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/closeTickets" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Closed many tickets",
+        "description" : "This API closes multiple tickets at once.",
+        "operationId" : "closeTickets",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/closeTicketInput"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/ticketQueueView/count" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "List all ticketQueueView count",
+        "description" : "This API returns the number of tickets in a particular view.",
+        "operationId" : "getTicketQueueViewCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "#/components/parameters/viewId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getOpenRequestsCount"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Get a ticket",
+        "description" : "This API fetches a single ticket from your helpdesk.",
+        "operationId" : "getTicket",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Key that fetches secondary information related to the ticket. Values allowed are: @contacts@, @products@, @assignee@, @departments@, @contract@, @isRead@, @team@, and @skills@ . Multiple values can be passed, with commas for separation.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Key that fetches secondary information related to the ticket. Values allowed are: @contacts@, @products@, @assignee@, @departments@, @contract@, @isRead@, @team@, and @skills@ . Multiple values can be passed, with commas for separation.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "contacts", "products", "departments", "team", "assignee", "contract", "isRead", "skills" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getTicketResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Ticket" ],
+        "operationId" : "updateTicket",
+        "summary" : "Update a ticket",
+        "description" : "This API updates the details of an existing ticket.",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateRequestjson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/ticketResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/markAsUnRead" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Mark as unread",
+        "description" : "This API marks a ticket as unread by the user.",
+        "operationId" : "markTicketAsUnRead",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/threads/{threadId}/split" : {
+      "post" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "Split tickets",
+        "description" : "This API splits an incoming ticket thread into a new ticket.",
+        "operationId" : "splitThreadIntoNewTicket",
+        "parameters" : [ {
+          "name" : "threadId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/ticketResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/{productId}/tickets" : {
+      "get" : {
+        "tags" : [ "Ticket" ],
+        "summary" : "List tickets by products",
+        "description" : "This API lists tickets received from a specific products.",
+        "operationId" : "getTicketsByProduct",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the tickets. Values allowed are: @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with a comma in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the tickets. Values allowed are: @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with a comma in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "products", "departments", "team", "assignee", "isRead" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/dueDate"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by a specific attribute: @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by a specific attribute: @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/isSpam"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/ticketListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "channelRelatedInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "topicId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isTopicDeleted" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "forumStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NOSTATUS", "NEEDMOREINFO", "WORKINGONIT", "ANSWERED", "UNANSWERED", "MAYBELATER", "UNDERREVIEW", "IMPLEMENTED", "WILLNOTIMPLEMENT", "NOTAPROBLEM", "TEMPORARYFIX", "ANALYZING", "SOLVED", "UNSOLVED", "MOSTVOTED", "INPROGRESS", "" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "sourceLink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "topicType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DISCUSSION", "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "forumStatus", "isTopicDeleted", "sourceLink", "topicId", "topicType" ]
+      },
+      "assignee" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "sharedDepartmentsWithName" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "READ_ONLY", "READ_WRITE", "RESTRICTED_ACCESS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "name", "type" ]
+      },
+      "sharedDepartmentsWithNameArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/sharedDepartmentsWithName"
+        }
+      },
+      "channelSource" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "appName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "extId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SYSTEM", "INTEGRATION", "INSTANT_MESSAGE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "appPhotoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "uuid" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "appName", "appPhotoURL", "extId", "permalink", "type" ]
+      },
+      "commonKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the product to which the ticket is mapped",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "description" : "Phone number in the ticket",
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "description" : "Subject of the ticket",
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "description" : "Due date for resolving the ticket",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "description" : "Channel through which the ticket originated.",
+            "x-dynamic-enum" : true
+          },
+          "language" : {
+            "type" : [ "string", "null" ],
+            "description" : "Language preference to set for the ticket",
+            "x-dynamic-enum" : true
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "description" : "Priority of the ticket",
+            "x-dynamic-enum" : true
+          },
+          "assigneeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of agent to whom the ticket is assigned",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "description" : "Email ID in the ticket",
+            "maxLength" : 150,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "assigneeId", "channel", "dueDate", "email", "language", "phone", "priority", "productId", "subject" ]
+      },
+      "commonJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/commonKeys"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "subCategory" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "customFields" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "webUrl" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 500,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "classification" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "category" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "status" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            }
+          },
+          "required" : [ "category", "cf", "classification", "customFields", "description", "status", "subCategory", "webUrl" ]
+        } ]
+      },
+      "commonResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/commonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "entitySkills" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              },
+              "uniqueItems" : false
+            },
+            "modifiedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "ticketNumber" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "statusType" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "Open", "Closed", "On Hold" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "isArchived" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "departmentId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "onholdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "source" : {
+              "$ref" : "#/components/schemas/channelSource"
+            },
+            "resolution" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "closedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "approvalCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "timeEntryCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "isOverDue" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "channelRelatedInfo" : {
+              "$ref" : "#/components/schemas/channelRelatedInfo"
+            },
+            "isDeleted" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isTrashed" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "responseDueDate" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "modifiedBy" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "isResponseOverdue" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "channelCode" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "customerResponseTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "threadCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "secondaryContacts" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              },
+              "uniqueItems" : false
+            },
+            "commentCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "accountId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "taskCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "teamId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "attachmentCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "isEscalated" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isSpam" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "accountId", "approvalCount", "attachmentCount", "channelCode", "channelRelatedInfo", "closedTime", "commentCount", "createdTime", "customerResponseTime", "departmentId", "entitySkills", "id", "isArchived", "isDeleted", "isEscalated", "isOverDue", "isResponseOverdue", "isSpam", "isTrashed", "modifiedBy", "modifiedTime", "onholdTime", "resolution", "responseDueDate", "secondaryContacts", "source", "statusType", "taskCount", "teamId", "threadCount", "ticketNumber", "timeEntryCount" ]
+        } ]
+      },
+      "ticketResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/commonResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "slaId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "contactId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "sharedDepartments" : {
+              "$ref" : "#/components/schemas/sharedDepartmentsWithNameArr"
+            },
+            "layoutId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "layoutDetails" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "maxProperties" : 2,
+              "minProperties" : 2,
+              "properties" : {
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "layoutName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 120,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "id", "layoutName" ]
+            }
+          },
+          "required" : [ "contactId", "layoutDetails", "layoutId", "sharedDepartments", "slaId" ]
+        } ]
+      },
+      "lastThread" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "isDraft" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isForward" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "channel", "direction", "isDraft", "isForward" ]
+      },
+      "listviewCommonJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/commonKeys"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "ticketNumber" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "sentiment" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(POSITIVE|NEUTRAL|NEGATIVE)"
+            },
+            "customerResponseTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "statusType" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "Open", "Closed", "On Hold" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "relationshipType" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "contactId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "isArchived" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "departmentId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "dueDate" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "threadCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "onholdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "lastThread" : {
+              "$ref" : "#/components/schemas/lastThread"
+            },
+            "source" : {
+              "$ref" : "#/components/schemas/channelSource"
+            },
+            "closedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "commentCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "accountId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "responseDueDate" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "webUrl" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 500,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "teamId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "isSpam" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "status" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "channelCode" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "accountId", "channelCode", "closedTime", "commentCount", "contactId", "createdTime", "customerResponseTime", "departmentId", "dueDate", "id", "isArchived", "isSpam", "lastThread", "onholdTime", "relationshipType", "responseDueDate", "sentiment", "source", "status", "statusType", "teamId", "threadCount", "ticketNumber", "webUrl" ]
+        } ]
+      },
+      "listviewJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/listviewCommonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "subCategory" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "category" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "layoutId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "category", "layoutId", "subCategory" ]
+        } ]
+      },
+      "channelList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null" ],
+          "x-dynamic-enum" : true
+        }
+      },
+      "getUnassignedTicketsCount" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "onholdCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "dueIn1HrCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "overDueCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "openCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "dueIn1HrCount", "onholdCount", "openCount", "overDueCount" ]
+      },
+      "getCountCommonJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/getUnassignedTicketsCount"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "agentId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "agentId" ]
+        } ]
+      },
+      "getCountJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/getCountCommonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "isOnline" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "isOnline" ]
+        } ]
+      },
+      "getAgentsTicketCountList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "allOf" : [ {
+            "type" : [ "null", "object" ],
+            "properties" : {
+              "channel" : {
+                "$ref" : "#/components/schemas/channelList"
+              }
+            }
+          }, {
+            "$ref" : "#/components/schemas/getCountJson"
+          } ]
+        }
+      },
+      "long_array" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/listviewJson"
+        }
+      },
+      "pagination" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "next" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z0-9]+)"
+          },
+          "prev" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z0-9]+)"
+          }
+        },
+        "required" : [ "next", "prev" ]
+      },
+      "ticketListViewArray" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "data" : {
+            "$ref" : "#/components/schemas/data"
+          }
+        },
+        "required" : [ "data" ]
+      },
+      "agentsHandled" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "handlingTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "agentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "agentName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "agentId", "agentName", "handlingTime" ]
+      },
+      "agentsHandledData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/agentsHandled"
+        }
+      },
+      "stagingJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "handledTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "handledTime", "status" ]
+      },
+      "stagingData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/stagingJson"
+        }
+      },
+      "mergeFieldJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "entitySkills" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "subCategory" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            }
+          },
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "subject" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            }
+          },
+          "dueDate" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channel" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "secondaryContacts" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "classification" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "assigneeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "resolution" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "category" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "assigneeId", "category", "cf", "channel", "classification", "contactId", "customFields", "description", "dueDate", "email", "entitySkills", "phone", "priority", "productId", "resolution", "secondaryContacts", "status", "subCategory", "subject" ]
+      },
+      "resolutionResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "author" : {
+            "$ref" : "#/components/schemas/assignee"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "author", "content", "modifiedTime" ]
+      },
+      "resolutionResponseData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/resolutionResponse"
+        }
+      },
+      "commonRequestJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/commonKeys"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "subCategory" : {
+              "type" : [ "string", "null" ],
+              "description" : "Subcategory of the ticket",
+              "x-dynamic-enum" : true
+            },
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "customFields" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "description" : "Description in the ticket",
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "classification" : {
+              "type" : [ "string", "null" ],
+              "description" : "Type of ticket. Values supported are @Problem@, @Request@, @Question@, and @Others@.",
+              "x-dynamic-enum" : true
+            },
+            "category" : {
+              "type" : [ "string", "null" ],
+              "description" : "Category of the ticket",
+              "x-dynamic-enum" : true
+            },
+            "status" : {
+              "type" : [ "string", "null" ],
+              "description" : "Status of the ticket. Includes the custom statuses configured in your help desk portal.",
+              "x-dynamic-enum" : true
+            }
+          },
+          "required" : [ "category", "cf", "classification", "customFields", "description", "status", "subCategory" ]
+        } ]
+      },
+      "listViewData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/listviewCommonJson"
+        }
+      },
+      "ticketTags" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/listviewCommonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "subCategory" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "category" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "layoutId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "category", "layoutId", "subCategory" ]
+        } ]
+      }
+    },
+    "responses" : {
+      "getResolutionResponse" : {
+        "description" : "getResolutionResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "modifiedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "author" : {
+                    "$ref" : "#/components/schemas/assignee"
+                  },
+                  "content" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "author", "content", "modifiedTime" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1449878400000,
+                  "author" : {
+                    "firstName" : "saran",
+                    "lastName" : "raj",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/160200000000068005/photo",
+                    "id" : 160200000000068000,
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "content" : "test resolution API"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getAgentsTicketCountResponse" : {
+        "description" : "getAgentsTicketCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/getAgentsTicketCountList"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "onholdCount" : 1,
+                    "agentId" : "4000000008734",
+                    "dueIn1HrCount" : 0,
+                    "overDueCount" : 2,
+                    "channel" : [ "Mail", "Phone" ],
+                    "isOnline" : true,
+                    "openCount" : 18
+                  }, {
+                    "onholdCount" : 1,
+                    "agentId" : "4000000056010",
+                    "dueIn1HrCount" : 0,
+                    "overDueCount" : 0,
+                    "isOnline" : false,
+                    "openCount" : 0
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketResponse" : {
+        "description" : "getTicketResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "product" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "productName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0
+                      }
+                    },
+                    "required" : [ "id", "productName" ]
+                  },
+                  "contact" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 9,
+                    "minProperties" : 9,
+                    "properties" : {
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0
+                      },
+                      "firstName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 40,
+                        "minLength" : 0
+                      },
+                      "phone" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0,
+                        "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                      },
+                      "mobile" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0,
+                        "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                      },
+                      "isSpam" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "type" : {
+                        "type" : [ "string", "null" ],
+                        "x-dynamic-enum" : true
+                      },
+                      "email" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 255,
+                        "minLength" : 0,
+                        "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                      },
+                      "account" : {
+                        "type" : [ "null", "object" ],
+                        "additionalProperties" : false,
+                        "maxProperties" : 3,
+                        "minProperties" : 3,
+                        "properties" : {
+                          "website" : {
+                            "type" : [ "string", "null" ],
+                            "maxLength" : 120,
+                            "minLength" : 0
+                          },
+                          "accountName" : {
+                            "type" : [ "string", "null" ],
+                            "maxLength" : 200,
+                            "minLength" : 0
+                          },
+                          "id" : {
+                            "type" : [ "string", "null", "integer" ],
+                            "format" : "int64",
+                            "pattern" : "([0-9]+)"
+                          }
+                        },
+                        "required" : [ "accountName", "id", "website" ]
+                      }
+                    },
+                    "required" : [ "account", "email", "firstName", "id", "isSpam", "lastName", "mobile", "phone", "type" ]
+                  },
+                  "skillsInfo" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 6,
+                      "minProperties" : 6,
+                      "properties" : {
+                        "weightage" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int32",
+                          "maximum" : 10,
+                          "minimum" : 1,
+                          "pattern" : "([0-9]+)"
+                        },
+                        "skillName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "skillId" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "skillTypeId" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "mappingType" : {
+                          "type" : [ "string", "null" ],
+                          "enum" : [ "SYSTEM", "USER" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "skillTypeName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 50,
+                          "minLength" : 1,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        }
+                      },
+                      "required" : [ "mappingType", "skillId", "skillName", "skillTypeId", "skillTypeName", "weightage" ]
+                    },
+                    "uniqueItems" : false
+                  },
+                  "contractId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "isRead" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "team" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 1,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "logoUrl" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0,
+                        "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                      }
+                    },
+                    "required" : [ "id", "logoUrl", "name" ]
+                  },
+                  "assignee" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 5,
+                    "minProperties" : 5,
+                    "properties" : {
+                      "firstName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0,
+                        "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                      },
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "email" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                      }
+                    },
+                    "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                  },
+                  "department" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "id", "name" ]
+                  }
+                }
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "#/components/schemas/ticketResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "sentiment" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(POSITIVE|NEUTRAL|NEGATIVE)"
+                    },
+                    "isFollowing" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "createdBy" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "tagCount" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "followerCount" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "createdBy", "followerCount", "isFollowing", "sentiment", "tagCount" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1466514974000,
+                  "subCategory" : "Sub General",
+                  "statusType" : "Open",
+                  "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                  "dueDate" : 1466525776000,
+                  "departmentId" : "1892000000006907",
+                  "channel" : "FORUMS",
+                  "onholdTime" : null,
+                  "language" : "English",
+                  "source" : {
+                    "appName" : null,
+                    "extId" : null,
+                    "type" : "SYSTEM",
+                    "permalink" : null,
+                    "appPhotoURL" : null
+                  },
+                  "resolution" : null,
+                  "sharedDepartments" : [ {
+                    "name" : "Sample Department Name",
+                    "id" : "1892000000006909",
+                    "type" : "READ_WRITE"
+                  }, {
+                    "name" : "Sample Department Name",
+                    "id" : "1892000000006911",
+                    "type" : "READ_ONLY"
+                  } ],
+                  "closedTime" : null,
+                  "sharedCount" : "3",
+                  "approvalCount" : "1",
+                  "isOverDue" : false,
+                  "isTrashed" : false,
+                  "contact" : {
+                    "lastName" : "Carol",
+                    "firstName" : "Lucas",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "mobile" : "PII_PHONE_SENTINEL",
+                    "id" : "1892000000042032",
+                    "isSpam" : false,
+                    "type" : null,
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "account" : {
+                      "website" : "www.desk.com",
+                      "accountName" : "desk Account",
+                      "id" : "1892000000975382"
+                    }
+                  },
+                  "createdTime" : 1383564067000,
+                  "id" : "1892000000042034",
+                  "customerResponseTime" : 1383564067912,
+                  "productId" : null,
+                  "contactId" : "1892000000042032",
+                  "threadCount" : "121",
+                  "secondaryContacts" : [ "1892000000042038", "1892000000042042", "1892000000042056" ],
+                  "priority" : "High",
+                  "classification" : null,
+                  "commentCount" : "1",
+                  "taskCount" : "1",
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                  "isSpam" : false,
+                  "assignee" : {
+                    "firstName" : "dasca",
+                    "lastName" : "vins",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo?orgId=298902",
+                    "id" : "1892000000056007",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "status" : "Open",
+                  "entitySkills" : [ "18921000000379001", "18921000000364001", "18921000000379055", "18921000000379031" ],
+                  "ticketNumber" : "101",
+                  "isRead" : false,
+                  "description" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                  "timeEntryCount" : "3",
+                  "channelRelatedInfo" : {
+                    "topicId" : "1892000000056253",
+                    "isTopicDeleted" : false,
+                    "forumStatus" : "ANALYSING",
+                    "sourceLink" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Community/singlepost/problem-topic-forum-ticket-18-5-2018",
+                    "topicType" : "PROBLEM"
+                  },
+                  "isDeleted" : "false",
+                  "department" : {
+                    "name" : "dasdasdasd",
+                    "id" : "1892000000006907"
+                  },
+                  "followerCount" : "5",
+                  "email" : "PII_EMAIL_SENTINEL",
+                  "layoutDetails" : {
+                    "id" : "5000000013466",
+                    "layoutName" : "Default Ticket Layout"
+                  },
+                  "channelCode" : null,
+                  "product" : null,
+                  "cf" : {
+                    "cf_permanentaddress" : null,
+                    "cf_dateofpurchase" : null,
+                    "cf_phone" : null,
+                    "cf_numberofitems" : null,
+                    "cf_url" : null,
+                    "cf_secondaryemail" : null,
+                    "cf_severitypercentage" : "0.0",
+                    "cf_modelname" : "F3 2017"
+                  },
+                  "isFollowing" : "true",
+                  "team" : {
+                    "name" : "kjsdfjks",
+                    "id" : "8920000000069071",
+                    "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                  },
+                  "assigneeId" : "1892000000056007",
+                  "teamId" : "8920000000069071",
+                  "contractId" : null,
+                  "tagCount" : "2",
+                  "attachmentCount" : "1",
+                  "isEscalated" : false,
+                  "category" : "general"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticketListViewArray" : {
+        "description" : "ticketListViewArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "product" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "productName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            }
+                          },
+                          "required" : [ "id", "productName" ]
+                        },
+                        "isRead" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "assignee" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "team" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 3,
+                          "minProperties" : 3,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 1,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "logoUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            }
+                          },
+                          "required" : [ "id", "logoUrl", "name" ]
+                        },
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "name" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketNumber" : "149",
+                    "sentiment" : "NEGATIVE",
+                    "statusType" : "Open",
+                    "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "dueDate" : 1509778989000,
+                    "departmentId" : "1892000000006907",
+                    "channel" : "Email",
+                    "onholdTime" : null,
+                    "language" : "English",
+                    "closedTime" : null,
+                    "createdTime" : 1507813910000,
+                    "id" : "18944000000336005",
+                    "department" : {
+                      "name" : "dasdasdasd",
+                      "id" : "1892000000006907"
+                    },
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "customerResponseTime" : 1509692589203,
+                    "productId" : "18944000000424033",
+                    "contactId" : "18944000000421011",
+                    "threadCount" : "7",
+                    "lastThread" : null,
+                    "team" : {
+                      "name" : "kjsdfjks",
+                      "id" : "8920000000069071",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                    },
+                    "priority" : "Medium",
+                    "assigneeId" : "1892000000042001",
+                    "commentCount" : "0",
+                    "accountId" : "189200000005345",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/20d7881a46edfcffefe308ab38676ec3e612657a51fd5fbe",
+                    "teamId" : "8920000000069071",
+                    "assignee" : {
+                      "firstName" : "dasca",
+                      "lastName" : "vins",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/1892000000042001/photo",
+                      "id" : "1892000000042001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "status" : "Open"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getRequestsCount" : {
+        "description" : "getRequestsCount template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "2"
+                }
+              }
+            }
+          }
+        }
+      },
+      "archivedTicketListResponse" : {
+        "description" : "archivedTicketListResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "product" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "productName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            }
+                          },
+                          "required" : [ "id", "productName" ]
+                        },
+                        "contact" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 8,
+                          "minProperties" : 8,
+                          "properties" : {
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 40,
+                              "minLength" : 0
+                            },
+                            "phone" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0,
+                              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                            },
+                            "mobile" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0,
+                              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "type" : {
+                              "type" : [ "string", "null" ],
+                              "x-dynamic-enum" : true
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 255,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            },
+                            "account" : {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 3,
+                              "minProperties" : 3,
+                              "properties" : {
+                                "website" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 120,
+                                  "minLength" : 0
+                                },
+                                "accountName" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                }
+                              },
+                              "required" : [ "accountName", "id", "website" ]
+                            }
+                          },
+                          "required" : [ "account", "email", "firstName", "id", "lastName", "mobile", "phone", "type" ]
+                        },
+                        "isRead" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "team" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 3,
+                          "minProperties" : 3,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 1,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "logoUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            }
+                          },
+                          "required" : [ "id", "logoUrl", "name" ]
+                        },
+                        "assignee" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "name" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "#/components/schemas/ticketListViewArray"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "pagination" : {
+                      "$ref" : "#/components/schemas/pagination"
+                    }
+                  },
+                  "required" : [ "pagination" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketNumber" : "836",
+                    "sentiment" : null,
+                    "subCategory" : null,
+                    "statusType" : "Closed",
+                    "subject" : "Subject updated by bulk update",
+                    "isArchived" : true,
+                    "dueDate" : 1487221441000,
+                    "departmentId" : "5853000000006907",
+                    "channel" : "Email",
+                    "onholdTime" : null,
+                    "source" : {
+                      "appName" : null,
+                      "extId" : null,
+                      "permalink" : null,
+                      "type" : "SYSTEM",
+                      "appPhotoURL" : null
+                    },
+                    "closedTime" : 1487586062000,
+                    "responseDueDate" : null,
+                    "createdTime" : 1487146991000,
+                    "id" : "5853000001102037",
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "channelCode" : null,
+                    "customerResponseTime" : 1487146991000,
+                    "productId" : null,
+                    "contactId" : "5853000000273060",
+                    "threadCount" : "6",
+                    "lastThread" : {
+                      "channel" : "EMAIL",
+                      "isDraft" : true,
+                      "isForward" : false,
+                      "direction" : "out"
+                    },
+                    "priority" : null,
+                    "layoutId" : "5853000001987014",
+                    "assigneeId" : "5853000000281047",
+                    "commentCount" : "1",
+                    "accountId" : "189200000005345",
+                    "phone" : "123421412125",
+                    "webUrl" : "https://desk.zoho.com/support/arunasales/ShowHomePage.do#Cases/dv/5853000001102037",
+                    "teamId" : null,
+                    "isSpam" : false,
+                    "category" : null,
+                    "status" : "Closed"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketMetrics" : {
+        "description" : "getTicketMetrics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "firstResponseTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "reassignCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "outgoingCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "threadCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "totalResponseTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "responseCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "agentsHandled" : {
+                  "$ref" : "#/components/schemas/agentsHandledData"
+                },
+                "resolutionTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "stagingData" : {
+                  "$ref" : "#/components/schemas/stagingData"
+                },
+                "reopenCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "agentsHandled", "firstResponseTime", "outgoingCount", "reassignCount", "reopenCount", "resolutionTime", "responseCount", "stagingData", "threadCount", "totalResponseTime" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "firstResponseTime" : "01:50 hrs",
+                  "reassignCount" : 1,
+                  "outgoingCount" : 2,
+                  "threadCount" : 2,
+                  "totalResponseTime" : "02:50 hrs",
+                  "responseCount" : 1,
+                  "agentsHandled" : [ {
+                    "handlingTime" : "00:50 hrs",
+                    "agentId" : 4000000012629,
+                    "agentName" : "XXX"
+                  }, {
+                    "handlingTime" : "01:50 hrs",
+                    "agentId" : 4000000080003,
+                    "agentName" : "YYY"
+                  } ],
+                  "resolutionTime" : "02:50 hrs",
+                  "stagingData" : [ {
+                    "handledTime" : "01:50 hrs",
+                    "status" : "Open"
+                  }, {
+                    "handledTime" : "00:50 hrs",
+                    "status" : "onhold"
+                  } ],
+                  "reopenCount" : 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticketResponse" : {
+        "description" : "ticketResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/commonResponse"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "slaId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "contactId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "sharedDepartments" : {
+                    "$ref" : "#/components/schemas/sharedDepartmentsWithNameArr"
+                  },
+                  "layoutId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "layoutDetails" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "layoutName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 120,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    },
+                    "required" : [ "id", "layoutName" ]
+                  }
+                },
+                "required" : [ "contactId", "layoutDetails", "layoutId", "sharedDepartments", "slaId" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1466504175000,
+                  "ticketNumber" : "101",
+                  "subCategory" : "Sub General",
+                  "statusType" : "Open",
+                  "subject" : "Real Time analysis Requirement",
+                  "dueDate" : 1466525776000,
+                  "departmentId" : "1892000000006907",
+                  "channel" : "Email",
+                  "onholdTime" : null,
+                  "description" : "Real Time analysis Requirement",
+                  "language" : "English",
+                  "source" : {
+                    "appName" : null,
+                    "extId" : null,
+                    "type" : "SYSTEM",
+                    "permalink" : null,
+                    "appPhotoURL" : null
+                  },
+                  "resolution" : null,
+                  "sharedDepartments" : [ ],
+                  "closedTime" : null,
+                  "sharedCount" : "0",
+                  "approvalCount" : "0",
+                  "timeEntryCount" : "3",
+                  "isOverDue" : false,
+                  "channelRelatedInfo" : null,
+                  "createdTime" : 1383564067000,
+                  "id" : "1892000000042034",
+                  "email" : "PII_EMAIL_SENTINEL",
+                  "channelCode" : null,
+                  "customerResponseTime" : 1383564067912,
+                  "cf" : {
+                    "cf_permanentaddress" : null,
+                    "cf_dateofpurchase" : null,
+                    "cf_phone" : null,
+                    "cf_numberofitems" : null,
+                    "cf_url" : null,
+                    "cf_secondaryemail" : null,
+                    "cf_severitypercentage" : "0.0",
+                    "cf_modelname" : "F3 2017"
+                  },
+                  "productId" : null,
+                  "contactId" : "1892000000042032",
+                  "threadCount" : "121",
+                  "priority" : "High",
+                  "classification" : null,
+                  "assigneeId" : "1892000000056007",
+                  "commentCount" : "1",
+                  "taskCount" : "1",
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                  "attachmentCount" : "1",
+                  "isEscalated" : false,
+                  "isSpam" : false,
+                  "category" : "general",
+                  "status" : "Open"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getResolutionHistoryResponse" : {
+        "description" : "getResolutionHistoryResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/resolutionResponseData"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1449878400000,
+                    "author" : {
+                      "firstName" : "saran",
+                      "lastName" : "raj",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/160200000000068005/photo",
+                      "id" : 160200000000068000,
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "content" : "update ticket resolution"
+                  }, {
+                    "modifiedTime" : 1447286400000,
+                    "author" : {
+                      "firstName" : "saran",
+                      "lastName" : "raj",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/160200000000068005/photo",
+                      "id" : 160200000000068000,
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "content" : "add ticket resolution"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketsByContactResponse" : {
+        "description" : "getTicketsByContactResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "product" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "productName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            }
+                          },
+                          "required" : [ "id", "productName" ]
+                        },
+                        "isRead" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "team" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 3,
+                          "minProperties" : 3,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 1,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "logoUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            }
+                          },
+                          "required" : [ "id", "logoUrl", "name" ]
+                        },
+                        "assignee" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "name" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "oneOf" : [ {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "data" : {
+                      "$ref" : "#/components/schemas/listViewData"
+                    }
+                  },
+                  "required" : [ "data" ]
+                }, {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "errorCode" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "message" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 255,
+                      "minLength" : 0
+                    }
+                  },
+                  "required" : [ "errorCode", "message" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketNumber" : "149",
+                    "statusType" : "Open",
+                    "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "dueDate" : 1509778989000,
+                    "departmentId" : "1892000000006907",
+                    "channel" : "Email",
+                    "onholdTime" : null,
+                    "language" : "English",
+                    "closedTime" : null,
+                    "createdTime" : 1507813910000,
+                    "id" : "18944000000336005",
+                    "department" : {
+                      "name" : "dasdasdasd",
+                      "id" : "1892000000006907"
+                    },
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "customerResponseTime" : 1509692589203,
+                    "productId" : "18944000000424033",
+                    "contactId" : "18944000000421011",
+                    "threadCount" : "7",
+                    "lastThread" : null,
+                    "team" : {
+                      "name" : "kjsdfjks",
+                      "id" : "8920000000069071",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                    },
+                    "priority" : "Medium",
+                    "assigneeId" : "1892000000042001",
+                    "commentCount" : "0",
+                    "accountId" : "189200000005345",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/20d7881a46edfcffefe308ab38676ec3e612657a51fd5fbe",
+                    "teamId" : "8920000000069071",
+                    "isSpam" : false,
+                    "assignee" : {
+                      "firstName" : "dasca",
+                      "lastName" : "vins",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/1892000000042001/photo",
+                      "id" : "1892000000042001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "status" : "Open"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getOpenRequestsCount" : {
+        "description" : "getOpenRequestsCount template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "10"
+                }
+              }
+            }
+          }
+        }
+      },
+      "resolutionResponse" : {
+        "description" : "resolutionResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "author" : {
+                  "$ref" : "#/components/schemas/assignee"
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "author", "content", "modifiedTime" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1449878400000,
+                  "author" : {
+                    "firstName" : "pandi",
+                    "lastName" : "raj",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/160200000000068005/photo",
+                    "id" : 160200000000068000,
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "content" : "test resolution API"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "agentIds" : {
+        "name" : "agentIds",
+        "in" : "query",
+        "description" : "Comma-separated array of agent IDs. Maximum number of IDs allowed is 50.",
+        "required" : true,
+        "style" : "simple",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "null", "array" ],
+          "description" : "Comma-separated array of agent IDs. Maximum number of IDs allowed is 50.",
+          "items" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "uniqueItems" : false
+        }
+      },
+      "agentId" : {
+        "name" : "agentId",
+        "in" : "query",
+        "description" : "ID of the agent assigned to resolve the ticket",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the agent assigned to resolve the ticket",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "contactId" : {
+        "name" : "contactId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department from which the ticket count must be fetched",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which the ticket count must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "dueDate" : {
+        "name" : "dueDate",
+        "in" : "query",
+        "description" : "Filter by ticket duedate. Values allowed are @overdue@, @tomorrow@, @currentWeek@, @currentMonth@ and @today@. You can include both values by separating them with a comma",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Filter by ticket duedate. Values allowed are @overdue@, @tomorrow@, @currentWeek@, @currentMonth@ and @today@. You can include both values by separating them with a comma",
+          "enum" : [ "overdue", "tomorrow", "currentWeek", "currentMonth", "today" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "receivedInDays" : {
+        "name" : "receivedInDays",
+        "in" : "query",
+        "description" : "Fetches recent tickets, based on @customer response time@. Values allowed are @15@, @30@ , @90@.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Fetches recent tickets, based on @customer response time@. Values allowed are @15@, @30@ , @90@.",
+          "enum" : [ "15", "30", "90" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "viewId" : {
+        "name" : "viewId",
+        "in" : "query",
+        "description" : "ID of the view whose ticket count must be fetched",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the view whose ticket count must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of tickets to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of tickets to fetch",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the tickets must be listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the tickets must be listed",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "assignee" : {
+        "name" : "assignee",
+        "in" : "query",
+        "description" : "assignee - Key that filters tickets by assignee. Values allowed are @Unassigned@ or a valid @assigneeId@. Multiple @assigneeIds@ can be passed as comma-separated values.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "assignee - Key that filters tickets by assignee. Values allowed are @Unassigned@ or a valid @assigneeId@. Multiple @assigneeIds@ can be passed as comma-separated values.",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "isSpam" : {
+        "name" : "isSpam",
+        "in" : "query",
+        "description" : "Filters Spam tickets",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "boolean", "null" ],
+          "description" : "Filters Spam tickets"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "status" : {
+        "name" : "status",
+        "in" : "query",
+        "description" : "Filter by resolution status of the ticket. You can include multiple values by separating them with a comma",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Filter by resolution status of the ticket. You can include multiple values by separating them with a comma",
+          "x-dynamic-enum" : true
+        }
+      }
+    },
+    "requestBodies" : {
+      "moveRequestsToTrash" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ticketIds" : {
+                  "$ref" : "#/components/schemas/long_array"
+                }
+              },
+              "required" : [ "ticketIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ticketIds" : [ "2000032002032" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "tickets_massupdate" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isCustomField" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "x-dynamic-enum" : true
+                },
+                "ids" : {
+                  "$ref" : "#/components/schemas/long_array"
+                },
+                "fieldValue" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false
+                }
+              },
+              "required" : [ "fieldName", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldName" : "subject",
+                  "isCustomField" : false,
+                  "ids" : [ "1892000000093303", "1892000000085009", "1892000000050003" ],
+                  "fieldValue" : "Ticket for support"
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteSpamTickets_moveRequestsToTrash" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ticketIds" : {
+                  "$ref" : "#/components/schemas/long_array"
+                }
+              },
+              "required" : [ "ticketIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ticketIds" : [ "1892000000006907", "1892000000006908" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "moveRequestjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the department in which the ticket exists",
+                  "pattern" : "([0-9]+)"
+                },
+                "forumId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the community sub-category to which the forum ticket (forum topic converted into a ticket) must be moved",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "departmentId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "departmentId" : "1892000000082069",
+                  "forumId" : "1892000000052355"
+                }
+              }
+            }
+          }
+        }
+      },
+      "mergejson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "#/components/schemas/long_array"
+                },
+                "source" : {
+                  "$ref" : "#/components/schemas/mergeFieldJson"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "4000000018011" ],
+                  "source" : {
+                    "contactId" : "4000000018011",
+                    "subject" : "4000000018011",
+                    "priority" : "4000000018011",
+                    "status" : "4000000018011"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "emptySpamResponse" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the department to which the tickets belong",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "departmentId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "departmentId" : "1892000000006907"
+                }
+              }
+            }
+          }
+        }
+      },
+      "tickets_updatespam" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "#/components/schemas/long_array"
+                },
+                "isSpam" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "ids", "isSpam" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contactSpam" : "true",
+                  "handleExistingTickets" : "true",
+                  "ids" : [ "1000000121176", "1000000016435", "1000000016435" ],
+                  "isSpam" : "true"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addRequestjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/commonRequestJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "contactId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the contact who raised the ticket. If a value is not available for this key, make sure to include the _contact_ JSON object. If neither attribute is available, an error message regarding the unavailability of the contactId message is returned.",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "departmentId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the department to which the ticket belongs",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "contact" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "description" : "Last name of the contact",
+                        "maxLength" : 200,
+                        "minLength" : 0
+                      },
+                      "email" : {
+                        "type" : [ "string", "null" ],
+                        "description" : "Email ID of the contact",
+                        "maxLength" : 255,
+                        "minLength" : 0,
+                        "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                      }
+                    },
+                    "required" : [ "email", "lastName" ]
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "contact", "contactId", "departmentId", "status", "subject" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "entitySkills" : [ "18921000000379001", "18921000000364001", "18921000000379055", "18921000000379031" ],
+                  "subCategory" : "Sub General",
+                  "cf" : {
+                    "cf_permanentaddress" : null,
+                    "cf_dateofpurchase" : null,
+                    "cf_phone" : null,
+                    "cf_numberofitems" : null,
+                    "cf_url" : null,
+                    "cf_secondaryemail" : null,
+                    "cf_severitypercentage" : "0.0",
+                    "cf_modelname" : "F3 2017"
+                  },
+                  "productId" : "",
+                  "contactId" : "1892000000042032",
+                  "subject" : "Real Time analysis Requirement",
+                  "dueDate" : 1466525776000,
+                  "departmentId" : "1892000000006907",
+                  "channel" : "Email",
+                  "description" : "Hai This is Description",
+                  "language" : "English",
+                  "priority" : "High",
+                  "classification" : "",
+                  "assigneeId" : "1892000000056007",
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "category" : "general",
+                  "email" : "PII_EMAIL_SENTINEL",
+                  "status" : "Open"
+                }
+              }
+            }
+          }
+        }
+      },
+      "closeTicketInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "1892000000093303", "1892000000085009", "1892000000050003" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateRequestjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/commonRequestJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "contactId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the contact who raised the ticket. If a value is not available for this key, make sure to include the _contact_ JSON object. If neither attribute is available, an error message regarding the unavailability of the contactId message is returned.",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "resolution" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Resolution notes recorded in the ticket",
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "sharedDepartments" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 2,
+                      "minProperties" : 2,
+                      "properties" : {
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "type" : {
+                          "type" : [ "string", "null" ],
+                          "enum" : [ "READ_ONLY", "READ_WRITE", "RESTRICTED_ACCESS" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        }
+                      },
+                      "required" : [ "id", "type" ]
+                    },
+                    "uniqueItems" : false
+                  },
+                  "uploads" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "type" : "object"
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "resolutionRequestBody" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isNotifyContact" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that specifies if the contact associated must be notified about the resolution"
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Content to add in the field",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "content" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isNotifyContact" : false,
+                  "content" : "test resolution API"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Ticket"
+}

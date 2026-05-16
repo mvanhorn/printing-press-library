@@ -1,0 +1,126 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "KBCategoryPermalink",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "permalinkJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "createdBy" : {
+            "$ref" : "./ArticleTranslation.json#/components/schemas/createdBy"
+          },
+          "isPrimary" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+          }
+        },
+        "required" : [ "createdBy", "createdTime", "isPrimary", "permalink" ]
+      },
+      "permalinkJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./KBCategoryPermalink.json#/components/schemas/permalinkJson"
+        }
+      },
+      "permalinksArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+        }
+      }
+    },
+    "responses" : {
+      "permalinkJsonDataArrayWithOldResponse" : {
+        "description" : "permalinkJsonDataArrayWithOldResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./KBCategoryPermalink.json#/components/schemas/permalinkJsonArray"
+                },
+                "primaryPermalink" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+                },
+                "secondaryPermalinks" : {
+                  "$ref" : "./KBCategoryPermalink.json#/components/schemas/permalinksArray"
+                }
+              },
+              "required" : [ "data", "primaryPermalink", "secondaryPermalinks" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "createdBy" : {
+                      "photoURL" : null,
+                      "name" : "Zylker",
+                      "id" : "6000000016514",
+                      "status" : "ACTIVE",
+                      "zuid" : "343224"
+                    },
+                    "isPrimary" : true,
+                    "createdTime" : 1588342603000,
+                    "permalink" : "autobot"
+                  }, {
+                    "createdBy" : {
+                      "photoURL" : null,
+                      "name" : "Zylker",
+                      "id" : "6000000016514",
+                      "status" : "ACTIVE",
+                      "zuid" : "343224"
+                    },
+                    "isPrimary" : false,
+                    "createdTime" : 1588342349000,
+                    "permalink" : "transformers"
+                  }, {
+                    "createdBy" : {
+                      "photoURL" : null,
+                      "name" : "Zylker",
+                      "id" : "6000000016514",
+                      "status" : "ACTIVE",
+                      "zuid" : "343224"
+                    },
+                    "isPrimary" : false,
+                    "createdTime" : 1588342344000,
+                    "permalink" : "flash"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "KBCategoryPermalink"
+}

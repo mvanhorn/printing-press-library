@@ -1,0 +1,2271 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "blueprints",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/blueprints" : {
+      "get" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "List all blueprints in a department",
+        "description" : "To get all blueprints in a specific department",
+        "operationId" : "getBluePrints",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "To get blueprints by status, allowed values are @ACTIVE@ ,@INACTIVE@ and @DRAFT@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "To get blueprints by status, allowed values are @ACTIVE@ ,@INACTIVE@ and @DRAFT@",
+            "enum" : [ "ACTIVE", "INACTIVE", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "ACTIVE|INACTIVE|DRAFT"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getAllResponseObject"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Create Blueprint",
+        "description" : "To create a blueprint",
+        "operationId" : "createBlueprint",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createBlueprint"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/createBlueprintResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/blueprints/reorder" : {
+      "post" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Reorder blueprints",
+        "description" : "To reorder blueprints in a specific department",
+        "operationId" : "reorderBlueprints",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/blueprintIdsObject"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticket_id}/blueprint" : {
+      "get" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Get Applied Blueprint details of ticket for a user",
+        "description" : "To get the applied blueprint details of a ticket",
+        "operationId" : "getAppliedBlueprintDetailsForTicket",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Meta information related to the transition owners. Values allowed are: @transitionOwnerAgents@, @transitionOwnerTeams@, @transitionOwnerDept@ to include agents,teams,department under owners. You can pass multiple values by separating them with commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Meta information related to the transition owners. Values allowed are: @transitionOwnerAgents@, @transitionOwnerTeams@, @transitionOwnerDept@ to include agents,teams,department under owners. You can pass multiple values by separating them with commas in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "transitionOwnerAgents", "transitionOwnerTeams", "transitionOwnerDept" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticket_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getAppliedBlueprintDetailsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/blueprints/{blueprint_id}" : {
+      "get" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Get Blueprint Details",
+        "description" : "To get a specific blueprint details",
+        "operationId" : "getBlueprint",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/blueprint_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getBlueprintDetailsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Delete Blueprint",
+        "description" : "To delete a specific blueprint",
+        "operationId" : "deleteBlueprint",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/blueprint_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Update a blueprint",
+        "description" : "To update an existing blueprint",
+        "operationId" : "updateBlueprint",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/blueprint_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateBlueprint"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/createBlueprintResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/blueprints/{blueprint_id}/revoke" : {
+      "post" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Revoke Blueprint from Blueprint Level",
+        "description" : "To revoke all entities from a particular blueprint",
+        "operationId" : "revokeBlueprintForAllEntities",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/blueprint_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/revokeBlueprintObject"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticket_id}/revokeBlueprint" : {
+      "post" : {
+        "tags" : [ "blueprints" ],
+        "summary" : "Revoke Blueprint at Entity Level",
+        "description" : "To revoke blueprint from an entity",
+        "operationId" : "revokeBlueprintForATicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticket_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/revokeBlueprintObject"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "layoutObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "getAllBluePrintsByDepartmentObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])([ ])([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,1}))"
+          },
+          "orderNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          },
+          "createdUserZUID" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "module" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "tickets"
+          },
+          "isDraft" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "active" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "modifiedUserZUID" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "transitions" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/transitionArrayWithPrimaryDetails"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NON_CONTINUOUS", "CONTINUOUS" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "NON_CONTINUOUS|CONTINUOUS"
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "states" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/stateArrayWithPrimaryDetails"
+          },
+          "layout" : {
+            "$ref" : "./blueprints.json#/components/schemas/layoutObject"
+          },
+          "i18nFieldLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "fieldLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 60,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])([ ])([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,1}))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          },
+          "isDefaultBlueprint" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fieldId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "active", "createdTime", "createdUserZUID", "departmentId", "description", "fieldId", "fieldLabel", "i18nFieldLabel", "id", "isDefaultBlueprint", "isDraft", "layout", "layoutId", "modifiedTime", "modifiedUserZUID", "module", "name", "orderNumber", "states", "transitions", "type" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprints.json#/components/schemas/getAllBluePrintsByDepartmentObject"
+        }
+      },
+      "blueprintIdsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "responses" : {
+      "getAllResponseObject" : {
+        "description" : "getAllResponseObject template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./blueprints.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1525421277000,
+                    "orderNumber" : "3",
+                    "createdUserZUID" : "5263696",
+                    "departmentId" : "1000000010712",
+                    "module" : "tickets",
+                    "isDraft" : false,
+                    "description" : "",
+                    "modifiedUserZUID" : "5263696",
+                    "active" : true,
+                    "type" : "NON_CONTINUOUS",
+                    "transitions" : [ {
+                      "name" : "Issue fixed",
+                      "id" : "1000000309105"
+                    } ],
+                    "layoutId" : "1000000011200",
+                    "states" : [ {
+                      "name" : "Open",
+                      "id" : 1000000309101
+                    }, {
+                      "name" : "Closed",
+                      "id" : 1000000309119
+                    } ],
+                    "i18nFieldLabel" : "Status",
+                    "fieldLabel" : "Status",
+                    "name" : "Automate QA process",
+                    "createdTime" : 1525268370000,
+                    "id" : "1000000309097",
+                    "connections" : [ {
+                      "fromState" : {
+                        "name" : "Open",
+                        "id" : "1000000309101"
+                      },
+                      "toState" : {
+                        "name" : "Closed",
+                        "id" : "1000000309119"
+                      },
+                      "transitions" : [ {
+                        "name" : "Issue fixed",
+                        "id" : "1000000309105"
+                      } ]
+                    } ],
+                    "fieldId" : "1000000000506"
+                  }, {
+                    "modifiedTime" : 1524549208000,
+                    "orderNumber" : "4",
+                    "createdUserZUID" : "5263696",
+                    "departmentId" : "1000000010712",
+                    "module" : "tickets",
+                    "isDraft" : true,
+                    "description" : "",
+                    "modifiedUserZUID" : "5263696",
+                    "active" : true,
+                    "type" : "NON_CONTINUOUS",
+                    "transitions" : [ {
+                      "name" : "before",
+                      "id" : "1000000232199"
+                    }, {
+                      "name" : "after",
+                      "id" : "1000000232197"
+                    }, {
+                      "name" : "during",
+                      "id" : "1000000232201"
+                    } ],
+                    "layoutId" : "1000000011200",
+                    "states" : [ {
+                      "name" : "Closed",
+                      "id" : 1000000232189
+                    }, {
+                      "name" : "On Hold",
+                      "id" : 1000000232191
+                    }, {
+                      "name" : "Open",
+                      "id" : 1000000232193
+                    }, {
+                      "name" : "Escalated",
+                      "id" : 1000000232195
+                    } ],
+                    "i18nFieldLabel" : "Status",
+                    "fieldLabel" : "Status",
+                    "name" : "AUtomate HR process",
+                    "createdTime" : 1523375034000,
+                    "id" : "1000000232187",
+                    "connections" : [ {
+                      "fromState" : {
+                        "name" : "On Hold",
+                        "id" : "1000000232191"
+                      },
+                      "toState" : {
+                        "name" : "Escalated",
+                        "id" : "1000000232195"
+                      },
+                      "transitions" : [ {
+                        "name" : "before",
+                        "id" : "1000000232199"
+                      } ]
+                    }, {
+                      "fromState" : {
+                        "name" : "Open",
+                        "id" : "1000000232193"
+                      },
+                      "toState" : {
+                        "name" : "On Hold",
+                        "id" : "1000000232191"
+                      },
+                      "transitions" : [ {
+                        "name" : "after",
+                        "id" : "1000000232197"
+                      } ]
+                    }, {
+                      "fromState" : {
+                        "name" : "Escalated",
+                        "id" : "1000000232195"
+                      },
+                      "toState" : {
+                        "name" : "Closed",
+                        "id" : "1000000232189"
+                      },
+                      "transitions" : [ {
+                        "name" : "during",
+                        "id" : "1000000232201"
+                      } ]
+                    } ],
+                    "fieldId" : "1000000000506"
+                  }, {
+                    "modifiedTime" : 1522762448000,
+                    "orderNumber" : "5",
+                    "createdUserZUID" : "5263696",
+                    "departmentId" : "1000000010712",
+                    "module" : "tickets",
+                    "isDraft" : false,
+                    "description" : "",
+                    "modifiedUserZUID" : "5263696",
+                    "active" : true,
+                    "type" : "NON_CONTINUOUS",
+                    "transitions" : [ {
+                      "name" : "to onhold",
+                      "id" : "1000000173011"
+                    }, {
+                      "name" : "To close",
+                      "id" : "1000000173009"
+                    } ],
+                    "layoutId" : "1000000011200",
+                    "states" : [ {
+                      "name" : "Closed",
+                      "id" : 1000000173003
+                    }, {
+                      "name" : "Open",
+                      "id" : 1000000173005
+                    }, {
+                      "name" : "On Hold",
+                      "id" : 1000000173007
+                    } ],
+                    "i18nFieldLabel" : "Status",
+                    "fieldLabel" : "Status",
+                    "name" : "Shipping process",
+                    "createdTime" : 1522240151000,
+                    "id" : "1000000173001",
+                    "connections" : [ {
+                      "fromState" : {
+                        "name" : "Open",
+                        "id" : "1000000173005"
+                      },
+                      "toState" : {
+                        "name" : "On Hold",
+                        "id" : "1000000173007"
+                      },
+                      "transitions" : [ {
+                        "name" : "to onhold",
+                        "id" : "1000000173011"
+                      } ]
+                    }, {
+                      "fromState" : {
+                        "name" : "On Hold",
+                        "id" : "1000000173007"
+                      },
+                      "toState" : {
+                        "name" : "Closed",
+                        "id" : "1000000173003"
+                      },
+                      "transitions" : [ {
+                        "name" : "To close",
+                        "id" : "1000000173009"
+                      } ]
+                    } ],
+                    "fieldId" : "1000000000506"
+                  }, {
+                    "modifiedTime" : 1525353504000,
+                    "orderNumber" : "5",
+                    "createdUserZUID" : "5263696",
+                    "departmentId" : "1000000010712",
+                    "module" : "tickets",
+                    "isDraft" : false,
+                    "description" : "",
+                    "modifiedUserZUID" : "5263696",
+                    "active" : true,
+                    "type" : "NON_CONTINUOUS",
+                    "transitions" : [ {
+                      "name" : "t1",
+                      "id" : "1000000313281"
+                    } ],
+                    "layoutId" : "1000000011200",
+                    "states" : [ {
+                      "name" : "Approval 2",
+                      "id" : 1000000313277
+                    }, {
+                      "name" : "Approval 2 approved",
+                      "id" : 1000000313279
+                    } ],
+                    "i18nFieldLabel" : "Status",
+                    "fieldLabel" : "Status",
+                    "name" : "Ticket Support process",
+                    "createdTime" : 1525353504000,
+                    "id" : "1000000313275",
+                    "connections" : [ {
+                      "fromState" : {
+                        "name" : "Approval 2 approved",
+                        "id" : "1000000313279"
+                      },
+                      "toState" : {
+                        "name" : "Approval 2",
+                        "id" : "1000000313277"
+                      },
+                      "transitions" : [ {
+                        "name" : "t1",
+                        "id" : "1000000313281"
+                      } ]
+                    } ],
+                    "fieldId" : "1000000000506"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getAppliedBlueprintDetailsResponse" : {
+        "description" : "getAppliedBlueprintDetailsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isContinuousBlueprint" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "strictMode" : {
+                  "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/strictModeConfigObjectForGetAppliedBlueprintDetails"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 60,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "state" : {
+                  "$ref" : "./blueprintStates.json#/components/schemas/stateObjectWithDueDate"
+                },
+                "transitions" : {
+                  "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsArrayForGetAppliedBlueprintDetails"
+                },
+                "canUserUpdateTransOwnerDynamically" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "canUserUpdateTransOwnerDynamically", "id", "isContinuousBlueprint", "name", "state", "strictMode", "transitions" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "name" : "Automate QA Process",
+                  "id" : 1000000087001,
+                  "state" : {
+                    "dueDate" : 1519764540000,
+                    "id" : "1000000087003",
+                    "type" : "START"
+                  },
+                  "transitions" : [ {
+                    "fromState" : "Open",
+                    "toState" : "Escalated",
+                    "criteria" : {
+                      "fieldConditions" : [ {
+                        "condition" : "is open",
+                        "fieldName" : "Status",
+                        "value" : [ "${OPEN}" ]
+                      } ],
+                      "pattern" : "(1)"
+                    },
+                    "name" : "Escalate to developers",
+                    "owners" : [ {
+                      "agentIds" : [ "1000000012635" ],
+                      "teams" : [ {
+                        "name" : "Sales Representatives",
+                        "id" : "1000000012435"
+                      } ],
+                      "departmentId" : "1000000010712",
+                      "department" : {
+                        "name" : "Zylker",
+                        "id" : "1000000010712"
+                      },
+                      "teamIds" : [ "1000000012435" ],
+                      "agents" : [ {
+                        "photoURL" : "https://desk.zoho.com/api/v1/agent/1000000012635/photo",
+                        "firstName" : "Lucas",
+                        "lastName" : "Carol",
+                        "id" : "1000000012635",
+                        "email" : "PII_EMAIL_SENTINEL"
+                      } ]
+                    } ],
+                    "id" : "1000000087011",
+                    "canUserPerformTransition" : true,
+                    "isCriteriaSatisfied" : true,
+                    "draftDetails" : {
+                      "totalNoOfDraftActions" : "12",
+                      "totalNoOfActions" : "24",
+                      "draftBy" : {
+                        "name" : "Sandeep Ghemire",
+                        "id" : "8000000000053"
+                      },
+                      "draftAt" : 1605283531000
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "createBlueprintResponse" : {
+        "description" : "createBlueprintResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "orderNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "criteria" : {
+                  "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObjectForResponse"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "tickets"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "dynamicTransOwnerType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "ACTIVE|INACTIVE"
+                },
+                "active" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "NON_CONTINUOUS", "CONTINUOUS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "NON_CONTINUOUS|CONTINUOUS"
+                },
+                "transitions" : {
+                  "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsArrayForResponse"
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "states" : {
+                  "$ref" : "./blueprintStates.json#/components/schemas/statesArrayForResponse"
+                },
+                "layout" : {
+                  "$ref" : "./blueprints.json#/components/schemas/layoutObject"
+                },
+                "chartData" : {
+                  "$ref" : "./blueprintChartData.json#/components/schemas/chartDataObjectForResponse"
+                },
+                "strictModeConfig" : {
+                  "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/strictModeConfigObject"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "draft" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 60,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "modifiedTimeInMillis" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTimeInMillis" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "connections" : {
+                  "$ref" : "./blueprintConnections.json#/components/schemas/connectionsArrayForResponse"
+                },
+                "fieldId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "active", "chartData", "connections", "createdBy", "createdTimeInMillis", "criteria", "departmentId", "description", "draft", "dynamicTransOwnerType", "fieldId", "id", "layout", "layoutId", "modifiedBy", "modifiedTimeInMillis", "module", "name", "orderNumber", "states", "strictModeConfig", "transitions", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "criteria" : {
+                    "fieldConditions" : [ {
+                      "condition" : "is open",
+                      "fieldName" : "Status",
+                      "fieldModule" : "tickets",
+                      "value" : [ "${OPEN}" ]
+                    } ],
+                    "pattern" : "(1)"
+                  },
+                  "departmentId" : "4000000007235",
+                  "module" : "Cases",
+                  "description" : "Automates Private Threading Handling",
+                  "type" : "NON_CONTINUOUS",
+                  "transitions" : [ {
+                    "isAutoTransition" : false,
+                    "before" : {
+                      "accessors" : {
+                        "actionId" : 4000000007723,
+                        "owners" : {
+                          "agentIds" : [ 4000000009158 ],
+                          "otherRecpts" : [ "RECORD_OWNER" ],
+                          "teamIds" : [ 4000000009158 ]
+                        },
+                        "sharedDeptAccessors" : [ {
+                          "accessors" : {
+                            "agentIds" : [ 4000000009158 ],
+                            "teamIds" : [ 4000000009158 ]
+                          },
+                          "deptId" : 4000000009158,
+                          "sharingType" : "READ_ONLY"
+                        } ]
+                      },
+                      "criteriaDetails" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "fieldModule" : "tickets",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "actionId" : 4000000007723
+                      }
+                    },
+                    "name" : "Feedbacks need to be monitored",
+                    "description" : "Lack of instruments to repair",
+                    "id" : 4000000007723,
+                    "during" : [ {
+                      "actionId" : 4000000007723,
+                      "message" : "Add comment here"
+                    }, {
+                      "fieldUpdates" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "fieldId" : 4000000009158,
+                        "errorMsg" : "Enter a valid Priority"
+                      },
+                      "actionId" : 4000000007723,
+                      "isMandatory" : true
+                    }, {
+                      "otherActions" : "BUG",
+                      "actionId" : 4000000007723,
+                      "isMandatory" : false
+                    }, {
+                      "otherActions" : "COMMENT",
+                      "actionId" : 4000000007723,
+                      "isMandatory" : true
+                    } ],
+                    "after" : {
+                      "fieldUpdate" : {
+                        "ids" : [ {
+                          "name" : "Update Sensitive fields",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "task" : {
+                        "ids" : [ {
+                          "name" : "Create followup task",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "customFunction" : {
+                        "ids" : [ {
+                          "name" : "Update Associated time entries",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "alert" : {
+                        "ids" : [ {
+                          "name" : "Trigger Closed Alert",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      }
+                    },
+                    "autoTransitionActions" : {
+                      "feedback" : "SURVEY_ALL",
+                      "reply" : "REPLY_ALL"
+                    },
+                    "isCommonTransition" : false
+                  } ],
+                  "layoutId" : 4000000007723,
+                  "states" : [ {
+                    "timeInMins" : 90,
+                    "escalations" : [ {
+                      "escalationRecipients" : {
+                        "agentIds" : [ 4000000009158 ],
+                        "otherRecpts" : [ "RECORD_OWNER" ]
+                      },
+                      "templateId" : 4000000007355,
+                      "escalationLevel" : 1,
+                      "whenToEscalate" : 15
+                    } ],
+                    "transitionsOrder" : [ "Feedbacks need to be monitored" ],
+                    "businessHrId" : 4000000007355,
+                    "name" : "Open",
+                    "id" : 4000000007723,
+                    "type" : "START"
+                  }, {
+                    "timeInMins" : 30,
+                    "name" : "Escalated",
+                    "id" : 4000000007721,
+                    "type" : "INTERMEDIATE"
+                  }, {
+                    "timeInMins" : 30,
+                    "name" : "Closed",
+                    "id" : 4000000007722,
+                    "type" : "END"
+                  } ],
+                  "chartData" : {
+                    "canvasPosition" : {
+                      "top" : -29,
+                      "left" : -127
+                    },
+                    "connectionDetails" : [ {
+                      "toUuid" : "Closed2",
+                      "transName" : "Feedbacks need to be monitored",
+                      "isCommTrans" : false,
+                      "fromUuid" : "Escalated1",
+                      "usedStates" : [ ],
+                      "isAuto" : false
+                    }, {
+                      "toUuid" : "Closed3",
+                      "transName" : "",
+                      "isCommTrans" : false,
+                      "fromUuid" : "Open2",
+                      "isAuto" : false
+                    } ],
+                    "stateDetails" : [ {
+                      "slaTime" : null,
+                      "lastModifiedStateName" : "Closed",
+                      "stateName" : "Closed",
+                      "displayName" : "Closed",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    }, {
+                      "slaTime" : null,
+                      "lastModifiedStateName" : "Escalated",
+                      "stateName" : "Escalated",
+                      "displayName" : "Escalated",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    }, {
+                      "slaTime" : null,
+                      "lastModifiedStateName" : "OnHold",
+                      "stateName" : "OnHold",
+                      "displayName" : "OnHold",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    } ]
+                  },
+                  "name" : "Private Threading Handling",
+                  "id" : "4000000007723",
+                  "connections" : [ {
+                    "fromState" : {
+                      "name" : "Open",
+                      "id" : 4000000324027
+                    },
+                    "toState" : {
+                      "name" : "Escalated",
+                      "id" : 4000000324027
+                    },
+                    "transition" : [ {
+                      "name" : "",
+                      "id" : 4000000324027
+                    } ]
+                  }, {
+                    "fromState" : {
+                      "name" : "Escalated",
+                      "id" : 4000000324027
+                    },
+                    "toState" : {
+                      "name" : "Closed",
+                      "id" : 4000000324027
+                    },
+                    "transition" : [ {
+                      "name" : "Feedbacks need to be monitored",
+                      "id" : 4000000324027
+                    } ]
+                  } ],
+                  "fieldId" : 4000000000377
+                }
+              }
+            }
+          }
+        }
+      },
+      "revokeBlueprintObject" : {
+        "description" : "revokeBlueprintObject template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "message" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "message" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "message" : "Blueprint has been revoked from this ticket"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getBlueprintDetailsResponse" : {
+        "description" : "getBlueprintDetailsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "orderNumber" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "criteria" : {
+                    "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObjectForResponse"
+                  },
+                  "departmentId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "module" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "tickets" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "tickets"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                  },
+                  "dynamicTransOwnerType" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "ACTIVE", "INACTIVE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "ACTIVE|INACTIVE"
+                  },
+                  "active" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "NON_CONTINUOUS", "CONTINUOUS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "NON_CONTINUOUS|CONTINUOUS"
+                  },
+                  "transitions" : {
+                    "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsArrayForResponse"
+                  },
+                  "layoutId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "states" : {
+                    "$ref" : "./blueprintStates.json#/components/schemas/statesArrayForResponse"
+                  },
+                  "layout" : {
+                    "$ref" : "./blueprints.json#/components/schemas/layoutObject"
+                  },
+                  "chartData" : {
+                    "$ref" : "./blueprintChartData.json#/components/schemas/chartDataObjectForResponse"
+                  },
+                  "strictModeConfig" : {
+                    "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/strictModeConfigObject"
+                  },
+                  "createdBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "draft" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "name" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 60,
+                    "minLength" : 1,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "modifiedBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "modifiedTimeInMillis" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "createdTimeInMillis" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "connections" : {
+                    "$ref" : "./blueprintConnections.json#/components/schemas/connectionsArrayForResponse"
+                  },
+                  "fieldId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "active", "chartData", "connections", "createdBy", "createdTimeInMillis", "criteria", "departmentId", "description", "draft", "dynamicTransOwnerType", "fieldId", "id", "layout", "layoutId", "modifiedBy", "modifiedTimeInMillis", "module", "name", "orderNumber", "states", "strictModeConfig", "transitions", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "orderNumber" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "criteria" : {
+                    "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObjectForResponse"
+                  },
+                  "departmentId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "module" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "tickets" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "tickets"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                  },
+                  "dynamicTransOwnerType" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "ACTIVE", "INACTIVE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "ACTIVE|INACTIVE"
+                  },
+                  "active" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "draftAt" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "NON_CONTINUOUS", "CONTINUOUS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "NON_CONTINUOUS|CONTINUOUS"
+                  },
+                  "transitions" : {
+                    "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsArrayForResponse"
+                  },
+                  "layoutId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "states" : {
+                    "$ref" : "./blueprintStates.json#/components/schemas/statesArrayForResponse"
+                  },
+                  "layout" : {
+                    "$ref" : "./blueprints.json#/components/schemas/layoutObject"
+                  },
+                  "chartData" : {
+                    "$ref" : "./blueprintChartData.json#/components/schemas/chartDataObjectForResponse"
+                  },
+                  "strictModeConfig" : {
+                    "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/strictModeConfigObject"
+                  },
+                  "createdBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "draft" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "name" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 60,
+                    "minLength" : 1,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "modifiedBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "modifiedTimeInMillis" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "createdTimeInMillis" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "minimum" : 1,
+                    "pattern" : "([0-9]+)"
+                  },
+                  "connections" : {
+                    "$ref" : "./blueprintConnections.json#/components/schemas/connectionsArrayForResponse"
+                  },
+                  "fieldId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "active", "chartData", "connections", "createdBy", "createdTimeInMillis", "criteria", "departmentId", "description", "draft", "draftAt", "dynamicTransOwnerType", "fieldId", "id", "layout", "layoutId", "modifiedBy", "modifiedTimeInMillis", "module", "name", "orderNumber", "states", "strictModeConfig", "transitions", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "criteria" : {
+                    "fieldConditions" : [ {
+                      "condition" : "is open",
+                      "fieldName" : "Status",
+                      "fieldModule" : "tickets",
+                      "value" : [ "${OPEN}" ]
+                    } ],
+                    "pattern" : "(1)"
+                  },
+                  "departmentId" : "4000000007235",
+                  "module" : "Cases",
+                  "isDraft" : false,
+                  "description" : "Automates Private Threading Handling",
+                  "type" : "NON_CONTINUOUS",
+                  "transitions" : [ {
+                    "isAutoTransition" : false,
+                    "before" : {
+                      "accessors" : {
+                        "actionId" : 4000000007723,
+                        "owners" : {
+                          "agentIds" : [ 4000000009158 ],
+                          "otherRecpts" : [ "RECORD_OWNER" ],
+                          "teamIds" : [ 4000000009158 ]
+                        },
+                        "sharedDeptAccessors" : [ {
+                          "accessors" : {
+                            "agentIds" : [ 4000000009158 ],
+                            "teamIds" : [ 4000000009158 ]
+                          },
+                          "deptId" : 4000000009158,
+                          "sharingType" : "READ_ONLY"
+                        } ]
+                      },
+                      "criteriaDetails" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "actionId" : 4000000007723
+                      }
+                    },
+                    "name" : "Feedbacks need to be monitored",
+                    "description" : "Lack of instruments to repair",
+                    "id" : 4000000007723,
+                    "during" : [ {
+                      "actionId" : 4000000007723,
+                      "message" : "Add comment here"
+                    }, {
+                      "fieldUpdates" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "fieldId" : 4000000009158,
+                        "errorMsg" : "Enter a valid Priority"
+                      },
+                      "actionId" : 4000000007723,
+                      "isMandatory" : true
+                    }, {
+                      "otherActions" : "BUG",
+                      "actionId" : 4000000007723,
+                      "isMandatory" : false
+                    }, {
+                      "otherActions" : "COMMENT",
+                      "actionId" : 4000000007723,
+                      "isMandatory" : true
+                    } ],
+                    "after" : {
+                      "fieldUpdate" : {
+                        "ids" : [ {
+                          "name" : "Update Sensitive fields",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "task" : {
+                        "ids" : [ {
+                          "name" : "Create followup task",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "customFunction" : {
+                        "ids" : [ {
+                          "name" : "Update Associated time entries",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "alert" : {
+                        "ids" : [ {
+                          "name" : "Trigger Closed Alert",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      }
+                    },
+                    "autoTransitionActions" : {
+                      "feedback" : "SURVEY_ALL",
+                      "reply" : "REPLY_ALL"
+                    },
+                    "isCommonTransition" : false
+                  }, {
+                    "isAutoTransition" : false,
+                    "before" : {
+                      "accessors" : {
+                        "actionId" : 4000000007723,
+                        "owners" : {
+                          "agentIds" : [ 4000000009158 ],
+                          "otherRecpts" : [ "RECORD_OWNER" ],
+                          "teamIds" : [ 4000000009158 ]
+                        },
+                        "sharedDeptAccessors" : [ {
+                          "accessors" : {
+                            "agentIds" : [ 4000000009158 ],
+                            "teamIds" : [ 4000000009158 ]
+                          },
+                          "deptId" : 4000000009158,
+                          "sharingType" : "READ_ONLY"
+                        } ]
+                      },
+                      "criteriaDetails" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "actionId" : 4000000007723
+                      }
+                    },
+                    "name" : "Common Handling",
+                    "description" : "Its common transition",
+                    "commonStates" : [ "Open" ],
+                    "id" : 4000000007723,
+                    "during" : [ {
+                      "actionId" : 4000000007723,
+                      "message" : "Add comment here"
+                    }, {
+                      "fieldUpdates" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "fieldId" : 4000000009158,
+                        "errorMsg" : "Enter a valid Priority"
+                      },
+                      "actionId" : 4000000007723,
+                      "isMandatory" : true
+                    }, {
+                      "otherActions" : "BUG",
+                      "actionId" : 4000000007723,
+                      "isMandatory" : false
+                    }, {
+                      "otherActions" : "COMMENT",
+                      "actionId" : 4000000007723,
+                      "isMandatory" : true
+                    } ],
+                    "after" : {
+                      "fieldUpdate" : {
+                        "ids" : [ {
+                          "name" : "Update Sensitive fields",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "task" : {
+                        "ids" : [ {
+                          "name" : "Create followup task",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "customFunction" : {
+                        "ids" : [ {
+                          "name" : "Update Associated time entries",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      },
+                      "alert" : {
+                        "ids" : [ {
+                          "name" : "Trigger Closed Alert",
+                          "id" : 4000000007723
+                        } ],
+                        "actionId" : 4000000007723
+                      }
+                    },
+                    "autoTransitionActions" : {
+                      "feedback" : "SURVEY_ALL",
+                      "reply" : "REPLY_ALL"
+                    },
+                    "isCommonTransition" : true
+                  } ],
+                  "layoutId" : 4000000007723,
+                  "states" : [ {
+                    "timeInMins" : 90,
+                    "escalations" : [ {
+                      "escalationRecipients" : {
+                        "agentIds" : [ 4000000009158 ],
+                        "otherRecpts" : [ "RECORD_OWNER" ]
+                      },
+                      "templateId" : 4000000007355,
+                      "escalationLevel" : 1,
+                      "whenToEscalate" : 15
+                    } ],
+                    "transitionsOrder" : [ "Common Handling", "Feedbacks need to be monitored" ],
+                    "businessHrId" : 4000000007355,
+                    "name" : "Open",
+                    "id" : 4000000007723,
+                    "type" : "START"
+                  }, {
+                    "timeInMins" : 30,
+                    "name" : "Escalated",
+                    "id" : 4000000007723,
+                    "type" : "INTERMEDIATE"
+                  }, {
+                    "timeInMins" : 30,
+                    "name" : "Closed",
+                    "id" : 4000000007723,
+                    "type" : "END"
+                  } ],
+                  "chartData" : {
+                    "canvasPosition" : {
+                      "top" : -29,
+                      "left" : -127
+                    },
+                    "connectionDetails" : [ {
+                      "toUuid" : "Closed2",
+                      "transName" : "Check3",
+                      "isCommTrans" : true,
+                      "fromUuid" : "Escalated1",
+                      "usedStates" : [ "On Hold", "Open" ],
+                      "isAuto" : false
+                    }, {
+                      "toUuid" : "Closed3",
+                      "transName" : "Check3",
+                      "isCommTrans" : false,
+                      "fromUuid" : "OnHold2",
+                      "isAuto" : false
+                    }, {
+                      "toUuid" : "OnHold3",
+                      "transName" : "Check3",
+                      "isCommTrans" : false,
+                      "fromUuid" : "Open2",
+                      "isAuto" : false
+                    } ],
+                    "stateDetails" : [ {
+                      "lastModifiedStateName" : "Closed",
+                      "stateName" : "Closed",
+                      "displayName" : "Closed",
+                      "stateId" : "4000000007723",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    }, {
+                      "lastModifiedStateName" : "Escalated",
+                      "stateName" : "Escalated",
+                      "displayName" : "Escalated",
+                      "stateId" : "4000000007723",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    }, {
+                      "lastModifiedStateName" : "Open",
+                      "stateName" : "Open",
+                      "displayName" : "Open",
+                      "stateId" : "4000000007723",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    } ]
+                  },
+                  "name" : "Private Threading Handling",
+                  "id" : "4000000007723",
+                  "connections" : [ {
+                    "fromState" : {
+                      "name" : "Open",
+                      "id" : 4000000324027
+                    },
+                    "toState" : {
+                      "name" : "Escalated",
+                      "id" : 4000000324027
+                    },
+                    "transition" : [ {
+                      "name" : "Feedbacks need to be monitored",
+                      "id" : 4000000324027
+                    } ]
+                  }, {
+                    "fromState" : {
+                      "name" : "Escalated",
+                      "id" : 4000000324027
+                    },
+                    "toState" : {
+                      "name" : "Closed",
+                      "id" : 4000000324027
+                    },
+                    "transition" : [ {
+                      "name" : "Feedbacks need to be monitored",
+                      "id" : 4000000324027
+                    } ]
+                  } ],
+                  "fieldId" : 4000000000377
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "Department for which the blueprints are listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Department for which the blueprints are listed",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "module" : {
+        "name" : "module",
+        "in" : "query",
+        "description" : "module of the blueprints to be listed",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "module of the blueprints to be listed",
+          "enum" : [ "tickets" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "tickets"
+        }
+      },
+      "ticket_id" : {
+        "name" : "ticket_id",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "blueprint_id" : {
+        "name" : "blueprint_id",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "blueprintIdsObject" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./blueprints.json#/components/schemas/blueprintIdsArray"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : [ "4000000019017", "4000000019019", "4000000019023", "4000000019021" ]
+              }
+            }
+          }
+        }
+      },
+      "updateBlueprint" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "orderNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "criteria" : {
+                  "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObjectForResponse"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "tickets"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "dynamicTransOwnerType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "ACTIVE|INACTIVE"
+                },
+                "active" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "NON_CONTINUOUS", "CONTINUOUS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "NON_CONTINUOUS|CONTINUOUS"
+                },
+                "transitions" : {
+                  "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsArrayForResponse"
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "states" : {
+                  "$ref" : "./blueprintStates.json#/components/schemas/statesArrayForResponse"
+                },
+                "layout" : {
+                  "$ref" : "./blueprints.json#/components/schemas/layoutObject"
+                },
+                "chartData" : {
+                  "$ref" : "./blueprintChartData.json#/components/schemas/chartDataObjectForResponse"
+                },
+                "strictModeConfig" : {
+                  "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/strictModeConfigObject"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "draft" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 60,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "modifiedTimeInMillis" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTimeInMillis" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "connections" : {
+                  "$ref" : "./blueprintConnections.json#/components/schemas/connectionsArrayForResponse"
+                },
+                "fieldId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "type" : "NON_CONTINUOUS"
+                }
+              }
+            }
+          }
+        }
+      },
+      "createBlueprint" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "criteria" : {
+                  "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObject"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "tickets"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "dynamicTransOwnerType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "ACTIVE|INACTIVE"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "NON_CONTINUOUS", "CONTINUOUS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "NON_CONTINUOUS|CONTINUOUS"
+                },
+                "transitions" : {
+                  "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsArray"
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "states" : {
+                  "$ref" : "./blueprintStates.json#/components/schemas/statesArray"
+                },
+                "chartData" : {
+                  "$ref" : "./blueprintChartData.json#/components/schemas/chartDataObject"
+                },
+                "strictModeConfig" : {
+                  "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/strictModeConfigObject"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 60,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "connections" : {
+                  "$ref" : "./blueprintConnections.json#/components/schemas/connectionsArray"
+                },
+                "fieldId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "chartData", "connections", "departmentId", "fieldId", "layoutId", "module", "name", "states", "transitions", "type" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "chartData" : {
+                    "canvasPosition" : {
+                      "top" : -29,
+                      "left" : -127
+                    },
+                    "connectionDetails" : [ {
+                      "toUuid" : "Closed2",
+                      "transName" : "Check3",
+                      "isCommTrans" : true,
+                      "fromUuid" : "Escalated1",
+                      "usedStates" : [ "On Hold", "Open" ],
+                      "isAuto" : false
+                    }, {
+                      "toUuid" : "Closed3",
+                      "transName" : "Check3",
+                      "isCommTrans" : false,
+                      "fromUuid" : "OnHold2",
+                      "isAuto" : false
+                    }, {
+                      "toUuid" : "OnHold3",
+                      "transName" : "Check3",
+                      "isCommTrans" : false,
+                      "fromUuid" : "Open2",
+                      "isAuto" : false
+                    } ],
+                    "stateDetails" : [ {
+                      "stateName" : "Closed",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    }, {
+                      "stateName" : "Escalated",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    }, {
+                      "stateName" : "Open",
+                      "position" : {
+                        "top" : 316,
+                        "left" : 225
+                      }
+                    } ]
+                  },
+                  "criteria" : {
+                    "fieldConditions" : [ {
+                      "condition" : "is open",
+                      "fieldName" : "Status",
+                      "fieldModule" : "tickets",
+                      "value" : [ "${OPEN}" ]
+                    } ],
+                    "pattern" : "(1)"
+                  },
+                  "departmentId" : "4000000007235",
+                  "module" : "Cases",
+                  "name" : "Private Threading Handling",
+                  "description" : "Automates Private Threading Handling",
+                  "type" : "NON_CONTINUOUS",
+                  "transitions" : [ {
+                    "isAutoTransition" : false,
+                    "before" : {
+                      "accessors" : {
+                        "owners" : {
+                          "agentIds" : [ 4000000009158 ],
+                          "otherRecpts" : [ "RECORD_OWNER" ],
+                          "teamIds" : [ 4000000009158 ]
+                        },
+                        "sharedDeptAccessors" : [ {
+                          "accessors" : {
+                            "agentIds" : [ 4000000009158 ],
+                            "teamIds" : [ 4000000009158 ]
+                          },
+                          "deptId" : 4000000009158,
+                          "sharingType" : "READ_ONLY"
+                        } ]
+                      },
+                      "criteriaDetails" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "fieldModule" : "tickets",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        }
+                      }
+                    },
+                    "name" : "Feedbacks need to be monitored",
+                    "description" : "Lack of instruments to repair",
+                    "during" : [ {
+                      "message" : "Add comment here"
+                    }, {
+                      "fieldUpdates" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "fieldModule" : "tickets",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "fieldId" : 4000000009158,
+                        "errorMsg" : "Enter a valid Priority"
+                      },
+                      "isMandatory" : true
+                    }, {
+                      "otherActions" : "BUG",
+                      "isMandatory" : false
+                    }, {
+                      "otherActions" : "COMMENT",
+                      "isMandatory" : true
+                    } ],
+                    "after" : {
+                      "fieldUpdate" : {
+                        "ids" : [ 4000000307007 ]
+                      },
+                      "task" : {
+                        "ids" : [ 4000000307007 ]
+                      },
+                      "customFunction" : {
+                        "ids" : [ 4000000307007 ]
+                      },
+                      "alert" : {
+                        "ids" : [ 4000000307007 ]
+                      }
+                    },
+                    "autoTransitionActions" : {
+                      "feedback" : "SURVEY_ALL",
+                      "reply" : "REPLY_ALL"
+                    },
+                    "isCommonTransition" : false
+                  }, {
+                    "isAutoTransition" : false,
+                    "before" : {
+                      "accessors" : {
+                        "owners" : {
+                          "agentIds" : [ 4000000009158 ],
+                          "otherRecpts" : [ "RECORD_OWNER" ],
+                          "teamIds" : [ 4000000009158 ]
+                        },
+                        "sharedDeptAccessors" : [ {
+                          "accessors" : {
+                            "agentIds" : [ 4000000009158 ],
+                            "teamIds" : [ 4000000009158 ]
+                          },
+                          "deptId" : 4000000009158,
+                          "sharingType" : "READ_ONLY"
+                        } ]
+                      },
+                      "criteriaDetails" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "fieldModule" : "tickets",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        }
+                      }
+                    },
+                    "name" : "Common Handling",
+                    "description" : "Its common transition",
+                    "commonStates" : [ "Open" ],
+                    "during" : [ {
+                      "message" : "Add comment here"
+                    }, {
+                      "fieldUpdates" : {
+                        "criteria" : {
+                          "fieldConditions" : [ {
+                            "condition" : "is open",
+                            "fieldName" : "Status",
+                            "fieldModule" : "tickets",
+                            "value" : [ "${OPEN}" ]
+                          } ],
+                          "pattern" : "(1)"
+                        },
+                        "fieldId" : 4000000009158,
+                        "errorMsg" : "Enter a valid Priority"
+                      },
+                      "isMandatory" : true
+                    }, {
+                      "otherActions" : "BUG",
+                      "isMandatory" : false
+                    }, {
+                      "otherActions" : "COMMENT",
+                      "isMandatory" : true
+                    } ],
+                    "after" : {
+                      "fieldUpdate" : {
+                        "ids" : [ 4000000307007 ]
+                      },
+                      "task" : {
+                        "ids" : [ 4000000307007 ]
+                      },
+                      "customFunction" : {
+                        "ids" : [ 4000000307007 ]
+                      },
+                      "alert" : {
+                        "ids" : [ 4000000307007 ]
+                      }
+                    },
+                    "autoTransitionActions" : {
+                      "feedback" : "SURVEY_ALL",
+                      "reply" : "REPLY_ALL"
+                    },
+                    "isCommonTransition" : true
+                  } ],
+                  "layoutId" : 4000000007723,
+                  "connections" : [ {
+                    "fromState" : "Open",
+                    "toState" : "Escalated",
+                    "transition" : [ "Common Handling" ]
+                  }, {
+                    "fromState" : "Escalated",
+                    "toState" : "Closed",
+                    "transition" : [ "Common Handling" ]
+                  } ],
+                  "fieldId" : 4000000000377,
+                  "states" : [ {
+                    "timeInMins" : 90,
+                    "escalations" : [ {
+                      "escalationRecipients" : {
+                        "agentIds" : [ 4000000009158 ],
+                        "otherRecpts" : [ "RECORD_OWNER" ]
+                      },
+                      "templateId" : 4000000007355,
+                      "escalationLevel" : 1,
+                      "whenToEscalate" : 15
+                    } ],
+                    "transitionsOrder" : [ "Common Handling", "Feedbacks need to be monitored" ],
+                    "businessHrId" : 4000000007355,
+                    "name" : "Open",
+                    "type" : "START"
+                  }, {
+                    "timeInMins" : 30,
+                    "name" : "Escalated",
+                    "type" : "INTERMEDIATE"
+                  }, {
+                    "timeInMins" : 30,
+                    "name" : "Closed",
+                    "type" : "END"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "blueprints"
+}

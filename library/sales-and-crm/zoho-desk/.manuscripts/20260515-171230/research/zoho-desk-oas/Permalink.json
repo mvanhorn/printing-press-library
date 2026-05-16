@@ -1,0 +1,275 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Permalink",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/communityTopics/permalink/availability" : {
+      "get" : {
+        "tags" : [ "Permalink" ],
+        "summary" : "Check Permalink Availability",
+        "description" : "API to check whether the given permalink is available",
+        "operationId" : "checkPermalinkAvailability",
+        "parameters" : [ {
+          "name" : "permalink",
+          "in" : "query",
+          "description" : "Permalink for which the availablilty need to be checked",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Permalink for which the availablilty need to be checked",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{IsBasicLatin}]+"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/permalinkAvailability"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/unprocessableEntityErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/permalinks" : {
+      "get" : {
+        "tags" : [ "Permalink" ],
+        "summary" : "Get Topic Permalinks",
+        "description" : "API to get all permalinks of a topic",
+        "operationId" : "getTopicPermalinks",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/topicPermalinkList"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Permalink" ],
+        "summary" : "Update Topic Permalinks",
+        "description" : "API to update all permalinks of a topic",
+        "operationId" : "updateTopicPermalinks",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updatePermalink"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/topicPermalinkList"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "topicPermalink" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isPrimary" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+          }
+        },
+        "required" : [ "isPrimary", "modifiedTime", "permalink" ]
+      },
+      "topicPermalinkJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Permalink.json#/components/schemas/topicPermalink"
+        }
+      }
+    },
+    "responses" : {
+      "permalinkAvailability" : {
+        "description" : "permalinkAvailability template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "available" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "available" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "available" : "true"
+                }
+              }
+            }
+          }
+        }
+      },
+      "topicPermalinkList" : {
+        "description" : "topicPermalinkList template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Permalink.json#/components/schemas/topicPermalinkJsonArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "isPrimary" : "true",
+                    "permalink" : "community-topic-permalink-primary"
+                  }, {
+                    "isPrimary" : "false",
+                    "permalink" : "community-topic-permalink-secondary-1"
+                  }, {
+                    "isPrimary" : "false",
+                    "permalink" : "community-topic-permalink-secondary-2"
+                  }, {
+                    "isPrimary" : "false",
+                    "permalink" : "community-topic-permalink-secondary-3"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "topicId" : {
+        "name" : "topicId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "updatePermalink" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "primaryPermalink" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "holds the primary permalink of a topic",
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                },
+                "secondaryPermalink" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "primaryPermalink" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "primaryPermalink" : "community-topic-permalink-primary",
+                  "secondaryPermalink" : [ "community-topic-permalink-secondary-1", "community-topic-permalink-secondary-2", "community-topic-permalink-secondary-3" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Permalink"
+}

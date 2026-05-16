@@ -1,0 +1,374 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "MailReplyAddress",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/mailReplyAddress/{mailReplyAddressId}/sendVerification" : {
+      "post" : {
+        "tags" : [ "MailReplyAddress" ],
+        "summary" : "Send Verification Mail",
+        "description" : "This API sends a verification link to the MailReplyAddress configured in your help desk portal.",
+        "operationId" : "sendVerificationEmail",
+        "parameters" : [ {
+          "name" : "mailReplyAddressId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE", "Desk.basic.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/mailReplyAddress" : {
+      "get" : {
+        "tags" : [ "MailReplyAddress" ],
+        "summary" : "List MailReplyAddresses",
+        "description" : "This API lists the mailReplyAddresses configured in your help desk portal.",
+        "operationId" : "getReplyMailAddresses",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "ID of the Department from which the addresses need to be queried.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the Department from which the addresses need to be queried.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of mail addresses to fetch",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of mail addresses to fetch",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the mail addresses must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the mail addresses must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "isActive",
+          "in" : "query",
+          "description" : "Key that returns if the mailReplyAddress is active or not",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that returns if the mailReplyAddress is active or not"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getReplyMailAddressesResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "smtpDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "port" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "host" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "userName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "connectionType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PLAIN", "SSL", "TLS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }
+      },
+      "author" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "secondListViewJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "address" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "isSmtpEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isVerified" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that returns if the mailReplyAddress is verified or not"
+          },
+          "displayName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the Department from which the addresses need to be queried.",
+            "pattern" : "([0-9]+)"
+          },
+          "isActive" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that returns if the mailReplyAddress is active or not"
+          },
+          "smtpDetails" : {
+            "$ref" : "#/components/schemas/smtpDetails"
+          },
+          "createdBy" : {
+            "$ref" : "#/components/schemas/author"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "$ref" : "#/components/schemas/author"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "serviceProviderType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "ZohoSMTP|CustomSMTP|Outlook|Office"
+          }
+        },
+        "required" : [ "address", "createdBy", "createdTime", "departmentId", "displayName", "id", "isActive", "isVerified", "modifiedBy", "modifiedTime", "serviceProviderType", "smtpDetails" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/secondListViewJson"
+        }
+      }
+    },
+    "responses" : {
+      "getReplyMailAddressesResponse" : {
+        "description" : "getReplyMailAddressesResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1673006126000,
+                    "address" : "PII_EMAIL_SENTINEL",
+                    "isVerified" : true,
+                    "isSmtpEnabled" : true,
+                    "displayName" : "Support",
+                    "departmentId" : "4000000007043",
+                    "isActive" : true,
+                    "smtpDetails" : {
+                      "port" : "465",
+                      "host" : "smtp.zoho.com",
+                      "userName" : "PII_EMAIL_SENTINEL",
+                      "connectionType" : "SSL"
+                    },
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000028043/photo?orgId=11171343",
+                      "firstName" : "Sam",
+                      "lastName" : "Steve",
+                      "id" : "4000000028043",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "createdTime" : 1672998926000,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000028043/photo?orgId=11171343",
+                      "firstName" : "Sam",
+                      "lastName" : "Steve",
+                      "id" : "4000000028043",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "4000000025003",
+                    "serviceProviderType" : "CustomSMTP"
+                  }, {
+                    "modifiedTime" : 1673006126000,
+                    "address" : "PII_EMAIL_SENTINEL",
+                    "isVerified" : true,
+                    "isSmtpEnabled" : false,
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000028043/photo?orgId=11171343",
+                      "firstName" : "Sam",
+                      "lastName" : "Steve",
+                      "id" : "4000000028043",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "displayName" : "Marketing",
+                    "departmentId" : "4000000007043",
+                    "createdTime" : 1672998926000,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000028043/photo?orgId=11171343",
+                      "firstName" : "Sam",
+                      "lastName" : "Steve",
+                      "id" : "4000000028043",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "4000000026001",
+                    "isActive" : false,
+                    "serviceProviderType" : "ZohoSMTP"
+                  }, {
+                    "modifiedTime" : 1673006126000,
+                    "address" : "PII_EMAIL_SENTINEL",
+                    "isVerified" : true,
+                    "isSmtpEnabled" : true,
+                    "displayName" : "Tech",
+                    "departmentId" : "4000000007043",
+                    "isActive" : true,
+                    "smtpDetails" : {
+                      "port" : "465",
+                      "host" : "smtp.zoho.com",
+                      "userName" : "PII_EMAIL_SENTINEL",
+                      "connectionType" : "SSL"
+                    },
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000028043/photo?orgId=11171343",
+                      "firstName" : "Sam",
+                      "lastName" : "Steve",
+                      "id" : "4000000028043",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "createdTime" : 1672998926000,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000028043/photo?orgId=11171343",
+                      "firstName" : "Sam",
+                      "lastName" : "Steve",
+                      "id" : "4000000028043",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "4000000028003",
+                    "serviceProviderType" : "CustomSMTP"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "MailReplyAddress"
+}

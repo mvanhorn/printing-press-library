@@ -1,0 +1,962 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ArticleComment",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/articles/{articleId}/translations/{locale}/comments" : {
+      "get" : {
+        "tags" : [ "ArticleComment" ],
+        "summary" : "List all translation comments",
+        "description" : "This API lists a particular number of comments recorded on an article translation, based on the limit specified.",
+        "operationId" : "getArticleTranslationComments",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Allowed values: ticket",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "description" : "Allowed values @ticket@",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "ticket" ]
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "No. of comments to fetch",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "No. of comments to fetch",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number starting from which the comments must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number starting from which the comments must be fetched",
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort comments by the @commentedTime@ attribute. The default sorting order is ascending. @-commentedTime@ denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Sort comments by the @commentedTime@ attribute. The default sorting order is ascending. @-commentedTime@ denotes descending order of sorting.",
+            "enum" : [ "commentedTime" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/listOfComments"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "ArticleComment" ],
+        "summary" : "Create a translation comment",
+        "description" : "This API adds a comment to an article translation.",
+        "operationId" : "createArticleTranslationComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addCommentInput"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articles/{articleId}/translations/{locale}/comments/{commentId}" : {
+      "get" : {
+        "tags" : [ "ArticleComment" ],
+        "summary" : "Get a article translation comment",
+        "description" : "This API fetches an article translation comment from the portal.",
+        "operationId" : "getArticleTranslationComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/commentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "ArticleComment" ],
+        "summary" : "Delete a translation comment",
+        "description" : "This API deletes an existing article translation comment.",
+        "operationId" : "deleteArticleTranslationComments",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "ArticleComment" ],
+        "summary" : "Update a translation comment",
+        "description" : "This API updates an existing article translation comment.",
+        "operationId" : "updateArticleTranslationComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateCommentInput"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "groupMentionResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "offSet" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "length" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "logoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "id", "length", "logoUrl", "name", "offSet" ]
+      },
+      "mentionGroupListResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ArticleComment.json#/components/schemas/groupMentionResponse"
+        }
+      },
+      "commenter" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 3,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "roleName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "$ref" : "./Label.json#/components/schemas/labelMetaResponse"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "kbRole" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "REVIEWER", null ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "email", "firstName", "id", "kbRole", "label", "lastName", "name", "photoURL", "roleName", "type", "webUrl" ]
+      },
+      "commonUserDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "offSet" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 3,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "length" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "$ref" : "./Label.json#/components/schemas/labelMetaResponse"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "kbRole" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "REVIEWER", null ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "kbRole", "label", "length", "offSet", "webUrl", "zuid" ]
+      },
+      "mentionsResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./ArticleComment.json#/components/schemas/commenter"
+        }, {
+          "$ref" : "./ArticleComment.json#/components/schemas/commonUserDetails"
+        } ]
+      },
+      "mentionUserListResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ArticleComment.json#/components/schemas/mentionsResponse"
+        }
+      },
+      "mentionObjResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "groups" : {
+            "$ref" : "./ArticleComment.json#/components/schemas/mentionGroupListResponse"
+          },
+          "users" : {
+            "$ref" : "./ArticleComment.json#/components/schemas/mentionUserListResponse"
+          }
+        },
+        "required" : [ "groups", "users" ]
+      },
+      "hashtagsResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "offSet" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "length" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "headerValue" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "headerId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "headerId", "headerValue", "length", "offSet" ]
+      },
+      "hashtags" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ArticleComment.json#/components/schemas/hashtagsResponse"
+        }
+      },
+      "ticketMetaResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "isTrashed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "isTrashed", "ticketNumber", "webUrl" ]
+      },
+      "attachmentsResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "previewurl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "https?:\\/\\/([a-zA-Z0-9\\.-]+)(:\\d{1,5})?(\\/[a-zA-Z0-9\\/\\.-]+)?\\?(x-service=([a-zA-Z0-9]+)&event-id=([a-f0-9]+)&x-cli-msg=\\{\\\\?\"s\\\\?\":(\\d),\\\\?\"portalname\\\\?\":\\\\?\"([a-zA-Z0-9]+)\\\\?\"\\}|orgId=(\\d+))"
+          }
+        },
+        "required" : [ "href", "id", "name", "previewurl", "size" ]
+      },
+      "attachments" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ArticleComment.json#/components/schemas/attachmentsResponse"
+        }
+      },
+      "commentListResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachments" : {
+            "$ref" : "./ArticleComment.json#/components/schemas/attachments"
+          },
+          "hashtags" : {
+            "$ref" : "./ArticleComment.json#/components/schemas/hashtags"
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "commenterName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "commenter" : {
+            "$ref" : "./ArticleComment.json#/components/schemas/commenter"
+          },
+          "impersonatedUser" : {
+            "$ref" : "./TicketComment.json#/components/schemas/impersonatedUser"
+          },
+          "encodedContent" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "mentions" : {
+            "$ref" : "./ArticleComment.json#/components/schemas/mentionObjResponse"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "plainText", "html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PUBLISHED", "AWAITINGAPPROVAL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "attachments", "commentedTime", "commenter", "commenterId", "commenterName", "content", "contentType", "encodedContent", "hashtags", "id", "impersonatedUser", "isPublic", "mentions", "modifiedTime", "status", "ticketId" ]
+      },
+      "commentListResponseArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ArticleComment.json#/components/schemas/commentListResponse"
+        }
+      }
+    },
+    "responses" : {
+      "commentResponse" : {
+        "description" : "commentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./ArticleComment.json#/components/schemas/commentListResponse"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "ticket" : {
+                    "$ref" : "./ArticleComment.json#/components/schemas/ticketMetaResponse"
+                  }
+                },
+                "required" : [ "ticket" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1652101829000,
+                  "attachments" : [ {
+                    "previewurl" : "https://desk.zoho.com/api/v1/articles/46582000006958052/translations/en/attachments/nmhny14ce774984eb4b15891e1cbe274e612c/content?orgId=57044830",
+                    "size" : "35594",
+                    "name" : "Zoho desk introduction.jpg",
+                    "id" : "4658200041001",
+                    "href" : "https://downloadserver.zoho.com/webdownload?x-service=desk&event-id=b45a36decdceb443ccb4d3445f29c9966de7dee89041ea315318c4f358836a09e07add42e10810f8961c3f92bf853"
+                  } ],
+                  "tickets" : {
+                    "ticketNumber" : "115",
+                    "isTrashed" : "false",
+                    "webUrl" : "https://desk.zoho.com/agent/zohocorp/desk/tickets/details/5000000114001",
+                    "id" : "5000000114001"
+                  },
+                  "hashtags" : [ {
+                    "offset" : "47",
+                    "length" : "33",
+                    "headerValue" : "Introduction",
+                    "headerId" : "Sample_header"
+                  } ],
+                  "commentedTime" : 1652072940000,
+                  "commenterName" : "Jack",
+                  "content" : "<div>Changed Sample content zsu[@user:695624]zsu&nbsp; zsh[#sample_header:Introduction]zsh&nbsp;</div>",
+                  "commenterId" : "4658200004039",
+                  "commenter" : {
+                    "firstName" : "",
+                    "lastName" : "Jack",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4658200004039/photo?orgId=292828",
+                    "webUrl" : "https://desk.zoho.com/support/arunice/ShowHomePage.do#setup/users-control/agents/1000000000351",
+                    "roleName" : "CEO",
+                    "name" : "Jack",
+                    "id" : "4658200004039",
+                    "label" : {
+                      "preferences" : {
+                        "shape" : "RECTANGLE",
+                        "bgColor" : "#5C6368",
+                        "textColor" : "#FFFFFF"
+                      },
+                      "name" : "MVP",
+                      "id" : "5000000081007",
+                      "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/35531135311?portalId=3153815r1fnf113131rf31n9"
+                    },
+                    "type" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "kbRole" : "REVIEWER"
+                  },
+                  "mentions" : {
+                    "groups" : [ {
+                      "offSet" : "260",
+                      "name" : "MVP",
+                      "length" : "28",
+                      "id" : "5000000113025",
+                      "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/4658200004039?portalId=292828341431fq"
+                    } ],
+                    "users" : [ {
+                      "firstName" : "",
+                      "lastName" : "Cristiano",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4658200044017/photo?orgId=292828",
+                      "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#setup/users-control/agents/5000000000347",
+                      "length" : "28",
+                      "name" : "Cristiano",
+                      "id" : "4658200044017",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "ROUNDED",
+                          "bgColor" : "#CE6785",
+                          "textColor" : "#FFFFFF"
+                        },
+                        "name" : "Prime user",
+                        "id" : "5000000081001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/35531135311?portalId=3153815r1fnf113131rf31n8"
+                      },
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "zuid" : "695624",
+                      "kbRole" : "REVIEWER"
+                    } ]
+                  },
+                  "isPublic" : true,
+                  "id" : "4658200041003",
+                  "contentType" : "html",
+                  "ticketId" : "5000000114001",
+                  "status" : "PUBLISHED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "listOfComments" : {
+        "description" : "listOfComments template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "ticket" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 4,
+                          "minProperties" : 4,
+                          "properties" : {
+                            "ticketNumber" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int32",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "isTrashed" : {
+                              "type" : [ "boolean", "null" ]
+                            },
+                            "webUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 500,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "isTrashed", "ticketNumber", "webUrl" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./ArticleComment.json#/components/schemas/commentListResponseArray"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1652101829000,
+                    "attachments" : [ {
+                      "previewurl" : "https://desk.zoho.com/api/v1/articles/46582000006958052/translations/en/attachments/nmhny14ce774984eb4b15891e1cbe274e612c/content?orgId=57044830",
+                      "size" : "35594",
+                      "name" : "Zoho desk introduction.jpg",
+                      "id" : "4658200041001",
+                      "href" : "https://downloadserver.zoho.com/webdownload?x-service=desk&event-id=b45a36decdceb443ccb4d3445f29c9966de7dee89041ea315318c4f358836a09e07add42e10810f8961c3f92bf853"
+                    } ],
+                    "tickets" : {
+                      "ticketNumber" : "115",
+                      "isTrashed" : "false",
+                      "webUrl" : "https://desk.zoho.com/agent/zohocorp/desk/tickets/details/5000000114001",
+                      "id" : "5000000114001"
+                    },
+                    "hashtags" : [ {
+                      "offset" : "47",
+                      "length" : "33",
+                      "headerValue" : "Introduction",
+                      "headerId" : "Sample_header"
+                    } ],
+                    "commentedTime" : 1652072940000,
+                    "commenterName" : "Jack",
+                    "content" : "<div>Changed Sample content zsu[@user:695624]zsu&nbsp; zsh[#sample_header:Introduction]zsh&nbsp;</div>",
+                    "commenterId" : "4658200004039",
+                    "commenter" : {
+                      "firstName" : "",
+                      "lastName" : "Jack",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4658200004039/photo?orgId=292828",
+                      "webUrl" : "https://desk.zoho.com/support/arunice/ShowHomePage.do#setup/users-control/agents/1000000000351",
+                      "roleName" : "CEO",
+                      "name" : "Jack",
+                      "id" : "4658200004039",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#5C6368",
+                          "textColor" : "#FFFFFF"
+                        },
+                        "name" : "MVP",
+                        "id" : "5000000081007",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/35531135311?portalId=3153815r1fnf113131rf31n9"
+                      },
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "kbRole" : "REVIEWER"
+                    },
+                    "mentions" : {
+                      "groups" : [ {
+                        "offSet" : "260",
+                        "name" : "MVP",
+                        "length" : "28",
+                        "id" : "5000000113025",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/4658200004039?portalId=292828341431fq"
+                      } ],
+                      "users" : [ {
+                        "firstName" : "",
+                        "lastName" : "Cristiano",
+                        "photoURL" : "https://desk.zoho.com/api/v1/agents/4658200044017/photo?orgId=292828",
+                        "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#setup/users-control/agents/5000000000347",
+                        "length" : "28",
+                        "name" : "Cristiano",
+                        "id" : "4658200044017",
+                        "label" : {
+                          "preferences" : {
+                            "shape" : "ROUNDED",
+                            "bgColor" : "#CE6785",
+                            "textColor" : "#FFFFFF"
+                          },
+                          "name" : "Prime user",
+                          "id" : "5000000081001",
+                          "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/35531135311?portalId=3153815r1fnf113131rf31n8"
+                        },
+                        "type" : "AGENT",
+                        "email" : "PII_EMAIL_SENTINEL",
+                        "zuid" : "695624",
+                        "kbRole" : "REVIEWER"
+                      } ]
+                    },
+                    "isPublic" : true,
+                    "id" : "4658200041003",
+                    "contentType" : "html",
+                    "ticketId" : "5000000114001",
+                    "status" : "PUBLISHED"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "articleId" : {
+        "name" : "articleId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "commentId" : {
+        "name" : "commentId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "locale" : {
+        "name" : "locale",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "addCommentInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isPublic" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Visibility of the comment, which can be set only at the time of commenting. "
+                },
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Used to denote the content-type which maybe @html@ or @plainText@. The default type is @html@.",
+                  "enum" : [ "plainText", "html" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Content of the comment. To retrieve or set user mentions, use this code format:      AGENT : _zsu[@user:{zuid}]zsu_, Enduser : _zsu[@enduser:{zuid}]zsu_, Group : _zsu[@group:{groupid}]zsu_, HashTag : _zsh[#{HEADER_DATA}]zsh_.",
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "content", "contentType", "isPublic" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isPublic" : "false",
+                  "attachmentIds" : [ "4658200041001" ],
+                  "contentType" : "html",
+                  "content" : "<div>Sample content zsu[@user:695624]zsu&nbsp; zsh[#sample_header:Introduction]zsh&nbsp;</div>"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateCommentInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isPublic" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Visibility of the comment, which can be set only at the time of commenting. "
+                },
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Used to denote the content-type which maybe @html@ or @plainText@. The default type is @html@.",
+                  "enum" : [ "plainText", "html" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Content of the comment. To retrieve or set user mentions, use this code format:      AGENT : _zsu[@user:{zuid}]zsu_, Enduser : _zsu[@enduser:{zuid}]zsu_, Group : _zsu[@group:{groupid}]zsu_, HashTag : _zsh[#{HEADER_DATA}]zsh_.",
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isPublic" : true,
+                  "attachmentIds" : [ "4658200041001" ],
+                  "contentType" : "html",
+                  "content" : "<div>Changed Sample content zsu[@user:695624]zsu&nbsp; zsh[#sample_header:Introduction]zsh&nbsp;</div>"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "ArticleComment"
+}

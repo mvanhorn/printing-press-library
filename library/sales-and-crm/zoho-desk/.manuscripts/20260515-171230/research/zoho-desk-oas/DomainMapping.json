@@ -1,0 +1,549 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "DomainMapping",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/domains/{domain}" : {
+      "get" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "Get domain",
+        "description" : "This API fetches the details of a domain from your help desk.",
+        "operationId" : "getDomain",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/domain"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/domainJsonResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "Delete unused domain",
+        "description" : "This API deletes unused domain from your help desk.",
+        "operationId" : "deleteUnusedDomain",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/domain"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/domains/apply" : {
+      "post" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "Apply domain",
+        "description" : "This API maps a domain to the default portal in your help desk.",
+        "operationId" : "applyDomain",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/domainNameJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/domainJsonResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/domains" : {
+      "get" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "List domains",
+        "description" : "This API lists the domains configured in your help desk.",
+        "operationId" : "listDomains",
+        "parameters" : [ {
+          "name" : "isVerified",
+          "in" : "query",
+          "description" : "Key that filters domains based on their verification status",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that filters domains based on their verification status"
+          }
+        }, {
+          "name" : "isApplied",
+          "in" : "query",
+          "description" : "Key that filters domains based on their application status in the help desk",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that filters domains based on their application status in the help desk"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/domainJsonDataArrayResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "Add domain",
+        "description" : "This API adds a domain to your help desk.",
+        "operationId" : "addDomain",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addDomain_domainNameJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/domainJsonResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/domains/verify" : {
+      "post" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "Verify domain",
+        "description" : "This API verifies a domain in your help desk.",
+        "operationId" : "verifyDomain",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/domainNameVerifyJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/domainJsonResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/domains/reset" : {
+      "post" : {
+        "tags" : [ "DomainMapping" ],
+        "summary" : "Reset current domain",
+        "description" : "This API resets the current domain of the default portal in your help desk.",
+        "operationId" : "resetCurrentDomain",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "domainJsonResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "appliedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isVerified" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "sslStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NO_SSL", "INVALID_SSL", "REQUESTED", "VALID", "EXEMPTED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "zdSecurityCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z0-9]+)"
+          },
+          "verifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "sslRequestStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PENDING", "SCHEDULED", "FAILURE", "UNKNOWN", null ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "sslRequestedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "domain" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,22}$"
+          },
+          "sslRequestedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isApplied" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "appliedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isAgentsDomain" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "verifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          }
+        },
+        "required" : [ "appliedBy", "appliedTime", "domain", "isAgentsDomain", "isApplied", "isVerified", "sslRequestStatus", "sslRequestedBy", "sslRequestedTime", "sslStatus", "verifiedBy", "verifiedTime", "zdSecurityCode" ]
+      },
+      "domainJsonArrayResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/domainJsonResponse"
+        }
+      }
+    },
+    "responses" : {
+      "domainJsonResponse" : {
+        "description" : "domainJsonResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "appliedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "isVerified" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "sslStatus" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "NO_SSL", "INVALID_SSL", "REQUESTED", "VALID", "EXEMPTED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "zdSecurityCode" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([a-zA-Z0-9]+)"
+                },
+                "verifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "sslRequestStatus" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "PENDING", "SCHEDULED", "FAILURE", "UNKNOWN", null ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "sslRequestedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "domain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,22}$"
+                },
+                "sslRequestedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isApplied" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "appliedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "isAgentsDomain" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "verifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                }
+              },
+              "required" : [ "appliedBy", "appliedTime", "domain", "isAgentsDomain", "isApplied", "isVerified", "sslRequestStatus", "sslRequestedBy", "sslRequestedTime", "sslStatus", "verifiedBy", "verifiedTime", "zdSecurityCode" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "appliedTime" : null,
+                  "sslRequestStatus" : null,
+                  "sslRequestedBy" : null,
+                  "isVerified" : false,
+                  "sslStatus" : "NO_SSL",
+                  "domain" : "support.zylker.com",
+                  "zdSecurityCode" : "zdc3b95061484994060a401652cb2a45b2",
+                  "sslRequestedTime" : null,
+                  "isApplied" : false,
+                  "appliedBy" : null,
+                  "verifiedBy" : null,
+                  "verifiedTime" : null
+                }
+              }
+            }
+          }
+        }
+      },
+      "domainJsonDataArrayResponse" : {
+        "description" : "domainJsonDataArrayResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/domainJsonArrayResponse"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "appliedTime" : null,
+                    "sslRequestStatus" : null,
+                    "sslRequestedBy" : null,
+                    "isVerified" : true,
+                    "sslStatus" : "NO_SSL",
+                    "domain" : "supportportal.zylker.com",
+                    "zdSecurityCode" : null,
+                    "sslRequestedTime" : null,
+                    "isApplied" : false,
+                    "appliedBy" : null,
+                    "verifiedBy" : "8000000012800",
+                    "verifiedTime" : 1528024867912
+                  }, {
+                    "appliedTime" : null,
+                    "sslRequestStatus" : null,
+                    "sslRequestedBy" : null,
+                    "isVerified" : true,
+                    "sslStatus" : "NO_SSL",
+                    "domain" : "customers.zylker.com",
+                    "zdSecurityCode" : null,
+                    "sslRequestedTime" : null,
+                    "isApplied" : false,
+                    "appliedBy" : null,
+                    "verifiedBy" : "8000000012800",
+                    "verifiedTime" : 1528024867654
+                  }, {
+                    "appliedTime" : null,
+                    "sslRequestStatus" : null,
+                    "sslRequestedBy" : null,
+                    "isVerified" : true,
+                    "sslStatus" : "NO_SSL",
+                    "domain" : "partners.zylker.com",
+                    "zdSecurityCode" : null,
+                    "sslRequestedTime" : null,
+                    "isApplied" : false,
+                    "appliedBy" : null,
+                    "verifiedBy" : "8000000012800",
+                    "verifiedTime" : 1528024867912
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "domain" : {
+        "name" : "domain",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,22}$"
+        }
+      }
+    },
+    "requestBodies" : {
+      "domainNameJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "domain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,22}$"
+                }
+              },
+              "required" : [ "domain" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "domain" : "support.zylker.com"
+                }
+              }
+            }
+          }
+        }
+      },
+      "domainNameVerifyJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "method" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "CNAME", "HTML" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "domain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,22}$"
+                }
+              },
+              "required" : [ "domain" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "method" : "CNAME",
+                  "domain" : "support.zylker.com"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addDomain_domainNameJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "domain" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,22}$"
+                }
+              },
+              "required" : [ "domain" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "domain" : "support.zylker.com"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "DomainMapping"
+}

@@ -1,0 +1,763 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Finance",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/zohoFinance/{financeService}/invoices" : {
+      "get" : {
+        "tags" : [ "Finance" ],
+        "summary" : "List invoices",
+        "description" : "To list invoices.",
+        "operationId" : "getInvoices",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/deskEntityId"
+        }, {
+          "$ref" : "#/components/parameters/pageNumber"
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Department Id",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/deskModuleName"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "#/components/parameters/financeService"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getInvoices"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.integrations.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/zohoFinance/{financeService}/estimates" : {
+      "get" : {
+        "tags" : [ "Finance" ],
+        "summary" : "List estimates",
+        "description" : "To list estimates.",
+        "operationId" : "getEstimates",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/deskEntityId"
+        }, {
+          "$ref" : "#/components/parameters/pageNumber"
+        }, {
+          "$ref" : "#/components/parameters/deskModuleName"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "#/components/parameters/financeService"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getEstimates"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.integrations.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/zohoFinance/{financeService}/estimates/{id}" : {
+      "patch" : {
+        "tags" : [ "Finance" ],
+        "summary" : "Update estimate status ",
+        "description" : "This will update status of estimate.",
+        "operationId" : "updateEstimateStatus",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/financeService"
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/financeUpdateStatus"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.integrations.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/zohoFinance/{financeService}/invoices/{id}" : {
+      "patch" : {
+        "tags" : [ "Finance" ],
+        "summary" : "Update invoice status ",
+        "description" : "This will  update status of invoice.",
+        "operationId" : "updateInvoiceStatus",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/financeService"
+        }, {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateInvoiceStatus_financeUpdateStatus"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.integrations.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/zohoFinance/{financeService}/invoices/markAsSent" : {
+      "post" : {
+        "tags" : [ "Finance" ],
+        "summary" : "MarkAllInvoicesSent",
+        "description" : "This will update status of invoice to sent.",
+        "operationId" : "markInvoicesAsSent",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/financeService"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/markInvoicesAsSent_financeMarkAsSent"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.integrations.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/finance/invoices/{id}/tickets" : {
+      "get" : {
+        "tags" : [ "Finance" ],
+        "summary" : "Get tickets for invoices",
+        "description" : "To get associated tickets for invoice id.",
+        "operationId" : "getTicketsForInvoiceId",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getTicketsForInvoiceId"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "data4" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "date" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          },
+          "total" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "isViewdByClient" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "totalFormatted" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "invoiceNumber" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "dateFormatted" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "currencyCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "statusFormatted" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "sent", "draft", "overdue", "paid", "void", "partially_paid" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "currencyCode", "date", "dateFormatted", "id", "invoiceNumber", "isViewdByClient", "status", "statusFormatted", "total", "totalFormatted" ]
+      },
+      "dataArr4" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Finance.json#/components/schemas/data4"
+        }
+      },
+      "data5" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "date" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          },
+          "total" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "isViewdByClient" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "estimateNumber" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "totalFormatted" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "dateFormatted" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "currencyCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "statusFormatted" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "sent", "draft", "void", "invoiced", "accepted", "declined", "expired" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "currencyCode", "date", "dateFormatted", "estimateNumber", "id", "isViewdByClient", "status", "statusFormatted", "total", "totalFormatted" ]
+      },
+      "dataArr5" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Finance.json#/components/schemas/data5"
+        }
+      },
+      "assignee" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "firstName", "lastName" ]
+      },
+      "data" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "assignee" : {
+            "$ref" : "./Finance.json#/components/schemas/assignee"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "commentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "assignee", "commentCount", "dueDate", "id", "priority", "status", "subject", "ticketNumber" ]
+      },
+      "dataArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Finance.json#/components/schemas/data"
+        }
+      }
+    },
+    "responses" : {
+      "getInvoices" : {
+        "description" : "getInvoices template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "deskEntityId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "data" : {
+                  "$ref" : "./Finance.json#/components/schemas/dataArr4"
+                },
+                "deskModuleName" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "Cases", "Contacts", "Accounts" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "data", "deskEntityId", "deskModuleName" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "deskEntityId" : "5000000014010",
+                  "data" : [ {
+                    "date" : "2018-09-23",
+                    "total" : 117,
+                    "isViewdByClient" : false,
+                    "totalFormatted" : "AED117.00",
+                    "invoiceNumber" : "INV-000025",
+                    "id" : "1332784000000108001",
+                    "dateFormatted" : "23 Sep 2018",
+                    "currencyCode" : "AED",
+                    "statusFormatted" : "Draft",
+                    "status" : "draft"
+                  } ],
+                  "deskModuleName" : "Contacts"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getEstimates" : {
+        "description" : "getEstimates template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "deskEntityId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "data" : {
+                  "$ref" : "./Finance.json#/components/schemas/dataArr5"
+                },
+                "deskModuleName" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "Cases", "Contacts", "Accounts" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "data", "deskEntityId", "deskModuleName" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "deskEntityId" : "5000000014010",
+                  "data" : [ {
+                    "date" : "2018-09-23",
+                    "total" : 117,
+                    "isViewdByClient" : false,
+                    "estimateNumber" : "INV-000025",
+                    "totalFormatted" : "AED117.00",
+                    "id" : "1332784000000108001",
+                    "dateFormatted" : "23 Sep 2018",
+                    "currencyCode" : "AED",
+                    "statusFormatted" : "Draft",
+                    "status" : "draft"
+                  } ],
+                  "deskModuleName" : "Contacts"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketsForInvoiceId" : {
+        "description" : "getTicketsForInvoiceId template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Finance.json#/components/schemas/dataArr"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketNumber" : "123",
+                    "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "dueDate" : "2018-06-21T16:16:16.000Z",
+                    "id" : "104202000003153007",
+                    "assignee" : {
+                      "firstName" : "Robert",
+                      "lastName" : "John"
+                    },
+                    "priority" : "High",
+                    "status" : "Open",
+                    "commentCount" : "5"
+                  }, {
+                    "ticketNumber" : "456",
+                    "subject" : "Problem while reset password.",
+                    "dueDate" : "2018-07-21T16:16:16.000Z",
+                    "id" : "104202000003153015",
+                    "assignee" : {
+                      "firstName" : "Steve",
+                      "lastName" : "Smith"
+                    },
+                    "priority" : "High",
+                    "status" : "Closed",
+                    "commentCount" : "3"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "deskEntityId" : {
+        "name" : "deskEntityId",
+        "in" : "query",
+        "description" : "To fetch invoice by desk contact or account or ticket id",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "To fetch invoice by desk contact or account or ticket id",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "pageNumber" : {
+        "name" : "pageNumber",
+        "in" : "query",
+        "description" : "page number",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "page number",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "deskModuleName" : {
+        "name" : "deskModuleName",
+        "in" : "query",
+        "description" : "Desk Module Name:  Contacts or Cases or Accounts",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Desk Module Name:  Contacts or Cases or Accounts",
+          "enum" : [ "Cases", "Contacts", "Accounts" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "financeService" : {
+        "name" : "financeService",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "books", "inventory", "invoice" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "([a-z]+)"
+        }
+      },
+      "id" : {
+        "name" : "id",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "status" : {
+        "name" : "status",
+        "in" : "query",
+        "description" : "To fetch invoice by status, Available status are sent, draft, overdue, paid, void, unpaid, partially_paid and viewed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "To fetch invoice by status, Available status are sent, draft, overdue, paid, void, unpaid, partially_paid and viewed",
+          "enum" : [ "sent", "draft", "overdue", "paid", "void", "partially_paid" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "financeUpdateStatus" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "sent" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "status" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "status" : "draft"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateInvoiceStatus_financeUpdateStatus" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "sent" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "status" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "status" : "draft"
+                }
+              }
+            }
+          }
+        }
+      },
+      "markInvoicesAsSent_financeMarkAsSent" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "1332784000000108001", "1332784000000108004", "1332784000000108006" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Finance"
+}

@@ -1,0 +1,1698 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Skill",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/skills" : {
+      "get" : {
+        "tags" : [ "Skill" ],
+        "summary" : "List all skills",
+        "description" : "This API lists all skills in a department",
+        "operationId" : "getSkills",
+        "parameters" : [ {
+          "name" : "searchString",
+          "in" : "query",
+          "description" : "Search string, Used to filter skills by name starting with this string",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Search string, Used to filter skills by name starting with this string",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        }, {
+          "name" : "skillTypeId",
+          "in" : "query",
+          "description" : "Skill Type Id, to Filter Skills by SkillType",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Skill Type Id, to Filter Skills by SkillType",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "skillIds",
+          "in" : "query",
+          "description" : "The IDs of the skills to list separated by commas. You can pass upto 50 IDs.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "The IDs of the skills to list separated by commas. You can pass upto 50 IDs.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Active inactive filter for Skills. Values allowed are @ACTIVE@ and @INACTIVE@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Active inactive filter for Skills. Values allowed are @ACTIVE@ and @INACTIVE@",
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/skillsListViewResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Create skill",
+        "description" : "This API Creates a skill",
+        "operationId" : "createSkill",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addSkillJson"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/skillSingleResponseJson"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/skills/order" : {
+      "post" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Reorder Skills in a Department",
+        "description" : "This API lists reorders Skills in a Department",
+        "operationId" : "reorderSkills",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/reorderskilljson"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/executeSkillbasedAssignment" : {
+      "post" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Execute Skill Based Assignment",
+        "description" : "This API assigns tickets to agents according to their designated skills and routing preferences.",
+        "operationId" : "executeSkillbasedAssignment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/skillBasedAssignmentResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/skills/{skillId}" : {
+      "get" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Get details of a skill",
+        "description" : "This API Gets the details of a skill",
+        "operationId" : "getSkill",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/skillId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/skillSingleResponseJson"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Delete skill",
+        "description" : "This API deletes a skill from your help desk portal",
+        "operationId" : "deleteSkill",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/skillId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Update skill",
+        "description" : "This API Updates a skill",
+        "operationId" : "updateSkill",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/skillId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateSkillJsonInputWithoutCriteria"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/skillSingleResponseJson"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/skills/criteriaFields" : {
+      "get" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Get Criteria Fields for Skill in a Department",
+        "description" : "This API returns list of fields supported in criteria for Skills by module",
+        "operationId" : "getCriteriaFieldsForSkills",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Module, Allowed values are @tickets@,@contacts@ and @accounts@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Module, Allowed values are @tickets@,@contacts@ and @accounts@",
+            "enum" : [ "tickets", "contacts", "accounts" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/{agentId}/mapSkills" : {
+      "post" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Map Skills in a Department with an Agent",
+        "description" : "This API modifies skills mapped for an agent in a department",
+        "operationId" : "mapSkillsWithAgent",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/entitySkillMappingJson"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/agentSkillMappingResponseMultiple"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/recalculateSkills" : {
+      "post" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Recalculate Skills for a ticket",
+        "description" : "This API removes existing skills and reapplies the required ones based on the ticket's current circumstances.",
+        "operationId" : "recalculateAndStampSkillForTicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/recalculateAndStampSkillJSON"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/skills/{skillId}/relatedRules" : {
+      "get" : {
+        "tags" : [ "Skill" ],
+        "summary" : "List associated automation rules of the skill",
+        "description" : "This API lists a particular number of automation rules that include a skill,based on the limit specified",
+        "operationId" : "getRelatedRulesForSkill",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/skillId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/relatedRuleListArray"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/{agentId}/skills" : {
+      "get" : {
+        "tags" : [ "Skill" ],
+        "summary" : "Get Skills of an Agent",
+        "description" : "Returns skills mapped with an agent by department ",
+        "operationId" : "getSkillsOfAgent",
+        "parameters" : [ {
+          "name" : "departmentIds",
+          "in" : "query",
+          "description" : "list of Department Ids separated by commas,Maximum @10@ department ids allowed",
+          "required" : true,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "list of Department Ids separated by commas,Maximum @10@ department ids allowed",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "maxItems" : 10,
+            "minItems" : 1,
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/agentSkillMappingResponseMultiple"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "skillTypeJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "skillTypeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "skillTypeName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "skillTypeId", "skillTypeName" ]
+      },
+      "criteriaRequestJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(.*|null|undefined)"
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "fieldModule" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "tasks", "contracts", "accounts", "contacts", "products", "calls", "events", "activities" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "value" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "oneOf" : [ {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+              }, {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                },
+                "uniqueItems" : false
+              } ]
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "condition", "fieldModule", "fieldName", "value" ]
+      },
+      "fieldConditionJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Skill.json#/components/schemas/criteriaRequestJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "displayValue" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "displayValue" ]
+        } ]
+      },
+      "fieldConditionsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Skill.json#/components/schemas/fieldConditionJson"
+        }
+      },
+      "criteriaDetailsResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldConditions" : {
+            "$ref" : "./Skill.json#/components/schemas/fieldConditionsArr"
+          },
+          "pattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(.*|null|undefined)"
+          }
+        },
+        "required" : [ "fieldConditions", "pattern" ]
+      },
+      "skillSingleResponseJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "agentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "skillType" : {
+            "$ref" : "./Skill.json#/components/schemas/skillTypeJson"
+          },
+          "orderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          },
+          "criteria" : {
+            "$ref" : "./Skill.json#/components/schemas/criteriaDetailsResponse"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+          },
+          "skillTypeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "agentIds", "createdBy", "createdTime", "criteria", "departmentId", "description", "id", "modifiedBy", "modifiedTime", "name", "orderId", "skillType", "skillTypeId", "status" ]
+      },
+      "skillsResponseArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Skill.json#/components/schemas/skillSingleResponseJson"
+        }
+      },
+      "isAssignedResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "roleName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "externalId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "emailId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "email", "emailId", "externalId", "firstName", "id", "lastName", "name", "photoURL", "roleName", "type", "zuid" ]
+      },
+      "executeSBATeaminfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "associatedSkillsJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "skillName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "skillId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "skillTypeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "skillId", "skillName", "skillTypeId" ]
+      },
+      "associatedSkillsJsonArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Skill.json#/components/schemas/associatedSkillsJson"
+        }
+      },
+      "agentSkillMappingResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "associatedSkills" : {
+            "$ref" : "./Skill.json#/components/schemas/associatedSkillsJsonArr"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "associatedSkills", "departmentId" ]
+      },
+      "agentSkillMappingResponseArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Skill.json#/components/schemas/agentSkillMappingResponse"
+        }
+      },
+      "minimalSkillJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Skill.json#/components/schemas/associatedSkillsJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "weightage" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "maximum" : 10,
+              "minimum" : 1,
+              "pattern" : "([0-9]+)"
+            },
+            "mappingType" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "SYSTEM", "USER" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "skillTypeName" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 50,
+              "minLength" : 1,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            }
+          },
+          "required" : [ "mappingType", "skillTypeName", "weightage" ]
+        } ]
+      },
+      "skillsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Skill.json#/components/schemas/minimalSkillJson"
+        }
+      },
+      "relatedRuleJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ruleType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUPERVISE", "MACRO", "WORKFLOW", "BLUEPRINT", "SLA", "SKILLS", "CUSTOMVIEW", "CONTRACTS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "ruleName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "ruleId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "ruleId", "ruleName", "ruleType" ]
+      },
+      "relatedRulesData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Skill.json#/components/schemas/relatedRuleJson"
+        }
+      }
+    },
+    "responses" : {
+      "skillsListViewResponse" : {
+        "description" : "skillsListViewResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Skill.json#/components/schemas/skillsResponseArr"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1595508282574,
+                    "agentIds" : [ ],
+                    "skillType" : {
+                      "skillTypeId" : "1000000173001",
+                      "skillTypeName" : "Country"
+                    },
+                    "orderId" : "1",
+                    "criteria" : {
+                      "fieldConditions" : [ {
+                        "displayValue" : [ "India" ],
+                        "condition" : "is",
+                        "fieldName" : "Subject",
+                        "fieldModule" : "tickets",
+                        "value" : [ "India" ]
+                      }, {
+                        "displayValue" : [ "987532114" ],
+                        "condition" : "is",
+                        "fieldName" : "Phone",
+                        "fieldModule" : "tickets",
+                        "value" : [ "987532114" ]
+                      } ],
+                      "pattern" : "(1or2)"
+                    },
+                    "departmentId" : "1000000013248",
+                    "description" : "Country is India",
+                    "skillTypeId" : "1000000173001",
+                    "createdBy" : "1000000000059",
+                    "name" : "India",
+                    "createdTime" : 1595508282574,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173029",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1595509392994,
+                    "agentIds" : [ "1000000000059" ],
+                    "skillType" : {
+                      "skillTypeId" : "1000000173001",
+                      "skillTypeName" : "Country"
+                    },
+                    "orderId" : "2",
+                    "criteria" : {
+                      "fieldConditions" : [ {
+                        "displayValue" : [ "Russia" ],
+                        "condition" : "is",
+                        "fieldName" : "Subject",
+                        "fieldModule" : "tickets",
+                        "value" : [ "Russia" ]
+                      }, {
+                        "displayValue" : [ "987532114" ],
+                        "condition" : "is",
+                        "fieldName" : "Phone",
+                        "fieldModule" : "tickets",
+                        "value" : [ "987532114" ]
+                      } ],
+                      "pattern" : "(1or2)"
+                    },
+                    "departmentId" : "1000000013248",
+                    "description" : "Country is Russia",
+                    "skillTypeId" : "1000000173001",
+                    "createdBy" : "1000000000059",
+                    "name" : "Russia",
+                    "createdTime" : 1595509392994,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173047",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1595509671838,
+                    "agentIds" : [ "1000000000059" ],
+                    "skillType" : {
+                      "skillTypeId" : "1000000173013",
+                      "skillTypeName" : "Language"
+                    },
+                    "orderId" : "3",
+                    "criteria" : {
+                      "fieldConditions" : [ {
+                        "displayValue" : [ "English" ],
+                        "condition" : "contains",
+                        "fieldName" : "Subject",
+                        "fieldModule" : "tickets",
+                        "value" : [ "English" ]
+                      } ],
+                      "pattern" : "1"
+                    },
+                    "departmentId" : "1000000013248",
+                    "description" : "Language is English",
+                    "skillTypeId" : "1000000173013",
+                    "createdBy" : "1000000000059",
+                    "name" : "English",
+                    "createdTime" : 1595509671838,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173097",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1595509696891,
+                    "agentIds" : [ "1000000000059" ],
+                    "skillType" : {
+                      "skillTypeId" : "1000000173013",
+                      "skillTypeName" : "Language"
+                    },
+                    "orderId" : "4",
+                    "criteria" : {
+                      "fieldConditions" : [ {
+                        "displayValue" : [ "Tamil" ],
+                        "condition" : "contains",
+                        "fieldName" : "Subject",
+                        "fieldModule" : "tickets",
+                        "value" : [ "Tamil" ]
+                      } ],
+                      "pattern" : "1"
+                    },
+                    "departmentId" : "1000000013248",
+                    "description" : "Language is Tamil",
+                    "skillTypeId" : "1000000173013",
+                    "createdBy" : "1000000000059",
+                    "name" : "Tamil",
+                    "createdTime" : 1595509696891,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173121",
+                    "status" : "INACTIVE"
+                  }, {
+                    "modifiedTime" : 1595509716093,
+                    "agentIds" : [ "1000000000059" ],
+                    "skillType" : {
+                      "skillTypeId" : "1000000173013",
+                      "skillTypeName" : "Language"
+                    },
+                    "orderId" : "5",
+                    "criteria" : {
+                      "fieldConditions" : [ {
+                        "displayValue" : [ "Malayalam" ],
+                        "condition" : "contains",
+                        "fieldName" : "Subject",
+                        "fieldModule" : "tickets",
+                        "value" : [ "Malayalam" ]
+                      } ],
+                      "pattern" : "1"
+                    },
+                    "departmentId" : "1000000013248",
+                    "description" : "Malayali",
+                    "skillTypeId" : "1000000173013",
+                    "createdBy" : "1000000000059",
+                    "name" : "Malayalam",
+                    "createdTime" : 1595509716093,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173145",
+                    "status" : "ACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "skillBasedAssignmentResponse" : {
+        "description" : "skillBasedAssignmentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isAssigned" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "newAssignee" : {
+                  "$ref" : "./Skill.json#/components/schemas/isAssignedResponse"
+                },
+                "team" : {
+                  "$ref" : "./Skill.json#/components/schemas/executeSBATeaminfo"
+                }
+              },
+              "required" : [ "isAssigned", "newAssignee", "team" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "isAssigned" : true,
+                  "newAssignee" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/1000000000059/photo?orgId=111111",
+                    "firstName" : "Alex",
+                    "lastName" : "John",
+                    "name" : "Alex",
+                    "roleName" : null,
+                    "externalId" : null,
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "id" : "1000000000059",
+                    "type" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "zuid" : "1231232"
+                  },
+                  "team" : {
+                    "name" : "Automation Team",
+                    "id" : "1000000000089"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "skillSingleResponseJson" : {
+        "description" : "skillSingleResponseJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "skillType" : {
+                  "$ref" : "./Skill.json#/components/schemas/skillTypeJson"
+                },
+                "orderId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "criteria" : {
+                  "$ref" : "./Skill.json#/components/schemas/criteriaDetailsResponse"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+                },
+                "skillTypeId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "agentIds", "createdBy", "createdTime", "criteria", "departmentId", "description", "id", "modifiedBy", "modifiedTime", "name", "orderId", "skillType", "skillTypeId", "status" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1595509716093,
+                  "agentIds" : [ "1000000000059" ],
+                  "skillType" : {
+                    "skillTypeId" : "1000000173013",
+                    "skillTypeName" : "Language"
+                  },
+                  "orderId" : "5",
+                  "criteria" : {
+                    "fieldConditions" : [ {
+                      "displayValue" : [ "Malayalam" ],
+                      "condition" : "contains",
+                      "fieldName" : "Subject",
+                      "fieldModule" : "tickets",
+                      "value" : [ "Malayalam" ]
+                    } ],
+                    "pattern" : "1"
+                  },
+                  "departmentId" : "1000000013248",
+                  "description" : "Language is Malayalam",
+                  "skillTypeId" : "1000000173013",
+                  "createdBy" : "1000000000059",
+                  "name" : "Malayalam",
+                  "createdTime" : 1595509716093,
+                  "modifiedBy" : "1000000000059",
+                  "id" : "1000000173145",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "agentSkillMappingResponseMultiple" : {
+        "description" : "agentSkillMappingResponseMultiple template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Skill.json#/components/schemas/agentSkillMappingResponseArr"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "associatedSkills" : [ {
+                      "skillName" : "French",
+                      "skillId" : "1000000005432",
+                      "skillTypeId" : "1000000019013"
+                    }, {
+                      "skillName" : "Blueprint",
+                      "skillId" : "10000000036323",
+                      "skillTypeId" : "1000000019025"
+                    }, {
+                      "skillName" : "Reports",
+                      "skillId" : "10000000036323",
+                      "skillTypeId" : "1000000019025"
+                    } ],
+                    "departmentId" : "10000000030987"
+                  }, {
+                    "associatedSkills" : [ {
+                      "skillName" : "Workflow",
+                      "skillId" : "1000000005432",
+                      "skillTypeId" : "1000000019089"
+                    }, {
+                      "skillName" : "English",
+                      "skillId" : "10000000036323",
+                      "skillTypeId" : "100000001342"
+                    } ],
+                    "departmentId" : "10000000038722"
+                  }, {
+                    "associatedSkills" : [ {
+                      "skillName" : "Malayalam",
+                      "skillId" : "1000000059234",
+                      "skillTypeId" : "100000001421"
+                    }, {
+                      "skillName" : "Tamil",
+                      "skillId" : "1000000003967",
+                      "skillTypeId" : "100000001423"
+                    } ],
+                    "departmentId" : "10000000030294"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "recalculateAndStampSkillJSON" : {
+        "description" : "recalculateAndStampSkillJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "skillsInfo" : {
+                  "$ref" : "./Skill.json#/components/schemas/skillsArray"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "id", "modifiedBy", "modifiedTime", "skillsInfo" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1595576193000,
+                  "skillsInfo" : [ {
+                    "weightage" : "10",
+                    "skillName" : "Middle East",
+                    "skillId" : "1000000174138",
+                    "skillTypeId" : "1000000173007",
+                    "mappingType" : "SYSTEM",
+                    "skillTypeName" : "Region"
+                  }, {
+                    "weightage" : "9",
+                    "skillName" : "Asia",
+                    "skillId" : "1000000174140",
+                    "skillTypeId" : "1000000173007",
+                    "mappingType" : "SYSTEM",
+                    "skillTypeName" : "Region"
+                  } ],
+                  "modifiedBy" : "1000000032001",
+                  "id" : "1000000170017"
+                }
+              }
+            }
+          }
+        }
+      },
+      "relatedRuleListArray" : {
+        "description" : "relatedRuleListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Skill.json#/components/schemas/relatedRulesData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ruleType" : "SUPERVISE",
+                    "ruleName" : "TBA1",
+                    "ruleId" : "6000000019012"
+                  }, {
+                    "ruleType" : "SLA",
+                    "ruleName" : "Priority-based SLAs",
+                    "ruleId" : "6000000013508"
+                  }, {
+                    "ruleType" : "SLA",
+                    "ruleName" : "Bronze SLAs",
+                    "ruleId" : "6000000013514"
+                  }, {
+                    "ruleType" : "BLUEPRINT",
+                    "ruleName" : "Default Blueprint",
+                    "ruleId" : "6000000016083"
+                  }, {
+                    "ruleType" : "BLUEPRINT",
+                    "ruleName" : "BH BP",
+                    "ruleId" : "6000000018143"
+                  }, {
+                    "ruleType" : "BLUEPRINT",
+                    "ruleName" : "Third Bp",
+                    "ruleId" : "6000000023018"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "skillId" : {
+        "name" : "skillId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "agentId" : {
+        "name" : "agentId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "Department Id",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Department Id",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of skill to list, @allowed minimum value 1, maximum value 100,default is 100@",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of skill to list, @allowed minimum value 1, maximum value 100,default is 100@",
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the skills must be listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the skills must be listed",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "reorderskilljson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skillIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "maxItems" : 200,
+                  "minItems" : 2,
+                  "uniqueItems" : true
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "departmentId", "skillIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "skillIds" : [ "1000000173121", "1000000173029", "1000000173047", "1000000173097", "1000000173145" ],
+                  "departmentId" : "1000000013248"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addSkillJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skillTypeId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "criteria" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "criteria", "name", "skillTypeId", "status" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "skillTypeId" : "1000000173001",
+                  "criteria" : {
+                    "fieldConditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "Subject",
+                      "fieldModule" : "tickets",
+                      "value" : [ "India" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "Phone",
+                      "fieldModule" : "tickets",
+                      "value" : [ "987532114" ]
+                    } ],
+                    "pattern" : "(1or2)"
+                  },
+                  "name" : "India",
+                  "description" : "Country is India",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "entitySkillMappingJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skillIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "maxItems" : 30,
+                  "minItems" : 0,
+                  "uniqueItems" : true
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "departmentId", "skillIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "skillIds" : [ "1000000173047", "1000000173121", "1000000173029" ],
+                  "departmentId" : "1000000013248"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateSkillJsonInputWithoutCriteria" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "skillTypeId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "name" : "Malayalam",
+                  "description" : "Malayali"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Skill"
+}

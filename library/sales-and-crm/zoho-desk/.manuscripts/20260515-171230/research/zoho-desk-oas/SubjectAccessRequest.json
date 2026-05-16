@@ -1,0 +1,1715 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "SubjectAccessRequest",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/subjectAccessRequests/exportAll" : {
+      "post" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Export all subject data from Zoho Desk",
+        "description" : "This API exports data related to the subject, from your Zoho Desk portal.",
+        "operationId" : "sarExportAll",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/sarExportAll"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/subjectAccessRequestExportAllKeys"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests/fieldsAndConditions" : {
+      "get" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Get fields and conditions",
+        "description" : "This API fetchs possible fileds list and conditions",
+        "operationId" : "getFieldsAndConditions",
+        "parameters" : [ {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Name of the modules from which the resources must be fetched. Values allowed are @tickets@ and @contacts@. If you want to fetch resources from both modules, pass the value @allEntities@.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the modules from which the resources must be fetched. Values allowed are @tickets@ and @contacts@. If you want to fetch resources from both modules, pass the value @allEntities@.",
+            "enum" : [ "tickets" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/fieldsAndConditions"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests/{sarId}" : {
+      "get" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Get subject access request",
+        "description" : "This API fetches the details of a particular SAR.",
+        "operationId" : "getSubjectAccessRequest",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the request. Values allowed are: @createdBy@ and @modifiedBy@. You can pass multiple values by separating them using commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the request. Values allowed are: @createdBy@ and @modifiedBy@. You can pass multiple values by separating them using commas in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "createdBy", "modifiedBy" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/sarId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getSubjectAccessRequestResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests/eraseAll" : {
+      "post" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Erase all subject data from Zoho Desk",
+        "description" : "This API erases data related to the subject, from your Zoho Desk portal.",
+        "operationId" : "sarEraseAll",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/sarEraseAll"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/subjectAccessRequestExportAllKeys"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests" : {
+      "get" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "List subject access requests",
+        "description" : "This API lists a particular number of subject access requests, based on the limit specified.",
+        "operationId" : "getSubjectAccessRequestList",
+        "parameters" : [ {
+          "name" : "duration",
+          "in" : "query",
+          "description" : "Period in which the requests were made. Values allowed are: @TODAY@, @LAST_24_HOURS@, @LAST_7_DAYS@, @LAST_30_DAYS@, @CURRENT_WEEK@, and @CURRENT_MONTH@. ",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Period in which the requests were made. Values allowed are: @TODAY@, @LAST_24_HOURS@, @LAST_7_DAYS@, @LAST_30_DAYS@, @CURRENT_WEEK@, and @CURRENT_MONTH@. ",
+            "enum" : [ "TODAY", "LAST_24_HOURS", "LAST_7_DAYS", "LAST_30_DAYS", "CURRENT_WEEK", "CURRENT_MONTH" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the requests. Values allowed are: @createdBy@ and @modifiedBy@. You can pass multiple values by separating them using commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the requests. Values allowed are: @createdBy@ and @modifiedBy@. You can pass multiple values by separating them using commas in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "createdBy", "modifiedBy" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "contactEmailId",
+          "in" : "query",
+          "description" : "Email ID of the contact who made the request.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Email ID of the contact who made the request.",
+            "maxLength" : 150,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of requests to list. The default value is @10@ and the maximum value supported is @100@.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of requests to list. The default value is @10@ and the maximum value supported is @100@.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the requests must be fetched.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the requests must be fetched.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Processing status of the request. Values allowed are: @INITIATED@, @INPROGRESS@, @COMPLETED@, @CANCELED@, @EXPORTED@, @PARTIALLY_COMPLETED@, @PARTIALLY_EXPORTED@ and @FAILED@. You can pass multiple values by separating them using commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Processing status of the request. Values allowed are: @INITIATED@, @INPROGRESS@, @COMPLETED@, @CANCELED@, @EXPORTED@, @PARTIALLY_COMPLETED@, @PARTIALLY_EXPORTED@ and @FAILED@. You can pass multiple values by separating them using commas in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "FAILED", "INITIATED", "INPROGRESS", "COMPLETED", "CANCELED", "EXPORTED", "PARTIALLY_COMPLETED", "PARTIALLY_EXPORTED" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getSubjectAccessRequests"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests/export" : {
+      "post" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Export specific resources",
+        "description" : "This API exports specific resources related to a subject access request.",
+        "operationId" : "sarExport",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/sarExport"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/subjectAccessRequestKeys"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests/count" : {
+      "post" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Get count of resources related to request",
+        "description" : "This API returns the number of resources related to a subject access request.",
+        "operationId" : "getCount",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/sarCount"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/sarCountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/subjectAccessRequests/erase" : {
+      "post" : {
+        "tags" : [ "SubjectAccessRequest" ],
+        "summary" : "Erase specific resources",
+        "description" : "This API erases specific resources related to a subject access request.",
+        "operationId" : "sarErase",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/sarErase_sarExport"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/subjectAccessRequestKeys"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "availableCondition" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "i18NCondition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "value" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "oneOf" : [ {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              }, {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "uniqueItems" : false
+              } ]
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "condition", "i18NCondition", "value" ]
+      },
+      "availableConditionArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./SubjectAccessRequest.json#/components/schemas/availableCondition"
+        }
+      },
+      "fieldDetail" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "availableConditions" : {
+            "$ref" : "./SubjectAccessRequest.json#/components/schemas/availableConditionArray"
+          },
+          "apiName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "fieldLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "i18NLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "columnName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "apiName", "availableConditions", "columnName", "fieldLabel", "i18NLabel", "type" ]
+      },
+      "fieldDetails" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./SubjectAccessRequest.json#/components/schemas/fieldDetail"
+        }
+      },
+      "subjectAccessRequestListKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "contactEmailId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "modifiedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "requestType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACCESS_REQUEST", "ERASURE_REQUEST" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "referenceTicketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "downloadURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "sarNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FAILED", "INITIATED", "INPROGRESS", "COMPLETED", "CANCELED", "EXPORTED", "PARTIALLY_COMPLETED", "PARTIALLY_EXPORTED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "contactEmailId", "createdById", "createdTime", "downloadURL", "id", "modifiedById", "modifiedTime", "referenceTicketNumber", "requestType", "sarNumber", "status" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./SubjectAccessRequest.json#/components/schemas/subjectAccessRequestListKeys"
+        }
+      },
+      "ids" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "responses" : {
+      "subjectAccessRequestExportAllKeys" : {
+        "description" : "subjectAccessRequestExportAllKeys template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "callBackUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 2000,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "requestType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACCESS_REQUEST", "ERASURE_REQUEST" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "recordType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ALL", "SPECIFIC" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "query" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "allEntities", "contacts", "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "downloadURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ALL", "SPECIFIC" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "modifiedById" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "referenceTicketNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "sarNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdById" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "FAILED", "INITIATED", "INPROGRESS", "COMPLETED", "CANCELED", "EXPORTED", "PARTIALLY_COMPLETED", "PARTIALLY_EXPORTED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "callBackUrl", "contactEmailId", "createdById", "createdTime", "downloadURL", "id", "modifiedById", "modifiedTime", "module", "query", "recordType", "referenceTicketNumber", "requestType", "sarNumber", "status", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1603973511890,
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "requestType" : "ERASURE_REQUEST",
+                  "recordType" : "ALL",
+                  "module" : "allEntities",
+                  "query" : null,
+                  "downloadURL" : null,
+                  "modifiedById" : "7000000000247",
+                  "referenceTicketNumber" : null,
+                  "sarNumber" : "141",
+                  "createdTime" : 1603973511890,
+                  "id" : "7000000092437",
+                  "createdById" : "7000000000247",
+                  "status" : "INITIATED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "fieldsAndConditions" : {
+        "description" : "fieldsAndConditions template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 120,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "fieldDetails" : {
+                  "$ref" : "./SubjectAccessRequest.json#/components/schemas/fieldDetails"
+                }
+              },
+              "required" : [ "displayLabel", "fieldDetails", "name" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "displayLabel" : "AllEntities",
+                  "name" : "AllEntities",
+                  "fieldDetails" : [ {
+                    "availableConditions" : [ {
+                      "condition" : "is",
+                      "i18NCondition" : "is",
+                      "value" : [ "${CUSTOM}" ]
+                    }, {
+                      "condition" : "isn't",
+                      "i18NCondition" : "isn't",
+                      "value" : [ "${CUSTOM}" ]
+                    }, {
+                      "condition" : "starts with",
+                      "i18NCondition" : "starts with",
+                      "value" : [ "${CUSTOM}" ]
+                    }, {
+                      "condition" : "is empty",
+                      "i18NCondition" : "is empty",
+                      "value" : [ "${EMPTY}" ]
+                    }, {
+                      "condition" : "is not empty",
+                      "i18NCondition" : "is not empty",
+                      "value" : [ "${NOTEMPTY}" ]
+                    } ],
+                    "fieldLabel" : "Phone",
+                    "i18NLabel" : "Phone",
+                    "type" : "text"
+                  }, {
+                    "availableConditions" : [ {
+                      "condition" : "is",
+                      "i18NCondition" : "is",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "isn't",
+                      "i18NCondition" : "isn't",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "is after",
+                      "i18NCondition" : "is after",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "is before",
+                      "i18NCondition" : "is before",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "between",
+                      "i18NCondition" : "between",
+                      "value" : [ [ "${CURRENTTIME}", "${CUSTOM}" ], [ "${CURRENTTIME}", "${CUSTOM}" ] ]
+                    }, {
+                      "condition" : "not between",
+                      "i18NCondition" : "not between",
+                      "value" : [ [ "${CURRENTTIME}", "${CUSTOM}" ], [ "${CURRENTTIME}", "${CUSTOM}" ] ]
+                    } ],
+                    "fieldLabel" : "Created Time",
+                    "i18NLabel" : "Created Time",
+                    "type" : "dateTime"
+                  }, {
+                    "availableConditions" : [ {
+                      "condition" : "is",
+                      "i18NCondition" : "is",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "isn't",
+                      "i18NCondition" : "isn't",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "is after",
+                      "i18NCondition" : "is after",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "is before",
+                      "i18NCondition" : "is before",
+                      "value" : [ "${CURRENTTIME}", "${CUSTOM}" ]
+                    }, {
+                      "condition" : "between",
+                      "i18NCondition" : "between",
+                      "value" : [ [ "${CURRENTTIME}", "${CUSTOM}" ], [ "${CURRENTTIME}", "${CUSTOM}" ] ]
+                    }, {
+                      "condition" : "not between",
+                      "i18NCondition" : "not between",
+                      "value" : [ [ "${CURRENTTIME}", "${CUSTOM}" ], [ "${CURRENTTIME}", "${CUSTOM}" ] ]
+                    } ],
+                    "fieldLabel" : "Modified Time",
+                    "i18NLabel" : "Modified Time",
+                    "type" : "dateTime"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getSubjectAccessRequestResponse" : {
+        "description" : "getSubjectAccessRequestResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "createdBy" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 5,
+                    "minProperties" : 5,
+                    "properties" : {
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0,
+                        "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                      },
+                      "firstName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "email" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                      }
+                    },
+                    "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                  },
+                  "modifiedBy" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 5,
+                    "minProperties" : 5,
+                    "properties" : {
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0,
+                        "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                      },
+                      "firstName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "email" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                      }
+                    },
+                    "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                  }
+                }
+              }, {
+                "oneOf" : [ {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "modifiedTime" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "contactEmailId" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 255,
+                      "minLength" : 0,
+                      "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                    },
+                    "requestType" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "ACCESS_REQUEST", "ERASURE_REQUEST" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "recordType" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "ALL", "SPECIFIC" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "query" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false
+                    },
+                    "module" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "allEntities", "contacts", "tickets" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "downloadURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 1000,
+                      "minLength" : 0
+                    },
+                    "type" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "ALL", "SPECIFIC" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "modifiedById" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "referenceTicketNumber" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "sarNumber" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "createdTime" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "createdById" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "status" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "FAILED", "INITIATED", "INPROGRESS", "COMPLETED", "CANCELED", "EXPORTED", "PARTIALLY_COMPLETED", "PARTIALLY_EXPORTED" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    }
+                  },
+                  "required" : [ "contactEmailId", "createdById", "createdTime", "downloadURL", "id", "modifiedById", "modifiedTime", "module", "query", "recordType", "referenceTicketNumber", "requestType", "sarNumber", "status", "type" ]
+                }, {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "properties" : {
+                    "errorCode" : {
+                      "type" : [ "string", "null" ],
+                      "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "message" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 255,
+                      "minLength" : 0
+                    }
+                  },
+                  "required" : [ "errorCode", "message" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "requestType" : "ERASURE_REQUEST",
+                  "recordType" : "SPECIFIC",
+                  "module" : "tickets",
+                  "query" : {
+                    "criteriaFields" : [ {
+                      "condition" : "is before",
+                      "field" : {
+                        "apiName" : "createdTime",
+                        "fieldLabel" : "Created Time"
+                      },
+                      "value" : {
+                        "primitive" : [ {
+                          "displayKey" : "${CURRENTTIME}",
+                          "key" : "${CURRENTTIME}"
+                        } ],
+                        "type" : "primitive"
+                      }
+                    } ],
+                    "criteriaPattern" : "1"
+                  },
+                  "downloadURL" : null,
+                  "modifiedById" : "7000000000247",
+                  "createdBy" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                    "firstName" : "Nirmal",
+                    "lastName" : "Kumar",
+                    "id" : "7000000000247",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "referenceTicketNumber" : null,
+                  "sarNumber" : "141",
+                  "createdTime" : 1603973511890,
+                  "modifiedBy" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                    "firstName" : "Nirmal",
+                    "lastName" : "Kumar",
+                    "id" : "7000000000247",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "id" : "7000000092437",
+                  "createdById" : "7000000000247",
+                  "status" : "INPROGRESS"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getSubjectAccessRequests" : {
+        "description" : "getSubjectAccessRequests template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "createdBy" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "modifiedBy" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./SubjectAccessRequest.json#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "referencereferenceTicketNumber" : "105",
+                    "contactEmailId" : "PII_EMAIL_SENTINEL",
+                    "modifiedById" : "7000000000247",
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "sarNumber" : "141",
+                    "createdTime" : 1603973511890,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "7000000092437",
+                    "createdById" : "7000000000247",
+                    "status" : "COMPLETED"
+                  }, {
+                    "contactEmailId" : "PII_EMAIL_SENTINEL",
+                    "modifiedById" : "7000000000247",
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "referenceTicketNumber" : null,
+                    "sarNumber" : "140",
+                    "createdTime" : 1603973416890,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "7000000092243",
+                    "createdById" : "7000000000247",
+                    "status" : "INITIATED"
+                  }, {
+                    "contactEmailId" : "PII_EMAIL_SENTINEL",
+                    "modifiedById" : "7000000000247",
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "referenceTicketNumber" : "102",
+                    "sarNumber" : "139",
+                    "createdTime" : 1603973298838,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "7000000092049",
+                    "createdById" : "7000000000247",
+                    "status" : "INPROGRESS"
+                  }, {
+                    "contactEmailId" : "PII_EMAIL_SENTINEL",
+                    "modifiedById" : "7000000000247",
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "referenceTicketNumber" : null,
+                    "sarNumber" : "138",
+                    "createdTime" : 1603972949954,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "7000000091353",
+                    "createdById" : "7000000000247",
+                    "status" : "INPROGRESS"
+                  }, {
+                    "contactEmailId" : "PII_EMAIL_SENTINEL",
+                    "modifiedById" : "7000000000247",
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "referenceTicketNumber" : null,
+                    "sarNumber" : "137",
+                    "createdTime" : 1603972766592,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/7000000000247/photo?orgId=15273347",
+                      "firstName" : "Jack",
+                      "lastName" : "Carol",
+                      "id" : "7000000000247",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "id" : "7000000091159",
+                    "createdById" : "7000000000247",
+                    "status" : "INITIATED"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "subjectAccessRequestKeys" : {
+        "description" : "subjectAccessRequestKeys template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "requestType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACCESS_REQUEST", "ERASURE_REQUEST" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "recordType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ALL", "SPECIFIC" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "query" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "allEntities", "contacts", "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "downloadURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ALL", "SPECIFIC" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "modifiedById" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "referenceTicketNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "sarNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdById" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "FAILED", "INITIATED", "INPROGRESS", "COMPLETED", "CANCELED", "EXPORTED", "PARTIALLY_COMPLETED", "PARTIALLY_EXPORTED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "contactEmailId", "createdById", "createdTime", "downloadURL", "id", "modifiedById", "modifiedTime", "module", "query", "recordType", "referenceTicketNumber", "requestType", "sarNumber", "status", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1603728618930,
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "requestType" : "ERASURE_REQUEST",
+                  "recordType" : "SPECIFIC",
+                  "module" : "tickets",
+                  "query" : {
+                    "criteriaFields" : [ {
+                      "condition" : "is before",
+                      "field" : {
+                        "apiName" : "createdTime",
+                        "fieldLabel" : "Created Time"
+                      },
+                      "value" : {
+                        "primitive" : [ {
+                          "displayKey" : "${CURRENTTIME}",
+                          "key" : "${CURRENTTIME}"
+                        } ],
+                        "type" : "primitive"
+                      }
+                    } ],
+                    "criteriaPattern" : "1"
+                  },
+                  "downloadURL" : "https://download.zoho.com/webdownload?x-service=desk&event-id=d7c93cfe30f48f884b41171390d582f3c0cdb2&x-cli-msg=%7B%22portalname%22%3A%22jordan%22%2C%22inline%22%3A%22false%22%7D",
+                  "modifiedById" : "7000000000247",
+                  "referenceTicketNumber" : null,
+                  "sarNumber" : "91",
+                  "createdTime" : 1603728618930,
+                  "id" : "7000000075001",
+                  "createdById" : "7000000000247",
+                  "status" : "COMPLETED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sarCountResponse" : {
+        "description" : "sarCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "sarId" : {
+        "name" : "sarId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "sarExportAll" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "fieldConditions" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "condition" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "is", "starts with" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "fieldName" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "All" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "value" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "[a-zA-Z0-9\\_\\-\\+\\?\\!\\.\\P{InBasicLatin}\\(\\)\\s]+"
+                        },
+                        "uniqueItems" : false
+                      }
+                    },
+                    "required" : [ "condition", "fieldName", "value" ]
+                  },
+                  "uniqueItems" : false
+                },
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "callBackUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 2000,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "allEntities", "contacts", "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "referenceTicketNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "contactEmailId", "module" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "condition" : "is",
+                    "fieldName" : "Last Name",
+                    "value" : [ "carol" ]
+                  } ],
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "callBackUrl" : "https://test.com",
+                  "module" : "contacts"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sarEraseAll" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "fieldConditions" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "condition" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "is", "starts with" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "fieldName" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "All" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "value" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "[a-zA-Z0-9\\_\\-\\+\\?\\!\\.\\P{InBasicLatin}\\(\\)\\s]+"
+                        },
+                        "uniqueItems" : false
+                      }
+                    },
+                    "required" : [ "condition", "fieldName", "value" ]
+                  },
+                  "uniqueItems" : false
+                },
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "allEntities", "contacts", "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "referenceTicketNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "contactEmailId", "module" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "condition" : "is",
+                    "fieldName" : "Last Name",
+                    "value" : [ "carol" ]
+                  } ],
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "module" : "contact"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sarExport" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "referenceTicketNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "ids" : {
+                  "$ref" : "./SubjectAccessRequest.json#/components/schemas/ids"
+                }
+              },
+              "required" : [ "contactEmailId", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "ids" : [ "7000000075023" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "sarCount" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "fieldConditions" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "condition" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "is", "starts with" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "fieldName" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "All" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "value" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "[a-zA-Z0-9\\_\\-\\+\\?\\!\\.\\P{InBasicLatin}\\(\\)\\s]+"
+                        },
+                        "uniqueItems" : false
+                      }
+                    },
+                    "required" : [ "condition", "fieldName", "value" ]
+                  },
+                  "uniqueItems" : false
+                },
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "allEntities", "contacts", "tickets" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "contactEmailId", "module" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "module" : "allEntities"
+                }
+              }
+            }
+          }
+        }
+      },
+      "sarErase_sarExport" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contactEmailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "referenceTicketNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "ids" : {
+                  "$ref" : "./SubjectAccessRequest.json#/components/schemas/ids"
+                }
+              },
+              "required" : [ "contactEmailId", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contactEmailId" : "PII_EMAIL_SENTINEL",
+                  "ids" : [ "7000000075023" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "SubjectAccessRequest"
+}

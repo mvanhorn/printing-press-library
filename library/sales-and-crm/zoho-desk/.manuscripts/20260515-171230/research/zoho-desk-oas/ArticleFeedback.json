@@ -1,0 +1,782 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ArticleFeedback",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/articles/{articleId}/translations/{locale}/feedbacks" : {
+      "get" : {
+        "tags" : [ "ArticleFeedback" ],
+        "summary" : "List feedback comments on article translation",
+        "description" : "This API lists a particular number of comments received on a translation of an article, based on the limit defined.",
+        "operationId" : "getArticleTranslationFeedbacks",
+        "parameters" : [ {
+          "name" : "createdTimeRange",
+          "in" : "query",
+          "description" : "Key that filters comments created within a specific date and time range. Enter the dates in the ISO date format of 'yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ'",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Key that filters comments created within a specific date and time range. Enter the dates in the ISO date format of 'yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ'",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z)),(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))|null"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the comments based on a specific attribute: createdTime. To sort the comments in descending order, append a '-' before the value",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Key that sorts the comments based on a specific attribute: createdTime. To sort the comments in descending order, append a '-' before the value",
+            "enum" : [ "createdTime" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/articleId"
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/articleFeedbacksWithLocale"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articleFeedbacks/{feedbackId}" : {
+      "get" : {
+        "tags" : [ "ArticleFeedback" ],
+        "summary" : "Get details of feedback comment",
+        "description" : "This API fetches the details of a particular feedback comment.",
+        "operationId" : "getArticleFeedback",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/feedbackId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/feedbackResponseWithLocale"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "ArticleFeedback" ],
+        "summary" : "Delete feedback comment",
+        "description" : "This API deletes a particular feedback comment from an article.",
+        "operationId" : "deleteArticleFeedback",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/feedbackId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articleFeedbacks" : {
+      "get" : {
+        "tags" : [ "ArticleFeedback" ],
+        "summary" : "List feedback comments",
+        "description" : "This API lists a particular number of comments received on an article, based on the limit defined.",
+        "operationId" : "getArticleFeedbacks",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "rootCategoryIds",
+          "in" : "query",
+          "description" : "Filter article feedback comments based on rootCategoryIds",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "description" : "Filter article feedback comments based on rootCategoryIds",
+            "items" : {
+              "type" : [ "string", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "maxItems" : 20,
+            "minItems" : 1,
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the comments based on a specific attribute: createdTime. To sort the comments in descending order, append a '-' before the value.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Key that sorts the comments based on a specific attribute: createdTime. To sort the comments in descending order, append a '-' before the value.",
+            "enum" : [ "createdTime" ]
+          }
+        }, {
+          "name" : "departmentIds",
+          "in" : "query",
+          "description" : "Filter article feedback comments based on department ids",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "description" : "Filter article feedback comments based on department ids",
+            "items" : {
+              "type" : [ "string", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "maxItems" : 20,
+            "minItems" : 1,
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/locale"
+        }, {
+          "name" : "timeRange",
+          "in" : "query",
+          "description" : "Key that filters comments created within a specific date and time range. Enter the time limit in the formats of !@LAST_24_HRS,@! !@LAST_7_DAYS,@! !@LAST_30_DAYS,@! !@LAST_365_DAYS@! and !@yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ@!. Default value : LAST_7_DAYS.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Key that filters comments created within a specific date and time range. Enter the time limit in the formats of !@LAST_24_HRS,@! !@LAST_7_DAYS,@! !@LAST_30_DAYS,@! !@LAST_365_DAYS@! and !@yyyy-MM-ddThh:mm:ss.SSSZ,yyyy-MM-ddThh:mm:ss.SSSZ@!. Default value : LAST_7_DAYS.",
+            "enum" : [ "LAST_7_DAYS", "LAST_30_DAYS", "LAST_365_DAYS" ]
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/articleFeedbacksWithLocale"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/articleFeedbacks/{feedbackId}/addAsTicket" : {
+      "post" : {
+        "tags" : [ "ArticleFeedback" ],
+        "summary" : "Convert feedback comment into ticket",
+        "description" : "This API adds a feedback comment as a ticket in your help desk portal and assigns it to the author of the article.",
+        "operationId" : "convertFeedbackToTicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/feedbackId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addFeedbackTicketRequestBody"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addAsTicketResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "author" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED", "LICENSE_DOWNGRADED", "DELETED", "ANONYMIZED", "CLOSED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoURL", "status", "zuid" ]
+      },
+      "articleTranslationResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "author" : {
+            "$ref" : "./ArticleFeedback.json#/components/schemas/author"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "locale" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+          }
+        },
+        "required" : [ "author", "id", "locale", "title", "webUrl" ]
+      },
+      "feedbackResponseWithLocale" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "article" : {
+            "$ref" : "./ArticleFeedback.json#/components/schemas/articleTranslationResponse"
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "RESOLVED", "UNRESOLVED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "article", "contactId", "content", "createdTime", "id", "status", "ticketId" ]
+      },
+      "feedbacksDataWithLocale" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ArticleFeedback.json#/components/schemas/feedbackResponseWithLocale"
+        }
+      },
+      "actorResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoURL", "status", "zuid" ]
+      },
+      "ticketResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "deletedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "deletedBy" : {
+            "$ref" : "./ArticleFeedback.json#/components/schemas/actorResponse"
+          }
+        },
+        "required" : [ "deletedBy", "deletedTime", "id", "ticketNumber", "webUrl" ]
+      }
+    },
+    "responses" : {
+      "articleFeedbacksWithLocale" : {
+        "description" : "articleFeedbacksWithLocale template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "ticket" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "ticketNumber" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int32",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "webUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 500,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "deletedTime" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                            },
+                            "deletedBy" : {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 5,
+                              "minProperties" : 5,
+                              "properties" : {
+                                "photoURL" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0,
+                                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "status" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0,
+                                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                                },
+                                "zuid" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                }
+                              },
+                              "required" : [ "id", "name", "photoURL", "status", "zuid" ]
+                            }
+                          },
+                          "required" : [ "deletedBy", "deletedTime", "id", "ticketNumber", "webUrl" ]
+                        },
+                        "contact" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "webUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 500,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "type" : {
+                              "type" : [ "string", "null" ],
+                              "enum" : [ "AGENT", "END_USER" ],
+                              "maxLength" : 100,
+                              "minLength" : 0
+                            }
+                          },
+                          "required" : [ "id", "name", "photoURL", "type", "webUrl" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./ArticleFeedback.json#/components/schemas/feedbacksDataWithLocale"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "feedbackResponseWithLocale" : {
+        "description" : "feedbackResponseWithLocale template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contactId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0
+                },
+                "article" : {
+                  "$ref" : "./ArticleFeedback.json#/components/schemas/articleTranslationResponse"
+                },
+                "ticketId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "RESOLVED", "UNRESOLVED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "article", "contactId", "content", "createdTime", "id", "status", "ticketId" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "contactId" : "22372000001386025",
+                  "createdTime" : 1538927724000,
+                  "id" : "22372000001386045",
+                  "ticketId" : "22372000001389007",
+                  "content" : "Please add pricing details in tabular columns",
+                  "article" : {
+                    "author" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/22372000000000063/photo?orgId=15224553",
+                      "name" : "Charlie",
+                      "id" : "22372000000000063",
+                      "status" : "ACTIVE",
+                      "zuid" : "15224552"
+                    },
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/22372000001370011",
+                    "id" : "22372000001370011",
+                    "locale" : "en",
+                    "title" : "Pricing details"
+                  },
+                  "status" : "RESOLVED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addAsTicketResponse" : {
+        "description" : "addAsTicketResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./ArticleFeedback.json#/components/schemas/feedbackResponseWithLocale"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "ticket" : {
+                    "$ref" : "./ArticleFeedback.json#/components/schemas/ticketResponse"
+                  }
+                },
+                "required" : [ "ticket" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "ticket" : {
+                    "ticketNumber" : "163",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/b34f0de640d72a1d8d1a6f7ca800abb8f3148ec5bcd90913",
+                    "id" : "22372000001389007",
+                    "deletedTime" : 1538908040000,
+                    "deletedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/22372000000761001/photo",
+                      "name" : "Zylker",
+                      "id" : "22372000000761001",
+                      "status" : "ACTIVE",
+                      "zuid" : "15223452"
+                    }
+                  },
+                  "contactId" : "22372000001386025",
+                  "createdTime" : 1538927724000,
+                  "id" : "22372000001386045",
+                  "ticketId" : "22372000001389007",
+                  "content" : "Please add pricing details in tabular columns",
+                  "article" : {
+                    "author" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/22372000000000063/photo?orgId=15224553",
+                      "name" : "Charlie",
+                      "id" : "22372000000000063",
+                      "status" : "ACTIVE",
+                      "zuid" : "15224552"
+                    },
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Solutions/dv/22372000001370011",
+                    "id" : "22372000001370011",
+                    "locale" : "en",
+                    "title" : "Pricing details"
+                  },
+                  "status" : "RESOLVED"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "articleId" : {
+        "name" : "articleId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of comments to list. Default value is 10.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "integer" ],
+          "format" : "int32",
+          "description" : "Number of comments to list. Default value is 10.",
+          "maximum" : 50,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "feedbackId" : {
+        "name" : "feedbackId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the comments must be fetched. Default value is 1.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the comments must be fetched. Default value is 1.",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "locale" : {
+        "name" : "locale",
+        "in" : "path",
+        "description" : "Locale of an article translation in which feedback comments to be fetched",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : "string",
+          "description" : "Locale of an article translation in which feedback comments to be fetched",
+          "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+          "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "addFeedbackTicketRequestBody" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9_\\-+%\\P{InBasicLatin}\\s]+"
+                  },
+                  "uniqueItems" : false
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "ArticleFeedback"
+}

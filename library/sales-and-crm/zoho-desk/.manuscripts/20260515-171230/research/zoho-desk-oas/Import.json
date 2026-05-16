@@ -1,0 +1,1522 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Import",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/importMappings" : {
+      "post" : {
+        "tags" : [ "Import" ],
+        "summary" : "Get Import Mappings",
+        "description" : "This API fetches entity id's for given external ids your help desk portal.",
+        "operationId" : "getImportMappings",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/importMappingRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/importMappingResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.imports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/imports/{importId}" : {
+      "get" : {
+        "tags" : [ "Import" ],
+        "summary" : "Get Import",
+        "description" : "This API fetches a single import info from your help desk portal.",
+        "operationId" : "getImport",
+        "parameters" : [ {
+          "name" : "importId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/importResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.imports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/imports" : {
+      "post" : {
+        "tags" : [ "Import" ],
+        "summary" : "Create Import",
+        "description" : "This API add a import entry under a given scope in your help desk portal.",
+        "operationId" : "createImport",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/importRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/importResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.imports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "importMappingDataObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "externalId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "entityId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "entityId", "externalId" ]
+      },
+      "importMappingData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/importMappingDataObject"
+        }
+      },
+      "contacts" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "zip" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "country" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "contactExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "secondaryEmail" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "city" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "facebook" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "twitter" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "street" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "state" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "accountExtId", "accountId", "city", "contactExtId", "country", "createdTime", "customFields", "description", "email", "facebook", "firstName", "lastName", "mobile", "modifiedTime", "ownerId", "phone", "secondaryEmail", "state", "street", "title", "twitter", "type", "zip" ]
+      },
+      "contactData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/contacts"
+        }
+      },
+      "accounts" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "country" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "website" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "code" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "accountName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "city" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "industry" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "street" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0
+          },
+          "annualrevenue" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "state" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "fax" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "accountExtId", "accountName", "annualrevenue", "city", "code", "country", "createdTime", "customFields", "description", "email", "fax", "industry", "modifiedTime", "ownerId", "phone", "state", "street", "website" ]
+      },
+      "accountData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/accounts"
+        }
+      },
+      "tickets" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "subCategory" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "contactExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "classification" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "assigneeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "resolution" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "closedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "ticketExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "assigneeId", "category", "channel", "classification", "closedTime", "contactExtId", "contactId", "createdTime", "customFields", "departmentId", "description", "dueDate", "email", "modifiedTime", "phone", "priority", "productId", "resolution", "status", "subCategory", "subject", "ticketExtId" ]
+      },
+      "ticketData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/tickets"
+        }
+      },
+      "tasks" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "contactExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "completedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "taskExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "ticketExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "completedTime", "contactExtId", "contactId", "createdTime", "customFields", "departmentId", "description", "dueDate", "modifiedTime", "ownerId", "priority", "status", "subject", "taskExtId", "ticketExtId", "ticketId" ]
+      },
+      "taskData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/tasks"
+        }
+      },
+      "calls" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "contactExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "completedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "callExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "duration" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "ticketExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "startTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Completed", "Scheduled", "Missed", "Canceled", "In Progress" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "outbound", "inbound" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "callExtId", "completedTime", "contactExtId", "contactId", "createdTime", "customFields", "departmentId", "description", "direction", "duration", "modifiedTime", "ownerId", "priority", "startTime", "status", "subject", "ticketExtId", "ticketId" ]
+      },
+      "callData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/calls"
+        }
+      },
+      "events" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "contactExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0
+          },
+          "completedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "duration" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "ticketExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "startTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "eventExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "category", "completedTime", "contactExtId", "contactId", "createdTime", "customFields", "departmentId", "description", "duration", "eventExtId", "modifiedTime", "ownerId", "priority", "startTime", "status", "subject", "ticketExtId", "ticketId" ]
+      },
+      "eventData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/events"
+        }
+      },
+      "threads" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "cc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "ticketExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "receivedDateTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "bcc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "EMAIL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isPrivate" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "to" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "fromEmailAddress" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "sentDateTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "threadExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "bcc", "cc", "channel", "content", "direction", "fromEmailAddress", "isPrivate", "receivedDateTime", "sentDateTime", "threadExtId", "ticketExtId", "to" ]
+      },
+      "threadData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/threads"
+        }
+      },
+      "ticketComments" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "ticketExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "commentExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "plainText", "html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "commentExtId", "commentedTime", "commenterId", "content", "contentType", "isPublic", "modifiedTime", "ticketExtId" ]
+      },
+      "ticketCommentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/ticketComments"
+        }
+      },
+      "taskComments" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "commentExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "taskExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "commentExtId", "commentedTime", "commenterId", "content", "contentType", "modifiedTime", "taskExtId" ]
+      },
+      "taskCommentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/taskComments"
+        }
+      },
+      "callComments" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "commentExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "callExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "callExtId", "commentExtId", "commentedTime", "commenterId", "content", "contentType", "modifiedTime" ]
+      },
+      "callCommentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/callComments"
+        }
+      },
+      "eventComments" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "commentExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "eventExtId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "commentExtId", "commentedTime", "commenterId", "content", "contentType", "eventExtId", "modifiedTime" ]
+      },
+      "eventCommentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Import.json#/components/schemas/eventComments"
+        }
+      },
+      "importData" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "tickets" : {
+            "$ref" : "./Import.json#/components/schemas/ticketData"
+          },
+          "ticketComments" : {
+            "$ref" : "./Import.json#/components/schemas/ticketCommentData"
+          },
+          "calls" : {
+            "$ref" : "./Import.json#/components/schemas/callData"
+          },
+          "callComments" : {
+            "$ref" : "./Import.json#/components/schemas/callCommentData"
+          },
+          "taskComments" : {
+            "$ref" : "./Import.json#/components/schemas/taskCommentData"
+          },
+          "threads" : {
+            "$ref" : "./Import.json#/components/schemas/threadData"
+          },
+          "accounts" : {
+            "$ref" : "./Import.json#/components/schemas/accountData"
+          },
+          "contacts" : {
+            "$ref" : "./Import.json#/components/schemas/contactData"
+          },
+          "tasks" : {
+            "$ref" : "./Import.json#/components/schemas/taskData"
+          },
+          "events" : {
+            "$ref" : "./Import.json#/components/schemas/eventData"
+          },
+          "eventComments" : {
+            "$ref" : "./Import.json#/components/schemas/eventCommentData"
+          }
+        },
+        "required" : [ "accounts", "callComments", "calls", "contacts", "eventComments", "events", "taskComments", "tasks", "threads", "ticketComments", "tickets" ]
+      }
+    },
+    "responses" : {
+      "importMappingResponse" : {
+        "description" : "importMappingResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Import.json#/components/schemas/importMappingData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "externalId" : "ticketLayout1",
+                    "entityId" : "6000000073007"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "importResponse" : {
+        "description" : "importResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "importInitiatedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "importCompletedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "scopeId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})$"
+                },
+                "runAutomation" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "errorReportUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "notifyUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "hasError" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "queued", "completed" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "importedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "errorReportUrl", "hasError", "id", "importCompletedTime", "importInitiatedTime", "importedBy", "notifyUrl", "runAutomation", "scopeId", "status" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "importInitiatedTime" : "2018-12-17T06:40:57.109Z",
+                  "importCompletedTime" : "2018-12-17T12:11:04.000Z",
+                  "scopeId" : "7d69f2c6-1d6d-4a75-99d1-fafc4e4177a7",
+                  "errorReportUrl" : "https://desk.zoho.com/api/v1/importErrorLog/4000000024001",
+                  "runAutomation" : "false",
+                  "notifyUrl" : null,
+                  "hasError" : true,
+                  "id" : "4000000024001",
+                  "importedBy" : "4000000016079",
+                  "status" : "completed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "importMappingRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "scopeId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})$"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "accounts", "contacts", "tickets", "tasks", "calls", "events", "threads", "ticketComments", "kbRootCategories", "kbSections", "articles", "products", "taskComments", "callComments", "eventComments", "ticketTimeEntries", "taskTimeEntries", "callTimeEntries", "eventTimeEntries", "agents", "layouts", "departments", "fields" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "externalIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[A-Za-z0-9@\\$&+\\:\\.\\{\\}\\(\\)#\\-]+"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "externalIds", "module", "scopeId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "scopeId" : "74da0304-e8e2-4f74-9da1-5359e4359d9a",
+                  "module" : "tickets",
+                  "externalIds" : [ "ticketLayout1", "ticketLayout3" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "importRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "scopeId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})$"
+                },
+                "data" : {
+                  "$ref" : "./Import.json#/components/schemas/importData"
+                },
+                "runAutomation" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "data", "scopeId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "scopeId" : "7d69f2c6-1d6d-4a75-99d1-fafc4e4177a7",
+                  "data" : {
+                    "endusers" : [ {
+                      "firstName" : "John",
+                      "lastName" : "Abraham",
+                      "phone" : null,
+                      "city" : null,
+                      "displayName" : "John",
+                      "mobile" : null,
+                      "timeZone" : "Asia/Kolkata",
+                      "endUserExtId" : "14091310393191",
+                      "countryLocale" : "en_US",
+                      "helpCenterId" : "894114121213421",
+                      "email" : [ {
+                        "emailAddress" : "PII_EMAIL_SENTINEL",
+                        "isPrimary" : "true"
+                      } ],
+                      "status" : "ACTIVE"
+                    } ],
+                    "tickets" : [ {
+                      "modifiedTime" : "2016-10-12T06:57:38.000Z",
+                      "subCategory" : null,
+                      "contactExtId" : "externalContact1",
+                      "productId" : null,
+                      "contactId" : null,
+                      "subject" : "Here's your first import ticket1.",
+                      "departmentId" : "1000000012806",
+                      "channel" : "Email",
+                      "priority" : null,
+                      "assigneeId" : "1000000016086",
+                      "tags" : [ "meenakshi" ],
+                      "ticketExtId" : "externalTicket1",
+                      "phone" : "PII_PHONE_SENTINEL",
+                      "createdTime" : "2019-07-17T14:00:32.000Z",
+                      "category" : null,
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "status" : "Open"
+                    }, {
+                      "modifiedTime" : "2016-10-12T06:57:38.000Z",
+                      "subCategory" : null,
+                      "contactExtId" : null,
+                      "productId" : null,
+                      "contactId" : 5000000016426,
+                      "subject" : "Here's your first import ticket2.",
+                      "departmentId" : "1000000012806",
+                      "channel" : "Email",
+                      "priority" : null,
+                      "assigneeId" : "1000000016086",
+                      "tags" : [ "meenakshi" ],
+                      "ticketExtId" : "externalTicket2",
+                      "phone" : "PII_PHONE_SENTINEL",
+                      "createdTime" : "2019-07-17T14:00:32.000Z",
+                      "category" : null,
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "status" : "Open"
+                    } ],
+                    "kbRootCategories" : [ {
+                      "isReviewEnabled" : "false",
+                      "visibility" : "NONE",
+                      "articleViewType" : "LISTVIEW",
+                      "translations" : [ {
+                        "name" : "Import sdcwed 1289",
+                        "locale" : "en_US",
+                        "permalink" : "importis1289"
+                      } ],
+                      "name" : "Import RootCatesdcwedgory 1289",
+                      "description" : "sdcwed data 7812899",
+                      "primaryDepartmentExtId" : "1000000025808",
+                      "kbRootCategoryExtId" : "1289",
+                      "status" : "SHOW_IN_HELPCENTER",
+                      "associatedDepartmentIds" : [ "1000000025808", "1000000069588" ]
+                    } ],
+                    "accounts" : [ {
+                      "modifiedTime" : "2016-10-12T06:57:38.000Z",
+                      "country" : "0country",
+                      "website" : "www.test0.com",
+                      "accountName" : "externalAccount-1",
+                      "city" : "0city",
+                      "customFields" : { },
+                      "description" : "import account",
+                      "industry" : "0industry",
+                      "accountExtId" : "externalAccount-1",
+                      "phone" : "+123 0",
+                      "street" : "0street",
+                      "createdTime" : "2016-08-12T06:57:38.000Z",
+                      "state" : "0state",
+                      "fax" : "+111 0",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    } ],
+                    "contacts" : [ {
+                      "zip" : 94588,
+                      "lastName" : " lastname 02",
+                      "country" : "India",
+                      "modifiedTime" : "2016-10-12T06:57:38.000Z",
+                      "contactExtId" : "externalContactWithExternalAccount-1",
+                      "secondaryEmail" : "PII_EMAIL_SENTINEL",
+                      "city" : "0city",
+                      "customFields" : { },
+                      "facebook" : "testfacebook",
+                      "mobile" : null,
+                      "description" : "test contact for Import",
+                      "title" : "Customer Support Executive",
+                      "type" : null,
+                      "accountExtId" : "externalAccount-1",
+                      "accountId" : null,
+                      "firstName" : null,
+                      "twitter" : "testTwitter",
+                      "phone" : "+1111 0",
+                      "street" : "0street",
+                      "createdTime" : "2016-08-12T06:57:38.000Z",
+                      "state" : "0state",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }, {
+                      "zip" : 94588,
+                      "lastName" : " lastname 03",
+                      "country" : "India",
+                      "modifiedTime" : "2016-10-12T06:57:38.000Z",
+                      "contactExtId" : "externalContactWithDeskAccount",
+                      "secondaryEmail" : "PII_EMAIL_SENTINEL",
+                      "city" : "03city",
+                      "customFields" : { },
+                      "facebook" : "testfacebook",
+                      "mobile" : null,
+                      "description" : "test contact for Import",
+                      "title" : "Customer Support Executive",
+                      "type" : null,
+                      "accountExtId" : null,
+                      "accountId" : "359876756",
+                      "firstName" : null,
+                      "twitter" : "testTwitter",
+                      "phone" : "+1111 03",
+                      "street" : "03street",
+                      "createdTime" : "2016-08-12T06:57:38.000Z",
+                      "state" : "03state",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    } ]
+                  },
+                  "runAutomation" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Import"
+}

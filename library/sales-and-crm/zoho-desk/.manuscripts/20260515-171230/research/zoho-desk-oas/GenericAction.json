@@ -1,0 +1,215 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "GenericAction",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/actions/{id}/execute" : {
+      "post" : {
+        "tags" : [ "GenericAction" ],
+        "summary" : "Execute Action",
+        "description" : "This API executes an action with the given input values.",
+        "operationId" : "executeAction",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/executeActionPayloadJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/executeActionRespFinal"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          }
+        },
+        "security" : [ {
+          "oAuth2" : [ "settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "executeActionRespJson" : {
+        "type" : [ "object", "null" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "message" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "FAILURE", "OFFLOADED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "actionResult" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          }
+        },
+        "required" : [ "actionResult", "message", "status" ]
+      }
+    },
+    "responses" : {
+      "executeActionRespFinal" : {
+        "description" : "executeActionRespFinal template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/executeActionRespJson"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : {
+                    "message" : "Action Execution completed for Action ID - 1000009638757",
+                    "status" : "SUCCESS",
+                    "actionResult" : {
+                      "executionResult" : {
+                        "executionStatus" : "true",
+                        "skippedFieldUpdates" : [ {
+                          "skippedFields" : [ {
+                            "displayLabel" : "Subject",
+                            "apiName" : "subject",
+                            "fieldId" : "1000000002157"
+                          } ],
+                          "name" : "My Action"
+                        } ]
+                      },
+                      "entityId" : 1000000048371
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "id" : {
+        "name" : "id",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "executeActionPayloadJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "executionType" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Specifies the type of action execution. The allowed values are SYNC and ASYNC.",
+                  "enum" : [ "SYNC", "ASYNC" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "actionParamMappings" : {
+                  "$ref" : "./GenericActionMapping.json#/components/schemas/inputParamPayloadJsonArray"
+                },
+                "moduleId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the module to which the entities belong. It could be a system or custom module.",
+                  "pattern" : "([0-9]+)"
+                },
+                "entityIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "maxItems" : 50,
+                  "minItems" : 2,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "actionParamMappings", "entityIds", "moduleId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "executionType" : "SYNC",
+                  "actionParamMappings" : [ {
+                    "apiName" : "staticParam1",
+                    "value" : "My Action"
+                  }, {
+                    "apiName" : "staticParam2",
+                    "value" : "1000000026140"
+                  }, {
+                    "apiName" : "staticParam3",
+                    "value" : {
+                      "subject" : "hello ${tickets.$createdBy}"
+                    }
+                  }, {
+                    "picklistValues" : [ ],
+                    "apiName" : "dyamicParam1",
+                    "placeHolderContext" : null,
+                    "origin" : "STATIC",
+                    "length" : "100",
+                    "type" : "TEXT",
+                    "isEncrypted" : false,
+                    "name" : "Dynamic Param",
+                    "uiType" : null,
+                    "targetTemplateName" : null,
+                    "hooks" : [ ],
+                    "value" : "Some value",
+                    "isMandatory" : true,
+                    "order" : "1"
+                  } ],
+                  "moduleId" : "1000000000581",
+                  "entityIds" : [ "1000000048371" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "GenericAction"
+}

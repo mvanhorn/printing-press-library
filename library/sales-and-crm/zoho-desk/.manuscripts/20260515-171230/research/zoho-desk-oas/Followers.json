@@ -1,0 +1,386 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Followers",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/{moduleAPIName}/{entityId}/followersCount" : {
+      "get" : {
+        "tags" : [ "Followers" ],
+        "summary" : "Get Entity followers count",
+        "description" : "This API fetches the count of follower list based on given filter",
+        "operationId" : "getEntityFollowersCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/userType"
+        }, {
+          "$ref" : "#/components/parameters/moduleAPIName"
+        }, {
+          "$ref" : "#/components/parameters/entityId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/followersCountJSON"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/{moduleAPIName}/{entityId}/followers" : {
+      "get" : {
+        "tags" : [ "Followers" ],
+        "summary" : "Get Entity followers details",
+        "description" : "This API fetches the list of follower details based on the given filter",
+        "operationId" : "getEntityFollowers",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of followers to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of followers to list",
+            "maximum" : 100,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the followers must be listed. Default value is 1.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the followers must be listed. Default value is 1.",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/userType"
+        }, {
+          "$ref" : "#/components/parameters/moduleAPIName"
+        }, {
+          "$ref" : "#/components/parameters/entityId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/followersListJson"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/{moduleAPIName}/{entityId}/unfollow" : {
+      "post" : {
+        "tags" : [ "Followers" ],
+        "summary" : "UnFollow the entity",
+        "description" : "This API unfollows the requested entity by the requested user",
+        "operationId" : "unfollowEntity",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/moduleAPIName"
+        }, {
+          "$ref" : "#/components/parameters/entityId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/{moduleAPIName}/{entityId}/follow" : {
+      "post" : {
+        "tags" : [ "Followers" ],
+        "summary" : "Follow the Entity",
+        "description" : "This API follows the requested entity by the requested user",
+        "operationId" : "followEntity",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/moduleAPIName"
+        }, {
+          "$ref" : "#/components/parameters/entityId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.articles.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "followersDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "webUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 3,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "label" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 4,
+            "minProperties" : 4,
+            "properties" : {
+              "preferences" : {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "maxProperties" : 3,
+                "minProperties" : 3,
+                "properties" : {
+                  "bgColor" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "shape" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "textColor" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "bgColor", "shape", "textColor" ]
+              },
+              "name" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 255,
+                "minLength" : 0
+              },
+              "id" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              },
+              "logoUrl" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 1000,
+                "minLength" : 0,
+                "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+              }
+            },
+            "required" : [ "id", "logoUrl", "name", "preferences" ]
+          },
+          "userType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "label", "lastName", "name", "photoUrl", "userType", "webUrl" ]
+      },
+      "followersList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Followers.json#/components/schemas/followersDetails"
+        }
+      }
+    },
+    "responses" : {
+      "followersCountJSON" : {
+        "description" : "followersCountJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : 289
+                }
+              }
+            }
+          }
+        }
+      },
+      "followersListJson" : {
+        "description" : "followersListJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Followers.json#/components/schemas/followersList"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "firstName" : "",
+                    "lastName" : "deskagent",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agent/5000000012902/photo?orgId=3115331",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#setup/users-control/agents/5000000000347",
+                    "name" : "Desk Agent",
+                    "id" : "5000000012902",
+                    "label" : {
+                      "preferences" : {
+                        "shape" : "RECTANGLE",
+                        "bgColor" : "#5C6368",
+                        "textColor" : "#FFFFFF"
+                      },
+                      "name" : "MVP",
+                      "id" : "5000000081009",
+                      "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/35531135311?portalId=3153815r1fnf113131rf31n9"
+                    },
+                    "userType" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "moduleAPIName" : {
+        "name" : "moduleAPIName",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "articleTranslations", "kbRootCategories", "kbSections" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "(articleTranslations|kbRootCategories|kbSections)"
+        }
+      },
+      "entityId" : {
+        "name" : "entityId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "userType" : {
+        "name" : "userType",
+        "in" : "query",
+        "description" : "To get the followers count based on userType allowed values !@ AGENTS@!, !@ END_USERS@!,      default value : all users will be processed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "To get the followers count based on userType allowed values !@ AGENTS@!, !@ END_USERS@!,      default value : all users will be processed",
+          "enum" : [ "AGENT", "END_USER" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Followers"
+}

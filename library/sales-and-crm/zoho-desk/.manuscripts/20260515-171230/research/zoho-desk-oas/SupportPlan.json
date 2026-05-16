@@ -1,0 +1,708 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "SupportPlan",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/supportPlans/{supportPlanId}" : {
+      "get" : {
+        "tags" : [ "SupportPlan" ],
+        "summary" : "Get Support Plan Details",
+        "description" : "To get details of a specific support plan",
+        "operationId" : "getSupportPlanDetails",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/supportPlanId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/createSupportPlanResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "SupportPlan" ],
+        "summary" : "Delete Support Plan",
+        "description" : "This API deletes a support plan.",
+        "operationId" : "deleteSupportPlan",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/supportPlanId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "SupportPlan" ],
+        "summary" : "Update Support Plan",
+        "description" : "This API Updates the Support Plan",
+        "operationId" : "updateSupportPlan",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/supportPlanId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateSupportPlanPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/createSupportPlanResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/supportPlans" : {
+      "get" : {
+        "tags" : [ "SupportPlan" ],
+        "summary" : "List all Support Plans",
+        "description" : "This API lists all support plans in a department",
+        "operationId" : "getSupportPlans",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Department Id",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Active,Discontinued filter for support plans. Values allowed are @ACTIVE@ and @DISCONTINUED@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Active,Discontinued filter for support plans. Values allowed are @ACTIVE@ and @DISCONTINUED@",
+            "enum" : [ "ACTIVE", "DISCONTINUED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getAllSupportPlanObject"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "SupportPlan" ],
+        "summary" : "Create Support Plan",
+        "description" : "This API Creates a Support Plan",
+        "operationId" : "createSupportPlan",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createSupportPlanPayload"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/createSupportPlanResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "department" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "sla" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "name", "status" ]
+      },
+      "creditDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isAdditionalUsageAllowed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isCarryForwardAllowed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "creditLimit" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "maximum" : 1000000,
+            "pattern" : "([0-9]+)"
+          },
+          "creditCycle" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "WEEKLY", "MONTHLY", "QUARTERLY", "HALF_YEARLY", "YEARLY", "CONTRACT_DURATION" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "creditCycle", "creditLimit", "isAdditionalUsageAllowed", "isCarryForwardAllowed" ]
+      },
+      "createdBy" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoURL" ]
+      },
+      "modifiedBy" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoURL" ]
+      },
+      "createSupportPlanResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "supportType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "UNLIMITED_SUPPORT", "HOURS", "TICKETS", "PRICE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "creditDetails" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/creditDetails"
+          },
+          "createdBy" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/createdBy"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "sla" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/sla"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/modifiedBy"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./SupportPlan.json#/components/schemas/department"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISCONTINUED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "createdBy", "createdTime", "creditDetails", "department", "id", "modifiedBy", "modifiedTime", "name", "sla", "status", "supportType" ]
+      },
+      "getAllSupportPlanArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./SupportPlan.json#/components/schemas/createSupportPlanResponse"
+        }
+      },
+      "contractSupportPlan" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "supportType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "UNLIMITED_SUPPORT", "HOURS", "TICKETS", "PRICE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISCONTINUED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "name", "status", "supportType" ]
+      }
+    },
+    "responses" : {
+      "createSupportPlanResponse" : {
+        "description" : "createSupportPlanResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "supportType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "UNLIMITED_SUPPORT", "HOURS", "TICKETS", "PRICE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "creditDetails" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/creditDetails"
+                },
+                "createdBy" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/createdBy"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "sla" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/sla"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/modifiedBy"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "department" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/department"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "DISCONTINUED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "createdBy", "createdTime", "creditDetails", "department", "id", "modifiedBy", "modifiedTime", "name", "sla", "status", "supportType" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "supportType" : "Hours",
+                  "modifiedTime" : 1658829607538,
+                  "creditDetails" : {
+                    "isAdditionalUsageAllowed" : false,
+                    "isCarryForwardAllowed" : false,
+                    "creditLimit" : "10",
+                    "creditCycle" : "Weekly"
+                  },
+                  "createdBy" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000045/photo?orgId=234587",
+                    "name" : "SanGhem",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "name" : "SupportPlan for GoldCustomer",
+                  "sla" : {
+                    "name" : "Gold-SLA",
+                    "id" : "4000000019056",
+                    "status" : "ACTIVE"
+                  },
+                  "creadtedTime" : 1658829607538,
+                  "modifiedBy" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000045/photo?orgId=234587",
+                    "name" : "SanGhem",
+                    "id" : "4000000000059",
+                    "status" : "ACTIVE",
+                    "zuid" : "234543"
+                  },
+                  "id" : "4000000019017",
+                  "department" : {
+                    "name" : "Automation Department",
+                    "id" : "4000000019012"
+                  },
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getAllSupportPlanObject" : {
+        "description" : "getAllSupportPlanObject template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/getAllSupportPlanArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "supportType" : "Hours",
+                    "modifiedTime" : 1658829607538,
+                    "creditDetails" : {
+                      "creditLimit" : "10",
+                      "creditCycle" : "Weekly"
+                    },
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000045/photo?orgId=234587",
+                      "name" : "SanGhem",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "name" : "SupportPlan for GoldCustomer",
+                    "sla" : {
+                      "name" : "Gold-SLA",
+                      "id" : "4000000019056",
+                      "status" : "ACTIVE"
+                    },
+                    "creadtedTime" : 1658829607538,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000045/photo?orgId=234587",
+                      "name" : "SanGhem",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "id" : "4000000019017",
+                    "department" : {
+                      "name" : "Automation Department",
+                      "id" : "4000000019012"
+                    },
+                    "status" : "ACTIVE"
+                  }, {
+                    "supportType" : "Hours",
+                    "modifiedTime" : 1658829607590,
+                    "creditDetails" : {
+                      "creditLimit" : "10",
+                      "creditCycle" : "Weekly"
+                    },
+                    "createdBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000045/photo?orgId=234587",
+                      "name" : "SanGhem",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "name" : "SupportPlan for SilverCustomer",
+                    "sla" : {
+                      "name" : "Silver-SLA",
+                      "id" : "4000000019056",
+                      "status" : "ACTIVE"
+                    },
+                    "creadtedTime" : 1658829607590,
+                    "modifiedBy" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000045/photo?orgId=234587",
+                      "name" : "SanGhem",
+                      "id" : "4000000000059",
+                      "status" : "ACTIVE",
+                      "zuid" : "234543"
+                    },
+                    "id" : "4000000019016",
+                    "department" : {
+                      "name" : "Automation Department",
+                      "id" : "4000000019012"
+                    },
+                    "status" : "ACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "supportPlanId" : {
+        "name" : "supportPlanId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "createSupportPlanPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "supportType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "UNLIMITED_SUPPORT", "HOURS", "TICKETS", "PRICE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "slaId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "creditDetails" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/creditDetails"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "DISCONTINUED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "creditDetails", "departmentId", "name", "slaId", "status", "supportType" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "supportType" : "Hours",
+                  "slaId" : "146284000033706001",
+                  "creditDetails" : {
+                    "isAdditionalUsageAllowed" : false,
+                    "isCarryForwardAllowed" : false,
+                    "creditLimit" : "10",
+                    "creditCycle" : "Weekly"
+                  },
+                  "departmentId" : "146284000010377075",
+                  "name" : "SupportPlan for GoldCustomer",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateSupportPlanPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "supportType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "UNLIMITED_SUPPORT", "HOURS", "TICKETS", "PRICE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "slaId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "creditDetails" : {
+                  "$ref" : "./SupportPlan.json#/components/schemas/creditDetails"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "DISCONTINUED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "supportType" : "Hours",
+                  "slaId" : "146284000033706001",
+                  "creditDetails" : {
+                    "isAdditionalUsageAllowed" : false,
+                    "isCarryForwardAllowed" : false,
+                    "creditLimit" : "10",
+                    "creditCycle" : "Weekly"
+                  },
+                  "name" : "SupportPlan for GoldCustomer",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "SupportPlan"
+}

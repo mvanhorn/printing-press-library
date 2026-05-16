@@ -1,0 +1,1028 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "EmailTemplates",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/templates" : {
+      "get" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Listing Templates",
+        "description" : "List all Templates",
+        "operationId" : "getTemplates",
+        "parameters" : [ {
+          "name" : "searchStr",
+          "in" : "query",
+          "description" : "String to search for templates by name. The string must contain at least one character. Three search methods are supported: 1) string* - Searches for templates whose name start with the string, 2) *string* - Searches for templates whose name contain the string, 3) string - Searches for templates whose name is an exact match for the string",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "String to search for templates by name. The string must contain at least one character. Three search methods are supported: 1) string* - Searches for templates whose name start with the string, 2) *string* - Searches for templates whose name contain the string, 3) string - Searches for templates whose name is an exact match for the string",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "number of templates to be retrieved Range 1-50, @DEFAULT 50@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "number of templates to be retrieved Range 1-50, @DEFAULT 50@",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "from index, @DEFAULT 1@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "from index, @DEFAULT 1@",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "folderId",
+          "in" : "query",
+          "description" : "the corresponding folder to be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "the corresponding folder to be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/templateListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Add Template ",
+        "description" : "Add a new Template ",
+        "operationId" : "addTemplate",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/templatejson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/templateAttachmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/templates/{emailTemplateId}/cloneAttachments" : {
+      "post" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Cloning a Email Template Attachments",
+        "description" : "Cloning an exisiting Template's attachments ",
+        "operationId" : "cloneTemplateAttachments",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/emailTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/cloneTemplateAttachmentsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/templates/placeHolders" : {
+      "get" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Fetching placeholders ",
+        "description" : "List the placeholders supported in emailTemplates",
+        "operationId" : "getPlaceHolders",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/placeHolderListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/templates/{emailTemplateId}" : {
+      "get" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "View Template",
+        "description" : "View a particular Template",
+        "operationId" : "getTemplate",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/emailTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/templateAttachmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "put" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Update Template ",
+        "description" : "Update an existing Template ",
+        "operationId" : "updateTemplate",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/emailTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateTemplate_templatejson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/templateAttachmentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Delete Template ",
+        "description" : "Delete a Template ",
+        "operationId" : "deleteTemplate",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/emailTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/templates/{emailTemplateId}/render" : {
+      "post" : {
+        "tags" : [ "EmailTemplates" ],
+        "summary" : "Rendering a Template ",
+        "description" : "Render an exisiting Template into reply ",
+        "operationId" : "applyTemplate",
+        "parameters" : [ {
+          "name" : "entityId",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/emailTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/templateRenderAPIPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/applyTemplateResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "attachmentResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "size" ]
+      },
+      "attachmentsResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./EmailTemplates.json#/components/schemas/attachmentResponse"
+        }
+      },
+      "folderJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "folderName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "folderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "folderId", "folderName" ]
+      },
+      "templateResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "replyToAddr" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$|^$|null)"
+          },
+          "folder" : {
+            "$ref" : "./EmailTemplates.json#/components/schemas/folderJson"
+          },
+          "templateName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "recordType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "tasks", "contacts", "accounts", "products", "solutions", "calls", "events" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "templateId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "body" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 64000,
+            "minLength" : 0
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "CUSTOM_TEMPLATE", "DEFAULT_TEMPLATE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "fromId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "plaintext", "richtext" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "folderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "body", "category", "contentType", "departmentId", "folder", "folderId", "fromId", "recordType", "replyToAddr", "subject", "templateId", "templateName" ]
+      },
+      "attachmentIds" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "cloneTemplateAttachments" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "parentAttachmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "clonedAttachmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "clonedAttachmentId", "href", "name", "parentAttachmentId", "size" ]
+      },
+      "cloneTemplateAttachmentsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./EmailTemplates.json#/components/schemas/cloneTemplateAttachments"
+        }
+      },
+      "placeHolderJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "supportedPlaceHolders" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "maxProperties" : 4,
+              "minProperties" : 4,
+              "properties" : {
+                "apiName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "i18nFieldLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "fieldLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "placeHolder" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "apiName", "fieldLabel", "i18nFieldLabel", "placeHolder" ]
+            },
+            "uniqueItems" : false
+          },
+          "i18nModule" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "module" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "Case Owner", "tasks", "Task Owner", "contacts", "Contact Owner", "accounts", "Account Owner", "products", "Product Owner", "solutions", "Solution Owner", "calls", "Call Owner", "events", "Event Owner", "User", "Organization" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "i18nModule", "module", "supportedPlaceHolders" ]
+      },
+      "placeHolderList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./EmailTemplates.json#/components/schemas/placeHolderJson"
+        }
+      }
+    },
+    "responses" : {
+      "templateAttachmentResponse" : {
+        "description" : "templateAttachmentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./EmailTemplates.json#/components/schemas/templateResponse"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "attachments" : {
+                    "$ref" : "./EmailTemplates.json#/components/schemas/attachmentsResponse"
+                  }
+                },
+                "required" : [ "attachments" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "attachments" : [ {
+                    "size" : "8842",
+                    "name" : "rick.jpeg",
+                    "id" : "1892000000132047"
+                  } ],
+                  "recordType" : "tickets",
+                  "subject" : "My New Template",
+                  "departmentId" : "4000000007039",
+                  "templateId" : "4000000040001",
+                  "body" : null,
+                  "fromId" : "newportal<PII_EMAIL_SENTINEL>",
+                  "folderId" : "4000000007021",
+                  "folder" : {
+                    "folderName" : "Agent Notifications",
+                    "folderId" : "4000000007021"
+                  },
+                  "replyToAddr" : null,
+                  "templateName" : "new Template",
+                  "category" : "CUSTOM_TEMPLATE",
+                  "contentType" : "richtext"
+                }
+              }
+            }
+          }
+        }
+      },
+      "cloneTemplateAttachmentsResponse" : {
+        "description" : "cloneTemplateAttachmentsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./EmailTemplates.json#/components/schemas/cloneTemplateAttachmentsArr"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "size" : "10247",
+                    "name" : "mortytwo.jpeg",
+                    "parentAttachmentId" : "1000000211013",
+                    "href" : "https://support.zoho.com/api/v1/uploads/1000000212005/content",
+                    "clonedAttachmentId" : "1000000212005"
+                  }, {
+                    "size" : "11682",
+                    "name" : "12img.png",
+                    "parentAttachmentId" : "1000000211015",
+                    "href" : "https://support.zoho.com/api/v1/uploads/1000000212007/content",
+                    "clonedAttachmentId" : "1000000212007"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "placeHolderListResponse" : {
+        "description" : "placeHolderListResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./EmailTemplates.json#/components/schemas/placeHolderList"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "supportedPlaceHolders" : [ {
+                      "i18nFieldLabel" : "Priority",
+                      "fieldLabel" : "Priority",
+                      "placeHolder" : "${Cases.Priority}"
+                    }, {
+                      "i18nFieldLabel" : "Ticket Owner",
+                      "fieldLabel" : "Case Owner",
+                      "placeHolder" : "${Cases.Case Owner}"
+                    }, {
+                      "i18nFieldLabel" : "Status",
+                      "fieldLabel" : "Status",
+                      "placeHolder" : "${Cases.Status}"
+                    }, {
+                      "i18nFieldLabel" : "Contact Name",
+                      "fieldLabel" : "Contact Name",
+                      "placeHolder" : "${Cases.Contact Name}"
+                    }, {
+                      "i18nFieldLabel" : "Subject",
+                      "fieldLabel" : "Subject",
+                      "placeHolder" : "${Cases.Subject}"
+                    }, {
+                      "i18nFieldLabel" : "Product Name",
+                      "fieldLabel" : "Product Name",
+                      "placeHolder" : "${Cases.Product Name}"
+                    }, {
+                      "i18nFieldLabel" : "Product Name",
+                      "fieldLabel" : "Product Name",
+                      "placeHolder" : "${Cases.Product Name}"
+                    }, {
+                      "i18nFieldLabel" : "Resolution",
+                      "fieldLabel" : "Resolution",
+                      "placeHolder" : "${Cases.Resolution}"
+                    } ],
+                    "i18nModule" : "Tickets",
+                    "module" : "Cases"
+                  }, {
+                    "supportedPlaceHolders" : [ {
+                      "i18nFieldLabel" : "First Name",
+                      "fieldLabel" : "First Name",
+                      "placeHolder" : "${User.First Name}"
+                    }, {
+                      "i18nFieldLabel" : "Last Name",
+                      "fieldLabel" : "Last Name",
+                      "placeHolder" : "${User.Last Name}"
+                    }, {
+                      "i18nFieldLabel" : "Mobile",
+                      "fieldLabel" : "Mobile",
+                      "placeHolder" : "${User.Mobile}"
+                    } ],
+                    "i18nModule" : "Agent",
+                    "module" : "User"
+                  }, {
+                    "supportedPlaceHolders" : [ {
+                      "i18nFieldLabel" : "Organization Name",
+                      "fieldLabel" : "Organization Name",
+                      "placeHolder" : "${Organization.Organization Name}"
+                    }, {
+                      "i18nFieldLabel" : "Organization Logo",
+                      "fieldLabel" : "Organization Logo",
+                      "placeHolder" : "${Organization.Organization Logo}"
+                    }, {
+                      "i18nFieldLabel" : "City",
+                      "fieldLabel" : "City",
+                      "placeHolder" : "${Organization.City}"
+                    } ],
+                    "i18nModule" : "Organization",
+                    "module" : "Organization"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "applyTemplateResponse" : {
+        "description" : "applyTemplateResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "attachments" : {
+                  "$ref" : "./EmailTemplates.json#/components/schemas/attachmentsResponse"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "body" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 64000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "attachments", "body", "subject" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "attachments" : [ {
+                    "size" : "8842",
+                    "name" : "ricktwo.jpeg",
+                    "id" : "4000000132047"
+                  } ],
+                  "subject" : "My support Template",
+                  "body" : "lakshmansupport1lakshmanvignesh<a target=\"_blank\" href=\"https://support.zoho.com/support/lakshmansupport1/ShowHomePage.do#Cases/dv/51123033fe97b2f8922ba57825f2f328\">MEOW Ticket</a> newuser+1105/30/2016 09:57 AMI am containing a content"
+                }
+              }
+            }
+          }
+        }
+      },
+      "templateListResponse" : {
+        "description" : "templateListResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "$ref" : "./EmailTemplates.json#/components/schemas/templateResponse"
+              }
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : [ {
+                  "folder" : {
+                    "folderName" : "Agent Notifications",
+                    "folderId" : "4000000007021"
+                  },
+                  "replyToAddr" : null,
+                  "templateName" : "Notify contact when a comment is added",
+                  "recordType" : "tickets",
+                  "subject" : "[##${Cases.Request Id}##] ${Cases.Recent Comment By} has commented to your ticket",
+                  "departmentId" : "4000000007043",
+                  "templateId" : "4000000007111",
+                  "body" : "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px; background: rgb(242, 242, 242);\" width=\"100%\"><tbody><tr><td style=\"padding: 30.0px 20.0px;\" valign=\"top\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0.0px auto;\" width=\"90%\"><tbody><tr><td valign=\"top\" style=\"border: 1.0px solid rgb(218, 218, 218); background-color: #ffffff; padding: 30px;\"><div style=\"font-family: lucida grande, lucida sans, lucida sans unicode, arial, helvetica, verdana, sans-serif; font-size: 14px; line-height: 24px; font-weight: normal; color: rgb(34, 34, 34);\">Dear ${Cases.Contact Name},<br> <br>${Cases.Recent Comment By} has left the following comment on your ticket, #${Cases.Request Id} ${Cases.Subject}.<br> <br>${Cases.Recent Comment}<br> <br>Regards,<br>${Organization.Organization Name} Support Team.<br><br>${Cases.CUSTOMER_PORTAL_BUTTON}</div> </td> </tr> <tr> <td style=\"padding-top: 5.0px;\" valign=\"top\">  </td> </tr> </tbody> </table> </td> </tr> </tbody> </table>",
+                  "category" : "DEFAULT_TEMPLATE",
+                  "fromId" : null,
+                  "contentType" : "richtext",
+                  "folderId" : "4000000007021"
+                }, {
+                  "folder" : {
+                    "folderName" : "Agent Notifications",
+                    "folderId" : "4000000007021"
+                  },
+                  "replyToAddr" : null,
+                  "templateName" : "Notify contact when a comment is edited",
+                  "recordType" : "tickets",
+                  "subject" : "[##${Cases.Request Id}##] ${Cases.Recent Comment By} has updated comment in your ticket",
+                  "departmentId" : "4000000007043",
+                  "templateId" : "4000000007113",
+                  "body" : "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px; background: rgb(242, 242, 242);\" width=\"100%\"><tbody><tr><td style=\"padding: 30.0px 20.0px;\" valign=\"top\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0.0px auto;\" width=\"90%\"><tbody><tr><td valign=\"top\" style=\"border: 1.0px solid rgb(218, 218, 218); background-color: #ffffff; padding: 30px;\"><div style=\"font-family: lucida grande, lucida sans, lucida sans unicode, arial, helvetica, verdana, sans-serif; font-size: 14px; line-height: 24px; font-weight: normal; color: rgb(34, 34, 34);\">Dear ${Cases.Contact Name},<br> <br>${Cases.Recent Comment By} has updated the following comment in your ticket, #${Cases.Request Id} ${Cases.Subject}.<br> <br>${Cases.Recent Comment}<br> <br>Regards,<br>${Organization.Organization Name} Support Team.<br><br>${Cases.CUSTOMER_PORTAL_BUTTON}</div> </td> </tr> <tr> <td style=\"padding-top: 5.0px;\" valign=\"top\">  </td> </tr> </tbody> </table> </td> </tr> </tbody> </table>",
+                  "category" : "DEFAULT_TEMPLATE",
+                  "fromId" : null,
+                  "contentType" : "richtext",
+                  "folderId" : "4000000007021"
+                }, {
+                  "folder" : {
+                    "folderName" : "Agent Notifications",
+                    "folderId" : "4000000007021"
+                  },
+                  "replyToAddr" : null,
+                  "templateName" : "Notify contact when a comment is deleted",
+                  "recordType" : "tickets",
+                  "subject" : "[##${Cases.Request Id}##] ${Cases.Recent Comment By} has deleted comment in your ticket",
+                  "departmentId" : "4000000007043",
+                  "templateId" : "4000000007115",
+                  "body" : "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px; background: rgb(242, 242, 242);\" width=\"100%\"><tbody><tr><td style=\"padding: 30.0px 20.0px;\" valign=\"top\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0.0px auto;\" width=\"90%\"><tbody><tr><td valign=\"top\" style=\"border: 1.0px solid rgb(218, 218, 218); background-color: #ffffff; padding: 30px;\"><div style=\"font-family: lucida grande, lucida sans, lucida sans unicode, arial, helvetica, verdana, sans-serif; font-size: 14px; line-height: 24px; font-weight: normal; color: rgb(34, 34, 34);\">Dear ${Cases.Contact Name},<br> <br>${Cases.Recent Comment By} has deleted the following comment in your ticket, #${Cases.Request Id} ${Cases.Subject}.<br> <br>${Cases.Recent Comment}<br> <br>Regards,<br>${Organization.Organization Name} Support Team.<br><br>${Cases.CUSTOMER_PORTAL_BUTTON}</div> </td> </tr> <tr> <td style=\"padding-top: 5.0px;\" valign=\"top\">  </td> </tr> </tbody> </table> </td> </tr> </tbody> </table>",
+                  "category" : "DEFAULT_TEMPLATE",
+                  "fromId" : null,
+                  "contentType" : "richtext",
+                  "folderId" : "4000000007021"
+                }, {
+                  "folder" : {
+                    "folderName" : "Agent Notifications",
+                    "folderId" : "4000000007021"
+                  },
+                  "replyToAddr" : null,
+                  "templateName" : "Notify agent when a comment is deleted",
+                  "recordType" : "tickets",
+                  "subject" : "[##${Cases.Request Id}##] ${Cases.Recent Comment By} has deleted a comment in the ticket",
+                  "departmentId" : "4000000007043",
+                  "templateId" : "4000000007135",
+                  "body" : "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px; background: rgb(242, 242, 242);\" width=\"100%\"><tbody><tr><td style=\"padding: 30.0px 20.0px;\" valign=\"top\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0.0px auto;\" width=\"90%\"><tbody><tr><td valign=\"top\" style=\"border: 1.0px solid rgb(218, 218, 218); background-color: #ffffff; padding: 30px;\"><div style=\"font-family: lucida grande, lucida sans, lucida sans unicode, arial, helvetica, verdana, sans-serif; font-size: 14px; line-height: 24px; font-weight: normal; color: rgb(34, 34, 34);\">${Cases.Recent Comment By} has deleted the following comment in the ticket, #${Cases.Request Id} ${Cases.Subject}.<br> <br>${Cases.Recent Comment}<br><br><br>${Cases.SUPPORT_PORTAL_BUTTON}</div> </td> </tr> <tr> <td style=\"padding-top: 5.0px;\" valign=\"top\">  </td> </tr> </tbody> </table> </td> </tr> </tbody> </table>",
+                  "category" : "DEFAULT_TEMPLATE",
+                  "fromId" : null,
+                  "contentType" : "richtext",
+                  "folderId" : "4000000007021"
+                } ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "the corresponding department to be fetched",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "the corresponding department to be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "module" : {
+        "name" : "module",
+        "in" : "query",
+        "description" : "The name of the module",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "The name of the module",
+          "enum" : [ "tickets", "tasks", "contacts", "accounts", "products", "solutions", "calls", "events" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "emailTemplateId" : {
+        "name" : "emailTemplateId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "templatejson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "templateName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "recordType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets", "tasks", "contacts", "accounts", "products", "calls", "events" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "replyTo" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "attachmentIds" : {
+                  "$ref" : "./EmailTemplates.json#/components/schemas/attachmentIds"
+                },
+                "body" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 64000,
+                  "minLength" : 0
+                },
+                "fromId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+                },
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "plaintext", "richtext" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "folderId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "contentType", "departmentId", "folderId", "fromId", "recordType", "subject", "templateName" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "templateName" : "new Template",
+                  "subject" : "My Template Subject",
+                  "recordType" : "tickets",
+                  "departmentId" : "4000000007039",
+                  "attachmentIds" : [ 1892000000132047 ],
+                  "body" : "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0px; background: rgb(242, 242, 242);\" width=\"100%\"><tbody><tr><td style=\"padding: 30.0px 20.0px;\" valign=\"top\"><table cellpadding=\"0\" cellspacing=\"0\" style=\"margin: 0.0px auto;\" width=\"90%\"><tbody><tr><td valign=\"top\" style=\"border: 1.0px solid rgb(218, 218, 218); background-color: #ffffff; padding: 30px;\"><div style=\"font-family: lucida grande, lucida sans, lucida sans unicode, arial, helvetica, verdana, sans-serif; font-size: 14px; line-height: 24px; font-weight: normal; color: rgb(34, 34, 34);\">Dear ${Cases.Contact Name},<br> <br>Your ticket has been created with the ticket ID  ${Cases.Request Id} and subject  \"${Cases.Subject}\"<br> <br>Someone from our customer service team will review it and respond shortly.<br> <br>Regards,<br>${Organization.Organization Name} Support Team.<br><br>${Cases.CUSTOMER_PORTAL_BUTTON}</div> </td> </tr> <tr> <td style=\"padding-top: 5.0px;\" valign=\"top\">  </td> </tr> </tbody> </table> </td> </tr> </tbody> </table>",
+                  "fromId" : "support@@zylker.com",
+                  "contentType" : "richtext",
+                  "folderId" : "4000000007021"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateTemplate_templatejson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "templateName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "recordType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets", "tasks", "contacts", "accounts", "products", "calls", "events" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "replyTo" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "attachmentIds" : {
+                  "$ref" : "./EmailTemplates.json#/components/schemas/attachmentIds"
+                },
+                "body" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 64000,
+                  "minLength" : 0
+                },
+                "fromId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+                },
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "plaintext", "richtext" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "folderId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "templateName" : "new Template",
+                  "subject" : "My New Template",
+                  "recordType" : "tickets"
+                }
+              }
+            }
+          }
+        }
+      },
+      "templateRenderAPIPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "source" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "TICKET_REPLY", "SLA", "AUTOMATION_ALERTS", "NOTIFICATIONS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "source" : "TICKET_REPLY"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "EmailTemplates"
+}

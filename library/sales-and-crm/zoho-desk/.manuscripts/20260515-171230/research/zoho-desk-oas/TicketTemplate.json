@@ -1,0 +1,637 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TicketTemplate",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/ticketTemplates/deleteMany" : {
+      "post" : {
+        "tags" : [ "TicketTemplate" ],
+        "summary" : "Delete ticket template",
+        "description" : "This API deletes a ticket template from your help desk portal.",
+        "operationId" : "deleteTicketTemplates",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteTicketTemplates"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/ticketTemplates/{ticketTemplateId}" : {
+      "get" : {
+        "tags" : [ "TicketTemplate" ],
+        "summary" : "Get ticket template",
+        "description" : "This API fetches the details of a particular ticket template.",
+        "operationId" : "getTicketTemplate",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addUpdateGetTicketTemplateResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "TicketTemplate" ],
+        "summary" : "Update ticket template",
+        "description" : "This API helps update the details of a particular ticket template.",
+        "operationId" : "updateTicketTemplate",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketTemplateId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateTicketTemplate_addTicketTemplateRequest"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/addUpdateGetTicketTemplateResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/ticketTemplates" : {
+      "get" : {
+        "tags" : [ "TicketTemplate" ],
+        "summary" : "List ticket templates",
+        "description" : "This API lists a particular number of ticket templates, based on the limit specified.",
+        "operationId" : "getTicketTemplates",
+        "parameters" : [ {
+          "name" : "showInCustomerPortal",
+          "in" : "query",
+          "description" : "Visibility of the templates in the help center",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Visibility of the templates in the help center"
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "ID of the department from which templates must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the department from which templates must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of templates to list. The default value is 10 and the maximum value supported is 100",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of templates to list. The default value is 10 and the maximum value supported is 100",
+            "maximum" : 99,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the templates must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the templates must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "layoutId",
+          "in" : "query",
+          "description" : "ID of the layout from which templated must be fetched for the given department ID",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the layout from which templated must be fetched for the given department ID",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listTicketTemplateResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "TicketTemplate" ],
+        "summary" : "Create ticket template",
+        "description" : "This API helps create a ticket template in your help desk portal.",
+        "operationId" : "createTicketTemplate",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addTicketTemplateRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/addUpdateGetTicketTemplateResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ticketTemplateValues" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "description" : "{removeExif=false, replacementString=, antivirus=false, filterMatchedContent=false, description=A brief description of the issue raised in the ticket, allowInvalid=false, secret=false, preserveCharsLimit=10, trim=false, internalParam=false, preserveChars=0,5, name=description, xss=antisamyfilter_withstyletag, importUrl=false, decrypt=false}",
+        "properties" : {
+          "subCategory" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sub-category of the ticket",
+            "x-dynamic-enum" : true
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the product associated with the ticket",
+            "pattern" : "([0-9]+)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the contact who raised the ticket",
+            "pattern" : "([0-9]+)"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "description" : "Subject of the ticket",
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the department in which the ticket must be created",
+            "pattern" : "([0-9]+)"
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "description" : "Date on or before which the ticket must be resolvede",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "description" : "Channel through which the ticket was received",
+            "x-dynamic-enum" : true
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "description" : "A brief description of the issue raised in the ticket",
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "secondaryContacts" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "language" : {
+            "type" : [ "string", "null" ],
+            "description" : "Language preference to set for the ticket",
+            "x-dynamic-enum" : true
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "description" : "Priority of the ticket",
+            "x-dynamic-enum" : true
+          },
+          "classification" : {
+            "type" : [ "string", "null" ],
+            "description" : "Classification of the ticket",
+            "x-dynamic-enum" : true
+          },
+          "assigneeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the agent assigned to resolve the ticket",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the account associated with the ticket",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "description" : "Phone number of the contacto",
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "teamId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the team assigned to resolve the ticket",
+            "pattern" : "([0-9]+)"
+          },
+          "category" : {
+            "type" : [ "string", "null" ],
+            "description" : "Category of the ticket",
+            "x-dynamic-enum" : true
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "description" : "Email ID of the contact",
+            "maxLength" : 150,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "description" : "Resolution status of the ticket",
+            "x-dynamic-enum" : true
+          }
+        },
+        "required" : [ "accountId", "assigneeId", "category", "cf", "channel", "classification", "contactId", "departmentId", "description", "dueDate", "email", "language", "phone", "priority", "productId", "secondaryContacts", "status", "subCategory", "subject", "teamId" ]
+      },
+      "ticketTemplateValuesResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./TicketTemplate.json#/components/schemas/ticketTemplateValues"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "ticketNumber" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "ticketNumber" ]
+        } ]
+      },
+      "listViewJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "showInCustomerPortal" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "ticketTemplateName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "layoutId", "showInCustomerPortal", "ticketTemplateName" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./TicketTemplate.json#/components/schemas/listViewJson"
+        }
+      }
+    },
+    "responses" : {
+      "addUpdateGetTicketTemplateResponse" : {
+        "description" : "addUpdateGetTicketTemplateResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "showInCustomerPortal" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "ticketTemplateName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "ticketTemplateValues" : {
+                  "$ref" : "./TicketTemplate.json#/components/schemas/ticketTemplateValuesResponse"
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "id", "layoutId", "showInCustomerPortal", "ticketTemplateName", "ticketTemplateValues" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "showInCustomerPortal" : true,
+                  "ticketTemplateName" : "temptest",
+                  "id" : "4000000020001",
+                  "layoutId" : "4000000020012",
+                  "ticketTemplateValues" : {
+                    "subCategory" : null,
+                    "cf" : {
+                      "cf_severity_percentage" : "0.0"
+                    },
+                    "productId" : "4000000009012",
+                    "contactId" : null,
+                    "subject" : "UrgentProblem",
+                    "departmentId" : "4000000007073",
+                    "dueDate" : null,
+                    "channel" : null,
+                    "description" : null,
+                    "secondaryContacts" : [ "4000000009076", "4000000009062" ],
+                    "priority" : null,
+                    "classification" : null,
+                    "assigneeId" : null,
+                    "accountId" : null,
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "category" : null,
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "status" : null
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "listTicketTemplateResponse" : {
+        "description" : "listTicketTemplateResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./TicketTemplate.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "showInCustomerPortal" : true,
+                    "ticketTemplateName" : "Template1",
+                    "id" : "4000000020001",
+                    "layoutId" : "4000000020121"
+                  }, {
+                    "showInCustomerPortal" : false,
+                    "ticketTemplateName" : "Template2",
+                    "id" : "4000000020063",
+                    "layoutId" : "4000000020431"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "ticketTemplateId" : {
+        "name" : "ticketTemplateId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "deleteTicketTemplates" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "4000000083313", "4000000082105" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "addTicketTemplateRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "showInCustomerPortal" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that specifies if the template must be displayed in the help center or not"
+                },
+                "ticketTemplateName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the ticket template",
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "ticketTemplateValues" : {
+                  "$ref" : "./TicketTemplate.json#/components/schemas/ticketTemplateValues"
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the ticket layout from which the template is derived",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "layoutId", "ticketTemplateName", "ticketTemplateValues" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "showInCustomerPortal" : true,
+                  "ticketTemplateName" : "temp1",
+                  "ticketTemplateValues" : {
+                    "cf" : {
+                      "cf_severity_percentage" : "0.0"
+                    },
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "departmentId" : "4000000007073",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "layoutId" : "4000000020012"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateTicketTemplate_addTicketTemplateRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "showInCustomerPortal" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "Key that specifies if the template must be displayed in the help center or not"
+                },
+                "ticketTemplateName" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Name of the ticket template",
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "ticketTemplateValues" : {
+                  "$ref" : "./TicketTemplate.json#/components/schemas/ticketTemplateValues"
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the ticket layout from which the template is derived",
+                  "pattern" : "([0-9]+)"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "showInCustomerPortal" : false,
+                  "ticketTemplateName" : "temptest",
+                  "ticketTemplateValues" : {
+                    "cf" : {
+                      "cf_severity_percentage" : "60"
+                    },
+                    "productId" : "4000000009012",
+                    "subject" : "UrgentProblem",
+                    "departmentId" : "4000000007073",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TicketTemplate"
+}

@@ -1,0 +1,391 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "RoutingPreference",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/routingPreferences" : {
+      "get" : {
+        "tags" : [ "RoutingPreference" ],
+        "summary" : "Get Routing Preferences",
+        "description" : "This API is used to Get the Routing Preferences for a Department",
+        "operationId" : "getRoutingPreference",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Department Id",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getRoutingPreferenceResponseJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "RoutingPreference" ],
+        "summary" : "Update Routing Preferences",
+        "description" : "This API is used to Update the Routing Preferences for a Department",
+        "operationId" : "updateRoutingPreference",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateRoutingPreferenceJsonPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/updateRoutingPreferenceJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "actorJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "photoURL", "zuid" ]
+      },
+      "actorArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./RoutingPreference.json#/components/schemas/actorJSON"
+        }
+      },
+      "customThresholdVsAgentsJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "customThreshold" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "agents" : {
+            "$ref" : "./RoutingPreference.json#/components/schemas/actorArray"
+          }
+        },
+        "required" : [ "agents", "customThreshold" ]
+      },
+      "customThresholdVsAgentsList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./RoutingPreference.json#/components/schemas/customThresholdVsAgentsJSON"
+        }
+      },
+      "schedulerInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "INACTIVE", "ACTIVE", null ],
+            "minLength" : 0
+          },
+          "intervalInMinutes" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "nextExecutionTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "updateRoutingPreferenceJson" : {
+        "description" : "updateRoutingPreferenceJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "assignBacklog" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "assignToOfflineAgents" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "thresholdLimit" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "backLogLimit" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "isThresholdEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "assignBacklogsBy" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "freshTicketAssignMode" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "IMMEDIATE", "MOVE_TO_BACKLOG" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "assignBacklog", "assignBacklogsBy", "assignToOfflineAgents", "backLogLimit", "departmentId", "freshTicketAssignMode", "isThresholdEnabled", "thresholdLimit" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "assignBacklog" : true,
+                  "assignToOfflineAgents" : true,
+                  "thresholdLimit" : "40",
+                  "backLogLimit" : "22",
+                  "isThresholdEnabled" : true,
+                  "departmentId" : "1000000013248",
+                  "assignBacklogsBy" : "DUEDATE",
+                  "freshTicketAssignMode" : "IMMEDIATE"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getRoutingPreferenceResponseJson" : {
+        "description" : "getRoutingPreferenceResponseJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "assignBacklog" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "assignToOfflineAgents" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "thresholdLimit" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "backLogLimit" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "isThresholdEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "isImmediateAssignmentEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "assignBacklogsBy" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "freshTicketAssignMode" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "IMMEDIATE", "MOVE_TO_BACKLOG" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "customThresholdVsAgents" : {
+                  "$ref" : "./RoutingPreference.json#/components/schemas/customThresholdVsAgentsList"
+                },
+                "schedulerInfo" : {
+                  "$ref" : "./RoutingPreference.json#/components/schemas/schedulerInfo"
+                },
+                "isCustomThresholdEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "assignBacklog", "assignBacklogsBy", "assignToOfflineAgents", "backLogLimit", "customThresholdVsAgents", "departmentId", "freshTicketAssignMode", "isCustomThresholdEnabled", "isImmediateAssignmentEnabled", "isThresholdEnabled", "thresholdLimit" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "assignBacklog" : true,
+                  "assignToOfflineAgents" : true,
+                  "thresholdLimit" : "40",
+                  "backLogLimit" : "5",
+                  "isThresholdEnabled" : true,
+                  "departmentId" : "1000000013248",
+                  "assignBacklogsBy" : "DUEDATE",
+                  "freshTicketAssignMode" : "IMMEDIATE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "updateRoutingPreferenceJsonPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "assignBacklog" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "assignToOfflineAgents" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "thresholdLimit" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "backLogLimit" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                },
+                "isThresholdEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "isImmediateAssignmentEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "assignBacklogsBy" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "DUEDATE", "CREATEDTIME" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "freshTicketAssignMode" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "IMMEDIATE", "MOVE_TO_BACKLOG" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "customThresholdVsAgents" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "agentIds" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "customThreshold" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int32",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "agentIds", "customThreshold" ]
+                  },
+                  "maxItems" : 1,
+                  "uniqueItems" : true
+                },
+                "isCustomThresholdEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "departmentId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "assignBacklog" : true,
+                  "isThresholdEnabled" : "true",
+                  "backLogLimit" : "22",
+                  "departmentId" : "1000000013248"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "RoutingPreference"
+}

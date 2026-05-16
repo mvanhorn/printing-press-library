@@ -1,0 +1,74 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "DisplayEntity",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/agents/{agentId}/{entityName}/{entityId}/display" : {
+      "post" : {
+        "tags" : [ "DisplayEntity" ],
+        "summary" : "Auto Display an Entity",
+        "description" : "This API is used to instruct an agent's browser to open and display a given entity automatically without any manual action required by the agent.",
+        "operationId" : "displayEntity",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "path",
+          "description" : "Id of the agent in whose browser the entity to be opened.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Id of the agent in whose browser the entity to be opened.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "entityName",
+          "in" : "path",
+          "description" : "Name of the entity that needs to be opened.Values allowed are: tickets, contacts.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the entity that needs to be opened.Values allowed are: tickets, contacts.",
+            "enum" : [ "tickets", "contacts" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9]+"
+          }
+        }, {
+          "name" : "entityId",
+          "in" : "path",
+          "description" : "Id of the entity.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Id of the entity",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "x-entity" : "DisplayEntity"
+}

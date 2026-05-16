@@ -1,0 +1,2218 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Thread",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/draftReply/{threadId}" : {
+      "patch" : {
+        "tags" : [ "Thread" ],
+        "summary" : "Update Draft",
+        "description" : "This API updates a draft thread created via the @EMAIL@, @FACEBOOK@, or @FORUM@ channel.",
+        "operationId" : "updateDrafts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/threadId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "discriminator" : {
+                  "propertyName" : "channel",
+                  "mapping" : {
+                    "EMAIL" : "#/components/schemas/emailThreadSendReply",
+                    "FACEBOOK" : "#/components/schemas/facebookSendReply",
+                    "FORUMS" : "#/components/schemas/forumSendReply"
+                  }
+                },
+                "oneOf" : [ {
+                  "$ref" : "#/components/schemas/emailThreadSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/facebookSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/forumSendReply"
+                } ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "description" : "updateDrafts Response definition",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "discriminator" : {
+                    "propertyName" : "channel",
+                    "mapping" : {
+                      "EMAIL" : "#/components/schemas/emailThreadResponseJson",
+                      "FACEBOOK" : "#/components/schemas/faceBookThreadResponse",
+                      "FORUMS" : "#/components/schemas/fourmsThreadResponse"
+                    }
+                  },
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/emailThreadResponseJson"
+                  }, {
+                    "$ref" : "#/components/schemas/faceBookThreadResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/fourmsThreadResponse"
+                  } ]
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{requestId}/threads/{threadId}/originalContent" : {
+      "get" : {
+        "tags" : [ "Thread" ],
+        "summary" : "Get Original Mail Content",
+        "description" : "This API get the orginal mail content including mail headers",
+        "operationId" : "getOriginalMailContent",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/threadId"
+        }, {
+          "name" : "requestId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getOriginalMailContent"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/sendReply" : {
+      "post" : {
+        "tags" : [ "Thread" ],
+        "summary" : "Send Email Reply",
+        "description" : "This API sends an email reply. The from address in the email must be a from address configured in your help desk portal.",
+        "operationId" : "sendReply",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "#/components/parameters/parentConversationId"
+        }, {
+          "name" : "impersonatedUserId",
+          "in" : "header",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "discriminator" : {
+                  "propertyName" : "channel",
+                  "mapping" : {
+                    "EMAIL" : "#/components/schemas/emailThreadSendReply",
+                    "FACEBOOK" : "#/components/schemas/facebookSendReply",
+                    "TWITTER" : "#/components/schemas/twitterSendReply",
+                    "FORUMS" : "#/components/schemas/forumSendReply"
+                  }
+                },
+                "oneOf" : [ {
+                  "$ref" : "#/components/schemas/emailThreadSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/facebookSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/twitterSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/forumSendReply"
+                } ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "description" : "sendReply Response definition",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "discriminator" : {
+                    "propertyName" : "channel",
+                    "mapping" : {
+                      "EMAIL" : "#/components/schemas/emailThreadResponseJson",
+                      "FACEBOOK" : "#/components/schemas/faceBookThreadResponse",
+                      "TWITTER" : "#/components/schemas/twitterThreadResponse",
+                      "FORUMS" : "#/components/schemas/fourmsThreadResponse"
+                    }
+                  },
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/emailThreadResponseJson"
+                  }, {
+                    "$ref" : "#/components/schemas/faceBookThreadResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/twitterThreadResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/fourmsThreadResponse"
+                  } ]
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/draftReply" : {
+      "post" : {
+        "tags" : [ "Thread" ],
+        "summary" : "Draft Email Reply",
+        "description" : "This API drafts an email reply. The from address in the email must be a from address configured in your help desk portal.",
+        "operationId" : "draftsReply",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        }, {
+          "$ref" : "#/components/parameters/parentConversationId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "discriminator" : {
+                  "propertyName" : "channel",
+                  "mapping" : {
+                    "EMAIL" : "#/components/schemas/emailThreadSendReply",
+                    "FACEBOOK" : "#/components/schemas/facebookSendReply",
+                    "FORUMS" : "#/components/schemas/forumSendReply"
+                  }
+                },
+                "oneOf" : [ {
+                  "$ref" : "#/components/schemas/emailThreadSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/facebookSendReply"
+                }, {
+                  "$ref" : "#/components/schemas/forumSendReply"
+                } ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "description" : "draftsReply Response definition",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "discriminator" : {
+                    "propertyName" : "channel",
+                    "mapping" : {
+                      "EMAIL" : "#/components/schemas/emailThreadResponseJson",
+                      "FACEBOOK" : "#/components/schemas/faceBookThreadResponse",
+                      "FORUMS" : "#/components/schemas/fourmsThreadResponse"
+                    }
+                  },
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/emailThreadResponseJson"
+                  }, {
+                    "$ref" : "#/components/schemas/faceBookThreadResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/fourmsThreadResponse"
+                  } ]
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/threads" : {
+      "get" : {
+        "tags" : [ "Thread" ],
+        "summary" : "List all threads ",
+        "description" : "This API lists all threads in your helpdesk.",
+        "operationId" : "getThreads",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of threads to fetch",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of threads to fetch",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the threads must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the threads must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the threads by sendDateTime.<br>If the value of sortBy key is: <br> <ul><li> \"<b>sendDateTime</b>\" - sorting will be done in <b> ascending </b> order</li> <li> \"<b>-sendDateTime </b>\" - (prefix the value with a \"-\") sorting will be done in <b>descending</b> order</li></ul> <br> <b>Note:</b> If this sortBy key is not specified, the sorting will be done in descending order by default based on sendDateTime.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts the threads by sendDateTime.<br>If the value of sortBy key is: <br> <ul><li> \"<b>sendDateTime</b>\" - sorting will be done in <b> ascending </b> order</li> <li> \"<b>-sendDateTime </b>\" - (prefix the value with a \"-\") sorting will be done in <b>descending</b> order</li></ul> <br> <b>Note:</b> If this sortBy key is not specified, the sorting will be done in descending order by default based on sendDateTime.",
+            "enum" : [ "sendDateTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getThreadsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/threads/{threadId}/attachments/{attachmentId}" : {
+      "delete" : {
+        "tags" : [ "Thread" ],
+        "summary" : "Delete attachment",
+        "description" : "This API deletes an attachment from a draft thread.",
+        "operationId" : "deleteAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/threadId"
+        }, {
+          "name" : "attachmentId",
+          "in" : "path",
+          "description" : "ID of the attachment to be deleted",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the attachment to be deleted",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "author" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "name", "photoURL", "type" ]
+      },
+      "channelRelatedInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isDeleted" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isBestSolution" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "externalLink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "externalLink", "isBestSolution", "isDeleted" ]
+      },
+      "actions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "method" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "rel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "send", "update", "delete" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "href", "method", "rel" ]
+      },
+      "actionsList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Thread.json#/components/schemas/actions"
+        }
+      },
+      "channelSource" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "appName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "extId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SYSTEM", "INTEGRATION", "INSTANT_MESSAGE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "appPhotoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "appName", "appPhotoURL", "extId", "permalink", "type" ]
+      },
+      "statusVsTimeObj" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "Status" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "Time" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "Status", "Time" ]
+      },
+      "statusVsTimeArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Thread.json#/components/schemas/statusVsTimeObj"
+        }
+      },
+      "readReceiptObj" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "senderName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "recipientType" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "from" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "statusVsTime" : {
+            "$ref" : "./Thread.json#/components/schemas/statusVsTimeArray"
+          }
+        },
+        "required" : [ "from", "recipientType", "senderName", "statusVsTime" ]
+      },
+      "readReceipts" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Thread.json#/components/schemas/readReceiptObj"
+        }
+      },
+      "threadKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "sentiment" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NEUTRAL", "NEGATIVE", "POSITIVE", "null", null ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "keyWords" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FACEBOOK", "TWITTER", "EMAIL", "FORUMS", "PHONE", "WEB", "FEEDBACK", "FEEDBACK_WIDGET", "TWITTER_DM", "ONLINE_CHAT", "OFFLINE_CHAT", "CUSTOMERPORTAL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "aspects" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "lastRatingIconURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "impersonatedUser" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "respondedIn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "aspects", "attachmentCount", "author", "canReply", "channel", "channelRelatedInfo", "contentType", "createdTime", "direction", "hasAttach", "id", "impersonatedUser", "isDescriptionThread", "keyWords", "lastRatingIconURL", "readReceipts", "respondedIn", "sentiment", "source", "status", "summary", "visibility" ]
+      },
+      "facebookThreadKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "sentiment" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NEUTRAL", "NEGATIVE", "POSITIVE", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "keyWords" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FACEBOOK" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "aspects" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "lastRatingIconURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "facebookProfile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "impersonatedUser" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "respondedIn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "aspects", "attachmentCount", "author", "canReply", "channel", "channelRelatedInfo", "contentType", "createdTime", "direction", "facebookProfile", "hasAttach", "id", "impersonatedUser", "isDescriptionThread", "keyWords", "lastRatingIconURL", "readReceipts", "respondedIn", "sentiment", "source", "status", "summary", "visibility" ]
+      },
+      "twitterThreadKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "sentiment" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NEUTRAL", "NEGATIVE", "POSITIVE", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "keyWords" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "TWITTER" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "aspects" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "lastRatingIconURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "twitterProfile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "impersonatedUser" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "respondedIn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "aspects", "attachmentCount", "author", "canReply", "channel", "channelRelatedInfo", "contentType", "createdTime", "direction", "hasAttach", "id", "impersonatedUser", "isDescriptionThread", "keyWords", "lastRatingIconURL", "readReceipts", "respondedIn", "sentiment", "source", "status", "summary", "twitterProfile", "visibility" ]
+      },
+      "forumThreadKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "sentiment" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NEUTRAL", "NEGATIVE", "POSITIVE", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isContentTruncated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FORUMS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "aspects" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "lastRatingIconURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "impersonatedUser" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "keyWords" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "respondedIn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "attachmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "fromEmailAddress" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "aspects", "attachmentCount", "attachmentIds", "author", "canReply", "channel", "channelRelatedInfo", "contentType", "createdTime", "direction", "fromEmailAddress", "fullContentURL", "hasAttach", "id", "impersonatedUser", "isContentTruncated", "isDescriptionThread", "keyWords", "lastRatingIconURL", "readReceipts", "respondedIn", "sentiment", "source", "status", "summary", "visibility" ]
+      },
+      "emailThreadKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "sentiment" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NEUTRAL", "NEGATIVE", "POSITIVE", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "bcc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "isContentTruncated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "EMAIL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "aspects" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "lastRatingIconURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "impersonatedUser" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "cc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "keyWords" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "isForward" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "respondedIn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "replyTo" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "attachmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "to" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "fromEmailAddress" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "aspects", "attachmentCount", "attachmentIds", "author", "bcc", "canReply", "cc", "channel", "channel", "channelRelatedInfo", "contentType", "createdTime", "direction", "fromEmailAddress", "fullContentURL", "hasAttach", "id", "impersonatedUser", "isContentTruncated", "isDescriptionThread", "isForward", "keyWords", "lastRatingIconURL", "readReceipts", "replyTo", "respondedIn", "sentiment", "source", "status", "summary", "to", "visibility" ]
+      },
+      "attachmentsJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "previewurl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "href", "id", "name", "previewurl", "size" ]
+      },
+      "attachments" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Thread.json#/components/schemas/attachmentsJson"
+        }
+      },
+      "commonThreadResponseJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "attachments" : {
+            "$ref" : "./Thread.json#/components/schemas/attachments"
+          },
+          "isContentTruncated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FACEBOOK", "TWITTER", "EMAIL", "FORUMS", "PHONE", "WEB", "FEEDBACK", "FEEDBACK_WIDGET", "TWITTER_DM", "ONLINE_CHAT", "OFFLINE_CHAT", "CUSTOMERPORTAL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "responderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "text/plain", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "attachmentCount", "attachments", "author", "canReply", "channel", "channelRelatedInfo", "content", "contentType", "createdTime", "direction", "fullContentURL", "hasAttach", "id", "isContentTruncated", "isDescriptionThread", "readReceipts", "responderId", "source", "status", "summary", "visibility" ]
+      },
+      "emailThreadResponseJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "bcc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "attachments" : {
+            "$ref" : "./Thread.json#/components/schemas/attachments"
+          },
+          "isContentTruncated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "EMAIL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "impersonatedUser" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "text/plain", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "cc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "isForward" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "responderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "replyTo" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "to" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "fromEmailAddress" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "attachmentCount", "attachments", "author", "bcc", "canReply", "cc", "channel", "channelRelatedInfo", "content", "contentType", "createdTime", "direction", "fromEmailAddress", "fullContentURL", "hasAttach", "id", "impersonatedUser", "isContentTruncated", "isDescriptionThread", "isForward", "readReceipts", "replyTo", "responderId", "source", "status", "summary", "to", "visibility" ]
+      },
+      "commonSendReplyJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "description" : "Channel through which the thread originated. Values supported are @FACEBOOK@, @TWITTER@, @EMAIL@ and @FORUMS@ .",
+            "enum" : [ "FACEBOOK", "TWITTER", "EMAIL", "FORUMS", "PHONE", "WEB", "FEEDBACK", "FEEDBACK_WIDGET", "TWITTER_DM", "ONLINE_CHAT", "OFFLINE_CHAT", "CUSTOMERPORTAL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "description" : "Content of the thread",
+            "maxLength" : 16000000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "channel", "content" ]
+      },
+      "emailThreadSendReply" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Thread.json#/components/schemas/commonSendReplyJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "ticketStatus" : {
+              "type" : [ "string", "null" ],
+              "description" : "Status of the ticket. Includes the custom statuses configured in your help desk portal.",
+              "x-dynamic-enum" : true
+            },
+            "attachmentIds" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              },
+              "uniqueItems" : false
+            },
+            "to" : {
+              "type" : [ "string", "null" ],
+              "description" : "To email ID in the thread, applicable only for @EMAIL@ channel",
+              "maxLength" : 13000,
+              "minLength" : 0,
+              "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+            },
+            "fromEmailAddress" : {
+              "type" : [ "string", "null" ],
+              "description" : "Mandatory parameter for creating an email thread. Applicable for @EMAIL@, @ONLINE_CHAT@, @OFFLINE_CHAT@, @CUSTOMERPORTAL@, and @FORUMS@ channels.",
+              "maxLength" : 300,
+              "minLength" : 0,
+              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+            },
+            "contentType" : {
+              "type" : [ "string", "null" ],
+              "description" : "Formatting type of the content. Applicable only for the @EMAIL@ channel. Values supported are @html@ and @plainText@ (default).",
+              "enum" : [ "html", "plainText", "text/html" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "isForward" : {
+              "type" : [ "boolean", "null" ],
+              "description" : "Key that returns if the thread was sent as a forward. Applicable only for the @EMAIL@ channel."
+            }
+          }
+        }, {
+          "type" : "object"
+        }, {
+          "type" : "object"
+        }, {
+          "type" : "object",
+          "required" : [ "channel", "content", "fromEmailAddress" ]
+        } ]
+      },
+      "facebookSendReply" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Thread.json#/components/schemas/commonSendReplyJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "respondedIn" : {
+              "type" : [ "string", "null" ],
+              "description" : "Time taken by the agent to respond to the customer",
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          }
+        }, {
+          "type" : "object"
+        }, {
+          "type" : "object"
+        }, {
+          "type" : "object",
+          "required" : [ "channel", "content" ]
+        } ]
+      },
+      "faceBookThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "attachments" : {
+            "$ref" : "./Thread.json#/components/schemas/attachments"
+          },
+          "isContentTruncated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FACEBOOK" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "facebookProfile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "responderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "text/plain", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "attachmentCount", "attachments", "author", "canReply", "channel", "channelRelatedInfo", "content", "contentType", "createdTime", "direction", "facebookProfile", "fullContentURL", "hasAttach", "id", "isContentTruncated", "isDescriptionThread", "readReceipts", "responderId", "source", "status", "summary", "visibility" ]
+      },
+      "forumSendReply" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Thread.json#/components/schemas/commonSendReplyJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "respondedIn" : {
+              "type" : [ "string", "null" ],
+              "description" : "Time taken by the agent to respond to the customer",
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          }
+        }, {
+          "type" : "object"
+        }, {
+          "type" : "object"
+        }, {
+          "type" : "object",
+          "required" : [ "channel", "content" ]
+        } ]
+      },
+      "fourmsThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+          },
+          "isDescriptionThread" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "attachments" : {
+            "$ref" : "./Thread.json#/components/schemas/attachments"
+          },
+          "isContentTruncated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "canReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visibility" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "public", "private" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "author" : {
+            "$ref" : "./Thread.json#/components/schemas/author"
+          },
+          "fullContentURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FORUMS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "source" : {
+            "$ref" : "./Thread.json#/components/schemas/channelSource"
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "hasAttach" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "responderId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channelRelatedInfo" : {
+            "$ref" : "./Thread.json#/components/schemas/channelRelatedInfo"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachmentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "readReceipts" : {
+            "$ref" : "./Thread.json#/components/schemas/readReceipts"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "fromEmailAddress" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "actions" : {
+            "$ref" : "./Thread.json#/components/schemas/actionsList"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "text/plain", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SUCCESS", "PENDING", "FAILED", "DRAFT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "direction" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "in", "out" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actions", "attachmentCount", "attachments", "author", "canReply", "channel", "channelRelatedInfo", "content", "contentType", "createdTime", "direction", "fromEmailAddress", "fullContentURL", "hasAttach", "id", "isContentTruncated", "isDescriptionThread", "readReceipts", "responderId", "source", "status", "summary", "visibility" ]
+      },
+      "twitterSendReply" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Thread.json#/components/schemas/commonSendReplyJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "respondedIn" : {
+              "type" : [ "string", "null" ],
+              "description" : "Time taken by the agent to respond to the customer",
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          }
+        }, {
+          "type" : "object",
+          "required" : [ "channel", "content" ]
+        } ]
+      },
+      "twitterThreadResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Thread.json#/components/schemas/commonThreadResponseJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "twitterProfile" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 13000,
+              "minLength" : 0,
+              "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+            }
+          },
+          "required" : [ "twitterProfile" ]
+        } ]
+      },
+      "getThreadsdata" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "./Thread.json#/components/schemas/threadKeys"
+          }, {
+            "$ref" : "./Thread.json#/components/schemas/facebookThreadKeys"
+          }, {
+            "$ref" : "./Thread.json#/components/schemas/twitterThreadKeys"
+          }, {
+            "$ref" : "./Thread.json#/components/schemas/forumThreadKeys"
+          }, {
+            "$ref" : "./Thread.json#/components/schemas/emailThreadKeys"
+          } ]
+        }
+      }
+    },
+    "responses" : {
+      "getOriginalMailContent" : {
+        "description" : "getOriginalMailContent template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "date" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                },
+                "returnPath" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                },
+                "messageId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                },
+                "from" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                },
+                "to" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^([a-zA-Z0-9\\s\\.\\?\\_\\-\\,])*$|null|undefined)"
+                }
+              },
+              "required" : [ "content", "date", "from", "messageId", "returnPath", "subject", "to" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "date" : "Tue, 30 Mar 2021 16:53:12 +0530",
+                  "returnPath" : "<PII_EMAIL_SENTINEL>",
+                  "subject" : "Testing Mail Service",
+                  "messageId" : "<PII_EMAIL_SENTINEL>",
+                  "from" : "ReplyTo <PII_EMAIL_SENTINEL>",
+                  "to" : "\"support\" <PII_EMAIL_SENTINEL>",
+                  "content" : "Delivered-To: PII_EMAIL_SENTINEL\nReturn-Path: <PII_EMAIL_SENTINEL>\nDomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; \n  s=zoho; d=zoho.com; \n  h=date:from:reply-to:to:message-id:subject:mime-version:content-type:user-agent; \n  b=E6QQb4TtZN7WU1zmeUJx3hjj9BL0l/m6NhQU/3Oi+YlvXXhxSL6BFK0+CsAqJ/BJY/Y9hmdGNOM2\n    I62RiQ5y8r9bUrVnGZH+Z9HvO3lPXZ4wM9kXypm9xmOo+gf0Dc2DxJKfPCvGrLT1QDzxeO+3tlPZ\n    Xeqt6AsiCjXsXLcNUwc=  \nReceived: from mail.zoho.com by zohomail.com.in\n\twith SMTP id 1617103392140118.88266397173629; Tue, 30 Mar 2021 16:53:12 +0530 (IST)\nDate: Tue, 30 Mar 2021 16:53:12 +0530\nFrom: ReplyTo <PII_EMAIL_SENTINEL>\nReply-To: PII_EMAIL_SENTINEL\nTo: \"support\" <PII_EMAIL_SENTINEL>\nMessage-Id: <PII_EMAIL_SENTINEL>\nSubject: Testing Mail Service\nMIME-Version: 1.0\nContent-Type: multipart/alternative; \n\tboundary=\"----=_Part_1259_1074835283.1617103381439\"\nImportance: Medium\nUser-Agent: Zoho Mail\nX-Mailer: Zoho Mail\nX-ZohoMail-Owner: <PII_EMAIL_SENTINEL>PII_EMAIL_SENTINEL\n\n------=_Part_1259_1074835283.1617103381439\nContent-Type: text/plain; charset=\"UTF-8\"\nContent-Transfer-Encoding: 7bit\n\nAldjfh Giri\n\n\n\n\n\nReplyTo\n------=_Part_1259_1074835283.1617103381439\nContent-Type: text/html; charset=\"UTF-8\"\nContent-Transfer-Encoding: 7bit\n\n<!DOCTYPE html PUBLIC \".//DTD HTML 4.01 Transitional//EN\"><html><head><meta content=\"text/html;charset=UTF-8\" http-equiv=\"Content-Type\" /></head><body><div style=\"font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt;\"><div><br /></div><div><br />Aldjfh Giri<br /></div><div id=\"\"><div><br /></div><div><br /></div><div>ReplyTo<br /></div><div><br /></div></div></div><br /></body></html>\n------=_Part_1259_1074835283.1617103381439--\n\n"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getThreadsResponse" : {
+        "description" : "getThreadsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Thread.json#/components/schemas/getThreadsdata"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "isDescriptionThread" : true,
+                    "canReply" : true,
+                    "visibility" : "public",
+                    "author" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/user/176276372673/photo",
+                      "name" : "Jade Tywin",
+                      "type" : "END_USER",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "channel" : "FORUMS",
+                    "source" : {
+                      "appName" : null,
+                      "extId" : null,
+                      "type" : "SYSTEM",
+                      "permalink" : null,
+                      "appPhotoURL" : null
+                    },
+                    "lastRatingIconURL" : null,
+                    "hasAttach" : false,
+                    "channelRelatedInfo" : {
+                      "isDeleted" : "false",
+                      "isBestSolution" : "true",
+                      "externalLink" : null
+                    },
+                    "respondedIn" : null,
+                    "createdTime" : "2015-03-25T13:40:23.031Z",
+                    "attachmentCount" : "7",
+                    "id" : "1892000000413186",
+                    "fromEmailAddress" : "PII_EMAIL_SENTINEL",
+                    "actions" : [ ],
+                    "contentType" : "text/html",
+                    "status" : "SUCCESS",
+                    "direction" : "in"
+                  }, {
+                    "summary" : "Customer Rating",
+                    "cc" : "",
+                    "isDescriptionThread" : false,
+                    "bcc" : "",
+                    "canReply" : true,
+                    "visibility" : "public",
+                    "author" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000042001/photo?orgId=3983939",
+                      "name" : "Jade Tywin",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "channel" : "EMAIL",
+                    "source" : {
+                      "appName" : null,
+                      "extId" : null,
+                      "type" : "SYSTEM",
+                      "permalink" : null,
+                      "appPhotoURL" : null
+                    },
+                    "isForward" : false,
+                    "hasAttach" : true,
+                    "responderId" : "1892000000042001",
+                    "channelRelatedInfo" : null,
+                    "respondedIn" : "00:05:14",
+                    "createdTime" : "2016-05-25T10:06:09.686Z",
+                    "attachmentCount" : "4",
+                    "id" : "1892000001004072",
+                    "to" : "PII_EMAIL_SENTINEL",
+                    "fromEmailAddress" : "PII_EMAIL_SENTINEL",
+                    "actions" : [ {
+                      "method" : "POST",
+                      "rel" : "send",
+                      "href" : "https://desk.zoho.com/api/v1/tickets/1892000000093205/resendFailedThread?threadId=1892000001083008"
+                    } ],
+                    "contentType" : "text/html",
+                    "status" : "FAILED",
+                    "direction" : "out"
+                  }, {
+                    "summary" : "Please fix this problem, since it is urgent posted the issue on Facebook ",
+                    "isDescriptionThread" : false,
+                    "canReply" : true,
+                    "visibility" : "public",
+                    "author" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/2150000000043591/photo?orgId=3983939",
+                      "name" : "Jade Tywin",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "channel" : "FACEBOOK",
+                    "source" : {
+                      "appName" : null,
+                      "extId" : null,
+                      "type" : "SYSTEM",
+                      "permalink" : null,
+                      "appPhotoURL" : null
+                    },
+                    "lastRatingIconURL" : "https://desk.zoho.com/api/v1/ratingOptions/31138000005998227/logo?orgId=54983163",
+                    "hasAttach" : false,
+                    "responderId" : "2150000000043591",
+                    "channelRelatedInfo" : null,
+                    "respondedIn" : "00:04:09",
+                    "createdTime" : "2016-07-25T10:04:43.739Z",
+                    "attachmentCount" : "6",
+                    "id" : "2150000002498038",
+                    "actions" : [ {
+                      "method" : "POST",
+                      "rel" : "send",
+                      "href" : "https://desk.zoho.com/api/v1/tickets/1892000000094004/sendDraft?draftThreadId=1892000001004072"
+                    }, {
+                      "method" : "DELETE",
+                      "rel" : "delete",
+                      "href" : "https://desk.zoho.com/api/v1/tickets/1892000000094004/draftReply/1892000001004072"
+                    } ],
+                    "contentType" : "text/html",
+                    "status" : "DRAFT",
+                    "direction" : "out"
+                  }, {
+                    "isDescriptionThread" : false,
+                    "canReply" : true,
+                    "visibility" : "public",
+                    "author" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/user/176276372673/photo",
+                      "name" : "Jade Tywin",
+                      "type" : "END_USER",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "channel" : "FEEDBACK",
+                    "source" : {
+                      "appName" : null,
+                      "extId" : null,
+                      "type" : "SYSTEM",
+                      "permalink" : null,
+                      "appPhotoURL" : null
+                    },
+                    "lastRatingIconURL" : null,
+                    "hasAttach" : false,
+                    "channelRelatedInfo" : null,
+                    "respondedIn" : null,
+                    "createdTime" : "2015-03-25T13:40:23.031Z",
+                    "attachmentCount" : "5",
+                    "id" : "1892000000413189",
+                    "fromEmailAddress" : "PII_EMAIL_SENTINEL",
+                    "actions" : [ ],
+                    "contentType" : "text/html",
+                    "status" : "SUCCESS",
+                    "direction" : "in"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "threadId" : {
+        "name" : "threadId",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "parentConversationId" : {
+        "name" : "parentConversationId",
+        "in" : "query",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Thread"
+}

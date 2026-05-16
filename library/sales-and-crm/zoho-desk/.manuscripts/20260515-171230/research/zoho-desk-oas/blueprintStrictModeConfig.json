@@ -1,0 +1,84 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "blueprintStrictModeConfig",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "actionsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "REPLY", "BUG", "COMMENT", "RESOLUTION", "APPROVAL", "ATTACHMENT", "SHARING" ],
+          "minLength" : 0,
+          "pattern" : "REPLY|BUG|COMMENT|RESOLUTION|APPROVAL|ATTACHMENT|SHARING"
+        }
+      },
+      "fieldsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+        }
+      },
+      "strictModeConfigObjectForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "strictModeType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FULL_RESTRICTION", "SELECTIVE_RESTRICTION", "SELECTIVE_EXCLUSION" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "FULL_RESTRICTION|SELECTIVE_RESTRICTION|SELECTIVE_EXCLUSION"
+          },
+          "fields" : {
+            "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/fieldsArray"
+          },
+          "actions" : {
+            "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/actionsArray"
+          }
+        },
+        "required" : [ "actions", "fields", "strictModeType" ]
+      },
+      "fieldIdsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "strictModeConfigObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "strictModeType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FULL_RESTRICTION", "SELECTIVE_RESTRICTION", "SELECTIVE_EXCLUSION" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "FULL_RESTRICTION|SELECTIVE_RESTRICTION|SELECTIVE_EXCLUSION"
+          },
+          "actions" : {
+            "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/actionsArray"
+          },
+          "fieldIds" : {
+            "$ref" : "./blueprintStrictModeConfig.json#/components/schemas/fieldIdsArray"
+          }
+        },
+        "required" : [ "actions", "fieldIds", "strictModeType" ]
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "blueprintStrictModeConfig"
+}

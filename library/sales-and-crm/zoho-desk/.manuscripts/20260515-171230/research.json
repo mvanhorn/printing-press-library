@@ -1,0 +1,263 @@
+{
+  "api_name": "zoho-desk",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Zoho's official MCP",
+      "url": "https://www.zoho.com/desk/",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 200,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zoho/zohodesk-oas (official OAS)",
+      "url": "https://github.com/zoho/zohodesk-oas",
+      "language": "JSON",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T22:15:00Z",
+  "novel_features": [
+    {
+      "name": "SLA breach radar",
+      "command": "at-risk",
+      "description": "List tickets at risk of breaching SLA in the next N hours, optionally filtered by unassigned.",
+      "rationale": "Combines tickets.dueDate, status, and assigneeId locally — no native Zoho view does both filters together.",
+      "example": "zoho-desk-pp-cli at-risk --within 4h --unassigned --json",
+      "why_it_matters": "Use this for cron-driven Slack alerts when tickets need an owner before they breach.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Aging triage",
+      "command": "aging",
+      "description": "Open tickets where the last agent reply was more than N days ago.",
+      "rationale": "Joins tickets + threads locally to compute last-agent-reply age; no competing helpdesk CLI ships this.",
+      "example": "zoho-desk-pp-cli aging --days 5 --status open --json",
+      "why_it_matters": "Use this in your morning triage to find tickets the customer is waiting on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversational full-text search",
+      "command": "grep",
+      "description": "FTS5 search across ticket subject, description, threads, and comments.",
+      "rationale": "SQLite FTS5 over locally-synced thread + comment content — Zoho's search endpoint is keyword-only on subject/description and rate-limited.",
+      "example": "zoho-desk-pp-cli grep 'TLS handshake' --in comments,threads --json",
+      "why_it_matters": "Use this to recall a customer's exact error string from six weeks ago without paginating the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Workload fairness",
+      "command": "workload",
+      "description": "Per-agent open-ticket counts with mean/stddev/Gini across the team.",
+      "rationale": "Groups locally by assigneeId per department; Zoho's stats endpoint returns per-agent totals but no cross-agent dispersion.",
+      "example": "zoho-desk-pp-cli workload --department 'Support' --sort spread --json",
+      "why_it_matters": "Use this for sprint planning — surfaces who's overloaded vs underloaded.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reopen-pattern detector",
+      "command": "reopens",
+      "description": "Tickets that have been closed and reopened at least N times within a window.",
+      "rationale": "Scans local ticket_history (status transitions closed→open) — signals unresolved root causes.",
+      "example": "zoho-desk-pp-cli reopens --min-count 2 --window 30d --json",
+      "why_it_matters": "Use this in weekly CSAT review to identify customers being repeatedly underserved.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reassignment helper",
+      "command": "suggest-agent",
+      "description": "Suggests the least-loaded active agent in a ticket's department for reassignment.",
+      "rationale": "Local rank by ascending open-ticket count; mechanical, read-only.",
+      "example": "zoho-desk-pp-cli suggest-agent 12345 --json",
+      "why_it_matters": "Use this when manually reassigning — gives a defensible 'why this person' answer.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Customer 360 view",
+      "command": "contact-history",
+      "description": "All tickets, accounts, and ticket stats for a contact in one query.",
+      "rationale": "Joins locally synced contacts × tickets × accounts; Zoho UI requires 3-click drill-down.",
+      "example": "zoho-desk-pp-cli contact-history '\u003ccontact-email\u003e' --json",
+      "why_it_matters": "Use this before reaching out to a customer — see their full history in one shot.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Escalation audit",
+      "command": "escalations",
+      "description": "Tickets reassigned to N or more distinct agents — surfaces ownership churn.",
+      "rationale": "Scans local ticket_history (assigneeChange events) grouped by ticketId; not exposed as a native Zoho report.",
+      "example": "zoho-desk-pp-cli escalations --min-reassigns 3 --json",
+      "why_it_matters": "Use this in governance review to find tickets bouncing across teams.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SLA breach radar",
+      "command": "at-risk",
+      "description": "List tickets at risk of breaching SLA in the next N hours, optionally filtered by unassigned.",
+      "rationale": "Combines tickets.dueDate, status, and assigneeId locally — no native Zoho view does both filters together.",
+      "example": "zoho-desk-pp-cli at-risk --within 4h --unassigned --json",
+      "why_it_matters": "Use this for cron-driven Slack alerts when tickets need an owner before they breach.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Aging triage",
+      "command": "aging",
+      "description": "Open tickets where the last agent reply was more than N days ago.",
+      "rationale": "Joins tickets + threads locally to compute last-agent-reply age; no competing helpdesk CLI ships this.",
+      "example": "zoho-desk-pp-cli aging --days 5 --status open --json",
+      "why_it_matters": "Use this in your morning triage to find tickets the customer is waiting on.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversational full-text search",
+      "command": "grep",
+      "description": "FTS5 search across ticket subject, description, threads, and comments.",
+      "rationale": "SQLite FTS5 over locally-synced thread + comment content — Zoho's search endpoint is keyword-only on subject/description and rate-limited.",
+      "example": "zoho-desk-pp-cli grep 'TLS handshake' --in comments,threads --json",
+      "why_it_matters": "Use this to recall a customer's exact error string from six weeks ago without paginating the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Workload fairness",
+      "command": "workload",
+      "description": "Per-agent open-ticket counts with mean/stddev/Gini across the team.",
+      "rationale": "Groups locally by assigneeId per department; Zoho's stats endpoint returns per-agent totals but no cross-agent dispersion.",
+      "example": "zoho-desk-pp-cli workload --department 'Support' --sort spread --json",
+      "why_it_matters": "Use this for sprint planning — surfaces who's overloaded vs underloaded.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Reopen-pattern detector",
+      "command": "reopens",
+      "description": "Tickets that have been closed and reopened at least N times within a window.",
+      "rationale": "Scans local ticket_history (status transitions closed→open) — signals unresolved root causes.",
+      "example": "zoho-desk-pp-cli reopens --min-count 2 --window 30d --json",
+      "why_it_matters": "Use this in weekly CSAT review to identify customers being repeatedly underserved.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reassignment helper",
+      "command": "suggest-agent",
+      "description": "Suggests the least-loaded active agent in a ticket's department for reassignment.",
+      "rationale": "Local rank by ascending open-ticket count; mechanical, read-only.",
+      "example": "zoho-desk-pp-cli suggest-agent 12345 --json",
+      "why_it_matters": "Use this when manually reassigning — gives a defensible 'why this person' answer.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Customer 360 view",
+      "command": "contact-history",
+      "description": "All tickets, accounts, and ticket stats for a contact in one query.",
+      "rationale": "Joins locally synced contacts × tickets × accounts; Zoho UI requires 3-click drill-down.",
+      "example": "zoho-desk-pp-cli contact-history '\u003ccontact-email\u003e' --json",
+      "why_it_matters": "Use this before reaching out to a customer — see their full history in one shot.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Escalation audit",
+      "command": "escalations",
+      "description": "Tickets reassigned to N or more distinct agents — surfaces ownership churn.",
+      "rationale": "Scans local ticket_history (assigneeChange events) grouped by ticketId; not exposed as a native Zoho report.",
+      "example": "zoho-desk-pp-cli escalations --min-reassigns 3 --json",
+      "why_it_matters": "Use this in governance review to find tickets bouncing across teams.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zoho Desk",
+    "headline": "Every Zoho Desk API endpoint, plus offline FTS over conversation content and cross-agent insights no native view supports.",
+    "value_prop": "Full coverage of Zoho Desk's tickets, contacts, accounts, agents, departments, and search modules — plus FTS5 over locally-synced ticket conversations, SLA-at-risk radar, workload fairness, reopen-pattern detection, and escalation audits. Built on a synced local SQLite store so support managers and agents can answer 'who has gaps?' and 'what's about to breach?' without rebuilding the Zoho UI in spreadsheets.",
+    "auth_narrative": "Zoho Desk uses OAuth 2.0 only. You need a self-client refresh token, client ID/secret, and your org ID. Set ZOHODESK_REFRESH_TOKEN, ZOHODESK_CLIENT_ID, ZOHODESK_CLIENT_SECRET, ZOHODESK_ORG_ID — or run `zoho-desk-pp-cli auth set-token` to store them locally. The CLI auto-refreshes access tokens.",
+    "quickstart": [
+      {
+        "command": "zoho-desk-pp-cli doctor --json",
+        "comment": "Validates OAuth creds + orgId + API reachability."
+      },
+      {
+        "command": "zoho-desk-pp-cli sync --full",
+        "comment": "Populates SQLite with tickets, threads, comments, contacts, accounts, agents, departments."
+      },
+      {
+        "command": "zoho-desk-pp-cli at-risk --within 4h --json",
+        "comment": "Lists tickets approaching SLA breach in the next 4 hours."
+      },
+      {
+        "command": "zoho-desk-pp-cli grep 'error' --in comments --json --select id,subject,snippet",
+        "comment": "Conversational FTS over local thread + comment content."
+      },
+      {
+        "command": "zoho-desk-pp-cli workload --json --select assignee,open_count,share_pct",
+        "comment": "Per-agent open-ticket distribution."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "INVALID_OAUTHTOKEN on every call",
+        "fix": "Refresh-token expired or scopes wrong. Re-run `zoho-desk-pp-cli auth set-token` with a fresh self-client refresh token from accounts.zoho.com/developerconsole."
+      },
+      {
+        "symptom": "404 on /api/v1/tickets",
+        "fix": "Wrong data center URL. The CLI auto-detects from your org's region but if you mix DCs the orgId must match. Run `zoho-desk-pp-cli doctor` to see which base URL it resolved."
+      },
+      {
+        "symptom": "429 Too Many Requests during sync",
+        "fix": "Zoho Desk limits to ~10 req/s per org. The CLI retries with backoff; for large initial syncs use `sync --since 30d --concurrency 1`."
+      },
+      {
+        "symptom": "grep returns nothing",
+        "fix": "FTS index is populated by `sync`. Run `sync --resources tickets,threads,comments` first."
+      }
+    ],
+    "when_to_use": "Reach for zoho-desk-pp-cli when you need to answer cross-entity questions about your support pipeline — SLA risk, workload distribution, reopen patterns, conversational search — without keeping Zoho's MCP server running. Also for cron-driven dashboards, BQ exports, and morning-triage automation. For one-off ticket CRUD an agent could call the API directly; use this CLI when the local store, FTS, or cross-agent joins matter.",
+    "recipes": [
+      {
+        "title": "Morning triage (SLA + stale)",
+        "command": "zoho-desk-pp-cli at-risk --within 8h --unassigned --json --select id,subject,due_date,department",
+        "explanation": "Lists unassigned tickets approaching SLA breach. Pipe into Slack."
+      },
+      {
+        "title": "Customer recall (deep --select)",
+        "command": "zoho-desk-pp-cli grep 'TLS handshake' --in comments,threads --from 2026-01-01 --json --select id,ticket.subject,thread.content,thread.created_time",
+        "explanation": "FTS5 over local notes; dotted --select paths narrow the response to only the fields you need."
+      },
+      {
+        "title": "Workload check",
+        "command": "zoho-desk-pp-cli workload --department 'Support' --sort spread --json --select agent,open_count,share_pct",
+        "explanation": "Surfaces uneven assignment — pair with `suggest-agent` to rebalance."
+      },
+      {
+        "title": "Customer 360",
+        "command": "zoho-desk-pp-cli contact-history '\u003ccontact-email\u003e' --json",
+        "explanation": "All tickets + account + stats for that contact in one shot."
+      },
+      {
+        "title": "Escalation governance",
+        "command": "zoho-desk-pp-cli escalations --min-reassigns 3 --json",
+        "explanation": "Tickets bouncing across agents — signal for process review."
+      }
+    ],
+    "trigger_phrases": [
+      "find tickets at risk",
+      "what's stale in zoho desk",
+      "agent workload",
+      "search support tickets",
+      "customer history in zoho",
+      "use zoho-desk-pp",
+      "run zoho-desk-pp"
+    ]
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Dashboards",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/dashboards/{id}" : {
+      "get" : {
+        "tags" : [ "Dashboards" ],
+        "summary" : "GetDashboard",
+        "description" : "To get a specific dashboard",
+        "operationId" : "getDashboard",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/dashboards"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "dashboards" : {
+        "description" : "dashboards template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "isSystemGenerated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0
+                },
+                "reactNiceUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[0-9a-zA-Z][-.\\w]*(:[0-9])*(/?)([a-zA-Z0-9\\-\\.\\?\\,|\\:\\'\\/\\+=&amp;%\\$#_\\[\\]@!\\(\\)\\*;~]*)?$)|[*]"
+                },
+                "dashboardFolder" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 3,
+                  "minProperties" : 3,
+                  "properties" : {
+                    "departmentId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "departmentId", "id", "name" ]
+                },
+                "lastAccessedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "isDefault" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "dashboardUIUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[0-9a-zA-Z][-.\\w]*(:[0-9])*(/?)([a-zA-Z0-9\\-\\.\\?\\,|\\:\\'\\/\\+=&amp;%\\$#_\\[\\]@!\\(\\)\\*;~]*)?$)|[*]"
+                },
+                "isEditable" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "isCustomizable" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "modifiedBy" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 5,
+                  "minProperties" : 5,
+                  "properties" : {
+                    "firstName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 50,
+                      "minLength" : 0
+                    },
+                    "lastName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 50,
+                      "minLength" : 0
+                    },
+                    "photoURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "firstName", "id", "lastName", "name", "photoURL" ]
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "lastAccessedBy" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "maxProperties" : 5,
+                  "minProperties" : 5,
+                  "properties" : {
+                    "firstName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 50,
+                      "minLength" : 0
+                    },
+                    "lastName" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 50,
+                      "minLength" : 0
+                    },
+                    "photoURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "firstName", "id", "lastName", "name", "photoURL" ]
+                },
+                "isFavorite" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "dashboardFolder", "dashboardUIUrl", "description", "displayLabel", "id", "isCustomizable", "isDefault", "isEditable", "isFavorite", "isSystemGenerated", "lastAccessedBy", "lastAccessedTime", "modifiedBy", "modifiedTime", "name", "reactNiceUrl" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "displayLabel" : "UPDATED_NEW",
+                  "modifiedTime" : "2024-02-07T06:30:25.012Z",
+                  "isSystemGenerated" : false,
+                  "description" : "updated new dashboard",
+                  "reactNiceUrl" : null,
+                  "dashboardFolder" : {
+                    "departmentId" : "168450000000006907",
+                    "name" : "Public Dashboards",
+                    "id" : "168450000000276018"
+                  },
+                  "lastAccessedTime" : "2024-02-07T06:30:13.502Z",
+                  "isDefault" : false,
+                  "dashboardUIUrl" : null,
+                  "isEditable" : true,
+                  "isCustomizable" : true,
+                  "name" : "UPDATED_NEW",
+                  "modifiedBy" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/168450000000190001/photo?orgId=75236028",
+                    "firstName" : "Siva",
+                    "lastName" : "S",
+                    "name" : "Siva S",
+                    "id" : "168450000000190001"
+                  },
+                  "id" : "168450000001454021",
+                  "lastAccessedBy" : {
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/168450000000190001/photo?orgId=75236028",
+                    "firstName" : "Siva",
+                    "lastName" : "S",
+                    "name" : "Siva S",
+                    "id" : "168450000000190001"
+                  },
+                  "isFavorite" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "id" : {
+        "name" : "id",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Dashboards"
+}

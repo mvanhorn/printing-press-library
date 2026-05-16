@@ -1,0 +1,118 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ResponseHelpCenterUser",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "helpCenter" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "^[0-9a-zA-Z\\!\\$\\|\\%&amp;\\#\\-\\*\\+\\,\\^\\_\\`\\~\\s\\.\\P{InBasicLatin}]+$"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "url" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "name", "status", "url" ]
+      },
+      "helpCenterInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "helpCenter" : {
+            "$ref" : "./ResponseHelpCenterUser.json#/components/schemas/helpCenter"
+          },
+          "userStatus" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "userId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "helpCenter", "userId", "userStatus" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ResponseHelpCenterUser.json#/components/schemas/helpCenterInfo"
+        }
+      }
+    },
+    "responses" : {
+      "listHelpCenters" : {
+        "description" : "listHelpCenters template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./ResponseHelpCenterUser.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "helpCenter" : {
+                      "name" : "Zoho",
+                      "id" : "4000000016038",
+                      "url" : "https://help.zoho.com/portal/zoho",
+                      "status" : "ACTIVE"
+                    },
+                    "userStatus" : "ACTIVE",
+                    "userId" : "4000000023791"
+                  }, {
+                    "helpCenter" : {
+                      "name" : "CRM",
+                      "id" : "4000010498403",
+                      "url" : "https://help.zoho.com/portal/crm",
+                      "status" : "ACTIVE"
+                    },
+                    "userStatus" : "ACTIVE",
+                    "userId" : "4000000023791"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "ResponseHelpCenterUser"
+}

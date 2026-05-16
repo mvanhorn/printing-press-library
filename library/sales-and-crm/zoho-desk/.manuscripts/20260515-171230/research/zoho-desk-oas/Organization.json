@@ -1,0 +1,925 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Organization",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/organizations/{organizationId}" : {
+      "get" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Get Organization",
+        "description" : "This API fetches the details of an organization from your help desk.",
+        "operationId" : "getOrganization",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/organizationId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getOrganizationResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Update Organization",
+        "description" : "This API updates the details of an organization.",
+        "operationId" : "updateOrganization",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/organizationId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateOrganization"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getOrganizationResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/organizations/{organizationId}/favicon" : {
+      "get" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Get Organization Favicon",
+        "description" : "This API fetches the favicon set for an organization/portal in your help desk.",
+        "operationId" : "getOrganizationFavicon",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/fileSize"
+        }, {
+          "$ref" : "#/components/parameters/organizationId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ { } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Update Organization Favicon",
+        "description" : "This API updates the favicon set for an organization/portal in your help desk.",
+        "operationId" : "updateOrganizationFavicon",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/organizationId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "favicon" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "favicon" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "description" : "updateOrganizationFavicon template definitions",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "faviconURL" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 500,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  }
+                }
+              }
+            }
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Delete Organization Favicon",
+        "description" : "This API updates the favicon set for an organization/portal in your help desk.",
+        "operationId" : "deleteOrganizationFavicon",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/organizationId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.DELETE", "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/organizations/markDefault" : {
+      "post" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Update Default Organizaion",
+        "description" : "This API updates the default organization for the current user in Zoho Desk.",
+        "operationId" : "updateDefaultOrganizaion",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateDefaultOrgJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/unprocessableEntityErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/organizations/{organizationId}/logo" : {
+      "get" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Get Organization Logo",
+        "description" : "This API fetches the logo set for an organization/portal in your help desk.",
+        "operationId" : "getOrganizationLogo",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/fileSize"
+        }, {
+          "$ref" : "#/components/parameters/organizationId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ { } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Update Organization Logo",
+        "description" : "This API updates the logo set for an organization/portal in your help desk.<p><b>Note</b>: To upload organization logo generate OAuthToken for the scope: Desk.settings.UPDATE,profile.orglogo.UPDATE or Desk.basic.UPDATE,profile.orglogo.UPDATE </p>",
+        "operationId" : "updateOrganizationLogo",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/organizationId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "logo" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "logo" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/orgLogoData"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE", "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Delete Organization Logo",
+        "description" : "This API deletes the logo set for an organization/portal in your help desk.",
+        "operationId" : "deleteOrganizationLogo",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/organizationId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.DELETE", "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/organizations" : {
+      "get" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Get Organizations",
+        "description" : "This API lists all organizations to which the current user belongs.",
+        "operationId" : "getOrganizations",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/organizationListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accessibleOrganizations" : {
+      "get" : {
+        "tags" : [ "Organization" ],
+        "summary" : "Get Accessible Organizations",
+        "description" : "This API lists all organizations which can be accessed using the current Oauth token.",
+        "operationId" : "getAccessibleOrganizations",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/organizationListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "getOrganizationResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "country" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "city" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "companyName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 250,
+            "minLength" : 0
+          },
+          "edition" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FREE_2019", "FREE", "NEW_FREE", "ENTERPRISE", "PROFESSIONAL", "EXPRESS", "ZOHOONE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "employeeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          },
+          "isAdminInOrg" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "faviconURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "portalName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9]+"
+          },
+          "street" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "currencyLocale" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z_]*"
+          },
+          "alias" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "(null|^$|NULL|[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "state" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "isPayloadEncryptionEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fax" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "zip" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "website" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "currencySymbol" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "logoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "isDefault" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "phoneNumber" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "portalURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "primaryContact" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "currencyCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isSandboxPortal" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "alias", "city", "companyName", "country", "currencyCode", "currencyLocale", "currencySymbol", "description", "edition", "employeeCount", "faviconURL", "fax", "id", "isAdminInOrg", "isDefault", "isPayloadEncryptionEnabled", "isSandboxPortal", "logoURL", "mobile", "phoneNumber", "portalName", "portalURL", "primaryContact", "state", "street", "website", "zip" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Organization.json#/components/schemas/getOrganizationResponse"
+        }
+      }
+    },
+    "responses" : {
+      "getOrganizationResponse" : {
+        "description" : "getOrganizationResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "country" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "city" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "companyName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0
+                },
+                "edition" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "FREE_2019", "FREE", "NEW_FREE", "ENTERPRISE", "PROFESSIONAL", "EXPRESS", "ZOHOONE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "employeeCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "isAdminInOrg" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "faviconURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 500,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "portalName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-z0-9]+"
+                },
+                "street" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "currencyLocale" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z_]*"
+                },
+                "alias" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "(null|^$|NULL|[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "state" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "isPayloadEncryptionEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "fax" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "zip" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "website" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "mobile" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 30,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "currencySymbol" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "logoURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 500,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "isDefault" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "phoneNumber" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "portalURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "primaryContact" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "currencyCode" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isSandboxPortal" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "alias", "city", "companyName", "country", "currencyCode", "currencyLocale", "currencySymbol", "description", "edition", "employeeCount", "faviconURL", "fax", "id", "isAdminInOrg", "isDefault", "isPayloadEncryptionEnabled", "isSandboxPortal", "logoURL", "mobile", "phoneNumber", "portalName", "portalURL", "primaryContact", "state", "street", "website", "zip" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "country" : "United States",
+                  "city" : "Bernierview",
+                  "companyName" : "Zylker INC.",
+                  "description" : "We are Zylker Support.",
+                  "edition" : "ENTERPRISE",
+                  "employeeCount" : "10",
+                  "isAdminInOrg" : true,
+                  "faviconURL" : "https://desk.zoho.com/api/v1/organizations/3981311/favicon?no-cache=d61a9627de49ffe046fcab71af3359e8",
+                  "portalName" : "zylker",
+                  "street" : "70961 Powlowski Crossing",
+                  "currencyLocale" : "US",
+                  "alias" : "Zylker Teams",
+                  "id" : "3981311",
+                  "state" : "NC",
+                  "isPayloadEncryptionEnabled" : "false",
+                  "fax" : "PII_PHONE_SENTINEL",
+                  "zip" : "PII_PHONE_SENTINEL",
+                  "website" : "www.zylker.com",
+                  "mobile" : "PII_PHONE_SENTINEL",
+                  "currencySymbol" : "$",
+                  "logoURL" : "https://desk.zoho.com/api/v1/organizations/3981311/logo?no-cache=ffc59c3ba6585c12fb306f5174948ff6",
+                  "customDomain" : "support.zylker.com",
+                  "isDefault" : "false",
+                  "phoneNumber" : "PII_PHONE_SENTINEL",
+                  "portalURL" : "http://support.zylker.com/support/zylker/ShowHomePage.do",
+                  "primaryContact" : "PII_EMAIL_SENTINEL",
+                  "currencyCode" : "USD",
+                  "isSandboxPortal" : "false"
+                }
+              }
+            }
+          }
+        }
+      },
+      "orgLogoData" : {
+        "description" : "orgLogoData template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "logoURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 500,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                }
+              },
+              "required" : [ "logoURL" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "companyLogoURL" : "https://desk.zoho.com/api/v1/organizations/3981311/logo?no-cache=ffc59c3ba6585c12fb306f5174948ff6"
+                }
+              }
+            }
+          }
+        }
+      },
+      "organizationListArray" : {
+        "description" : "organizationListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Organization.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "country" : "United States",
+                    "city" : "Bernierview",
+                    "companyName" : "Zylker INC.",
+                    "description" : "We are Zylker Support.",
+                    "edition" : "ENTERPRISE",
+                    "employeeCount" : "10",
+                    "isAdminInOrg" : true,
+                    "faviconURL" : "https://desk.zoho.com/api/v1/organizations/3981311/favicon?no-cache=d61a9627de49ffe046fcab71af3359e8",
+                    "portalName" : "zylker",
+                    "street" : "70961 Powlowski Crossing",
+                    "currencyLocale" : "US",
+                    "alias" : "Zylker Teams",
+                    "id" : "3981311",
+                    "state" : "NC",
+                    "isPayloadEncryptionEnabled" : "false",
+                    "fax" : "PII_PHONE_SENTINEL",
+                    "zip" : "PII_PHONE_SENTINEL",
+                    "website" : "www.zylker.com",
+                    "mobile" : "PII_PHONE_SENTINEL",
+                    "currencySymbol" : "$",
+                    "logoURL" : "https://desk.zoho.com/api/v1/organizations/3981311/logo?no-cache=ffc59c3ba6585c12fb306f5174948ff6",
+                    "isDefault" : "false",
+                    "phoneNumber" : "PII_PHONE_SENTINEL",
+                    "portalURL" : "https://support.zylker.com/support/zylker/ShowHomePage.do",
+                    "primaryContact" : "PII_EMAIL_SENTINEL",
+                    "currencyCode" : "USD",
+                    "isSandboxPortal" : "false"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "organizationId" : {
+        "name" : "organizationId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "fileSize" : {
+        "name" : "fileSize",
+        "in" : "query",
+        "description" : "Size of the image file to download. Values allowed are @THUMBNAIL@ (image with reduced dimensions and size) and @ACTUAL@ (image with actual dimensions and size). The default value is @ACTUAL@.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Size of the image file to download. Values allowed are @THUMBNAIL@ (image with reduced dimensions and size) and @ACTUAL@ (image with actual dimensions and size). The default value is @ACTUAL@.",
+          "enum" : [ "THUMBNAIL", "ACTUAL" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "updateOrganization" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "zip" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "country" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "website" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "city" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "companyName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "mobile" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 30,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 250,
+                  "minLength" : 0
+                },
+                "employeeCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "referrerUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "referrerFrom" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "OtherZohoServices", "Google" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "ref_value" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "phoneNumber" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "portalName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-z0-9]+"
+                },
+                "street" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "primaryContact" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "currencyLocale" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z_]*"
+                },
+                "alias" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "(null|^$|NULL|[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+)"
+                },
+                "state" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "fax" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "portalName" : "zylkerdesk",
+                  "companyName" : "Zylker Desk",
+                  "primaryContact" : "PII_EMAIL_SENTINEL",
+                  "mobile" : "PII_PHONE_SENTINEL",
+                  "employeeCount" : "10"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateDefaultOrgJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "id" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "id" : "3981311"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Organization"
+}

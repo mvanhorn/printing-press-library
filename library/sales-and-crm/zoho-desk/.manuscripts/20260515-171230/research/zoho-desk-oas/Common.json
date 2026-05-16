@@ -1,0 +1,373 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Common",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "errorDetailArr" : {
+        "type" : "array",
+        "items" : {
+          "type" : "object",
+          "properties" : {
+            "fieldName" : {
+              "type" : "string"
+            },
+            "errorType" : {
+              "type" : "string",
+              "enum" : [ "invalid", "duplicate", "missing" ]
+            },
+            "errorMessage" : {
+              "type" : "string"
+            }
+          },
+          "required" : [ "errorMessage", "errorType", "fieldName" ]
+        }
+      },
+      "errorJson" : {
+        "type" : "object",
+        "properties" : {
+          "message" : {
+            "type" : "string"
+          },
+          "errorCode" : {
+            "type" : "string",
+            "enum" : [ "BAD_REQUEST", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "OAUTH_ORG_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "URL_NOT_FOUND", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "EMPTY_PAYLOAD", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "DUPLICATE_CONTRACT", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "TOO_MANY_REQUESTS", "INTERNAL_SERVER_ERROR" ]
+          }
+        },
+        "required" : [ "errorCode", "message" ]
+      }
+    },
+    "responses" : {
+      "emptyResponse" : {
+        "description" : "No content"
+      },
+      "fileResponse" : {
+        "description" : "File response",
+        "content" : {
+          "application/octet-stream" : {
+            "schema" : {
+              "type" : "string",
+              "format" : "binary"
+            }
+          }
+        }
+      },
+      "badRequestErrorResponse" : {
+        "description" : "This errorCode value appears if the authentication token in the API request is invalid",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/errorJson"
+            },
+            "examples" : {
+              "UnAuthenticatedErrorResponse" : {
+                "value" : {
+                  "errorCode" : "BAD_REQUEST",
+                  "message" : "You are not authorized to perform this operation."
+                }
+              }
+            }
+          }
+        }
+      },
+      "unauthorizedErrorResponse" : {
+        "description" : "This errorCode value appears if the authentication token in the API request is invalid",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/errorJson"
+            },
+            "examples" : {
+              "UnAuthenticatedErrorResponse" : {
+                "value" : {
+                  "errorCode" : "UNAUTHORIZED",
+                  "message" : "You are not authorized to perform this operation."
+                }
+              }
+            }
+          }
+        }
+      },
+      "forbiddenErrorResponse" : {
+        "description" : "This errorCode value appears if the user does not have all the permissions required to access the resource.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/errorJson"
+            },
+            "examples" : {
+              "Forbidden Error Response" : {
+                "value" : {
+                  "errorCode" : "FORBIDDEN",
+                  "message" : "You are not authorized to access this resource."
+                }
+              }
+            }
+          }
+        }
+      },
+      "urlNotFoundErrorResponse" : {
+        "description" : "This errorCode value appears if the URL provided is invalid or does not exist.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/errorJson"
+            },
+            "examples" : {
+              "Url Not Found Error Response" : {
+                "value" : {
+                  "errorCode" : "URL_NOT_FOUND",
+                  "message" : "The URL you requested could not be found."
+                }
+              }
+            }
+          }
+        }
+      },
+      "unprocessableEntityErrorResponse" : {
+        "description" : "This errorCode value appears if the input does not fulfil the conditions necessary for successfully executing the API.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/errorJson"
+            },
+            "examples" : {
+              "Unprocessable Entity Error Response" : {
+                "value" : {
+                  "errorCode" : "UNPROCESSABLE_ENTITY",
+                  "message" : "The value passed for the 'from' query parameter is invalid."
+                }
+              }
+            }
+          }
+        }
+      },
+      "internalErrorResponse" : {
+        "description" : "This errorCode value appears if the server encounters an unexpected condition that prevents it from fulfilling the request.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/errorJson"
+            },
+            "examples" : {
+              "Internal Server Error Response" : {
+                "value" : {
+                  "errorCode" : "INTERNAL_SERVER_ERROR",
+                  "message" : "An internal server error occurred while performing this operation."
+                }
+              }
+            }
+          }
+        }
+      },
+      "licenseErrorResponse" : {
+        "description" : "This errorCode value appears if the user is unable to perform an action due to the limitations of the Zoho Desk edition in use\nThe possible values for the feature key are\n    *AGENTS*\n    *LIGHT_AGENTS*\n    *TEAM*\nThe possible values for the editionType key are\n    *FREE*\n    *PROFESSIONAL*\n    *ENTERPRISE*",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/errorJson"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "maxAllowedEntity" : {
+                    "type" : "string",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "feature" : {
+                    "type" : "string",
+                    "enum" : [ "AGENTS", "LIGHT_AGENTS", "TEAM" ]
+                  },
+                  "editionType" : {
+                    "type" : "string",
+                    "enum" : [ "ENTERPRISE", "PROFESSIONAL", "STANDARD", "EXPRESS", "FREE" ]
+                  },
+                  "isTrial" : {
+                    "type" : "boolean"
+                  }
+                },
+                "required" : [ "editionType", "feature", "isTrial", "maxAllowedEntity" ]
+              } ]
+            },
+            "examples" : {
+              "LicenseAccessLimited Error Response" : {
+                "value" : {
+                  "errorCode" : "LICENSE_ACCESS_LIMITED",
+                  "maxAllowedEntity" : "10",
+                  "feature" : "AGENTS",
+                  "editionType" : "FREE",
+                  "isTrial" : false,
+                  "message" : "Your Zoho Desk Edition does not support this feature/operation."
+                }
+              }
+            }
+          }
+        }
+      },
+      "multipleUnprocessEntityResponse" : {
+        "description" : "This errorCode value appears if the input does not fulfil the conditions necessary for successfully executing the API.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "$ref" : "#/components/schemas/errorJson"
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "#/components/schemas/errorJson"
+                }, {
+                  "type" : "object",
+                  "properties" : {
+                    "errors" : {
+                      "$ref" : "#/components/schemas/errorDetailArr"
+                    }
+                  },
+                  "required" : [ "errors" ]
+                } ]
+              } ]
+            }
+          }
+        }
+      },
+      "invalidDataErrorResponse" : {
+        "description" : "This errorCode value appears if there are inaccuracies, such as duplicate entries or invalid IDs, in the data given by the user. The type of inaccuracy is identified by the errorType param.\nThe possible values for the errorType key are:\n*invalid* - the field contains an invalid value *duplicate* - the field contains a value that already exists *missing* - the field does not contain a value\nThe field that contains the inaccurate value is returned in the fieldName param, which is represented in the JSON Pointer convention",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/errorJson"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "errors" : {
+                    "$ref" : "#/components/schemas/errorDetailArr"
+                  }
+                },
+                "required" : [ "errors" ]
+              } ]
+            },
+            "examples" : {
+              "Invalid Data Error Response" : {
+                "value" : {
+                  "errorCode" : "INVALID_DATA",
+                  "message" : "The data does not comply to the validation restrictions defined.",
+                  "errors" : [ {
+                    "fieldName" : "/contactId",
+                    "errorType" : "invalid"
+                  }, {
+                    "fieldName" : "/departmentId",
+                    "errorType" : "invalid"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "orgId" : {
+        "name" : "orgId",
+        "in" : "query",
+        "description" : "Unique ID of the organization",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "string",
+          "format" : "int32",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "type" : "oauth2",
+        "description" : "Oauth description",
+        "flows" : {
+          "authorizationCode" : {
+            "authorizationUrl" : "/oauth/v2/auth",
+            "tokenUrl" : "/oauth/v2/token",
+            "scopes" : {
+              "Desk.zia.create" : "CREATE Operations on data generated by ZIA",
+              "Desk.zia.update" : "UPDATE Operations on data generated by ZIA",
+              "Desk.zia.read" : "READ Operations on data generated by ZIA",
+              "Desk.zia.delete" : "DELETE Operations on data generated by ZIA",
+              "Desk.calls.create" : "CREATE operations on calls module",
+              "Desk.calls.update" : "UPDATE operations on calls module",
+              "Desk.calls.read" : "READ operations on calls module",
+              "Desk.calls.delete" : "DELETE operations on calls module",
+              "Desk.extensions.create" : "To create stored data, extension logs, and configuration params",
+              "Desk.extensions.read" : "To read stored data, extension logs, and configuration params",
+              "Desk.extensions.update" : "To update stored data, extension logs, and configuration params",
+              "Desk.extensions.delete" : "To delete stored data, extension logs, and configuration params",
+              "Desk.search.read" : "READ Search across data in your desk account.",
+              "Desk.events.create" : "CREATE Desk events",
+              "Desk.events.update" : "UPDATE Desk events",
+              "Desk.events.read" : "READ Desk events",
+              "Desk.events.delete" : "DELETE Desk events",
+              "Desk.articles.create" : "CREATE Articles and its sub resources",
+              "Desk.articles.update" : "UPDATE Articles and its sub resources",
+              "Desk.articles.read" : "READ Articles and its sub resources",
+              "Desk.articles.delete" : "DELETE Articles and its sub resources",
+              "Desk.basic.create" : "CREATE Basic desk data such as organizations,agents,departments,role,profile,group",
+              "Desk.basic.update" : "UPDATE Basic desk data such as organizations,agents,departments,role,profile,group",
+              "Desk.basic.read" : "READ Basic desk data such as organizations,agents,departments,role,profile,group",
+              "Desk.basic.delete" : "DELETE Basic desk data such as organizations,agents,departments,role,profile,group",
+              "Desk.tasks.create" : "CREATE Tasks and its sub resources",
+              "Desk.tasks.read" : "READ Tasks and its sub resources",
+              "Desk.tasks.update" : "UPDATE Tasks and its sub resources",
+              "Desk.tasks.delete" : "DELETE Tasks and its sub resources",
+              "Desk.settings.create" : "CREATE All settings data such as customizations,automations,permissions,organization,license",
+              "Desk.settings.update" : "UPDATE All settings data such as customizations,automations,permissions,organization,license",
+              "Desk.settings.read" : "READ All settings data such as customizations,automations,permissions,organization,license",
+              "Desk.settings.delete" : "DELETE All settings data such as customizations,automations,permissions,organization,license",
+              "Desk.contacts.create" : "CREATE Contacts and its sub resources",
+              "Desk.contacts.update" : "UPDATE Contacts and its sub resources",
+              "Desk.contacts.read" : "READ Contacts and its sub resources",
+              "Desk.contacts.delete" : "DELETE Contacts and its sub resources",
+              "Desk.feeds.create" : "CREATE Feeds resource",
+              "Desk.feeds.update" : "UPDATE Feeds resource",
+              "Desk.feeds.read" : "READ Feeds resource",
+              "Desk.feeds.delete" : "DELETE Feeds resource",
+              "Desk.tickets.create" : "CREATE Tickets and its sub resources",
+              "Desk.tickets.update" : "UPDATE Tickets and its sub resources",
+              "Desk.tickets.read" : "READ Tickets and its sub resources",
+              "Desk.tickets.delete" : "DELETE Tickets and its sub resources",
+              "Desk.phonebridge.read" : "READ phonebridge",
+              "Desk.phonebridge.create" : "CREATE phonebridge",
+              "Desk.community.create" : "CREATE Operations on community topics, comments and categories",
+              "Desk.community.update" : "UPDATE Operations on community topics, comments and categories",
+              "Desk.community.read" : "READ Operations on community topics, comments and categories",
+              "Desk.community.delete" : "DELETE Operations on community topics, comments and categories",
+              "Desk.imports" : "CUSTOM Grants access to import data into Zoho Desk modules",
+              "Desk.exports" : "CUSTOM Scope for Zoho Desk Export API's for ZohoDesk Modules",
+              "Desk.products.create" : "CREATE Allow operations on products",
+              "Desk.products.update" : "UPDATE Allow operations on products",
+              "Desk.products.read" : "READ Allow operations on products",
+              "Desk.products.delete" : "DELETE Allow operations on products",
+              "Desk.settings.extension.create" : "CREATE Allow access to all extension related data",
+              "Desk.settings.extension.update" : "UPDATE Allow access to all extension related data",
+              "Desk.settings.extension.read" : "READ Allow access to all extension related data",
+              "Desk.settings.extension.delete" : "DELETE Allow access to all extension related data",
+              "Desk.activities.create" : "CREATE To manage activities such as tasks, calls, events and its sub resources",
+              "Desk.activities.read" : "READ To manage activities such as tasks, calls, events and its sub resources",
+              "Desk.activities.update" : "UPDATE To manage activities such as tasks, calls, events and its sub resources",
+              "Desk.activities.delete" : "DELETE To manage activities such as tasks, calls, events and its sub resources",
+              "Desk.deskOembed.read" : "null",
+              "Desk.integrations.create" : "Grants access to create integration related data",
+              "Desk.integrations.update" : "Grants access to update integration related data",
+              "Desk.integrations.read" : "Grants access to read integration related data",
+              "Desk.integrations.delete" : "Grants access to delete integration related data"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "CommonMassActionError",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "error" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "errorCode" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "UNPROCESSABLE_ENTITY", "UNAUTHORIZED", "FORBIDDEN" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "httpCode" : {
+            "type" : [ "string", "null", "integer" ],
+            "enum" : [ "401", "422", "403", 401, 422, 403 ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "errorCode", "httpCode" ]
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "CommonMassActionError"
+}

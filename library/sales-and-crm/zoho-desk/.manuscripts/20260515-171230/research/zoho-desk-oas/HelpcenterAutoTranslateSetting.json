@@ -1,0 +1,62 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "HelpcenterAutoTranslateSetting",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "autoTranslateSetting" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "languages" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+            },
+            "maxItems" : 50,
+            "minItems" : 0,
+            "uniqueItems" : true
+          },
+          "appName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "active" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "installationId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "uuId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "active", "appName", "installationId", "languages", "uuId" ]
+      },
+      "autoTranslateSettingsList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./HelpcenterAutoTranslateSetting.json#/components/schemas/autoTranslateSetting"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "HelpcenterAutoTranslateSetting"
+}

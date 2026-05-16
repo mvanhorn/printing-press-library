@@ -1,0 +1,229 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "PendingApproval",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/myPendingApprovals" : {
+      "get" : {
+        "tags" : [ "PendingApproval" ],
+        "summary" : "Get my pending approvals",
+        "description" : "This API lists the pending approvals for a given user",
+        "operationId" : "getMyPendingApprovals",
+        "parameters" : [ {
+          "name" : "department",
+          "in" : "query",
+          "description" : "ID of the department from which pending approvals must be fetched. You can pass a specific department ID or @allDepartment@ in the API request.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the department from which pending approvals must be fetched. You can pass a specific department ID or @allDepartment@ in the API request.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getMyPendingApprovalsResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "assignee" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "pendingApproval" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "departmentName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "requester" : {
+            "$ref" : "./PendingApproval.json#/components/schemas/assignee"
+          },
+          "ticketNumber" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ticketId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "createdTime", "departmentId", "departmentName", "description", "id", "requester", "subject", "ticketId", "ticketNumber" ]
+      },
+      "myPendingApprovals" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./PendingApproval.json#/components/schemas/pendingApproval"
+        }
+      }
+    },
+    "responses" : {
+      "getMyPendingApprovalsResponse" : {
+        "description" : "getMyPendingApprovalsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "myPendingApprovals" : {
+                    "$ref" : "./PendingApproval.json#/components/schemas/myPendingApprovals"
+                  },
+                  "assignee" : {
+                    "$ref" : "./PendingApproval.json#/components/schemas/assignee"
+                  }
+                },
+                "required" : [ "assignee", "myPendingApprovals" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "myPendingApprovals" : {
+                    "$ref" : "./PendingApproval.json#/components/schemas/myPendingApprovals"
+                  }
+                },
+                "required" : [ "myPendingApprovals" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "myPendingApprovals" : [ {
+                    "departmentName" : "Sales",
+                    "requester" : {
+                      "firstName" : "",
+                      "lastName" : "Smith",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/5000000012902/photo",
+                      "id" : "5000000012902",
+                      "email" : null
+                    },
+                    "ticketNumber" : "102",
+                    "subject" : "Sample subject",
+                    "departmentId" : "4000000019077",
+                    "createdTime" : 1561122974000,
+                    "description" : "Sample description",
+                    "id" : "4000002350527",
+                    "ticketId" : "4000002350527"
+                  }, {
+                    "departmentName" : "Marketing",
+                    "requester" : {
+                      "firstName" : "",
+                      "lastName" : "John",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/5000000012932/photo",
+                      "id" : "5000000012932",
+                      "email" : null
+                    },
+                    "ticketNumber" : "102",
+                    "subject" : "Sample subject",
+                    "departmentId" : "4000000019067",
+                    "createdTime" : 1561122974000,
+                    "description" : "",
+                    "id" : "4000002350527",
+                    "ticketId" : "4000000014335"
+                  } ],
+                  "assignee" : {
+                    "firstName" : "John",
+                    "lastName" : "Carol",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo",
+                    "id" : "1892000000056007",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "PendingApproval"
+}

@@ -1,0 +1,790 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "ValidationRules",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/layouts/{layoutId}/validationRules/{validationRuleId}" : {
+      "get" : {
+        "tags" : [ "ValidationRules" ],
+        "summary" : "Get Validation Rule",
+        "description" : "This API fetches a validation rule configured for your layout.",
+        "operationId" : "getValidationRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/validationRuleId"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/validationrulejson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "ValidationRules" ],
+        "summary" : "Delete Validation Rule",
+        "description" : "This API deletes a validation rule created for a field from a layout.",
+        "operationId" : "deleteValidationRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/validationRuleId"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "ValidationRules" ],
+        "summary" : "Update Validation Rule",
+        "description" : "This API updates the details of an existing validation rule in a particular layout.",
+        "operationId" : "updateValidationRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/validationRuleId"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/editValidationRule_validationrulejsonPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/validationrulejson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/validationRules" : {
+      "post" : {
+        "tags" : [ "ValidationRules" ],
+        "summary" : "Create Validation Rule",
+        "description" : "This API creates a validation rule for a field in a layout.",
+        "operationId" : "createValidationRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/validationrulejsonPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/validationrulejson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/validationRules" : {
+      "get" : {
+        "tags" : [ "ValidationRules" ],
+        "summary" : "Get Validation Rules",
+        "description" : "This API fetches all the validation rules configured for your department/layout.",
+        "operationId" : "getValidationRules",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/searchString"
+        }, {
+          "$ref" : "#/components/parameters/executeInHelpCentre"
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Get the rules of the department",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Get the rules of the department",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Name of the module for which you want to fetch the layout rules. Allowed values are tickets, contacts, accounts, tasks, timeEntry, contracts, products, calls, events",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the module for which you want to fetch the layout rules. Allowed values are tickets, contacts, accounts, tasks, timeEntry, contracts, products, calls, events",
+            "enum" : [ "tickets", "contacts", "contracts", "accounts", "products", "timeEntry", "tasks", "calls", "events" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/validationRuleListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "conditions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayValue" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "value" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "condition", "displayLabel", "displayValue", "fieldName", "value" ]
+      },
+      "conditionsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ValidationRules.json#/components/schemas/conditions"
+        }
+      },
+      "actions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "alert" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "alert" ]
+      },
+      "fieldConditions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[andor()0-9\\s]*"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "conditions" : {
+            "$ref" : "./ValidationRules.json#/components/schemas/conditionsArr"
+          },
+          "actions" : {
+            "$ref" : "./ValidationRules.json#/components/schemas/actions"
+          }
+        },
+        "required" : [ "actions", "conditions", "name", "pattern" ]
+      },
+      "fieldConditionsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ValidationRules.json#/components/schemas/fieldConditions"
+        }
+      },
+      "validationrulejsonPayload" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "fieldConditions" : {
+            "$ref" : "./ValidationRules.json#/components/schemas/fieldConditionsArr"
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "executeInHelpCentre" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "systemGenerated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "active", "deactive" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "createdBy", "createdTime", "displayLabel", "executeInHelpCentre", "fieldConditions", "fieldName", "layoutId", "modifiedBy", "modifiedTime", "status", "systemGenerated" ]
+      },
+      "validationrulejson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./ValidationRules.json#/components/schemas/validationrulejsonPayload"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "id" ]
+        } ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./ValidationRules.json#/components/schemas/validationrulejson"
+        }
+      }
+    },
+    "responses" : {
+      "validationrulejson" : {
+        "description" : "validationrulejson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./ValidationRules.json#/components/schemas/validationrulejsonPayload"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "id" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "name" : "condition 2",
+                    "pattern" : "(1and2)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "phone",
+                      "value" : [ "PII_PHONE_SENTINEL" ]
+                    } ],
+                    "actions" : {
+                      "alert" : "Sample Alert"
+                    }
+                  }, {
+                    "name" : "condition 3",
+                    "pattern" : "(1and2)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "phone",
+                      "value" : [ "99922299922" ]
+                    } ],
+                    "actions" : {
+                      "alert" : "Sample Alert1"
+                    }
+                  } ],
+                  "modifiedTime" : 1536303048697,
+                  "fieldName" : "email",
+                  "description" : "Rule 1 for layout",
+                  "systemGenerated" : false,
+                  "layoutId" : "4000000007723",
+                  "executeInHelpCentre" : false,
+                  "createdBy" : "4000000015963",
+                  "name" : "Rule 11",
+                  "createdTime" : 1536303048697,
+                  "modifiedBy" : "4000000015963",
+                  "id" : "4000000021001",
+                  "status" : "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "validationRuleListArray" : {
+        "description" : "validationRuleListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./ValidationRules.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "fieldConditions" : [ {
+                      "name" : "condition 2",
+                      "pattern" : "(1and2)",
+                      "conditions" : [ {
+                        "condition" : "is",
+                        "fieldName" : "email",
+                        "value" : [ "PII_EMAIL_SENTINEL" ]
+                      }, {
+                        "condition" : "is",
+                        "fieldName" : "phone",
+                        "value" : [ "PII_PHONE_SENTINEL" ]
+                      } ],
+                      "actions" : {
+                        "alert" : "Sample Alert"
+                      }
+                    } ],
+                    "modifiedTime" : 1536887322000,
+                    "fieldName" : "email",
+                    "executeInHelpCentre" : true,
+                    "createdBy" : "4000000015963",
+                    "createdTime" : 1536801406000,
+                    "modifiedBy" : "4000000015963",
+                    "id" : "4000000017001",
+                    "systemGenerated" : false,
+                    "layoutId" : "4000000013564"
+                  }, {
+                    "fieldConditions" : [ {
+                      "name" : "condition 1",
+                      "pattern" : "(1and2)",
+                      "conditions" : [ {
+                        "condition" : "is",
+                        "fieldName" : "phone",
+                        "value" : [ "PII_PHONE_SENTINEL" ]
+                      }, {
+                        "condition" : "is",
+                        "fieldName" : "email",
+                        "value" : [ "PII_EMAIL_SENTINEL" ]
+                      } ],
+                      "actions" : {
+                        "alert" : "Sample Alert"
+                      }
+                    } ],
+                    "modifiedTime" : 1536887322000,
+                    "fieldName" : "phone",
+                    "executeInHelpCentre" : false,
+                    "createdBy" : "4000000015963",
+                    "createdTime" : 1536803343000,
+                    "modifiedBy" : "4000000015963",
+                    "id" : "4000000018001",
+                    "systemGenerated" : false,
+                    "layoutId" : "4000000013564",
+                    "status" : "active"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "searchString" : {
+        "name" : "searchString",
+        "in" : "query",
+        "description" : "Get the rules that have this search term",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Get the rules that have this search term",
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "executeInHelpCentre" : {
+        "name" : "executeInHelpCentre",
+        "in" : "query",
+        "description" : "Get the rules that can be executed in help centre",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "boolean", "null" ],
+          "description" : "Get the rules that can be executed in help centre"
+        }
+      },
+      "validationRuleId" : {
+        "name" : "validationRuleId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of rules to be fetched. Default is 50",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of rules to be fetched. Default is 50",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the rules must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the rules must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "layoutId" : {
+        "name" : "layoutId",
+        "in" : "path",
+        "description" : "Get the rules of the layout",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Get the rules of the layout",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "validationrulejsonPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "fieldConditions" : {
+                  "$ref" : "./ValidationRules.json#/components/schemas/fieldConditionsArr"
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "executeInHelpCentre" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "systemGenerated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "active", "deactive" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "fieldConditions", "fieldName", "layoutId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "name" : "condition 2",
+                    "pattern" : "(1and2)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "phone",
+                      "value" : [ "PII_PHONE_SENTINEL" ]
+                    } ],
+                    "actions" : {
+                      "alert" : "Sample Alert"
+                    }
+                  } ],
+                  "executeInHelpCentre" : true,
+                  "fieldName" : "email",
+                  "name" : "Validation Rule 1",
+                  "description" : "Rule 1 for layout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "editValidationRule_validationrulejsonPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "fieldConditions" : {
+                  "$ref" : "./ValidationRules.json#/components/schemas/fieldConditionsArr"
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "executeInHelpCentre" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "systemGenerated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "active", "deactive" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "fieldConditions", "fieldName", "layoutId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "name" : "condition 2",
+                    "pattern" : "(1and2)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "phone",
+                      "value" : [ "PII_PHONE_SENTINEL" ]
+                    } ],
+                    "actions" : {
+                      "alert" : "Sample Alert"
+                    }
+                  }, {
+                    "name" : "condition 3",
+                    "pattern" : "(1and2)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "phone",
+                      "value" : [ "99922299922" ]
+                    } ],
+                    "actions" : {
+                      "alert" : "Sample Alert1"
+                    }
+                  } ],
+                  "fieldName" : "email",
+                  "executeInHelpCentre" : false,
+                  "name" : "Validation Rule 1",
+                  "description" : "Rule 1 for layout"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "ValidationRules"
+}

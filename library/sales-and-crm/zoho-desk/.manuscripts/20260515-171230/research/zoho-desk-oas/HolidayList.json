@@ -1,0 +1,529 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "HolidayList",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/holidayList" : {
+      "get" : {
+        "tags" : [ "HolidayList" ],
+        "summary" : "List holiday lists",
+        "description" : "This API lists a particular number of holiday lists, based on the limit specified",
+        "operationId" : "getHolidayLists",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of holiday lists to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of holiday lists to list",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the holiday lists must be listed",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the holiday lists must be listed",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Activation status of the holiday list. Values allowed are @ACTIVE@ and @INACTIVE@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Activation status of the holiday list. Values allowed are @ACTIVE@ and @INACTIVE@",
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/holidayListLViewJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "HolidayList" ],
+        "summary" : "Create holiday list",
+        "description" : "This API creates a holiday list in your help desk portal",
+        "operationId" : "createHolidayList",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createHolidayList_holidayListInputJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/holidaylistJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/holidayList/{holidayListId}" : {
+      "get" : {
+        "tags" : [ "HolidayList" ],
+        "summary" : "Get holiday list",
+        "description" : "This API fetches the details of a holiday list configured in your help desk portal",
+        "operationId" : "getHolidayList",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/holidayListId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/holidaylistJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "HolidayList" ],
+        "summary" : "Update holiday list",
+        "description" : "This API updates the details of a holiday list configured in your help desk portal",
+        "operationId" : "updateHolidayList",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/holidayListId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/holidayListInputJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/holidaylistJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "associatedBusinessHoursJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "businessHourStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "businessHourId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "businessHourName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "businessHourId", "businessHourName", "businessHourStatus" ]
+      },
+      "associatedBusinessHoursArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./HolidayList.json#/components/schemas/associatedBusinessHoursJson"
+        }
+      },
+      "holidayListJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "associatedBusinessHours" : {
+            "$ref" : "./HolidayList.json#/components/schemas/associatedBusinessHoursArr"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "associatedBusinessHours", "createdBy", "createdTime", "id", "modifiedBy", "modifiedTime", "name", "status" ]
+      },
+      "holidayListDataArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./HolidayList.json#/components/schemas/holidayListJSON"
+        }
+      },
+      "holidayJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "from" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 5,
+            "minLength" : 5,
+            "pattern" : "^([0-1][0-2]|0[0-9])-([12][0-9]|3[01]|0[1-9])"
+          },
+          "to" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 5,
+            "minLength" : 5,
+            "pattern" : "^([0-1][0-2]|0[0-9])-([12][0-9]|3[01]|0[1-9])"
+          },
+          "holidayName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "from", "holidayName", "to" ]
+      },
+      "holidayList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./HolidayList.json#/components/schemas/holidayJson"
+        }
+      }
+    },
+    "responses" : {
+      "holidayListLViewJSON" : {
+        "description" : "holidayListLViewJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./HolidayList.json#/components/schemas/holidayListDataArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1544438928772,
+                    "associatedBusinessHours" : [ {
+                      "businessHourStatus" : "ACTIVE",
+                      "businessHourId" : "4000000101003",
+                      "businessHourName" : "UK Day Shift"
+                    }, {
+                      "businessHourStatus" : "ACTIVE",
+                      "businessHourId" : "4000000103001",
+                      "businessHourName" : "UK Night Shift"
+                    }, {
+                      "businessHourStatus" : "ACTIVE",
+                      "businessHourId" : "4000000101005",
+                      "businessHourName" : "Indian Night Shift"
+                    } ],
+                    "createdBy" : "4000000016079",
+                    "name" : "My Company Holidays",
+                    "createdTime" : 1544438928772,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000191456",
+                    "status" : "ACTIVE"
+                  }, {
+                    "modifiedTime" : 1544438136071,
+                    "associatedBusinessHours" : [ ],
+                    "createdBy" : "4000000016079",
+                    "name" : "My Holidays",
+                    "createdTime" : 1544438136071,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000191337",
+                    "status" : "INACTIVE"
+                  }, {
+                    "modifiedTime" : 1543935377481,
+                    "associatedBusinessHours" : [ ],
+                    "createdBy" : "4000000016079",
+                    "name" : "Overlapping Holidays",
+                    "createdTime" : 1543843650454,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000117001",
+                    "status" : "INACTIVE"
+                  }, {
+                    "modifiedTime" : 1543821414223,
+                    "associatedBusinessHours" : [ {
+                      "businessHourStatus" : "INACTIVE",
+                      "businessHourId" : "4000000101009",
+                      "businessHourName" : "Indian Shift"
+                    } ],
+                    "createdBy" : "4000000016079",
+                    "name" : "General HolidayList",
+                    "createdTime" : 1543410293327,
+                    "modifiedBy" : "4000000016079",
+                    "id" : "4000000105030",
+                    "status" : "ACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "holidaylistJson" : {
+        "description" : "holidaylistJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./HolidayList.json#/components/schemas/holidayListJSON"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "holidays" : {
+                    "$ref" : "./HolidayList.json#/components/schemas/holidayList"
+                  }
+                },
+                "required" : [ "holidays" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1544438213136,
+                  "associatedBusinessHours" : [ {
+                    "businessHourStatus" : "ACTIVE",
+                    "businessHourId" : "4000000101003",
+                    "businessHourName" : "UK Day Shift"
+                  }, {
+                    "businessHourStatus" : "ACTIVE",
+                    "businessHourId" : "4000000101005",
+                    "businessHourName" : "Indian Night Shift"
+                  }, {
+                    "businessHourStatus" : "ACTIVE",
+                    "businessHourId" : "4000000103001",
+                    "businessHourName" : "UK Night Shift"
+                  } ],
+                  "holidays" : [ {
+                    "from" : "02-20",
+                    "to" : "02-21",
+                    "holidayName" : "Holiday1"
+                  }, {
+                    "from" : "03-26",
+                    "to" : "03-26",
+                    "holidayName" : "Holiday2"
+                  }, {
+                    "from" : "12-24",
+                    "to" : "12-25",
+                    "holidayName" : "Christmas Holidays"
+                  } ],
+                  "createdBy" : "4000000016079",
+                  "name" : "My Company Holidays",
+                  "createdTime" : 1544438213136,
+                  "modifiedBy" : "4000000016079",
+                  "id" : "4000000191371",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "holidayListId" : {
+        "name" : "holidayListId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "holidayListInputJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "associatedBusinessHourIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "holidays" : {
+                  "$ref" : "./HolidayList.json#/components/schemas/holidayList"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "associatedBusinessHourIds" : [ "4000000101003", "4000000103001" ],
+                  "name" : "My Holidays"
+                }
+              }
+            }
+          }
+        }
+      },
+      "createHolidayList_holidayListInputJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "associatedBusinessHourIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "holidays" : {
+                  "$ref" : "./HolidayList.json#/components/schemas/holidayList"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "INACTIVE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "holidays", "name", "status" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "associatedBusinessHourIds" : [ "4000000101003", "4000000101005", "4000000103001" ],
+                  "holidays" : [ {
+                    "from" : "02-20",
+                    "to" : "02-21",
+                    "holidayName" : "Holiday1"
+                  }, {
+                    "from" : "03-26",
+                    "to" : "03-26",
+                    "holidayName" : "Holiday2"
+                  }, {
+                    "from" : "12-24",
+                    "to" : "12-25",
+                    "holidayName" : "Christmas Holidays"
+                  } ],
+                  "name" : "My Company Holidays",
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "HolidayList"
+}

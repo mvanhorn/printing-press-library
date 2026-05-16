@@ -1,0 +1,2155 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Account",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/accounts/{accountId}/associateProducts" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Associate products with an account",
+        "description" : "This API associates products with an account. Only a maximum of 10 products can be associated with an account through a single API request.",
+        "operationId" : "associateProductsWithAccount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateProductsWithAccount"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/merge" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Merge Accounts",
+        "description" : "This API merges two or more accounts.",
+        "operationId" : "mergeAccounts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/accountMergeRequest"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/accountResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/accounts" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "List accounts of contact",
+        "description" : "This API lists the accounts associated with a particular contact.",
+        "operationId" : "getAccountsByContact",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by a specific attribute: @accountName@ or @createdTime@ or @mappingType@ . The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by a specific attribute: @accountName@ or @createdTime@ or @mappingType@ . The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "accountName", "createdTime", "mappingType" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/startsWith"
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/accountListWithMappingInfoArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/statistics" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get account statistics",
+        "description" : "This API fetches the overall statistics of an account.",
+        "operationId" : "getAccountStatistics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Statistics.json#/components/responses/statisticsResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/tickets" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "List tickets by account",
+        "description" : "This API lists tickets received from a specific account.",
+        "operationId" : "getTicketsByAccount",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the tickets. Values allowed are: contacts, products, departments, team, isRead and assignee. You can pass multiple values by separating them with a comma in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the tickets. Values allowed are: @contacts@, @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with a comma in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "contacts", "products", "departments", "team", "assignee", "isRead" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "dueDate",
+          "in" : "query",
+          "description" : "Filter by ticket duedate. Values allowed are @overdue@, @tomorrow@, @currentWeek@, @currentMonth@ and @today@. You can include both values by separating them with a comma",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Filter by ticket duedate. Values allowed are @overdue@, @tomorrow@, @currentWeek@, @currentMonth@ and @today@. You can include both values by separating them with a comma",
+            "enum" : [ "overdue", "tomorrow", "currentWeek", "currentMonth", "today" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by a specific attribute: @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by a specific attribute: @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "isSpam",
+          "in" : "query",
+          "description" : "Filters Spam tickets",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Filters Spam tickets"
+          }
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getTicketsByAccountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ", "Desk.search.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "List accounts",
+        "description" : "This API lists a particular number of accounts, based on the limit specified. ",
+        "operationId" : "getAccounts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "website", "email", "phone", "accountName", "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/accountListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Create Account",
+        "description" : "This API creates an account in your help desk portal.",
+        "operationId" : "createAccount",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/accountjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/accountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/contracts" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get contract",
+        "description" : "Getting contracts of an Account",
+        "operationId" : "getContractsByAccount",
+        "parameters" : [ {
+          "name" : "contractStatus",
+          "in" : "query",
+          "description" : "Contract Status,Indicates the Current Status of the Contract, Values are @ACTIVE@, @EXPIRED@, @FUTURE@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Contract Status,Indicates the Current Status of the Contract, Values are @ACTIVE@, @EXPIRED@, @FUTURE@",
+            "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of contracts to fetch, Ranges from 1-50, DEFAULT 50",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "default" : 50,
+            "description" : "Number of accounts to list",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getContractsForAccountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get Account",
+        "description" : "This API fetches an account from your help desk portal.",
+        "operationId" : "getAccount",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Allowed values are :  @owner@",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Allowed values are :  @owner@",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "owner" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/accountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Account" ],
+        "summary" : "Update Account",
+        "description" : "This API updates details of an existing account.",
+        "operationId" : "updateAccount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateAccount_accountjson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/accountResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/history" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get account history",
+        "description" : "This API fetches the ticket history of an account.",
+        "operationId" : "getTicketHistoryByAccount",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "description" : "Key that filters ticket activities performed by a particular agent",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : " Key that filters ticket activities performed by a particular agent",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./TicketHistory.json#/components/responses/accountContactHistoryResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/moveToTrash" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Delete Accounts",
+        "description" : "This API moves the accounts specified to the Recycle Bin.",
+        "operationId" : "deleteAccount",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/accountsrecyclebinjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/{productId}/accounts" : {
+      "get" : {
+        "tags" : [ "Account" ],
+        "summary" : "List accounts associated with product",
+        "description" : "This API lists the accounts associated with a product",
+        "operationId" : "getAccountsByProduct",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the accounts by a specific attribute: @accountName@ or @createdTime@.The default sorting order is ascending. A @-@ prefix denotes descending order of sorting",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts the accounts by a specific attribute: @accountName@ or @createdTime@.The default sorting order is ascending. A @-@ prefix denotes descending order of sorting",
+            "enum" : [ "website", "email", "phone", "accountName", "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/accountListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/updateMany" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Update many accounts",
+        "description" : "This API updates multiple accounts at once.",
+        "operationId" : "bulkUpdateAccounts",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/account_massupdate"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/updateManyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "zohoCrmAccount" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id" ]
+      },
+      "commonObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "website" : {
+            "type" : [ "string", "null" ],
+            "description" : "Website of the account",
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "^(ht|f)tp(s?)\\:\\/\\/[-.\\w]*(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'\\/\\\\+=&%\\$#_@]*)?$"
+          },
+          "accountName" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the account",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "description" : "Phone number of the account",
+            "maxLength" : 30,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "description" : "Email ID of the account",
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "accountName", "email", "phone" ]
+      },
+      "accountjson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Account.json#/components/schemas/commonObject"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "country" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0
+            },
+            "code" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "city" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0
+            },
+            "customFields" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "street" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 250,
+              "minLength" : 0
+            },
+            "annualrevenue" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "industry" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 120,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "state" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0
+            },
+            "ownerId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "fax" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+            }
+          },
+          "required" : [ "annualrevenue", "cf", "city", "code", "country", "customFields", "description", "fax", "industry", "ownerId", "state", "street" ]
+        } ]
+      },
+      "sourceValues" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "country" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "website" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "code" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            }
+          },
+          "city" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            }
+          },
+          "description" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "industry" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "annualrevenue" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "street" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "state" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "fax" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "annualrevenue", "cf", "city", "code", "country", "customFields", "description", "email", "fax", "industry", "phone", "state", "street", "website" ]
+      },
+      "mappingInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "mappingId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "mappingType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PRIMARY", "SECONDARY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isAccountTicketsViewable" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "isAccountTicketsViewable", "mappingId", "mappingType" ]
+      },
+      "accountListViewObject" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Account.json#/components/schemas/commonObject"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "webUrl" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 500,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "zohoCRMAccount" : {
+              "$ref" : "./Account.json#/components/schemas/zohoCrmAccount"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "customerHappiness" : {
+              "$ref" : "./Contact.json#/components/schemas/customerHappiness"
+            }
+          },
+          "required" : [ "createdTime", "customerHappiness", "id", "webUrl", "zohoCRMAccount" ]
+        } ]
+      },
+      "accountListWithMappingInfo" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Account.json#/components/schemas/accountListViewObject"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "mappingInfo" : {
+              "$ref" : "./Account.json#/components/schemas/mappingInfo"
+            },
+            "mappingType" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "mappingInfo", "mappingType" ]
+        } ]
+      },
+      "dataWitMappingInfo" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Account.json#/components/schemas/accountListWithMappingInfo"
+        }
+      },
+      "getTicketsByAccountListObject" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Ticket.json#/components/schemas/listviewCommonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "subCategory" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "category" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "layoutId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "category", "layoutId", "subCategory" ]
+        } ]
+      },
+      "getTicketsByAccountArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Account.json#/components/schemas/getTicketsByAccountListObject"
+        }
+      },
+      "contractsForAccountDataListJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "slaName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "associatedSLAId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "EXPIRED", "FUTURE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "endDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contractNumber" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "contractName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 80,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "startDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([12][0-9]{3})-(0?[1-9]|1[012])-(0?[1-9]|[12][0-9]|3[01])$"
+          }
+        },
+        "required" : [ "accountId", "associatedSLAId", "contractName", "contractNumber", "contractStatus", "departmentId", "endDate", "id", "slaName", "startDate" ]
+      },
+      "contractsForAccountData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Account.json#/components/schemas/contractsForAccountDataListJson"
+        }
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Account.json#/components/schemas/accountListViewObject"
+        }
+      },
+      "long_array" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "responses" : {
+      "accountResponse" : {
+        "description" : "accountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "owner" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "firstName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "firstName", "id", "lastName" ]
+                  }
+                }
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Account.json#/components/schemas/accountjson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "modifiedTime" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                    },
+                    "isFollowing" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "isDeleted" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "isTrashed" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "associatedSLAIds" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "uniqueItems" : false
+                    },
+                    "webUrl" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 500,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "createdTime" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                    },
+                    "zohoCRMAccount" : {
+                      "$ref" : "./Account.json#/components/schemas/zohoCrmAccount"
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "layoutId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "layoutDetails" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 2,
+                      "minProperties" : 2,
+                      "properties" : {
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "layoutName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 120,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        }
+                      },
+                      "required" : [ "id", "layoutName" ]
+                    }
+                  },
+                  "required" : [ "associatedSLAIds", "createdTime", "id", "isDeleted", "isFollowing", "isTrashed", "layoutDetails", "layoutId", "modifiedTime", "webUrl", "zohoCRMAccount" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "country" : "USA",
+                  "modifiedTime" : 1425307758000,
+                  "code" : "3211",
+                  "accountName" : "Zylker",
+                  "city" : null,
+                  "associatedSLAIds" : [ 3263000000057, 3000000057001 ],
+                  "description" : null,
+                  "industry" : "Automation",
+                  "zohoCRMAccount" : {
+                    "id" : "32754000000537001"
+                  },
+                  "ownerId" : "3263000000057001",
+                  "isDeleted" : false,
+                  "isTrashed" : false,
+                  "street" : null,
+                  "annualrevenue" : null,
+                  "createdTime" : 1424105864000,
+                  "state" : null,
+                  "id" : "3263000000074571",
+                  "fax" : "+1 444 8656 8732",
+                  "email" : "PII_EMAIL_SENTINEL",
+                  "owner" : {
+                    "firstName" : "Twin",
+                    "lastName" : "john",
+                    "id" : "3263000000057001"
+                  },
+                  "website" : "www.zylker.com",
+                  "cf" : {
+                    "cf_contactcount" : "1"
+                  },
+                  "isFollowing" : "true",
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38"
+                }
+              }
+            }
+          }
+        }
+      },
+      "accountListWithMappingInfoArray" : {
+        "description" : "accountListWithMappingInfoArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Account.json#/components/schemas/dataWitMappingInfo"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "website" : "www.zoho.com",
+                    "accountName" : "ZOHO",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "mappingInfo" : {
+                      "mappingId" : 1892000000052072,
+                      "mappingType" : "PRIMARY",
+                      "isAccountTicketsViewable" : true
+                    },
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : 1424105864000,
+                    "zohoCRMAccount" : {
+                      "id" : "32754000000537001"
+                    },
+                    "customerHappiness" : {
+                      "badPercentage" : "30",
+                      "okPercentage" : "30",
+                      "goodPercentage" : "40"
+                    },
+                    "id" : "1892000000052077",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketsByAccountResponse" : {
+        "description" : "getTicketsByAccountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "product" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "productName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            }
+                          },
+                          "required" : [ "id", "productName" ]
+                        },
+                        "contact" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 8,
+                          "minProperties" : 8,
+                          "properties" : {
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 40,
+                              "minLength" : 0
+                            },
+                            "phone" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0,
+                              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                            },
+                            "mobile" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0,
+                              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "type" : {
+                              "type" : [ "string", "null" ],
+                              "x-dynamic-enum" : true
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 255,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            },
+                            "account" : {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 3,
+                              "minProperties" : 3,
+                              "properties" : {
+                                "website" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 120,
+                                  "minLength" : 0
+                                },
+                                "accountName" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                }
+                              },
+                              "required" : [ "accountName", "id", "website" ]
+                            }
+                          },
+                          "required" : [ "account", "email", "firstName", "id", "lastName", "mobile", "phone", "type" ]
+                        },
+                        "isRead" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "team" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 3,
+                          "minProperties" : 3,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 1,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "logoUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            }
+                          },
+                          "required" : [ "id", "logoUrl", "name" ]
+                        },
+                        "assignee" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "name" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Account.json#/components/schemas/getTicketsByAccountArr"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketNumber" : "149",
+                    "statusType" : "Open",
+                    "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "dueDate" : 1509778989000,
+                    "departmentId" : "1892000000006907",
+                    "channel" : "Email",
+                    "isRead" : false,
+                    "onholdTime" : null,
+                    "language" : "English",
+                    "closedTime" : null,
+                    "contact" : {
+                      "lastName" : "Carol",
+                      "firstName" : "Lucas",
+                      "phone" : "PII_PHONE_SENTINEL",
+                      "mobile" : "PII_PHONE_SENTINEL",
+                      "id" : "18944000000421011",
+                      "type" : null,
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "account" : {
+                        "website" : "www.desk.com",
+                        "accountName" : "desk Account",
+                        "id" : "1892000000975382"
+                      }
+                    },
+                    "createdTime" : 1507813910000,
+                    "id" : "18944000000336005",
+                    "department" : {
+                      "name" : "dasdasdasd",
+                      "id" : "1892000000006907"
+                    },
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "customerResponseTime" : 1509692589203,
+                    "productId" : "18944000000424033",
+                    "contactId" : "18944000000421011",
+                    "threadCount" : "7",
+                    "lastThread" : null,
+                    "team" : {
+                      "name" : "kjsdfjks",
+                      "id" : "8920000000069071",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                    },
+                    "priority" : "Medium",
+                    "assigneeId" : "1892000000042001",
+                    "commentCount" : "0",
+                    "accountId" : "189200000005345",
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/20d7881a46edfcffefe308ab38676ec3e612657a51fd5fbe",
+                    "teamId" : "8920000000069071",
+                    "isSpam" : false,
+                    "assignee" : {
+                      "firstName" : "dasca",
+                      "lastName" : "vins",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agent/1892000000042001/photo",
+                      "id" : "1892000000042001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "status" : "Open"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getContractsForAccountResponse" : {
+        "description" : "getContractsForAccountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Account.json#/components/schemas/contractsForAccountData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "slaName" : "Priority-based SLAs",
+                    "endDate" : 1468627200000,
+                    "slaGroupId" : "4000000007069",
+                    "departmentId" : "4000000007043",
+                    "contractId" : "4000000032003",
+                    "contractNumber" : "1212",
+                    "description" : "contract for all desk account",
+                    "contractName" : "Contract for desk account",
+                    "ownerId" : "4000000008692",
+                    "startDate" : 1466035200000
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "accountListArray" : {
+        "description" : "accountListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Account.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "website" : "112121",
+                    "accountName" : "Admin Account",
+                    "phone" : "121212",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : 1424105864000,
+                    "zohoCRMAccount" : {
+                      "id" : "32754000000537001"
+                    },
+                    "customerHappiness" : {
+                      "badPercentage" : "30",
+                      "okPercentage" : "30",
+                      "goodPercentage" : "40"
+                    },
+                    "id" : "1892000000052077",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }, {
+                    "website" : "1211212",
+                    "accountName" : "Agent Account",
+                    "phone" : "11211",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Accounts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : 1424105864000,
+                    "zohoCRMAccount" : {
+                      "id" : "32754000000537001"
+                    },
+                    "customerHappiness" : {
+                      "badPercentage" : "20",
+                      "okPercentage" : "40",
+                      "goodPercentage" : "40"
+                    },
+                    "id" : "1892000000052090",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateManyResponse" : {
+        "description" : "updateManyResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "results" : {
+                    "$ref" : "./MassActionResponse.json#/components/schemas/results"
+                  }
+                },
+                "required" : [ "results" ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./errors.json#/components/schemas/commonErrorResponse"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "errors" : {
+                      "type" : [ "null", "array" ],
+                      "items" : {
+                        "type" : [ "null", "object" ],
+                        "additionalProperties" : false,
+                        "maxProperties" : 3,
+                        "minProperties" : 3,
+                        "properties" : {
+                          "fieldName" : {
+                            "type" : [ "string", "null" ],
+                            "maxLength" : 100,
+                            "minLength" : 0
+                          },
+                          "errorType" : {
+                            "type" : [ "string", "null" ],
+                            "enum" : [ "invalid", "duplicate", "missing" ],
+                            "maxLength" : 100,
+                            "minLength" : 0
+                          },
+                          "errorMessage" : {
+                            "type" : [ "string", "null" ],
+                            "maxLength" : 100,
+                            "minLength" : 0
+                          }
+                        },
+                        "required" : [ "errorMessage", "errorType", "fieldName" ]
+                      },
+                      "uniqueItems" : false
+                    }
+                  },
+                  "required" : [ "errors" ]
+                } ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "errorCode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "URL_NOT_FOUND", "UNAUTHORIZED", "INVALID_OAUTH", "SCOPE_MISMATCH", "FORBIDDEN", "LICENSE_ACCESS_LIMITED", "METHOD_NOT_ALLOWED", "RESOURCE_SIZE_EXCEEDED", "UNSUPPORTED_MEDIA_TYPE", "INVALID_DATA", "UNPROCESSABLE_ENTITY", "ONLY_LIVECHAT_USER", "INTEGRATION_ADMIN_ERROR", "THRESHOLD_EXCEEDED", "INTERNAL_SERVER_ERROR", "EMPTY_PAYLOAD" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "message" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 255,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "errorCode", "message" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "results" : [ {
+                    "success" : true,
+                    "id" : "1892000000093303",
+                    "errors" : null
+                  }, {
+                    "success" : true,
+                    "id" : "1892000000085009",
+                    "errors" : null
+                  }, {
+                    "success" : false,
+                    "id" : "1892000000050003",
+                    "errors" : {
+                      "errorCode" : "UNPROCESSABLE_ENTITY",
+                      "httpCode" : "422"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "accountId" : {
+        "name" : "accountId",
+        "in" : "path",
+        "description" : "Unique ID of the account",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "contactId" : {
+        "name" : "contactId",
+        "in" : "path",
+        "description" : "Unique ID of the contact",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Key that filters ticket activities related to a particular contact",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "Unique ID of the department",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which the statistics must be fetched. If you do not pass this parameter in the API request, statistics from all permitted departments will be fetched.",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of accounts to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of accounts to list",
+          "maximum" : 99,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the accounts must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "integer",
+          "format" : "int32",
+          "default" : 1,
+          "description" : "Index number, starting from which the accounts must be fetched",
+          "minimum" : 1
+        }
+      },
+      "startsWith" : {
+        "name" : "startsWith",
+        "in" : "query",
+        "description" : "Letter with which the names of the accounts must start",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Letter with which the names of the accounts must start",
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "associateProductsWithAccount" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "associate" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "associate", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "departmentId" : "7000000062800",
+                  "ids" : [ "7000000027223", "7000000043968" ],
+                  "associate" : true
+                }
+              }
+            }
+          }
+        }
+      },
+      "accountMergeRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "source" : {
+                  "$ref" : "./Account.json#/components/schemas/sourceValues"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "4000000018011", "4000000018033" ],
+                  "source" : {
+                    "country" : "4000000018011",
+                    "website" : "4000000018011",
+                    "code" : "4000000018011",
+                    "cf" : {
+                      "cf_contactcount" : 1892220000042001
+                    },
+                    "city" : "4000000018011",
+                    "description" : "4000000018011",
+                    "industry" : "4000000018011",
+                    "phone" : "4000000018011",
+                    "annualrevenue" : "4000000018011",
+                    "street" : "4000000018011",
+                    "state" : "4000000018011",
+                    "fax" : "4000000018011",
+                    "email" : "4000000018011"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "accountjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Account.json#/components/schemas/commonObject"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "country" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Country in which the account is based",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "code" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Zip code",
+                    "maxLength" : 30,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "cf" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "city" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "City in which the account is based",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "customFields" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "street" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Address of the account",
+                    "maxLength" : 250,
+                    "minLength" : 0
+                  },
+                  "annualrevenue" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Annual revenue of the account",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "A short description of the account",
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "industry" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Industry in which the account operates",
+                    "maxLength" : 120,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "state" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "State in which the account is based",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "ownerId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of account owner",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "fax" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Fax number of the account",
+                    "maxLength" : 30,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "accountName" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "accountName" : "Zylker",
+                  "phone" : "98348229382"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateAccount_accountjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Account.json#/components/schemas/commonObject"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "country" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Country in which the account is based",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "code" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Zip code",
+                    "maxLength" : 30,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "cf" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "city" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "City in which the account is based",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "customFields" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "street" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Address of the account",
+                    "maxLength" : 250,
+                    "minLength" : 0
+                  },
+                  "annualrevenue" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Annual revenue of the account",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "A short description of the account",
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "industry" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Industry in which the account operates",
+                    "maxLength" : 120,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "state" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "State in which the account is based",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "ownerId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of account owner",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "fax" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Fax number of the account",
+                    "maxLength" : 30,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                  }
+                }
+              }, {
+                "type" : "object"
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "account_massupdate" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isCustomField" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "x-dynamic-enum" : true
+                },
+                "ids" : {
+                  "$ref" : "./Account.json#/components/schemas/long_array"
+                },
+                "fieldValue" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "fieldName", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldName" : "phone",
+                  "isCustomField" : false,
+                  "ids" : [ "1892000000093303", "1892000000085009", "1892000000050003" ],
+                  "fieldValue" : "PII_PHONE_SENTINEL"
+                }
+              }
+            }
+          }
+        }
+      },
+      "accountsrecyclebinjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "accountIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "accountIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "accountIds" : [ "2000032003232" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Account"
+}

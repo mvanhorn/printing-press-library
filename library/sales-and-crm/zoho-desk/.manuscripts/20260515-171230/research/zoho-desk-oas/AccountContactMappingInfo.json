@@ -1,0 +1,148 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "AccountContactMappingInfo",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/accountContactMapping/{mappingId}" : {
+      "patch" : {
+        "tags" : [ "AccountContactMappingInfo" ],
+        "summary" : "Update association info",
+        "description" : "This API updates the details of an account-contact mapping.",
+        "operationId" : "updateAccountContactMappingInfo",
+        "parameters" : [ {
+          "name" : "mappingId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateMappingInfo"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/mappingResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "mappingInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "mappingId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "mappingType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PRIMARY", "SECONDARY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isAccountTicketsViewable" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "accountId", "contactId", "isAccountTicketsViewable", "mappingId", "mappingType" ]
+      }
+    },
+    "responses" : {
+      "mappingResponse" : {
+        "description" : "mappingResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./AccountContactMappingInfo.json#/components/schemas/mappingInfo"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "mappingId" : "4000000023057",
+                  "accountId" : "4000000022101",
+                  "contactId" : "4000000020714",
+                  "mappingType" : "PRIMARY",
+                  "isAccountTicketsViewable" : false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "updateMappingInfo" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "mappingType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "PRIMARY" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isAccountTicketsViewable" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "mappingType" : "PRIMARY",
+                  "isAccountTicketsViewable" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "AccountContactMappingInfo"
+}

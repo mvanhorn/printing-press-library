@@ -1,0 +1,2569 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Contact",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/products/{productId}/contacts" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "List contacts associated with product",
+        "description" : "This API lists the contacts associated with a product.",
+        "operationId" : "getContactsUnderProduct",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Key that fetches secondary information related to the contact.Value allowed is @accounts@",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Key that fetches secondary information related to the contact.Value allowed is @accounts@",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Parameter that sorts contacts by one of these attributes: !@firstName,@! !@lastName,@! !@phone,@! !@email,@! !@account,@! !@createdTime,@! !@modifiedTime@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Parameter that sorts contacts by one of these attributes: !@firstName,@! !@lastName,@! !@phone,@! !@email,@! !@account,@! !@createdTime,@! !@modifiedTime@!",
+            "enum" : [ "firstName", "lastName", "phone", "email", "account", "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/isSpam"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/contactListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/inviteAsEndUser" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Invite multiple contacts to help center",
+        "description" : "This API helps invite multiple contacts as end-users to your help center.",
+        "operationId" : "inviteContactsAsEndUser",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/inviteContactsAsEndUser"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/photo" : {
+      "delete" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Delete contact photo",
+        "description" : "This API deletes the display picture of a contact.",
+        "operationId" : "deleteContactPhoto",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/statistics" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Get contact statistics",
+        "description" : "This API fetches the overall statistics of an contact.",
+        "operationId" : "getContactStatistics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getStatistics"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/dissociateAccounts" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Dissociate accounts from contact",
+        "description" : "This API dissociates multiple accounts from a particular contact.",
+        "operationId" : "dissociateAccountsWithContact",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/dissociateAccountsWithContact"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/moveToTrash" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Delete Contacts",
+        "description" : "This API moves the contacts specified to the Recycle Bin.",
+        "operationId" : "deleteContact",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteContactsRequest"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/accounts/{accountId}/dissociate" : {
+      "patch" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Dissociate account from contact",
+        "description" : "This API dissociates a particular account from a contact.",
+        "operationId" : "dissociateAccountWithContact",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/helpCenters" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Get status of contact in help centers",
+        "description" : "This API fetches a particular contact's activation status in all the help centers they are part of.",
+        "operationId" : "getContactActivationStatusAcrossHelpCenters",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./ResponseHelpCenterUser.json#/components/responses/listHelpCenters"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/history" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Get contact history",
+        "description" : "This API fetches the ticket history of a contact.",
+        "operationId" : "getContactTicketHistory",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "description" : " Key that filters ticket activities performed by a particular agent",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : " Key that filters ticket activities performed by a particular agent",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : " ID of the department from which the history details must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : " ID of the department from which the history details must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./TicketHistory.json#/components/responses/accountContactHistoryResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "List Contacts",
+        "description" : "This API lists a particular number of contacts, based on the limit specified. ",
+        "operationId" : "getContacts",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/viewId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "firstName", "lastName", "phone", "email", "account", "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/contactListViewArray"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Create Contact",
+        "description" : "This API creates a contact in your help desk portal.",
+        "operationId" : "createContact",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/contactjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/contactResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/updateMany" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Update many contacts",
+        "description" : "This API updates multiple contacts at once.",
+        "operationId" : "bulkUpdateContacts",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/contact_massupdate"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/count" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Get contacts count",
+        "description" : "This API displays the count for the number of contacts in a custom view",
+        "operationId" : "getContactsCount",
+        "parameters" : [ {
+          "name" : "viewId",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "startsWith",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/countJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/contactsByIds" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "List Contacts By Ids",
+        "description" : "This API lists details of specific contacts, based on the IDs passed in the request.",
+        "operationId" : "getContactsByIds",
+        "parameters" : [ {
+          "name" : "ids",
+          "in" : "query",
+          "description" : "List of Contact Ids (separated by comma) which must be fetched. The maximum number of IDs allowed is 20.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "List of Contact Ids (separated by comma) which must be fetched. The maximum number of IDs allowed is 20.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/contactListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Get Contact",
+        "description" : "This API fetches a single contact from your help desk portal.",
+        "operationId" : "getContact",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Allowed values are :  @accounts@ , @owner@",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Allowed values are :  @accounts@ , @owner@",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "accounts", "owner" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/contactResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Contact" ],
+        "operationId" : "updateContact",
+        "summary" : "Update Contact",
+        "description" : "This API updates details of an existing contact.",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateContact_contactjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/contactResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/merge" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Merge Contacts",
+        "description" : "This API merges two or more contacts  <br/></br/>_Note:_<br/>Though portal users (users who signed up via the help center) are saved as contacts in the help desk, their records cannot be merged with other records/contacts.",
+        "operationId" : "mergeContacts",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/contactMergeRequest"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/contactResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/approveEndUserInvite" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Approve contact for help center",
+        "description" : "This API helps approve a particular contact as an end-user to your help center.",
+        "operationId" : "approveEndUserInvite",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateSignupApproval"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/rejectEndUserInvite" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Reject contact for help center",
+        "description" : "This API helps reject a particular contact from being added as an end-user to your help center.",
+        "operationId" : "rejectEndUserInvite",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/rejectEndUserInvite_updateSignupApproval"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/associateAccounts" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Associate accounts with contact",
+        "description" : "This API associates multiple accounts with a particular contact.",
+        "operationId" : "associateAccountsWithContact",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateAccountsWithContact"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/associateProducts" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Associate products with a contact",
+        "description" : "This API associates products with a contact. Only a maximum of 10 products can be associated with a contact through a single API request.",
+        "operationId" : "associateProductsWithContact",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateProductsWithContact"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/markSpam" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Mark contact as spam",
+        "description" : "This API marks contacts as spam.",
+        "operationId" : "markContactsAsSpam",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/markSpamContactPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/deleteSpam" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Delete spam contacts",
+        "description" : "This API deletes the given spam contacts",
+        "operationId" : "deleteSpamContacts",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteSpamContacts_deleteContactsRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/inviteAsEndUser" : {
+      "post" : {
+        "tags" : [ "Contact" ],
+        "summary" : "Invite contact to help center",
+        "description" : "This API helps invite a particular contact as an end-user to your help center.",
+        "operationId" : "inviteContactAsEndUser",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/contactId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/inviteContactAsEndUser"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/contacts" : {
+      "get" : {
+        "tags" : [ "Contact" ],
+        "summary" : "List Associated contacts",
+        "description" : "This API lists the contacts associated with an account",
+        "operationId" : "getContactsUnderAccount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Parameter that sorts contacts by one of these attributes: !@firstName,@! !@lastName,@! !@fullName,@! !@phone,@! !@email,@! !@createdTime,@! !@modifiedTime@!",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Parameter that sorts contacts by one of these attributes: !@firstName,@! !@lastName,@! !@fullName,@! !@phone,@! !@email,@! !@createdTime,@! !@modifiedTime@!",
+            "enum" : [ "firstName", "lastName", "phone", "fullName", "email", "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/isSpam"
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/contactListViewArrayWithMappingInfo"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "customerHappiness" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "badPercentage" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "okPercentage" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "goodPercentage" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "badPercentage", "goodPercentage", "okPercentage" ]
+      },
+      "zohoCRMContact" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "new", "potentials", "customers", "contacts", "leads" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "type" ]
+      },
+      "commonJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "description" : "Last name of the contact",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Account to which the contact is mapped",
+            "pattern" : "([0-9]+)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "description" : "First name of the contact",
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "secondaryEmail" : {
+            "type" : [ "string", "null" ],
+            "description" : "Secondary email ID of the contact",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "description" : "Phone number of the contact",
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "description" : "Mobile number of the contact",
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "ownerId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the user who creates the contact",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "description" : "Contact type",
+            "x-dynamic-enum" : true
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "description" : "Email ID of the contact",
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "accountId", "email", "firstName", "lastName", "mobile", "ownerId", "phone", "secondaryEmail", "type" ]
+      },
+      "listViewObject" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Contact.json#/components/schemas/commonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "photoURL" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "isAnonymous" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "accountCount" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "webUrl" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 500,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "isEndUser" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "zohoCRMContact" : {
+              "$ref" : "./Contact.json#/components/schemas/zohoCRMContact"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "customerHappiness" : {
+              "$ref" : "./Contact.json#/components/schemas/customerHappiness"
+            },
+            "isSpam" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "accountCount", "createdTime", "customerHappiness", "id", "isAnonymous", "isEndUser", "isSpam", "photoURL", "webUrl", "zohoCRMContact" ]
+        } ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Contact.json#/components/schemas/listViewObject"
+        }
+      },
+      "long_array" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "customerHappinessCount" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "badCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "goodCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "okCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "badCount", "goodCount", "okCount" ]
+      },
+      "contactjson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Contact.json#/components/schemas/commonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "zip" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "country" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0
+            },
+            "twitter" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "city" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0
+            },
+            "customFields" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "street" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 250,
+              "minLength" : 0
+            },
+            "facebook" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+            },
+            "mobile" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 50,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0
+            },
+            "state" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 30,
+              "minLength" : 0
+            },
+            "title" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "cf", "city", "country", "customFields", "description", "facebook", "mobile", "state", "street", "title", "twitter", "zip" ]
+        } ]
+      },
+      "sourceValues" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "zip" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "lastName" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "country" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "secondaryEmail" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "cf" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            }
+          },
+          "city" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              }
+            }
+          },
+          "facebook" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "mobile" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "description" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "title" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "accountId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "twitter" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "phone" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "street" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "state" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "accountId", "cf", "city", "country", "customFields", "description", "email", "facebook", "firstName", "lastName", "mobile", "phone", "secondaryEmail", "state", "street", "title", "twitter", "type", "zip" ]
+      },
+      "mappingInfo" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "mappingId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "mappingType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PRIMARY", "SECONDARY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isAccountTicketsViewable" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "isAccountTicketsViewable", "mappingId", "mappingType" ]
+      },
+      "listViewObjectWithMappingInfo" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Contact.json#/components/schemas/listViewObject"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "mappingInfo" : {
+              "$ref" : "./Contact.json#/components/schemas/mappingInfo"
+            }
+          },
+          "required" : [ "mappingInfo" ]
+        } ]
+      },
+      "dataWithMappingInfo" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Contact.json#/components/schemas/listViewObjectWithMappingInfo"
+        }
+      }
+    },
+    "responses" : {
+      "contactListViewArray" : {
+        "description" : "contactListViewArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Contact.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "lastName" : "Case",
+                    "secondaryEmail" : null,
+                    "mobile" : "109000000002003",
+                    "ownerId" : null,
+                    "type" : null,
+                    "accountId" : "1892000000091433",
+                    "firstName" : "Jonathan",
+                    "photoURL" : "https://desk.zoho.com/api/v1/contacts/1892000000772003/photo",
+                    "isAnonymous" : false,
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Contacts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : 1507813910000,
+                    "isEndUser" : false,
+                    "zohoCRMContact" : null,
+                    "id" : "1892000000772003",
+                    "customerHappiness" : {
+                      "badPercentage" : "0",
+                      "okPercentage" : "0",
+                      "goodPercentage" : "0"
+                    },
+                    "isSpam" : false,
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }, {
+                    "lastName" : "Jade",
+                    "secondaryEmail" : null,
+                    "mobile" : null,
+                    "ownerId" : null,
+                    "type" : null,
+                    "accountId" : "1892000000052077",
+                    "firstName" : "Christ",
+                    "photoURL" : null,
+                    "isAnonymous" : false,
+                    "phone" : null,
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Contacts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : 1507813910000,
+                    "isEndUser" : false,
+                    "zohoCRMContact" : {
+                      "id" : "1892000000772030",
+                      "type" : "contacts_leads"
+                    },
+                    "id" : "1892000000772001",
+                    "customerHappiness" : {
+                      "badPercentage" : "22",
+                      "okPercentage" : "31",
+                      "goodPercentage" : "47"
+                    },
+                    "isSpam" : false,
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getStatistics" : {
+        "description" : "getStatistics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "firstResponseTime" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "openTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "responseTime" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "spamTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "totalTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "customerHappiness" : {
+                  "$ref" : "./Contact.json#/components/schemas/customerHappinessCount"
+                },
+                "resolutionTime" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "closedTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "channelWiseCount" : {
+                  "type" : [ "null", "object" ],
+                  "additionalProperties" : false,
+                  "patternProperties" : {
+                    "([0-9]+)" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    }
+                  }
+                },
+                "escalatedTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "onholdTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "overdueTickets" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "channelWiseCount", "closedTickets", "customerHappiness", "escalatedTickets", "firstResponseTime", "onholdTickets", "openTickets", "overdueTickets", "resolutionTime", "responseTime", "spamTickets", "totalTickets" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "firstResponseTime" : "120000",
+                  "openTickets" : "11",
+                  "responseTime" : "13150000",
+                  "spamTickets" : "0",
+                  "totalTickets" : "36",
+                  "customerHappiness" : {
+                    "badCount" : "50",
+                    "goodCount" : "0",
+                    "okCount" : "50"
+                  },
+                  "closedTickets" : "23",
+                  "resolutionTime" : "0",
+                  "channelWiseCount" : {
+                    "Web" : "12",
+                    "Forums" : "14",
+                    "Chat" : "10"
+                  },
+                  "onholdTickets" : "2",
+                  "escalatedTickets" : "0",
+                  "overdueTickets" : "0"
+                }
+              }
+            }
+          }
+        }
+      },
+      "countJson" : {
+        "description" : "countJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "10"
+                }
+              }
+            }
+          }
+        }
+      },
+      "contactResponse" : {
+        "description" : "contactResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "owner" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "firstName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "lastName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "firstName", "id", "lastName" ]
+                  },
+                  "account" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 3,
+                    "minProperties" : 3,
+                    "properties" : {
+                      "website" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 120,
+                        "minLength" : 0
+                      },
+                      "accountName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 200,
+                        "minLength" : 0
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "accountName", "id", "website" ]
+                  }
+                }
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "./Contact.json#/components/schemas/contactjson"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "modifiedTime" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                    },
+                    "cf" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "patternProperties" : {
+                        "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        }
+                      }
+                    },
+                    "isFollowing" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "accountCount" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "customFields" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "patternProperties" : {
+                        "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        }
+                      }
+                    },
+                    "layoutId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "photoURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "isAnonymous" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "isDeleted" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "isTrashed" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "webUrl" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 500,
+                      "minLength" : 0,
+                      "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                    },
+                    "createdTime" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                    },
+                    "isEndUser" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "zohoCRMContact" : {
+                      "$ref" : "./Contact.json#/components/schemas/zohoCRMContact"
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "customerHappiness" : {
+                      "$ref" : "./Contact.json#/components/schemas/customerHappiness"
+                    },
+                    "isSpam" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "layoutDetails" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 2,
+                      "minProperties" : 2,
+                      "properties" : {
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "layoutName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 120,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        }
+                      },
+                      "required" : [ "id", "layoutName" ]
+                    }
+                  },
+                  "required" : [ "accountCount", "cf", "createdTime", "customFields", "customerHappiness", "id", "isAnonymous", "isDeleted", "isEndUser", "isFollowing", "isSpam", "isTrashed", "layoutDetails", "layoutId", "modifiedTime", "photoURL", "webUrl", "zohoCRMContact" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "lastName" : "Lawrence",
+                  "modifiedTime" : 1462355837000,
+                  "country" : null,
+                  "secondaryEmail" : null,
+                  "city" : null,
+                  "description" : null,
+                  "ownerId" : "1892000000042001",
+                  "type" : null,
+                  "title" : null,
+                  "photoURL" : "https://desk.zoho.com/api/v1/contacts/1892000000042032/photo",
+                  "twitter" : null,
+                  "isDeleted" : false,
+                  "isTrashed" : false,
+                  "street" : null,
+                  "createdTime" : 1383564067000,
+                  "zohoCRMContact" : {
+                    "id" : "5000000014010",
+                    "type" : "contacts_leads"
+                  },
+                  "customerHappiness" : {
+                    "badPercentage" : "22",
+                    "okPercentage" : "31",
+                    "goodPercentage" : "47"
+                  },
+                  "state" : null,
+                  "id" : "1892000000042032",
+                  "email" : "PII_EMAIL_SENTINEL",
+                  "zip" : null,
+                  "owner" : {
+                    "firstName" : "Twin",
+                    "lastName" : "john",
+                    "id" : "1892000000042001"
+                  },
+                  "cf" : {
+                    "cf_permanentaddress" : null,
+                    "cf_lastcontactedon" : null
+                  },
+                  "isFollowing" : "true",
+                  "facebook" : null,
+                  "mobile" : null,
+                  "accountId" : "1892000000975382",
+                  "firstName" : "Jennifer",
+                  "isAnonymous" : false,
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Contacts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                  "isSpam" : false
+                }
+              }
+            }
+          }
+        }
+      },
+      "contactListViewArrayWithMappingInfo" : {
+        "description" : "contactListViewArrayWithMappingInfo template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Contact.json#/components/schemas/dataWithMappingInfo"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "lastName" : "Lawrence",
+                    "secondaryEmail" : null,
+                    "mappingInfo" : {
+                      "mappingId" : "18026000003237019",
+                      "mappingType" : "PRIMARY",
+                      "isAccountTicketsViewable" : true
+                    },
+                    "mobile" : "109000000002003",
+                    "type" : null,
+                    "ownerId" : "4000000008734",
+                    "firstName" : null,
+                    "accountId" : "4000000008784",
+                    "photoURL" : null,
+                    "isAnonymous" : true,
+                    "phone" : "PII_PHONE_SENTINEL",
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Contacts/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "createdTime" : 1507813910000,
+                    "isEndUser" : "false",
+                    "zohoCRMContact" : {
+                      "id" : "5000000014010",
+                      "type" : "contacts_leads"
+                    },
+                    "customerHappiness" : {
+                      "badPercentage" : "0",
+                      "okPercentage" : "0",
+                      "goodPercentage" : "0"
+                    },
+                    "id" : "4000000008786",
+                    "isSpam" : false,
+                    "email" : "PII_EMAIL_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "accountId" : {
+        "name" : "accountId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "viewId" : {
+        "name" : "viewId",
+        "in" : "query",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "contactId" : {
+        "name" : "contactId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of contacts to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of contacts to fetch",
+          "maximum" : 99,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the contacts must be listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the contacts must be listed",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "isSpam" : {
+        "name" : "isSpam",
+        "in" : "query",
+        "description" : "Filters Spam contacts",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "boolean", "null" ],
+          "description" : "Filters Spam contacts"
+        }
+      }
+    },
+    "requestBodies" : {
+      "inviteContactsAsEndUser" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "helpCenterId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "contactIds" : {
+                  "$ref" : "./Contact.json#/components/schemas/long_array"
+                }
+              },
+              "required" : [ "contactIds", "helpCenterId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "helpCenterId" : "4000000021302",
+                  "contactIds" : [ "4000000012902", "40000000212902", "40000002129122" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "dissociateAccountsWithContact" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "7000000027223", "7000000043968" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteContactsRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contactIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "contactIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contactIds" : [ "2000032002145" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "contact_massupdate" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isCustomField" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "ids" : {
+                  "$ref" : "./Contact.json#/components/schemas/long_array"
+                },
+                "fieldValue" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "fieldName", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldName" : "mobile",
+                  "isCustomField" : false,
+                  "ids" : [ "1892000000093303", "1892000000085009", "1892000000050003" ],
+                  "fieldValue" : "PII_PHONE_SENTINEL"
+                }
+              }
+            }
+          }
+        }
+      },
+      "contactjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Contact.json#/components/schemas/commonJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "zip" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "description" : "Zip code",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "country" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's country of residence",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "twitter" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Twitter ID of the contact",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "cf" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "city" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's city of residence",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "customFields" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "street" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's address",
+                    "maxLength" : 250,
+                    "minLength" : 0
+                  },
+                  "facebook" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Facebook ID of the contact",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "mobile" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Mobile number of the contact",
+                    "maxLength" : 50,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact description",
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "state" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's state of residence",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "title" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact title",
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "lastName" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "zip" : "123902",
+                  "lastName" : "Jack",
+                  "country" : "USA",
+                  "secondaryEmail" : "PII_EMAIL_SENTINEL",
+                  "city" : "Texas",
+                  "facebook" : "hugh jacks",
+                  "mobile" : "+10 PII_PHONE_SENTINEL",
+                  "description" : "first priority contact",
+                  "ownerId" : "1892000000056007",
+                  "type" : "paidUser",
+                  "title" : "The contact",
+                  "accountId" : "1892000000052077",
+                  "firstName" : "hugh",
+                  "twitter" : "Hugh jack",
+                  "phone" : "91020080878",
+                  "street" : "North street",
+                  "state" : "Austin",
+                  "email" : "PII_EMAIL_SENTINEL"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateContact_contactjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Contact.json#/components/schemas/commonJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "zip" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "description" : "Zip code",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "country" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's country of residence",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "twitter" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Twitter ID of the contact",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "cf" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "city" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's city of residence",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "customFields" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "street" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's address",
+                    "maxLength" : 250,
+                    "minLength" : 0
+                  },
+                  "facebook" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Facebook ID of the contact",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "mobile" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Mobile number of the contact",
+                    "maxLength" : 50,
+                    "minLength" : 0,
+                    "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact description",
+                    "maxLength" : 65535,
+                    "minLength" : 0
+                  },
+                  "state" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact's state of residence",
+                    "maxLength" : 30,
+                    "minLength" : 0
+                  },
+                  "title" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Contact title",
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                }
+              }, {
+                "type" : "object"
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "contactMergeRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./Contact.json#/components/schemas/long_array"
+                },
+                "source" : {
+                  "$ref" : "./Contact.json#/components/schemas/sourceValues"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "4000000018011", "4000000018021" ],
+                  "source" : {
+                    "zip" : "4000000018011",
+                    "lastName" : "4000000018011",
+                    "country" : "4000000018011",
+                    "secondaryEmail" : "4000000018011",
+                    "cf" : {
+                      "cf_permanentaddress" : 1892220000042001
+                    },
+                    "city" : "4000000018011",
+                    "facebook" : "4000000018011",
+                    "mobile" : "4000000018011",
+                    "description" : "4000000018011",
+                    "type" : "4000000018011",
+                    "title" : "4000000018011",
+                    "firstName" : "4000000018011",
+                    "accountId" : "4000000018011",
+                    "twitter" : "4000000018011",
+                    "phone" : "4000000018011",
+                    "street" : "4000000018011",
+                    "email" : "4000000018011"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateSignupApproval" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "helpCenterIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "helpCenterIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "helpCenterIds" : [ "4000000021302" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "rejectEndUserInvite_updateSignupApproval" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "helpCenterIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "helpCenterIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "helpCenterIds" : [ "4000000021302" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateAccountsWithContact" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "isAccountTicketsViewable" : {
+                        "type" : [ "boolean", "null" ]
+                      }
+                    },
+                    "required" : [ "id", "isAccountTicketsViewable" ]
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "id" : 7000000027223,
+                    "isAccountTicketsViewable" : true
+                  }, {
+                    "id" : 7000000043968,
+                    "isAccountTicketsViewable" : false
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateProductsWithContact" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "associate" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "associate", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "departmentId" : "7000000062800",
+                  "ids" : [ "7000000027223", "7000000043968" ],
+                  "associate" : true
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteSpamContacts_deleteContactsRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "contactIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "contactIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "contactIds" : [ "1892000000004507", "1892000000004508" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "inviteContactAsEndUser" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "helpCenterId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "helpCenterId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "helpCenterId" : "4000000021302"
+                }
+              }
+            }
+          }
+        }
+      },
+      "markSpamContactPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "ids" : {
+                  "type" : "array",
+                  "description" : "ID(s) of the contact(s) that must be marked or unmarked as spam",
+                  "items" : {
+                    "type" : [ "string", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "isSpam" : {
+                  "type" : "boolean",
+                  "description" : "Key that marks or unmarks a single contact or multiple contacts as spam"
+                },
+                "handleExistingTickets" : {
+                  "type" : "boolean",
+                  "description" : "Key that marks or unmarks tickets from the contact(s) as spam"
+                }
+              },
+              "required" : [ "ids", "isSpam" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "handleExistingTickets" : "true",
+                  "ids" : [ "1000000030065", "1000000030068" ],
+                  "isSpam" : "true"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Contact"
+}

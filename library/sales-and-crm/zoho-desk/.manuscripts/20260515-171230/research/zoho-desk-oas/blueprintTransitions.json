@@ -1,0 +1,829 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "blueprintTransitions",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticket_id}/transitions/{transition_id}/attachments/{attachment_id}/content" : {
+      "get" : {
+        "tags" : [ "blueprintTransitions" ],
+        "summary" : "View a specific attachment added to a transition draft",
+        "description" : "Get attachment of a transition draft",
+        "operationId" : "viewTemporaryTransitionDraftAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/attachment_id"
+        }, {
+          "$ref" : "#/components/parameters/ticket_id"
+        }, {
+          "$ref" : "#/components/parameters/transition_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticket_id}/transitions/{transition_id}/attachments/{attachment_id}" : {
+      "delete" : {
+        "tags" : [ "blueprintTransitions" ],
+        "summary" : "Delete attachment of a transition draft",
+        "description" : "Delete a specific attachment added to a transition draft.",
+        "operationId" : "deleteTransitionDraftTemporaryAttachment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/attachment_id"
+        }, {
+          "$ref" : "#/components/parameters/ticket_id"
+        }, {
+          "$ref" : "#/components/parameters/transition_id"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "transitionObjectWithPrimaryDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "transitionArrayWithPrimaryDetails" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/transitionObjectWithPrimaryDetails"
+        }
+      },
+      "teamsArrayForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Team.json#/components/schemas/teamsObjectForGetAppliedBlueprintDetails"
+        }
+      },
+      "agentsArrayForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Agent.json#/components/schemas/agentsObjectForGetAppliedBlueprintDetails"
+        }
+      },
+      "ownersObjectForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "agentIds" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/agentIdsArray"
+          },
+          "teams" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/teamsArrayForGetAppliedBlueprintDetails"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./Department.json#/components/schemas/departmentObjectWithPrimaryDetails"
+          },
+          "teamIds" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/teamIdsArray"
+          },
+          "agents" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/agentsArrayForGetAppliedBlueprintDetails"
+          },
+          "deptSharingType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "NO_SHARING", "READ_ONLY", "READ_WRITE", "RESTRICTED_ACCESS" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "NO_SHARING|READ_ONLY|READ_WRITE|RESTRICTED_ACCESS"
+          }
+        },
+        "required" : [ "agentIds", "agents", "department", "departmentId", "deptSharingType", "teamIds", "teams" ]
+      },
+      "ownersArrayForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/ownersObjectForGetAppliedBlueprintDetails"
+        }
+      },
+      "transitionsObjectForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fromState" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "toState" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "isAutoTransition" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "criteria" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObjectForTransitionResponse"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "owners" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/ownersArrayForGetAppliedBlueprintDetails"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "canUserPerformTransition" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isCriteriaSatisfied" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "canUserPerformTransition", "criteria", "fromState", "id", "isAutoTransition", "isCriteriaSatisfied", "name", "owners", "toState" ]
+      },
+      "transitionsArrayForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsObjectForGetAppliedBlueprintDetails"
+        }
+      },
+      "ownersObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "agentIds" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/agentIdsArray"
+          },
+          "otherRecpts" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/otherRecptsArray"
+          },
+          "teamIds" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/teamIdsArray"
+          }
+        },
+        "required" : [ "agentIds", "otherRecpts", "teamIds" ]
+      },
+      "accessorsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "agentIds" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/agentIdsArray"
+          },
+          "teamIds" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/teamIdsArray"
+          }
+        },
+        "required" : [ "agentIds", "teamIds" ]
+      },
+      "sharedDeptAccessorsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "accessors" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/accessorsObject"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "sharingType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "READ_WRITE", "READ_ONLY", "RESTRICTED_ACCESS" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "READ_WRITE|READ_ONLY|RESTRICTED_ACCESS"
+          }
+        },
+        "required" : [ "accessors", "departmentId", "sharingType" ]
+      },
+      "sharedDeptAccessorsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/sharedDeptAccessorsObject"
+        }
+      },
+      "accessorsBeforeTransitionObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "owners" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/ownersObject"
+          },
+          "sharedDeptAccessors" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/sharedDeptAccessorsArray"
+          }
+        },
+        "required" : [ "actionId", "owners", "sharedDeptAccessors" ]
+      },
+      "criteriaDetailsObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "criteria" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObjectForTransitionResponse"
+          },
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "actionId", "criteria" ]
+      },
+      "beforeObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "accessors" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/accessorsBeforeTransitionObjectForResponse"
+          },
+          "criteriaDetails" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/criteriaDetailsObjectForResponse"
+          }
+        }
+      },
+      "commonStatesArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+        }
+      },
+      "messageObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "message" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "actionId", "message" ]
+      },
+      "fieldUpdatesObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "criteria" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObject"
+          },
+          "fieldId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "errorMsg" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])*"
+          }
+        },
+        "required" : [ "errorMsg", "fieldId" ]
+      },
+      "fieldUpdatesObjectsObjForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldUpdates" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdatesObject"
+          },
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isMandatory" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "actionId", "fieldUpdates", "isMandatory" ]
+      },
+      "otherActionsObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "otherActions" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "REPLY", "BUG", "COMMENT", "RESOLUTION", "APPROVAL", "ATTACHMENT", "SHARING", "FIELD_UPDATE" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "REPLY|BUG|COMMENT|RESOLUTION|APPROVAL|ATTACHMENT|SHARING|FIELD_UPDATE"
+          },
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isMandatory" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "actionId", "isMandatory", "otherActions" ]
+      },
+      "duringArrayForResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/messageObjectForResponse"
+          }, {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdatesObjectsObjForResponse"
+          }, {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/otherActionsObjectForResponse"
+          } ]
+        }
+      },
+      "alertIds" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "alertObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/alertIds"
+          }
+        },
+        "required" : [ "actionId", "ids" ]
+      },
+      "taskIds" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "taskObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/taskIds"
+          }
+        },
+        "required" : [ "actionId", "ids" ]
+      },
+      "fieldUpdateIds" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "fieldUpdateObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdateIds"
+          }
+        },
+        "required" : [ "actionId", "ids" ]
+      },
+      "customFunctionIds" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "customFunctionObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "actionId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/customFunctionIds"
+          }
+        },
+        "required" : [ "actionId", "ids" ]
+      },
+      "afterObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldUpdate" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdateObjectForResponse"
+          },
+          "task" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/taskObjectForResponse"
+          },
+          "customFunction" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/customFunctionObjectForResponse"
+          },
+          "alert" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/alertObjectForResponse"
+          }
+        }
+      },
+      "autoTransitionActionsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "feedback" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SURVEY_ALL", "SURVEY_GOOD", "SURVEY_AVG", "SURVEY_BAD" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "SURVEY_ALL|SURVEY_GOOD|SURVEY_AVG|SURVEY_BAD"
+          },
+          "reply" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "REPLY_ALL", "REPLY_PRIVATE", "REPLY_PUBLIC" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "REPLY_ALL|REPLY_PRIVATE|REPLY_PUBLIC"
+          }
+        }
+      },
+      "transitionsObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isAutoTransition" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "before" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/beforeObjectForResponse"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])*"
+          },
+          "commonStates" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/commonStatesArray"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "during" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/duringArrayForResponse"
+          },
+          "after" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/afterObjectForResponse"
+          },
+          "autoTransitionActions" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/autoTransitionActionsObject"
+          },
+          "isCommonTransition" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "after", "autoTransitionActions", "before", "commonStates", "description", "during", "id", "isAutoTransition", "isCommonTransition", "name" ]
+      },
+      "transitionsArrayForResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsObjectForResponse"
+        }
+      },
+      "criteriaDetailsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "criteria" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaObject"
+          }
+        },
+        "required" : [ "criteria" ]
+      },
+      "accessorsBeforeTransitionObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "owners" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/ownersObject"
+          },
+          "sharedDeptAccessors" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/sharedDeptAccessorsArray"
+          }
+        },
+        "required" : [ "owners", "sharedDeptAccessors" ]
+      },
+      "beforeObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "accessors" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/accessorsBeforeTransitionObject"
+          },
+          "criteriaDetails" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/criteriaDetailsObject"
+          }
+        },
+        "required" : [ "accessors", "criteriaDetails" ]
+      },
+      "messageObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "message" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "message" ]
+      },
+      "fieldUpdatesObjectsObj" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldUpdates" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdatesObject"
+          },
+          "isMandatory" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "fieldUpdates", "isMandatory" ]
+      },
+      "otherActionsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "otherActions" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "REPLY", "BUG", "COMMENT", "RESOLUTION", "APPROVAL", "ATTACHMENT", "SHARING", "FIELD_UPDATE" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "REPLY|BUG|COMMENT|RESOLUTION|APPROVAL|ATTACHMENT|SHARING|FIELD_UPDATE"
+          },
+          "isMandatory" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "isMandatory", "otherActions" ]
+      },
+      "duringArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/messageObject"
+          }, {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdatesObjectsObj"
+          }, {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/otherActionsObject"
+          } ]
+        }
+      },
+      "alertObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/alertIds"
+          }
+        },
+        "required" : [ "ids" ]
+      },
+      "taskObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/taskIds"
+          }
+        },
+        "required" : [ "ids" ]
+      },
+      "fieldUpdateObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdateIds"
+          }
+        },
+        "required" : [ "ids" ]
+      },
+      "customFunctionObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ids" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/customFunctionIds"
+          }
+        },
+        "required" : [ "ids" ]
+      },
+      "afterObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldUpdate" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/fieldUpdateObject"
+          },
+          "task" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/taskObject"
+          },
+          "customFunction" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/customFunctionObject"
+          },
+          "alert" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/alertObject"
+          }
+        },
+        "required" : [ "alert", "customFunction", "fieldUpdate", "task" ]
+      },
+      "transitionsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isAutoTransition" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "before" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/beforeObject"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "commonStates" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/commonStatesArray"
+          },
+          "during" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/duringArray"
+          },
+          "after" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/afterObject"
+          },
+          "autoTransitionActions" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/autoTransitionActionsObject"
+          },
+          "isCommonTransition" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "after", "autoTransitionActions", "before", "commonStates", "description", "during", "isAutoTransition", "isCommonTransition", "name" ]
+      },
+      "transitionsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/transitionsObject"
+        }
+      },
+      "transitionObjectWithName" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "name" ]
+      }
+    },
+    "parameters" : {
+      "attachment_id" : {
+        "name" : "attachment_id",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticket_id" : {
+        "name" : "ticket_id",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "transition_id" : {
+        "name" : "transition_id",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "blueprintTransitions"
+}

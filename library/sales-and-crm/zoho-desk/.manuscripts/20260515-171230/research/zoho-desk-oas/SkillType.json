@@ -1,0 +1,575 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "SkillType",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/skillTypes" : {
+      "get" : {
+        "tags" : [ "SkillType" ],
+        "summary" : "List all Skill Types",
+        "description" : "This API Lists all Skill Types in a department",
+        "operationId" : "getSkillTypes",
+        "parameters" : [ {
+          "name" : "mappedSkillsStatus",
+          "in" : "query",
+          "description" : "Filter skill types by associated skills status, allowed values @ACTIVE@ and @INACTIVE@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Filter skill types by associated skills status, allowed values @ACTIVE@ and @INACTIVE@",
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Department Id",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of skilltypes to list,  @allowed minimum value 1, maximum value 100,default is 100@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of skilltypes to list,  @allowed minimum value 1, maximum value 100,default is 100@",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the skills must be listed",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the skills must be listed",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/skillTypeListViewResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "SkillType" ],
+        "summary" : "Create Skill Type",
+        "description" : "This API Creates a Skill Type",
+        "operationId" : "createSkillType",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/skillTypesCreateJson"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "201" : {
+            "$ref" : "#/components/responses/skillTypeSingleResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/skillTypes/{skillTypeId}" : {
+      "get" : {
+        "tags" : [ "SkillType" ],
+        "summary" : "Get details of a Skill Type",
+        "description" : "This API Gets the details of a Skill Type",
+        "operationId" : "getSkillType",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/skillTypeId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/skillTypeSingleResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "SkillType" ],
+        "summary" : "Delete a Skill Type",
+        "description" : "This API Deletes a Skill Type",
+        "operationId" : "deleteSkillType",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/skillTypeId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "SkillType" ],
+        "summary" : "Update a Skill Type",
+        "description" : "This API Updates a Skill Type",
+        "operationId" : "updateSkillType",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/skillTypeId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/skillTypesUpdateJson"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/skillTypeSingleResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "associatedSkillJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "skillName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "skillId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "skillStatus" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "skillId", "skillName", "skillStatus" ]
+      },
+      "associatedSkillsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./SkillType.json#/components/schemas/associatedSkillJSON"
+        }
+      },
+      "mappedSkillsStatusArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "ACTIVE", "INACTIVE" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "skillTypeCompleteResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "associatedSkills" : {
+            "$ref" : "./SkillType.json#/components/schemas/associatedSkillsArr"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "associatedSkills", "createdBy", "createdTime", "departmentId", "id", "modifiedBy", "modifiedTime", "name" ]
+      },
+      "skillTypeCompleteResponseWithMappedSkillsStatus" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./SkillType.json#/components/schemas/skillTypeCompleteResponse"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "mappedSkillsStatus" : {
+              "$ref" : "./SkillType.json#/components/schemas/mappedSkillsStatusArr"
+            }
+          },
+          "required" : [ "mappedSkillsStatus" ]
+        } ]
+      },
+      "skillTypesResponseArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./SkillType.json#/components/schemas/skillTypeCompleteResponseWithMappedSkillsStatus"
+        }
+      }
+    },
+    "responses" : {
+      "skillTypeSingleResponse" : {
+        "description" : "skillTypeSingleResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "associatedSkills" : {
+                  "$ref" : "./SkillType.json#/components/schemas/associatedSkillsArr"
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "associatedSkills", "createdBy", "createdTime", "departmentId", "id", "modifiedBy", "modifiedTime", "name" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : 1595507951776,
+                  "associatedSkills" : [ ],
+                  "createdBy" : "1000000000059",
+                  "departmentId" : "1000000013248",
+                  "name" : "Product",
+                  "createdTime" : 1595507951776,
+                  "modifiedBy" : "1000000000059",
+                  "id" : "1000000173019"
+                }
+              }
+            }
+          }
+        }
+      },
+      "skillTypeListViewResponse" : {
+        "description" : "skillTypeListViewResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./SkillType.json#/components/schemas/skillTypesResponseArr"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1595507804544,
+                    "associatedSkills" : [ {
+                      "skillName" : "India",
+                      "skillId" : "1000000173029",
+                      "skillStatus" : "ACTIVE"
+                    }, {
+                      "skillName" : "Russia",
+                      "skillId" : "1000000173047",
+                      "skillStatus" : "ACTIVE"
+                    } ],
+                    "mappedSkillsStatus" : [ "ACTIVE" ],
+                    "createdBy" : "1000000000059",
+                    "departmentId" : "1000000013248",
+                    "name" : "Country",
+                    "createdTime" : 1595507804544,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173001"
+                  }, {
+                    "modifiedTime" : 1595507939455,
+                    "associatedSkills" : [ {
+                      "skillName" : "English",
+                      "skillId" : "1000000173097",
+                      "skillStatus" : "ACTIVE"
+                    }, {
+                      "skillName" : "Malayalam",
+                      "skillId" : "1000000173145",
+                      "skillStatus" : "ACTIVE"
+                    }, {
+                      "skillName" : "Tamil",
+                      "skillId" : "1000000173121",
+                      "skillStatus" : "INACTIVE"
+                    } ],
+                    "mappedSkillsStatus" : [ "INACTIVE", "ACTIVE" ],
+                    "createdBy" : "1000000000059",
+                    "departmentId" : "1000000013248",
+                    "name" : "Language",
+                    "createdTime" : 1595507939455,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173013"
+                  }, {
+                    "modifiedTime" : 1595507987900,
+                    "associatedSkills" : [ ],
+                    "mappedSkillsStatus" : [ ],
+                    "createdBy" : "1000000000059",
+                    "departmentId" : "1000000013248",
+                    "name" : "Product",
+                    "createdTime" : 1595507951776,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173019"
+                  }, {
+                    "modifiedTime" : 1595507933429,
+                    "associatedSkills" : [ ],
+                    "mappedSkillsStatus" : [ ],
+                    "createdBy" : "1000000000059",
+                    "departmentId" : "1000000013248",
+                    "name" : "Region",
+                    "createdTime" : 1595507933429,
+                    "modifiedBy" : "1000000000059",
+                    "id" : "1000000173007"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "skillTypeId" : {
+        "name" : "skillTypeId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "skillTypesCreateJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "departmentId", "name" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "departmentId" : "1000000013248",
+                  "name" : "Country"
+                }
+              }
+            }
+          }
+        }
+      },
+      "skillTypesUpdateJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 1,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "name" : "Product"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "SkillType"
+}

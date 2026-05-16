@@ -1,0 +1,275 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "AccountSla",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/accounts/{accountId}/sla/{slaId}" : {
+      "post" : {
+        "tags" : [ "AccountSla" ],
+        "summary" : "Associate or dissociate SLA from account",
+        "description" : "This API associates or dissociates an SLA from an account.",
+        "operationId" : "associateAndDisassociateSlaInAccount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "name" : "slaId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateSla"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/sla" : {
+      "get" : {
+        "tags" : [ "AccountSla" ],
+        "summary" : "List account SLAs",
+        "description" : "This API lists a particular number of SLAs associated with an account, based on the limit defined.",
+        "operationId" : "getSlasUnderAccount",
+        "parameters" : [ {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "ID of the department from which the SLAs must be fetched. If you do not pass this parameter in the API request, SLAs from all permitted departments will be listed.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the department from which the SLAs must be fetched. If you do not pass this parameter in the API request, SLAs from all permitted departments will be listed.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of SLAs to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of SLAs to list",
+            "maximum" : 100,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the SLAs must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the SLAs must be fetched",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Activation status of the SLAs. Values allowed are: @ACTIVE@ and @INACTIVE@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Activation status of the SLAs. Values allowed are: @ACTIVE@ and @INACTIVE@",
+            "enum" : [ "ACTIVE", "INACTIVE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/accountId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/slaMetaInfoResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "department" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "slaListViewArray" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "department" : {
+            "$ref" : "./AccountSla.json#/components/schemas/department"
+          },
+          "isActive" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "department", "id", "isActive", "name" ]
+      },
+      "slaData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./AccountSla.json#/components/schemas/slaListViewArray"
+        }
+      }
+    },
+    "responses" : {
+      "slaMetaInfoResponse" : {
+        "description" : "slaMetaInfoResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./AccountSla.json#/components/schemas/slaData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "slaName" : "Priority-based SLAs",
+                    "id" : "45794000000419372",
+                    "isActive" : true,
+                    "department" : {
+                      "name" : "Tesla",
+                      "id" : "45794000000418059"
+                    }
+                  }, {
+                    "slaName" : "SLA",
+                    "id" : "45794000000570017",
+                    "isActive" : true,
+                    "department" : {
+                      "name" : "BMW",
+                      "id" : "45794000000006907"
+                    }
+                  }, {
+                    "slaName" : "Silver SLAs",
+                    "id" : "45794000000587464",
+                    "isActive" : true,
+                    "department" : {
+                      "name" : "Jaguar",
+                      "id" : "45794000000586067"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "accountId" : {
+        "name" : "accountId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "updateSla" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "associate" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "associate" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "associate" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "AccountSla"
+}

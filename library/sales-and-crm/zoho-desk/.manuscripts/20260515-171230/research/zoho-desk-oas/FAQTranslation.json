@@ -1,0 +1,120 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "FAQTranslation",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "attachmentsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./FAQ.json#/components/schemas/attachments"
+        }
+      }
+    },
+    "responses" : {
+      "articleAttachments" : {
+        "description" : "articleAttachments template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./FAQTranslation.json#/components/schemas/attachmentsData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "resourceId" : "1vq0db78bc1203a0645e0a38373b3bddf8d40",
+                    "extension" : "txt",
+                    "name" : "aadas1_2_3_5_54_.txt",
+                    "viewUrl" : "https://desk.zoho.com/support/DocsDisplay?attachId=e91351dc29e5b7394d93c8deb91b642a0b498ee34174141d&action=view&zgId=17ec4c79299ee107dc91a236738b3d70&entityId=e91351dc29e5b739421838319e770b0a42acf79f93f757e8",
+                    "downloadUrl" : "https://desk.zoho.com/support/DocsDisplay?attachId=e91351dc29e5b7394d93c8deb91b642a0b498ee34174141d&action=download&zgId=17ec4c79299ee107dc91a236738b3d70&entityId=e91351dc29e5b739421838319e770b0a42acf79f93f757e8",
+                    "createdTime" : 1531262705865,
+                    "filesize" : "62"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "dissociateAttachmentsFromFAQRequestBody" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^([a-zA-Z0-9]{37}|-1)$"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "attachmentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "attachmentIds" : [ "1vq0db78bc1203a0645e0a38373b3bddf8d40" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateAttachmentsWithFAQRequestBody" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^([a-zA-Z0-9]{37}|-1)$"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "attachmentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "attachmentIds" : [ "1vq0db78bc1203a0645e0a38373b3bddf8d40" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "FAQTranslation"
+}

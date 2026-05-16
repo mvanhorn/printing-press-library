@@ -1,0 +1,561 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Channel",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/channels/{channelCode}/photo" : {
+      "get" : {
+        "tags" : [ "Channel" ],
+        "summary" : "Get Channel logo",
+        "description" : "This API gets the logo for the given channel.",
+        "operationId" : "getChannelPhoto",
+        "parameters" : [ {
+          "name" : "height",
+          "in" : "query",
+          "description" : "",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "",
+            "maximum" : 500,
+            "minimum" : 10,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/channelCode"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/channels/{channelCode}" : {
+      "get" : {
+        "tags" : [ "Channel" ],
+        "summary" : "Get a Channel",
+        "description" : "This API gets fetches details of a given channel.",
+        "operationId" : "getChannelByCode",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/channelCode"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getChannelResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/channels" : {
+      "get" : {
+        "tags" : [ "Channel" ],
+        "summary" : "List configured channels",
+        "description" : "This API fetches currently installed channels including System, Channel integration and Instant Messaging channels",
+        "operationId" : "getChannels",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getChannelsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "replyConfig" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "updateRecords" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "acceptsAttachments" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contentTypes" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "text/plain", "text/html" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "maxItems" : 2,
+            "uniqueItems" : true
+          },
+          "includeQuotedMessage" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "acceptsAttachments", "contentTypes", "includeQuotedMessage", "updateRecords" ]
+      },
+      "getChannelResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "code" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z0-9_\\-]+)"
+          },
+          "appName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "externalId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "mappedIntegration" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "replyConfig" : {
+            "$ref" : "./Channel.json#/components/schemas/replyConfig"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SYSTEM", "INTEGRATION", "INSTANT_MESSAGE" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "acceptsReplies" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "acceptsReplies", "appName", "code", "departmentId", "externalId", "mappedIntegration", "name", "photoURL", "replyConfig", "type" ]
+      },
+      "getChannelsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Channel.json#/components/schemas/getChannelResponse"
+        }
+      }
+    },
+    "responses" : {
+      "getChannelResponse" : {
+        "description" : "getChannelResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "photoURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "code" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([a-zA-Z0-9_\\-]+)"
+                },
+                "appName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "externalId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "mappedIntegration" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "replyConfig" : {
+                  "$ref" : "./Channel.json#/components/schemas/replyConfig"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "SYSTEM", "INTEGRATION", "INSTANT_MESSAGE" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "acceptsReplies" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "acceptsReplies", "appName", "code", "departmentId", "externalId", "mappedIntegration", "name", "photoURL", "replyConfig", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "photoURL" : "https://desk.zoho.com/api/v1/channels/sales_whatsapp_account/photo?orgId=60856948",
+                  "code" : "SALES_WHATSAPP_ACCOUNT",
+                  "appName" : "Sales Whatsapp Account",
+                  "departmentId" : "76389000000006907",
+                  "name" : "Sales Whatsapp Account",
+                  "externalId" : "109000000002003",
+                  "replyConfig" : {
+                    "updateRecords" : false,
+                    "acceptsAttachments" : false,
+                    "contentTypes" : [ "text/plain" ],
+                    "includeQuotedMessage" : false
+                  },
+                  "type" : "INSTANT_MESSAGE",
+                  "acceptsReplies" : true
+                }
+              }
+            }
+          }
+        }
+      },
+      "getChannelsResponse" : {
+        "description" : "getChannelsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Channel.json#/components/schemas/getChannelsArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "photoURL" : "https://desk.zoho.com/api/v1/channels/sales_whatsapp_account/photo?orgId=60856948",
+                    "code" : "SALES_WHATSAPP_ACCOUNT",
+                    "appName" : "Sales Whatsapp Account",
+                    "departmentId" : "76389000000006907",
+                    "name" : "Sales Whatsapp Account",
+                    "externalId" : "109000000002003",
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "INSTANT_MESSAGE",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : "https://desk.zoho.com/api/v1/channels/youtubecat/photo?orgId=647164567",
+                    "code" : "YOUTUBECAT",
+                    "appName" : "Youtube Cat",
+                    "departmentId" : "188422000009189044",
+                    "name" : "Youtube Cat",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "INTEGRATION",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "EMAIL",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Email",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : true,
+                      "contentTypes" : [ "text/plain", "text/html" ],
+                      "includeQuotedMessage" : true
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "TWITTER",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Twitter",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "TWITTER_DM",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Twitter",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "FACEBOOK",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Facebook",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "FACEBOOK_DM",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Facebook",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "INSTAGRAM",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Instagram",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "INSTAGRAM_DM",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Instagram",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain" ],
+                      "includeQuotedMessage" : false
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "WEB",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Web",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "ONLINE_CHAT",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Chat",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "OFFLINE_CHAT",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Chat",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "FORUMS",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Forums",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : {
+                      "updateRecords" : false,
+                      "acceptsAttachments" : false,
+                      "contentTypes" : [ "text/plain", "text/html" ],
+                      "includeQuotedMessage" : true
+                    },
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : true
+                  }, {
+                    "photoURL" : null,
+                    "code" : "PHONE",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Phone",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "ZTI",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Phone",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "CUSTOMERPORTAL",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Web",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "FEEDBACK",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "FeedBack",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  }, {
+                    "photoURL" : null,
+                    "code" : "FEEDBACK_WIDGET",
+                    "appName" : null,
+                    "departmentId" : null,
+                    "name" : "Feedback Widget",
+                    "externalId" : null,
+                    "mappedIntegration" : null,
+                    "replyConfig" : null,
+                    "type" : "SYSTEM",
+                    "acceptsReplies" : false
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "channelCode" : {
+        "name" : "channelCode",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "([a-zA-Z0-9_\\-]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Channel"
+}

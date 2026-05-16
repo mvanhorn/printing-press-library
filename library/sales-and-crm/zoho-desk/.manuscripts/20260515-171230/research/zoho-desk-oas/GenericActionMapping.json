@@ -1,0 +1,109 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "GenericActionMapping",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "inputParamPayloadJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "picklistValues" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "uniqueItems" : false
+          },
+          "apiName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "placeHolderContext" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "origin" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "STATIC", "DYNAMIC" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "length" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "STRING", "NUMBER", "DECIMAL", "PICKLIST", "URL", "MULTIPICKLIST", "ARRAY", "OBJECT", "LOOKUP", "BOOLEAN", "TEXT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isEncrypted" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "uiType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Text", "Number", "Percent", "Decimal", "Currency", "Date", "DateTime", "Email", "Phone", "Picklist", "URL", "Textarea", "Boolean", "Multiselect", "AutoNumber", "LookUp", "Fax", "Formula", "Hidden", "MultiLookup", "PrimaryIdentifier", "Expression", "Collection", "RichPlainText", "FileUpload", "LargeText", "Long", "Watchfields", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "hooks" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "uniqueItems" : false
+          },
+          "value" : {
+            "type" : [ "string", "null" ],
+            "minLength" : 0
+          },
+          "isMandatory" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "order" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "apiName", "hooks", "id", "isEncrypted", "isMandatory", "length", "name", "order", "origin", "picklistValues", "placeHolderContext", "type", "uiType", "value" ]
+      },
+      "inputParamPayloadJsonArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./GenericActionMapping.json#/components/schemas/inputParamPayloadJson"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "GenericActionMapping"
+}

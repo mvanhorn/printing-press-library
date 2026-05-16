@@ -1,0 +1,582 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "CustomView",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/lastAccessedView/{cvId}" : {
+      "put" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "Update Last Accessed View",
+        "description" : "This API updates the view last accessed by the user in the module and department specified in the request.",
+        "operationId" : "updateRecentView",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/cvId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/views/{cvId}/star" : {
+      "post" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "Add Starred View",
+        "description" : "This API stars a view, enabling quick access to the view.",
+        "operationId" : "addStarredView",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/cvId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/lastAccessedView" : {
+      "get" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "Get Last Accessed View",
+        "description" : "This API fetches the view last accessed by the user in the module and department specified in the request.",
+        "operationId" : "getRecentView",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getRecentViewJson"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/starredViews/{cvId}/unstar" : {
+      "post" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "Remove Starred View",
+        "description" : "This API unstars a view, disabling quick access to the view.",
+        "operationId" : "removeStarredView",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/cvId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/starredViews/order" : {
+      "put" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "Update Starred View order - Reorder",
+        "description" : "This API helps reorder the starred views in a module.",
+        "operationId" : "updateStarredViewOrder",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/starredViewJsonOrder"
+        },
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/views" : {
+      "get" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "List Views",
+        "description" : "This API lists the different views configured for a specific module or for all modules in your help desk portal.",
+        "operationId" : "getViews",
+        "parameters" : [ {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Module Name (for which the view configured and need to be fetched)",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Module Name (for which the view configured and need to be fetched)",
+            "enum" : [ "tickets", "contacts", "events", "activities", "tasks", "contracts", "accounts", "calls" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        }, {
+          "name" : "featureFlags",
+          "in" : "header",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "createdBy" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getViewsResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/unprocessableEntityErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/starredViews" : {
+      "get" : {
+        "tags" : [ "CustomView" ],
+        "summary" : "List Starred Views",
+        "description" : "This API lists the starred views in a module. Number of resources in the starred view is displayed only for the Tickets module.",
+        "operationId" : "getStarredViews",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "name" : "featureFlags",
+          "in" : "header",
+          "required" : false,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "createdBy" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getStarredViewsResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "customView_array" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "starredViewsJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)",
+            "properties" : { }
+          },
+          "isCustomView" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@%\\?\\,\\:\\'\\P{InBasicLatin}\\s&amp;&lt;&gt;\\+=]+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "count" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "deprecatedViewId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "viewName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "deprecatedViewId", "id", "isCustomView", "name", "viewName" ]
+      },
+      "viewsJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isCustomView" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@%\\?\\,\\:\\'\\P{InBasicLatin}\\s&amp;&lt;&gt;\\+=]+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "deprecatedViewId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "viewName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "isCustomView", "name", "id", "viewName" ]
+      },
+      "viewsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/viewsJson"
+        }
+      },
+      "starredViewResponseArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/starredViewsJson"
+        }
+      }
+    },
+    "responses" : {
+      "getRecentViewJson" : {
+        "description" : "getRecentViewJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@%\\?\\,\\:\\'\\P{InBasicLatin}\\s&amp;&lt;&gt;\\+=]+"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "preference" : {
+                  "ref" : "./CustomView.json#/components/schemas/recentViewPreference"
+                },
+                "sanitizedName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@%\\?\\,\\:\\'\\P{InBasicLatin}&amp;&lt;&gt;\\+=]+"
+                },
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@%\\?\\,\\:\\'\\P{InBasicLatin}\\s&amp;&lt;&gt;\\+=]+"
+                }
+              },
+              "required" : [ "displayLabel", "id", "name", "preference", "sanitizedName" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : {
+                    "name" : "My Records",
+                    "id" : "4000000008143"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "getViewsResponse" : {
+        "description" : "getViewsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/viewsData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "isCustomView" : false,
+                    "name" : "All Tasks",
+                    "id" : "4000000007834"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "My Tasks",
+                    "id" : "4000000007836"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "My Open Tasks",
+                    "id" : "4000000007838"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Completed Tasks",
+                    "id" : "4000000007840"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Open Tasks",
+                    "id" : "4000000007842"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Overdue Tasks",
+                    "id" : "4000000007844"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Todays Tasks",
+                    "id" : "4000000007846"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Tomorrows Tasks",
+                    "id" : "4000000007848"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Today+Overdue Tasks",
+                    "id" : "4000000007850"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Next7days+Overdue Tasks",
+                    "id" : "4000000007852"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getStarredViewsResponse" : {
+        "description" : "getStarredViewsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "starredViews" : {
+                  "$ref" : "#/components/schemas/starredViewResponseArray"
+                },
+                "module" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "tickets", "tasks", "contracts", "accounts", "contacts", "calls", "events", "activities" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "module", "starredViews" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "starredViews" : [ {
+                    "isCustomView" : false,
+                    "name" : "All Tickets",
+                    "count" : "40",
+                    "id" : "4000000007834"
+                  }, {
+                    "isCustomView" : false,
+                    "name" : "Open Tickets",
+                    "count" : "22",
+                    "id" : "4000000007844"
+                  } ],
+                  "module" : "tickets"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "cvId" : {
+        "name" : "cvId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department in which the view(s) is (are) configured.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department in which the view(s) is (are) configured.",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "module" : {
+        "name" : "module",
+        "in" : "query",
+        "description" : "Allowed values are : @tickets@, @tasks@,@contacts@, @accounts@,@contacts@, @products@ ,@activities@,@calls@,@events@.",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Allowed values are : @tickets@, @tasks@,@contacts@, @accounts@,@contacts@, @products@ ,@activities@,@calls@,@events@.",
+          "enum" : [ "tickets" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "starredViewJsonOrder" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "starredViewIds" : {
+                  "$ref" : "#/components/schemas/customView_array"
+                }
+              },
+              "required" : [ "starredViewIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "starredViewIds" : [ "4000000007808", "4000000007810", "4000000007818", "4000000007820", "4000000007828", "4000000007830", "4000000007848", "4000000007850" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "CustomView"
+}

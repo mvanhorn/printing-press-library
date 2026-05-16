@@ -1,0 +1,248 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "blueprintCriteria",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "criteriaValuesObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayValue" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "value" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          }
+        },
+        "required" : [ "displayValue", "value" ]
+      },
+      "criteriaValuesArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaValuesObject"
+        }
+      },
+      "valueArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          }, {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+            },
+            "uniqueItems" : false
+          } ]
+        }
+      },
+      "fieldConditionsObjectForTransitionResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "criteriaValues" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/criteriaValuesArray"
+          },
+          "displayValue" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/valueArray"
+          },
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 1
+          },
+          "staticFieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "fieldModule" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "contacts", "accounts" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "tickets|contacts|accounts"
+          },
+          "fieldType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Text", "URL", "Textarea", "Email", "Phone", "Multiselect", "Date", "DateTime", "Number", "Checkbox", "Percent", "Decimal", "Currency", "Picklist", "LookUp", "Lookup", "AutoNumber", "Boolean", "Fax" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "value" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/valueArray"
+          },
+          "i18nLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "tableName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "columnName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "columnName", "condition", "criteriaValues", "displayValue", "fieldModule", "fieldName", "fieldType", "i18nLabel", "staticFieldName", "tableName", "value" ]
+      },
+      "fieldConditionsArrayForTransitionResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintCriteria.json#/components/schemas/fieldConditionsObjectForTransitionResponse"
+        }
+      },
+      "criteriaObjectForTransitionResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldConditions" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/fieldConditionsArrayForTransitionResponse"
+          },
+          "pattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 1,
+            "pattern" : "[andor()0-9\\s]*"
+          }
+        },
+        "required" : [ "fieldConditions", "pattern" ]
+      },
+      "fieldConditionsObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayValue" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/valueArray"
+          },
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 1
+          },
+          "fieldModule" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "contacts", "accounts" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "tickets|contacts|accounts"
+          },
+          "value" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/valueArray"
+          }
+        },
+        "required" : [ "condition", "displayValue", "fieldModule", "fieldName", "value" ]
+      },
+      "fieldConditionsArrayForResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintCriteria.json#/components/schemas/fieldConditionsObjectForResponse"
+        }
+      },
+      "criteriaObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldConditions" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/fieldConditionsArrayForResponse"
+          },
+          "pattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 1,
+            "pattern" : "[andor()0-9\\s]*"
+          }
+        }
+      },
+      "fieldConditionsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 1
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 1
+          },
+          "fieldModule" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "tickets", "contacts", "accounts" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "tickets|contacts|accounts"
+          },
+          "value" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/valueArray"
+          }
+        },
+        "required" : [ "condition", "fieldModule", "fieldName", "value" ]
+      },
+      "fieldConditionsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintCriteria.json#/components/schemas/fieldConditionsObject"
+        }
+      },
+      "criteriaObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fieldConditions" : {
+            "$ref" : "./blueprintCriteria.json#/components/schemas/fieldConditionsArray"
+          },
+          "pattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 1,
+            "pattern" : "[andor()0-9\\s]*"
+          }
+        },
+        "required" : [ "fieldConditions", "pattern" ]
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "blueprintCriteria"
+}

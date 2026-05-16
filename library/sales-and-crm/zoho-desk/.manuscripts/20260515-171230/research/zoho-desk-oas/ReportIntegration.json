@@ -1,0 +1,161 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Report",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/reports/fields" : {
+      "get" : {
+        "tags" : [ "Reports" ],
+        "summary" : "Get Report Integration Fields",
+        "description" : "Retrieve the list of report fields for a specific module for integration.",
+        "operationId" : "getReportIntegrationFields",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/module"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/reportIntegrationFieldsResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "reportIntegrationFieldsResponse" : {
+        "description" : "Successful response with the list of report fields.",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "object", "null" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "depId" : {
+                        "type" : [ "string", "null" ],
+                        "description" : "Department ID."
+                      },
+                      "deptLevelField" : {
+                        "type" : "boolean",
+                        "description" : "Indicates if the field is department-level."
+                      },
+                      "apiname" : {
+                        "type" : "string",
+                        "description" : "API name of the field."
+                      },
+                      "id" : {
+                        "type" : "string",
+                        "description" : "Field ID."
+                      },
+                      "name" : {
+                        "type" : "string",
+                        "description" : "Field name."
+                      },
+                      "tableName" : {
+                        "type" : "string",
+                        "description" : "Table name associated with the field."
+                      },
+                      "colName" : {
+                        "type" : "string",
+                        "description" : "Column name in the table."
+                      },
+                      "maxLength" : {
+                        "type" : "string",
+                        "description" : "Maximum length of the field."
+                      },
+                      "displayLabel" : {
+                        "type" : "string",
+                        "description" : "Display label of the field."
+                      },
+                      "type" : {
+                        "type" : "string",
+                        "description" : "Data type of the field."
+                      },
+                      "isCustomField" : {
+                        "type" : "boolean",
+                        "description" : "Indicates if the field is custom."
+                      },
+                      "isMandatory" : {
+                        "type" : "boolean",
+                        "description" : "Indicates if the field is mandatory."
+                      },
+                      "lookupTable" : {
+                        "type" : [ "string", "null" ],
+                        "description" : "Lookup table associated with the field, if any.",
+                        "nullable" : true
+                      },
+                      "isEncrypted" : {
+                        "type" : "boolean",
+                        "description" : "Indicates if the field is encrypted."
+                      }
+                    }
+                  }
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "depId" : "9000000027368",
+                  "deptLevelField" : true,
+                  "apiname" : "cf_dlf_mars",
+                  "id" : "9000000088714",
+                  "name" : "cf_dlf_mars",
+                  "tableName" : "CrmCasesNewCF",
+                  "colName" : "CASECF1",
+                  "maxLength" : "255",
+                  "displayLabel" : "DLF mars",
+                  "type" : "Text",
+                  "isCustomField" : true,
+                  "isMandatory" : false,
+                  "lookupTable" : null,
+                  "isEncrypted" : false
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "module" : {
+        "name" : "module",
+        "in" : "query",
+        "description" : "Tab of the Fields to be displayed. Allowed values are @tickets@, @contacts@, @tasks@, @timeEntry@, @accounts@, @solutions@, @products@, @topics@, @departments@, @agents@, @agentdepmap@, @survey@, @productdepmap@,@teams@,@outgoingThreads@,@resolutionTime@,@staging@,@incomingThreads@,@slaMetrics@,@calls@,@events@,@teamAgentMap@",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "string",
+          "description" : "Tab of the Fields to be displayed. Allowed values are @tickets@, @contacts@, @tasks@, @timeEntry@, @accounts@, @solutions@, @products@, @topics@, @departments@, @agents@, @agentdepmap@, @survey@, @productdepmap@,@teams@,@outgoingThreads@,@resolutionTime@,@staging@,@incomingThreads@,@slaMetrics@,@calls@,@events@,@teamAgentMap@",
+          "enum" : [ "tickets", "contacts", "tasks", "timeEntry", "accounts", "solutions", "products", "topics", "departments", "agents", "agentdepmap", "survey", "productdepmap", "teams", "outgoingThreads", "resolutionTime", "staging", "incomingThreads", "slaMetrics", "calls", "events", "teamAgentMap" ],
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Report"
+}

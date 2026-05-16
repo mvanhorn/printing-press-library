@@ -1,0 +1,398 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Helpcenter",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/helpCenters/{helpcenterId}/sitemaps" : {
+      "post" : {
+        "tags" : [ "Helpcenter" ],
+        "summary" : "Update Helpcenter sitemaps",
+        "description" : "This API will generate sitemaps for the given Helpcenter",
+        "operationId" : "createSiteMaps",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/helpcenterId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/helpCenters" : {
+      "get" : {
+        "tags" : [ "Helpcenter" ],
+        "summary" : "List help centers",
+        "description" : "This API lists the help centers configured in your Zoho Desk portal.",
+        "operationId" : "getAllHelpCenters",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/helpcenterListViewResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/helpCenters/{helpcenterId}" : {
+      "get" : {
+        "tags" : [ "Helpcenter" ],
+        "summary" : "Get details of help center",
+        "description" : "This API fetches the details of a particular help center.",
+        "operationId" : "getHelpCenter",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/helpcenterId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/helpcenterDetailResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "helpcenterLocaleObj" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[0-9a-zA-Z\\!\\$\\|\\%&amp;\\#\\-\\*\\+\\,\\^\\_\\`\\~\\s\\.\\P{InBasicLatin}]+$"
+          },
+          "locale" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DEFAULT", "OTHER" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACCESIBLE_IN_HELPCENTER", "DISABLED_IN_HELPCENTER", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "locale", "name", "status", "type" ]
+      },
+      "helpcenterLocaleList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Helpcenter.json#/components/schemas/helpcenterLocaleObj"
+        }
+      },
+      "helpcenterDefaultResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isDefault" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "locales" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "en", "ja", "zh", "es", "de", "fr", "tr", "ru", "pt", "it", "nl", "da", "sv", "pl", "ar", "he", "af", "cs", "fr-ca", "bg", "fi", "el", "hu", "id", "nb", "ro", "th", "uk", "vi", "ur", "hi", "te", "kn", "ta", "mr", "ko", "fa", "bn", "gu", "ms", "ml", "en-gb", "sk", "hr", "sl", "zh_TW", "zh-tw", "ca", "ka", "kk", "my", "km", "pt-br" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([a-zA-Z]{2,4}([-_][a-zA-Z]{2})?)"
+            },
+            "uniqueItems" : false
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "^[0-9a-zA-Z\\!\\$\\|\\%&amp;\\#\\-\\*\\+\\,\\^\\_\\`\\~\\s\\.\\P{InBasicLatin}]+$"
+          },
+          "isEncodedPermalinkAllowed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "departmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "isMultilingualEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "helpCenterLocales" : {
+            "$ref" : "./Helpcenter.json#/components/schemas/helpcenterLocaleList"
+          },
+          "primaryLocale" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z]{2,4}([-_][a-zA-Z]{2})?"
+          },
+          "url" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "logoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "departmentIds", "helpCenterLocales", "id", "isDefault", "isEncodedPermalinkAllowed", "isMultilingualEnabled", "locales", "logoUrl", "name", "primaryLocale", "status", "url" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Helpcenter.json#/components/schemas/helpcenterDefaultResponse"
+        }
+      },
+      "helpcenterDomain" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)+([a-zA-Z]{2,22})|([a-zA-Z]{2,22}:([0-9]{3,6})?)$"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "PRIMARY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "name", "type" ]
+      },
+      "helpcenterDomainsList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Helpcenter.json#/components/schemas/helpcenterDomain"
+        }
+      }
+    },
+    "responses" : {
+      "helpcenterListViewResponse" : {
+        "description" : "helpcenterListViewResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Helpcenter.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "isDefault" : true,
+                    "name" : "Zoho Cares",
+                    "id" : "24073000002579275",
+                    "departmentIds" : [ "24073000000102043" ],
+                    "isMultilingualEnabled" : true,
+                    "helpCenterLocales" : [ {
+                      "name" : "ZohoCorp Portal",
+                      "locale" : "en",
+                      "type" : "DEFAULT",
+                      "status" : "ACCESIBLE_IN_HELPCENTER"
+                    } ],
+                    "primaryLocale" : "en",
+                    "logoUrl" : "https://static.zohocdn.com/desk/app/images/portalLogo.de847024ebc0131731a3.png",
+                    "url" : "https://help.zoho.com/portal/",
+                    "status" : "ACTIVE"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "helpcenterDetailResponse" : {
+        "description" : "helpcenterDetailResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Helpcenter.json#/components/schemas/helpcenterDefaultResponse"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "translateMode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "MANUAL", "AUTO" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "siteMapUpdatedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "domains" : {
+                    "$ref" : "./Helpcenter.json#/components/schemas/helpcenterDomainsList"
+                  },
+                  "favIconUrl" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 200,
+                    "minLength" : 0,
+                    "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                  },
+                  "logoLinkBackUrl" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 200,
+                    "minLength" : 0,
+                    "pattern" : "((^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)|[*]|^$)"
+                  },
+                  "autoTranslateSettings" : {
+                    "$ref" : "./HelpcenterAutoTranslateSetting.json#/components/schemas/autoTranslateSettingsList"
+                  },
+                  "activeThemeId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "activeThemeId", "autoTranslateSettings", "domains", "favIconUrl", "logoLinkBackUrl", "siteMapUpdatedTime", "translateMode" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "translateMode" : "AUTO",
+                  "domains" : [ {
+                    "name" : "partners.zoho.com",
+                    "type" : "PRIMARY"
+                  } ],
+                  "logoLinkBackUrl" : "https://zoho.com/desk",
+                  "departmentIds" : [ "24073000002579221" ],
+                  "isMultilingualEnabled" : true,
+                  "logoUrl" : "https://desk.zoho.com/api/v1/helpCenter/24073000002579275/logo/24073000002572232?orgId=2389290",
+                  "url" : "https://partners.zoho.com/portal/",
+                  "locales" : [ "en" ],
+                  "isDefault" : false,
+                  "siteMapUpdatedTime" : 1577350089000,
+                  "name" : "Zoho Cares",
+                  "favIconUrl" : "https://desk.zoho.com/api/v1/helpCenter/24073000002579275/favIcon/2407300000257912?orgId=2389290",
+                  "id" : "24073000002579275",
+                  "helpCenterLocales" : [ {
+                    "name" : "Zoho Cares",
+                    "locale" : "en",
+                    "type" : "DEFAULT",
+                    "status" : "ACCESIBLE_IN_HELPCENTER"
+                  } ],
+                  "primaryLocale" : "en",
+                  "autoTranslateSettings" : [ {
+                    "languages" : [ "ar", "cs", "de" ],
+                    "installationId" : "24073000002579275",
+                    "uuId" : "50c9bb96b17694d63cd0f03eadbe4ae5",
+                    "status" : "ACTIVE"
+                  } ],
+                  "status" : "ACTIVE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "helpcenterId" : {
+        "name" : "helpcenterId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Helpcenter"
+}

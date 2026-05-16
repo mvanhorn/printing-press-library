@@ -1,0 +1,422 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "IM_Metrics",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/im/metrics/agents" : {
+      "get" : {
+        "tags" : [ "IM_Metrics" ],
+        "summary" : "Get Agents Metrics",
+        "description" : "This data provides leads/managers with a holistic details into agents performance and can be used in coaching them.",
+        "operationId" : "getAgentMetrics",
+        "parameters" : [ {
+          "name" : "duration",
+          "in" : "query",
+          "description" : "Duration to filter the metrics. Available values are @LAST24HOURS@, @TODAY@, @YESTERDAY@, @LAST_7_DAYS@, @LAST_30_DAYS@, @THIS_WEEK@, @LAST_WEEK@, @THIS_MONTH@, @LAST_MONTH@, @CUSTOM_IN_DATE@, @LAST_1_HOUR@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Duration to filter the metrics. Available values are @LAST24HOURS@, @TODAY@, @YESTERDAY@, @LAST_7_DAYS@, @LAST_30_DAYS@, @THIS_WEEK@, @LAST_WEEK@, @THIS_MONTH@, @LAST_MONTH@, @CUSTOM_IN_DATE@, @LAST_1_HOUR@",
+            "enum" : [ "LAST24HOURS", "TODAY", "YESTERDAY", "LAST_30_DAYS", "LAST_7_DAYS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "agentIds",
+          "in" : "query",
+          "description" : "To filter Agent Metrics only for particular Agents. It's a Optional Param",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "To filter Agent Metrics only for particular Agents. It's a Optional Param",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "attributeGroup",
+          "in" : "query",
+          "description" : "Denotes which attribute group data is required. Eg: RESPONSIVENESS - AVG_RESPONSE_TIME comes under responsiveness group. It's Mandatory Param. Available value is @RESPONSIVENESS@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Denotes which attribute group data is required. Eg: RESPONSIVENESS - AVG_RESPONSE_TIME comes under responsiveness group. It's Mandatory Param. Available value is @RESPONSIVENESS@",
+            "enum" : [ "RESPONSIVENESS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Filter agent metrics in given department Id",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Filter agent metrics in given department Id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "attributes",
+          "in" : "query",
+          "description" : "Denotes which metrics are required in the response. Its a mandatory Param. Eg: AVG_RESPONSE_TIME of agent.This is a list-based parameter you can pass all the values or the rquired ones. Available values are @ATTENDED_CHATS@, @AVG_PICKUP_TIME@, @AVG_FIRST_RESPONSE_TIME@, @AVG_RESPONSE_TIME@",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Denotes which metrics are required in the response. Its a mandatory Param. Eg: AVG_RESPONSE_TIME of agent.This is a list-based parameter you can pass all the values or the rquired ones. Available values are @ATTENDED_CHATS@, @AVG_PICKUP_TIME@, @AVG_FIRST_RESPONSE_TIME@, @AVG_RESPONSE_TIME@",
+            "enum" : [ "AVG_RESPONSE_TIME", "AVG_FIRST_RESPONSE_TIME", "AVG_PICKUP_TIME", "ATTENDED_CHATS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "integrationService",
+          "in" : "query",
+          "description" : "Agent metrics for a particular integration service. Available values are @TELEGRAM@, @TWILIO@, @LINE@, @WECHAT@, @WHATSAPP@, @FACEBOOKMESSENGER@, @INSTAGRAM@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Agent metrics for a particular integration service. Available values are @TELEGRAM@, @TWILIO@, @LINE@, @WECHAT@, @WHATSAPP@, @FACEBOOKMESSENGER@, @INSTAGRAM@",
+            "enum" : [ "TELEGRAM", "TWILIO", "IM_TALK", "LINE", "WECHAT", "WHATSAPP", "FACEBOOKMESSENGER" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "channelIds",
+          "in" : "query",
+          "description" : "To filter Agent Metrics only on a list of channelIds. It's a Optional Param",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "To filter Agent Metrics only on a list of channelIds. It's a Optional Param",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/IMMetrics"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.InstantMessages.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "IMMetricsColumn" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "attribute" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "value" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "attribute", "value" ]
+      },
+      "IMMetricsColumnList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./IM_Metrics.json#/components/schemas/IMMetricsColumn"
+        }
+      },
+      "IMMetricsRow" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "values" : {
+            "$ref" : "./IM_Metrics.json#/components/schemas/IMMetricsColumnList"
+          },
+          "id" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "id", "values" ]
+      },
+      "IMMetricsRowList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./IM_Metrics.json#/components/schemas/IMMetricsRow"
+        }
+      }
+    },
+    "responses" : {
+      "IMMetrics" : {
+        "description" : "IMMetrics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./IM_Metrics.json#/components/schemas/IMMetricsRowList"
+                },
+                "entity" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "data", "entity" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "1"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : "00:00:23"
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "345343453"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "2"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "86434543"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "8"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "976543456"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "1"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "853447543"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "3"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "887764523"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "1"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "987654224"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "1"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "136000000321001"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "1"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "136000000414269"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "10"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "136000000537373"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "9"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "136000003639035"
+                  }, {
+                    "values" : [ {
+                      "attribute" : "ATTENDED_CHATS",
+                      "value" : "3"
+                    }, {
+                      "attribute" : "AVG_FIRST_RESPONSE_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_PICKUP_TIME",
+                      "value" : null
+                    }, {
+                      "attribute" : "AVG_RESPONSE_TIME",
+                      "value" : null
+                    } ],
+                    "id" : "136000003759045"
+                  } ],
+                  "entityDetails" : {
+                    "345343453" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/435798423232323001/photo?orgId=987876543",
+                      "name" : "john",
+                      "id" : "435798423232323001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "887764523" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/232342342232323001/photo?orgId=987876543",
+                      "name" : "siya",
+                      "id" : "232342342232323001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "853447543" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/453223242232323001/photo?orgId=987876543",
+                      "name" : "robert",
+                      "id" : "453223242232323001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "86434543" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4212312313232323001/photo?orgId=987876543",
+                      "name" : "tina",
+                      "id" : "4212312313232323001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "987654224" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/642323432342342333/photo?orgId=987876543",
+                      "name" : "donald",
+                      "id" : "642323432342342333",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "976543456" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/53234234234234234/photo?orgId=987876543",
+                      "name" : "ram",
+                      "id" : "53234234234234234",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  },
+                  "entity" : "AGENT"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "IM_Metrics"
+}

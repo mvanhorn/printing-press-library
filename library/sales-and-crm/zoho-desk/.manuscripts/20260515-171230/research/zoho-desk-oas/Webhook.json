@@ -1,0 +1,1047 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Webhook",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/webhooks" : {
+      "get" : {
+        "tags" : [ "Webhook" ],
+        "summary" : "Get Webhooks",
+        "description" : "This API lists all webhooks configured in your help desk.",
+        "operationId" : "getWebhooks",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/webhookGetALLresponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.events.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Webhook" ],
+        "summary" : "Create webhook",
+        "description" : "This API creates a webhook in your help desk. When the API is invoked, a validation GET request is sent to the subscription URL. That subscription end-point must return a 200 OK message to confirm the subscription. If the 200 OK message is not received, a validation POST request is initiated to the subscription URL. Failure to receive a 200 OK message will result in the failure of webhook creation.",
+        "operationId" : "createWebhook",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/webhookjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/webhookResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE", "Desk.events.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/webhooks/{webhookId}" : {
+      "get" : {
+        "tags" : [ "Webhook" ],
+        "summary" : "Get webhook",
+        "description" : "This API fetches a single webhook from your help desk.",
+        "operationId" : "getWebhook",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/webhookId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/webhookResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.events.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "Webhook" ],
+        "summary" : "Delete Webhook",
+        "description" : "This API deletes an existing webhook. After this API is executed, the URL in the webhook stops receiving event information.",
+        "operationId" : "deleteWebhook",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/webhookId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE", "Desk.events.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Webhook" ],
+        "summary" : "Update Webhook",
+        "description" : "This API updates the details of an existing webhook. When the webhook's URL is altered, a validation GET request is sent to the new URL. If the 200 OK message is not received, a validation POST request is initiated.",
+        "operationId" : "updateWebhook",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/webhookId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateWebhook_webhookjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/webhookResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.events.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "subscriptions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "Account_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Event_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Article_Translation_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Article_Translation_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Ticket_Attachment_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Ticket_Attachment_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Event_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 2,
+            "minProperties" : 2,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "departmentIds", "includePrevState" ]
+          },
+          "Agent_Presence_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Ticket_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 3,
+            "minProperties" : 3,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "fields" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "maxItems" : 5,
+                "minItems" : 0,
+                "uniqueItems" : false
+              },
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "departmentIds", "fields", "includePrevState" ]
+          },
+          "Contact_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Ticket_Comment_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "Task_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "Ticket_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "Task_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 2,
+            "minProperties" : 2,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "departmentIds", "includePrevState" ]
+          },
+          "Task_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "KBRootCategory_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Call_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "Article_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "KBRootCategory_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Article_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "KBRootCategory_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Agent_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Department_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Contact_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "KBSection_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Agent_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "KBSection_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Account_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Event_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "Call_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 2,
+            "minProperties" : 2,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "departmentIds", "includePrevState" ]
+          },
+          "Call_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Article_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Ticket_Comment_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "KBSection_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Contact_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Agent_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "Account_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Article_Feedback_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          },
+          "IM_Message_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              }
+            },
+            "required" : [ "departmentIds" ]
+          },
+          "Article_Translation_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Department_Update" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 1,
+            "minProperties" : 1,
+            "properties" : {
+              "includePrevState" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "includePrevState" ]
+          },
+          "Ticket_Thread_Add" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "maxProperties" : 2,
+            "minProperties" : 2,
+            "properties" : {
+              "departmentIds" : {
+                "type" : [ "null", "array" ],
+                "items" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "uniqueItems" : false
+              },
+              "direction" : {
+                "type" : [ "string", "null" ],
+                "enum" : [ "in", "out" ],
+                "maxLength" : 100,
+                "minLength" : 0
+              }
+            },
+            "required" : [ "departmentIds", "direction" ]
+          },
+          "Ticket_Delete" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false
+          }
+        }
+      },
+      "webhookjson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "subscriptions" : {
+            "$ref" : "./Webhook.json#/components/schemas/subscriptions"
+          },
+          "includeEventsFrom" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(AUTOMATION)"
+            },
+            "uniqueItems" : false
+          },
+          "isEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 3000,
+            "minLength" : 0
+          },
+          "ignoreSourceId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})$|^$"
+          },
+          "url" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "description", "ignoreSourceId", "includeEventsFrom", "isEnabled", "name", "subscriptions", "url" ]
+      },
+      "listViewJSON" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Webhook.json#/components/schemas/webhookjson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "modifiedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "createdBy" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "type" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "CUSTOMER_WEBHOOK", "EXTENSION_WEBHOOK" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            }
+          },
+          "required" : [ "createdBy", "createdTime", "id", "modifiedTime", "type" ]
+        } ]
+      },
+      "listViewData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Webhook.json#/components/schemas/listViewJSON"
+        }
+      }
+    },
+    "responses" : {
+      "webhookGetALLresponse" : {
+        "description" : "webhookGetALLresponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "extension" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 10,
+                          "minProperties" : 10,
+                          "properties" : {
+                            "extensionName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0
+                            },
+                            "hashkey" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9]+$"
+                            },
+                            "isPermissionsEnabled" : {
+                              "type" : [ "boolean", "null" ]
+                            },
+                            "latestVersion" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "\\d+(\\.\\d{1,2})?"
+                            },
+                            "installationId" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "isPrivate" : {
+                              "type" : [ "boolean", "null" ]
+                            },
+                            "isChannelApp" : {
+                              "type" : [ "boolean", "null" ]
+                            },
+                            "widgets" : {
+                              "type" : [ "null", "array" ],
+                              "items" : {
+                                "type" : [ "null", "object" ],
+                                "additionalProperties" : false,
+                                "maxProperties" : 5,
+                                "minProperties" : 5,
+                                "properties" : {
+                                  "icon" : {
+                                    "type" : [ "string", "null" ],
+                                    "maxLength" : 100,
+                                    "minLength" : 0
+                                  },
+                                  "name" : {
+                                    "type" : [ "string", "null" ],
+                                    "maxLength" : 100,
+                                    "minLength" : 0
+                                  },
+                                  "logo" : {
+                                    "type" : [ "string", "null" ],
+                                    "maxLength" : 100,
+                                    "minLength" : 0
+                                  },
+                                  "location" : {
+                                    "type" : [ "string", "null" ],
+                                    "enum" : [ "desk.ticket.detail.rightpanel", "desk.ticket.detail.subtab", "desk.bottomband", "desk.background", "desk.topband", "desk.task.detail.rightpanel", "desk.extension.preference", "desk.ticket.detail.lefttab", "desk.contact.detail.lefttab", "desk.account.detail.lefttab", "desk.ticket.detail.moreaction", "desk.ticket.thread.moreaction", "desk.ticket.form.rightpanel", "desk.contact.form.rightpanel", "desk.account.form.rightpanel", "desk.extension.telephony", "desk.contact.detail.subtab", "desk.account.detail.subtab", "desk.contact.detail.rightpanel", "desk.account.detail.rightpanel", "helpcenter.ticket.list", "helpcenter.ticket.detail", "helpcenter.ticket.form", "helpcenter.homepage", "helpcenter.kb.homepage", "helpcenter.kb.article.list", "helpcenter.kb.article.detail", "helpcenter.community.homepage", "helpcenter.community.topic.list", "helpcenter.community.topic.detail", "desk.kb.article.detail.subtab" ],
+                                    "maxLength" : 100,
+                                    "minLength" : 0
+                                  },
+                                  "url" : {
+                                    "type" : [ "string", "null" ],
+                                    "maxLength" : 65535,
+                                    "minLength" : 0
+                                  }
+                                },
+                                "required" : [ "icon", "location", "logo", "name", "url" ]
+                              },
+                              "uniqueItems" : false
+                            },
+                            "uuId" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[A-z0-9_.,@:\\-\\s/]*$"
+                            },
+                            "version" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "\\d+(\\.\\d{1,2})?"
+                            }
+                          },
+                          "required" : [ "extensionName", "hashkey", "installationId", "isChannelApp", "isPermissionsEnabled", "isPrivate", "latestVersion", "uuId", "version", "widgets" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Webhook.json#/components/schemas/listViewData"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1528130625304,
+                    "subscriptions" : {
+                      "Account_Add" : null,
+                      "Contact_Update" : null,
+                      "Account_Update" : null,
+                      "Ticket_Update" : {
+                        "departmentIds" : [ "PII_PHONE_SENTINEL", "PII_PHONE_SENTINEL" ]
+                      },
+                      "Ticket_Add" : {
+                        "departmentIds" : [ "PII_PHONE_SENTINEL", "PII_PHONE_SENTINEL" ]
+                      },
+                      "Ticket_Comment_Add" : {
+                        "departmentIds" : [ "PII_PHONE_SENTINEL" ]
+                      },
+                      "Ticket_Thread_Add" : {
+                        "departmentIds" : [ "PII_PHONE_SENTINEL" ]
+                      },
+                      "Contact_Add" : null
+                    },
+                    "includeEventsFrom" : [ "AUTOMATION" ],
+                    "createdBy" : "100000002344",
+                    "isEnabled" : false,
+                    "name" : "Test webhook",
+                    "createdTime" : 1528128140737,
+                    "description" : "This webhook listen to ticket events",
+                    "ignoreSourceId" : "49ad222a-f812-11e7-8c3f-9a214cf093ae",
+                    "id" : "PII_PHONE_SENTINEL",
+                    "type" : "CUSTOMER_WEBHOOK",
+                    "url" : "www.demoServer.com/webhookTest"
+                  }, {
+                    "modifiedTime" : 1528130625304,
+                    "subscriptions" : {
+                      "Ticket_Update" : {
+                        "departmentIds" : [ "PII_PHONE_SENTINEL", "PII_PHONE_SENTINEL" ]
+                      },
+                      "Ticket_Add" : {
+                        "departmentIds" : [ "PII_PHONE_SENTINEL", "PII_PHONE_SENTINEL" ]
+                      }
+                    },
+                    "createdBy" : "100000002344",
+                    "isEnabled" : true,
+                    "name" : "Test webhook",
+                    "createdTime" : 1528128140737,
+                    "description" : "This webhook handles desk events and trigger actions in google extension ",
+                    "ignoreSourceId" : "49ad222a-f812-11e7-8c3f-9a204cf194bf",
+                    "id" : "PII_PHONE_SENTINEL",
+                    "type" : "EXTENSION_WEBHOOK",
+                    "url" : "www.demoServer2.com/webhookTest"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "webhookResponse" : {
+        "description" : "webhookResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Webhook.json#/components/schemas/webhookjson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "modifiedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "createdBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "createdTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "CUSTOMER_WEBHOOK", "EXTENSION_WEBHOOK" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "createdBy", "createdTime", "id", "modifiedTime", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "webhookId" : {
+        "name" : "webhookId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "webhookjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "subscriptions" : {
+                  "$ref" : "./Webhook.json#/components/schemas/subscriptions"
+                },
+                "includeEventsFrom" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(AUTOMATION)"
+                  },
+                  "uniqueItems" : false
+                },
+                "isEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 3000,
+                  "minLength" : 0
+                },
+                "ignoreSourceId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})$|^$"
+                },
+                "url" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                }
+              },
+              "required" : [ "subscriptions", "url" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "subscriptions" : {
+                    "Account_Add" : null,
+                    "Contact_Update" : null,
+                    "Account_Update" : null,
+                    "Ticket_Update" : {
+                      "departmentIds" : [ "PII_PHONE_SENTINEL", "PII_PHONE_SENTINEL" ]
+                    },
+                    "Ticket_Add" : {
+                      "departmentIds" : [ "PII_PHONE_SENTINEL", "PII_PHONE_SENTINEL" ]
+                    },
+                    "Ticket_Comment_Add" : {
+                      "departmentIds" : [ "PII_PHONE_SENTINEL" ]
+                    },
+                    "Ticket_Thread_Add" : {
+                      "departmentIds" : [ "PII_PHONE_SENTINEL" ]
+                    },
+                    "Contact_Add" : null
+                  },
+                  "includeEventsFrom" : [ "AUTOMATION" ],
+                  "name" : "Test webhook",
+                  "description" : "This webhook listen to ticket events",
+                  "ignoreSourceId" : "49ad222a-f812-11e7-8c3f-9a214cf093ae",
+                  "url" : "www.demoServer.com/webhookTest"
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateWebhook_webhookjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "subscriptions" : {
+                  "$ref" : "./Webhook.json#/components/schemas/subscriptions"
+                },
+                "includeEventsFrom" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(AUTOMATION)"
+                  },
+                  "uniqueItems" : false
+                },
+                "isEnabled" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 3000,
+                  "minLength" : 0
+                },
+                "ignoreSourceId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^([0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12})$|^$"
+                },
+                "url" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                }
+              },
+              "required" : [ "subscriptions" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Webhook"
+}

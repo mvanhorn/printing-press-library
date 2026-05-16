@@ -1,0 +1,1418 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "RuleGroup APIs",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/rulegroups" : {
+      "get" : {
+        "tags" : [ "RuleGroup" ],
+        "summary" : "Get All RuleGroups",
+        "description" : "This API returns a list of all rule groups configured for a specific engine.",
+        "operationId" : "getRuleGroups",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "description" : "The index number from which the rule groups should be listed. This is used for pagination. For example, if you want to skip the first 10 rule groups, set the from parameter to 11.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : ""
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Specifies the maximum number of rule groups to return in the response. The value must be between 1 and 50.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "",
+            "maximum" : 50,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Specifies the ID to filter rule groups by department. Only rule groups belonging to this department will be listed.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : ""
+          }
+        }, {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Represents the API name of the module for which you want to filter rule groups.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "",
+            "maxLength" : 100
+          }
+        }, {
+          "name" : "engineSysName",
+          "in" : "query",
+          "description" : "The system name of the engine (e.g., WORKFLOWS, MACRO) to filter rule groups associated with a particular automation engine.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "",
+            "maxLength" : 100
+          }
+        }, {
+          "name" : "status",
+          "in" : "query",
+          "description" : "Specifies the status of the rule group. Based on this parameter, you can filter rule groups. Only rule groups with the specified status (\"ACTIVE\" or \"INACTIVE\") will be returned.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "",
+            "enum" : [ "ACTIVE", "INACTIVE" ]
+          }
+        }, {
+          "name" : "rulegroupIds",
+          "in" : "query",
+          "description" : "The IDs of the rulegroups to list separated by commas. You can pass up to 50 IDs.",
+          "required" : false,
+          "style" : "form",
+          "explode" : false,
+          "schema" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "string",
+              "description" : ""
+            },
+            "maxItems" : 50
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of RuleGroups",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GetAllRuleGroupsResponse"
+                },
+                "examples" : {
+                  "default" : {
+                    "value" : {
+                      "$ref" : "untitled:Untitled-22"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "RuleGroup" ],
+        "summary" : "Create RuleGroup",
+        "description" : "This API creates a new RuleGroup.",
+        "operationId" : "createRuleGroup",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RuleGroupCreateRequest"
+              },
+              "examples" : {
+                "default" : {
+                  "value" : {
+                    "name" : "Sample RuleGroup",
+                    "description" : "Description for Sample RuleGroup",
+                    "engine" : {
+                      "id" : "1000000000581",
+                      "systemName" : "WORKFLOWS"
+                    },
+                    "departmentProperties" : [ {
+                      "id" : "PII_PHONE_SENTINEL",
+                      "ruleGroupStatus" : "ACTIVE",
+                      "ruleGroupOrder" : "1",
+                      "ruleGroupExecutionType" : "ASYNC"
+                    } ],
+                    "module" : {
+                      "id" : "1000000000581",
+                      "apiName" : "tickets"
+                    },
+                    "events" : [ {
+                      "sysName" : "tickets_create",
+                      "userCriteria" : {
+                        "moduleMapping" : {
+                          "primaryModule" : {
+                            "apiName" : "tickets"
+                          }
+                        },
+                        "criteria" : { }
+                      }
+                    } ],
+                    "rules" : [ {
+                      "name" : "Sample Rule",
+                      "order" : 1,
+                      "criteria" : { },
+                      "clusters" : [ {
+                        "id" : "1000000007890",
+                        "name" : "Sample Cluster",
+                        "type" : "TREE",
+                        "nodes" : [ {
+                          "id" : "1000000008901",
+                          "name" : "Root Node",
+                          "executionType" : "ASYNC",
+                          "type" : "ROOT",
+                          "propertyType" : "ACTION_MAPPING",
+                          "propertyId" : "1000000054256",
+                          "childNodes" : [ ]
+                        } ]
+                      } ]
+                    } ]
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "RuleGroup created successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RuleGroupResponse"
+                },
+                "examples" : {
+                  "default" : {
+                    "value" : {
+                      "id" : "1000000001234",
+                      "name" : "Sample RuleGroup",
+                      "description" : "Description for Sample RuleGroup",
+                      "createdTime" : "2025-07-07T14:14:30.511Z",
+                      "modifiedTime" : "2025-07-07T14:14:30.511Z",
+                      "createdBy" : {
+                        "id" : "1000000000523",
+                        "name" : "John",
+                        "photoURL" : "https://desk.abc.com/api/v1/agents/1000000000523/photo?orgId=34920657"
+                      },
+                      "modifiedBy" : {
+                        "id" : "1000000000523",
+                        "name" : "John",
+                        "photoURL" : "https://desk.abc.com/api/v1/agents/1000000000523/photo?orgId=34920657"
+                      },
+                      "engine" : {
+                        "id" : "1000000000581",
+                        "systemName" : "WORKFLOWS"
+                      },
+                      "departmentProperties" : [ {
+                        "id" : "PII_PHONE_SENTINEL",
+                        "ruleGroupStatus" : "ACTIVE",
+                        "ruleGroupOrder" : "1",
+                        "ruleGroupExecutionType" : "ASYNC"
+                      } ],
+                      "module" : {
+                        "id" : "1000000000581",
+                        "apiName" : "tickets",
+                        "displayLabel" : "Tickets"
+                      },
+                      "events" : [ {
+                        "sysName" : "tickets_create",
+                        "displayLabel" : "Ticket Created",
+                        "userCriteria" : {
+                          "moduleMapping" : {
+                            "primaryModule" : {
+                              "apiName" : "tickets"
+                            }
+                          },
+                          "criteria" : { }
+                        }
+                      } ],
+                      "rules" : [ {
+                        "id" : "1000000005678",
+                        "name" : "Sample Rule",
+                        "order" : 1,
+                        "criteria" : { },
+                        "clusters" : [ {
+                          "id" : "1000000007890",
+                          "name" : "Sample Cluster",
+                          "type" : "TREE",
+                          "nodes" : [ {
+                            "id" : "1000000008901",
+                            "name" : "Root Node",
+                            "executionType" : "ASYNC",
+                            "type" : "ROOT",
+                            "propertyType" : "ACTION_MAPPING",
+                            "propertyId" : "1000000054256",
+                            "childNodes" : [ ]
+                          } ]
+                        } ]
+                      } ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/rulegroups/{id}" : {
+      "put" : {
+        "tags" : [ "RuleGroup" ],
+        "summary" : "Update RuleGroup",
+        "description" : "This API updates the rulegroup",
+        "operationId" : "updateRuleGroup",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "RuleGroup ID to be updated",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RuleGroupUpdateRequest"
+              },
+              "examples" : {
+                "default" : {
+                  "value" : {
+                    "id" : "1000000001234",
+                    "name" : "Sample RuleGroup updated",
+                    "description" : "Updated description for Sample RuleGroup",
+                    "engine" : {
+                      "id" : "1000000000581",
+                      "systemName" : "WORKFLOWS"
+                    },
+                    "departmentProperties" : [ {
+                      "id" : "PII_PHONE_SENTINEL",
+                      "ruleGroupStatus" : "ACTIVE",
+                      "ruleGroupOrder" : "1",
+                      "ruleGroupExecutionType" : "ASYNC"
+                    } ],
+                    "module" : {
+                      "id" : "1000000000581",
+                      "apiName" : "tickets"
+                    },
+                    "events" : [ {
+                      "sysName" : "tickets_update",
+                      "userCriteria" : {
+                        "moduleMapping" : {
+                          "primaryModule" : {
+                            "apiName" : "tickets"
+                          }
+                        },
+                        "criteria" : {
+                          "$ref" : "Criteria.json#/components/schemas/criteriaFieldsObject"
+                        }
+                      }
+                    } ],
+                    "rules" : [ {
+                      "id" : "1000000005678",
+                      "name" : "Updated Sample Rule",
+                      "order" : 1,
+                      "clusters" : [ {
+                        "id" : "1000000007890",
+                        "name" : "Updated Sample Cluster",
+                        "type" : "TREE",
+                        "nodes" : [ {
+                          "id" : "1000000008901",
+                          "name" : "Updated Root Node",
+                          "executionType" : "ASYNC",
+                          "type" : "ROOT",
+                          "propertyType" : "ACTION_MAPPING",
+                          "propertyId" : "1000000054256",
+                          "childNodes" : [ {
+                            "id" : "1000000008902",
+                            "name" : "Updated Child Node 1",
+                            "executionType" : "SYNC",
+                            "type" : "DEFAULT",
+                            "propertyType" : "CRITERIA",
+                            "entityInfo" : {
+                              "moduleMapping" : {
+                                "primaryModule" : {
+                                  "apiName" : "tickets"
+                                }
+                              },
+                              "criteria" : {
+                                "$ref" : "Criteria.json#/components/schemas/criteriaFieldsObject"
+                              }
+                            },
+                            "childNodes" : [ ]
+                          } ]
+                        } ]
+                      } ]
+                    } ]
+                  }
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "RuleGroup updated successfully",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RuleGroupResponse"
+                },
+                "examples" : {
+                  "default" : {
+                    "value" : {
+                      "id" : "1000000001234",
+                      "name" : "Sample RuleGroup updated",
+                      "description" : "Updated description for Sample RuleGroup",
+                      "engine" : {
+                        "id" : "1000000000581",
+                        "systemName" : "WORKFLOWS"
+                      },
+                      "departmentProperties" : [ {
+                        "id" : "PII_PHONE_SENTINEL",
+                        "ruleGroupStatus" : "ACTIVE",
+                        "ruleGroupOrder" : "1",
+                        "ruleGroupExecutionType" : "ASYNC"
+                      } ],
+                      "module" : {
+                        "id" : "1000000000581",
+                        "apiName" : "tickets"
+                      },
+                      "events" : [ {
+                        "sysName" : "tickets_update",
+                        "userCriteria" : {
+                          "moduleMapping" : {
+                            "primaryModule" : {
+                              "apiName" : "tickets"
+                            }
+                          },
+                          "criteria" : {
+                            "$ref" : "Criteria.json#/components/schemas/criteriaFieldsObject"
+                          }
+                        }
+                      } ],
+                      "rules" : [ {
+                        "id" : "1000000005678",
+                        "name" : "Updated Sample Rule",
+                        "order" : 1,
+                        "clusters" : [ {
+                          "id" : "1000000007890",
+                          "name" : "Updated Sample Cluster",
+                          "type" : "TREE",
+                          "nodes" : [ {
+                            "id" : "1000000008901",
+                            "name" : "Updated Root Node",
+                            "executionType" : "ASYNC",
+                            "type" : "ROOT",
+                            "propertyType" : "ACTION_MAPPING",
+                            "propertyId" : "1000000054256",
+                            "childNodes" : [ {
+                              "id" : "1000000008902",
+                              "name" : "Updated Child Node 1",
+                              "executionType" : "SYNC",
+                              "type" : "DEFAULT",
+                              "propertyType" : "CRITERIA",
+                              "entityInfo" : {
+                                "moduleMapping" : {
+                                  "primaryModule" : {
+                                    "apiName" : "tickets"
+                                  }
+                                },
+                                "criteria" : {
+                                  "$ref" : "Criteria.json#/components/schemas/criteriaFieldsObject"
+                                }
+                              },
+                              "childNodes" : [ ]
+                            } ]
+                          } ]
+                        } ]
+                      } ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "RuleGroupUpdateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "name" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "description" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "engine" : {
+            "type" : "object",
+            "description" : "",
+            "properties" : {
+              "id" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "systemName" : {
+                "type" : "string",
+                "description" : ""
+              }
+            }
+          },
+          "departmentProperties" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "object",
+              "description" : "",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "ruleGroupStatus" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "ruleGroupOrder" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "ruleGroupExecutionType" : {
+                  "type" : "string",
+                  "description" : ""
+                }
+              }
+            }
+          },
+          "module" : {
+            "type" : "object",
+            "description" : "",
+            "properties" : {
+              "id" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "apiName" : {
+                "type" : "string",
+                "description" : ""
+              }
+            },
+            "required" : [ "apiName", "id" ]
+          },
+          "events" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "object",
+              "description" : "",
+              "properties" : {
+                "sysName" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "userCriteria" : {
+                  "type" : "object",
+                  "description" : "",
+                  "properties" : {
+                    "moduleMapping" : {
+                      "type" : "object",
+                      "description" : "",
+                      "properties" : {
+                        "primaryModule" : {
+                          "type" : "object",
+                          "description" : "",
+                          "properties" : {
+                            "apiName" : {
+                              "type" : "string",
+                              "description" : ""
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "criteria" : {
+                      "$ref" : "./Criteria.json#/components/schemas/criteriaFieldsObject"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "rules" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "object",
+              "description" : "",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "name" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "order" : {
+                  "type" : "integer",
+                  "description" : ""
+                },
+                "clusters" : {
+                  "type" : "array",
+                  "description" : "",
+                  "items" : {
+                    "type" : "object",
+                    "description" : "",
+                    "properties" : {
+                      "id" : {
+                        "type" : "string",
+                        "description" : ""
+                      },
+                      "name" : {
+                        "type" : "string",
+                        "description" : ""
+                      },
+                      "type" : {
+                        "type" : "string",
+                        "description" : ""
+                      },
+                      "nodes" : {
+                        "type" : "array",
+                        "description" : "",
+                        "items" : {
+                          "type" : "object",
+                          "description" : "",
+                          "properties" : {
+                            "id" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "name" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "executionType" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "type" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "propertyType" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "propertyId" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "childNodes" : {
+                              "type" : "array",
+                              "description" : "",
+                              "items" : {
+                                "type" : "object",
+                                "description" : "",
+                                "properties" : {
+                                  "id" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "name" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "executionType" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "type" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "propertyType" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "entityInfo" : {
+                                    "type" : "object",
+                                    "description" : "",
+                                    "properties" : {
+                                      "moduleMapping" : {
+                                        "type" : "object",
+                                        "description" : "",
+                                        "properties" : {
+                                          "primaryModule" : {
+                                            "type" : "object",
+                                            "description" : "",
+                                            "properties" : {
+                                              "apiName" : {
+                                                "type" : "string",
+                                                "description" : ""
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "criteria" : {
+                                        "$ref" : "./Criteria.json#/components/schemas/criteriaFieldsObject"
+                                      }
+                                    }
+                                  },
+                                  "childNodes" : {
+                                    "type" : "array",
+                                    "description" : "",
+                                    "items" : {
+                                      "$ref" : "#/components/schemas/RuleGroupResponse/properties/rules/items/properties/cluster/items/properties/nodes/items"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required" : [ "departmentProperties", "engine", "events", "id", "module", "rules" ]
+      },
+      "RuleGroupCreateRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "description" : {
+            "type" : "string",
+            "description" : ""
+          },
+          "engine" : {
+            "type" : "object",
+            "description" : "",
+            "properties" : {
+              "id" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "systemName" : {
+                "type" : "string",
+                "description" : ""
+              }
+            }
+          },
+          "departmentProperties" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "object",
+              "description" : "",
+              "properties" : {
+                "id" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "ruleGroupStatus" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "ruleGroupOrder" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "ruleGroupExecutionType" : {
+                  "type" : "string",
+                  "description" : ""
+                }
+              }
+            }
+          },
+          "module" : {
+            "type" : "object",
+            "description" : "",
+            "properties" : {
+              "id" : {
+                "type" : "string",
+                "description" : ""
+              },
+              "apiName" : {
+                "type" : "string",
+                "description" : ""
+              }
+            },
+            "required" : [ "apiName", "id" ]
+          },
+          "events" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "object",
+              "description" : "",
+              "properties" : {
+                "sysName" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "userCriteria" : {
+                  "type" : "object",
+                  "description" : "",
+                  "properties" : {
+                    "moduleMapping" : {
+                      "type" : "object",
+                      "description" : "",
+                      "properties" : {
+                        "primaryModule" : {
+                          "type" : "object",
+                          "description" : "",
+                          "properties" : {
+                            "apiName" : {
+                              "type" : "string",
+                              "description" : ""
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "criteria" : {
+                      "type" : "object",
+                      "description" : ""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "rules" : {
+            "type" : "array",
+            "description" : "",
+            "items" : {
+              "type" : "object",
+              "description" : "",
+              "properties" : {
+                "name" : {
+                  "type" : "string",
+                  "description" : ""
+                },
+                "order" : {
+                  "type" : "integer",
+                  "description" : ""
+                },
+                "criteria" : {
+                  "type" : "object",
+                  "description" : ""
+                },
+                "clusters" : {
+                  "type" : "array",
+                  "description" : "",
+                  "items" : {
+                    "type" : "object",
+                    "description" : "",
+                    "properties" : {
+                      "id" : {
+                        "type" : "string",
+                        "description" : ""
+                      },
+                      "name" : {
+                        "type" : "string",
+                        "description" : ""
+                      },
+                      "type" : {
+                        "type" : "string",
+                        "description" : ""
+                      },
+                      "nodes" : {
+                        "type" : "array",
+                        "description" : "",
+                        "items" : {
+                          "type" : "object",
+                          "description" : "",
+                          "properties" : {
+                            "id" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "name" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "executionType" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "type" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "propertyType" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "propertyId" : {
+                              "type" : "string",
+                              "description" : ""
+                            },
+                            "childNodes" : {
+                              "type" : "array",
+                              "description" : "",
+                              "items" : {
+                                "type" : "object",
+                                "description" : "",
+                                "properties" : {
+                                  "id" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "name" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "executionType" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "type" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "propertyType" : {
+                                    "type" : "string",
+                                    "description" : ""
+                                  },
+                                  "entityInfo" : {
+                                    "type" : "object",
+                                    "description" : ""
+                                  },
+                                  "childNodes" : {
+                                    "type" : "array",
+                                    "description" : "",
+                                    "items" : {
+                                      "$ref" : "#/components/schemas/RuleGroupCreateRequest/properties/rules/items/properties/clusters/items/properties/nodes/items"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required" : [ "departmentProperties", "engine", "name", "rules" ]
+      },
+      "GetAllRuleGroupsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RuleGroup"
+            }
+          }
+        }
+      },
+      "RuleGroup" : {
+        "type" : "object",
+        "properties" : {
+          "modifiedTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "departmentProperties" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/DepartmentProperty"
+            }
+          },
+          "createdBy" : {
+            "$ref" : "#/components/schemas/Agent"
+          },
+          "engine" : {
+            "$ref" : "#/components/schemas/Engine"
+          },
+          "module" : {
+            "$ref" : "#/components/schemas/Module"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "createdTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "modifiedBy" : {
+            "$ref" : "#/components/schemas/Agent"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RuleGroupEvent"
+            }
+          },
+          "rules" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Rule"
+            }
+          }
+        }
+      },
+      "DepartmentProperty" : {
+        "type" : "object",
+        "properties" : {
+          "ruleGroupStatus" : {
+            "type" : "string"
+          },
+          "ruleGroupOrder" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "ruleGroupExecutionType" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Agent" : {
+        "type" : "object",
+        "properties" : {
+          "photoURL" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Engine" : {
+        "type" : "object",
+        "properties" : {
+          "systemName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Module" : {
+        "type" : "object",
+        "properties" : {
+          "displayLabel" : {
+            "type" : "string"
+          },
+          "apiName" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RuleGroupEvent" : {
+        "type" : "object",
+        "properties" : {
+          "displayLabel" : {
+            "type" : "string"
+          },
+          "module" : {
+            "$ref" : "#/components/schemas/Module"
+          },
+          "baseEvent" : {
+            "type" : "string"
+          },
+          "sysName" : {
+            "type" : "string"
+          },
+          "userCriteria" : {
+            "type" : [ "object", "null" ]
+          }
+        }
+      },
+      "Rule" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "order" : {
+            "type" : "integer"
+          },
+          "criteria" : {
+            "type" : [ "object", "null" ]
+          },
+          "clusters" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Cluster"
+            }
+          }
+        }
+      },
+      "Cluster" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "nodes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Node"
+            }
+          }
+        }
+      },
+      "Node" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "executionType" : {
+            "type" : "string"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "propertyType" : {
+            "type" : "string"
+          },
+          "propertyId" : {
+            "type" : "string"
+          },
+          "entityInfo" : {
+            "type" : [ "object", "null" ]
+          },
+          "childNodes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Node"
+            }
+          }
+        }
+      },
+      "RuleGroupResponse" : {
+        "type" : "object",
+        "description" : "Rulegroup Response template",
+        "properties" : {
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "createdTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "modifiedTime" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "createdBy" : {
+            "type" : "object",
+            "properties" : {
+              "id" : {
+                "type" : "string"
+              },
+              "name" : {
+                "type" : "string"
+              },
+              "photoURL" : {
+                "type" : [ "string", "null" ]
+              }
+            }
+          },
+          "modifiedBy" : {
+            "type" : "object",
+            "properties" : {
+              "id" : {
+                "type" : "string"
+              },
+              "name" : {
+                "type" : "string"
+              },
+              "photoURL" : {
+                "type" : [ "string", "null" ]
+              }
+            }
+          },
+          "engine" : {
+            "type" : "object",
+            "properties" : {
+              "id" : {
+                "type" : "string"
+              },
+              "systemName" : {
+                "type" : "string"
+              }
+            }
+          },
+          "module" : {
+            "type" : "object",
+            "properties" : {
+              "id" : {
+                "type" : "string"
+              },
+              "apiName" : {
+                "type" : "string"
+              },
+              "displayLabel" : {
+                "type" : "string"
+              }
+            }
+          },
+          "events" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "sysName" : {
+                  "type" : "string"
+                },
+                "displayLabel" : {
+                  "type" : "string"
+                },
+                "userCriteria" : {
+                  "type" : "object",
+                  "properties" : {
+                    "moduleMapping" : {
+                      "type" : "object",
+                      "properties" : {
+                        "primaryModule" : {
+                          "type" : "object",
+                          "properties" : {
+                            "apiName" : {
+                              "type" : "string"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "criteria" : {
+                      "$ref" : "./Criteria.json#/components/schemas/criteriaFieldsObject"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "departmentProperties" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "ruleGroupStatus" : {
+                  "type" : "string"
+                },
+                "ruleGroupOrder" : {
+                  "type" : "string"
+                },
+                "ruleGroupExecutionType" : {
+                  "type" : "string"
+                }
+              },
+              "required" : [ "id", "ruleGroupExecutionType", "ruleGroupOrder", "ruleGroupStatus" ]
+            }
+          },
+          "rules" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "order" : {
+                  "type" : "integer"
+                },
+                "criteria" : {
+                  "type" : "object"
+                },
+                "cluster" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "object",
+                    "properties" : {
+                      "id" : {
+                        "type" : "string"
+                      },
+                      "type" : {
+                        "type" : "string"
+                      },
+                      "name" : {
+                        "type" : "string"
+                      },
+                      "source" : {
+                        "type" : "string"
+                      },
+                      "createdBy" : {
+                        "type" : "string"
+                      },
+                      "createdTime" : {
+                        "type" : "string",
+                        "format" : "date-time"
+                      },
+                      "modifiedBy" : {
+                        "type" : "string"
+                      },
+                      "modifiedTime" : {
+                        "type" : "string",
+                        "format" : "date-time"
+                      },
+                      "nodes" : {
+                        "type" : "array",
+                        "items" : {
+                          "type" : "object",
+                          "properties" : {
+                            "id" : {
+                              "type" : "string"
+                            },
+                            "name" : {
+                              "type" : "string"
+                            },
+                            "executionType" : {
+                              "type" : "string"
+                            },
+                            "type" : {
+                              "type" : "string"
+                            },
+                            "propertyType" : {
+                              "type" : "string"
+                            },
+                            "propertyId" : {
+                              "type" : "string"
+                            },
+                            "entityInfo" : {
+                              "type" : "object",
+                              "properties" : {
+                                "actionMappingId" : {
+                                  "type" : "string"
+                                },
+                                "actionId" : {
+                                  "type" : "string"
+                                },
+                                "actionType" : {
+                                  "type" : "string"
+                                },
+                                "actionParamMappings" : {
+                                  "type" : "object"
+                                }
+                              }
+                            },
+                            "childNodes" : {
+                              "type" : "array",
+                              "items" : {
+                                "$ref" : "#/components/schemas/RuleGroupResponse/properties/rules/items/properties/cluster/items/properties/nodes/items"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "RuleGroup"
+}

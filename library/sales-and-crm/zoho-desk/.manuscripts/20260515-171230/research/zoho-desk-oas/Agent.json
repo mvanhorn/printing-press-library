@@ -1,0 +1,3629 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Agent",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/myPreferences" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Get My Preferences",
+        "description" : "This API fetches the preferences of the currently logged in agent.",
+        "operationId" : "getMyPreference",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/myPreference"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Update My Preferences",
+        "description" : "This API updates the preferences of the currently logged in agent.",
+        "operationId" : "updateMyPreferences",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/myPreferenceInputStrm"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/uploadMyPhoto" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Upload my photo",
+        "description" : "This API sets the profile photo for the currently logged in agent.<p><b>Note</b>: To upload your photo generate OAuthToken for the scope: Desk.settings.UPDATE,profile.userphoto.UPDATE or Desk.basic.UPDATE,profile.userphoto.UPDATE </p>",
+        "operationId" : "uploadMyPhoto",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "userPhoto" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                },
+                "required" : [ "userPhoto" ]
+              }
+            }
+          }
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/myPhotoResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/{agentId}/reassignment" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Schedule reassignment for deactivated or deleted agents",
+        "description" : "This API schedules reassignment of tickets, tasks, and automations belonging to a deleted/deactivated agent to another agent within the same department.",
+        "operationId" : "scheduleAgentReassignment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/scheduleReassignment"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agentsByIds" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Get agent details by agentId",
+        "description" : "This API fetches details of agents via the agent IDs passed in the API request.",
+        "operationId" : "getAgentsByIds",
+        "parameters" : [ {
+          "name" : "agentIds",
+          "in" : "query",
+          "description" : "Comma-separated array of agent IDs. Maximum number of IDs allowed is 50.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Comma-separated array of agent IDs. Maximum number of IDs allowed is 50.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getAgentsByIdsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/{agentId}/photo" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Get agent photo",
+        "description" : "This API gets the profile photo for the given agent id.<p><b>Note</b>: To get agent photo generate OAuthToken for the scope: Desk.settings.READ,profile.userphoto.READ or Desk.basic.READ,profile.userphoto.READ </p>",
+        "operationId" : "getAgentProfilePhoto",
+        "parameters" : [ {
+          "name" : "fileSize",
+          "in" : "query",
+          "description" : "Size of the image file to download. Values allowed are @THUMBNAIL@ (image with reduced dimensions and size) and @ACTUAL@ (image with actual dimensions and size). The default value is @ACTUAL@.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string",
+            "description" : "Size of the image file to download. Values allowed are @THUMBNAIL@ (image with reduced dimensions and size) and @ACTUAL@ (image with actual dimensions and size). The default value is @ACTUAL@.",
+            "enum" : [ "THUMBNAIL", "ACTUAL" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/fileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/activate" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Activate agents",
+        "description" : "This API activates agents in your help desk.",
+        "operationId" : "activateAgents",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "./Department.json#/components/requestBodies/agentIdsArray"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/deletedAgents/{agentId}/anonymize" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Anonymize deleted agent",
+        "description" : "This API removes the identification details of a deleted agent.",
+        "operationId" : "anonymizeDeletedAgent",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/anonymizeAgentsRequest"
+        },
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "List agents",
+        "description" : "This API lists a particular number of agents, based on the limit specified.",
+        "operationId" : "getAgents",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to agents, The allowed values are profile, role. You can include all two values by separating them with commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "description" : "Secondary information related to agents, The allowed values are @profile@, @role@. You can include all two values by separating them with commas in the API request.",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "profile", "role" ]
+            },
+            "maxItems" : 2,
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "roleIds",
+          "in" : "query",
+          "description" : "Comma-separated array of role IDs. Maximum number of IDs allowed is 50.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Comma-separated array of role IDs. Maximum number of IDs allowed is 50.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "name" : "searchStr",
+          "in" : "query",
+          "description" : "String to search for agents by first name, last name, or email ID. The string must contain at least one character. The supported search methods: 1) string* - Searches for agents whose first name, last name, or email ID start with the string, 2) *string* - Searches for agents whose first name, last name, or email ID contain the string, 3) string - Searches for agents whose first name, last name, or email ID is an exact match for the string",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "String to search for agents by first name, last name, or email ID. The string must contain at least one character. The supported search methods: 1) string* - Searches for agents whose first name, last name, or email ID start with the string, 2) *string* - Searches for agents whose first name, last name, or email ID contain the string, 3) string - Searches for agents whose first name, last name, or email ID is an exact match for the string",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "name" : "rolePermissionType",
+          "in" : "query",
+          "description" : "Types of roles and permissions of the agents to list. The allowed values are @AgentPublic@, @AgentPersonal@,@AgentTeamPersonal@, @Admin@, @Light@, @Custom@, and @${NON_LIGHT}@. @${NON_LIGHT}@ refers to agents who are not associated with the light agent profile.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Types of roles and permissions of the agents to list. The allowed values are @AgentPublic@, @AgentPersonal@,@AgentTeamPersonal@, @Admin@, @Light@, @Custom@, and @${NON_LIGHT}@. @${NON_LIGHT}@ refers to agents who are not associated with the light agent profile.",
+            "enum" : [ "AgentPublic", "AgentPersonal", "AgentTeamPersonal", "Admin", "Custom", "Light" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "profileIds",
+          "in" : "query",
+          "description" : "Comma-separated array of profile IDs. Maximum number of IDs allowed is 50.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Comma-separated array of profile IDs. Maximum number of IDs allowed is 50.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/isConfirmed"
+        }, {
+          "name" : "departmentIds",
+          "in" : "query",
+          "description" : "Comma-separated array of department IDs. Maximum number of IDs allowed is 50.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Comma-separated array of department IDs. Maximum number of IDs allowed is 50.",
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/agentListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Add agent",
+        "description" : "This API adds an agent to your help desk.<p><br>Keep in mind the following points while adding an agent: <ol> <li>The<b>emailId</b>,<b>lastName</b>,<b>associatedDepartmentIds</b>, and <b>rolePermissionType</b> are mandatory in the API request.</li> <li>To assign the profile and role for the agents, pass any of the following values with the <b>rolePermissionType</b> key: <ol type=\"a\"><li>For the Support Administrator profile and CEO role, pass <b>\"rolePermissionType\"</b>:<b>\"Admin\"</b></li> <li>For the Agent profile and public role, pass <b>\"rolePermissionType\"</b>:<b>\"AgentPublic\"</b><li>For the Agent profile and personal role, pass <b>\"rolePermissionType\"</b>:<b>\"AgentPersonal\"</b></li> </li><li>For custom profiles and roles, pass <b>\"rolePermissionType\"</b>:<b>\"Custom\"</b> and <b>\"roleId\"</b>:<b>\"&lt;actual role ID&gt;\"</b>, <b>\"profileId\"</b>:<b>\"&lt;actual profile ID&gt;\"</b> </li><li>For the light agent profile and role, pass <b>\"rolePermissionType\"</b>:<b>\"Light\"</b></li><li>For the Agent profile and Personal Team  role, pass <b>\"rolePermissionType\"</b>:<b>\"AgentTeamPersonal\"</b></li></ol> </li></ol></p>",
+        "operationId" : "addAgent",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addAgentInputStream"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/agentCFResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE", "Desk.basic.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/myinfo" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Get My Information",
+        "description" : "This API fetches details of the currently logged in agent. ",
+        "operationId" : "getMyInfo",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the agent. Values allowed are profile, role, associatedDepartments, and associatedChatDepartments. You can pass multiple values by separating them with commas in the query param",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "description" : "Secondary information related to the agent. Values allowed are @profile@, @role@, @associatedDepartments@, and @associatedChatDepartments@. You can pass multiple values by separating them with commas in the query param",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "profile", "role", "associatedDepartments", "associatedChatDepartments" ]
+            },
+            "maxItems" : 4,
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getMyInfoResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/{agentId}" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Get agent",
+        "description" : "This API fetches details of an agent in your help desk.",
+        "operationId" : "getAgent",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the agent. Values allowed are profile, role, associatedDepartments, associatedChatDepartments and verifiedEmails. You can include all four values by separating them with commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : "array",
+            "description" : "Secondary information related to the agent. Values allowed are @profile@, @role@, @associatedDepartments@, @associatedChatDepartments@ and @verifiedEmails@. You can include all four values by separating them with commas in the API request.",
+            "items" : {
+              "type" : "string",
+              "enum" : [ "profile", "role", "associatedDepartments", "associatedChatDepartments", "verifiedEmails" ]
+            },
+            "maxItems" : 5,
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getAgentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Update agent",
+        "description" : "This API updates details of an agent.",
+        "operationId" : "updateAgent",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateAgent_addAgentInputStream"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/updateAgentResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/{agentId}/deactivate" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Deactivate agent",
+        "description" : "This API deactivates an agent in your help desk.",
+        "operationId" : "deactivateAgents",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/agentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/deleteMyPhoto" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Delete My Photo",
+        "description" : "This API deletes the profile photo of the currently logged in agent.",
+        "operationId" : "deleteMyPhoto",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/deleteUnconfirmed" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Delete unconfirmed agents",
+        "description" : "This API deletes unconfirmed agents from your help desk.",
+        "operationId" : "deleteUnconfirmedAgent",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteUnConfAgentRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/count" : {
+      "get" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Get agents count",
+        "description" : "This API lists the agents count by status, confirmed and include light",
+        "operationId" : "getAgentsCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/isConfirmed"
+        }, {
+          "name" : "includeLightAgent",
+          "in" : "query",
+          "description" : "Count light agent.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "boolean",
+            "description" : "Count light agent."
+          }
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Department.json#/components/responses/deptCountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/agents/reinvite" : {
+      "post" : {
+        "tags" : [ "Agent" ],
+        "summary" : "Reinvite unconfirmed agents",
+        "description" : "This API sends reinvitation mails to unconfirmed agents.",
+        "operationId" : "reInviteAgents",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "./Department.json#/components/requestBodies/reInviteAgents_agentIdsArray"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "newReassignOwner" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "taskNewOwner" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "ticketNewOwner" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "departmentId", "taskNewOwner", "ticketNewOwner" ]
+      },
+      "scheduleReassignmentArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/newReassignOwner"
+        }
+      },
+      "agentIdsResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "extn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "roleId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "emailId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "associatedDepartmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : true
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "profileId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "channelExpert" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "uniqueItems" : false
+          },
+          "rolePermissionType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "AgentPublic", "AgentPersonal", "AgentTeamPersonal", "Admin", "Custom", "Light" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isConfirmed" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "aboutInfo" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED", "DELETED", "IMPORTED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isZiaAgent" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Indicates whether the agent is a Zia agent or a human agent"
+          }
+        },
+        "required" : [ "aboutInfo", "associatedDepartmentIds", "channelExpert", "emailId", "extn", "firstName", "id", "isConfirmed", "lastName", "mobile", "phone", "photoURL", "profileId", "roleId", "rolePermissionType", "status", "zuid" ]
+      },
+      "agentIdsCFResponse" : {
+        "allOf" : [ {
+          "type" : [ "null", "object" ],
+          "additionalProperties" : false,
+          "properties" : {
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            }
+          },
+          "required" : [ "cf" ]
+        }, {
+          "$ref" : "#/components/schemas/agentIdsResponse"
+        } ]
+      },
+      "agentIdsResponseArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "#/components/schemas/agentIdsResponse"
+          }, {
+            "$ref" : "#/components/schemas/agentIdsCFResponse"
+          } ]
+        }
+      },
+      "addAgentInputStream" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "extn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "roleId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "langCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z_]*"
+          },
+          "mobile" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "emailId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "associatedChatDepartmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : true
+          },
+          "associatedDepartmentIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : true
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "phone" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "countryCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z_]*"
+          },
+          "profileId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "rolePermissionType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "AgentPublic", "AgentPersonal", "AgentTeamPersonal", "Admin", "Custom", "Light" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "aboutInfo" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "ACTIVE", "DISABLED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "aboutInfo", "associatedChatDepartmentIds", "associatedDepartmentIds", "countryCode", "emailId", "extn", "firstName", "langCode", "lastName", "mobile", "phone", "profileId", "roleId", "rolePermissionType", "status" ]
+      },
+      "agentInputStream" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/addAgentInputStream"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "channelExpert" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null" ],
+                "x-dynamic-enum" : true
+              },
+              "uniqueItems" : false
+            }
+          },
+          "required" : [ "channelExpert" ]
+        } ]
+      },
+      "agentCFInputStream" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/agentInputStream"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            }
+          },
+          "required" : [ "cf" ]
+        } ]
+      },
+      "agentResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/agentInputStream"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "photoURL" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "roleId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "profileId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "name" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "timeZone" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+            },
+            "isConfirmed" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "zuid" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "isZiaAgent" : {
+              "type" : [ "boolean", "null" ],
+              "description" : "Indicates whether the agent is a Zia agent or a human agent"
+            }
+          },
+          "required" : [ "id", "isConfirmed", "isZiaAgent", "name", "photoURL", "profileId", "roleId", "timeZone", "zuid" ]
+        } ]
+      },
+      "agentCFResponse" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/agentCFInputStream"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "photoURL" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "name" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "timeZone" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+            },
+            "isConfirmed" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "zuid" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int32",
+              "pattern" : "([0-9]+)"
+            },
+            "isZiaAgent" : {
+              "type" : [ "boolean", "null" ],
+              "description" : "Indicates whether the agent is a Zia agent or a human agent"
+            }
+          },
+          "required" : [ "id", "isConfirmed", "isZiaAgent", "name", "photoURL", "timeZone", "zuid" ]
+        } ]
+      },
+      "agentResponseArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "anyOf" : [ {
+            "$ref" : "#/components/schemas/agentResponse"
+          }, {
+            "$ref" : "#/components/schemas/agentCFResponse"
+          } ]
+        }
+      },
+      "myPreferenceInputStrm" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "namePattern" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "LAST_NAME", "FIRST_NAME" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "maxItems" : 2,
+            "minItems" : 2,
+            "uniqueItems" : true
+          },
+          "currentDepartment" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "currentDepartment", "namePattern" ]
+      },
+      "agentsObjectForGetAppliedBlueprintDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "profileAgentResponse" : {
+        "type" : "object",
+        "properties" : {
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "roleId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "profileId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "emailId" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "zuid" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "emailId", "firstName", "id", "lastName", "photoURL", "profileId", "roleId", "zuid" ]
+      }
+    },
+    "responses" : {
+      "myPhotoResponse" : {
+        "description" : "myPhotoResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "photoURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "photoURL" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo?orgId=3981311"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getAgentsByIdsResponse" : {
+        "description" : "getAgentsByIdsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Department.json#/components/schemas/agentData"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Department.json#/components/schemas/agentData"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/agentIdsResponseArray"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "firstName" : "",
+                    "lastName" : "case",
+                    "photoURL" : null,
+                    "roleId" : "7000000012324",
+                    "profileId" : "7000000012339",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "id" : "1892000000056007",
+                    "zuid" : "437793"
+                  }, {
+                    "firstName" : "",
+                    "lastName" : "jade",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000042001/photo?orgId=3981311",
+                    "roleId" : "7000000012324",
+                    "profileId" : "7000000012339",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "id" : "1892000000042001",
+                    "zuid" : "279392"
+                  }, {
+                    "firstName" : "Steve",
+                    "lastName" : "Waugh",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000888059/photo?orgId=3981311",
+                    "roleId" : "70000000127346",
+                    "profileId" : "70000000120834",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "id" : "1892000000888059",
+                    "zuid" : "91723912"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "agentCFResponse" : {
+        "description" : "agentCFResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/agentCFInputStream"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "photoURL" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "name" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "timeZone" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                  },
+                  "isConfirmed" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "zuid" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int32",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "id", "isConfirmed", "name", "photoURL", "timeZone", "zuid" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "lastName" : "Walsh",
+                  "extn" : "",
+                  "roleId" : "1892000000056099",
+                  "langCode" : "fr_FR",
+                  "mobile" : "",
+                  "timeZone" : "Pacific/Majuro",
+                  "emailId" : "PII_EMAIL_SENTINEL",
+                  "associatedChatDepartmentIds" : [ ],
+                  "zuid" : "",
+                  "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069" ],
+                  "firstName" : "Marisol",
+                  "photoURL" : null,
+                  "phone" : "",
+                  "profileId" : "1892000000056091",
+                  "countryCode" : "en_US",
+                  "channelExpert" : [ ],
+                  "name" : "Walsh Marisol",
+                  "rolePermissionType" : "Admin",
+                  "isConfirmed" : true,
+                  "aboutInfo" : "",
+                  "id" : "1892000000056007",
+                  "status" : "ACTIVE",
+                  "isZiaAgent" : false
+                }
+              }
+            }
+          }
+        }
+      },
+      "getMyInfoResponse" : {
+        "description" : "getMyInfoResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "associatedChatDepartments" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 3,
+                      "minProperties" : 3,
+                      "properties" : {
+                        "sanitizedName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "name" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 200,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        },
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        }
+                      },
+                      "required" : [ "id", "name", "sanitizedName" ]
+                    },
+                    "uniqueItems" : false
+                  },
+                  "role" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 10,
+                    "minProperties" : 10,
+                    "properties" : {
+                      "isDefault" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "shareDataWithPeers" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "immediateSubRoles" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "encId" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "description" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "adminRole" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "reportsTo" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "isVisible" : {
+                        "type" : [ "boolean", "null" ]
+                      }
+                    },
+                    "required" : [ "adminRole", "description", "encId", "id", "immediateSubRoles", "isDefault", "isVisible", "name", "reportsTo", "shareDataWithPeers" ]
+                  },
+                  "profile" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 21,
+                    "minProperties" : 21,
+                    "properties" : {
+                      "modifiedTime" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                      },
+                      "visible" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "allowedTabs" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "defaultProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "allowedPermissionNames" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ]
+                        },
+                        "uniqueItems" : false
+                      },
+                      "type" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "ADMIN", "STANDARD", "LIGHT", "CUSTOM", "PORTAL" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "invisibleTabs" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "portalProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "prohibitedPermissionNames" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ]
+                        },
+                        "uniqueItems" : false
+                      },
+                      "allowedPermissions" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "profileDesc" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 32000,
+                        "minLength" : 0
+                      },
+                      "createdBy" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "lightAgentProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "visibleTabs" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "createdTime" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                      },
+                      "modifiedBy" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "category" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "prohibitedPermisisons" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "adminProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      }
+                    },
+                    "required" : [ "adminProfile", "allowedPermissionNames", "allowedPermissions", "allowedTabs", "category", "createdBy", "createdTime", "defaultProfile", "id", "invisibleTabs", "lightAgentProfile", "modifiedBy", "modifiedTime", "name", "portalProfile", "profileDesc", "prohibitedPermisisons", "prohibitedPermissionNames", "type", "visible", "visibleTabs" ]
+                  },
+                  "associatedDepartments" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 3,
+                      "minProperties" : 3,
+                      "properties" : {
+                        "sanitizedName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "name" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 200,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        },
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        }
+                      },
+                      "required" : [ "id", "name", "sanitizedName" ]
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "oneOf" : [ {
+                  "additionalProperties" : false,
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/agentInputStream"
+                  }, {
+                    "type" : [ "null", "object" ],
+                    "properties" : {
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      },
+                      "roleId" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "profileId" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "timeZone" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                      },
+                      "isConfirmed" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "zuid" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int32",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "isZiaAgent" : {
+                        "type" : [ "boolean", "null" ],
+                        "description" : "Indicates whether the agent is a Zia agent or a human agent"
+                      }
+                    },
+                    "required" : [ "id", "isConfirmed", "isZiaAgent", "name", "photoURL", "profileId", "roleId", "timeZone", "zuid" ]
+                  } ]
+                }, {
+                  "additionalProperties" : false,
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/agentCFInputStream"
+                  }, {
+                    "type" : [ "null", "object" ],
+                    "properties" : {
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "timeZone" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                      },
+                      "isConfirmed" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "zuid" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int32",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "isZiaAgent" : {
+                        "type" : [ "boolean", "null" ],
+                        "description" : "Indicates whether the agent is a Zia agent or a human agent"
+                      }
+                    },
+                    "required" : [ "id", "isConfirmed", "isZiaAgent", "name", "photoURL", "timeZone", "zuid" ]
+                  } ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "associatedChatDepartments" : [ {
+                    "sanitizedName" : "Developement",
+                    "name" : "Developement",
+                    "id" : "1892000000006907"
+                  } ],
+                  "lastName" : "Emard",
+                  "extn" : "",
+                  "role" : {
+                    "name" : "CEO",
+                    "id" : "1892000000056099"
+                  },
+                  "langCode" : "fr_FR",
+                  "emailId" : "PII_EMAIL_SENTINEL",
+                  "photoURL" : null,
+                  "countryCode" : "en_US",
+                  "isConfirmed" : true,
+                  "id" : "1892000000056007",
+                  "roleId" : "1892000000056099",
+                  "profile" : {
+                    "name" : "Administrator",
+                    "id" : "1892000000056091"
+                  },
+                  "mobile" : "",
+                  "timeZone" : "Pacific/Majuro",
+                  "associatedChatDepartmentIds" : [ "1892000000006907" ],
+                  "zuid" : "10687231",
+                  "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069" ],
+                  "associatedDepartments" : [ {
+                    "sanitizedName" : "Developement",
+                    "name" : "Developement",
+                    "id" : "1892000000006907"
+                  }, {
+                    "sanitizedName" : "r-d",
+                    "name" : "R & D",
+                    "id" : "1892000000082069"
+                  } ],
+                  "firstName" : "Torrey",
+                  "phone" : "",
+                  "profileId" : "1892000000056091",
+                  "channelExpert" : [ "Facebook", "Chat", "Phone", "Twitter", "Web", "Email", "Forums" ],
+                  "name" : "Torrey Emard",
+                  "rolePermissionType" : "Admin",
+                  "aboutInfo" : "Expert in handling tickets and Automations",
+                  "status" : "ACTIVE",
+                  "isZiaAgent" : false
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateAgentResponse" : {
+        "description" : "updateAgentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "#/components/schemas/agentCFInputStream"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "photoURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "timeZone" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                    },
+                    "isConfirmed" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "zuid" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "id", "isConfirmed", "name", "photoURL", "timeZone", "zuid" ]
+                } ]
+              }, {
+                "additionalProperties" : false,
+                "allOf" : [ {
+                  "$ref" : "#/components/schemas/agentInputStream"
+                }, {
+                  "type" : [ "null", "object" ],
+                  "properties" : {
+                    "photoURL" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                    },
+                    "roleId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "profileId" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "name" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0
+                    },
+                    "timeZone" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                    },
+                    "isConfirmed" : {
+                      "type" : [ "boolean", "null" ]
+                    },
+                    "id" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "zuid" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int32",
+                      "pattern" : "([0-9]+)"
+                    }
+                  },
+                  "required" : [ "id", "isConfirmed", "name", "photoURL", "profileId", "roleId", "timeZone", "zuid" ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "lastName" : "Marisol Walsh",
+                  "extn" : "3298",
+                  "roleId" : "1892000000056099",
+                  "langCode" : "fr_FR",
+                  "mobile" : "",
+                  "timeZone" : "Pacific/Majuro",
+                  "emailId" : "PII_EMAIL_SENTINEL",
+                  "associatedChatDepartmentIds" : [ ],
+                  "zuid" : "10687231",
+                  "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069" ],
+                  "firstName" : "K",
+                  "photoURL" : null,
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "profileId" : "1892000000056091",
+                  "countryCode" : "en_US",
+                  "channelExpert" : [ "Facebook", "Email", "Forums" ],
+                  "name" : "K Marisol Walsh",
+                  "rolePermissionType" : "Admin",
+                  "isConfirmed" : true,
+                  "aboutInfo" : "Expert in handling Reports",
+                  "id" : "1892000000056007",
+                  "status" : "ACTIVE",
+                  "isZiaAgent" : false
+                }
+              }
+            }
+          }
+        }
+      },
+      "myPreference" : {
+        "description" : "myPreference template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/myPreferenceInputStrm"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "a11y_epilepsy" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_displayLayout" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "smartFocus", "focusedWidth", "fullWidth" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "activitiesView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "LIST_COMPACT", "TABLE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_readingMask" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_successNotifcationAutoCloseTime" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "01", "03", "05", "10", "15", "20" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_readingMaskHeight" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "\\b([1-9][0-9]|90)\\b"
+                  },
+                  "datePattern" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "yyyy[\\-\\/\\.]MM[\\-\\/\\.]dd|MM[\\-\\/\\.]dd[\\-\\/\\.]yyyy|dd[\\-\\/\\.]MM[\\-\\/\\.]yyyy"
+                  },
+                  "a11Y_animationControls" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "regularmotion", "reducedmotion", "autoReducedmotion" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_astigmatism" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "loginLandingPage" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LISTVIEW", "HQ", "FEEDS", "VIEWS_DUEDATE", "VIEWS_CRM", "VIEWS_STATUS", "VIEWS_PRIORITY", "REPORTS_OVERVIEW", "REPORTS_DASHBOARDS", "REPORTS", "MYPROFILE", "TASKS", "ARTICLE_DASHBOARD", "SOLUTIONS", "ACCOUNTS", "CONTACTS", "COMMUNITY", "CHAT", "SOCIALS", "ACTIVITIES", "CALLS", "EVENTS", "IM" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_appFontFamily" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Zoho Puvi", "Lato", "Roboto", "Vazirmatn" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "loadGettingStartedPage" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_errorNotificationAutoCloseTime" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "01", "03", "05", "10", "15", "20" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_tagColorVariant" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "bold", "subtle", "minimal" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "authtokenDeprecationBanner" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "invoicePreferencesContacts" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_contractsDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "imNotification" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "ENABLED", "DISABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_tasksTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinAllTickets" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "newClient" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinAllContacts" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_customCursor" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_themes" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "red", "green", "blue", "yellow", "orange", "pink", "skyBlue", "teal" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinAllDashboards" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinAllReports" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "extncontactrightpanel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_lhsTheme" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "light", "dark" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "articleAutoSuggestion" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "keyBoardShortcuts" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_adhdFriendly" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "collapseSidePanel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "communityListViewMode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "CLASSIC", "COMPACT" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_isSuccessNotificationAutoClose" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_dviBarTabWidth" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^(\\d{1,2}(\\.\\d{1,2})?|100|357)$"
+                  },
+                  "core_callsDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_contactsTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "invoicePreferencesCases" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_appearance" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "light", "dark", "auto", "pureDark" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_visuallyImpaired" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_highlightClick" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_appFontSize" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "\\b(8|9|1[0-9]|20|21|22|23|24)\\b"
+                  },
+                  "extnaccountrightpanel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_customCursorSize" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "8", "16", "24", "32" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "deskDatePattern" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "yyyy[\\/\\-\\.\\s]MM[\\/\\-\\.\\s]dd|MM[\\/\\-\\.\\s]dd[\\/\\-\\.\\s]yyyy|dd[\\/\\-\\.\\s]MM[\\/\\-\\.\\s]yyyy|yyyy[\\/\\-\\.\\s]MMM[\\/\\-\\.\\s]dd|MMM[\\/\\-\\.\\s]dd[\\/\\-\\.\\s]yyyy|dd[\\/\\-\\.\\s]MMM[\\/\\-\\.\\s]yyyy|dd[\\/\\-\\.\\s]MMMM[\\/\\-\\.\\s]yyyy|MMMM[\\/\\-\\.\\s]dd[\\/\\-\\.\\s]yyyy|yyyy[\\/\\-\\.\\s]MMMM[\\/\\-\\.\\s]dd|dd[\\/\\-\\.\\s]MM[\\/\\-\\.\\s]yy|MM[\\/\\-\\.\\s]dd[\\/\\-\\.\\s]yy|yy[\\/\\-\\.\\s]MM[\\/\\-\\.\\s]dd|dd[\\/\\-\\.\\s]MMM[\\/\\-\\.\\s]yy|MMM[\\/\\-\\.\\s]dd[\\/\\-\\.\\s]yy|yy[\\/\\-\\.\\s]MMM[\\/\\-\\.\\s]dd|dd[\\/\\-\\.\\s]MMMM[\\/\\-\\.\\s]yy|MMMM[\\/\\-\\.\\s]dd[\\/\\-\\.\\s]yy|yy[\\/\\-\\.\\s]MMMM[\\/\\-\\.\\s]dd|"
+                  },
+                  "a11y_seizureSafe" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_ticketsTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "outBoxDelayTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "([1-9][0-9]?|100)S|([1-5][0-9]?|60)M"
+                  },
+                  "a11y_dyslexia" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ticketConversationView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_pureDarkMode" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_isFontSizeAdaptToZoom" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_ticketReplyActionsOrder" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "forward_replyAll_reply", "forward_reply_replyAll", "replyAll_forward_reply", "replyAll_reply_forward", "reply_forward_replyAll", "reply_replyAll_forward" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_contrastLevel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "low", "medium", "high" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_blindness" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_motorDisabilities" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "tasksView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "LIST_COMPACT", "TABLE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_focusRing" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "hideCurrentYearDate" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_contactsDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_editorFontFamily" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Lato", "Roboto", "Zoho Puvi", "Arial", "Carlito", "Helvetica", "Verdana", "Wide", "Courier New", "Comic Sans MS", "Garamond", "Georgia", "Narrow", "Serif", "Tahoma", "Times New Roman", "MotoyaLMaru", "Trebuchet", "Mulish", "Vazirmatn" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "defaultSendBehavior" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Send", "Send and Close" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_customCursorColor" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "black", "white" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_accountsDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ui_displayLayoutWidth" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "\\b([5-8][9]|[5-8][0-9])\\b"
+                  },
+                  "core_needEmptyQueueColumn" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "communityTopicsRecordsPerPage" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "10", "20", "30", "40", "50" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "reportDurationFormat" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "HH:MM:SS", "YEAR" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_needAccessibilityShortCutInWms" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_notificationView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "stack", "list" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_tasksDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "imStatus" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "ONLINE", "OFFLINE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_zoomLevel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_accountsTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "callsView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "LIST_COMPACT", "TABLE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_criticalLink" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinAllAccounts" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "contactsView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "GRID" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_isContrastRatioAdaptForBg" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "accountsView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "GRID" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_underlineLink" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "communityTopicsSortBy" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "createdTime", "modifiedTime" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_contrast" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "ticketsView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "LIST_COMPACT", "TABLE", "STATUS_QUEUE", "CRM_QUEUE", "DUEDATE_QUEUE", "PRIORITY_QUEUE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "extnticketrightpanel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "outBoxDelay" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_ticketsDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_customScroll" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_readingMaskWidth" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "\\b(10[0-9]|100|[1-9][0-9])\\b"
+                  },
+                  "ui_isTagTextDefaultColor" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_focusRingEnabledPlaces" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "all", "main" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "tempForceRedirection" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_ticketReplyActions" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "reply", "replyAll", "forward", "reply_replyAll", "reply_forward", "replyAll_forward", "replyAll_reply", "forward_reply", "forward_replyAll", "forward_replyAll_reply", "forward_reply_replyAll", "replyAll_forward_reply", "replyAll_reply_forward", "reply_forward_replyAll", "reply_replyAll_forward" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "communityTopicsSortOrder" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "ascending", "descending" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_contractsTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_callsTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_eventsTableViewContentStyle" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "wrap", "clip" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "invoicePreferencesAccounts" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_readingMaskOpacity" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^0?\\.([2-9][0-9]?|1[5-9])$"
+                  },
+                  "a11y_isErrorNotificationAutoClose" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_isTicketReplySendAndUpdateStatus" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "eventsView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LIST", "LIST_COMPACT", "TABLE" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_readingMaskLevel" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "small", "medium", "full", "custom" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_colorBlindness" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_isPublicComment" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "a11y_elderly" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "DISABLED", "ENABLED" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "timeFormat" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "12-hour", "24-hour" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_eventsDvIbarPanelView" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "collapse", "expand" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "core_editorFontSize" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "8", "10", "12", "14", "18", "24", "36" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "feedNotificationFilterPreference" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "all", "unread", "flagged", "mentions" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "a11Y_animationControls", "a11y_adhdFriendly", "a11y_astigmatism", "a11y_blindness", "a11y_colorBlindness", "a11y_contrast", "a11y_contrastLevel", "a11y_criticalLink", "a11y_customCursor", "a11y_customCursorColor", "a11y_customCursorSize", "a11y_customScroll", "a11y_dyslexia", "a11y_elderly", "a11y_epilepsy", "a11y_errorNotificationAutoCloseTime", "a11y_focusRing", "a11y_focusRingEnabledPlaces", "a11y_highlightClick", "a11y_isContrastRatioAdaptForBg", "a11y_isErrorNotificationAutoClose", "a11y_isFontSizeAdaptToZoom", "a11y_isSuccessNotificationAutoClose", "a11y_motorDisabilities", "a11y_needAccessibilityShortCutInWms", "a11y_notificationView", "a11y_readingMask", "a11y_readingMaskHeight", "a11y_readingMaskLevel", "a11y_readingMaskOpacity", "a11y_readingMaskWidth", "a11y_seizureSafe", "a11y_successNotifcationAutoCloseTime", "a11y_underlineLink", "a11y_visuallyImpaired", "a11y_zoomLevel", "accountsView", "activitiesView", "articleAutoSuggestion", "authtokenDeprecationBanner", "callsView", "collapseSidePanel", "communityListViewMode", "communityTopicsRecordsPerPage", "communityTopicsSortBy", "communityTopicsSortOrder", "contactsView", "core_accountsDvIbarPanelView", "core_accountsTableViewContentStyle", "core_callsDvIbarPanelView", "core_callsTableViewContentStyle", "core_contactsDvIbarPanelView", "core_contactsTableViewContentStyle", "core_contractsDvIbarPanelView", "core_contractsTableViewContentStyle", "core_dviBarTabWidth", "core_editorFontFamily", "core_editorFontSize", "core_eventsDvIbarPanelView", "core_eventsTableViewContentStyle", "core_isPublicComment", "core_isTicketReplySendAndUpdateStatus", "core_needEmptyQueueColumn", "core_tasksDvIbarPanelView", "core_tasksTableViewContentStyle", "core_ticketReplyActions", "core_ticketReplyActionsOrder", "core_ticketsDvIbarPanelView", "core_ticketsTableViewContentStyle", "datePattern", "defaultSendBehavior", "deskDatePattern", "eventsView", "extnaccountrightpanel", "extncontactrightpanel", "extnticketrightpanel", "feedNotificationFilterPreference", "hideCurrentYearDate", "imNotification", "imStatus", "invoicePreferencesAccounts", "invoicePreferencesCases", "invoicePreferencesContacts", "keyBoardShortcuts", "loadGettingStartedPage", "loginLandingPage", "newClient", "outBoxDelay", "outBoxDelayTime", "pinAllAccounts", "pinAllContacts", "pinAllDashboards", "pinAllReports", "pinAllTickets", "reportDurationFormat", "tasksView", "tempForceRedirection", "ticketConversationView", "ticketsView", "timeFormat", "ui_appFontFamily", "ui_appFontSize", "ui_appearance", "ui_displayLayout", "ui_displayLayoutWidth", "ui_isTagTextDefaultColor", "ui_lhsTheme", "ui_pureDarkMode", "ui_tagColorVariant", "ui_themes" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "namePattern" : [ "FIRST_NAME", "LAST_NAME" ],
+                  "articleAutoSuggestion" : "ENABLED",
+                  "keyBoardShortcuts" : "ENABLED",
+                  "pinAllAccounts" : "ENABLED",
+                  "outBoxDelayTime" : "60S",
+                  "collapseSidePanel" : "DISABLED",
+                  "pinAllTickets" : "ENABLED",
+                  "ticketConversationView" : "ENABLED",
+                  "contactsView" : "LIST",
+                  "accountsView" : "LIST",
+                  "pinAllContacts" : "ENABLED",
+                  "ticketsView" : "DUEDATE_QUEUE",
+                  "datePattern" : "dd/MM/yyyy",
+                  "defaultSendBehavior" : "Send",
+                  "currentDepartment" : "allDepartment",
+                  "timeFormat" : "12-hour",
+                  "outBoxDelay" : "DISABLED",
+                  "pinAllDashboards" : "DISABLED",
+                  "loginLandingPage" : "LISTVIEW",
+                  "loadGettingStartedPage" : "DISABLED",
+                  "pinAllReports" : "ENABLED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getAgentResponse" : {
+        "description" : "getAgentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "associatedChatDepartments" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 3,
+                      "minProperties" : 3,
+                      "properties" : {
+                        "sanitizedName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "name" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 200,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        },
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        }
+                      },
+                      "required" : [ "id", "name", "sanitizedName" ]
+                    },
+                    "uniqueItems" : false
+                  },
+                  "role" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 10,
+                    "minProperties" : 10,
+                    "properties" : {
+                      "isDefault" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "shareDataWithPeers" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "immediateSubRoles" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "encId" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "description" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "adminRole" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "reportsTo" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "isVisible" : {
+                        "type" : [ "boolean", "null" ]
+                      }
+                    },
+                    "required" : [ "adminRole", "description", "encId", "id", "immediateSubRoles", "isDefault", "isVisible", "name", "reportsTo", "shareDataWithPeers" ]
+                  },
+                  "verifiedEmails" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                    },
+                    "uniqueItems" : false
+                  },
+                  "profile" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 21,
+                    "minProperties" : 21,
+                    "properties" : {
+                      "modifiedTime" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                      },
+                      "visible" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "allowedTabs" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "defaultProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "allowedPermissionNames" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ]
+                        },
+                        "uniqueItems" : false
+                      },
+                      "type" : {
+                        "type" : [ "string", "null" ],
+                        "enum" : [ "ADMIN", "STANDARD", "LIGHT", "CUSTOM", "PORTAL" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "invisibleTabs" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "portalProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "prohibitedPermissionNames" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null" ]
+                        },
+                        "uniqueItems" : false
+                      },
+                      "allowedPermissions" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "profileDesc" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 32000,
+                        "minLength" : 0
+                      },
+                      "createdBy" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "lightAgentProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 50,
+                        "minLength" : 0
+                      },
+                      "visibleTabs" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "createdTime" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                      },
+                      "modifiedBy" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "category" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "prohibitedPermisisons" : {
+                        "type" : [ "null", "array" ],
+                        "items" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "uniqueItems" : false
+                      },
+                      "adminProfile" : {
+                        "type" : [ "boolean", "null" ]
+                      }
+                    },
+                    "required" : [ "adminProfile", "allowedPermissionNames", "allowedPermissions", "allowedTabs", "category", "createdBy", "createdTime", "defaultProfile", "id", "invisibleTabs", "lightAgentProfile", "modifiedBy", "modifiedTime", "name", "portalProfile", "profileDesc", "prohibitedPermisisons", "prohibitedPermissionNames", "type", "visible", "visibleTabs" ]
+                  },
+                  "associatedDepartments" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "null", "object" ],
+                      "additionalProperties" : false,
+                      "maxProperties" : 18,
+                      "minProperties" : 18,
+                      "properties" : {
+                        "chatStatusId" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "chatStatus" : {
+                          "type" : [ "string", "null" ],
+                          "enum" : [ "AVAILABLE", "DISABLED", "NOT_CREATED" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "isAssignToTeamEnabled" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "modifiedTime" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                        },
+                        "hasLogo" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "sanitizedName" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "sanitizedDeptHash" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        },
+                        "isVisibleInCustomerPortal" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "creatorId" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "description" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        },
+                        "associatedAgentIds" : {
+                          "type" : [ "null", "array" ],
+                          "items" : {
+                            "type" : [ "string", "null", "integer" ],
+                            "format" : "int64",
+                            "pattern" : "([0-9]+)"
+                          },
+                          "uniqueItems" : false
+                        },
+                        "isDefault" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "isEnabled" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "name" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 200,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        },
+                        "createdTime" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 100,
+                          "minLength" : 0,
+                          "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                        },
+                        "id" : {
+                          "type" : [ "string", "null", "integer" ],
+                          "format" : "int64",
+                          "pattern" : "([0-9]+)"
+                        },
+                        "nameInCustomerPortal" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 200,
+                          "minLength" : 0,
+                          "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                        },
+                        "status" : {
+                          "type" : [ "string", "null" ],
+                          "enum" : [ "0", "1", "2" ],
+                          "maxLength" : 100,
+                          "minLength" : 0
+                        }
+                      },
+                      "required" : [ "associatedAgentIds", "chatStatus", "chatStatusId", "createdTime", "creatorId", "description", "hasLogo", "id", "isAssignToTeamEnabled", "isDefault", "isEnabled", "isVisibleInCustomerPortal", "modifiedTime", "name", "nameInCustomerPortal", "sanitizedDeptHash", "sanitizedName", "status" ]
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "anyOf" : [ {
+                  "additionalProperties" : false,
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/agentCFInputStream"
+                  }, {
+                    "type" : [ "null", "object" ],
+                    "properties" : {
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "timeZone" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                      },
+                      "isConfirmed" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "zuid" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int32",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "id", "isConfirmed", "name", "photoURL", "timeZone", "zuid" ]
+                  } ]
+                }, {
+                  "additionalProperties" : false,
+                  "allOf" : [ {
+                    "$ref" : "#/components/schemas/agentInputStream"
+                  }, {
+                    "type" : [ "null", "object" ],
+                    "properties" : {
+                      "photoURL" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      },
+                      "roleId" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "profileId" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "name" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0
+                      },
+                      "timeZone" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "[a-zA-Z_/\\-\\+0-9]*"
+                      },
+                      "isConfirmed" : {
+                        "type" : [ "boolean", "null" ]
+                      },
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "zuid" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int32",
+                        "pattern" : "([0-9]+)"
+                      }
+                    },
+                    "required" : [ "id", "isConfirmed", "name", "photoURL", "profileId", "roleId", "timeZone", "zuid" ]
+                  } ]
+                } ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "associatedChatDepartments" : [ {
+                    "name" : "Developement",
+                    "id" : "1892000000006907"
+                  } ],
+                  "lastName" : "case",
+                  "extn" : "3298",
+                  "role" : {
+                    "name" : "CEO",
+                    "id" : "1892000000056099"
+                  },
+                  "langCode" : "fr_FR",
+                  "emailId" : "PII_EMAIL_SENTINEL",
+                  "photoURL" : null,
+                  "countryCode" : "en_US",
+                  "isConfirmed" : true,
+                  "id" : "1892000000056096",
+                  "roleId" : "1892000000056099",
+                  "profile" : {
+                    "name" : "Administrator",
+                    "id" : "1892000000056091"
+                  },
+                  "mobile" : "",
+                  "timeZone" : "Pacific/Majuro",
+                  "associatedChatDepartmentIds" : [ "1892000000006907" ],
+                  "zuid" : "10687231",
+                  "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069" ],
+                  "associatedDepartments" : [ {
+                    "name" : "Developement",
+                    "id" : "1892000000006907"
+                  }, {
+                    "name" : "R & D",
+                    "id" : "1892000000082069"
+                  } ],
+                  "firstName" : "",
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "profileId" : "1892000000056091",
+                  "channelExpert" : [ "Facebook", "Chat", "Phone", "Twitter", "Web", "Email", "Forums" ],
+                  "name" : "case",
+                  "rolePermissionType" : "Admin",
+                  "aboutInfo" : "Expert in handling tickets and Automations",
+                  "status" : "ACTIVE",
+                  "isZiaAgent" : false
+                }
+              }
+            }
+          }
+        }
+      },
+      "agentListArray" : {
+        "description" : "agentListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/agentResponseArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "lastName" : "case",
+                    "extn" : "3298",
+                    "roleId" : "1892000000056099",
+                    "langCode" : "en_US",
+                    "mobile" : "",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "associatedChatDepartmentIds" : [ ],
+                    "zuid" : "10687231",
+                    "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069", "1892000000639717" ],
+                    "firstName" : "",
+                    "photoURL" : null,
+                    "phone" : "12121",
+                    "profileId" : "1892000000056091",
+                    "countryCode" : "en_US",
+                    "channelExpert" : [ "Facebook", "Chat", "Phone", "Twitter", "Web", "Email", "Forums" ],
+                    "name" : "case",
+                    "isConfirmed" : true,
+                    "aboutInfo" : "Expert in handling tickets and Automations",
+                    "id" : "1892000000056007",
+                    "status" : "ACTIVE",
+                    "isZiaAgent" : false
+                  }, {
+                    "lastName" : "jade",
+                    "extn" : "3203",
+                    "roleId" : "1892000000056899",
+                    "langCode" : "en_US",
+                    "mobile" : "",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "associatedChatDepartmentIds" : [ ],
+                    "zuid" : "10657727",
+                    "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069", "1892000000639717", "1892000001019041", "1892000001106673", "1892000001109673" ],
+                    "firstName" : "",
+                    "photoURL" : "https://contacts.zoho.com/file?t=user&ID=10657727",
+                    "phone" : "",
+                    "profileId" : "1892000000056091",
+                    "countryCode" : "en_US",
+                    "channelExpert" : [ "Facebook", "Email", "Forums" ],
+                    "name" : "jade",
+                    "isConfirmed" : true,
+                    "aboutInfo" : "Expert in handling tickets",
+                    "id" : "1892000000042001",
+                    "status" : "ACTIVE",
+                    "isZiaAgent" : false
+                  }, {
+                    "lastName" : "john",
+                    "extn" : "3228",
+                    "roleId" : "1892000000056004",
+                    "langCode" : "en_US",
+                    "mobile" : "",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "associatedChatDepartmentIds" : [ ],
+                    "zuid" : "10713988",
+                    "associatedDepartmentIds" : [ "1892000000006907", "1892000001019041" ],
+                    "firstName" : "",
+                    "photoURL" : null,
+                    "phone" : "68779989",
+                    "profileId" : "18920000000232043",
+                    "countryCode" : "en_US",
+                    "channelExpert" : [ "Facebook", "Chat", "Phone", "Twitter", "Web", "Email", "Forums" ],
+                    "name" : "john",
+                    "isConfirmed" : true,
+                    "aboutInfo" : "Expert in handling tickets and Automations",
+                    "id" : "1892000000070001",
+                    "status" : "DISABLED"
+                  }, {
+                    "lastName" : "Waugh",
+                    "extn" : "4020",
+                    "roleId" : "1892000000056004",
+                    "langCode" : "ja_JP",
+                    "mobile" : "",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "associatedChatDepartmentIds" : [ ],
+                    "zuid" : null,
+                    "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069", "1892000000639717" ],
+                    "firstName" : "Steve",
+                    "photoURL" : null,
+                    "phone" : "",
+                    "profileId" : "18920000000232043",
+                    "countryCode" : "en_US",
+                    "channelExpert" : [ "Facebook", "Chat" ],
+                    "name" : "Steve Waugh",
+                    "isConfirmed" : false,
+                    "aboutInfo" : "Expert in handling Departments",
+                    "id" : "1892000000888059",
+                    "status" : "ACTIVE",
+                    "isZiaAgent" : false
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "agentId" : {
+        "name" : "agentId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of agents to fetch; default value is 10 and maximum value is 200",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of agents to fetch. The default value is 10 and the maximum value supported is 200.",
+          "maximum" : 200,
+          "minimum" : 10,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "isConfirmed" : {
+        "name" : "isConfirmed",
+        "in" : "query",
+        "description" : "Filters Confirmed & Unconfirmed agents",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : "boolean",
+          "description" : "Key that denotes if the agents must be confirmed or unconfirmed."
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the deleted agents must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the agents must be fetched",
+          "minimum" : 0,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "status" : {
+        "name" : "status",
+        "in" : "query",
+        "description" : "Parameter that filters agents based on their activation status: @ACTIVE@ or @DISABLED@",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Key that filters agents based on their activation status: @ACTIVE@, @DISABLED@, @DELETED@ or @IMPORTED@",
+          "enum" : [ "ACTIVE", "DISABLED" ]
+        }
+      }
+    },
+    "requestBodies" : {
+      "myPreferenceInputStrm" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "namePattern" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "LAST_NAME", "FIRST_NAME" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "maxItems" : 2,
+                  "minItems" : 2,
+                  "uniqueItems" : true
+                },
+                "currentDepartment" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "namePattern" : [ "LAST_NAME", "FIRST_NAME" ],
+                  "articleAutoSuggestion" : "ENABLED",
+                  "keyBoardShortcuts" : "ENABLED",
+                  "pinAllAccounts" : "ENABLED",
+                  "outBoxDelayTime" : "60S",
+                  "collapseSidePanel" : "DISABLED",
+                  "pinAllTickets" : "ENABLED",
+                  "ticketConversationView" : "ENABLED",
+                  "contactsView" : "LIST",
+                  "accountsView" : "LIST",
+                  "pinAllContacts" : "ENABLED",
+                  "ticketsView" : "STATUS_QUEUE",
+                  "defaultSendBehavior" : "Send",
+                  "datePattern" : "dd/MM/yyyy",
+                  "currentDepartment" : "1892000000082069",
+                  "timeFormat" : "12-hour",
+                  "outBoxDelay" : "DISABLED",
+                  "pinAllDashboards" : "DISABLED",
+                  "loginLandingPage" : "LISTVIEW",
+                  "loadGettingStartedPage" : "DISABLED",
+                  "pinAllReports" : "ENABLED"
+                }
+              }
+            }
+          }
+        }
+      },
+      "scheduleReassignment" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agentReassignment" : {
+                  "$ref" : "#/components/schemas/scheduleReassignmentArray"
+                }
+              },
+              "required" : [ "agentReassignment" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "agentReassignment" : [ {
+                    "departmentId" : 19000000012754,
+                    "taskNewOwner" : "19000000008734",
+                    "ticketNewOwner" : "19000000142005"
+                  }, {
+                    "departmentId" : 19000000010674,
+                    "taskNewOwner" : "19000000008872",
+                    "ticketNewOwner" : "19000000182001"
+                  }, {
+                    "departmentId" : 19000000007073,
+                    "taskNewOwner" : "19000000008872",
+                    "ticketNewOwner" : "19000000182001"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "anonymizeAgentsRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "anonymizedName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "anonymizedName" : "Anonyme"
+                }
+              }
+            }
+          }
+        }
+      },
+      "addAgentInputStream" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "lastName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "extn" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "roleId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "langCode" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z_]*"
+                },
+                "mobile" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "emailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "associatedChatDepartmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "associatedDepartmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "firstName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "phone" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "countryCode" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z_]*"
+                },
+                "profileId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "rolePermissionType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "AgentPublic", "AgentPersonal", "AgentTeamPersonal", "Admin", "Custom", "Light" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "aboutInfo" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "DISABLED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "associatedDepartmentIds", "emailId", "lastName", "profileId", "roleId", "rolePermissionType" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "lastName" : "Walsh",
+                  "firstName" : "Marisol",
+                  "countryCode" : "en_US",
+                  "langCode" : "fr_FR",
+                  "rolePermissionType" : "Admin",
+                  "emailId" : "PII_EMAIL_SENTINEL",
+                  "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "updateAgent_addAgentInputStream" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "lastName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "extn" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "roleId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "langCode" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z_]*"
+                },
+                "mobile" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "emailId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "associatedChatDepartmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "associatedDepartmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "firstName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "phone" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "countryCode" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-zA-Z_]*"
+                },
+                "profileId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "rolePermissionType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "AgentPublic", "AgentPersonal", "AgentTeamPersonal", "Admin", "Custom", "Light" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "aboutInfo" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0,
+                  "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+|^$"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ACTIVE", "DISABLED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "lastName" : "Marisol Walsh",
+                  "firstName" : "K",
+                  "phone" : "PII_PHONE_SENTINEL",
+                  "rolePermissionType" : "Light",
+                  "associatedDepartmentIds" : [ "1892000000006907", "1892000000082069" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteUnConfAgentRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "agentIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "agentIds" : [ 1892000000056007, 1892000000056008 ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Agent"
+}

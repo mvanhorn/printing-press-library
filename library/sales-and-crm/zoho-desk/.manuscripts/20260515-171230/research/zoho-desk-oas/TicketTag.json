@@ -1,0 +1,978 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TicketTag",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/tags" : {
+      "get" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "List tags in a ticket",
+        "description" : "This API lists tags associated with a ticket.",
+        "operationId" : "getTicketTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getTagsByTicketResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/dissociateTag" : {
+      "post" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "Dissociate Ticket Tags",
+        "description" : "This API removes a single tag or multiple tags from a ticket.",
+        "operationId" : "dissociateTicketTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/tagArray"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/recentTicketTags" : {
+      "get" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "List recent tags",
+        "description" : "This API lists the five most recent tags associated with tickets.",
+        "operationId" : "getRecentTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getTicketTagResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/recentTicketTags/{tagId}" : {
+      "post" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "Update recent tags",
+        "description" : "This API adds a tag to the list of recently viewed tags. tag_id is a mandatory parameter in the API request.",
+        "operationId" : "updateRecentTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/tagId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tags/{currentTagId}/replace" : {
+      "patch" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "Replace the specified tags",
+        "description" : "This API replaces a tag to the specified tag. tag_id is a mandatory parameter in the API request.",
+        "operationId" : "replaceTag",
+        "parameters" : [ {
+          "name" : "currentTagId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/replaceTag"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/ticketTags" : {
+      "get" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "List tickets tags",
+        "description" : "This API lists the ticket tags added in your help desk portal.�",
+        "operationId" : "getTicketsTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts tags by a specific attribute: createdTime or count. The default sorting order is descending.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts tags by a specific attribute: createdTime or count. The default sorting order is descending.",
+            "enum" : [ "createdTime", "count" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getTicketTagResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/associateTag" : {
+      "post" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "Associate Ticket Tags",
+        "description" : "This API adds a single tag or multiple tags to a ticket.",
+        "operationId" : "associateTicketTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateTags_tagArray"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commonTagResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tags/search" : {
+      "get" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "Search tags",
+        "description" : "This API searches for tags added in your help desk portal.",
+        "operationId" : "getTags",
+        "parameters" : [ {
+          "name" : "searchVal",
+          "in" : "query",
+          "description" : "Search keyword related to the tag.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Search keyword related to the tag.",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\_\\-\\+\\%\\P{InBasicLatin}\\s]+"
+          }
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commonTagResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tags/{tagId}/tickets" : {
+      "get" : {
+        "tags" : [ "TicketTag" ],
+        "summary" : "List tickets by tag",
+        "description" : "This API lists tickets containing the tag specified.",
+        "operationId" : "getTicketsByTag",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the tickets. Values allowed are: @contacts@, @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with commas.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Additional information related to the tickets. Values allowed are: @contacts@, @products@, @departments@, @team@, @isRead@ and @assignee@. You can pass multiple values by separating them with commas.",
+            "enum" : [ "contacts", "isRead", "products", "assignee" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Key that sorts the tickets by a specific attribute: @dueDate@, @recentThread@, @createdTime@, or @ticketNumber@. The default sorting order is ascending. A - prefix denotes a descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that sorts the tickets by a specific attribute: @dueDate@, @recentThread@, @createdTime@, or @ticketNumber@. The default sorting order is ascending. A - prefix denotes a descending order of sorting.",
+            "enum" : [ "createdTime", "modifiedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/tagId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/ticketListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "tagJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^(?!^null$)[a-zA-Z0-9\\_\\.\\-\\+\\%\\P{InBasicLatin}\\s]{3,}$"
+          },
+          "tagType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SYSTEM", "MANUAL" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "tagType" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/tagJson"
+        }
+      },
+      "getTicketTagJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "ticketCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^(?!^null$)[a-zA-Z0-9\\_\\.\\-\\+\\%\\P{InBasicLatin}\\s]{3,}$"
+          },
+          "tagType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "SYSTEM", "MANUAL", null ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name", "tagType", "ticketCount" ]
+      },
+      "getTicketTagData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/getTicketTagJson"
+        }
+      },
+      "ticketData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Ticket.json#/components/schemas/ticketTags"
+        }
+      }
+    },
+    "responses" : {
+      "getTagsByTicketResponse" : {
+        "description" : "getTagsByTicketResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tags" : {
+                  "$ref" : "#/components/schemas/data"
+                }
+              },
+              "required" : [ "tags" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "tags" : [ {
+                    "name" : "sample",
+                    "tagType" : "MANUAL",
+                    "id" : 123234324
+                  }, {
+                    "name" : "sample",
+                    "tagType" : "MANUAL",
+                    "id" : 123234324
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketTagResponse" : {
+        "description" : "getTicketTagResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/getTicketTagData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketCount" : "10",
+                    "name" : "sample",
+                    "tagType" : "MANUAL",
+                    "id" : "PII_PHONE_SENTINEL"
+                  }, {
+                    "ticketCount" : "0",
+                    "name" : "sample",
+                    "tagType" : "MANUAL",
+                    "id" : "PII_PHONE_SENTINEL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "commonTagResponse" : {
+        "description" : "commonTagResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "name" : "sample",
+                    "tagType" : "MANUAL",
+                    "id" : 123234324
+                  }, {
+                    "name" : "sample",
+                    "tagType" : "SYSTEM",
+                    "id" : 123234324
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "ticketListViewArray" : {
+        "description" : "ticketListViewArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "product" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "productName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            }
+                          },
+                          "required" : [ "id", "productName" ]
+                        },
+                        "contact" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 8,
+                          "minProperties" : 8,
+                          "properties" : {
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 40,
+                              "minLength" : 0
+                            },
+                            "phone" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0,
+                              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                            },
+                            "mobile" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0,
+                              "pattern" : "[0-9a-zA-Z_\\+\\-\\.\\(\\)\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "type" : {
+                              "type" : [ "string", "null" ],
+                              "x-dynamic-enum" : true
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 255,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'\\&\\~]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            },
+                            "account" : {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 3,
+                              "minProperties" : 3,
+                              "properties" : {
+                                "website" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 120,
+                                  "minLength" : 0
+                                },
+                                "accountName" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                }
+                              },
+                              "required" : [ "accountName", "id", "website" ]
+                            }
+                          },
+                          "required" : [ "account", "email", "firstName", "id", "lastName", "mobile", "phone", "type" ]
+                        },
+                        "isRead" : {
+                          "type" : [ "boolean", "null" ]
+                        },
+                        "assignee" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "team" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 3,
+                          "minProperties" : 3,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 1,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "logoUrl" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            }
+                          },
+                          "required" : [ "id", "logoUrl", "name" ]
+                        },
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "name" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/ticketData"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "ticketNumber" : "101",
+                    "statusType" : "Open",
+                    "subject" : "Real Time analysis Requirement",
+                    "dueDate" : 1466525776000,
+                    "departmentId" : "1892000000006907",
+                    "channel" : "Email",
+                    "isRead" : true,
+                    "language" : "English",
+                    "closedTime" : null,
+                    "contact" : {
+                      "lastName" : "Carol",
+                      "firstName" : "Lucas",
+                      "phone" : "PII_PHONE_SENTINEL",
+                      "mobile" : "PII_PHONE_SENTINEL",
+                      "id" : "1892000000042032",
+                      "isSpam" : false,
+                      "type" : "paid",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "account" : {
+                        "website" : "www.desk.com",
+                        "accountName" : "desk Account",
+                        "id" : "1892000000975382"
+                      }
+                    },
+                    "createdTime" : 1383564067000,
+                    "id" : "1892000000042034",
+                    "department" : {
+                      "name" : "dasdasdasd",
+                      "id" : "1892000000006907"
+                    },
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "customerResponseTime" : 1383564067912,
+                    "productId" : null,
+                    "contactId" : "1892000000042032",
+                    "threadCount" : "121",
+                    "team" : {
+                      "name" : "kjsdfjks",
+                      "id" : "8920000000069071",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                    },
+                    "priority" : "High",
+                    "assigneeId" : "1892000000056007",
+                    "commentCount" : "1",
+                    "accountId" : "189200000005345",
+                    "phone" : null,
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "teamId" : "8920000000069071",
+                    "assignee" : {
+                      "firstName" : "dasca",
+                      "lastName" : "vins",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000056007/photo?orgId=298902",
+                      "id" : "1892000000056007",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "isSpam" : false,
+                    "status" : "Open"
+                  }, {
+                    "ticketNumber" : "169",
+                    "statusType" : "Open",
+                    "subject" : "Hi. There is a sudden delay in the processing of the orders. Check this with high priority",
+                    "dueDate" : null,
+                    "departmentId" : "1892000000006907",
+                    "channel" : "Facebook",
+                    "isRead" : true,
+                    "closedTime" : null,
+                    "contact" : {
+                      "lastName" : "Richard",
+                      "firstName" : "Lucas",
+                      "phone" : "PII_PHONE_SENTINEL",
+                      "mobile" : "PII_PHONE_SENTINEL",
+                      "id" : "1892000000093203",
+                      "isSpam" : false,
+                      "type" : "paid",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "account" : {
+                        "website" : "www.desk.com",
+                        "accountName" : "desk Account",
+                        "id" : "1892000000975382"
+                      }
+                    },
+                    "createdTime" : 1394098493000,
+                    "id" : "1892000000093205",
+                    "department" : {
+                      "name" : "dasdasdasd",
+                      "id" : "1892000000006907"
+                    },
+                    "email" : "PII_EMAIL_SENTINEL",
+                    "customerResponseTime" : 1394524289618,
+                    "productId" : null,
+                    "contactId" : "1892000000093203",
+                    "threadCount" : "43",
+                    "team" : {
+                      "name" : "kjsdfjks",
+                      "id" : "8920000000069071",
+                      "logoUrl" : "https://desk.zoho.com/api/v1/teams/8920000000069071/logo?orgId=11278831"
+                    },
+                    "priority" : null,
+                    "assigneeId" : "1892000000042001",
+                    "commentCount" : "0",
+                    "phone" : null,
+                    "webUrl" : "https://desk.zoho.com/support/zylker/ShowHomePage.do#Cases/dv/d126330fb061247d9ebddaeb9d93ba74750b0284bc703b38",
+                    "teamId" : "8920000000069071",
+                    "assignee" : {
+                      "firstName" : "dasca",
+                      "lastName" : "vins",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1892000000042001/photo?orgId=298902",
+                      "id" : "1892000000042001",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "isSpam" : false,
+                    "status" : "Open"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "tagId" : {
+        "name" : "tagId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department from which the tags must be fetched",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which the tags must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of tags to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of tags to fetch",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the tags must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the tags must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "tagArray" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^(?!^null$)[a-zA-Z0-9\\_\\.\\-\\+\\%\\P{InBasicLatin}\\s]{3,}$"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "tags" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "tags" : [ "sample", "ticket", "tag" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "replaceTag" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "Tag ID of the Replacing Tag",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "id" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "id" : "PII_PHONE_SENTINEL"
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateTags_tagArray" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "^(?!^null$)[a-zA-Z0-9\\_\\.\\-\\+\\%\\P{InBasicLatin}\\s]{3,}$"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "tags" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "tags" : [ "sample", "ticket", "tag" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TicketTag"
+}

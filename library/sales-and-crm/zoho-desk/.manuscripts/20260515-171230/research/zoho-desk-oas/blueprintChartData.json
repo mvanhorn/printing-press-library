@@ -1,0 +1,194 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "blueprintChartData",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "canvasPositionObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "top" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "[0-9\\.\\-]+"
+          },
+          "left" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "[0-9\\.\\-]+"
+          }
+        },
+        "required" : [ "left", "top" ]
+      },
+      "connectionDetailsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "toUuid" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 121,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "transName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 30,
+            "minLength" : 1,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "isCommTrans" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fromUuid" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 121,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "usedStates" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/commonStatesArray"
+          },
+          "isAuto" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fromState" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "toState" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          }
+        },
+        "required" : [ "fromUuid", "isAuto", "isCommTrans", "toUuid", "transName" ]
+      },
+      "connectionDetailsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintChartData.json#/components/schemas/connectionDetailsObject"
+        }
+      },
+      "stateDetailsObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "slaTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "lastModifiedStateName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "stateName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "displayName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "stateId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "position" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/canvasPositionObject"
+          }
+        },
+        "required" : [ "displayName", "lastModifiedStateName", "position", "stateId", "stateName" ]
+      },
+      "stateDetailsArrayForResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintChartData.json#/components/schemas/stateDetailsObjectForResponse"
+        }
+      },
+      "chartDataObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "canvasPosition" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/canvasPositionObject"
+          },
+          "connectionDetails" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/connectionDetailsArray"
+          },
+          "stateDetails" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/stateDetailsArrayForResponse"
+          }
+        },
+        "required" : [ "canvasPosition", "connectionDetails", "stateDetails" ]
+      },
+      "stateDetailsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "slaTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\&\\.\\$\\@\\^\\(\\)\\{\\}\\~\\=\\-\\|\\*\\+\\?\\[\\]\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]+"
+          },
+          "stateName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 120,
+            "minLength" : 1,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\:\\/\\!\\P{InBasicLatin}\\s()]+"
+          },
+          "position" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/canvasPositionObject"
+          }
+        },
+        "required" : [ "position", "slaTime", "stateName" ]
+      },
+      "stateDetailsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintChartData.json#/components/schemas/stateDetailsObject"
+        }
+      },
+      "chartDataObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "canvasPosition" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/canvasPositionObject"
+          },
+          "connectionDetails" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/connectionDetailsArray"
+          },
+          "stateDetails" : {
+            "$ref" : "./blueprintChartData.json#/components/schemas/stateDetailsArray"
+          }
+        },
+        "required" : [ "canvasPosition", "connectionDetails", "stateDetails" ]
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "blueprintChartData"
+}

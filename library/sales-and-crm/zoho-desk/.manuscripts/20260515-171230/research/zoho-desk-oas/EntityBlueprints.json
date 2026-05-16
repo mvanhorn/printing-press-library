@@ -1,0 +1,491 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "EntityBlueprints",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/transitions/{transitionId}/discardDraft" : {
+      "post" : {
+        "tags" : [ "EntityBlueprints" ],
+        "summary" : "Delete the during actions transition draft",
+        "description" : "To delete the during actions transition draft",
+        "operationId" : "deleteDuringActionTransitionDraft",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/transitionId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/transitions/{transitionId}/saveDraft" : {
+      "post" : {
+        "tags" : [ "EntityBlueprints" ],
+        "summary" : "Save the during actions transition draft",
+        "description" : "To save the during actions transition draft",
+        "operationId" : "saveDuringActionTransitionDraft",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/transitionId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/saveDraftRequestJson"
+        },
+        "responses" : {
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/saveDraftResponseJson"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "draftByJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "name" ]
+      },
+      "draftedApprovalJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "approverIds" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+          }
+        },
+        "required" : [ "approverIds", "description", "subject" ]
+      },
+      "draftedResolutionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "toNotifyContactForResolution" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0,
+            "pattern" : "[0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s]*"
+          }
+        },
+        "required" : [ "content", "toNotifyContactForResolution" ]
+      },
+      "duringTransUploadJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "id", "isPublic" ]
+      },
+      "duringTransUploadJsonArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./EntityBlueprints.json#/components/schemas/duringTransUploadJson"
+        }
+      },
+      "attachmentJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "uploads" : {
+            "$ref" : "./EntityBlueprints.json#/components/schemas/duringTransUploadJsonArr"
+          }
+        },
+        "required" : [ "uploads" ]
+      },
+      "replyJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "cc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "inReplyToThreadId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "bcc" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "FACEBOOK", "FACEBOOK_DM", "TWITTER", "TWITTER_DM", "EMAIL", "FORUMS", "INSTAGRAM", "INSTAGRAM_DM" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "to" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "isPrivate" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fromEmailAddress" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 13000,
+            "minLength" : 0,
+            "pattern" : "(^((.*?)((<)*?[a-zA-Z0-9]([\\w\\-.+]*)@([\\w\\-.]*)(\\.[a-zA-Z]{2,22}(.[a-zA-Z]{2}){0,2})(>)*?(\\s)*((,|;)\\s*)?))+|^$)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "html", "plainText", "text/html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0
+          },
+          "uploads" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "bcc", "cc", "channel", "content", "contentType", "fromEmailAddress", "inReplyToThreadId", "isPrivate", "to", "uploads" ]
+      },
+      "commentJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "isPublicComment" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "uploads" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "content", "isPublicComment", "uploads" ]
+      },
+      "fieldJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "productId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "customFields" : {
+            "type" : [ "null", "object" ],
+            "additionalProperties" : false,
+            "patternProperties" : {
+              "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 100,
+                "minLength" : 0,
+                "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+              }
+            }
+          },
+          "teamId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "dueDate" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "channel" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "language" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "priority" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "classification" : {
+            "type" : [ "string", "null" ],
+            "x-dynamic-enum" : true
+          },
+          "assigneeId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "assigneeId", "channel", "classification", "customFields", "dueDate", "language", "priority", "productId", "teamId" ]
+      }
+    },
+    "responses" : {
+      "saveDraftResponseJson" : {
+        "description" : "saveDraftResponseJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "totalNoOfDraftActions" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "draftBy" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/draftByJson"
+                },
+                "totalNoOfActions" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 1,
+                  "pattern" : "([0-9]+)"
+                },
+                "draftAt" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                }
+              },
+              "required" : [ "draftAt", "draftBy", "totalNoOfActions", "totalNoOfDraftActions" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "draftBy" : {
+                    "name" : "Sandeep Ghemire",
+                    "id" : "8000000000053"
+                  },
+                  "draftAt" : 1605284320000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "transitionId" : {
+        "name" : "transitionId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "saveDraftRequestJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ATTACHMENT" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/attachmentJson"
+                },
+                "RESOLUTION" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/draftedResolutionJson"
+                },
+                "FIELD_UPDATE" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/fieldJson"
+                },
+                "APPROVAL" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/draftedApprovalJson"
+                },
+                "REPLY" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/replyJson"
+                },
+                "COMMENT" : {
+                  "$ref" : "./EntityBlueprints.json#/components/schemas/commentJson"
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ATTACHMENT" : {
+                    "uploads" : [ {
+                      "isPublic" : false,
+                      "id" : 1000000096035
+                    } ]
+                  },
+                  "FIELD_UPDATE" : {
+                    "customFields" : {
+                      "cf_cffdate_time" : 1606113000000,
+                      "cf_cfphone" : "PII_PHONE_SENTINEL",
+                      "cf_cfinteger" : "19",
+                      "cf_cfemail" : "PII_EMAIL_SENTINEL",
+                      "cf_cfpicklist" : "Option 1",
+                      "cf_cffdate" : 1606262400000,
+                      "cf_cfpercent" : "32",
+                      "cf_cfmultiselect" : ";Option 1",
+                      "cf_cfcheckbox" : true,
+                      "cf_cfsingle_line" : "Hi Sandeep here!",
+                      "cf_cfcurrency" : "134",
+                      "cf_cfmulti_line" : "adad\nasdd",
+                      "cf_cfdecimal" : "23.0",
+                      "cf_cfurl" : "www.desk.zoho.com"
+                    },
+                    "channel" : "Email"
+                  },
+                  "RESOLUTION" : {
+                    "toNotifyContactForResolution" : true,
+                    "content" : "This ticket has to be solved"
+                  },
+                  "APPROVAL" : {
+                    "approverIds" : [ 1000000012635 ],
+                    "subject" : "Has to be sent for approval"
+                  },
+                  "REPLY" : {
+                    "channel" : "EMAIL",
+                    "to" : "PII_EMAIL_SENTINEL",
+                    "isPrivate" : false,
+                    "fromEmailAddress" : "PII_EMAIL_SENTINEL",
+                    "contentType" : "plainText",
+                    "content" : "Hi Sandeep here!",
+                    "isForward" : false,
+                    "uploads" : [ 1000000096035 ]
+                  },
+                  "COMMENT" : {
+                    "isPublicComment" : false,
+                    "content" : "Comment is to test transition Draft",
+                    "uploads" : [ 1000000096035 ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "EntityBlueprints"
+}

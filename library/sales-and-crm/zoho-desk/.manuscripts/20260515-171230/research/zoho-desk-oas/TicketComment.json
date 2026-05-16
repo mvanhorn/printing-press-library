@@ -1,0 +1,1132 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "TicketComment",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/comments/{commentId}/history" : {
+      "get" : {
+        "tags" : [ "TicketComment" ],
+        "summary" : "Get a ticket comment history",
+        "description" : "This API fetches the history of comments recorded on a ticket, including instances of adding and editing the comments.",
+        "operationId" : "getTicketCommentHistory",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the comments The allowed values are @mentions@ and @plainText@. In the API request, you can pass @mention@, @plainText@, or both by using commas to separate them.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Secondary information related to the comments The allowed values are @mentions@ and @plainText@. In the API request, you can pass @mention@, @plainText@, or both by using commas to separate them.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "mentions" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getTicketCommentHistory"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/comments/{commentId}" : {
+      "get" : {
+        "tags" : [ "TicketComment" ],
+        "summary" : "Get ticket comment",
+        "description" : "This API fetches a ticket comment from your help desk portal.",
+        "operationId" : "getTicketComment",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the comments The allowed values are @mentions@ and @plainText@. In the API request, you can pass @mention@, @plainText@, or both by using commas to separate them.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Secondary information related to the comments The allowed values are @mentions@ and @plainText@. In the API request, you can pass @mention@, @plainText@, or both by using commas to separate them.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "mentions" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getCommentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "TicketComment" ],
+        "summary" : "Delete ticket comment",
+        "description" : "This API deletes a comment.",
+        "operationId" : "deleteTicketComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "TicketComment" ],
+        "operationId" : "updateTicketComment",
+        "summary" : "Update ticket comment",
+        "description" : "This API modifies an existing comment. To include an @mention, follow this format: zsu[@user:{zuid}]zsu.",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/commentId"
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/updateCommentInput"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commentResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/comments" : {
+      "get" : {
+        "tags" : [ "TicketComment" ],
+        "summary" : "List all ticket comments",
+        "description" : "This API lists a particular number of comments recorded on a ticket, based on the limit specified.",
+        "operationId" : "getTicketComments",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the comments The allowed values are @mentions@ and @plainText@. In the API request, you can pass @mention@, @plainText@, or both by using commas to separate them.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Secondary information related to the comments The allowed values are @mentions@ and @plainText@. In the API request, you can pass @mention@, @plainText@, or both by using commas to separate them.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "mentions" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by the @commentedTime@ attribute. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by the @commentedTime@ attribute. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "commentedTime" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/listOfComments"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "TicketComment" ],
+        "summary" : "Create ticket comment",
+        "description" : "This API adds a comment to a ticket. To include an _@mention_, follow this format: _zsu[@user:{zuid}]zsu_.",
+        "operationId" : "createTicketComment",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "#/components/parameters/parentConversationId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addCommentInput"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commentResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "commonMentionJson" : {
+        "type" : "object",
+        "additionalProperties" : false,
+        "properties" : {
+          "offSet" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "length" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : "string",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ]
+          }
+        },
+        "required" : [ "id", "length", "name", "offSet", "type" ]
+      },
+      "mention" : {
+        "type" : [ "array", "null" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "#/components/schemas/commonMentionJson"
+          }, {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/commonMentionJson"
+            }, {
+              "type" : "object",
+              "properties" : {
+                "photoURL" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "email" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                },
+                "zuid" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "email", "photoURL", "zuid" ]
+            } ]
+          }, {
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/commonMentionJson"
+            }, {
+              "type" : "object",
+              "properties" : {
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "entityNumber" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "departmentId", "entityNumber" ]
+            } ]
+          } ]
+        }
+      },
+      "impersonatedUser" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "roleName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "name", "photoURL", "roleName", "type" ]
+      },
+      "commenter" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "roleName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "name", "photoURL", "roleName", "type" ]
+      },
+      "attachment" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "previewurl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 16000000,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "href", "id", "name", "previewurl", "size" ]
+      },
+      "attachmentResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "oneOf" : [ {
+            "$ref" : "#/components/schemas/attachment"
+          }, {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          } ]
+        }
+      },
+      "commentResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "attachments" : {
+            "$ref" : "#/components/schemas/attachmentResponse"
+          },
+          "encodedContent" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "plainText", "html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "commenter" : {
+            "$ref" : "#/components/schemas/commenter"
+          },
+          "impersonatedUser" : {
+            "$ref" : "#/components/schemas/impersonatedUser"
+          }
+        },
+        "required" : [ "attachments", "commentedTime", "commenter", "commenterId", "content", "contentType", "encodedContent", "id", "impersonatedUser", "isPublic", "modifiedTime" ]
+      },
+      "commentCommonResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "attachments" : {
+            "$ref" : "#/components/schemas/attachmentResponse"
+          },
+          "commentedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contentType" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "plainText", "html" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "content" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "commenterId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "commenter" : {
+            "$ref" : "#/components/schemas/commenter"
+          }
+        },
+        "required" : [ "attachments", "commentedTime", "commenter", "commenterId", "content", "contentType", "isPublic" ]
+      },
+      "historyCommentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/commentCommonResponse"
+        }
+      },
+      "commentData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/commentResponse"
+        }
+      }
+    },
+    "responses" : {
+      "getCommentResponse" : {
+        "description" : "commentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/commentResponse"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "mention" : {
+                    "$ref" : "#/components/schemas/mention"
+                  }
+                }
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : null,
+                  "attachments" : [ {
+                    "size" : "12734",
+                    "name" : "Attachment.png",
+                    "id" : "4000000008892",
+                    "href" : "https://desk.zoho.com/api/v1/tickets/4000000528005/comments/4000000529001/attachments/4000000008892/content"
+                  } ],
+                  "commentedTime" : 1485266818193,
+                  "isPublic" : true,
+                  "id" : "4000000529001",
+                  "contentType" : "html",
+                  "content" : "zsu[@user:11550965]zsu Please fix this ASAP",
+                  "commenterId" : "4000000008692",
+                  "commenter" : {
+                    "firstName" : "Jade",
+                    "lastName" : "Tywin",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000008692/photo?orgId=292828",
+                    "name" : "Jade Tywin",
+                    "roleName" : "LightAgent",
+                    "type" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "commentResponse" : {
+        "description" : "commentResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/commentResponse"
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modifiedTime" : null,
+                  "attachments" : [ {
+                    "size" : "12734",
+                    "name" : "Attachment.png",
+                    "id" : "4000000008892",
+                    "href" : "https://desk.zoho.com/api/v1/tickets/4000000528005/comments/4000000529001/attachments/4000000008892/content"
+                  } ],
+                  "commentedTime" : 1485266818193,
+                  "isPublic" : true,
+                  "id" : "4000000529001",
+                  "contentType" : "html",
+                  "content" : "zsu[@user:11550965]zsu Please fix this ASAP",
+                  "commenterId" : "4000000008692",
+                  "commenter" : {
+                    "firstName" : "Jade",
+                    "lastName" : "Tywin",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000008692/photo?orgId=292828",
+                    "name" : "Jade Tywin",
+                    "roleName" : "LightAgent",
+                    "type" : "AGENT",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "getTicketCommentHistory" : {
+        "description" : "getTicketCommentHistory template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "plainText" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 16777215,
+                          "minLength" : 0
+                        },
+                        "mention" : {
+                          "type" : [ "null", "array" ],
+                          "items" : {
+                            "oneOf" : [ {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 8,
+                              "minProperties" : 8,
+                              "properties" : {
+                                "photoURL" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0,
+                                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                                },
+                                "offSet" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "length" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "type" : {
+                                  "type" : [ "string", "null" ],
+                                  "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "email" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0,
+                                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                                },
+                                "zuid" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                }
+                              },
+                              "required" : [ "email", "id", "length", "name", "offSet", "photoURL", "type", "zuid" ]
+                            }, {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 5,
+                              "minProperties" : 5,
+                              "properties" : {
+                                "offSet" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "length" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "type" : {
+                                  "type" : [ "string", "null" ],
+                                  "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                }
+                              },
+                              "required" : [ "id", "length", "name", "offSet", "type" ]
+                            }, {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 7,
+                              "minProperties" : 7,
+                              "properties" : {
+                                "offSet" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "departmentId" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "entityNumber" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "length" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "type" : {
+                                  "type" : [ "string", "null" ],
+                                  "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                }
+                              },
+                              "required" : [ "departmentId", "entityNumber", "id", "length", "name", "offSet", "type" ]
+                            } ]
+                          },
+                          "uniqueItems" : false
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/historyCommentData"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "attachments" : [ "sample.png", "sam.txt" ],
+                    "commentedTime" : 1383564067912,
+                    "isPublic" : false,
+                    "commenterId" : PII_PHONE_SENTINEL,
+                    "content" : "hello comment",
+                    "commenter" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/2000000012629/photo?orgId=292828",
+                      "name" : "Jade Tywin",
+                      "roleName" : "CEO",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  }, {
+                    "attachments" : [ "sample.png", "sam.txt" ],
+                    "commentedTime" : 1383564067912,
+                    "isPublic" : true,
+                    "commenterId" : PII_PHONE_SENTINEL,
+                    "content" : "hello comment",
+                    "commenter" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/2000000012629/photo?orgId=292828",
+                      "name" : "Jade Tywin",
+                      "roleName" : "LightAgent",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "listOfComments" : {
+        "description" : "listOfComments template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "plainText" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 16777215,
+                    "minLength" : 0
+                  },
+                  "mention" : {
+                    "$ref" : "#/components/schemas/mention"
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/commentData"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1485267165000,
+                    "attachments" : [ {
+                      "size" : "12734",
+                      "name" : "Attachment_edited.png",
+                      "id" : "4000000008994",
+                      "href" : "https://desk.zoho.com/api/v1/tickets/4000000528005/comments/4000000529001/attachments/4000000008994/content"
+                    } ],
+                    "commentedTime" : 1485266818000,
+                    "isPublic" : true,
+                    "plainText" : "Sample zsu[@user:55616589]zsu and zsu[@team:31138000001254025_new team]zsu testing",
+                    "id" : "4000000529001",
+                    "contentType" : "html",
+                    "content" : "<div>Sample zsu[@user:55616589]zsu and zsu[@team:31138000001254025_new team]zsu testing</div>",
+                    "commenterId" : "4000000008692",
+                    "mention" : [ {
+                      "firstName" : "",
+                      "lastName" : "pandees",
+                      "photoURL" : null,
+                      "offSet" : "7",
+                      "length" : "28",
+                      "id" : "31138000000573164",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "zuid" : "55616589"
+                    }, {
+                      "offSet" : "39",
+                      "length" : "46",
+                      "name" : "new team",
+                      "id" : "31138000001254025",
+                      "type" : "TEAM"
+                    } ],
+                    "commenter" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000008692/photo?orgId=292828",
+                      "name" : "Jade Tywin",
+                      "roleName" : "LightAgent",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  }, {
+                    "modifiedTime" : null,
+                    "commentedTime" : 1485267277000,
+                    "isPublic" : false,
+                    "plainText" : "zsu[@user:55616589]zsu Please fix this ASAP",
+                    "id" : "4000000529007",
+                    "contentType" : "html",
+                    "content" : "<div>zsu[@user:55616589]zsu Please fix this ASAP</div>",
+                    "commenterId" : "4000000008692",
+                    "mention" : [ {
+                      "firstName" : "",
+                      "lastName" : "pandees",
+                      "photoURL" : null,
+                      "offSet" : "0",
+                      "length" : "28",
+                      "id" : "31138000000573164",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "zuid" : "55616589"
+                    } ],
+                    "commenter" : {
+                      "firstName" : "Jade",
+                      "lastName" : "Tywin",
+                      "photoURL" : "https://desk.zoho.com/api/v1/portalUser/4000000008692/photo?orgId=292828",
+                      "name" : "Jade Tywin",
+                      "roleName" : "PortalUser",
+                      "type" : "END_USER",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of comment activities to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of comment activities to fetch",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "commentId" : {
+        "name" : "commentId",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the comment activities must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the comment activities must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "description" : "",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "parentConversationId" : {
+        "name" : "parentConversationId",
+        "in" : "query",
+        "required" : false,
+        "schema" : {
+          "type" : [ "string", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "updateCommentInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "content" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "addCommentInput" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isPublic" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "contentType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "plainText", "html" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "attachmentIds", "content" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isPublic" : "true",
+                  "attachmentIds" : [ "4000000008892" ],
+                  "contentType" : "html",
+                  "content" : "zsu[@user:11550965]zsu Please fix this ASAP"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "TicketComment"
+}

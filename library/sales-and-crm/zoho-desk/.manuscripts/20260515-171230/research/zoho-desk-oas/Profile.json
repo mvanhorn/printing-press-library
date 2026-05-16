@@ -1,0 +1,3878 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Profile",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/myProfile" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Get my profile details",
+        "description" : "This API fetches the configuration details and permissions defined for the profile of the currently logged in user.",
+        "operationId" : "getMyProfile",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/commonProfileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/profiles/{profileId}" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Get profile",
+        "description" : "This API fetches the details of a particular profile.",
+        "operationId" : "getProfile",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/profileId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/commonProfileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Update profile",
+        "description" : "This API updates the details of an existing profile.",
+        "operationId" : "updateProfile",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/profileId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/profileJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commonProfileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.basic.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/profiles/count" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Get profile count",
+        "description" : "This API fetches the number of profiles configured in your help desk.",
+        "operationId" : "getProfileCount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/default"
+        }, {
+          "$ref" : "#/components/parameters/visible"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getProfileCountResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/lightAgentProfile" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Get light agent profile",
+        "description" : "This API fetches the different permissions configured for the light agent profile.",
+        "operationId" : "getLightAgentProfile",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/commonProfileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/profiles/{profileId}/clone" : {
+      "post" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Clone profile",
+        "description" : "This API replicates an existing profile.",
+        "operationId" : "cloneProfile",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/profileId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/cloneProfileJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/commonProfileResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE", "Desk.basic.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/profiles/{profileId}/delete" : {
+      "post" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Delete profile",
+        "description" : "This API deletes a profile from your help desk.",
+        "operationId" : "deleteProfile",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/profileId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/disableTransfer"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE", "Desk.basic.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/profiles" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "List profiles",
+        "description" : "This API lists a particular number of user profiles, based on the limit specified.",
+        "operationId" : "getProfileList",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/default"
+        }, {
+          "$ref" : "#/components/parameters/visible"
+        }, {
+          "name" : "searchStr",
+          "in" : "query",
+          "description" : "String to search for profile by name or description. The string must contain at least one character. Three search methods are supported: 1) string* - Searches for profiles whose name or description start with the string, 2) *string* - Searches for profiles whose name or description contain the string, 3) string -  Searches for profiles whose name or description is an exact match for the string",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "String to search for profile by name or description. The string must contain at least one character. Three search methods are supported: 1) string* - Searches for profiles whose name or description start with the string, 2) *string* - Searches for profiles whose name or description contain the string, 3) string -  Searches for profiles whose name or description is an exact match for the string",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getProfileListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/myProfilePermissions" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "Get my profile permissions",
+        "description" : "This API fetches the permissions associated with the profile of the currently logged in user.",
+        "operationId" : "getMyProfilePermissions",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getMyProfilePermissionsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/profiles/{profileId}/agents" : {
+      "get" : {
+        "tags" : [ "Profile" ],
+        "summary" : "List agents by profile",
+        "description" : "This API lists agents mapped to a particular profile.",
+        "operationId" : "getAgentsByProfile",
+        "parameters" : [ {
+          "name" : "active",
+          "in" : "query",
+          "description" : "Activation status of the agents to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Activation status of the agents to list"
+          }
+        }, {
+          "name" : "confirmed",
+          "in" : "query",
+          "description" : "Confirmation status of the agents to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Confirmation status of the agents to list"
+          }
+        }, {
+          "$ref" : "#/components/parameters/profileId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getAgentsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ", "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "chatPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "view" ]
+      },
+      "ticketLifeCycleDataJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "view", "edit", "create", "delete", "export", "manageOwnCustomViews", "shareOwnCustomViews", "editSharedCustomViews", "deleteSharedCustomViews", "reshareSharedCustomViews" ]
+      },
+      "crmIntegPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "crmContactsActivityEvents" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmAccountsActivityEvents" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmAccountsActivityTasks" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmAccountsInfo" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmContactsActivityCalls" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmAccountsNotes" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmAccountsActivityCalls" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmContactsInfo" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmContactsNotes" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmContactsActivityTasks" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmAccountsPotentials" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "crmContactsPotentials" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "crmAccountsActivityCalls", "crmAccountsActivityEvents", "crmAccountsActivityTasks", "crmAccountsInfo", "crmAccountsNotes", "crmAccountsPotentials", "crmContactsActivityCalls", "crmContactsActivityEvents", "crmContactsActivityTasks", "crmContactsInfo", "crmContactsNotes", "crmContactsPotentials" ]
+      },
+      "financeIntegPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "sendSalesOrder" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createSalesOrder" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "sendInvoice" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "viewSubscription" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createEstimate" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createContact" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "viewInvoice" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createInvoice" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "sendEstimate" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "viewSalesOrder" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "viewEstimate" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "createContact", "createEstimate", "createInvoice", "createSalesOrder", "sendEstimate", "sendInvoice", "sendSalesOrder", "viewEstimate", "viewInvoice", "viewSalesOrder", "viewSubscription" ]
+      },
+      "reportsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "export", "view" ]
+      },
+      "ticketsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "mergeTickets" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "changeOwner" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "handleUnassigned" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "closeTicket" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteTags" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "revokeBlueprint" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "mailReview" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "addFollowers" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "mailSend" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editTags" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "unassignedChangeOwner" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareTickets" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "addFollowers", "changeOwner", "closeTicket", "create", "delete", "deleteSharedCustomViews", "deleteTags", "edit", "editSharedCustomViews", "editTags", "export", "handleUnassigned", "import", "mailReview", "mailSend", "manageOwnCustomViews", "mergeTickets", "reshareSharedCustomViews", "revokeBlueprint", "shareOwnCustomViews", "shareTickets", "unassignedChangeOwner", "view" ]
+      },
+      "commentsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "delete", "edit" ]
+      },
+      "socialPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "twitterPostDelete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "twitterConversationReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "twitterPostCreate" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "twitterConversationReply", "twitterPostCreate", "twitterPostDelete", "view" ]
+      },
+      "mobileappPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "radar" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deskapp" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "deskapp", "radar" ]
+      },
+      "contractsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "import", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+      },
+      "communityPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "moderate" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "moderate", "view" ]
+      },
+      "productsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "import", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+      },
+      "kbCategoryPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editAllArticles" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageKB" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "admin" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "admin", "create", "delete", "edit", "editAllArticles", "export", "import", "manageKB", "view" ]
+      },
+      "setupPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "localization" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "timeTracking" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "massReply" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fetchAcrossDepartment" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "globalReports" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "exportPortalUsers" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "layouts" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareSnippet" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "automation" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "featureConfig" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "customerHappiness" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "department" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "portal" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "webForm" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "rebranding" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "email" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "recycleBin" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "tabsAndFields" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "exportUsers" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "pinnedConversations" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "buttons" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "teams" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "im" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "social" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "templates" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "sandbox" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "securitySettings" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "moveRecords" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "permission" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "signUpApproval" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "community" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "privacySettings" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "importHistory" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageAgents" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "portalUsers" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "gamification" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "managerDashboard" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "googleAnalytics" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "webhooks" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "chat" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "telephony" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageMarketplace" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "massComment" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "automation", "buttons", "chat", "community", "customerHappiness", "department", "email", "exportPortalUsers", "exportUsers", "featureConfig", "fetchAcrossDepartment", "gamification", "globalReports", "googleAnalytics", "im", "importHistory", "layouts", "localization", "manageAgents", "manageMarketplace", "managerDashboard", "massComment", "massReply", "moveRecords", "permission", "pinnedConversations", "portal", "portalUsers", "privacySettings", "rebranding", "recycleBin", "sandbox", "securitySettings", "shareSnippet", "signUpApproval", "social", "tabsAndFields", "teams", "telephony", "templates", "timeTracking", "webForm", "webhooks" ]
+      },
+      "agentsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "overview" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "viewAllFields" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "import", "overview", "viewAllFields" ]
+      },
+      "accountsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "import", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+      },
+      "timeEntryPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "view" ]
+      },
+      "contactsPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "import", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+      },
+      "activitiesPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "deleteSharedCustomViews", "editSharedCustomViews", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews" ]
+      },
+      "tasksPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "import" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "import", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+      },
+      "imPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "view" ]
+      },
+      "gcPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "view" ]
+      },
+      "ziaPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "edit", "view" ]
+      },
+      "CommunityCommentPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "view" ]
+      },
+      "CommunityTopicPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "view" ]
+      },
+      "radarPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "agentStats" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "currentStats" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "auditLog" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "im" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "channelTraffic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "dailyToast" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "liveTraffic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "exceptionHandling" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "textContentProtection" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "dashboards" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "dailyTrend" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "apiUsageAlerts" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "fcr" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "activities" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "kb" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "visualContentProtection" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "feeds" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "averageHandlingTime" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "customerHappiness" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageRadar" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "quickView" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "mostThreadedTickets" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "contacts" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "activities", "agentStats", "apiUsageAlerts", "auditLog", "averageHandlingTime", "channelTraffic", "contacts", "currentStats", "customerHappiness", "dailyToast", "dailyTrend", "dashboards", "exceptionHandling", "fcr", "feeds", "im", "kb", "liveTraffic", "manageRadar", "mostThreadedTickets", "quickView", "textContentProtection", "visualContentProtection" ]
+      },
+      "commonPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "crmInteg" : {
+            "$ref" : "#/components/schemas/crmIntegPermissionJson"
+          },
+          "reports" : {
+            "$ref" : "#/components/schemas/reportsPermissionJson"
+          },
+          "tickets" : {
+            "$ref" : "#/components/schemas/ticketsPermissionJson"
+          },
+          "mobileapp" : {
+            "$ref" : "#/components/schemas/mobileappPermissionJson"
+          },
+          "contracts" : {
+            "$ref" : "#/components/schemas/contractsPermissionJson"
+          },
+          "products" : {
+            "$ref" : "#/components/schemas/productsPermissionJson"
+          },
+          "zia" : {
+            "$ref" : "#/components/schemas/ziaPermissionJson"
+          },
+          "timeEntry" : {
+            "$ref" : "#/components/schemas/timeEntryPermissionJson"
+          },
+          "gc" : {
+            "$ref" : "#/components/schemas/gcPermissionJson"
+          },
+          "tasks" : {
+            "$ref" : "#/components/schemas/tasksPermissionJson"
+          },
+          "events" : {
+            "$ref" : "#/components/schemas/contactsPermissionJson"
+          },
+          "courses" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "comments" : {
+            "$ref" : "#/components/schemas/commentsPermissionJson"
+          },
+          "im" : {
+            "$ref" : "#/components/schemas/imPermissionJson"
+          },
+          "social" : {
+            "$ref" : "#/components/schemas/socialPermissionJson"
+          },
+          "community" : {
+            "$ref" : "#/components/schemas/communityPermissionJson"
+          },
+          "agents" : {
+            "$ref" : "#/components/schemas/agentsPermissionJson"
+          },
+          "CommunityTopic" : {
+            "$ref" : "#/components/schemas/CommunityTopicPermissionJson"
+          },
+          "radar" : {
+            "$ref" : "#/components/schemas/radarPermissionJson"
+          },
+          "kbCategory" : {
+            "$ref" : "#/components/schemas/kbCategoryPermissionJson"
+          },
+          "calls" : {
+            "$ref" : "#/components/schemas/contactsPermissionJson"
+          },
+          "setup" : {
+            "$ref" : "#/components/schemas/setupPermissionJson"
+          },
+          "financeInteg" : {
+            "$ref" : "#/components/schemas/financeIntegPermissionJson"
+          },
+          "CommunityComment" : {
+            "$ref" : "#/components/schemas/CommunityCommentPermissionJson"
+          },
+          "accounts" : {
+            "$ref" : "#/components/schemas/accountsPermissionJson"
+          },
+          "contacts" : {
+            "$ref" : "#/components/schemas/contactsPermissionJson"
+          },
+          "activities" : {
+            "$ref" : "#/components/schemas/activitiesPermissionJson"
+          },
+          "chat" : {
+            "$ref" : "#/components/schemas/chatPermissionJson"
+          },
+          "ticketLifeCycleData" : {
+            "$ref" : "#/components/schemas/ticketLifeCycleDataJson"
+          },
+          "modules" : {
+            "type" : "object",
+            "properties" : {
+              "view" : {
+                "type" : "boolean"
+              },
+              "edit" : {
+                "type" : "boolean"
+              },
+              "create" : {
+                "type" : "boolean"
+              },
+              "delete" : {
+                "type" : "boolean"
+              },
+              "export" : {
+                "type" : "boolean"
+              },
+              "manageOwnCustomViews" : {
+                "type" : [ "boolean", "null" ]
+              },
+              "shareOwnCustomViews" : {
+                "type" : [ "boolean", "null" ]
+              },
+              "editSharedCustomViews" : {
+                "type" : [ "boolean", "null" ]
+              },
+              "deleteSharedCustomViews" : {
+                "type" : [ "boolean", "null" ]
+              },
+              "reshareSharedCustomViews" : {
+                "type" : [ "boolean", "null" ]
+              }
+            },
+            "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+          },
+          "clientEvents" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "componentMapping" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "eventMapping" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "componentEventMappingAssociation" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "clientActionConditions" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "clientAction" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "clientActionModuleAssociation" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          },
+          "clientActionLocationAssociation" : {
+            "$ref" : "#/components/schemas/clientActionPermissionJson"
+          }
+        },
+        "required" : [ "CommunityComment", "CommunityTopic", "accounts", "activities", "agents", "calls", "clientAction", "clientActionConditions", "clientActionLocationAssociation", "clientActionModuleAssociation", "clientEvents", "comments", "community", "componentEventMappingAssociation", "componentMapping", "contacts", "contracts", "crmInteg", "eventMapping", "events", "financeInteg", "gc", "im", "kbCategory", "mobileapp", "products", "radar", "reports", "setup", "social", "tasks", "tickets", "timeEntry", "zia" ]
+      },
+      "commonProfileResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "default" : {
+            "type" : "boolean"
+          },
+          "permissions" : {
+            "$ref" : "#/components/schemas/commonPermissionJson"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 32000,
+            "minLength" : 0
+          },
+          "isVisible" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "Administrator", "Standard", "Light", "Portal", "Custom" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "default", "description", "id", "isVisible", "name", "permissions", "type" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/commonProfileResponse"
+        }
+      },
+      "agentsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Agent.json#/components/schemas/profileAgentResponse"
+        }
+      },
+      "clientActionPermissionJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "view" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "reshareSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "edit" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "deleteSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "shareOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "create" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "manageOwnCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "editSharedCustomViews" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "delete" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "export" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "create", "delete", "deleteSharedCustomViews", "edit", "editSharedCustomViews", "export", "manageOwnCustomViews", "reshareSharedCustomViews", "shareOwnCustomViews", "view" ]
+      }
+    },
+    "responses" : {
+      "commonProfileResponse" : {
+        "description" : "commonProfileResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "default" : {
+                  "type" : "boolean"
+                },
+                "permissions" : {
+                  "$ref" : "#/components/schemas/commonPermissionJson"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                },
+                "isVisible" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "Administrator", "Standard", "Light", "Portal", "Custom" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "default", "description", "id", "isVisible", "name", "permissions", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "default" : true,
+                  "permissions" : {
+                    "crmInteg" : {
+                      "crmContactsActivityEvents" : false,
+                      "crmAccountsActivityEvents" : false,
+                      "crmAccountsActivityTasks" : false,
+                      "crmAccountsInfo" : false,
+                      "crmContactsActivityCalls" : false,
+                      "crmAccountsNotes" : false,
+                      "crmAccountsActivityCalls" : false,
+                      "crmContactsInfo" : false,
+                      "crmContactsNotes" : false,
+                      "crmContactsActivityTasks" : false,
+                      "crmAccountsPotentials" : false,
+                      "crmContactsPotentials" : false
+                    },
+                    "reports" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true
+                    },
+                    "tickets" : {
+                      "mergeTickets" : true,
+                      "changeOwner" : true,
+                      "import" : true,
+                      "handleUnassigned" : true,
+                      "edit" : true,
+                      "closeTicket" : true,
+                      "revokeBlueprint" : true,
+                      "mailReview" : true,
+                      "delete" : true,
+                      "view" : true,
+                      "create" : true,
+                      "addFollowers" : true,
+                      "export" : true,
+                      "mailSend" : true,
+                      "unassignedChangeOwner" : false,
+                      "shareTickets" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "comments" : {
+                      "edit" : true,
+                      "delete" : true
+                    },
+                    "social" : {
+                      "view" : true,
+                      "twitterPostDelete" : true,
+                      "twitterPostCreate" : true,
+                      "twitterConversationReply" : true
+                    },
+                    "mobileapp" : {
+                      "radar" : true,
+                      "deskapp" : true
+                    },
+                    "contracts" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "community" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "moderate" : true
+                    },
+                    "products" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "ticketLifeCycleData" : {
+                      "view" : true,
+                      "reshareSharedCustomViews" : false,
+                      "edit" : true,
+                      "deleteSharedCustomViews" : false,
+                      "shareOwnCustomViews" : false,
+                      "create" : true,
+                      "manageOwnCustomViews" : false,
+                      "editSharedCustomViews" : false,
+                      "delete" : true,
+                      "export" : true
+                    },
+                    "agents" : {
+                      "overview" : true,
+                      "edit" : false,
+                      "create" : true,
+                      "delete" : true,
+                      "viewAllFields" : true
+                    },
+                    "kbCategory" : {
+                      "view" : true,
+                      "editAllArticles" : true,
+                      "import" : true,
+                      "manageKB" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "admin" : true,
+                      "delete" : true,
+                      "export" : true
+                    },
+                    "setup" : {
+                      "localization" : true,
+                      "timeTracking" : true,
+                      "fetchAcrossDepartment" : true,
+                      "globalReports" : true,
+                      "exportPortalUsers" : true,
+                      "layouts" : true,
+                      "automation" : true,
+                      "featureConfig" : true,
+                      "customerHappiness" : true,
+                      "department" : true,
+                      "portal" : true,
+                      "webForm" : true,
+                      "rebranding" : true,
+                      "email" : true,
+                      "recycleBin" : true,
+                      "tabsAndFields" : true,
+                      "exportUsers" : true,
+                      "teams" : true,
+                      "social" : true,
+                      "templates" : true,
+                      "sandbox" : true,
+                      "securitySettings" : true,
+                      "moveRecords" : true,
+                      "permission" : true,
+                      "signUpApproval" : true,
+                      "community" : true,
+                      "importHistory" : true,
+                      "manageAgents" : true,
+                      "portalUsers" : true,
+                      "managerDashboard" : true,
+                      "googleAnalytics" : true,
+                      "chat" : true,
+                      "telephony" : true,
+                      "manageMarketplace" : true
+                    },
+                    "financeInteg" : {
+                      "sendInvoice" : false,
+                      "createEstimate" : false,
+                      "createContact" : false,
+                      "viewInvoice" : false,
+                      "createInvoice" : false,
+                      "sendEstimate" : false,
+                      "viewEstimate" : false
+                    },
+                    "accounts" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "timeEntry" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true
+                    },
+                    "contacts" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "tasks" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "events" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "calls" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "activities" : {
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    }
+                  },
+                  "name" : "Support Administrator",
+                  "description" : "Set the privileges for support administrators.",
+                  "id" : "4000000008464",
+                  "isVisible" : true,
+                  "type" : "Administrator"
+                }
+              }
+            }
+          }
+        }
+      },
+      "getProfileCountResponse" : {
+        "description" : "getProfileCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : 8
+                }
+              }
+            }
+          }
+        }
+      },
+      "getProfileListResponse" : {
+        "description" : "getProfileListResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "default" : true,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "tickets" : {
+                        "mergeTickets" : true,
+                        "changeOwner" : true,
+                        "import" : true,
+                        "handleUnassigned" : true,
+                        "edit" : true,
+                        "closeTicket" : true,
+                        "revokeBlueprint" : true,
+                        "mailReview" : true,
+                        "delete" : true,
+                        "view" : true,
+                        "create" : true,
+                        "addFollowers" : true,
+                        "export" : true,
+                        "mailSend" : true,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "comments" : {
+                        "edit" : true,
+                        "delete" : true
+                      },
+                      "social" : {
+                        "view" : true,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "community" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "moderate" : true
+                      },
+                      "products" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "ticketLifeCycleData" : {
+                        "view" : true,
+                        "reshareSharedCustomViews" : false,
+                        "edit" : true,
+                        "deleteSharedCustomViews" : false,
+                        "shareOwnCustomViews" : false,
+                        "create" : true,
+                        "manageOwnCustomViews" : false,
+                        "editSharedCustomViews" : false,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : true,
+                        "import" : true,
+                        "manageKB" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "admin" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "setup" : {
+                        "localization" : true,
+                        "timeTracking" : true,
+                        "fetchAcrossDepartment" : true,
+                        "globalReports" : true,
+                        "exportPortalUsers" : true,
+                        "layouts" : true,
+                        "automation" : true,
+                        "featureConfig" : true,
+                        "customerHappiness" : true,
+                        "department" : true,
+                        "portal" : true,
+                        "webForm" : true,
+                        "rebranding" : true,
+                        "email" : true,
+                        "recycleBin" : true,
+                        "tabsAndFields" : true,
+                        "exportUsers" : true,
+                        "teams" : true,
+                        "social" : true,
+                        "templates" : true,
+                        "sandbox" : true,
+                        "securitySettings" : true,
+                        "moveRecords" : true,
+                        "permission" : true,
+                        "signUpApproval" : true,
+                        "community" : true,
+                        "importHistory" : true,
+                        "manageAgents" : true,
+                        "portalUsers" : true,
+                        "managerDashboard" : true,
+                        "googleAnalytics" : true,
+                        "chat" : true,
+                        "telephony" : true,
+                        "manageMarketplace" : true
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "timeEntry" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true
+                      },
+                      "contacts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "tasks" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "events" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "calls" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "activities" : {
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      }
+                    },
+                    "name" : "Support Administrator",
+                    "description" : "Set the privileges for support administrators.",
+                    "id" : "5000000015288",
+                    "isVisible" : true,
+                    "type" : "Administrator"
+                  }, {
+                    "default" : true,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : true,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : true
+                      },
+                      "tickets" : {
+                        "mergeTickets" : false,
+                        "changeOwner" : false,
+                        "import" : false,
+                        "handleUnassigned" : false,
+                        "edit" : false,
+                        "closeTicket" : false,
+                        "revokeBlueprint" : false,
+                        "mailReview" : false,
+                        "delete" : false,
+                        "view" : true,
+                        "create" : false,
+                        "addFollowers" : false,
+                        "export" : true,
+                        "mailSend" : false,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "comments" : {
+                        "edit" : false,
+                        "delete" : false
+                      },
+                      "social" : {
+                        "view" : true,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "community" : {
+                        "view" : false
+                      },
+                      "products" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : false,
+                        "import" : false,
+                        "manageKB" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "admin" : false,
+                        "delete" : false,
+                        "export" : true
+                      },
+                      "setup" : {
+                        "localization" : false,
+                        "timeTracking" : false,
+                        "fetchAcrossDepartment" : true,
+                        "globalReports" : false,
+                        "exportPortalUsers" : false,
+                        "layouts" : false,
+                        "automation" : false,
+                        "featureConfig" : false,
+                        "customerHappiness" : false,
+                        "department" : false,
+                        "portal" : false,
+                        "webForm" : false,
+                        "rebranding" : false,
+                        "email" : false,
+                        "recycleBin" : false,
+                        "tabsAndFields" : false,
+                        "exportUsers" : false,
+                        "teams" : false,
+                        "social" : false,
+                        "templates" : false,
+                        "sandbox" : false,
+                        "securitySettings" : false,
+                        "moveRecords" : false,
+                        "permission" : false,
+                        "signUpApproval" : false,
+                        "community" : false,
+                        "importHistory" : false,
+                        "manageAgents" : false,
+                        "portalUsers" : false,
+                        "managerDashboard" : true,
+                        "googleAnalytics" : true,
+                        "chat" : false,
+                        "telephony" : false,
+                        "manageMarketplace" : false
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "timeEntry" : {
+                        "view" : true,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false
+                      },
+                      "contacts" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "tasks" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "events" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "calls" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "activities" : {
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      }
+                    },
+                    "name" : "Light Agent",
+                    "description" : "Set the privilege for light agents",
+                    "id" : "5000000015306",
+                    "isVisible" : true,
+                    "type" : "Light"
+                  }, {
+                    "default" : false,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : false
+                      },
+                      "tickets" : {
+                        "mergeTickets" : false,
+                        "changeOwner" : true,
+                        "import" : false,
+                        "handleUnassigned" : true,
+                        "edit" : true,
+                        "closeTicket" : false,
+                        "revokeBlueprint" : false,
+                        "mailReview" : false,
+                        "delete" : true,
+                        "view" : true,
+                        "create" : true,
+                        "addFollowers" : false,
+                        "export" : false,
+                        "mailSend" : false,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "comments" : {
+                        "edit" : false,
+                        "delete" : false
+                      },
+                      "social" : {
+                        "view" : true,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "community" : {
+                        "view" : true
+                      },
+                      "products" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : true,
+                        "import" : false,
+                        "manageKB" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "admin" : true,
+                        "delete" : true,
+                        "export" : false
+                      },
+                      "setup" : {
+                        "localization" : false,
+                        "timeTracking" : false,
+                        "fetchAcrossDepartment" : false,
+                        "globalReports" : false,
+                        "exportPortalUsers" : false,
+                        "layouts" : false,
+                        "automation" : false,
+                        "featureConfig" : false,
+                        "customerHappiness" : false,
+                        "department" : false,
+                        "portal" : false,
+                        "webForm" : false,
+                        "rebranding" : false,
+                        "email" : false,
+                        "recycleBin" : false,
+                        "tabsAndFields" : false,
+                        "exportUsers" : false,
+                        "teams" : false,
+                        "social" : false,
+                        "templates" : false,
+                        "sandbox" : false,
+                        "securitySettings" : false,
+                        "moveRecords" : false,
+                        "permission" : false,
+                        "signUpApproval" : false,
+                        "community" : false,
+                        "importHistory" : false,
+                        "manageAgents" : false,
+                        "portalUsers" : false,
+                        "managerDashboard" : false,
+                        "googleAnalytics" : false,
+                        "chat" : false,
+                        "telephony" : false,
+                        "manageMarketplace" : false
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "timeEntry" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true
+                      },
+                      "contacts" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "tasks" : {
+                        "view" : true,
+                        "import" : false,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "events" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "calls" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "activities" : {
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      }
+                    },
+                    "name" : "Newbie Agent",
+                    "description" : "Set the privileges for new agents.",
+                    "id" : "5000000015303",
+                    "isVisible" : true,
+                    "type" : "Custom"
+                  }, {
+                    "default" : true,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : false
+                      },
+                      "tickets" : {
+                        "mergeTickets" : false,
+                        "changeOwner" : false,
+                        "import" : false,
+                        "handleUnassigned" : false,
+                        "edit" : false,
+                        "closeTicket" : false,
+                        "revokeBlueprint" : false,
+                        "mailReview" : false,
+                        "delete" : false,
+                        "view" : true,
+                        "create" : true,
+                        "addFollowers" : false,
+                        "export" : true,
+                        "mailSend" : false,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : false
+                      },
+                      "comments" : {
+                        "edit" : false,
+                        "delete" : false
+                      },
+                      "social" : {
+                        "view" : false,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : false,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : false
+                      },
+                      "community" : {
+                        "view" : false
+                      },
+                      "products" : {
+                        "view" : false,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : false
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : false,
+                        "import" : false,
+                        "manageKB" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "admin" : false,
+                        "delete" : false,
+                        "export" : true
+                      },
+                      "setup" : {
+                        "localization" : false,
+                        "timeTracking" : false,
+                        "fetchAcrossDepartment" : false,
+                        "globalReports" : false,
+                        "exportPortalUsers" : false,
+                        "layouts" : false,
+                        "automation" : false,
+                        "featureConfig" : false,
+                        "customerHappiness" : false,
+                        "department" : false,
+                        "portal" : false,
+                        "webForm" : false,
+                        "rebranding" : false,
+                        "email" : false,
+                        "recycleBin" : false,
+                        "tabsAndFields" : false,
+                        "exportUsers" : false,
+                        "teams" : false,
+                        "social" : false,
+                        "templates" : false,
+                        "sandbox" : false,
+                        "securitySettings" : false,
+                        "moveRecords" : false,
+                        "permission" : false,
+                        "signUpApproval" : false,
+                        "community" : false,
+                        "importHistory" : false,
+                        "manageAgents" : false,
+                        "portalUsers" : false,
+                        "managerDashboard" : false,
+                        "googleAnalytics" : false,
+                        "chat" : false,
+                        "telephony" : false,
+                        "manageMarketplace" : false
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : false,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : false
+                      },
+                      "timeEntry" : {
+                        "view" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false
+                      },
+                      "contacts" : {
+                        "view" : false,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : false
+                      },
+                      "tasks" : {
+                        "view" : false,
+                        "import" : false,
+                        "edit" : false,
+                        "create" : false,
+                        "delete" : false,
+                        "export" : false
+                      }
+                    },
+                    "name" : "Help Center",
+                    "description" : "This profile will have the permissions of End Users",
+                    "id" : "5000000015294",
+                    "isVisible" : false,
+                    "type" : "Portal"
+                  }, {
+                    "default" : true,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "tickets" : {
+                        "mergeTickets" : true,
+                        "changeOwner" : true,
+                        "import" : true,
+                        "handleUnassigned" : true,
+                        "edit" : true,
+                        "closeTicket" : true,
+                        "revokeBlueprint" : false,
+                        "mailReview" : true,
+                        "delete" : true,
+                        "view" : true,
+                        "create" : true,
+                        "addFollowers" : true,
+                        "export" : true,
+                        "mailSend" : true,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "comments" : {
+                        "edit" : true,
+                        "delete" : true
+                      },
+                      "social" : {
+                        "view" : true,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "community" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "moderate" : false
+                      },
+                      "products" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : true,
+                        "import" : true,
+                        "manageKB" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "admin" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "setup" : {
+                        "localization" : false,
+                        "timeTracking" : false,
+                        "fetchAcrossDepartment" : true,
+                        "globalReports" : false,
+                        "exportPortalUsers" : true,
+                        "layouts" : false,
+                        "automation" : false,
+                        "featureConfig" : false,
+                        "customerHappiness" : false,
+                        "department" : false,
+                        "portal" : false,
+                        "webForm" : false,
+                        "rebranding" : false,
+                        "email" : false,
+                        "recycleBin" : false,
+                        "tabsAndFields" : false,
+                        "exportUsers" : true,
+                        "teams" : false,
+                        "social" : false,
+                        "templates" : false,
+                        "sandbox" : false,
+                        "securitySettings" : false,
+                        "moveRecords" : true,
+                        "permission" : false,
+                        "signUpApproval" : false,
+                        "community" : false,
+                        "importHistory" : true,
+                        "manageAgents" : false,
+                        "portalUsers" : false,
+                        "managerDashboard" : false,
+                        "googleAnalytics" : false,
+                        "chat" : false,
+                        "telephony" : false,
+                        "manageMarketplace" : false
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "timeEntry" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true
+                      },
+                      "contacts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "tasks" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "events" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "calls" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "activities" : {
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      }
+                    },
+                    "name" : "Agent",
+                    "description" : "Set the privileges for standard agents",
+                    "id" : "5000000015291",
+                    "isVisible" : true,
+                    "type" : "Standard"
+                  }, {
+                    "default" : false,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "tickets" : {
+                        "mergeTickets" : true,
+                        "changeOwner" : true,
+                        "import" : true,
+                        "handleUnassigned" : true,
+                        "edit" : true,
+                        "closeTicket" : true,
+                        "revokeBlueprint" : false,
+                        "mailReview" : true,
+                        "delete" : true,
+                        "view" : true,
+                        "create" : true,
+                        "addFollowers" : true,
+                        "export" : true,
+                        "mailSend" : true,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "comments" : {
+                        "edit" : true,
+                        "delete" : true
+                      },
+                      "social" : {
+                        "view" : true,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "community" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "moderate" : true
+                      },
+                      "products" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : true,
+                        "import" : true,
+                        "manageKB" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "admin" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "setup" : {
+                        "localization" : false,
+                        "timeTracking" : false,
+                        "fetchAcrossDepartment" : true,
+                        "globalReports" : false,
+                        "exportPortalUsers" : true,
+                        "layouts" : false,
+                        "automation" : false,
+                        "featureConfig" : false,
+                        "customerHappiness" : false,
+                        "department" : false,
+                        "portal" : false,
+                        "webForm" : false,
+                        "rebranding" : false,
+                        "email" : false,
+                        "recycleBin" : false,
+                        "tabsAndFields" : false,
+                        "exportUsers" : true,
+                        "teams" : false,
+                        "social" : false,
+                        "templates" : false,
+                        "sandbox" : false,
+                        "securitySettings" : false,
+                        "moveRecords" : true,
+                        "permission" : false,
+                        "signUpApproval" : false,
+                        "community" : false,
+                        "importHistory" : true,
+                        "manageAgents" : false,
+                        "portalUsers" : false,
+                        "managerDashboard" : true,
+                        "googleAnalytics" : false,
+                        "chat" : false,
+                        "telephony" : false,
+                        "manageMarketplace" : false
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "timeEntry" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true
+                      },
+                      "contacts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "tasks" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "events" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "calls" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "activities" : {
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      }
+                    },
+                    "name" : "Supervisor",
+                    "description" : "Set the privileges for supervisory users.",
+                    "id" : "5000000015297",
+                    "isVisible" : true,
+                    "type" : "Custom"
+                  }, {
+                    "default" : false,
+                    "permissions" : {
+                      "crmInteg" : {
+                        "crmContactsActivityEvents" : false,
+                        "crmAccountsActivityEvents" : false,
+                        "crmAccountsActivityTasks" : false,
+                        "crmAccountsInfo" : false,
+                        "crmContactsActivityCalls" : false,
+                        "crmAccountsNotes" : false,
+                        "crmAccountsActivityCalls" : false,
+                        "crmContactsInfo" : false,
+                        "crmContactsNotes" : false,
+                        "crmContactsActivityTasks" : false,
+                        "crmAccountsPotentials" : false,
+                        "crmContactsPotentials" : false
+                      },
+                      "reports" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "tickets" : {
+                        "mergeTickets" : true,
+                        "changeOwner" : true,
+                        "import" : true,
+                        "handleUnassigned" : true,
+                        "edit" : true,
+                        "closeTicket" : true,
+                        "revokeBlueprint" : false,
+                        "mailReview" : true,
+                        "delete" : true,
+                        "view" : true,
+                        "create" : true,
+                        "addFollowers" : true,
+                        "export" : true,
+                        "mailSend" : true,
+                        "unassignedChangeOwner" : false,
+                        "shareTickets" : false,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "comments" : {
+                        "edit" : true,
+                        "delete" : true
+                      },
+                      "social" : {
+                        "view" : true,
+                        "twitterPostDelete" : true,
+                        "twitterPostCreate" : true,
+                        "twitterConversationReply" : true
+                      },
+                      "mobileapp" : {
+                        "radar" : true,
+                        "deskapp" : true
+                      },
+                      "contracts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "community" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "moderate" : true
+                      },
+                      "products" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "agents" : {
+                        "overview" : true,
+                        "edit" : false,
+                        "create" : true,
+                        "delete" : true,
+                        "viewAllFields" : true
+                      },
+                      "kbCategory" : {
+                        "view" : true,
+                        "editAllArticles" : true,
+                        "import" : true,
+                        "manageKB" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "admin" : true,
+                        "delete" : true,
+                        "export" : true
+                      },
+                      "setup" : {
+                        "localization" : false,
+                        "timeTracking" : false,
+                        "fetchAcrossDepartment" : true,
+                        "globalReports" : false,
+                        "exportPortalUsers" : true,
+                        "layouts" : false,
+                        "automation" : true,
+                        "featureConfig" : false,
+                        "customerHappiness" : false,
+                        "department" : false,
+                        "portal" : false,
+                        "webForm" : false,
+                        "rebranding" : false,
+                        "email" : false,
+                        "recycleBin" : false,
+                        "tabsAndFields" : false,
+                        "exportUsers" : true,
+                        "teams" : false,
+                        "social" : false,
+                        "templates" : false,
+                        "sandbox" : false,
+                        "securitySettings" : false,
+                        "moveRecords" : true,
+                        "permission" : false,
+                        "signUpApproval" : false,
+                        "community" : false,
+                        "importHistory" : true,
+                        "manageAgents" : false,
+                        "portalUsers" : false,
+                        "managerDashboard" : true,
+                        "googleAnalytics" : true,
+                        "chat" : false,
+                        "telephony" : false,
+                        "manageMarketplace" : false
+                      },
+                      "financeInteg" : {
+                        "sendInvoice" : false,
+                        "createEstimate" : false,
+                        "createContact" : false,
+                        "viewInvoice" : false,
+                        "createInvoice" : false,
+                        "sendEstimate" : false,
+                        "viewEstimate" : false
+                      },
+                      "accounts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "timeEntry" : {
+                        "view" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true
+                      },
+                      "contacts" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "tasks" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "events" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "calls" : {
+                        "view" : true,
+                        "import" : true,
+                        "edit" : true,
+                        "create" : true,
+                        "delete" : true,
+                        "export" : true,
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      },
+                      "activities" : {
+                        "manageOwnCustomViews" : true,
+                        "shareOwnCustomViews" : true,
+                        "editSharedCustomViews" : true,
+                        "deleteSharedCustomViews" : true,
+                        "reshareSharedCustomViews" : true
+                      }
+                    },
+                    "name" : "Support Manager",
+                    "description" : "Set the privileges for managerial users.",
+                    "id" : "5000000015300",
+                    "isVisible" : true,
+                    "type" : "Custom"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getMyProfilePermissionsResponse" : {
+        "description" : "getMyProfilePermissionsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "default" : {
+                    "type" : "boolean"
+                  },
+                  "permissions" : {
+                    "$ref" : "#/components/schemas/commonPermissionJson"
+                  },
+                  "name" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 50,
+                    "minLength" : 0
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 32000,
+                    "minLength" : 0
+                  },
+                  "isVisible" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "Administrator", "Standard", "Light", "Portal", "Custom" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "default", "description", "id", "isVisible", "name", "permissions", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "permissions" : {
+                    "$ref" : "#/components/schemas/commonPermissionJson"
+                  }
+                },
+                "required" : [ "permissions" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "permissions" : {
+                    "crmInteg" : {
+                      "crmContactsActivityEvents" : false,
+                      "crmAccountsActivityEvents" : false,
+                      "crmAccountsActivityTasks" : false,
+                      "crmAccountsInfo" : false,
+                      "crmContactsActivityCalls" : false,
+                      "crmAccountsNotes" : false,
+                      "crmAccountsActivityCalls" : false,
+                      "crmContactsInfo" : false,
+                      "crmContactsNotes" : false,
+                      "crmContactsActivityTasks" : false,
+                      "crmAccountsPotentials" : false,
+                      "crmContactsPotentials" : false
+                    },
+                    "reports" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true
+                    },
+                    "tickets" : {
+                      "mergeTickets" : true,
+                      "changeOwner" : true,
+                      "import" : true,
+                      "handleUnassigned" : true,
+                      "edit" : true,
+                      "closeTicket" : true,
+                      "revokeBlueprint" : true,
+                      "mailReview" : true,
+                      "delete" : true,
+                      "view" : true,
+                      "create" : true,
+                      "addFollowers" : true,
+                      "export" : true,
+                      "mailSend" : true,
+                      "unassignedChangeOwner" : false,
+                      "shareTickets" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "comments" : {
+                      "edit" : true,
+                      "delete" : true
+                    },
+                    "social" : {
+                      "view" : true,
+                      "twitterPostDelete" : true,
+                      "twitterPostCreate" : true,
+                      "twitterConversationReply" : true
+                    },
+                    "mobileapp" : {
+                      "radar" : true,
+                      "deskapp" : true
+                    },
+                    "contracts" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "community" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "moderate" : true
+                    },
+                    "products" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "ticketLifeCycleData" : {
+                      "view" : true,
+                      "reshareSharedCustomViews" : false,
+                      "edit" : true,
+                      "deleteSharedCustomViews" : false,
+                      "shareOwnCustomViews" : false,
+                      "create" : true,
+                      "manageOwnCustomViews" : false,
+                      "editSharedCustomViews" : false,
+                      "delete" : true,
+                      "export" : true
+                    },
+                    "agents" : {
+                      "overview" : true,
+                      "edit" : false,
+                      "create" : true,
+                      "delete" : true,
+                      "viewAllFields" : true
+                    },
+                    "kbCategory" : {
+                      "view" : true,
+                      "editAllArticles" : true,
+                      "import" : true,
+                      "manageKB" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "admin" : true,
+                      "delete" : true,
+                      "export" : true
+                    },
+                    "setup" : {
+                      "localization" : true,
+                      "timeTracking" : true,
+                      "fetchAcrossDepartment" : true,
+                      "globalReports" : true,
+                      "exportPortalUsers" : true,
+                      "layouts" : true,
+                      "automation" : true,
+                      "featureConfig" : true,
+                      "customerHappiness" : true,
+                      "department" : true,
+                      "portal" : true,
+                      "webForm" : true,
+                      "rebranding" : true,
+                      "email" : true,
+                      "recycleBin" : true,
+                      "tabsAndFields" : true,
+                      "exportUsers" : true,
+                      "teams" : true,
+                      "social" : true,
+                      "templates" : true,
+                      "sandbox" : true,
+                      "securitySettings" : true,
+                      "moveRecords" : true,
+                      "permission" : true,
+                      "signUpApproval" : true,
+                      "community" : true,
+                      "importHistory" : true,
+                      "manageAgents" : true,
+                      "portalUsers" : true,
+                      "managerDashboard" : true,
+                      "googleAnalytics" : true,
+                      "chat" : true,
+                      "telephony" : true,
+                      "manageMarketplace" : false
+                    },
+                    "financeInteg" : {
+                      "sendInvoice" : false,
+                      "createEstimate" : false,
+                      "createContact" : false,
+                      "viewInvoice" : false,
+                      "createInvoice" : false,
+                      "sendEstimate" : false,
+                      "viewEstimate" : false
+                    },
+                    "accounts" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "timeEntry" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true
+                    },
+                    "contacts" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "tasks" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "events" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "calls" : {
+                      "view" : true,
+                      "import" : true,
+                      "edit" : true,
+                      "create" : true,
+                      "delete" : true,
+                      "export" : true,
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    },
+                    "activities" : {
+                      "manageOwnCustomViews" : true,
+                      "shareOwnCustomViews" : true,
+                      "editSharedCustomViews" : true,
+                      "deleteSharedCustomViews" : true,
+                      "reshareSharedCustomViews" : true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "getAgentsResponse" : {
+        "description" : "getAgentsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "agents" : {
+                  "$ref" : "#/components/schemas/agentsData"
+                }
+              },
+              "required" : [ "agents" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "agents" : [ {
+                    "firstName" : "",
+                    "lastName" : "John",
+                    "photoURL" : "https://contacts.zoho.com/file?t=user&ID=437793",
+                    "roleId" : "7000000012324",
+                    "profileId" : "6000000011303",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "id" : "7000000013328",
+                    "zuid" : "437793",
+                    "isZiaAgent" : false
+                  }, {
+                    "firstName" : "Steve",
+                    "lastName" : "Kyle",
+                    "photoURL" : null,
+                    "roleId" : "7000000012324",
+                    "profileId" : "6000000011303",
+                    "emailId" : "PII_EMAIL_SENTINEL",
+                    "id" : "7000000012958",
+                    "zuid" : "5625416",
+                    "isZiaAgent" : false
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "default" : {
+        "name" : "default",
+        "in" : "query",
+        "description" : " Key that denotes whether the profiles must be default profiles or custom profiles",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "boolean", "null" ],
+          "description" : " Key that denotes whether the profiles must be default profiles or custom profiles"
+        }
+      },
+      "visible" : {
+        "name" : "visible",
+        "in" : "query",
+        "description" : "Key that filters profiles according to their visibility in the UI",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "boolean", "null" ],
+          "description" : "Key that filters profiles according to their visibility in the UI"
+        }
+      },
+      "profileId" : {
+        "name" : "profileId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "profileJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "permissions" : {
+                  "$ref" : "#/components/schemas/commonPermissionJson"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "name" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "permissions" : {
+                    "reports" : {
+                      "view" : true,
+                      "edit" : true,
+                      "create" : false,
+                      "delete" : false,
+                      "export" : false
+                    }
+                  },
+                  "name" : "Agent Advisors",
+                  "description" : "Advisors from CRM to assist the Support Agents."
+                }
+              }
+            }
+          }
+        }
+      },
+      "cloneProfileJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 32000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "description", "name" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "name" : "Admin Advisors",
+                  "description" : "Advisors from management to assist the Support Administrators."
+                }
+              }
+            }
+          }
+        }
+      },
+      "disableTransfer" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "transferToProfileId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "transferToProfileId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "transferToProfileId" : "4000000008454"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Profile"
+}

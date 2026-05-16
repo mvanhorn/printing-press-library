@@ -1,0 +1,56 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Widget",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/widgets/{widgetId}" : {
+      "delete" : {
+        "tags" : [ "Widget" ],
+        "summary" : "Delete a Widget",
+        "description" : "Delete a widget using widget ID",
+        "operationId" : "deleteWidget",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/widgetId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "parameters" : {
+      "widgetId" : {
+        "name" : "widgetId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Widget"
+}

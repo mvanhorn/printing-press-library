@@ -1,0 +1,902 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "LayoutRules",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/layouts/{layoutId}/layoutRules/{layoutRuleId}" : {
+      "get" : {
+        "tags" : [ "LayoutRules" ],
+        "summary" : "Get Layout Rule",
+        "description" : "This API fetches a single rule from your help desk layout.",
+        "operationId" : "getLayoutRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutRuleId"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/layoutrulejson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "LayoutRules" ],
+        "summary" : "Delete Layout Rule",
+        "description" : "This API deletes a layout rule created for a field from a layout.",
+        "operationId" : "deleteLayoutRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutRuleId"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "LayoutRules" ],
+        "summary" : "Update Layout Rule",
+        "description" : "This API updates the details of an existing layout rule in a particular layout.",
+        "operationId" : "updateLayoutRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutRuleId"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/editLayoutRule_layoutrulejsonPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/layoutrulejson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layouts/{layoutId}/layoutRules" : {
+      "post" : {
+        "tags" : [ "LayoutRules" ],
+        "summary" : "Create Layout Rule",
+        "description" : "This API creates a rule for a field in a layout.",
+        "operationId" : "createLayoutRule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/layoutrulejsonPayload"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/layoutrulejson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/layoutRules" : {
+      "get" : {
+        "tags" : [ "LayoutRules" ],
+        "summary" : "Get Layout Rules",
+        "description" : "This API lists all the rules configured for a department/layout.",
+        "operationId" : "getLayoutRules",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/searchString"
+        }, {
+          "$ref" : "#/components/parameters/executeInHelpCentre"
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "Get the rules of the department",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Get the rules of the department",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "module",
+          "in" : "query",
+          "description" : "Name of the module for which you want to fetch the layout rules. Allowed values are tickets, contacts, accounts, tasks, timeEntry, contracts, products, calls, events",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Name of the module for which you want to fetch the layout rules. Allowed values are tickets, contacts, accounts, tasks, timeEntry, contracts, products, calls, events",
+            "enum" : [ "tickets", "contacts", "accounts", "tasks", "calls", "events", "timeEntry", "products" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/layoutId"
+        }, {
+          "name" : "activeRules",
+          "in" : "query",
+          "description" : "Get the rules that are active in the layout",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Get the rules that are active in the layout"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/layoutRuleListArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "conditions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayValue" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "condition" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "value" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          }
+        },
+        "required" : [ "condition", "displayLabel", "displayValue", "fieldName", "value" ]
+      },
+      "conditionsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./LayoutRules.json#/components/schemas/conditions"
+        }
+      },
+      "LayoutRuleActionFieldJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "displayLabel", "fieldName" ]
+      },
+      "LayoutRuleActionFieldArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./LayoutRules.json#/components/schemas/LayoutRuleActionFieldJSON"
+        }
+      },
+      "actions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "showSections" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : false
+          },
+          "showFields" : {
+            "$ref" : "./LayoutRules.json#/components/schemas/LayoutRuleActionFieldArray"
+          },
+          "setMandatoryFields" : {
+            "$ref" : "./LayoutRules.json#/components/schemas/LayoutRuleActionFieldArray"
+          }
+        },
+        "required" : [ "setMandatoryFields", "showFields", "showSections" ]
+      },
+      "fieldConditions" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pattern" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "conditions" : {
+            "$ref" : "./LayoutRules.json#/components/schemas/conditionsArr"
+          },
+          "actions" : {
+            "$ref" : "./LayoutRules.json#/components/schemas/actions"
+          }
+        },
+        "required" : [ "actions", "conditions", "name", "pattern" ]
+      },
+      "fieldConditionsArr" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./LayoutRules.json#/components/schemas/fieldConditions"
+        }
+      },
+      "layoutrulejsonPayload" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "fieldConditions" : {
+            "$ref" : "./LayoutRules.json#/components/schemas/fieldConditionsArr"
+          },
+          "fieldName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 65535,
+            "minLength" : 0
+          },
+          "systemGenerated" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "layoutId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "executeInHelpCentre" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "active", "deactive" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "createdBy", "createdTime", "description", "displayLabel", "executeInHelpCentre", "fieldConditions", "fieldName", "layoutId", "modifiedBy", "modifiedTime", "name", "status", "systemGenerated" ]
+      },
+      "layoutrulejson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./LayoutRules.json#/components/schemas/layoutrulejsonPayload"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "id" ]
+        } ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./LayoutRules.json#/components/schemas/layoutrulejson"
+        }
+      }
+    },
+    "responses" : {
+      "layoutrulejson" : {
+        "description" : "layoutrulejson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./LayoutRules.json#/components/schemas/layoutrulejsonPayload"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  }
+                },
+                "required" : [ "id" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "name" : "condition 1",
+                    "pattern" : "(1and2)or3",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "accountId",
+                      "value" : [ "Ramkumar" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "productId",
+                      "value" : [ "Honda" ]
+                    } ],
+                    "actions" : {
+                      "showSections" : [ "Additional Information" ],
+                      "showFields" : [ "subject" ],
+                      "setMandatoryFields" : [ "priority" ]
+                    }
+                  }, {
+                    "name" : "condition 2",
+                    "pattern" : "1 and (2 or 3)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "accountId",
+                      "value" : [ "Sundar" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "productId",
+                      "value" : [ "Maruthi" ]
+                    } ],
+                    "actions" : {
+                      "showSections" : [ ],
+                      "showFields" : [ "subject" ],
+                      "setMandatoryFields" : [ "Description" ]
+                    }
+                  } ],
+                  "modifiedTime" : 1536887322000,
+                  "fieldName" : "email",
+                  "description" : "Rule 1 for layout",
+                  "systemGenerated" : false,
+                  "layoutId" : "4000000007723",
+                  "executeInHelpCentre" : false,
+                  "createdBy" : "4000000015963",
+                  "name" : "Rule 11",
+                  "createdTime" : 1536887242000,
+                  "modifiedBy" : "4000000015963",
+                  "id" : "4000000021001",
+                  "status" : "active"
+                }
+              }
+            }
+          }
+        }
+      },
+      "layoutRuleListArray" : {
+        "description" : "layoutRuleListArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./LayoutRules.json#/components/schemas/data"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "fieldConditions" : [ {
+                      "name" : "condition 1",
+                      "pattern" : "(1and2)",
+                      "conditions" : [ {
+                        "condition" : "is",
+                        "fieldName" : "email",
+                        "value" : [ "PII_EMAIL_SENTINEL" ]
+                      }, {
+                        "condition" : "is",
+                        "fieldName" : "phone",
+                        "value" : [ "PII_PHONE_SENTINEL" ]
+                      } ],
+                      "actions" : {
+                        "showSections" : [ "Additional Information" ],
+                        "showFields" : [ "subject" ],
+                        "setMandatoryFields" : [ "priority" ]
+                      }
+                    } ],
+                    "modifiedTime" : 1536887322000,
+                    "fieldName" : "email",
+                    "description" : "Rule 1 for layout",
+                    "systemGenerated" : false,
+                    "layoutId" : "4000000007723",
+                    "executeInHelpCentre" : false,
+                    "createdBy" : "4000000015963",
+                    "name" : "Rule 1",
+                    "createdTime" : 1536887242000,
+                    "modifiedBy" : "4000000015963",
+                    "id" : "4000000020001",
+                    "status" : "active"
+                  }, {
+                    "fieldConditions" : [ {
+                      "name" : "condition 2",
+                      "pattern" : "(1or2)",
+                      "conditions" : [ {
+                        "condition" : "is",
+                        "fieldName" : "phone",
+                        "value" : [ "PII_PHONE_SENTINEL" ]
+                      }, {
+                        "condition" : "is",
+                        "fieldName" : "email",
+                        "value" : [ "PII_EMAIL_SENTINEL" ]
+                      } ],
+                      "actions" : {
+                        "showSections" : [ "Additional Information" ],
+                        "showFields" : [ "subject" ],
+                        "setMandatoryFields" : [ "priority" ]
+                      }
+                    } ],
+                    "modifiedTime" : 1536887322000,
+                    "fieldName" : "phone",
+                    "description" : "Rule 2 for layout",
+                    "systemGenerated" : false,
+                    "layoutId" : "4000000007723",
+                    "executeInHelpCentre" : false,
+                    "createdBy" : "4000000015963",
+                    "name" : "Rule 2",
+                    "createdTime" : 1536887242000,
+                    "modifiedBy" : "4000000015963",
+                    "id" : "4000000021001",
+                    "status" : "active"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "searchString" : {
+        "name" : "searchString",
+        "in" : "query",
+        "description" : "Get the rules that have this search term",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Get the rules that have this search term",
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "executeInHelpCentre" : {
+        "name" : "executeInHelpCentre",
+        "in" : "query",
+        "description" : "Get the rules that can be executed in help centre",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "boolean", "null" ],
+          "description" : "Get the rules that can be executed in help centre"
+        }
+      },
+      "layoutRuleId" : {
+        "name" : "layoutRuleId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of rules to be fetched. Default is 50",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of rules to be fetched. Default is 50",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the rules must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the rules must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "layoutId" : {
+        "name" : "layoutId",
+        "in" : "path",
+        "description" : "Get the rules of the layout",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Get the rules of the layout",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "layoutrulejsonPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "fieldConditions" : {
+                  "$ref" : "./LayoutRules.json#/components/schemas/fieldConditionsArr"
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0
+                },
+                "systemGenerated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "executeInHelpCentre" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "active", "deactive" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "description", "fieldConditions", "fieldName", "layoutId", "name" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "name" : "condition 2",
+                    "pattern" : "(1and2)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "phone",
+                      "value" : [ "PII_PHONE_SENTINEL" ]
+                    } ],
+                    "actions" : {
+                      "showSections" : [ "Additional Information" ],
+                      "showFields" : [ "subject" ],
+                      "setMandatoryFields" : [ "priority" ]
+                    }
+                  } ],
+                  "fieldName" : "email",
+                  "executeInHelpCentre" : true,
+                  "name" : "Rule 1",
+                  "description" : "Rule 1 for layout"
+                }
+              }
+            }
+          }
+        }
+      },
+      "editLayoutRule_layoutrulejsonPayload" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "displayLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 200,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "fieldConditions" : {
+                  "$ref" : "./LayoutRules.json#/components/schemas/fieldConditionsArr"
+                },
+                "fieldName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 65535,
+                  "minLength" : 0
+                },
+                "systemGenerated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "layoutId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "executeInHelpCentre" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "createdBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "name" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "active", "deactive" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "description", "fieldConditions", "fieldName", "layoutId", "name" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "fieldConditions" : [ {
+                    "name" : "condition 1",
+                    "pattern" : "(1and2)or3",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "accountId",
+                      "value" : [ "Ramkumar" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "productId",
+                      "value" : [ "Honda" ]
+                    } ],
+                    "actions" : {
+                      "showSections" : [ "Additional Information" ],
+                      "showFields" : [ "subject" ],
+                      "setMandatoryFields" : [ "priority" ]
+                    }
+                  }, {
+                    "name" : "condition 2",
+                    "pattern" : "1 and (2 or 3)",
+                    "conditions" : [ {
+                      "condition" : "is",
+                      "fieldName" : "email",
+                      "value" : [ "PII_EMAIL_SENTINEL" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "accountId",
+                      "value" : [ "Sundar" ]
+                    }, {
+                      "condition" : "is",
+                      "fieldName" : "productId",
+                      "value" : [ "Maruthi" ]
+                    } ],
+                    "actions" : {
+                      "showSections" : [ ],
+                      "showFields" : [ "subject" ],
+                      "setMandatoryFields" : [ "Description" ]
+                    }
+                  } ],
+                  "fieldName" : "email",
+                  "executeInHelpCentre" : false,
+                  "name" : "Rule 11",
+                  "description" : "Rule 1 for layout",
+                  "layoutId" : "4000000007723",
+                  "status" : "active"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "LayoutRules"
+}

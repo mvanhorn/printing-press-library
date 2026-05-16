@@ -1,0 +1,1179 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Product",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/products/{productId}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get product",
+        "description" : "This API fetches a single product from your helpdesk.",
+        "operationId" : "getProduct",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Key that fetches secondary information related to the product. Values allowed are: @departments@ and @owner@. You can pass multiple values by separating them with commas.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Key that fetches secondary information related to the product. Values allowed are: @departments@ and @owner@. You can pass multiple values by separating them with commas.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "departments", "owner" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/productId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/productResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.products.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "Product" ],
+        "operationId" : "updateProduct",
+        "summary" : "Update product",
+        "description" : "This API updates details of a product in your help desk portal.",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/productId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/productjson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/productResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.products.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "List Products",
+        "description" : "This API lists a specific number of products from your help desk portal, based on the limit defined. (Note: The departmentIds key will soon be deprecated and not included in API responses.)",
+        "operationId" : "getProducts",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Secondary information related to the contact.Value supported is @owner@.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Secondary information related to the contact.Value supported is @owner@.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "owner" ]
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/viewId"
+        }, {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "sortBy",
+          "in" : "query",
+          "description" : "Sort by a specific attribute : @productName@, @productCode@, @unitPrice@, @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Sort by a specific attribute : @productName@, @productCode@, @unitPrice@, @createdTime@ or @modifiedTime@. The default sorting order is ascending. A @-@ prefix denotes descending order of sorting.",
+            "enum" : [ "productName", "productCode", "unitPrice", "createdTime", "modifiedTime" ]
+          }
+        }, {
+          "$ref" : "#/components/parameters/ownerId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/productListViewArray"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.products.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Product" ],
+        "summary" : "Create product",
+        "description" : "This API adds a product to your helpdesk.",
+        "operationId" : "createProduct",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/createProduct_productjson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/productResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE", "Desk.products.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/moveToTrash" : {
+      "post" : {
+        "tags" : [ "Product" ],
+        "summary" : "Move Products to trash",
+        "description" : "This API moves products to the Recycle Bin of your help desk portal.",
+        "operationId" : "deleteProduct",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/productsRecyclebinJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.DELETE", "Desk.products.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/{productId}/associateAccounts" : {
+      "post" : {
+        "tags" : [ "Product" ],
+        "summary" : "Associate accounts with a product",
+        "description" : "This API associates accounts with a product. Only a maximum of 10 accounts can be associated with a product through a single API request.",
+        "operationId" : "associateAccountsWithProduct",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/productId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateAccountsWithProduct"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.products.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/{productId}/associateContacts" : {
+      "post" : {
+        "tags" : [ "Product" ],
+        "summary" : "Associate contacts with a product",
+        "description" : "This API associates contacts with a product. Only a maximum of 10 contacts can be associated with a product through a single API request.",
+        "operationId" : "associateContactsWithProduct",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/productId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/associateContactsWithProduct"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE", "Desk.products.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/products/searchDuplicates" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Search for duplicate records",
+        "description" : "This API searches for duplicate records of a product.",
+        "operationId" : "searchProductDuplicates",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/productName"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/productWithOutDeptDataJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ", "Desk.products.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/accounts/{accountId}/products" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "List products by account",
+        "description" : "This API lists products associated for a specific account.",
+        "operationId" : "getProductsUnderAccount",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "accountId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the account associated with the product !@exact match@!",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/productWithOutDeptDataJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.settings.READ", "Desk.products.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/contacts/{contactId}/products" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "List products by contact",
+        "description" : "This API lists products associated for a specific contact.",
+        "operationId" : "getProductsUnderContact",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/departmentId"
+        }, {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "contactId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the contact associated with the product !@exact match@! ",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/productWithOutDeptDataJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.contacts.READ", "Desk.settings.READ", "Desk.products.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "commonJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "unitPrice" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9]{1,13}(\\.[0-9]*)?)"
+          },
+          "productCode" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "productName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "productCode", "productName", "unitPrice" ]
+      },
+      "curdCommonJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Product.json#/components/schemas/commonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "departmentIds" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "type" : [ "string", "null", "integer" ],
+                "format" : "int64",
+                "pattern" : "([0-9]+)"
+              },
+              "uniqueItems" : true
+            }
+          },
+          "required" : [ "departmentIds" ]
+        } ]
+      },
+      "productjson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Product.json#/components/schemas/curdCommonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "cf" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "customFields" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "patternProperties" : {
+                "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              }
+            },
+            "description" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 65535,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "ownerId" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "productCategory" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            },
+            "manufacturer" : {
+              "type" : [ "string", "null" ],
+              "x-dynamic-enum" : true
+            }
+          },
+          "required" : [ "cf", "customFields", "description", "manufacturer", "ownerId", "productCategory" ]
+        } ]
+      },
+      "productCommonKeysWithIdJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Product.json#/components/schemas/commonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "id" ]
+        } ]
+      },
+      "productWithOutDeptArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Product.json#/components/schemas/productCommonKeysWithIdJson"
+        }
+      },
+      "searchProducts" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Product.json#/components/schemas/productjson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "modifiedTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "createdBy" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "createdTime" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+            },
+            "modifiedBy" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            },
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "createdBy", "createdTime", "id", "modifiedBy", "modifiedTime" ]
+        } ]
+      },
+      "searchData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Product.json#/components/schemas/searchProducts"
+        }
+      },
+      "productListViewJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "./Product.json#/components/schemas/commonJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "id" : {
+              "type" : [ "string", "null", "integer" ],
+              "format" : "int64",
+              "pattern" : "([0-9]+)"
+            }
+          },
+          "required" : [ "id" ]
+        } ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Product.json#/components/schemas/productListViewJson"
+        }
+      }
+    },
+    "responses" : {
+      "productResponse" : {
+        "description" : "productResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Product.json#/components/schemas/productjson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "modifiedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "isDeleted" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "createdBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "createdTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                  },
+                  "modifiedBy" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "layoutId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "layoutDetails" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "maxProperties" : 2,
+                    "minProperties" : 2,
+                    "properties" : {
+                      "id" : {
+                        "type" : [ "string", "null", "integer" ],
+                        "format" : "int64",
+                        "pattern" : "([0-9]+)"
+                      },
+                      "layoutName" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 120,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    },
+                    "required" : [ "id", "layoutName" ]
+                  }
+                },
+                "required" : [ "createdBy", "createdTime", "id", "isDeleted", "layoutDetails", "layoutId", "modifiedBy", "modifiedTime" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "unitPrice" : "100.0",
+                  "modifiedTime" : 1500374785667,
+                  "cf" : { },
+                  "description" : null,
+                  "departmentIds" : [ "6000000007239", "6000000029263" ],
+                  "ownerId" : "6000000009050",
+                  "layoutId" : "6000000002556",
+                  "productName" : "Dell",
+                  "productCategory" : null,
+                  "productCode" : "12345",
+                  "isDeleted" : false,
+                  "createdBy" : "6000000009050",
+                  "createdTime" : 1500374785667,
+                  "modifiedBy" : "6000000009050",
+                  "id" : "6000000164001"
+                }
+              }
+            }
+          }
+        }
+      },
+      "productWithOutDeptDataJson" : {
+        "description" : "productWithOutDeptDataJson template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Product.json#/components/schemas/productWithOutDeptArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "unitPrice" : "0.0",
+                    "productCode" : null,
+                    "id" : "4000000012009",
+                    "productName" : "Dell"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "searchProductListViewArray" : {
+        "description" : "searchProductListViewArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./Product.json#/components/schemas/searchData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "modifiedTime" : 1509618695000,
+                    "productCode" : "Search2",
+                    "cf" : {
+                      "cf_productTagName" : null
+                    },
+                    "createdBy" : "5000000009116",
+                    "description" : null,
+                    "createdTime" : 1509618695000,
+                    "modifiedBy" : "5000000009116",
+                    "departmentIds" : [ "5000000007235" ],
+                    "id" : "5000000009882",
+                    "productName" : "Search2"
+                  } ],
+                  "count" : 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "productListViewArray" : {
+        "description" : "productListViewArray template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "owner" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "firstName", "id", "lastName", "name", "photoURL" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Product.json#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "unitPrice" : "100.0",
+                    "productCode" : null,
+                    "id" : "6000000121033",
+                    "departmentIds" : [ "6000000007239", "6000000029263" ],
+                    "productName" : "HTC"
+                  }, {
+                    "unitPrice" : "100.0",
+                    "productCode" : null,
+                    "id" : "6000000121037",
+                    "departmentIds" : [ "6000000007239", "6000000029263" ],
+                    "productName" : "Dell"
+                  }, {
+                    "unitPrice" : "100.0",
+                    "productCode" : null,
+                    "id" : "6000000145024",
+                    "departmentIds" : [ "6000000007239", "6000000029263" ],
+                    "productName" : "Lenovo"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "accountId" : {
+        "name" : "accountId",
+        "in" : "query",
+        "description" : "ID of the account associated with the product !@exact match@!",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the account associated with the product !@exact match@!",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "viewId" : {
+        "name" : "viewId",
+        "in" : "query",
+        "description" : "Custom view Id",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Custom view Id",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "productId" : {
+        "name" : "productId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "contactId" : {
+        "name" : "contactId",
+        "in" : "query",
+        "description" : "ID of the contact associated with the product !@exact match@! ",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the contact associated with the product !@exact match@! ",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "departmentId" : {
+        "name" : "departmentId",
+        "in" : "query",
+        "description" : "ID of the department from which the products count must be computed. If you want to count of the products configured in all accessible departments, pass the value 0.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the department from which the products count must be computed. If you want to count of the products configured in all accessible departments, pass the value 0.",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "No. of products to fetch",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "No. of products to fetch",
+          "maximum" : 100,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the products must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the products must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "ownerId" : {
+        "name" : "ownerId",
+        "in" : "query",
+        "description" : "Displays the number of products of only a particular owner",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "Displays the number of products of only a particular owner",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "productName" : {
+        "name" : "productName",
+        "in" : "query",
+        "description" : "Name of the product, used as the keyword for the search",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Name of the product, used as the keyword for the search",
+          "maxLength" : 200,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "productjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Product.json#/components/schemas/curdCommonJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "cf" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "customFields" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 65535,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "ownerId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "productCategory" : {
+                    "type" : [ "string", "null" ],
+                    "x-dynamic-enum" : true
+                  },
+                  "manufacturer" : {
+                    "type" : [ "string", "null" ],
+                    "x-dynamic-enum" : true
+                  }
+                }
+              }, {
+                "type" : "object"
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : null
+              }
+            }
+          }
+        }
+      },
+      "createProduct_productjson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./Product.json#/components/schemas/curdCommonJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "cf" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "customFields" : {
+                    "type" : [ "null", "object" ],
+                    "additionalProperties" : false,
+                    "patternProperties" : {
+                      "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+" : {
+                        "type" : [ "string", "null" ],
+                        "maxLength" : 100,
+                        "minLength" : 0,
+                        "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                      }
+                    }
+                  },
+                  "description" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 65535,
+                    "minLength" : 0,
+                    "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                  },
+                  "ownerId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "productCategory" : {
+                    "type" : [ "string", "null" ],
+                    "x-dynamic-enum" : true
+                  },
+                  "manufacturer" : {
+                    "type" : [ "string", "null" ],
+                    "x-dynamic-enum" : true
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "departmentIds", "productName" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "unitPrice" : "100",
+                  "productCode" : "12345",
+                  "departmentIds" : [ "6000000007239", "6000000029263" ],
+                  "productName" : "Dell"
+                }
+              }
+            }
+          }
+        }
+      },
+      "productsRecyclebinJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "productIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "departmentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "productIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "productIds" : [ "2000032003232" ],
+                  "departmentId" : "2000032006800"
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateAccountsWithProduct" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "associate" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "associate", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "2000000029035", "2000000029001" ],
+                  "associate" : true
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateContactsWithProduct" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : true
+                },
+                "associate" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "associate", "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "2000000034031", "2000000034029" ],
+                  "associate" : true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Product"
+}

@@ -1,0 +1,473 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Recyclebin",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/recycleBin/restore" : {
+      "post" : {
+        "tags" : [ "Recyclebin" ],
+        "summary" : "Restore deleted resources",
+        "description" : "This API restores the deleted resources specified in the API request. Additionally, the parent resources are also restored. ",
+        "operationId" : "restoreEntities",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/restoreEntities"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/recycleBin/restoreAll" : {
+      "post" : {
+        "tags" : [ "Recyclebin" ],
+        "summary" : "Restore all resources from Recycle Bin",
+        "description" : "This API restores all deleted resources from the Recycle Bin.",
+        "operationId" : "restoreAllEntities",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "202" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/recycleBin" : {
+      "get" : {
+        "tags" : [ "Recyclebin" ],
+        "summary" : "List deleted resources",
+        "description" : "This API lists a particular number of deleted resources, based on the limit specified.",
+        "operationId" : "getRecycleBinEntities",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the resources. Values allowed are: @department@ and @deletedBy@. You can pass multiple values by separating them with commas in the API request.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the resources. Values allowed are: @department@ and @deletedBy@. You can pass multiple values by separating them with commas in the API request.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "deletedBy", "department" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "departmentId",
+          "in" : "query",
+          "description" : "ID of the department to which the deleted resources belong.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the department to which the deleted resources belong.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of resources to list. The default value is 10 and the maximum value supported is 100.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of resources to list. The default value is 10 and the maximum value supported is 100.",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the resources must be fetched.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the resources must be fetched.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "moduleId",
+          "in" : "query",
+          "description" : "ID of the module to which the deleted resources belong.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the module to which the deleted resources belong.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getRecycleBinEntities"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/recycleBin/delete" : {
+      "post" : {
+        "tags" : [ "Recyclebin" ],
+        "summary" : "Delete resources from Recycle Bin",
+        "description" : "This API permanently deletes the resources specified in the API request. Additionally, the child resources are also permanently deleted.",
+        "operationId" : "deleteEntities",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteEntities"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "401" : {
+            "$ref" : "./Common.json#/components/responses/unauthorizedErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/recycleBin/deleteAll" : {
+      "post" : {
+        "tags" : [ "Recyclebin" ],
+        "summary" : "Delete all resources from Recycle Bin",
+        "description" : "This API permanently deletes all resources from the Recycle Bin.",
+        "operationId" : "deleteAllEntities",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "202" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ids" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "recycleBinKeys" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "departmentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "deletedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "deletedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "deletedById", "deletedTime", "departmentId", "displayName", "id", "type" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./Recyclebin.json#/components/schemas/recycleBinKeys"
+        }
+      }
+    },
+    "responses" : {
+      "getRecycleBinEntities" : {
+        "description" : "getRecycleBinEntities template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "department" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 2,
+                          "minProperties" : 2,
+                          "properties" : {
+                            "name" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            }
+                          },
+                          "required" : [ "id", "name" ]
+                        },
+                        "deletedBy" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./Recyclebin.json#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "displayName" : "Sample display name",
+                    "departmentId" : null,
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000046163",
+                    "type" : "Attachments",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : "4000000013244",
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000046093",
+                    "type" : "Calls",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : "4000000013244",
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000017184",
+                    "type" : "Tickets",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : "4000000013244",
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000046029",
+                    "type" : "Tickets",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : null,
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000019005",
+                    "type" : "Contacts",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : "4000000013244",
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000046131",
+                    "type" : "Events",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : "4000000013244",
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000046111",
+                    "type" : "Tasks",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  }, {
+                    "displayName" : "Sample display name",
+                    "departmentId" : "4000000013244",
+                    "deletedById" : "4000000000059",
+                    "id" : "4000000046153",
+                    "type" : "Time Entry",
+                    "deletedTime" : "2020-06-21T16:16:16.000Z"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "restoreEntities" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isChildNeedToBeRestored" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "ids" : {
+                  "$ref" : "./Recyclebin.json#/components/schemas/ids"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isChildNeedToBeRestored" : "true",
+                  "ids" : [ "232323", "400000005634", "232", "4000000056156" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteEntities" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./Recyclebin.json#/components/schemas/ids"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ "232323", "3213123", "40000000561232", "4000000056156" ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Recyclebin"
+}

@@ -1,0 +1,240 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "CommunityPreferences",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/communityPreferences" : {
+      "get" : {
+        "tags" : [ "CommunityPreferences" ],
+        "summary" : "Get community preferences",
+        "description" : "This API fetches the settings defined for the user community in your help desk portal.",
+        "operationId" : "getCommunityPreferences",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getCommunityPrefereneces"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "CommunityPreferences" ],
+        "summary" : "Set community preferences",
+        "description" : "This API helps define the settings for the user community in your help desk portal.",
+        "operationId" : "updateCommunityPreferences",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/getCommunityPrefereneces"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityModeration/counts" : {
+      "get" : {
+        "tags" : [ "CommunityPreferences" ],
+        "summary" : "Get moderation stats",
+        "description" : "This API fetches statistics related to topic/comment moderation in the user community.",
+        "operationId" : "getModerationCounts",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/communityModerationCountDetails"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "countDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "comments" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "topics" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "comments", "topics" ]
+      },
+      "moderatedCountDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "topics" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          },
+          "users" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "topics", "users" ]
+      }
+    },
+    "responses" : {
+      "getCommunityPrefereneces" : {
+        "description" : "getCommunityPrefereneces template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "landingPage" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "ALLCATEGORY", "RECENTPOST" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "landingPage" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "landingPage" : "ALL_CATEGORY"
+                }
+              }
+            }
+          }
+        }
+      },
+      "communityModerationCountDetails" : {
+        "description" : "communityModerationCountDetails template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "awaitingApproval" : {
+                  "$ref" : "./CommunityPreferences.json#/components/schemas/countDetails"
+                },
+                "moderated" : {
+                  "$ref" : "./CommunityPreferences.json#/components/schemas/moderatedCountDetails"
+                },
+                "spam" : {
+                  "$ref" : "./CommunityPreferences.json#/components/schemas/countDetails"
+                },
+                "trashed" : {
+                  "$ref" : "./CommunityPreferences.json#/components/schemas/countDetails"
+                }
+              },
+              "required" : [ "awaitingApproval", "moderated", "spam", "trashed" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "awaitingApproval" : {
+                    "comments" : "35",
+                    "topic" : "25"
+                  },
+                  "moderated" : {
+                    "topic" : "25"
+                  },
+                  "spam" : {
+                    "comments" : "35",
+                    "topic" : "25"
+                  },
+                  "trash" : {
+                    "comments" : "35",
+                    "topic" : "25"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "getCommunityPrefereneces" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "landingPage" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Key that determines the content to display on the home page of the user community. Values allowed are: @ALLCATEGORIES@ (all community categories are displayed), and @RECENTPOSTS@ (only the latest topics in the community are displayed).",
+                  "enum" : [ "ALLCATEGORY", "RECENTPOST" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "landingPage" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "landingPage" : "ALL_CATEGORY"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "CommunityPreferences"
+}

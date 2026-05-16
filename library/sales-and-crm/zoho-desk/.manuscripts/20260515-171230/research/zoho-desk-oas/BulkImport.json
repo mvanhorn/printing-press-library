@@ -1,0 +1,197 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "BulkImport",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/bulkImport/{bulkImportId}/sampleData" : {
+      "get" : {
+        "tags" : [ "BulkImport" ],
+        "summary" : "Get BulkImport Sample Data",
+        "description" : "This API fetches sample data for a bulk import request, including headers and sample records for specified modules.",
+        "operationId" : "getBulkImportSampleData",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/bulkImportId"
+        }, {
+          "$ref" : "#/components/parameters/modules"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/bulkImportSampleDataResponse"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          }
+        },
+        "security" : [ {
+          "oAuth2" : [ "imports.CUSTOM" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "module" : {
+        "type" : [ "array", "null" ],
+        "description" : "Api Name of the module to be migrated, Allowed modules are @accounts@, @contacts@, @tickets@, @tasks@, @calls@, @events@, @products@, @articles@ and custom modules",
+        "items" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "accounts", "contacts", "tickets", "tasks", "calls", "events", "products", "articles" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        },
+        "style" : "simple",
+        "explode" : true
+      },
+      "bulkImportSampleDataModule" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "module" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "headers" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "label" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0
+                },
+                "columnKey" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "columnKey", "label" ]
+            }
+          },
+          "data" : {
+            "type" : [ "null", "array" ],
+            "items" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : {
+                "type" : [ "string", "null" ],
+                "maxLength" : 1000,
+                "minLength" : 0
+              }
+            }
+          }
+        },
+        "required" : [ "data", "headers", "module" ]
+      }
+    },
+    "responses" : {
+      "bulkImportSampleDataResponse" : {
+        "description" : "bulkImportSampleDataResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "importId" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "sampleData" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "$ref" : "./BulkImport.json#/components/schemas/bulkImportSampleDataModule"
+                  }
+                }
+              },
+              "required" : [ "importId", "sampleData" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "importId" : "5000000086001",
+                  "sampleData" : [ {
+                    "headers" : [ {
+                      "label" : "ID",
+                      "columnKey" : "col1"
+                    }, {
+                      "label" : "Product Owner",
+                      "columnKey" : "col2"
+                    }, {
+                      "label" : "Product Name",
+                      "columnKey" : "col3"
+                    }, {
+                      "label" : "Product Code",
+                      "columnKey" : "col4"
+                    }, {
+                      "label" : "Manufacturer",
+                      "columnKey" : "col5"
+                    }, {
+                      "label" : "Product Category",
+                      "columnKey" : "col6"
+                    } ],
+                    "data" : [ {
+                      "col1" : "99587000005130006",
+                      "col2" : "99587000000190001",
+                      "col3" : "Imported product ksk",
+                      "col4" : "7",
+                      "col5" : "",
+                      "col6" : "Hardware"
+                    }, {
+                      "col1" : "99587000005130026",
+                      "col2" : "99587000000190001",
+                      "col3" : "Hello import",
+                      "col4" : "goat",
+                      "col5" : "",
+                      "col6" : "Software"
+                    } ],
+                    "module" : "products"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "modules" : {
+        "name" : "modules",
+        "in" : "query",
+        "description" : "Api Name of the module to be migrated, Allowed modules are @accounts@, @contacts@, @tickets@, @tasks@, @calls@, @events@, @products@, @articles@ and custom modules",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "$ref" : "#/components/schemas/module"
+        }
+      },
+      "bulkImportId" : {
+        "name" : "bulkImportId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "BulkImport"
+}

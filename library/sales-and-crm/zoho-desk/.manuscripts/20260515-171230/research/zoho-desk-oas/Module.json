@@ -1,0 +1,1399 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "Module",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/organizationModules/{moduleId}" : {
+      "get" : {
+        "tags" : [ "Module" ],
+        "summary" : "Get Module",
+        "description" : "This API fetches a single Module",
+        "operationId" : "getModule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/moduleId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/moduleJsonIncludingCustomModule"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "put" : {
+        "tags" : [ "Module" ],
+        "summary" : "Update Module",
+        "description" : "The API updates a Module.",
+        "operationId" : "updateModule",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/moduleId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/editRequestJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/moduleJsonIncludingCustomModule"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/myAccessibleModules" : {
+      "get" : {
+        "tags" : [ "Module" ],
+        "summary" : "Get Modules Accessible To Current User Profile",
+        "description" : "The API fetches a list of modules that are accessible to the current user profile.",
+        "operationId" : "getMyModules",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/modulesResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/modules" : {
+      "get" : {
+        "tags" : [ "Module" ],
+        "summary" : "Get modules",
+        "description" : "The API fetches all the modules available in Zoho Desk. <br></br> <b> This API is <code>deprecated</code>, use <i>api/v1/organizationModules</i> api for fetching modules.</b>",
+        "operationId" : "getModulesDeprecated",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/featureFlags"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/getModulesResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/organizationModules" : {
+      "get" : {
+        "tags" : [ "Module" ],
+        "summary" : "Get Modules",
+        "description" : "The API fetches all the modules.",
+        "operationId" : "getModules",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/featureFlags"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getOrganizationModulesResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "Module" ],
+        "summary" : "Create Module",
+        "description" : "The API creates a Custom Module. <a href='https://help.zoho.com/portal/en/kb/desk/customization/modules/articles/creating-custom-modules' target='_blank'>Custom Module</a> allows users to organize, store, and manage specific types of data tailored to meet unique business requirements.",
+        "operationId" : "createModule",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/requestJson"
+        },
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/moduleJsonIncludingCustomModule"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/{customModuleApiName}/count" : {
+      "get" : {
+        "tags" : [ "Module" ],
+        "summary" : "Get Custom Module Record Count ",
+        "description" : "This API fetches the number of records.",
+        "operationId" : "getCustomModuleRecordsCount",
+        "parameters" : [ {
+          "name" : "viewId",
+          "in" : "query",
+          "description" : "ID of the view from which the record count needs to be fetched.",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the view from which the record count needs to be fetched.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "customModuleApiName",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(cm_[a-zA-Z0-9_]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./Ticket.json#/components/responses/getRequestsCount"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.custommodule.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "modifierJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoURL" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "firstName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "lastName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 50,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+      },
+      "moduleJsonIncludingCustomModuleforList" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "apiName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "modifier" : {
+            "$ref" : "#/components/schemas/modifierJson"
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "nameField" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pluralLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "singularLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "hasRecycleBin" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isCustomModule" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isDeptSpecific" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "apiName", "createdBy", "createdTime", "description", "displayLabel", "hasRecycleBin", "id", "isCustomModule", "isDeptSpecific", "modifiedBy", "modifiedTime", "modifier", "nameField", "pluralLabel", "singularLabel" ]
+      },
+      "moduleJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "apiKey" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "isEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "nameField" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pluralLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "singularLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "apiKey", "displayLabel", "id", "isEnabled", "nameField", "pluralLabel", "singularLabel" ]
+      },
+      "listOfModules" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/moduleJson"
+        }
+      },
+      "modulesWithNameFieldResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "apiKey" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "isEnabled" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "nameField" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isMigratedModule" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "pluralLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "singularLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          }
+        },
+        "required" : [ "apiKey", "displayLabel", "id", "isEnabled", "isMigratedModule", "nameField", "pluralLabel", "singularLabel" ]
+      },
+      "modulesWithNameField" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/modulesWithNameFieldResponse"
+        }
+      },
+      "modulesWithCustomModuleJson" : {
+        "additionalProperties" : false,
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/moduleJson"
+        }, {
+          "type" : [ "null", "object" ],
+          "properties" : {
+            "sanitizedName" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "isCustomModule" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "singularI18NLabel" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "i18NLabel" : {
+              "type" : [ "string", "null" ],
+              "maxLength" : 100,
+              "minLength" : 0,
+              "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+            },
+            "isDeptSpecific" : {
+              "type" : [ "boolean", "null" ]
+            },
+            "isMigratedModule" : {
+              "type" : [ "boolean", "null" ]
+            }
+          },
+          "required" : [ "i18NLabel", "isCustomModule", "isDeptSpecific", "isMigratedModule", "sanitizedName", "singularI18NLabel" ]
+        } ]
+      },
+      "listOfModulesWithCustomModuleData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/modulesWithCustomModuleJson"
+        }
+      },
+      "listOfModulesIncludingCustomModule" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/moduleJsonIncludingCustomModuleforList"
+        }
+      },
+      "custommoduleResponseWithNameField" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "modifiedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "apiName" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "modifier" : {
+            "$ref" : "#/components/schemas/modifierJson"
+          },
+          "nameField" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pluralLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "singularLabel" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "hasRecycleBin" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "isCustomModule" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "isDeptSpecific" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "modifiedBy" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "apiName", "createdBy", "createdTime", "description", "displayLabel", "hasRecycleBin", "id", "isCustomModule", "isDeptSpecific", "modifiedBy", "modifiedTime", "modifier", "nameField", "pluralLabel", "singularLabel" ]
+      },
+      "organizationModuleArrayOfResponses" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/custommoduleResponseWithNameField"
+        }
+      }
+    },
+    "responses" : {
+      "moduleJsonIncludingCustomModule" : {
+        "description" : "moduleJsonIncludingCustomModule template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/moduleJsonIncludingCustomModuleforList"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "profileIds" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "uniqueItems" : false
+                  },
+                  "departmentIds" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null", "integer" ],
+                      "format" : "int64",
+                      "pattern" : "([0-9]+)"
+                    },
+                    "uniqueItems" : false
+                  }
+                },
+                "required" : [ "departmentIds", "profileIds" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "displayLabel" : "Doctors",
+                  "modifiedTime" : 1713519302000,
+                  "apiName" : "cm_doctors",
+                  "modifier" : {
+                    "firstName" : "",
+                    "lastName" : "Kyle",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000329/photo?orgId=3981311",
+                    "id" : "4000000000329",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "nameField" : "name",
+                  "profileIds" : [ "1000000029530" ],
+                  "description" : "Doctor informations",
+                  "departmentIds" : [ "1000000774623", "1000000025632" ],
+                  "pluralLabel" : "Doctors",
+                  "singularLabel" : "Doctor",
+                  "hasRecycleBin" : true,
+                  "createdBy" : "1000000000375",
+                  "isCustomModule" : true,
+                  "createdTime" : 1713517457000,
+                  "modifiedBy" : "1000000000375",
+                  "isDeptSpecific" : true,
+                  "id" : "1000003000001"
+                }
+              }
+            }
+          }
+        }
+      },
+      "modulesResponse" : {
+        "description" : "modulesResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modules" : {
+                  "$ref" : "#/components/schemas/listOfModules"
+                }
+              },
+              "required" : [ "modules" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modules" : [ {
+                    "displayLabel" : "Contracts",
+                    "apiKey" : "contracts",
+                    "isEnabled" : false,
+                    "nameField" : null,
+                    "id" : "1000000000485",
+                    "pluralLabel" : "Contracts",
+                    "singularLabel" : "Contract"
+                  }, {
+                    "displayLabel" : "Time Entry",
+                    "apiKey" : "timeEntry",
+                    "isEnabled" : false,
+                    "nameField" : null,
+                    "id" : "1000000000489",
+                    "pluralLabel" : "Time Entry",
+                    "singularLabel" : "Time Entry"
+                  }, {
+                    "displayLabel" : "Department",
+                    "apiKey" : "departments",
+                    "isEnabled" : false,
+                    "nameField" : null,
+                    "id" : "1000000000491",
+                    "pluralLabel" : "Departments",
+                    "singularLabel" : "Department"
+                  }, {
+                    "displayLabel" : "Agents",
+                    "apiKey" : "agents",
+                    "isEnabled" : false,
+                    "nameField" : null,
+                    "id" : "1000000000493",
+                    "pluralLabel" : "Agents",
+                    "singularLabel" : "Agent"
+                  }, {
+                    "displayLabel" : "Topics",
+                    "apiKey" : "category",
+                    "isEnabled" : false,
+                    "nameField" : null,
+                    "id" : "1000000000527",
+                    "pluralLabel" : "Topics",
+                    "singularLabel" : "Topic"
+                  }, {
+                    "displayLabel" : "Ticketss",
+                    "apiKey" : "tickets",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000481",
+                    "pluralLabel" : "Ticketss",
+                    "singularLabel" : "Ticket"
+                  }, {
+                    "displayLabel" : "Reports",
+                    "apiKey" : "reports",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000463",
+                    "pluralLabel" : "Reports",
+                    "singularLabel" : "Report"
+                  }, {
+                    "displayLabel" : "Dashboards",
+                    "apiKey" : "dashboards",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000465",
+                    "pluralLabel" : "Dashboards",
+                    "singularLabel" : "Dashboard"
+                  }, {
+                    "displayLabel" : "Knowledge Base",
+                    "apiKey" : "kbCategory",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000483",
+                    "pluralLabel" : "Articles",
+                    "singularLabel" : "Article"
+                  }, {
+                    "displayLabel" : "Contacts",
+                    "apiKey" : "contacts",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000461",
+                    "pluralLabel" : "Contacts",
+                    "singularLabel" : "Contact"
+                  }, {
+                    "displayLabel" : "Products",
+                    "apiKey" : "products",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000487",
+                    "pluralLabel" : "Products",
+                    "singularLabel" : "Product"
+                  }, {
+                    "displayLabel" : "Accounts",
+                    "apiKey" : "accounts",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000459",
+                    "pluralLabel" : "Accounts",
+                    "singularLabel" : "Account"
+                  }, {
+                    "displayLabel" : "Community",
+                    "apiKey" : "community",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000533",
+                    "pluralLabel" : "Community",
+                    "singularLabel" : "Community"
+                  }, {
+                    "displayLabel" : "Social",
+                    "apiKey" : "social",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000535",
+                    "pluralLabel" : "Social",
+                    "singularLabel" : "Social"
+                  }, {
+                    "displayLabel" : "Chat",
+                    "apiKey" : "chat",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000537",
+                    "pluralLabel" : "Chat",
+                    "singularLabel" : "Chat"
+                  }, {
+                    "displayLabel" : "Activities",
+                    "apiKey" : "activities",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000471",
+                    "pluralLabel" : "Activities",
+                    "singularLabel" : "Activity"
+                  }, {
+                    "displayLabel" : "Calls",
+                    "apiKey" : "calls",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000531",
+                    "pluralLabel" : "Calls",
+                    "singularLabel" : "Call"
+                  }, {
+                    "displayLabel" : "Tasks",
+                    "apiKey" : "tasks",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000469",
+                    "pluralLabel" : "Tasks",
+                    "singularLabel" : "Task"
+                  }, {
+                    "displayLabel" : "Events",
+                    "apiKey" : "events",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000529",
+                    "pluralLabel" : "Events",
+                    "singularLabel" : "Event"
+                  }, {
+                    "displayLabel" : "IM",
+                    "apiKey" : "im",
+                    "isEnabled" : true,
+                    "nameField" : null,
+                    "id" : "1000000000475",
+                    "pluralLabel" : "IM",
+                    "singularLabel" : "IM"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getModulesResponse" : {
+        "description" : "getModulesResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "oneOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "modules" : {
+                    "$ref" : "#/components/schemas/listOfModules"
+                  }
+                },
+                "required" : [ "modules" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/modulesWithNameField"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/listOfModulesWithCustomModuleData"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "modules" : [ {
+                    "displayLabel" : "Contracts",
+                    "apiKey" : "contracts",
+                    "nameField" : null,
+                    "id" : "1000000000485",
+                    "pluralLabel" : "Contracts",
+                    "singularLabel" : "Contract"
+                  }, {
+                    "displayLabel" : "Time Entry",
+                    "apiKey" : "timeEntry",
+                    "nameField" : null,
+                    "id" : "1000000000489",
+                    "pluralLabel" : "Time Entry",
+                    "singularLabel" : "Time Entry"
+                  }, {
+                    "displayLabel" : "Department",
+                    "apiKey" : "departments",
+                    "nameField" : null,
+                    "id" : "1000000000491",
+                    "pluralLabel" : "Departments",
+                    "singularLabel" : "Department"
+                  }, {
+                    "displayLabel" : "Agents",
+                    "apiKey" : "agents",
+                    "nameField" : null,
+                    "id" : "1000000000493",
+                    "pluralLabel" : "Agents",
+                    "singularLabel" : "Agent"
+                  }, {
+                    "displayLabel" : "Topics",
+                    "apiKey" : "category",
+                    "nameField" : null,
+                    "id" : "1000000000527",
+                    "pluralLabel" : "Topics",
+                    "singularLabel" : "Topic"
+                  }, {
+                    "displayLabel" : "Ticketss",
+                    "apiKey" : "tickets",
+                    "nameField" : null,
+                    "id" : "1000000000481",
+                    "pluralLabel" : "Ticketss",
+                    "singularLabel" : "Ticket"
+                  }, {
+                    "displayLabel" : "Reports",
+                    "apiKey" : "reports",
+                    "nameField" : null,
+                    "id" : "1000000000463",
+                    "pluralLabel" : "Reports",
+                    "singularLabel" : "Report"
+                  }, {
+                    "displayLabel" : "Dashboards",
+                    "apiKey" : "dashboards",
+                    "nameField" : null,
+                    "id" : "1000000000465",
+                    "pluralLabel" : "Dashboards",
+                    "singularLabel" : "Dashboard"
+                  }, {
+                    "displayLabel" : "Knowledge Base",
+                    "apiKey" : "kbCategory",
+                    "nameField" : null,
+                    "id" : "1000000000483",
+                    "pluralLabel" : "Articles",
+                    "singularLabel" : "Article"
+                  }, {
+                    "displayLabel" : "Contacts",
+                    "apiKey" : "contacts",
+                    "nameField" : null,
+                    "id" : "1000000000461",
+                    "pluralLabel" : "Contacts",
+                    "singularLabel" : "Contact"
+                  }, {
+                    "displayLabel" : "Products",
+                    "apiKey" : "products",
+                    "nameField" : null,
+                    "id" : "1000000000487",
+                    "pluralLabel" : "Products",
+                    "singularLabel" : "Product"
+                  }, {
+                    "displayLabel" : "Accounts",
+                    "apiKey" : "accounts",
+                    "nameField" : null,
+                    "id" : "1000000000459",
+                    "pluralLabel" : "Accounts",
+                    "singularLabel" : "Account"
+                  }, {
+                    "displayLabel" : "Community",
+                    "apiKey" : "community",
+                    "nameField" : null,
+                    "id" : "1000000000533",
+                    "pluralLabel" : "Community",
+                    "singularLabel" : "Community"
+                  }, {
+                    "displayLabel" : "Social",
+                    "apiKey" : "social",
+                    "nameField" : null,
+                    "id" : "1000000000535",
+                    "pluralLabel" : "Social",
+                    "singularLabel" : "Social"
+                  }, {
+                    "displayLabel" : "Chat",
+                    "apiKey" : "chat",
+                    "nameField" : null,
+                    "id" : "1000000000537",
+                    "pluralLabel" : "Chat",
+                    "singularLabel" : "Chat"
+                  }, {
+                    "displayLabel" : "Activities",
+                    "apiKey" : "activities",
+                    "nameField" : null,
+                    "id" : "1000000000471",
+                    "pluralLabel" : "Activities",
+                    "singularLabel" : "Activity"
+                  }, {
+                    "displayLabel" : "Calls",
+                    "apiKey" : "calls",
+                    "nameField" : null,
+                    "id" : "1000000000531",
+                    "pluralLabel" : "Calls",
+                    "singularLabel" : "Call"
+                  }, {
+                    "displayLabel" : "Tasks",
+                    "apiKey" : "tasks",
+                    "nameField" : null,
+                    "id" : "1000000000469",
+                    "pluralLabel" : "Tasks",
+                    "singularLabel" : "Task"
+                  }, {
+                    "displayLabel" : "Events",
+                    "apiKey" : "events",
+                    "nameField" : null,
+                    "id" : "1000000000529",
+                    "pluralLabel" : "Events",
+                    "singularLabel" : "Event"
+                  }, {
+                    "displayLabel" : "IM",
+                    "apiKey" : "im",
+                    "nameField" : null,
+                    "id" : "1000000000475",
+                    "pluralLabel" : "IM",
+                    "singularLabel" : "IM"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "getOrganizationModulesResponse" : {
+        "description" : "getOrganizationModulesResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/listOfModulesIncludingCustomModule"
+                  }
+                },
+                "required" : [ "data" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/organizationModuleArrayOfResponses"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "displayLabel" : "Accounts",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "accounts",
+                    "modifier" : null,
+                    "nameField" : "accountName",
+                    "description" : null,
+                    "pluralLabel" : "Accounts",
+                    "singularLabel" : "Account",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : false,
+                    "id" : "1000000000377"
+                  }, {
+                    "displayLabel" : "Contacts",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "contacts",
+                    "modifier" : null,
+                    "nameField" : "lastName",
+                    "description" : null,
+                    "pluralLabel" : "Contacts",
+                    "singularLabel" : "Contact",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : false,
+                    "id" : "1000000000379"
+                  }, {
+                    "displayLabel" : "Tasks",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "tasks",
+                    "modifier" : null,
+                    "nameField" : "subject",
+                    "description" : null,
+                    "pluralLabel" : "Tasks",
+                    "singularLabel" : "Task",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : true,
+                    "id" : "1000000000383"
+                  }, {
+                    "displayLabel" : "Tickets",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "tickets",
+                    "modifier" : null,
+                    "nameField" : "subject",
+                    "description" : null,
+                    "pluralLabel" : "Tickets",
+                    "singularLabel" : "Ticket",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : true,
+                    "id" : "1000000000423"
+                  }, {
+                    "displayLabel" : "Contracts",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "contracts",
+                    "modifier" : null,
+                    "nameField" : "contractName",
+                    "description" : null,
+                    "pluralLabel" : "Contracts",
+                    "singularLabel" : "Contract",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : true,
+                    "id" : "1000000000427"
+                  }, {
+                    "displayLabel" : "Products",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "products",
+                    "modifier" : null,
+                    "nameField" : "productName",
+                    "description" : null,
+                    "pluralLabel" : "Products",
+                    "singularLabel" : "Product",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : false,
+                    "id" : "1000000000429"
+                  }, {
+                    "displayLabel" : "Time Entry",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "timeEntry",
+                    "modifier" : null,
+                    "nameField" : "requestChargeType",
+                    "description" : null,
+                    "pluralLabel" : "Time Entry",
+                    "singularLabel" : "Time Entry",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : true,
+                    "id" : "1000000000431"
+                  }, {
+                    "displayLabel" : "Agents",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "agents",
+                    "modifier" : null,
+                    "nameField" : "lastName",
+                    "description" : null,
+                    "pluralLabel" : "Agents",
+                    "singularLabel" : "Agent",
+                    "hasRecycleBin" : false,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : false,
+                    "id" : "1000000000435"
+                  }, {
+                    "displayLabel" : "Events",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "events",
+                    "modifier" : null,
+                    "nameField" : "subject",
+                    "description" : null,
+                    "pluralLabel" : "Events",
+                    "singularLabel" : "Event",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : true,
+                    "id" : "1000000000445"
+                  }, {
+                    "displayLabel" : "Calls",
+                    "modifiedTime" : 946684800000,
+                    "apiName" : "calls",
+                    "modifier" : null,
+                    "nameField" : "subject",
+                    "description" : null,
+                    "pluralLabel" : "Calls",
+                    "singularLabel" : "Call",
+                    "hasRecycleBin" : true,
+                    "createdBy" : null,
+                    "isCustomModule" : false,
+                    "createdTime" : 946684800000,
+                    "modifiedBy" : null,
+                    "isDeptSpecific" : true,
+                    "id" : "1000000000447"
+                  }, {
+                    "displayLabel" : "Doctors",
+                    "modifiedTime" : 1713519302000,
+                    "apiName" : "cm_doctors",
+                    "modifier" : {
+                      "firstName" : "",
+                      "lastName" : "Kyle",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/4000000000329/photo?orgId=3981311",
+                      "id" : "4000000000329",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "nameField" : "name",
+                    "description" : "Doctor informations",
+                    "pluralLabel" : "Doctors",
+                    "singularLabel" : "Doctor",
+                    "hasRecycleBin" : true,
+                    "createdBy" : "1000000000375",
+                    "isCustomModule" : true,
+                    "createdTime" : 1713517457000,
+                    "modifiedBy" : "1000000000375",
+                    "isDeptSpecific" : true,
+                    "id" : "1000003000001"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "moduleId" : {
+        "name" : "moduleId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "featureFlags" : {
+        "name" : "featureFlags",
+        "in" : "header",
+        "required" : false,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "enum" : [ "customModule" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "editRequestJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "profileIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "pluralLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "departmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "singularLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "departmentIds", "pluralLabel", "profileIds", "singularLabel" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "description" : "Doctor informations",
+                  "profileIds" : [ 1000000029530, 1000000029533 ],
+                  "pluralLabel" : "Doctors",
+                  "departmentIds" : [ 1000000774623, 1000000025632 ],
+                  "singularLabel" : "Doctor"
+                }
+              }
+            }
+          }
+        }
+      },
+      "requestJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "description" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "profileIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "isDeptSpecific" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "pluralLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                },
+                "departmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "singularLabel" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+                }
+              },
+              "required" : [ "departmentIds", "isDeptSpecific", "pluralLabel", "profileIds", "singularLabel" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "description" : "Doctor informations",
+                  "profileIds" : [ 1000000029530 ],
+                  "isDeptSpecific" : true,
+                  "pluralLabel" : "Doctors",
+                  "departmentIds" : [ 1000000774623, 1000000025632 ],
+                  "singularLabel" : "Doctor"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "Module"
+}

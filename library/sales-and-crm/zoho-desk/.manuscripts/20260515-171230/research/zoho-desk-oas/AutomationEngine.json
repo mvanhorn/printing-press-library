@@ -1,0 +1,494 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "AutomationEngine",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/automationEngine/engineSupportedActions" : {
+      "get" : {
+        "tags" : [ "AutomationEngine" ],
+        "summary" : "Get Supported Actions of an Engine",
+        "description" : "This API fetches the supported Actions of an AutomationEngine",
+        "operationId" : "getSupportedActionsEngine",
+        "parameters" : [ {
+          "name" : "engineSysName",
+          "in" : "query",
+          "description" : " AutomationEngine's system name",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : " AutomationEngine's system name",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "engineId",
+          "in" : "query",
+          "description" : "AutomationEngine's id",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "AutomationEngine's id",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/supportedActionsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/engines/{engineId}/modules" : {
+      "get" : {
+        "tags" : [ "AutomationEngine" ],
+        "summary" : "Get supported modules of an engine",
+        "description" : "This API gives the supported modules of an engine.",
+        "operationId" : "getSupportedModulesOfEngine",
+        "parameters" : [ {
+          "name" : "engineId",
+          "in" : "path",
+          "description" : "The id  of the engine.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/engineModulesJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/engines/{engineId}/modules/{moduleId}/events" : {
+      "get" : {
+        "tags" : [ "AutomationEngine" ],
+        "summary" : "Get supported events in a module of a specific engine",
+        "description" : "This API gives the supported events in a module of a specific engine.",
+        "operationId" : "getSupportedEventsOfModule",
+        "parameters" : [ {
+          "name" : "engineId",
+          "in" : "path",
+          "description" : "The id of the engine.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "moduleId",
+          "in" : "path",
+          "description" : "The id of the module.",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/moduleEventsJson"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "actionObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "async" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "reusable" : {
+            "type" : [ "boolean", "null" ]
+          }
+        },
+        "required" : [ "async", "name", "reusable" ]
+      },
+      "actions" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/actionObject"
+        }
+      },
+      "eventsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "submodule" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "actions" : {
+            "$ref" : "#/components/schemas/actions"
+          }
+        },
+        "required" : [ "actions", "name", "submodule" ]
+      },
+      "events" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/eventsObject"
+        }
+      },
+      "modulesObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "actions" : {
+            "$ref" : "#/components/schemas/actions"
+          },
+          "events" : {
+            "$ref" : "#/components/schemas/events"
+          }
+        },
+        "required" : [ "actions", "events", "name" ]
+      },
+      "modules" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "#/components/schemas/modulesObject"
+        }
+      },
+      "EngineModule" : {
+        "type" : "object",
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ]
+          },
+          "apiName" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null" ]
+          },
+          "isCustomModule" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "isDeptSpecific" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "i18NLabel" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "apiName", "displayLabel", "i18NLabel", "id", "isCustomModule", "isDeptSpecific" ]
+      },
+      "EngineModulesResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/EngineModule"
+            }
+          }
+        },
+        "required" : [ "data" ]
+      },
+      "Module" : {
+        "type" : "object",
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ]
+          },
+          "apiName" : {
+            "type" : [ "string", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "apiName", "displayLabel", "id" ]
+      },
+      "ModuleEvent" : {
+        "type" : "object",
+        "properties" : {
+          "displayLabel" : {
+            "type" : [ "string", "null" ]
+          },
+          "module" : {
+            "$ref" : "#/components/schemas/Module"
+          },
+          "baseEvent" : {
+            "type" : [ "string", "null" ]
+          },
+          "sysName" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "baseEvent", "displayLabel", "module", "sysName" ]
+      },
+      "ModuleEventsResponse" : {
+        "type" : "object",
+        "properties" : {
+          "data" : {
+            "type" : [ "array", "null" ],
+            "items" : {
+              "$ref" : "#/components/schemas/ModuleEvent"
+            }
+          }
+        },
+        "required" : [ "data" ]
+      }
+    },
+    "responses" : {
+      "supportedActionsResponse" : {
+        "description" : "supportedActionsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "engineName" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "actions" : {
+                  "$ref" : "#/components/schemas/actions"
+                },
+                "modules" : {
+                  "$ref" : "#/components/schemas/modules"
+                }
+              },
+              "required" : [ "actions", "engineName", "modules" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "engineName" : "WORKFLOWS",
+                  "actions" : [ {
+                    "async" : true,
+                    "name" : "StopEngine",
+                    "reusable" : true
+                  }, {
+                    "async" : true,
+                    "name" : "StartEngine",
+                    "reusable" : true
+                  } ],
+                  "modules" : [ {
+                    "name" : "TICKETS",
+                    "actions" : [ {
+                      "async" : true,
+                      "name" : "StopEngine",
+                      "reusable" : true
+                    }, {
+                      "async" : true,
+                      "name" : "StartEngine",
+                      "reusable" : true
+                    } ],
+                    "events" : [ {
+                      "name" : "CREATE",
+                      "submodule" : "",
+                      "actions" : [ {
+                        "async" : true,
+                        "name" : "LogCreate",
+                        "reusable" : true
+                      }, {
+                        "async" : true,
+                        "name" : "NotifyCreate",
+                        "reusable" : true
+                      } ]
+                    }, {
+                      "name" : "UPDATE",
+                      "submodule" : null,
+                      "actions" : [ {
+                        "async" : true,
+                        "name" : "NotifyUpdate",
+                        "reusable" : true
+                      }, {
+                        "async" : true,
+                        "name" : "LogUpdate",
+                        "reusable" : true
+                      } ]
+                    } ]
+                  }, {
+                    "name" : "CUSTOM_MODULE",
+                    "actions" : [ {
+                      "async" : true,
+                      "name" : "StartEngine",
+                      "reusable" : true
+                    }, {
+                      "async" : true,
+                      "name" : "StopEngine",
+                      "reusable" : true
+                    } ],
+                    "events" : [ {
+                      "name" : "CREATE",
+                      "submodule" : "",
+                      "actions" : [ {
+                        "async" : true,
+                        "name" : "LogCreate",
+                        "reusable" : true
+                      }, {
+                        "async" : true,
+                        "name" : "NotifyCreate",
+                        "reusable" : true
+                      } ]
+                    }, {
+                      "name" : "UPDATE",
+                      "submodule" : null,
+                      "actions" : [ {
+                        "async" : true,
+                        "name" : "LogUpdate",
+                        "reusable" : true
+                      }, {
+                        "async" : true,
+                        "name" : "NotifyUpdate",
+                        "reusable" : true
+                      } ]
+                    } ]
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "engineModulesJson" : {
+        "description" : "Supported modules of the engine",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/EngineModulesResponse"
+            },
+            "examples" : {
+              "default" : {
+                "value" : {
+                  "data" : [ {
+                    "displayLabel" : "Tickets",
+                    "apiName" : "tickets",
+                    "id" : "1000000000585",
+                    "isCustomModule" : false,
+                    "isDeptSpecific" : true,
+                    "i18NLabel" : "Tickets"
+                  }, {
+                    "displayLabel" : "Contacts",
+                    "apiName" : "contacts",
+                    "id" : "1000000000587",
+                    "isCustomModule" : false,
+                    "isDeptSpecific" : false,
+                    "i18NLabel" : "Contacts"
+                  }, {
+                    "displayLabel" : "Accounts",
+                    "apiName" : "accounts",
+                    "id" : "1000000000589",
+                    "isCustomModule" : false,
+                    "isDeptSpecific" : true,
+                    "i18NLabel" : "Accounts"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "moduleEventsJson" : {
+        "description" : "Supported events in a module of a specific engine",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/ModuleEventsResponse"
+            },
+            "examples" : {
+              "default" : {
+                "value" : {
+                  "data" : [ {
+                    "displayLabel" : "Ticket Created",
+                    "module" : {
+                      "displayLabel" : "Tickets",
+                      "apiName" : "tickets",
+                      "id" : "1000000000585"
+                    },
+                    "baseEvent" : "CREATE",
+                    "sysName" : "tickets_create"
+                  }, {
+                    "displayLabel" : "Ticket Updated",
+                    "module" : {
+                      "displayLabel" : "Tickets",
+                      "apiName" : "tickets",
+                      "id" : "1000000000585"
+                    },
+                    "baseEvent" : "UPDATE",
+                    "sysName" : "tickets_update"
+                  }, {
+                    "displayLabel" : "Ticket Deleted",
+                    "module" : {
+                      "displayLabel" : "Tickets",
+                      "apiName" : "tickets",
+                      "id" : "1000000000585"
+                    },
+                    "baseEvent" : "DELETE",
+                    "sysName" : "tickets_delete"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "AutomationEngine"
+}

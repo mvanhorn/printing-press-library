@@ -1,0 +1,116 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "NewTicketHistory",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/History" : {
+      "get" : {
+        "tags" : [ "NewTicketHistory" ],
+        "summary" : "Get ticket history",
+        "description" : "This API fetches details of all actions — called events — performed on a ticket and in the sub-tabs on the ticket detail page. To view a detailed documentation for this API, visit <a href='https://help.zoho.com/portal/en/kb/desk/for-developers/rest-apis/articles/get-ticket-history-api-explained-in-detail' target='_blank'>this page</a>.",
+        "operationId" : "getTicketHistory",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "description" : "Key that filters details of actions performed by a particular agent. Value allowed is the agent's ID in Zoho Desk.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "Key that filters details of actions performed by a particular agent. Value allowed is the agent's ID in Zoho Desk.",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "fieldName",
+          "in" : "query",
+          "description" : "Key that filters the history of a particular field. The value for this key must be the apiName of the field.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Key that filters the history of a particular field. The value for this key must be the apiName of the field.",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "eventFilter",
+          "in" : "query",
+          "description" : " Key that filters events, based on their type. Values allowed are: @CommentHistory@, @TimeEntryHistory@, @TaskHistory@, @CallHistory@, @EventHistory@, @AttachmentHistory@, @ApprovalHistory@, @SuperviseHistory@, @WorkflowHistory@, @MacroHistory@, @AssignmentRuleHistory@, @NotificationRuleHistory@, @SLAHistory@, @BlueprintHistory@ and @SkillRelatedHistory@",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : " Key that filters events, based on their type. Values allowed are: @CommentHistory@, @TimeEntryHistory@, @TaskHistory@, @CallHistory@, @EventHistory@, @AttachmentHistory@, @ApprovalHistory@, @SuperviseHistory@, @WorkflowHistory@, @MacroHistory@, @AssignmentRuleHistory@, @NotificationRuleHistory@, @SLAHistory@, @BlueprintHistory@ and @SkillRelatedHistory@",
+            "enum" : [ "CommentHistory", "TimeEntryHistory", "TaskHistory", "CallHistory", "EventHistory", "AttachmentHistory", "ApprovalHistory", "SuperviseHistory", "WorkflowHistory", "MacroHistory", "AssignmentRuleHistory", "NotificationRuleHistory", "SLAHistory", "BlueprintHistory", "SkillRelatedHistory", "ZiaRelatedHistory" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of events to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of events to list",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the events must be fetched",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the events must be fetched",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "ticketId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "./TicketHistory.json#/components/responses/newTicketHistoryRespns"
+          },
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "x-entity" : "NewTicketHistory"
+}

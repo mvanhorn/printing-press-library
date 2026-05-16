@@ -1,0 +1,68 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "blueprintConnections",
+    "version" : "1.0.0"
+  },
+  "paths" : { },
+  "components" : {
+    "schemas" : {
+      "connectionsObjectForResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fromState" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/stateObjectWithPrimaryDetails"
+          },
+          "toState" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/stateObjectWithPrimaryDetails"
+          },
+          "transitions" : {
+            "$ref" : "./blueprintTransitions.json#/components/schemas/transitionArrayWithPrimaryDetails"
+          }
+        },
+        "required" : [ "fromState", "toState", "transitions" ]
+      },
+      "connectionsArrayForResponse" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintConnections.json#/components/schemas/connectionsObjectForResponse"
+        }
+      },
+      "transitionArrayOfNames" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintTransitions.json#/components/schemas/transitionObjectWithName"
+        }
+      },
+      "connectionsObject" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "fromState" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/stateObjectWithName"
+          },
+          "toState" : {
+            "$ref" : "./blueprintStates.json#/components/schemas/stateObjectWithName"
+          },
+          "transitions" : {
+            "$ref" : "./blueprintConnections.json#/components/schemas/transitionArrayOfNames"
+          }
+        },
+        "required" : [ "fromState", "toState", "transitions" ]
+      },
+      "connectionsArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./blueprintConnections.json#/components/schemas/connectionsObject"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "blueprintConnections"
+}

@@ -1,0 +1,3735 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "CommunityTopic",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/communityTopics/{topicId}/unmoderate" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Unmoderate community topic",
+        "description" : "This API helps unmoderate a forum topic, which means user comments are published without reviewing.",
+        "operationId" : "unmoderateCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List forum topics",
+        "description" : "This API lists a particular number of forum topics, based on the limit defined.",
+        "operationId" : "getAllCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/type"
+        }, {
+          "$ref" : "#/components/parameters/tagName"
+        }, {
+          "name" : "isSticky",
+          "in" : "query",
+          "description" : "Key that defines whether the topics to list must be sticky posts or not",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that defines whether the topics to list must be sticky posts or not"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllTopics"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Add community topic",
+        "description" : "This API helps add a forum topic in the user community. ",
+        "operationId" : "addCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/communityAddTopicJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/communityMangerTopicJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.CREATE", "Desk.community.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "delete" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Permanently delete trashed community topics",
+        "description" : "This API permanently deletes forum topics from the trash.",
+        "operationId" : "deleteTrashedCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteTopics_moderationTopicIdsJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.DELETE", "Desk.community.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/associateTags" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Associate tags to community topic",
+        "description" : "This API associates quick access/reference tags to a forum topic.",
+        "operationId" : "addTagsToCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/tagsRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/associateTagsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/approve" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Approve topics",
+        "description" : "This API helps to approve topics and publish them on the forum.",
+        "operationId" : "approveTopics",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/moderationTopicIdsJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/markSpam" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Report topic as spam",
+        "description" : "This API marks a forum topic as spam.",
+        "operationId" : "markATopicAsSpam",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/spamReason"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/updateDraft" : {
+      "put" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Update Drafted Topic",
+        "description" : "This API helps update the draft of a forum topic.",
+        "operationId" : "updateDraftedCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/communityAddOrUpdateDraftTopicJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/communityAddOrUpdateDraftedTopicResponseJSON"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Get topic",
+        "description" : "This API fetches a forum topic from the user community.",
+        "operationId" : "getCommunityTopic",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the topics. Values allowed are: @seo@, @featuredImage@ and @participantsCount@.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the topics. Values allowed are: @seo@, @featuredImage@ and @participantsCount@.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "seo", "featuredImage", "participantsCount" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/communityMangerTopicJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Update community topic",
+        "description" : "This API helps update a published forum topic.",
+        "operationId" : "updateCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/communityUpdateTopicJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/communityMangerTopicJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/deleteDraft" : {
+      "delete" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Delete drafted community topic",
+        "description" : "This API deletes a topic draft from the user community.",
+        "operationId" : "deleteDraftedCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.DELETE", "Desk.community.DELETE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/followers" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List all community topic followers",
+        "description" : "This API lists a particular number of users who follow a forum topic, based on the limit defined. ",
+        "operationId" : "getAllCommunityTopicFollowers",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of users to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of users to list",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the users must be listed.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the users must be listed.",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/userType"
+        }, {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllCommunityTopicFollowers"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/dissociateTags" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Dissociate tags from topic",
+        "description" : "This API removes quick access/reference tags from a forum topic.",
+        "operationId" : "deleteCommunityTopicTags",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/deleteTagsoFATopic_tagsRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/unmoderate" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Unmoderate community topics",
+        "description" : "This API unmoderate the moderated forum topics.The comments that are posted during moderation will be displayed to all users without under going any review.",
+        "operationId" : "unmoderateCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/unmoderateTopics_moderationTopicIdsJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/community/markAllTopicsAsSpam" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Report multiple topics as spam",
+        "description" : "This API marks multiple forum topics as spam.",
+        "operationId" : "markAllTopicsAsSpam",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/reportBulkTopicsAsSpam"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.basic.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/unlock" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Unlock community topic",
+        "description" : "This API helps unlock a forum topic, so that further user actions can be performed.",
+        "operationId" : "unlockCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/saveDraft" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Draft community topic",
+        "description" : "This API saves a draft of a forum topic.",
+        "operationId" : "addCommunityTopicAsDraft",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/addDraft_communityAddOrUpdateDraftTopicJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/communityAddOrUpdateDraftedTopicResponseJSON"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.CREATE", "Desk.community.CREATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityModeration/topics" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List topics pending moderation",
+        "description" : "This API lists a particular number of forum topics that are pending moderation, based on the limit defined.",
+        "operationId" : "getCommunityModerationTopics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/categoryId"
+        }, {
+          "$ref" : "#/components/parameters/status"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllModerationTopics"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/participants" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List topic participants",
+        "description" : "This API lists a particular number of users who participated in a forum topic, based on the limit defined.",
+        "operationId" : "getCommunityTopicParticipants",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of users to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of users to list",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the users must be listed",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the users must be listed",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/userType"
+        }, {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllCommunityTopicFollowers"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/unfollow" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Unfollow community topic",
+        "description" : "This API enables users to unfollow a topic.",
+        "operationId" : "unfollowCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "500" : {
+            "$ref" : "./Common.json#/components/responses/internalErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/moveToTrash" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Trash unmoderated community topics",
+        "description" : "This API trashes forum topics that are yet to be moderated for publishing. ",
+        "operationId" : "deleteUnmoderatedCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/trashTopics_moderationTopicIdsJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/count" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Get community Topics Views Count",
+        "description" : "This API fetches the total count of the topics based on the selected view.",
+        "operationId" : "getCommunityTopicsViewsCount",
+        "parameters" : [ {
+          "name" : "viewId",
+          "in" : "query",
+          "description" : "ID of a view for which you need to get the count",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of a view for which you need to get the count",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "label",
+          "in" : "query",
+          "description" : "Status label by which topics must be filtered. The value of this key varies according to the topic type. Values allowed are: @NOSTATUS@, @NEEDMOREINFO@, @WORKINGONIT@, @ANSWERED@, @UNANSWERED@, @MAYBELATER@, @UNDERREVIEW@, @IMPLEMENTED@, @WILLNOTIMPLEMENT@, @NOTAPROBLEM@, @TEMPORARYFIX@, @ANALYZING@, @SOLVED@, @UNSOLVED@, and @MOSTVOTED@.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Status label by which topics must be filtered. The value of this key varies according to the topic type. Values allowed are: @NOSTATUS@, @NEEDMOREINFO@, @WORKINGONIT@, @ANSWERED@, @UNANSWERED@, @MAYBELATER@, @UNDERREVIEW@, @IMPLEMENTED@, @WILLNOTIMPLEMENT@, @NOTAPROBLEM@, @TEMPORARYFIX@, @ANALYZING@, @SOLVED@, @UNSOLVED@, and @MOSTVOTED@.",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        }, {
+          "$ref" : "#/components/parameters/type"
+        }, {
+          "$ref" : "#/components/parameters/tagName"
+        }, {
+          "$ref" : "#/components/parameters/categoryId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/topicsViewsCountResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/unlike" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Unlike topic",
+        "description" : "This API enables users to unlike a topic.",
+        "operationId" : "unlikeATopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopicTypes" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Get topic types",
+        "description" : "This API fetches the topic types defined in the user community of your help desk portal.",
+        "operationId" : "getCommunityTopicTypes",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/topicTypeResponseJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Update topic type preferences",
+        "description" : "This API helps set the default topic type and enable/disable other topic types in the user community.",
+        "operationId" : "updateCommunityTopicTypes",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/topicTypeRequestJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/follow" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Follow community topic",
+        "description" : "This API enables users to follow a topic.",
+        "operationId" : "followCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/moderate" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Moderate community topic",
+        "description" : "This API allows to set the forum topics as moderate. The comments that are posted during moderation will not be displayed to users and await for the review.",
+        "operationId" : "moderateCommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/move" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Move a community topic",
+        "description" : "This API moves a forum topic from one community category to another.",
+        "operationId" : "moveACommunityTopic",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/communityCategoryIdJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopicByPermalink" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Get community topic by permalink",
+        "description" : "This API fetches a forum topic, based on the permalink in the API request.",
+        "operationId" : "getCommunityTopicByPermalink",
+        "parameters" : [ {
+          "name" : "include",
+          "in" : "query",
+          "description" : "Additional information related to the topics. Values allowed are: @seo@, @featuredImage@ and @participantsCount@.",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "Additional information related to the topics. Values allowed are: @seo@, @featuredImage@ and @participantsCount@.",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "seo", "featuredImage", "participantsCount" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "name" : "permalink",
+          "in" : "query",
+          "description" : "permalink of the topic",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "permalink of the topic",
+            "maxLength" : 1000,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/multipleUnprocessEntityResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/communityMangerTopicJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/restore" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Restore trashed topics",
+        "description" : "This API restores topics from trash. ",
+        "operationId" : "addTrashedCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/restoreTopics_moderationTopicIdsJSON"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "./MassActionResponse.json#/components/responses/massActionListResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityModeratedTopics" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List moderated community topics",
+        "description" : "This API lists a particular number of moderated topics, based on the limit defined.",
+        "operationId" : "getModeratedCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/categoryId_requiredFalse"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/listAllModeratedTopics"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityUsers/{userId}/topics" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List community topics by user",
+        "description" : "This API lists a particular number of topics by a user, based on the limit defined.",
+        "operationId" : "getCommunityTopicsByUser",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "name" : "startTime",
+          "in" : "query",
+          "description" : "Starting time of the time range in which the topics should have been created. The value must be expressed according to the GMT time zone.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Starting time of the time range in which the topics should have been created. The value must be expressed according to the GMT time zone.",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          }
+        }, {
+          "name" : "endTime",
+          "in" : "query",
+          "description" : "Ending time of the time range in which the topics should have been created. The value must be expressed according to the GMT time zone.",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null" ],
+            "description" : "Ending time of the time range in which the topics should have been created. The value must be expressed according to the GMT time zone.",
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          }
+        }, {
+          "$ref" : "#/components/parameters/type"
+        }, {
+          "$ref" : "#/components/parameters/categoryId_requiredFalse"
+        }, {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/listAllUserTopics"
+          },
+          "403" : {
+            "$ref" : "./Common.json#/components/responses/forbiddenErrorResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/voters" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List community topic voters",
+        "description" : "This API lists a particular number of users who voted in a forum topic, based on the limit defined.",
+        "operationId" : "getCommuntiyTopicVoters",
+        "parameters" : [ {
+          "name" : "limit",
+          "in" : "query",
+          "description" : "Number of users to list",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Number of users to list",
+            "maximum" : 50,
+            "minimum" : 1,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Index number, starting from which the users must be listed",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "description" : "Index number, starting from which the users must be listed",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          }
+        }, {
+          "$ref" : "#/components/parameters/userType"
+        }, {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "404" : {
+            "$ref" : "./Common.json#/components/responses/urlNotFoundErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/listAllCommunityTopicFollowers"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/like" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Like community topic",
+        "description" : "This API enables users to like a topic.",
+        "operationId" : "updateCommunityTopicLike",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityMyDraftedTopics" : {
+      "get" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "List all Drafted community Topics",
+        "description" : "This API List all Drafted Topics of the current User",
+        "operationId" : "getDraftedCommunityTopics",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/limit"
+        }, {
+          "$ref" : "#/components/parameters/from"
+        }, {
+          "$ref" : "#/components/parameters/type"
+        }, {
+          "$ref" : "#/components/parameters/categoryId_requiredFalse"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/myDraftedTopicsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.READ", "Desk.community.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/communityTopics/{topicId}/publishDraft" : {
+      "post" : {
+        "tags" : [ "CommunityTopic" ],
+        "summary" : "Publish community topic draft",
+        "description" : "This API publishes the draft of a forum topic.",
+        "operationId" : "publishCommunityTopicDraft",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/topicId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/publishDraft_communityAddTopicJson"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/communityMangerTopicJSON"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.forums.UPDATE", "Desk.community.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "topicFollowersDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 400,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "$ref" : "./Label.json#/components/schemas/labelMetaResponse"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "email" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+          }
+        },
+        "required" : [ "contactId", "email", "id", "label", "name", "photoUrl", "type" ]
+      },
+      "topicFollowersDetailsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/topicFollowersDetails"
+        }
+      },
+      "tagDetails" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-zA-Z0-9%\\-._/?\\P{InBasicLatin}]*"
+          }
+        },
+        "required" : [ "name", "permalink" ]
+      },
+      "tag" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/tagDetails"
+        }
+      },
+      "creator" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 400,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "$ref" : "./Label.json#/components/schemas/labelMetaResponse"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "contactId", "id", "label", "name", "photoUrl", "type" ]
+      },
+      "attachments" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "href" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          }
+        },
+        "required" : [ "href", "id", "name", "size" ]
+      },
+      "attachmentList" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/attachments"
+        }
+      },
+      "seoResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "keywords" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "useTitleAsPageTitle" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "description", "keywords", "title", "useTitleAsPageTitle" ]
+      },
+      "featuredImageResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "imageId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "size" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "imageUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "imageId", "imageUrl", "name", "size" ]
+      },
+      "seoPayload" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "description" : "{removeExif=false, replacementString=, antivirus=false, filterMatchedContent=false, description=SEO-specific description of the article, allowInvalid=false, secret=false, preserveCharsLimit=10, trim=false, internalParam=false, preserveChars=0,5, name=description, importUrl=false, decrypt=false}",
+        "properties" : {
+          "keywords" : {
+            "type" : [ "string", "null" ],
+            "description" : "SEO-specific keywords of the topic",
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "useTitleAsPageTitle" : {
+            "type" : [ "boolean", "null" ],
+            "description" : "Key that indicates whether to use the title as the page title or not."
+          },
+          "description" : {
+            "type" : [ "string", "null" ],
+            "description" : "SEO-specific description of the article",
+            "maxLength" : 150,
+            "minLength" : 0
+          },
+          "title" : {
+            "type" : [ "string", "null" ],
+            "description" : "SEO-specific title of the topic",
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "description", "keywords", "title", "useTitleAsPageTitle" ]
+      },
+      "featuredImagePayload" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "imageId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "description" : "ID of the public image",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "imageId" ]
+      },
+      "subject" : {
+        "type" : [ "string", "null" ],
+        "description" : "Title of the topic",
+        "maxLength" : 1000,
+        "minLength" : 0
+      },
+      "attachmentIds" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        },
+        "uniqueItems" : false
+      },
+      "content" : {
+        "type" : [ "string", "null" ],
+        "description" : "Body content of the topic",
+        "maxLength" : 50000,
+        "minLength" : 0
+      },
+      "type" : {
+        "type" : [ "string", "null" ],
+        "description" : "Type of topic. Values allowed are: @ANNOUNCEMENT@, @DISCUSSION@, @IDEA@, @PROBLEM@, and @QUESTION@.",
+        "enum" : [ "QUESTION", "IDEA", "PROBLEM", "DISCUSSION" ],
+        "maxLength" : 100,
+        "minLength" : 0
+      },
+      "communityTopicJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "featuredImage" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/featuredImagePayload"
+          },
+          "subject" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/subject"
+          },
+          "attachmentIds" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/attachmentIds"
+          },
+          "type" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/type"
+          },
+          "seo" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/seoPayload"
+          },
+          "content" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/content"
+          }
+        },
+        "required" : [ "attachmentIds", "content", "featuredImage", "seo", "subject", "type" ]
+      },
+      "communityAddTopicJson" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "featuredImage" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/featuredImagePayload"
+          },
+          "subject" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/subject"
+          },
+          "attachmentIds" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/attachmentIds"
+          },
+          "type" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/type"
+          },
+          "seo" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/seoPayload"
+          },
+          "content" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/content"
+          }
+        },
+        "required" : [ "content", "subject", "type" ]
+      },
+      "communityModerationTopicListJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "trashedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "creator" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "trashedBy" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DRAFT", "PUBLISHED", "SPAM", "AWAITINGAPPROVAL", "TRASHED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "categoryId", "createdTime", "creator", "id", "permalink", "status", "subject", "summary", "trashedBy", "trashedTime", "type" ]
+      },
+      "communityModerationTopicListJSONArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/communityModerationTopicListJSON"
+        }
+      },
+      "latestCommenter" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "photoUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 400,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "contactId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "name" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "$ref" : "./Label.json#/components/schemas/labelMetaResponse"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "END_USER", "AGENT" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "contactId", "id", "label", "name", "photoUrl", "type" ]
+      },
+      "communityMangerListTopicJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "creator" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "latestCommentTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "likeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "isVoted" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "latestCommenter" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/latestCommenter"
+          },
+          "isSticky" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "bestCommentId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "commentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          },
+          "portalUrl" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+          },
+          "isLocked" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "viewCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DRAFT", "PUBLISHED", "SPAM", "AWAITINGAPPROVAL", "TRASHED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "bestCommentId", "categoryId", "commentCount", "createdTime", "creator", "id", "isLocked", "isSticky", "isVoted", "label", "latestCommentTime", "latestCommenter", "likeCount", "permalink", "portalUrl", "status", "subject", "summary", "type", "viewCount" ]
+      },
+      "communityMangerListTopicJSONArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/communityMangerListTopicJSON"
+        }
+      },
+      "communityModeratedTopicListJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "moderatedBy" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "creator" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "moderatedOn" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DRAFT", "PUBLISHED", "SPAM", "AWAITINGAPPROVAL", "TRASHED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "categoryId", "createdTime", "creator", "id", "moderatedBy", "moderatedOn", "permalink", "status", "subject", "summary", "type" ]
+      },
+      "communityModeratedTopicListJSONArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/communityModeratedTopicListJSON"
+        }
+      },
+      "communityUserTopicListJSON" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "creator" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "latestCommentTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "likeCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          },
+          "label" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "latestCommenter" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/latestCommenter"
+          },
+          "commentCount" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int32",
+            "minimum" : 0,
+            "pattern" : "([0-9]+)"
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "permalink" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "status" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "DRAFT", "PUBLISHED", "SPAM", "AWAITINGAPPROVAL", "TRASHED" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "categoryId", "commentCount", "createdTime", "creator", "id", "label", "latestCommentTime", "latestCommenter", "likeCount", "permalink", "status", "subject", "summary", "type" ]
+      },
+      "communityUserTopicListJSONArray" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/communityUserTopicListJSON"
+        }
+      },
+      "myDraftedTopics" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "summary" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 300,
+            "minLength" : 0,
+            "pattern" : "([0-9a-zA-Z_\\-\\.\\$@\\?\\,\\:\\'\\/\\!\\P{InBasicLatin}\\s])+"
+          },
+          "creator" : {
+            "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+          },
+          "subject" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 1000,
+            "minLength" : 0
+          },
+          "createdTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0,
+            "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "categoryId" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          }
+        },
+        "required" : [ "categoryId", "createdTime", "creator", "id", "subject", "summary", "type" ]
+      },
+      "myDraftedTopicsData" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "$ref" : "./CommunityTopic.json#/components/schemas/myDraftedTopics"
+        }
+      }
+    },
+    "responses" : {
+      "listAllCommunityTopicFollowers" : {
+        "description" : "listAllCommunityTopicFollowers template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/topicFollowersDetailsData"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                    "name" : "user 1",
+                    "id" : "7000000015971",
+                    "label" : {
+                      "preferences" : {
+                        "shape" : "RECTANGLE",
+                        "bgColor" : "#23F123",
+                        "textColor" : "#2CA123"
+                      },
+                      "name" : "Admin",
+                      "id" : "6000000158001",
+                      "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                    },
+                    "type" : "AGENT"
+                  }, {
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015972/photo?orgId=123456",
+                    "name" : "user 3",
+                    "id" : "7000000015972",
+                    "label" : {
+                      "preferences" : {
+                        "shape" : "RECTANGLE",
+                        "bgColor" : "#23F123",
+                        "textColor" : "#2CA123"
+                      },
+                      "name" : "Admin",
+                      "id" : "6000000158001",
+                      "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                    },
+                    "type" : "AGENT"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "communityMangerTopicJSON" : {
+        "description" : "communityMangerTopicJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "modifiedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "participantsCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "attachments" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/attachmentList"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "isModerated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "approvedBy" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+                },
+                "likeCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isSticky" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50000,
+                  "minLength" : 0
+                },
+                "bestCommentId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "isLocked" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "approvedTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "modifiedBy" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "viewCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "tag" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/tag"
+                },
+                "seo" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/seoResponse"
+                },
+                "isTicketCreated" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "creator" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+                },
+                "isFollowing" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "isVoted" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "label" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "commentCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "featuredImage" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/featuredImageResponse"
+                },
+                "portalUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "mentions" : {
+                  "$ref" : "./Mentions.json#/components/schemas/mentionedObj"
+                },
+                "followersCount" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int32",
+                  "minimum" : 0,
+                  "pattern" : "([0-9]+)"
+                },
+                "permalink" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                },
+                "categoryId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "DRAFT", "PUBLISHED", "SPAM", "AWAITINGAPPROVAL", "TRASHED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "notifyMe" : {
+                  "type" : [ "boolean", "null" ]
+                }
+              },
+              "required" : [ "approvedBy", "approvedTime", "attachments", "bestCommentId", "categoryId", "commentCount", "content", "createdTime", "creator", "featuredImage", "followersCount", "id", "isFollowing", "isLocked", "isModerated", "isSticky", "isTicketCreated", "isVoted", "isVoted", "label", "likeCount", "mentions", "modifiedBy", "modifiedTime", "notifyMe", "participantsCount", "permalink", "portalUrl", "seo", "status", "subject", "tag", "type", "viewCount" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "attachments" : [ {
+                    "size" : "1166",
+                    "name" : "download.png",
+                    "id" : "4000000019027",
+                    "href" : "https://desk.zoho.com/api/v1/communityTopics/4000000019003/attachments/4000000019027/content?orgId=123456"
+                  } ],
+                  "subject" : "Topic 1",
+                  "isModerated" : false,
+                  "likeCount" : "1",
+                  "type" : "QUESTION",
+                  "isSticky" : false,
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>",
+                  "bestCommentId" : null,
+                  "isLocked" : false,
+                  "createdTime" : 1539682893202,
+                  "tag" : [ {
+                    "name" : "tag1",
+                    "permalink" : "tag1"
+                  }, {
+                    "name" : "tag2",
+                    "permalink" : "tag2"
+                  } ],
+                  "id" : "4000000019003",
+                  "viewCount" : "1",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "isTicketCreated" : false,
+                  "creator" : {
+                    "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                    "name" : "user 1",
+                    "id" : "7000000015971",
+                    "type" : "AGENT"
+                  },
+                  "isFollowing" : false,
+                  "label" : "NOSTATUS",
+                  "isVoted" : true,
+                  "commentCount" : "2",
+                  "featuredImage" : {
+                    "imageId" : "1000000061105",
+                    "size" : "2048",
+                    "imageUrl" : "https://desk.zoho.com/portal/api/publicImages/42065000003493086?portalId=edbsnfb8166209e6d0025b777b9d90768028d52a6ee08bbb27b1e0f251800c89a48d9",
+                    "name" : "social_image.jpg"
+                  },
+                  "portalUrl" : "https://desk.zoho.com/portal/portalname/community/topictopic-1",
+                  "followersCount" : "0",
+                  "permalink" : "topic-1",
+                  "categoryId" : "4000000000017",
+                  "status" : "PUBLISHED",
+                  "notifyMe" : false
+                }
+              }
+            }
+          }
+        }
+      },
+      "associateTagsResponse" : {
+        "description" : "associateTagsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "array" ],
+              "items" : {
+                "$ref" : "./CommunityTopic.json#/components/schemas/tagDetails"
+              }
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : [ {
+                  "name" : "tag1",
+                  "permalink" : "tag1"
+                }, {
+                  "name" : "tag2",
+                  "permalink" : "tag2"
+                } ]
+              }
+            }
+          }
+        }
+      },
+      "communityAddOrUpdateDraftedTopicResponseJSON" : {
+        "description" : "communityAddOrUpdateDraftedTopicResponseJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "creator" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/creator"
+                },
+                "attachments" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/attachmentList"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "isSticky" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 50000,
+                  "minLength" : 0
+                },
+                "featuredImage" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/featuredImageResponse"
+                },
+                "mentions" : {
+                  "$ref" : "./Mentions.json#/components/schemas/mentionedObj"
+                },
+                "portalUrl" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 255,
+                  "minLength" : 0,
+                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                },
+                "createdTime" : {
+                  "type" : [ "string", "null" ],
+                  "maxLength" : 100,
+                  "minLength" : 0,
+                  "pattern" : "(((19|20)\\d\\d)[-/.]{1}(0?[1-9]|1[012])[-/.]{1}(0?[1-9]|[12][0-9]|3[01])(T)([01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9]([/.][\\d]{0,3})?(Z))"
+                },
+                "id" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "tag" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/tag"
+                },
+                "seo" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/seoResponse"
+                },
+                "categoryId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "notifyMe" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "status" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "DRAFT", "PUBLISHED", "SPAM", "AWAITINGAPPROVAL", "TRASHED" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "attachments", "categoryId", "content", "createdTime", "creator", "featuredImage", "id", "isSticky", "mentions", "notifyMe", "portalUrl", "seo", "status", "subject", "tag", "type" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "attachments" : [ {
+                    "size" : "1166",
+                    "name" : "download.png",
+                    "id" : "4000000019027",
+                    "href" : "https://desk.zoho.com/api/v1/communityTopics/4000000019003/attachments/4000000019027/content?orgId=123456"
+                  } ],
+                  "subject" : "Topic 1",
+                  "type" : "QUESTION",
+                  "isSticky" : false,
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>",
+                  "featuredImage" : {
+                    "imageId" : "1000000061105",
+                    "size" : "2048",
+                    "imageUrl" : "https://desk.zoho.com/portal/api/publicImages/42065000003493086?portalId=edbsnfb8166209e6d0025b777b9d90768028d52a6ee08bbb27b1e0f251800c89a48d9",
+                    "name" : "social_image.jpg"
+                  },
+                  "createdTime" : 1539682893202,
+                  "tag" : [ {
+                    "name" : "tag1",
+                    "permalink" : "tag1"
+                  }, {
+                    "name" : "tag2",
+                    "permalink" : "tag2"
+                  } ],
+                  "id" : "4000000019003",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "categoryId" : "4000000000017",
+                  "notifyMe" : true,
+                  "status" : "DRAFT"
+                }
+              }
+            }
+          }
+        }
+      },
+      "listAllModerationTopics" : {
+        "description" : "listAllModerationTopics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/communityModerationTopicListJSONArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "summary" : "topic 2's description",
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "user 2",
+                      "id" : "7000000015972",
+                      "label" : null,
+                      "type" : "AGENT"
+                    },
+                    "trashedBy" : null,
+                    "subject" : "Topic 2",
+                    "createdTime" : 1539682932716,
+                    "id" : "4000000019017",
+                    "type" : "QUESTION",
+                    "permalink" : "topic-2",
+                    "categoryId" : "4000000000017",
+                    "status" : "AWAITINGAPPROVAL"
+                  }, {
+                    "summary" : "Topic 1 dscription",
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/portalUser/7000000015971/photo?orgId=123456",
+                      "name" : "user2",
+                      "id" : "7000000015972",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#23F123",
+                          "textColor" : "#2CA123"
+                        },
+                        "name" : "Admin",
+                        "id" : "6000000158001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                      },
+                      "type" : "END_USER"
+                    },
+                    "trashedBy" : null,
+                    "subject" : "Topic 1",
+                    "createdTime" : 1539682893202,
+                    "id" : "4000000019003",
+                    "type" : "QUESTION",
+                    "permalink" : "topic-1",
+                    "categoryId" : "4000000000017",
+                    "status" : "AWAITINGAPPROVAL"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "listAllTopics" : {
+        "description" : "listAllTopics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/communityMangerListTopicJSONArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "summary" : "topic 2's description",
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "user 1",
+                      "id" : "7000000015971",
+                      "label" : null,
+                      "type" : "AGENT"
+                    },
+                    "latestCommentTime" : 1539682932716,
+                    "subject" : "Topic 2",
+                    "likeCount" : "1",
+                    "label" : "NOSTATUS",
+                    "isVoted" : true,
+                    "type" : "QUESTION",
+                    "latestCommenter" : null,
+                    "isSticky" : false,
+                    "commentCount" : "0",
+                    "portalUrl" : "https://desk.zoho.com/portal/portalname/community/topictopic-2",
+                    "createdTime" : 1539682932716,
+                    "id" : "4000000019017",
+                    "permalink" : "topic-2",
+                    "categoryId" : "4000000000017",
+                    "status" : "PUBLISHED"
+                  }, {
+                    "summary" : "Topic 1 description",
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/portalUser/7000000015971/photo?orgId=123456",
+                      "name" : "user2",
+                      "id" : "7000000015972",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#23F123",
+                          "textColor" : "#2CA123"
+                        },
+                        "name" : "Admin",
+                        "id" : "6000000158001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                      },
+                      "type" : "END_USER"
+                    },
+                    "latestCommentTime" : 1539682906621,
+                    "subject" : "Topic 1",
+                    "likeCount" : "1",
+                    "label" : "NOSTATUS",
+                    "isVoted" : true,
+                    "type" : "QUESTION",
+                    "latestCommenter" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "user 1",
+                      "id" : "7000000015971",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#23F123",
+                          "textColor" : "#2CA123"
+                        },
+                        "name" : "Admin",
+                        "id" : "6000000158001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                      },
+                      "type" : "AGENT"
+                    },
+                    "isSticky" : false,
+                    "commentCount" : "2",
+                    "portalUrl" : "https://desk.zoho.com/portal/portalname/community/topictopic-1",
+                    "createdTime" : 1539682893202,
+                    "id" : "4000000019003",
+                    "permalink" : "topic-1",
+                    "categoryId" : "4000000000017",
+                    "status" : "PUBLISHED"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "topicsViewsCountResponse" : {
+        "description" : "topicsViewsCountResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "count" : "10"
+                }
+              }
+            }
+          }
+        }
+      },
+      "topicTypeResponseJSON" : {
+        "description" : "topicTypeResponseJSON template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "defaultTopicType" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "enabledTopicTypes" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "uniqueItems" : true
+                },
+                "disabledTopicTypes" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "uniqueItems" : true
+                }
+              },
+              "required" : [ "defaultTopicType", "disabledTopicTypes", "enabledTopicTypes" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "defaultTopicType" : "QUESTION",
+                  "enabledTopicTypes" : [ "DISCUSSION", "ANNOUNCEMENT", "QUESTION" ],
+                  "disabledTopicTypes" : [ "IDEA", "PROBLEM" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "listAllModeratedTopics" : {
+        "description" : "listAllModeratedTopics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/communityModeratedTopicListJSONArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "summary" : "topic 2's description",
+                    "moderatedBy" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015972/photo?orgId=123456",
+                      "name" : "user 2",
+                      "id" : "7000000015972",
+                      "type" : "AGENT",
+                      "status" : "ACTIVE"
+                    },
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "user 2",
+                      "id" : "7000000015972",
+                      "type" : "AGENT"
+                    },
+                    "subject" : "Topic 2",
+                    "moderatedOn" : 1539682932716,
+                    "createdTime" : 1539682932716,
+                    "id" : "4000000019017",
+                    "type" : "QUESTION",
+                    "permalink" : "topic-2",
+                    "categoryId" : "4000000000017",
+                    "status" : "PUBLISHED"
+                  }, {
+                    "summary" : "Topic 1 dscription",
+                    "moderatedBy" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015972/photo?orgId=123456",
+                      "name" : "user 2",
+                      "id" : "7000000015972",
+                      "type" : "AGENT",
+                      "status" : "ACTIVE"
+                    },
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/portalUser/7000000015971/photo?orgId=123456",
+                      "name" : "user2",
+                      "id" : "7000000015972",
+                      "type" : "END_USER"
+                    },
+                    "subject" : "Topic 1",
+                    "moderatedOn" : 1539682932716,
+                    "createdTime" : 1539682893202,
+                    "id" : "4000000019003",
+                    "type" : "QUESTION",
+                    "permalink" : "topic-1",
+                    "categoryId" : "4000000000017",
+                    "status" : "PUBLISHED"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "listAllUserTopics" : {
+        "description" : "listAllUserTopics template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/communityUserTopicListJSONArray"
+                }
+              },
+              "required" : [ "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "summary" : "topic 2's description",
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "user 2",
+                      "id" : "7000000015972",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#23F123",
+                          "textColor" : "#2CA123"
+                        },
+                        "name" : "Admin",
+                        "id" : "6000000158001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                      },
+                      "type" : "AGENT",
+                      "status" : "ACTIVE"
+                    },
+                    "latestCommentTime" : 1539686532716,
+                    "subject" : "Topic 2",
+                    "likeCount" : "1",
+                    "label" : "NOSTATUS",
+                    "type" : "QUESTION",
+                    "latestCommenter" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015172/photo?orgId=123456",
+                      "name" : "user 3",
+                      "id" : "7000000015172",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#23F123",
+                          "textColor" : "#2CA123"
+                        },
+                        "name" : "Admin",
+                        "id" : "6000000158001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                      },
+                      "type" : "AGENT",
+                      "status" : "ACTIVE"
+                    },
+                    "commentCount" : "1",
+                    "createdTime" : 1539682932716,
+                    "id" : "4000000019017",
+                    "permalink" : "topic-2",
+                    "categoryId" : "4000000000017",
+                    "status" : "PUBLISHED"
+                  }, {
+                    "summary" : "Topic 1 description",
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "user2",
+                      "id" : "7000000015972",
+                      "label" : {
+                        "preferences" : {
+                          "shape" : "RECTANGLE",
+                          "bgColor" : "#23F123",
+                          "textColor" : "#2CA123"
+                        },
+                        "name" : "Admin",
+                        "id" : "6000000158001",
+                        "logoUrl" : "https://desk.zoho.com/portal/api/publicImages/6000000158231?orgId=14132"
+                      },
+                      "type" : "AGENT",
+                      "status" : "ACTIVE"
+                    },
+                    "latestCommentTime" : 1539682893202,
+                    "subject" : "Topic 1",
+                    "likeCount" : "1",
+                    "label" : "NOSTATUS",
+                    "type" : "QUESTION",
+                    "latestCommenter" : null,
+                    "commentCount" : "0",
+                    "createdTime" : 1539682893202,
+                    "id" : "4000000019003",
+                    "permalink" : "topic-1",
+                    "categoryId" : "4000000000017",
+                    "status" : "PUBLISHED"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "myDraftedTopicsResponse" : {
+        "description" : "myDraftedTopicsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "data" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/myDraftedTopicsData"
+                },
+                "count" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "count", "data" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "alex carry",
+                      "id" : "7000000015972",
+                      "type" : "AGENT"
+                    },
+                    "subject" : "How to change language in moblie?",
+                    "createdTime" : 1539682893202,
+                    "id" : "4000000168087",
+                    "type" : "QUESTION",
+                    "categoryId" : "7000000018007"
+                  }, {
+                    "creator" : {
+                      "photoUrl" : "https://desk.zoho.com/api/v1/agents/7000000015971/photo?orgId=123456",
+                      "name" : "john peter",
+                      "id" : "7000000015972",
+                      "type" : "AGENT"
+                    },
+                    "subject" : "How to delete draft posts?",
+                    "createdTime" : 1539682893202,
+                    "id" : "4000000168087",
+                    "type" : "QUESTION",
+                    "categoryId" : "7000000018007"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "topicId" : {
+        "name" : "topicId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "limit" : {
+        "name" : "limit",
+        "in" : "query",
+        "description" : "Number of topics to list",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Number of topics to list",
+          "maximum" : 100,
+          "minimum" : 1,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "from" : {
+        "name" : "from",
+        "in" : "query",
+        "description" : "Index number, starting from which the topics must be listed",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int32",
+          "description" : "Index number, starting from which the topics must be listed",
+          "minimum" : 0,
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "userType" : {
+        "name" : "userType",
+        "in" : "query",
+        "description" : "Filters based on the type of the user who follows it. The allowed values are @AGENT@ or @END_USER@.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Filters based on the type of the user who follows it. The allowed values are @AGENT@ or @END_USER@.",
+          "enum" : [ "AGENT", "END_USER" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "type" : {
+        "name" : "type",
+        "in" : "query",
+        "description" : "Type of topics to list. Values allowed are: @ANNOUNCEMENT@, @DISCUSSION@, @IDEA@, @PROBLEM@, and @QUESTION@.",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Type of topics to list. Values allowed are: @ANNOUNCEMENT@, @DISCUSSION@, @IDEA@, @PROBLEM@, and @QUESTION@.",
+          "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      },
+      "tagName" : {
+        "name" : "tagName",
+        "in" : "query",
+        "description" : "Tag by which topics must be filtered",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Tag by which topics must be filtered",
+          "maxLength" : 100,
+          "minLength" : 0,
+          "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+        }
+      },
+      "categoryId" : {
+        "name" : "categoryId",
+        "in" : "query",
+        "description" : "ID of the community category from which the topics must be fetched",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the community category from which the topics must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "categoryId_requiredFalse" : {
+        "name" : "categoryId",
+        "in" : "query",
+        "description" : "ID of the community category from which the topics must be fetched",
+        "required" : false,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "description" : "ID of the community category from which the topics must be fetched",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "status" : {
+        "name" : "status",
+        "in" : "query",
+        "description" : "Moderation status of the topics. Values allowed are: @AWAITINGAPPROVAL@, @SPAM@, and @TRASHED@.",
+        "required" : true,
+        "style" : "form",
+        "explode" : true,
+        "schema" : {
+          "type" : [ "string", "null" ],
+          "description" : "Moderation status of the topics. Values allowed are: @AWAITINGAPPROVAL@, @SPAM@, and @TRASHED@.",
+          "enum" : [ "SPAM", "TRASHED", "AWAITINGAPPROVAL" ],
+          "maxLength" : 100,
+          "minLength" : 0
+        }
+      }
+    },
+    "requestBodies" : {
+      "communityAddTopicJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./CommunityTopic.json#/components/schemas/communityAddTopicJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "mailTo" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                    },
+                    "uniqueItems" : false
+                  },
+                  "permalink" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "permalink of the topic to be created",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                  },
+                  "isSticky" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the topic must be pinned to the topics list page or not"
+                  },
+                  "categoryId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the community category in which the topic must be posted",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "content" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Body content of the topic",
+                    "maxLength" : 50000,
+                    "minLength" : 0
+                  },
+                  "notifyMe" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the creator of the topic must be notified about further user actions on the topic or not"
+                  },
+                  "tags" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+                    },
+                    "uniqueItems" : false
+                  }
+                },
+                "required" : [ "categoryId" ]
+              }, {
+                "type" : "object",
+                "required" : [ "categoryId", "content", "subject", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "featuredImage" : {
+                    "imageId" : "1000000061105"
+                  },
+                  "subject" : "Topic 1",
+                  "attachmentIds" : [ "4000000019027" ],
+                  "mailTo" : [ "PII_EMAIL_SENTINEL" ],
+                  "type" : "QUESTION",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "isSticky" : "false",
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>",
+                  "categoryId" : "4000000000017",
+                  "notifyMe" : "false",
+                  "tags" : [ "tag1", "tag2" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "tagsRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "tags" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "tags" : [ "tag1", "tag2" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "moderationTopicIdsJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "topicIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "topicIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "topicIds" : [ "103417000000528003", "103417000000528006", "103417000000528008" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "spamReason" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "reason" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Reason for marking the topic as spam",
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "reason" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "reason" : "Reason for marking a topic as spam"
+                }
+              }
+            }
+          }
+        }
+      },
+      "communityAddOrUpdateDraftTopicJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./CommunityTopic.json#/components/schemas/communityTopicJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "permalink" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "permalink of the topic to be created",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                  },
+                  "isSticky" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the topic must be pinned to the topics list page or not"
+                  },
+                  "categoryId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the community category in which the topic must be posted",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "content" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Body content of the topic",
+                    "maxLength" : 50000,
+                    "minLength" : 0
+                  },
+                  "notifyMe" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the creator of the topic must be notified about further user actions on the topic or not"
+                  },
+                  "tags" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "categoryId", "content", "subject", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "featuredImage" : {
+                    "imageId" : "1000000061105"
+                  },
+                  "subject" : "Topic 1",
+                  "attachmentIds" : [ "4000000019027" ],
+                  "type" : "QUESTION",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "isSticky" : "false",
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>",
+                  "categoryId" : "4000000000017",
+                  "notifyMe" : "false",
+                  "tags" : [ "tag1", "tag2" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "communityUpdateTopicJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "featuredImage" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/featuredImagePayload"
+                },
+                "subject" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Title of the topic",
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "attachmentIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                },
+                "label" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Status label of the topic. The value of this key varies according to the topic type. Values allowed are: @NOSTATUS@, @NEEDMOREINFO@, @WORKINGONIT@, @ANSWERED@, @UNANSWERED@, @MAYBELATER@, @UNDERREVIEW@, @IMPLEMENTED@, @WILLNOTIMPLEMENT@, @NOTAPROBLEM@, @TEMPORARYFIX@, @ANALYZING@, @SOLVED@, @UNSOLVED@, and @MOSTVOTED@.",
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Type of topic. Values allowed are: @ANNOUNCEMENT@, @DISCUSSION@, @IDEA@, @PROBLEM@, and @QUESTION@.",
+                  "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "seo" : {
+                  "$ref" : "./CommunityTopic.json#/components/schemas/seoPayload"
+                },
+                "content" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Body content of the topic",
+                  "maxLength" : 50000,
+                  "minLength" : 0
+                },
+                "notifyMentions" : {
+                  "type" : [ "boolean", "null" ],
+                  "description" : "whether to notify mentioned user while updateing content."
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "featuredImage" : {
+                    "imageId" : "1000000061105"
+                  },
+                  "subject" : "Topic 1",
+                  "attachmentIds" : [ "4000000019027" ],
+                  "type" : "QUESTION",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>"
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteTopics_moderationTopicIdsJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "topicIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "topicIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "topicIds" : [ "103417000000528003", "103417000000528006", "103417000000528008" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "deleteTagsoFATopic_tagsRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tags" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "tags" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "tags" : [ "tag1", "tag2" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "unmoderateTopics_moderationTopicIdsJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "topicIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "topicIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "topicIds" : [ "103417000000528003", "103417000000528006", "103417000000528008" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "reportBulkTopicsAsSpam" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "reason" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Reason for marking the topic as spam",
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                },
+                "topicIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "reason", "topicIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "reason" : "Reason for marking a topic as spam",
+                  "topicIds" : [ "103417000000528003", "103417000000528006", "103417000000528008" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "addDraft_communityAddOrUpdateDraftTopicJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./CommunityTopic.json#/components/schemas/communityTopicJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "permalink" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "permalink of the topic to be created",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                  },
+                  "isSticky" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the topic must be pinned to the topics list page or not"
+                  },
+                  "categoryId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the community category in which the topic must be posted",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "content" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Body content of the topic",
+                    "maxLength" : 50000,
+                    "minLength" : 0
+                  },
+                  "notifyMe" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the creator of the topic must be notified about further user actions on the topic or not"
+                  },
+                  "tags" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "categoryId", "content", "subject", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "featuredImage" : {
+                    "imageId" : "1000000061105"
+                  },
+                  "subject" : "Topic 1",
+                  "attachmentIds" : [ "4000000019027" ],
+                  "type" : "QUESTION",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "isSticky" : "false",
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>",
+                  "categoryId" : "4000000000017",
+                  "notifyMe" : "false",
+                  "tags" : [ "tag1", "tag2" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "trashTopics_moderationTopicIdsJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "topicIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "topicIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "topicIds" : [ "103417000000528003", "103417000000528006", "103417000000528008" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "topicTypeRequestJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "defaultTopicType" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Topic type to set as the default option in the user community. Values allowed are: @DISCUSSION@, @IDEA@, @PROBLEM@, and @QUESTION@.",
+                  "enum" : [ "QUESTION", "IDEA", "PROBLEM", "DISCUSSION" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "enabledTopicTypes" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "QUESTION", "IDEA", "ANNOUNCEMENT", "PROBLEM", "DISCUSSION" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "uniqueItems" : true
+                }
+              },
+              "required" : [ "defaultTopicType", "enabledTopicTypes" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "defaultTopicType" : "QUESTION",
+                  "enabledTopicTypes" : [ "DISCUSSION", "ANNOUNCEMENT", "QUESTION" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "communityCategoryIdJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "categoryId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "description" : "ID of the community category",
+                  "pattern" : "([0-9]+)"
+                }
+              },
+              "required" : [ "categoryId" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "categoryId" : "1000000012755"
+                }
+              }
+            }
+          }
+        }
+      },
+      "restoreTopics_moderationTopicIdsJSON" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "topicIds" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "minItems" : 1,
+                  "uniqueItems" : false
+                }
+              },
+              "required" : [ "topicIds" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "topicIds" : [ "103417000000528003", "103417000000528006", "103417000000528008" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "publishDraft_communityAddTopicJson" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "additionalProperties" : false,
+              "allOf" : [ {
+                "$ref" : "./CommunityTopic.json#/components/schemas/communityTopicJson"
+              }, {
+                "type" : [ "null", "object" ],
+                "properties" : {
+                  "mailTo" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 100,
+                      "minLength" : 0,
+                      "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                    },
+                    "uniqueItems" : false
+                  },
+                  "permalink" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "permalink of the topic to be created",
+                    "maxLength" : 100,
+                    "minLength" : 0,
+                    "pattern" : "[a-z0-9\\/%\\-\\P{InBasicLatin}]+"
+                  },
+                  "isSticky" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the topic must be pinned to the topics list page or not"
+                  },
+                  "categoryId" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "description" : "ID of the community category in which the topic must be posted",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "content" : {
+                    "type" : [ "string", "null" ],
+                    "description" : "Body content of the topic",
+                    "maxLength" : 50000,
+                    "minLength" : 0
+                  },
+                  "notifyMe" : {
+                    "type" : [ "boolean", "null" ],
+                    "description" : "Key that defines whether the creator of the topic must be notified about further user actions on the topic or not"
+                  },
+                  "tags" : {
+                    "type" : [ "null", "array" ],
+                    "items" : {
+                      "type" : [ "string", "null" ],
+                      "maxLength" : 200,
+                      "minLength" : 0,
+                      "pattern" : "[A-Za-z0-9\\P{InBasicLatin}]+"
+                    },
+                    "uniqueItems" : false
+                  }
+                }
+              }, {
+                "type" : "object",
+                "required" : [ "categoryId", "content", "subject", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "featuredImage" : {
+                    "imageId" : "1000000061105"
+                  },
+                  "subject" : "Topic 1",
+                  "attachmentIds" : [ "4000000019027" ],
+                  "mailTo" : [ "PII_EMAIL_SENTINEL" ],
+                  "type" : "QUESTION",
+                  "seo" : {
+                    "keywords" : "seo,search",
+                    "useTitleAsPageTitle" : "true",
+                    "description" : "seo description",
+                    "title" : "seo title"
+                  },
+                  "isSticky" : "false",
+                  "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, Verdana, sans-serif\"><div>Topic 1 dscription<br /></div></div>",
+                  "categoryId" : "4000000000017",
+                  "notifyMe" : "false",
+                  "tags" : [ "tag1", "tag2" ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "markACommentAsSpam_spamReason" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "reason" : {
+                  "type" : [ "string", "null" ],
+                  "description" : "Reason for marking the topic as spam",
+                  "maxLength" : 1000,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "reason" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "reason" : "Reason for marking a topic as spam"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "CommunityTopic"
+}

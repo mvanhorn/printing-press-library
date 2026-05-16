@@ -1,0 +1,1032 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "PinnedConversation",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/tickets/{ticketId}/pins/unpin" : {
+      "post" : {
+        "tags" : [ "PinnedConversation" ],
+        "summary" : "Unpin a ticket's pin",
+        "description" : "This API deletes one or more pins from a ticket.",
+        "operationId" : "unPinConversations",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/unPinConversationRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/unPinAConversationResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    },
+    "/api/v1/tickets/{ticketId}/pins" : {
+      "get" : {
+        "tags" : [ "PinnedConversation" ],
+        "summary" : "Get pins of a ticket",
+        "description" : "This API fetches the list of pins of a particular ticket.",
+        "operationId" : "getPinnedConversations",
+        "parameters" : [ {
+          "name" : "types",
+          "in" : "query",
+          "description" : "The type of pins to fetch as a comma separated list. The allowed values are @comments@ and @threads@",
+          "required" : false,
+          "style" : "simple",
+          "explode" : true,
+          "schema" : {
+            "type" : [ "null", "array" ],
+            "description" : "The type of pins to fetch as a comma separated list. The allowed values are @comments@ and @threads@",
+            "items" : {
+              "type" : [ "string", "null" ],
+              "enum" : [ "comments", "threads" ],
+              "maxLength" : 100,
+              "minLength" : 0
+            },
+            "uniqueItems" : true
+          }
+        }, {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/getPinnedConversationsResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "post" : {
+        "tags" : [ "PinnedConversation" ],
+        "summary" : "Create a pin on the ticket",
+        "description" : "This API creates a new pin on the ticket.",
+        "operationId" : "pinConversationOnTicket",
+        "parameters" : [ {
+          "$ref" : "#/components/parameters/ticketId"
+        }, {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/pinAConversationRequest"
+        },
+        "responses" : {
+          "422" : {
+            "$ref" : "./Common.json#/components/responses/invalidDataErrorResponse"
+          },
+          "200" : {
+            "$ref" : "#/components/responses/pinAConversationResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.tickets.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "long_array" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      },
+      "pinAConversationThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pinnedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pinnedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "entityPinned" : {
+            "$ref" : "./Thread.json#/components/schemas/threadKeys"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "COMMENTS", "THREADS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+      },
+      "pinAConversationFaceBookThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pinnedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pinnedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "entityPinned" : {
+            "$ref" : "./Thread.json#/components/schemas/facebookThreadKeys"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "COMMENTS", "THREADS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+      },
+      "pinAConversationTwitterThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pinnedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pinnedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "entityPinned" : {
+            "$ref" : "./Thread.json#/components/schemas/twitterThreadKeys"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "COMMENTS", "THREADS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+      },
+      "pinAConversationForumThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pinnedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pinnedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "entityPinned" : {
+            "$ref" : "./Thread.json#/components/schemas/forumThreadKeys"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "COMMENTS", "THREADS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+      },
+      "pinAConversationEmailThreadResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pinnedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pinnedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "entityPinned" : {
+            "$ref" : "./Thread.json#/components/schemas/emailThreadKeys"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "COMMENTS", "THREADS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+      },
+      "pinAConversationCommentResponse" : {
+        "type" : [ "null", "object" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "pinnedTime" : {
+            "type" : [ "string", "null" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          },
+          "pinnedById" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "entityPinned" : {
+            "$ref" : "./TicketComment.json#/components/schemas/commentResponse"
+          },
+          "isPublic" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "type" : {
+            "type" : [ "string", "null" ],
+            "enum" : [ "COMMENTS", "THREADS" ],
+            "maxLength" : 100,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+      },
+      "data" : {
+        "type" : [ "null", "array" ],
+        "items" : {
+          "anyOf" : [ {
+            "$ref" : "./PinnedConversation.json#/components/schemas/pinAConversationThreadResponse"
+          }, {
+            "$ref" : "./PinnedConversation.json#/components/schemas/pinAConversationFaceBookThreadResponse"
+          }, {
+            "$ref" : "./PinnedConversation.json#/components/schemas/pinAConversationTwitterThreadResponse"
+          }, {
+            "$ref" : "./PinnedConversation.json#/components/schemas/pinAConversationForumThreadResponse"
+          }, {
+            "$ref" : "./PinnedConversation.json#/components/schemas/pinAConversationEmailThreadResponse"
+          }, {
+            "$ref" : "./PinnedConversation.json#/components/schemas/pinAConversationCommentResponse"
+          } ]
+        }
+      },
+      "unPinConversationData" : {
+        "type" : [ "object", "null" ],
+        "additionalProperties" : false,
+        "properties" : {
+          "id" : {
+            "type" : [ "string", "null", "integer" ],
+            "format" : "int64",
+            "pattern" : "([0-9]+)"
+          },
+          "success" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "errors" : {
+            "type" : [ "null", "string" ]
+          }
+        },
+        "required" : [ "errors", "id", "success" ]
+      }
+    },
+    "responses" : {
+      "pinAConversationResponse" : {
+        "description" : "pinAConversationResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "anyOf" : [ {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "pinnedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinnedById" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "entityPinned" : {
+                    "$ref" : "./Thread.json#/components/schemas/threadKeys"
+                  },
+                  "isPublic" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "COMMENTS", "THREADS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "pinnedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinnedById" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "entityPinned" : {
+                    "$ref" : "./Thread.json#/components/schemas/facebookThreadKeys"
+                  },
+                  "isPublic" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "COMMENTS", "THREADS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "pinnedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinnedById" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "entityPinned" : {
+                    "$ref" : "./Thread.json#/components/schemas/twitterThreadKeys"
+                  },
+                  "isPublic" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "COMMENTS", "THREADS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "pinnedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinnedById" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "entityPinned" : {
+                    "$ref" : "./Thread.json#/components/schemas/forumThreadKeys"
+                  },
+                  "isPublic" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "COMMENTS", "THREADS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "pinnedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinnedById" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "entityPinned" : {
+                    "$ref" : "./Thread.json#/components/schemas/emailThreadKeys"
+                  },
+                  "isPublic" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "COMMENTS", "THREADS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "pinnedTime" : {
+                    "type" : [ "string", "null" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  },
+                  "pinnedById" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "entityPinned" : {
+                    "$ref" : "./TicketComment.json#/components/schemas/commentResponse"
+                  },
+                  "isPublic" : {
+                    "type" : [ "boolean", "null" ]
+                  },
+                  "id" : {
+                    "type" : [ "string", "null", "integer" ],
+                    "format" : "int64",
+                    "pattern" : "([0-9]+)"
+                  },
+                  "type" : {
+                    "type" : [ "string", "null" ],
+                    "enum" : [ "COMMENTS", "THREADS" ],
+                    "maxLength" : 100,
+                    "minLength" : 0
+                  }
+                },
+                "required" : [ "entityPinned", "id", "isPublic", "pinnedById", "pinnedTime", "type" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "pinnedTime" : "2024-05-07T05:24:34Z",
+                  "isPublic" : false,
+                  "id" : "1235000000013295",
+                  "pinnedBy" : {
+                    "firstName" : "Nirmal",
+                    "lastName" : "Kumar",
+                    "photoURL" : "https://desk.zoho.com/api/v1/agents/1235000000010078/photo?orgId=61815772",
+                    "id" : "1235000000010078",
+                    "email" : "PII_EMAIL_SENTINEL"
+                  },
+                  "type" : "comments",
+                  "pinnedEntity" : {
+                    "modifiedTime" : "2024-05-06T13:05:50.000Z",
+                    "attachments" : [ ],
+                    "encodedContent" : "&lt;div style&#x3d;&quot;font-size&#x3a; 13px&#x3b; font-family&#x3a; Arial, Helvetica, sans-serif&quot;&gt;&lt;div&gt;zsu&#x5b;&#x40;user&#x3a;76260187&#x5d;zsu a comment.&lt;br&gt;&lt;&#x2f;div&gt;&lt;&#x2f;div&gt;",
+                    "commentedTime" : "2024-05-06T13:05:50.000Z",
+                    "isPublic" : false,
+                    "id" : "1235000000013468",
+                    "contentType" : "html",
+                    "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, sans-serif\"><div>zsu[@user:76260187]zsu a comment.<br></div></div>",
+                    "commenterId" : "1235000000010078",
+                    "commenter" : {
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1235000000010078/photo?orgId=61815772",
+                      "firstName" : "Immanuel",
+                      "lastName" : "T",
+                      "id" : "1235000000010078",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "impersonatedUser" : null,
+                    "mention" : [ {
+                      "firstName" : "Kamalesh",
+                      "lastName" : "SN",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1235000000034048/photo?orgId=61815772",
+                      "offSet" : "77",
+                      "length" : "22",
+                      "id" : "1235000000034048",
+                      "type" : "AGENT",
+                      "email" : "PII_EMAIL_SENTINEL",
+                      "zuid" : "76260187"
+                    } ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "getPinnedConversationsResponse" : {
+        "description" : "getPinnedConversationsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "allOf" : [ {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "object",
+                      "properties" : {
+                        "plainText" : {
+                          "type" : [ "string", "null" ],
+                          "maxLength" : 16777215,
+                          "minLength" : 0
+                        },
+                        "pinnedBy" : {
+                          "type" : [ "null", "object" ],
+                          "additionalProperties" : false,
+                          "maxProperties" : 5,
+                          "minProperties" : 5,
+                          "properties" : {
+                            "photoURL" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 200,
+                              "minLength" : 0,
+                              "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                            },
+                            "firstName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "lastName" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 50,
+                              "minLength" : 0
+                            },
+                            "id" : {
+                              "type" : [ "string", "null", "integer" ],
+                              "format" : "int64",
+                              "pattern" : "([0-9]+)"
+                            },
+                            "email" : {
+                              "type" : [ "string", "null" ],
+                              "maxLength" : 100,
+                              "minLength" : 0,
+                              "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                            }
+                          },
+                          "required" : [ "email", "firstName", "id", "lastName", "photoURL" ]
+                        },
+                        "mention" : {
+                          "type" : [ "null", "array" ],
+                          "items" : {
+                            "oneOf" : [ {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 8,
+                              "minProperties" : 8,
+                              "properties" : {
+                                "photoURL" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 200,
+                                  "minLength" : 0,
+                                  "pattern" : "(^(ht|f)tp(s?)\\://[-.\\w]*(/?)([a-zA-Z0-9\\-\\.\\?\\,\\:\\'/\\\\+=&amp;%\\$#_@]*)?$)"
+                                },
+                                "offSet" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "length" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "type" : {
+                                  "type" : [ "string", "null" ],
+                                  "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "email" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0,
+                                  "pattern" : "^[a-zA-Z0-9\\_]([a-zA-Z0-9\\_\\+\\-\\.\\'&]*)@(?=.{4,256}$)(([a-zA-Z0-9]+)(([\\-\\_]*[a-zA-Z0-9])*)[\\.])+[a-zA-Z]{2,22}$"
+                                },
+                                "zuid" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                }
+                              },
+                              "required" : [ "email", "id", "length", "name", "offSet", "photoURL", "type", "zuid" ]
+                            }, {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 5,
+                              "minProperties" : 5,
+                              "properties" : {
+                                "offSet" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "length" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "type" : {
+                                  "type" : [ "string", "null" ],
+                                  "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                }
+                              },
+                              "required" : [ "id", "length", "name", "offSet", "type" ]
+                            }, {
+                              "type" : [ "null", "object" ],
+                              "additionalProperties" : false,
+                              "maxProperties" : 7,
+                              "minProperties" : 7,
+                              "properties" : {
+                                "offSet" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "departmentId" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "entityNumber" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "length" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int32",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "name" : {
+                                  "type" : [ "string", "null" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                },
+                                "id" : {
+                                  "type" : [ "string", "null", "integer" ],
+                                  "format" : "int64",
+                                  "pattern" : "([0-9]+)"
+                                },
+                                "type" : {
+                                  "type" : [ "string", "null" ],
+                                  "enum" : [ "END_USER", "AGENT", "TEAM", "TICKET", "ACTIVITY" ],
+                                  "maxLength" : 100,
+                                  "minLength" : 0
+                                }
+                              },
+                              "required" : [ "departmentId", "entityNumber", "id", "length", "name", "offSet", "type" ]
+                            } ]
+                          },
+                          "uniqueItems" : false
+                        }
+                      }
+                    }
+                  }
+                }
+              }, {
+                "type" : [ "null", "object" ],
+                "additionalProperties" : false,
+                "properties" : {
+                  "data" : {
+                    "$ref" : "./PinnedConversation.json#/components/schemas/data"
+                  }
+                },
+                "required" : [ "data" ]
+              } ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "data" : [ {
+                    "pinnedTime" : "2024-05-07T05:24:34Z",
+                    "isPublic" : true,
+                    "id" : "1235000000013295",
+                    "pinnedBy" : {
+                      "firstName" : "Nirmal",
+                      "lastName" : "Kumar",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1235000000010078/photo?orgId=61815772",
+                      "id" : "1235000000010078",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "type" : "comments",
+                    "pinnedEntity" : {
+                      "modifiedTime" : "2024-05-06T13:05:50.000Z",
+                      "attachments" : [ ],
+                      "encodedContent" : "&lt;div style&#x3d;&quot;font-size&#x3a; 13px&#x3b; font-family&#x3a; Arial, Helvetica, sans-serif&quot;&gt;&lt;div&gt;zsu&#x5b;&#x40;user&#x3a;76260187&#x5d;zsu a comment.&lt;br&gt;&lt;&#x2f;div&gt;&lt;&#x2f;div&gt;",
+                      "commentedTime" : "2024-05-06T13:05:50.000Z",
+                      "isPublic" : false,
+                      "id" : "1235000000013468",
+                      "contentType" : "html",
+                      "content" : "<div style=\"font-size: 13px; font-family: Arial, Helvetica, sans-serif\"><div>zsu[@user:76260187]zsu a comment.<br></div></div>",
+                      "commenterId" : "1235000000010078",
+                      "commenter" : {
+                        "photoURL" : "https://desk.zoho.com/api/v1/agents/1235000000010078/photo?orgId=61815772",
+                        "firstName" : "Immanuel",
+                        "lastName" : "T",
+                        "id" : "1235000000010078",
+                        "type" : "AGENT",
+                        "email" : "PII_EMAIL_SENTINEL"
+                      },
+                      "impersonatedUser" : null,
+                      "mention" : [ {
+                        "firstName" : "Kamalesh",
+                        "lastName" : "SN",
+                        "photoURL" : "https://deskt.zoho.com/api/v1/agents/1235000000034048/photo?orgId=61815772",
+                        "offSet" : "77",
+                        "length" : "22",
+                        "id" : "1235000000034048",
+                        "type" : "AGENT",
+                        "email" : "PII_EMAIL_SENTINEL",
+                        "zuid" : "76260187"
+                      } ]
+                    }
+                  }, {
+                    "pinnedTime" : "2024-05-06T05:32:47Z",
+                    "isPublic" : true,
+                    "id" : "1235000000014147",
+                    "pinnedBy" : {
+                      "firstName" : "Nirmal",
+                      "lastName" : "Kumar",
+                      "photoURL" : "https://desk.zoho.com/api/v1/agents/1235000000010078/photo?orgId=61815772",
+                      "id" : "1235000000010078",
+                      "email" : "PII_EMAIL_SENTINEL"
+                    },
+                    "type" : "threads",
+                    "pinnedEntity" : {
+                      "sentiment" : "NEGATIVE",
+                      "isDescriptionThread" : false,
+                      "canReply" : true,
+                      "bcc" : "",
+                      "channel" : "EMAIL",
+                      "aspects" : [ ],
+                      "source" : {
+                        "appName" : null,
+                        "extId" : null,
+                        "permalink" : null,
+                        "type" : "SYSTEM",
+                        "appPhotoURL" : null
+                      },
+                      "lastRatingIconURL" : null,
+                      "impersonatedUser" : null,
+                      "channelRelatedInfo" : null,
+                      "createdTime" : "2024-04-22T10:32:08.000Z",
+                      "id" : "1235000000013283",
+                      "contentType" : "text/html",
+                      "direction" : "in",
+                      "summary" : "Email reply...",
+                      "cc" : "",
+                      "keyWords" : [ ],
+                      "visibility" : "public",
+                      "scheduleInfo" : null,
+                      "author" : {
+                        "photoURL" : null,
+                        "firstName" : "Immanuel",
+                        "lastName" : "T",
+                        "id" : "1235000000011288",
+                        "type" : "END_USER",
+                        "email" : "PII_EMAIL_SENTINEL"
+                      },
+                      "isForward" : false,
+                      "hasAttach" : true,
+                      "respondedIn" : null,
+                      "attachmentCount" : "1",
+                      "readReceipts" : null,
+                      "to" : "\"zylker support\"<PII_EMAIL_SENTINEL>",
+                      "fromEmailAddress" : "\"kamelesh sn\"<PII_EMAIL_SENTINEL>",
+                      "actions" : [ ],
+                      "status" : "SUCCESS"
+                    }
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "unPinAConversationResponse" : {
+        "description" : "getUnPinnedConversationsResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "results" : {
+                  "type" : [ "null", "array" ],
+                  "items" : {
+                    "$ref" : "#/components/schemas/unPinConversationData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters" : {
+      "ticketId" : {
+        "name" : "ticketId",
+        "in" : "path",
+        "required" : true,
+        "style" : "simple",
+        "explode" : false,
+        "schema" : {
+          "type" : [ "string", "null", "integer" ],
+          "format" : "int64",
+          "pattern" : "([0-9]+)"
+        }
+      }
+    },
+    "requestBodies" : {
+      "unPinConversationRequest" : {
+        "description" : "unPinConversationRequest Payload template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "ids" : {
+                  "$ref" : "./PinnedConversation.json#/components/schemas/long_array"
+                }
+              },
+              "required" : [ "ids" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "ids" : [ 1235000000013295, 1235000000013345 ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "pinAConversationRequest" : {
+        "description" : "pinConversationRequest Payload template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "isPublic" : {
+                  "type" : [ "boolean", "null" ]
+                },
+                "entityId" : {
+                  "type" : [ "string", "null", "integer" ],
+                  "format" : "int64",
+                  "pattern" : "([0-9]+)"
+                },
+                "type" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "COMMENTS", "THREADS" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "entityId", "type" ]
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "isPublic" : false,
+                  "entityId" : "1235000000013468",
+                  "type" : "comments"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "PinnedConversation"
+}

@@ -1,0 +1,212 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "SharingRule",
+    "version" : "1.0.0"
+  },
+  "paths" : {
+    "/api/v1/dataSharingRules" : {
+      "get" : {
+        "tags" : [ "SharingRule" ],
+        "summary" : "Get data sharing rules",
+        "description" : "This API fetches the different data sharing rules configured in your help desk portal.",
+        "operationId" : "getDataSharingRules",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "responses" : {
+          "200" : {
+            "$ref" : "#/components/responses/sharingRuleResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.READ" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      },
+      "patch" : {
+        "tags" : [ "SharingRule" ],
+        "summary" : "Update data sharing rules",
+        "description" : "This API updates the data sharing rules configured in your help desk portal.",
+        "operationId" : "updateDataSharingRules",
+        "parameters" : [ {
+          "$ref" : "./Common.json#/components/parameters/orgId"
+        } ],
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/sharingRuleRequest"
+        },
+        "responses" : {
+          "204" : {
+            "$ref" : "./Common.json#/components/responses/emptyResponse"
+          }
+        },
+        "security" : [ {
+          "iam-oauth2-schema" : [ "Desk.settings.UPDATE" ]
+        } ],
+        "x-audience" : [ "external-public" ]
+      }
+    }
+  },
+  "components" : {
+    "responses" : {
+      "sharingRuleResponse" : {
+        "description" : "sharingRuleResponse template definitions",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tickets" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "calls" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "accounts" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "contracts" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "contacts" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "tasks" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "events" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "products" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              },
+              "required" : [ "accounts", "calls", "contacts", "contracts", "events", "products", "tasks", "tickets" ]
+            },
+            "examples" : {
+              "Valid responses Definitions" : {
+                "value" : {
+                  "tickets" : "public",
+                  "calls" : "public read only",
+                  "accounts" : "public read only",
+                  "contracts" : "private",
+                  "contacts" : "public",
+                  "tasks" : "private",
+                  "events" : "public",
+                  "products" : "public"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies" : {
+      "sharingRuleRequest" : {
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : [ "null", "object" ],
+              "additionalProperties" : false,
+              "properties" : {
+                "tickets" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "calls" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "accounts" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "contracts" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "contacts" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "tasks" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "events" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                },
+                "products" : {
+                  "type" : [ "string", "null" ],
+                  "enum" : [ "public", "private", "public read only" ],
+                  "maxLength" : 100,
+                  "minLength" : 0
+                }
+              }
+            },
+            "examples" : {
+              "Valid requestBody Definitions" : {
+                "value" : {
+                  "tickets" : "public",
+                  "calls" : "public read only",
+                  "accounts" : "public read only",
+                  "contracts" : "private",
+                  "contacts" : "public",
+                  "tasks" : "private",
+                  "events" : "public",
+                  "products" : "public"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "iam-oauth2-schema" : {
+        "$ref" : "./Common.json#/components/securitySchemes/iam-oauth2-schema"
+      }
+    }
+  },
+  "x-entity" : "SharingRule"
+}
