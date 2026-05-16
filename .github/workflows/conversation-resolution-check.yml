@@ -129,7 +129,7 @@ jobs:
                 ($u | length) as $count |
                 "**" + ($count|tostring) + " unresolved review thread(s):**\n\n" +
                 ([$u[0:10] | .[] |
-                  "- `" + .path + ":" + (.line // 0 | tostring) + "` by `" +
+                  "- `" + .path + (if .line then ":" + (.line | tostring) else "" end) + "` by `" +
                   (.comments.nodes[0].author.login // "unknown") + "`" +
                   (if .isOutdated then " *(outdated — line no longer exists; likely addressed by a later commit)*" else "" end)
                 ] | join("\n")) +
