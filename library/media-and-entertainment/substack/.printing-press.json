@@ -1,69 +1,86 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-09T10:57:57.514349Z",
-  "printing_press_version": "4.2.0",
   "api_name": "substack",
-  "display_name": "Substack",
+  "category": "media-and-entertainment",
   "cli_name": "substack-pp-cli",
-  "owner": "user",
-  "spec_path": "/Users/chirantan/printing-press/.runstate/cli-printing-press-5afd2fcc/runs/20260509-103230/research/substack-spec.yaml",
-  "spec_format": "internal",
-  "spec_checksum": "sha256:30145d63a968758a9cf6e41eeaa6f0289cac74cc9615de6089f74fc86ff81b61",
-  "run_id": "20260509-103230",
-  "description": "Run your Substack growth loop from the terminal \u2014 publish, schedule, engage, and measure with cross-table joins no single Substack API call can.",
-  "mcp_binary": "substack-pp-mcp",
-  "mcp_tool_count": 39,
-  "mcp_ready": "partial",
-  "api_version": "0.1.0",
-  "auth_type": "cookie",
-  "endpoint_template_vars": [
-    "publication"
-  ],
-  "auth_key_url": "https://substack.com/sign-in",
+  "description": "Every Substack feature, plus a local SQLite database, full-text search across years of writing, and the only cross-publication portfolio view that exists.",
+  "generated_at": "2026-05-12T19:48:34.6188875Z",
   "novel_features": [
     {
-      "name": "Note-to-subscriber attribution ledger",
-      "command": "growth attribution",
-      "description": "Connect every Note you posted to the paid and free subscribers that actually arrived in the 24-hour window after, so you stop guessing which content drove growth."
+      "command": "portfolio",
+      "description": "One-screen status of every publication you own: subscriber count, paid count, last-published-at, drafts pending, next scheduled. No tab-switching, no CSV exports.",
+      "example": "substack-pp-cli portfolio --json",
+      "group": "Multi-publication workflow",
+      "name": "Portfolio Dashboard",
+      "rationale": "Substack's web UI has no portfolio concept. Aggregating across publications requires a local SQLite store of synced state that no other Substack tool maintains.",
+      "why_it_matters": "When an agent or human owns multiple Substacks (English + German, free + premium tiers), this is the only command that answers 'what is the state of all of them right now'."
     },
     {
-      "name": "Engagement reciprocity ledger",
-      "command": "engage reciprocity",
-      "description": "See net-give/net-take per writer you engage with \u2014 who reciprocates your restacks/comments, who quietly free-rides on yours."
+      "command": "posts twin",
+      "description": "Duplicate a published post into another publication you own as a draft. Preserves paywall markers, sections, and re-uploads images to the target publication's CDN.",
+      "example": "substack-pp-cli posts twin my-post-slug --to mypub-de --dry-run",
+      "group": "Multi-publication workflow",
+      "name": "Cross-Publication Twin",
+      "rationale": "Substack's duplicate-post feature is single-publication. Cross-publication content reuse requires sniffing the source HTML, re-uploading images via /api/v1/image against a different subdomain, and POSTing /api/v1/drafts to the target.",
+      "why_it_matters": "Bilingual or multi-tier creators copy-paste between publications today. This collapses the ritual into one command and leaves the target draft ready for translation or pricing-tier adjustment."
     },
     {
-      "name": "Cadence guard",
-      "command": "notes schedule --guard",
-      "description": "Refuse to fire (or queue) a Note that lands less than 30 minutes after your last own-Note or violates your time-of-day rotation. Returns typed exit 2 with a JSON diagnosis."
+      "command": "subscribers churn",
+      "description": "Diff two SQLite snapshots of your subscriber list: who newly subscribed, who unsubscribed, who upgraded free-\u003epaid, who downgraded paid-\u003efree, since a chosen window.",
+      "example": "substack-pp-cli subscribers churn --publication mypub-paid --since 7d --json",
+      "group": "Local state that compounds",
+      "name": "Subscriber Churn Diff",
+      "rationale": "Substack reports subscriber count but never the named delta. The diff requires keeping two snapshots locally and joining on email — a SQLite move, not an API call.",
+      "why_it_matters": "Agents auditing retention want named churn rows, not aggregate counts. Sunday-evening review or weekly automation reads this list and pipes it forward."
     },
     {
-      "name": "Goal-aware best-time recommender",
-      "command": "growth best-time",
-      "description": "Top day-of-week \u00d7 hour cells ranked for whichever growth signal you pick (paid subs, likes, restacks, or comments) \u2014 not a single average."
+      "command": "subscribers cross-sell",
+      "description": "SQL join across your publications' subscriber lists: emails paid on one publication but free or absent on the others, sorted by paid-publication coverage. The cross-sell list Substack does not ship.",
+      "example": "substack-pp-cli subscribers cross-sell --json",
+      "group": "Local state that compounds",
+      "name": "Cross-Sell Candidates",
+      "rationale": "No single API call surfaces this. It requires joining /api/v1/subscriber/list across N publications keyed by email — a cross-source local join.",
+      "why_it_matters": "The most obvious upsell candidates are paying readers on one of your newsletters who don't know your other ones exist. This command surfaces them for a once-a-month email blast."
     },
     {
-      "name": "Hook-pattern miner",
-      "command": "discover patterns",
-      "description": "Mechanically extracts which hook patterns (curiosity-gap colon, 3-sentence formula, em-dash reframe, question opener) actually rank in a niche, with restack/comment ratios."
+      "command": "posts best",
+      "description": "Rank posts by views, likes, comments, or restacks within a window. Optionally aggregate across every publication you own to find your overall top performer.",
+      "example": "substack-pp-cli posts best --by restacks --window 30d --cross-pub --json",
+      "group": "Local state that compounds",
+      "name": "Best Posts Cross-Publication",
+      "rationale": "Substack ranks within one publication; this CLI ranks across all of yours from cached dashboard stats joined on engagement metrics.",
+      "why_it_matters": "For repurposing decisions, you need the best post across the portfolio, not within one pub. This is the input for Monday-morning content planning."
     },
     {
-      "name": "Swap-partner finder",
-      "command": "recs find-partners",
-      "description": "Score candidate publications for a Substack Recommendations swap by mutual-overlap density across followee + recommendation graphs."
+      "command": "posts pairs",
+      "description": "Record EN\u003c-\u003eDE post pairings in a local table. 'posts pair \u003cen\u003e \u003cde\u003e' adds; 'posts pairs --missing' lists posts in one language with no recorded twin in the other.",
+      "example": "substack-pp-cli posts pairs --missing --publication mypub-en --json",
+      "group": "Multi-publication workflow",
+      "name": "Bilingual Pair Tracker",
+      "rationale": "No upstream concept of paired translations. A local post_pairs table joins to posts on slug; --missing is a one-line outer-join query.",
+      "why_it_matters": "Bilingual newsletter owners forget which posts already have a translation. This command answers it offline and feeds the 'posts twin' flow."
     },
     {
-      "name": "Pod restack scoreboard",
-      "command": "growth pod",
-      "description": "Given a list of handles, render a member \u00d7 member engagement matrix \u2014 last 30 days of restacks/comments/likes between every pair."
+      "command": "grep",
+      "description": "FTS5 over post bodies + Notes + comments, ranked by bm25, returning snippets and source URLs. Optional scope (posts/notes/comments/all), publication, and since filter.",
+      "example": "substack-pp-cli grep \"yield curve\" --scope all --since 2024-01-01 --json",
+      "group": "Local state that compounds",
+      "name": "Full-Text Grep",
+      "rationale": "Substack's site search is shallow and covers only posts. The local cache stores full bodies and an FTS5 index queries them all in milliseconds.",
+      "why_it_matters": "Agents and writers re-citing their own writing need full-archive search across years. Substack cannot do this; this CLI ships it as a one-liner."
     },
     {
-      "name": "Voice fingerprint",
-      "command": "voice fingerprint",
-      "description": "Measurable voice profile \u2014 sentence length, em-dash rate, colon-hook rate, hook-line ratios, vocabulary uniqueness \u2014 for any handle, with --diff to compare against another writer."
+      "command": "schedule board",
+      "description": "ASCII calendar of the next 30 days showing scheduled posts across every publication you own. Multi-pub editorial overview in one screen.",
+      "example": "substack-pp-cli schedule board --json",
+      "group": "Multi-publication workflow",
+      "name": "Schedule Board",
+      "rationale": "Substack's schedule view is per-publication and web-only. Reading scheduled_at across cached posts/drafts is a local query.",
+      "why_it_matters": "Editorial planning across publications needs one calendar. This is the only command that renders it."
     }
   ],
-  "printer": "chirantan",
-  "printer_name": "Chirantan Rajhans",
-  "owner_name": "Chirantan Rajhans",
-  "category": "media-and-entertainment"
+  "printer": "JPresting",
+  "printer_name": "JimPresting",
+  "printing_press_version": "4.3.0",
+  "run_id": "20260512-202201",
+  "schema_version": 1
 }

@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: substack-pp-cli
     repository:
-      owner: user
+      owner: jimpresting
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Run your Substack growth loop from the command line — publish, schedule, engage, and measure with cross-table..."
+    description: "Every Substack feature, plus a local SQLite database, full-text search across years of writing, and the only..."
     install: |
       bin.install "substack-pp-cli"
       bin.install "substack-pp-mcp"
