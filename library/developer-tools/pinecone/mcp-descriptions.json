@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "backups_delete": "Delete a Pinecone backup by ID. Required: backup_id (path param) — the backup's UUID, e.g. 670e8400-e29b-41d4-a716-446655440000. Destructive and asynchronous: returns 202 Accepted on success, 412 if a restore job is still pending against this backup. Use backups_list-project or backups_describe to find the ID before calling."
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "api_name": "pinecone",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Official Pinecone MCP",
+      "url": "https://github.com/pinecone-io/pinecone-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pinecone-io/pinecone-ts-client",
+      "url": "https://github.com/pinecone-io/pinecone-ts-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pinecone-io/pinecone-python-client",
+      "url": "https://github.com/pinecone-io/pinecone-python-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T23:10:00Z",
+  "novel_features": [
+    {
+      "name": "Namespace stats summary",
+      "command": "ns-stats",
+      "description": "Per-namespace record counts and size across all your indexes, in one query.",
+      "rationale": "Combines describe_index_stats responses across all indexes locally — no native cross-index view.",
+      "example": "pinecone-pp-cli ns-stats --json --select index,namespace,record_count,vector_count",
+      "why_it_matters": "Use this monthly to find namespaces that have grown out of expected bounds before they hit quota.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Index inventory",
+      "command": "inventory",
+      "description": "All indexes with their dimension, metric, host, status, and last-modified time.",
+      "rationale": "Wraps list_indexes + describe_index in one call with consistent --json output.",
+      "example": "pinecone-pp-cli inventory --json",
+      "why_it_matters": "Use this in CI to verify expected indexes exist before running vector operations.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reachability check",
+      "command": "doctor-deep",
+      "description": "Verifies API key works AND each index's data-plane host is reachable.",
+      "rationale": "Standard doctor only checks control-plane. Pinecone data-plane uses per-index hosts that can be unreachable even when control-plane works.",
+      "example": "pinecone-pp-cli doctor-deep --json",
+      "why_it_matters": "Use this in CI/cron to catch host-routing issues before they break data-plane operations.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bulk delete by filter",
+      "command": "purge",
+      "description": "Delete vectors matching a metadata filter across one or many namespaces with --dry-run preview.",
+      "rationale": "Wraps /vectors/delete with safer --dry-run that lists what would be deleted before the actual delete.",
+      "example": "pinecone-pp-cli purge --index client-impact --namespace tasks --filter '{\"category\":\"obsolete\"}' --dry-run --json",
+      "why_it_matters": "Use this for cleanup with a confirmation step — destructive operations should never be one-step.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cascading-search local cache",
+      "command": "csearch",
+      "description": "Cascading search across multiple namespaces with local result merging and rerank.",
+      "rationale": "Pinecone's cascading-search MCP tool does this server-side; this CLI version supports custom rerank weights and offline result caching.",
+      "example": "pinecone-pp-cli csearch --index client-impact --namespaces features,tasks --query 'time tracking sync' --json",
+      "why_it_matters": "Use this when you need cross-namespace results without paying for re-querying every time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Embedding-cost estimator",
+      "command": "estimate",
+      "description": "Estimates inference cost for a batch of texts before submitting (input-token count × model price).",
+      "rationale": "Local tokenizer estimate + Pinecone's published model prices; no API call until you confirm.",
+      "example": "pinecone-pp-cli estimate --model llama-text-embed-v2 --file inputs.txt --json",
+      "why_it_matters": "Use this before bulk embedding jobs to avoid surprise bills.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Index drift",
+      "command": "drift",
+      "description": "Compares the last cached describe_index_stats vs current — surfaces namespaces that grew/shrank significantly.",
+      "rationale": "Compares local snapshot to live API — Pinecone has no native delta endpoint.",
+      "example": "pinecone-pp-cli drift --json --threshold 100",
+      "why_it_matters": "Use this for daily health checks to catch unexpected ingestion stalls or growth spikes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-index search",
+      "command": "xindex",
+      "description": "Run the same query against multiple indexes in parallel, merge and rerank.",
+      "rationale": "Pinecone's API is per-index; cross-index search requires fanning out manually.",
+      "example": "pinecone-pp-cli xindex --indexes client-impact,features --query 'time tracking' --top-k 5 --json",
+      "why_it_matters": "Use this when an entity could live in any of several indexes — single command, parallel queries.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Namespace stats summary",
+      "command": "ns-stats",
+      "description": "Per-namespace record counts and size across all your indexes, in one query.",
+      "rationale": "Combines describe_index_stats responses across all indexes locally — no native cross-index view.",
+      "example": "pinecone-pp-cli ns-stats --json --select index,namespace,record_count,vector_count",
+      "why_it_matters": "Use this monthly to find namespaces that have grown out of expected bounds before they hit quota.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Index inventory",
+      "command": "inventory",
+      "description": "All indexes with their dimension, metric, host, status, and last-modified time.",
+      "rationale": "Wraps list_indexes + describe_index in one call with consistent --json output.",
+      "example": "pinecone-pp-cli inventory --json",
+      "why_it_matters": "Use this in CI to verify expected indexes exist before running vector operations.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reachability check",
+      "command": "doctor-deep",
+      "description": "Verifies API key works AND each index's data-plane host is reachable.",
+      "rationale": "Standard doctor only checks control-plane. Pinecone data-plane uses per-index hosts that can be unreachable even when control-plane works.",
+      "example": "pinecone-pp-cli doctor-deep --json",
+      "why_it_matters": "Use this in CI/cron to catch host-routing issues before they break data-plane operations.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Bulk delete by filter",
+      "command": "purge",
+      "description": "Delete vectors matching a metadata filter across one or many namespaces with --dry-run preview.",
+      "rationale": "Wraps /vectors/delete with safer --dry-run that lists what would be deleted before the actual delete.",
+      "example": "pinecone-pp-cli purge --index client-impact --namespace tasks --filter '{\"category\":\"obsolete\"}' --dry-run --json",
+      "why_it_matters": "Use this for cleanup with a confirmation step — destructive operations should never be one-step.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cascading-search local cache",
+      "command": "csearch",
+      "description": "Cascading search across multiple namespaces with local result merging and rerank.",
+      "rationale": "Pinecone's cascading-search MCP tool does this server-side; this CLI version supports custom rerank weights and offline result caching.",
+      "example": "pinecone-pp-cli csearch --index client-impact --namespaces features,tasks --query 'time tracking sync' --json",
+      "why_it_matters": "Use this when you need cross-namespace results without paying for re-querying every time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Embedding-cost estimator",
+      "command": "estimate",
+      "description": "Estimates inference cost for a batch of texts before submitting (input-token count × model price).",
+      "rationale": "Local tokenizer estimate + Pinecone's published model prices; no API call until you confirm.",
+      "example": "pinecone-pp-cli estimate --model llama-text-embed-v2 --file inputs.txt --json",
+      "why_it_matters": "Use this before bulk embedding jobs to avoid surprise bills.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Index drift",
+      "command": "drift",
+      "description": "Compares the last cached describe_index_stats vs current — surfaces namespaces that grew/shrank significantly.",
+      "rationale": "Compares local snapshot to live API — Pinecone has no native delta endpoint.",
+      "example": "pinecone-pp-cli drift --json --threshold 100",
+      "why_it_matters": "Use this for daily health checks to catch unexpected ingestion stalls or growth spikes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-index search",
+      "command": "xindex",
+      "description": "Run the same query against multiple indexes in parallel, merge and rerank.",
+      "rationale": "Pinecone's API is per-index; cross-index search requires fanning out manually.",
+      "example": "pinecone-pp-cli xindex --indexes client-impact,features --query 'time tracking' --top-k 5 --json",
+      "why_it_matters": "Use this when an entity could live in any of several indexes — single command, parallel queries.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Pinecone",
+    "headline": "Every Pinecone API endpoint, plus cross-index search, namespace drift detection, and offline cost estimation.",
+    "value_prop": "Full coverage of Pinecone's control plane (indexes, collections, backups), data plane (query, upsert, fetch, delete), and inference (embed, rerank) — plus cross-index search, namespace drift detection, bulk-delete with dry-run, and an offline cost estimator. Built on a synced local cache so cron-driven monitors and AI agents can answer 'has this namespace grown today?' without re-running describe-stats every minute.",
+    "auth_narrative": "Pinecone uses API-key auth. Set PINECONE_API_KEY in your environment or run `pinecone-pp-cli auth set-token`. The control plane uses https://api.pinecone.io; data-plane endpoints (query, upsert) use per-index hosts returned by `describe_index` — the CLI resolves these automatically.",
+    "quickstart": [
+      {
+        "command": "pinecone-pp-cli doctor --json",
+        "comment": "Validates PINECONE_API_KEY and API reachability."
+      },
+      {
+        "command": "pinecone-pp-cli inventory --json",
+        "comment": "Lists every index with dimension/metric/host."
+      },
+      {
+        "command": "pinecone-pp-cli ns-stats --json",
+        "comment": "Per-namespace counts across all indexes."
+      },
+      {
+        "command": "pinecone-pp-cli xindex --indexes client-impact --query 'time tracking' --json",
+        "comment": "Single-index search via the cross-index command."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Check PINECONE_API_KEY is set (`pinecone-pp-cli auth status`). Get a key from app.pinecone.io."
+      },
+      {
+        "symptom": "404 on /query or /vectors/*",
+        "fix": "Data-plane endpoints need the per-index host. Run `pinecone-pp-cli inventory` to see hosts; the CLI auto-resolves but you can override with `--host`."
+      },
+      {
+        "symptom": "drift returns nothing",
+        "fix": "Drift needs at least one prior `ns-stats` snapshot to compare against. Run `ns-stats` daily to seed the local cache."
+      }
+    ],
+    "when_to_use": "Reach for pinecone-pp-cli when you need to operate Pinecone programmatically — namespace audits, cross-index search, drift detection, embedding-cost estimation, or bulk cleanup with dry-run safety. For one-off CRUD on a single index, the official Python/TS SDKs are fine; use this CLI when local cache, multi-index ops, or cron-driven monitoring matter.",
+    "recipes": [
+      {
+        "title": "Morning namespace health check",
+        "command": "pinecone-pp-cli ns-stats --json --select index,namespace,record_count,vector_count",
+        "explanation": "Snapshots every namespace size across all indexes — pipe into your dashboard."
+      },
+      {
+        "title": "Drift alert (cron)",
+        "command": "pinecone-pp-cli drift --threshold 100 --json",
+        "explanation": "Exits non-zero when any namespace changed by more than 100 records vs the last snapshot. Pair with `ns-stats` daily."
+      },
+      {
+        "title": "Safe purge (always dry-run first)",
+        "command": "pinecone-pp-cli purge --help",
+        "explanation": "Always run `--dry-run` to preview the affected count before committing. Filter is a JSON metadata expression matching Pinecone's filter language."
+      },
+      {
+        "title": "Cross-index search",
+        "command": "pinecone-pp-cli xindex --indexes client-impact,features --query 'sync' --top-k 5 --json --select index,id,score,metadata.title",
+        "explanation": "Parallel query across indexes, merged + reranked locally."
+      },
+      {
+        "title": "Cost estimate before batch embed",
+        "command": "pinecone-pp-cli estimate --model llama-text-embed-v2 --file inputs.txt --json",
+        "explanation": "Local tokenizer × published prices = estimated cost. No API hit."
+      }
+    ],
+    "trigger_phrases": [
+      "show pinecone namespaces",
+      "pinecone health check",
+      "search across pinecone indexes",
+      "estimate pinecone embedding cost",
+      "pinecone drift",
+      "use pinecone-pp",
+      "run pinecone-pp"
+    ]
+  }
+}

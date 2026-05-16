@@ -1,0 +1,891 @@
+openapi: 3.0.3
+info:
+  title: Pinecone Inference API
+  description: Pinecone is a vector database that makes it easy to search and retrieve billions of high-dimensional vectors.
+  contact:
+    name: Pinecone Support
+    url: https://support.pinecone.io
+    email: support@pinecone.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 2026-04
+servers:
+- url: https://api.pinecone.io
+  description: Production API endpoints
+paths:
+  /embed:
+    post:
+      tags:
+      - Inference
+      summary: Generate vectors
+      description: Generate vector embeddings for input data. This endpoint uses Pinecone's [hosted embedding models](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models).
+      operationId: embed
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        description: Generate embeddings for inputs.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmbedRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmbeddingsList'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                index-metric-validation-error:
+                  summary: Validation error
+                  value:
+                    error:
+                      code: INVALID_ARGUMENT
+                      message: Bad request. The request body included invalid request parameters.
+                    status: 400
+        '401':
+          description: 'Unauthorized. Possible causes: Invalid API key.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: Unauthorized
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      message: Invalid API key.
+                    status: 401
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal-server-error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      code: UNKNOWN
+                      message: Internal server error
+                    status: 500
+  /rerank:
+    post:
+      tags:
+      - Inference
+      summary: Rerank results
+      description: |-
+        Rerank results according to their relevance to a query.
+
+        For guidance and examples, see [Rerank results](https://docs.pinecone.io/guides/search/rerank-results).
+      operationId: rerank
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        description: Rerank documents for the given query
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RerankRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RerankResult'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                index-metric-validation-error:
+                  summary: Validation error
+                  value:
+                    error:
+                      code: INVALID_ARGUMENT
+                      message: Bad request. The request body included invalid request parameters.
+                    status: 400
+        '401':
+          description: 'Unauthorized. Possible causes: Invalid API key.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: Unauthorized
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      message: Invalid API key.
+                    status: 401
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal-server-error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      code: UNKNOWN
+                      message: Internal server error
+                    status: 500
+  /models:
+    get:
+      tags:
+      - Inference
+      summary: List available models
+      description: "List the embedding and reranking models hosted by Pinecone. \n\nYou can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results)."
+      operationId: list_models
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: query
+        name: type
+        description: Filter models by type ('embed' or 'rerank').
+        schema:
+          description: |-
+            Filter models by type.
+            Possible values: `embed` or `rerank`.
+          x-enum:
+          - embed
+          - rerank
+          type: string
+        example: embed
+        style: form
+      - in: query
+        name: vector_type
+        description: Filter embedding models by vector type ('dense' or 'sparse'). Only relevant when `type=embed`.
+        schema:
+          description: |-
+            Filter models by vector type.
+            Possible values: `dense` or `sparse`.
+          x-enum:
+          - dense
+          - sparse
+          type: string
+        example: sparse
+        style: form
+      responses:
+        '200':
+          description: The list of available models.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelInfoList'
+              examples:
+                multiple-models:
+                  summary: Multiple available models.
+                  value:
+                    models:
+                    - default_dimension: 256
+                      max_batch_size: 96
+                      max_sequence_length: 512
+                      modality: text
+                      model: example-embedding-model
+                      provider_name: Embedding Model Provider
+                      short_description: An example embedding model.
+                      supported_dimensions:
+                      - 256
+                      - 512
+                      supported_metrics:
+                      - cosine
+                      - euclidean
+                      supported_parameters:
+                      - allowed_values:
+                        - value1
+                        - value2
+                        parameter: example_required_param
+                        required: true
+                        type: one_of
+                        value_type: string
+                      - allowed_values:
+                        - value1
+                        - value2
+                        default: value1
+                        parameter: example_param_with_default
+                        required: false
+                        type: one_of
+                        value_type: string
+                      - default: 5
+                        max: 10
+                        min: 0
+                        parameter: example_numeric_range
+                        required: false
+                        type: numeric_range
+                        value_type: integer
+                      type: embed
+                      vector_type: dense
+                    - max_batch_size: 100
+                      max_sequence_length: 1024
+                      modality: text
+                      model: example-reranking-model
+                      provider_name: Reranking Model Provider
+                      short_description: An example reranking model.
+                      supported_parameters:
+                      - default: true
+                        parameter: example_any_value
+                        required: false
+                        type: any
+                        value_type: boolean
+                      type: rerank
+        '401':
+          description: 'Unauthorized. Possible causes: Invalid API key.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: Unauthorized
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      message: Invalid API key.
+                    status: 401
+        '404':
+          description: Model not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                model-not-found:
+                  summary: Model not found
+                  value:
+                    error:
+                      code: NOT_FOUND
+                      message: Model example-model not found.
+                    status: 404
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal-server-error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      code: UNKNOWN
+                      message: Internal server error
+                    status: 500
+  /models/{model_name}:
+    get:
+      tags:
+      - Inference
+      summary: Describe a model
+      description: "Get a description of a model hosted by Pinecone. \n\nYou can use hosted models as an integrated part of Pinecone operations or for standalone embedding and reranking. For more details, see [Vector embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding) and [Rerank results](https://docs.pinecone.io/guides/search/rerank-results)."
+      operationId: get_model
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: model_name
+        description: The name of the model to look up.
+        required: true
+        schema:
+          type: string
+        example: multilingual-e5-large
+        style: simple
+      responses:
+        '200':
+          description: The model details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelInfo'
+              examples:
+                embedding-model:
+                  summary: An embedding model.
+                  value:
+                    default_dimension: 256
+                    max_batch_size: 96
+                    max_sequence_length: 512
+                    modality: text
+                    model: example-embedding-model
+                    provider_name: Embedding Model Provider
+                    short_description: An example embedding model.
+                    supported_dimensions:
+                    - 256
+                    - 512
+                    supported_metrics:
+                    - cosine
+                    - euclidean
+                    supported_parameters:
+                    - allowed_values:
+                      - value1
+                      - value2
+                      parameter: example_required_param
+                      required: true
+                      type: one_of
+                      value_type: string
+                    - allowed_values:
+                      - value1
+                      - value2
+                      default: value1
+                      parameter: example_param_with_default
+                      required: false
+                      type: one_of
+                      value_type: string
+                    - default: 5
+                      max: 10
+                      min: 0
+                      parameter: example_numeric_range
+                      required: false
+                      type: numeric_range
+                      value_type: integer
+                    type: embed
+                    vector_type: dense
+                rerank-model:
+                  summary: A reranking model.
+                  value:
+                    max_batch_size: 100
+                    max_sequence_length: 1024
+                    modality: text
+                    model: example-reranking-model
+                    provider_name: Reranking Model Provider
+                    short_description: An example reranking model.
+                    supported_parameters:
+                    - default: true
+                      parameter: example_any_value
+                      required: false
+                      type: any
+                      value_type: boolean
+                    type: rerank
+        '401':
+          description: 'Unauthorized. Possible causes: Invalid API key.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                unauthorized:
+                  summary: Unauthorized
+                  value:
+                    error:
+                      code: UNAUTHENTICATED
+                      message: Invalid API key.
+                    status: 401
+        '404':
+          description: Model not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                model-not-found:
+                  summary: Model not found
+                  value:
+                    error:
+                      code: NOT_FOUND
+                      message: Model example-model not found.
+                    status: 404
+        '500':
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal-server-error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      code: UNKNOWN
+                      message: Internal server error
+                    status: 500
+components:
+  schemas:
+    ModelInfoMetric:
+      description: |-
+        A distance metric that the embedding model supports for similarity searches.
+        Possible values: `cosine`, `euclidean`, or `dotproduct`.
+      x-enum:
+      - cosine
+      - euclidean
+      - dotproduct
+      type: string
+    ModelInfoSupportedParameter:
+      description: Describes a parameter supported by the model, including parameter value constraints.
+      type: object
+      properties:
+        parameter:
+          example: input_type
+          description: The name of the parameter.
+          type: string
+        type:
+          example: one_of
+          description: |-
+            The parameter type e.g. 'one_of', 'numeric_range', or 'any'.
+
+            If the type is 'one_of', then 'allowed_values' will be set, and the value specified must be one of the allowed values. 'one_of' is only compatible with value_type 'string' or 'integer'.
+
+            If 'numeric_range', then 'min' and 'max' will be set, then the value specified must adhere to the value_type and must fall within the `[min, max]` range (inclusive).
+
+            If 'any' then any value is allowed, as long as it adheres to the value_type.
+          type: string
+        value_type:
+          example: string
+          description: The type of value the parameter accepts, e.g. 'string', 'integer', 'float', or 'boolean'.
+          type: string
+        required:
+          example: true
+          description: Whether the parameter is required (true) or optional (false).
+          type: boolean
+        allowed_values:
+          description: The allowed parameter values when the type is 'one_of'.
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        min:
+          example: 1
+          description: The minimum allowed value (inclusive) when the type is 'numeric_range'.
+          type: number
+        max:
+          example: 1
+          description: The maximum allowed value (inclusive) when the type is 'numeric_range'.
+          type: number
+        default:
+          example: END
+          description: The default value for the parameter when a parameter is optional.
+          anyOf:
+          - type: string
+          - type: integer
+            format: int32
+          - type: number
+            format: float
+          - type: boolean
+      required:
+      - parameter
+      - type
+      - value_type
+      - required
+    VectorType:
+      description: Indicates whether this is a 'dense' or 'sparse' embedding.
+      type: string
+    SparseEmbedding:
+      title: Sparse embedding
+      description: A sparse embedding of a single input
+      type: object
+      properties:
+        sparse_values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          description: The sparse embedding values.
+          type: array
+          items:
+            type: number
+            format: float
+        sparse_indices:
+          example:
+          - 10
+          - 3
+          - 156
+          description: The sparse embedding indices.
+          type: array
+          items:
+            type: integer
+            format: int64
+            minimum: 0
+            maximum: 4294967295
+        sparse_tokens:
+          example:
+          - quick
+          - brown
+          - fox
+          description: The normalized tokens used to create the sparse embedding.
+          type: array
+          items:
+            type: string
+        vector_type:
+          $ref: '#/components/schemas/VectorType'
+      required:
+      - sparse_values
+      - sparse_indices
+      - vector_type
+    ModelInfoSupportedMetrics:
+      description: The distance metrics supported by the model for similarity search.
+      type: array
+      items:
+        $ref: '#/components/schemas/ModelInfoMetric'
+    Document:
+      example:
+        id: '1'
+        text: Paris is the capital of France.
+        title: France
+        url: https://example.com
+      description: Document for reranking
+      type: object
+      additionalProperties: true
+    EmbeddingsList:
+      description: Embeddings generated for the input.
+      type: object
+      properties:
+        model:
+          example: multilingual-e5-large
+          description: The model used to generate the embeddings
+          type: string
+        vector_type:
+          example: dense
+          description: Indicates whether the response data contains 'dense' or 'sparse' embeddings.
+          type: string
+        data:
+          description: The embeddings generated for the inputs.
+          type: array
+          items:
+            $ref: '#/components/schemas/Embedding'
+        usage:
+          description: Usage statistics for the model inference.
+          type: object
+          properties:
+            total_tokens:
+              example: 205
+              description: Total number of tokens consumed across all inputs.
+              type: integer
+              format: int32
+              minimum: 0
+      required:
+      - model
+      - vector_type
+      - data
+      - usage
+    ErrorResponse:
+      example:
+        error:
+          code: QUOTA_EXCEEDED
+          message: The index exceeds the project quota of 5 pods by 2 pods. Upgrade your account or change the project settings to increase the quota.
+        status: 429
+      description: The response shape used for all error responses.
+      type: object
+      properties:
+        status:
+          example: 500
+          description: The HTTP status code of the error.
+          type: integer
+        error:
+          example:
+            code: INVALID_ARGUMENT
+            message: Index name must contain only lowercase alphanumeric characters or hyphens, and must not begin or end with a hyphen.
+          description: Detailed information about the error that occurred.
+          type: object
+          properties:
+            code:
+              description: |-
+                The error code.
+                Possible values: `OK`, `UNKNOWN`, `INVALID_ARGUMENT`, `DEADLINE_EXCEEDED`, `QUOTA_EXCEEDED`, `NOT_FOUND`, `ALREADY_EXISTS`, `PERMISSION_DENIED`, `UNAUTHENTICATED`, `RESOURCE_EXHAUSTED`, `FAILED_PRECONDITION`, `ABORTED`, `OUT_OF_RANGE`, `UNIMPLEMENTED`, `INTERNAL`, `UNAVAILABLE`, `DATA_LOSS`, or `FORBIDDEN`.
+              x-enum:
+              - OK
+              - UNKNOWN
+              - INVALID_ARGUMENT
+              - DEADLINE_EXCEEDED
+              - QUOTA_EXCEEDED
+              - NOT_FOUND
+              - ALREADY_EXISTS
+              - PERMISSION_DENIED
+              - UNAUTHENTICATED
+              - RESOURCE_EXHAUSTED
+              - FAILED_PRECONDITION
+              - ABORTED
+              - OUT_OF_RANGE
+              - UNIMPLEMENTED
+              - INTERNAL
+              - UNAVAILABLE
+              - DATA_LOSS
+              - FORBIDDEN
+              type: string
+            message:
+              example: Index name must contain only lowercase alphanumeric characters or hyphens, and must not begin or end with a hyphen.
+              description: A human-readable error message describing the error.
+              type: string
+            details:
+              description: Additional information about the error. This field is not guaranteed to be present.
+              type: object
+          required:
+          - code
+          - message
+      required:
+      - status
+      - error
+    RerankRequest:
+      type: object
+      properties:
+        model:
+          example: bge-reranker-v2-m3
+          description: The [model](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) to use for reranking.
+          type: string
+        query:
+          example: What is the capital of France?
+          description: The query to rerank documents against.
+          type: string
+        top_n:
+          example: 5
+          description: The number of results to return sorted by relevance. Defaults to the number of inputs.
+          type: integer
+        return_documents:
+          example: true
+          description: Whether to return the documents in the response.
+          default: true
+          type: boolean
+        rank_fields:
+          description: |
+            The field(s) to consider for reranking. If not provided, the default is `["text"]`.
+
+            The number of fields supported is [model-specific](https://docs.pinecone.io/guides/search/rerank-results#reranking-models).
+          default:
+          - text
+          type: array
+          items:
+            type: string
+        documents:
+          description: The documents to rerank.
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        parameters:
+          example:
+            truncate: END
+          description: Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) for available model parameters.
+          type: object
+          additionalProperties: true
+      required:
+      - model
+      - documents
+      - query
+    ModelInfoList:
+      description: The list of available models.
+      type: object
+      properties:
+        models:
+          description: List of available models.
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelInfo'
+    RerankResult:
+      description: The result of a reranking request.
+      type: object
+      properties:
+        model:
+          example: bge-reranker-v2-m3
+          description: The model used to rerank documents.
+          type: string
+        data:
+          description: The reranked documents.
+          type: array
+          items:
+            $ref: '#/components/schemas/RankedDocument'
+        usage:
+          description: Usage statistics for the model inference.
+          type: object
+          properties:
+            rerank_units:
+              example: 1
+              description: The number of rerank units consumed by this operation.
+              type: integer
+              format: int32
+              minimum: 0
+      required:
+      - model
+      - data
+      - usage
+    Embedding:
+      description: Embedding of a single input
+      discriminator:
+        propertyName: vector_type
+        mapping:
+          dense: '#/components/schemas/DenseEmbedding'
+          sparse: '#/components/schemas/SparseEmbedding'
+      type: object
+      oneOf:
+      - $ref: '#/components/schemas/DenseEmbedding'
+      - $ref: '#/components/schemas/SparseEmbedding'
+    EmbedRequest:
+      type: object
+      properties:
+        model:
+          example: multilingual-e5-large
+          description: The [model](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) to use for embedding generation.
+          type: string
+        parameters:
+          example:
+            input_type: passage
+            truncate: END
+          description: Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models) for available model parameters.
+          type: object
+          additionalProperties: true
+        inputs:
+          description: List of inputs to generate embeddings for.
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                example: The quick brown fox jumps over the lazy dog.
+                description: The text input to generate embeddings for.
+                type: string
+      required:
+      - model
+      - inputs
+    ModelInfo:
+      description: Represents the model configuration including model type, supported parameters, and other model details.
+      type: object
+      properties:
+        model:
+          example: multilingual-e5-large
+          description: The name of the model.
+          type: string
+        short_description:
+          example: multilingual-e5-large
+          description: A summary of the model.
+          type: string
+        type:
+          example: embed
+          description: The type of model (e.g. 'embed' or 'rerank').
+          type: string
+        vector_type:
+          description: Whether the embedding model produces 'dense' or 'sparse' embeddings.
+          type: string
+        default_dimension:
+          example: 1024
+          description: The default embedding model dimension (applies to dense embedding models only).
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 20000
+        modality:
+          example: text
+          description: The modality of the model (e.g. 'text').
+          type: string
+        max_sequence_length:
+          example: 512
+          description: The maximum tokens per sequence supported by the model.
+          type: integer
+          format: int32
+          minimum: 1
+        max_batch_size:
+          example: 96
+          description: The maximum batch size (number of sequences) supported by the model.
+          type: integer
+          format: int32
+          minimum: 1
+        provider_name:
+          example: NVIDIA
+          description: The name of the provider of the model.
+          type: string
+        supported_dimensions:
+          description: The list of supported dimensions for the model (applies to dense embedding models only).
+          type: array
+          items:
+            example: 1024
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 20000
+        supported_metrics:
+          $ref: '#/components/schemas/ModelInfoSupportedMetrics'
+        supported_parameters:
+          description: List of parameters supported by the model.
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelInfoSupportedParameter'
+      required:
+      - model
+      - short_description
+      - type
+      - supported_parameters
+    DenseEmbedding:
+      title: Dense embedding
+      description: A dense embedding of a single input
+      type: object
+      properties:
+        values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          description: The dense embedding values.
+          type: array
+          items:
+            type: number
+            format: float
+        vector_type:
+          $ref: '#/components/schemas/VectorType'
+      required:
+      - values
+      - vector_type
+    RankedDocument:
+      description: A ranked document with a relevance score and an index position.
+      type: object
+      properties:
+        index:
+          description: The index position of the document from the original request.
+          type: integer
+        score:
+          example: 0.5
+          description: The relevance of the document to the query, normalized between 0 and 1, with scores closer to 1 indicating higher relevance.
+          type: number
+        document:
+          $ref: '#/components/schemas/Document'
+      required:
+      - index
+      - score
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Api-Key
+      description: An API Key is required to call Pinecone APIs. Get yours from the [console](https://app.pinecone.io/).
+security:
+- ApiKeyAuth: []
+tags:
+- name: Inference
+  description: Model inference
+externalDocs:
+  description: More Pinecone.io API docs
+  url: https://docs.pinecone.io/introduction

@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-16T00:00:49.916039Z",
+  "cli_dir": "\u003ccli-dir\u003e/pinecone",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 9,
+    "captured": "2026-05-15T23:56:37.526913Z"
+  }
+}

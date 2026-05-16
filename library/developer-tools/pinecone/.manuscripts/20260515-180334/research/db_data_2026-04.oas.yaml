@@ -1,0 +1,2112 @@
+openapi: 3.0.3
+info:
+  title: Pinecone Data Plane API
+  description: Pinecone is a vector database that makes it easy to search and retrieve billions of high-dimensional vectors.
+  contact:
+    name: Pinecone Support
+    url: https://support.pinecone.io
+    email: support@pinecone.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  version: 2026-04
+servers:
+- url: https://{index_host}
+  variables:
+    index_host:
+      default: unknown
+      description: host of the index
+paths:
+  /bulk/imports:
+    get:
+      tags:
+      - Bulk Operations
+      summary: List imports
+      description: |-
+        List all recent and ongoing import operations.
+
+        By default, `list_imports` returns up to 100 imports per page. If the `limit` parameter is set, `list` returns up to that number of imports instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of imports. When the response does not include a `pagination_token`, there are no more imports to return.
+
+        For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
+      operationId: listBulkImports
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: query
+        name: limit
+        description: Max number of operations to return per page.
+        schema:
+          default: 100
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 100
+        example: 10
+        style: form
+      - in: query
+        name: paginationToken
+        description: Pagination token to continue a previous listing operation.
+        schema:
+          type: string
+        style: form
+      responses:
+        '200':
+          description: A list of import operations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListImportsResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    post:
+      tags:
+      - Bulk Operations
+      summary: Start import
+      description: |-
+        Start an asynchronous import of vectors from object storage into an index.
+
+        For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
+      operationId: startBulkImport
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartImportRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful import operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartImportResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /bulk/imports/{id}:
+    get:
+      tags:
+      - Bulk Operations
+      summary: Describe an import
+      description: |-
+        Return details of a specific import operation.
+
+        For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
+      operationId: describeBulkImport
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: id
+        description: Unique identifier for the import operation.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        example: '101'
+        style: simple
+      responses:
+        '200':
+          description: Details of the import operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportModel'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    delete:
+      tags:
+      - Bulk Operations
+      summary: Cancel an import
+      description: |-
+        Cancel an import operation if it is not yet finished. It has no effect if the operation is already finished.
+
+        For guidance and examples, see [Import data](https://docs.pinecone.io/guides/index-data/import-data).
+      operationId: cancelBulkImport
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: id
+        description: Unique identifier for the import operation.
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        example: '101'
+        style: simple
+      responses:
+        '200':
+          description: Operation cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelImportResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /describe_index_stats:
+    post:
+      tags:
+      - Vector Operations
+      summary: Get index stats
+      description: |-
+        Return statistics about the contents of an index, including the vector count per namespace, the number of dimensions, and the index fullness.
+
+        Serverless indexes scale automatically as needed, so index fullness is relevant only for pod-based indexes.
+      operationId: describeIndexStats
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DescribeIndexStatsRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndexDescription'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /query:
+    post:
+      tags:
+      - Vector Operations
+      summary: Search with a vector
+      description: |-
+        Search a namespace using a query vector. It retrieves the ids of the most similar items in a namespace, along with their similarity scores.
+
+        For guidance, examples, and limits, see [Search](https://docs.pinecone.io/guides/search/search-overview).
+      operationId: queryVectors
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /vectors/delete:
+    post:
+      tags:
+      - Vector Operations
+      summary: Delete records
+      description: |-
+        Delete records by id or by metadata from a single namespace.
+
+        For guidance and examples, see [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data).
+      operationId: deleteVectors
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /vectors/fetch:
+    get:
+      tags:
+      - Vector Operations
+      summary: Fetch records
+      description: |-
+        Look up and return records by ID from a single namespace. The returned records include the vector data and/or metadata.
+        For on-demand indexes, since vector values are retrieved from object storage, fetch operations may have increased latency. If you only need metadata or IDs, consider using the query operation with `includeValues` set to `false` instead.
+        For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
+      operationId: fetchVectors
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: query
+        name: ids
+        description: The vector IDs to fetch. Does not accept values containing spaces.
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+        explode: true
+        style: form
+      - in: query
+        name: namespace
+        description: The namespace to fetch records from. If not provided, the default namespace is used.
+        schema:
+          type: string
+        style: form
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /vectors/fetch_by_metadata:
+    post:
+      tags:
+      - Vector Operations
+      summary: Fetch records by metadata
+      description: |-
+        Look up and return records by metadata from a single namespace. The returned records include the vector data and metadata.
+        For guidance and examples, see [Fetch data](https://docs.pinecone.io/guides/manage-data/fetch-data).
+      operationId: fetch_vectors_by_metadata
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchByMetadataRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FetchByMetadataResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /vectors/list:
+    get:
+      tags:
+      - Vector Operations
+      summary: List record IDs
+      description: |-
+        List the IDs of records in a single namespace of a serverless index. An optional prefix can be passed to limit the results to IDs with a common prefix.
+
+        Returns up to 100 IDs at a time by default in sorted order (bitwise "C" collation). If the `limit` parameter is set, `list` returns up to that number of IDs instead. Whenever there are additional IDs to return, the response also includes a `pagination_token` that you can use to get the next batch of IDs. When the response does not include a `pagination_token`, there are no more IDs to return.
+
+        For guidance and examples, see [List record IDs](https://docs.pinecone.io/guides/manage-data/list-record-ids).
+
+        **Note:** `list` is supported only for serverless indexes.
+      operationId: listVectors
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: query
+        name: prefix
+        description: The vector IDs to fetch. Does not accept values containing spaces.
+        schema:
+          type: string
+        style: form
+      - in: query
+        name: limit
+        description: Max number of IDs to return per page.
+        schema:
+          default: 100
+          type: integer
+          format: int64
+        style: form
+      - in: query
+        name: paginationToken
+        description: Pagination token to continue a previous listing operation.
+        schema:
+          type: string
+        style: form
+      - in: query
+        name: namespace
+        description: The namespace to list vectors from. If not provided, the default namespace is used.
+        schema:
+          type: string
+        style: form
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /vectors/update:
+    post:
+      tags:
+      - Vector Operations
+      summary: Update a record
+      description: |-
+        Update records by ID or by metadata in a namespace. Updating by ID changes the vector and/or metadata of a single record. Updating by metadata changes metadata across multiple records using a metadata filter.
+        If a vector value is included, it will overwrite the previous value. If `set_metadata` is included, only the specified metadata fields are modified, and if a specified metadata field does not exist, it is added.
+        For guidance and examples, see [Update data](https://docs.pinecone.io/guides/manage-data/update-data).
+      operationId: updateVector
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /vectors/upsert:
+    post:
+      tags:
+      - Vector Operations
+      summary: Upsert records
+      description: |-
+        Upsert records into a namespace. If a new value is upserted for an existing record ID, it will overwrite the previous value.
+
+        For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
+      operationId: upsertVectors
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpsertResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /namespaces:
+    get:
+      tags:
+      - Namespace Operations
+      summary: List namespaces
+      description: |-
+        List all namespaces in a serverless index.
+
+        Up to 100 namespaces are returned at a time by default, in sorted order (bitwise “C” collation). If the `limit` parameter is set, up to that number of namespaces are returned instead. Whenever there are additional namespaces to return, the response also includes a `pagination_token` that you can use to get the next batch of namespaces. When the response does not include a `pagination_token`, there are no more namespaces to return.
+
+        For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+
+        **Note:** This operation is not supported for pod-based indexes.
+      operationId: listNamespacesOperation
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: query
+        name: limit
+        description: Max number namespaces to return per page.
+        schema:
+          type: integer
+          format: int32
+        example: 10
+        style: form
+      - in: query
+        name: paginationToken
+        description: Pagination token to continue a previous listing operation.
+        schema:
+          type: string
+        style: form
+      - in: query
+        name: prefix
+        description: Prefix of the namespaces to list. Acts as a filter to return only namespaces that start with this prefix.
+        schema:
+          type: string
+        example: prefixExample
+        style: form
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNamespacesResponse'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    post:
+      tags:
+      - Namespace Operations
+      summary: Create a namespace
+      description: |-
+        Create a namespace in a serverless index.
+
+        For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+
+        **Note:** This operation is not supported for pod-based indexes.
+      operationId: createNamespace
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNamespaceRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamespaceDescription'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        '409':
+          description: Namespace of the given name already exists on the index.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /namespaces/{namespace}:
+    get:
+      tags:
+      - Namespace Operations
+      summary: Describe a namespace
+      description: |-
+        Describe a namespace in a serverless index, including the total number of vectors in the namespace.
+
+        For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+
+        **Note:** This operation is not supported for pod-based indexes.
+      operationId: describeNamespace
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: namespace
+        description: The namespace to describe.
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          description: A description of a namespace.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamespaceDescription'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+    delete:
+      tags:
+      - Namespace Operations
+      summary: Delete a namespace
+      description: |-
+        Delete a namespace from a serverless index. Deleting a namespace is irreversible; all data in the namespace is permanently deleted.
+
+        For guidance and examples, see [Manage namespaces](https://docs.pinecone.io/guides/manage-data/manage-namespaces).
+
+        **Note:** This operation is not supported for pod-based indexes.
+      operationId: deleteNamespace
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: namespace
+        description: The namespace to delete.
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        '200':
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /records/namespaces/{namespace}/upsert:
+    post:
+      tags:
+      - Vector Operations
+      summary: Upsert text
+      description: |-
+        Upsert text into a namespace. Pinecone converts the text to vectors automatically using the hosted embedding model associated with the index.
+
+        Upserting text is supported only for [indexes with integrated embedding](https://docs.pinecone.io/guides/index-data/create-an-index#embedding-models).
+
+        For guidance, examples, and limits, see [Upsert data](https://docs.pinecone.io/guides/index-data/upsert-data).
+      operationId: upsertRecordsNamespace
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: namespace
+        description: The namespace to upsert records into.
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        description: |
+          Each record in the request body must include an `_id` field and a field that matches your index's `field_map` configuration (such as `chunk_text` or `data`). All other fields are stored as metadata.
+        content:
+          application/x-ndjson:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpsertRecord'
+        required: true
+      responses:
+        '201':
+          description: A successful response.
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+  /records/namespaces/{namespace}/search:
+    post:
+      tags:
+      - Vector Operations
+      summary: Search with text
+      description: "Search a namespace with a query text, query vector, or record ID and return the most similar records, along with their similarity scores. Optionally, rerank the initial results based on their relevance to the query. \n\nSearching with text is supported only for indexes with [integrated embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding). Searching with a query vector or record ID is supported for all indexes. \n\nFor guidance and examples, see [Search](https://docs.pinecone.io/guides/search/search-overview)."
+      operationId: searchRecordsNamespace
+      parameters:
+      - in: header
+        name: X-Pinecone-Api-Version
+        description: Required date-based version header
+        required: true
+        schema:
+          default: 2026-04
+          type: string
+        style: simple
+      - in: path
+        name: namespace
+        description: The namespace to search.
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRecordsRequest'
+        required: true
+      responses:
+        '200':
+          description: A successful search namespace response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchRecordsResponse'
+        '400':
+          description: Bad request. The request body included invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        4XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+        5XX:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rpcStatus'
+components:
+  schemas:
+    StartImportRequest:
+      description: The request for the `start_import` operation.
+      type: object
+      properties:
+        integrationId:
+          description: The id of the [storage integration](https://docs.pinecone.io/guides/operations/integrations/manage-storage-integrations) that should be used to access the data.
+          type: string
+          maxLength: 1000
+        uri:
+          description: The URI of the bucket (or container) and import directory containing the namespaces and Parquet files you want to import. For example, `s3://BUCKET_NAME/IMPORT_DIR` for Amazon S3, `gs://BUCKET_NAME/IMPORT_DIR` for Google Cloud Storage, or `https://STORAGE_ACCOUNT.blob.core.windows.net/CONTAINER_NAME/IMPORT_DIR` for Azure Blob Storage. For more information, see [Import records](https://docs.pinecone.io/guides/index-data/import-data#prepare-your-data).
+          type: string
+          minLength: 1
+          maxLength: 1500
+        errorMode:
+          $ref: '#/components/schemas/ImportErrorMode'
+      required:
+      - uri
+    ImportErrorMode:
+      description: Indicates how to respond to errors during the import process.
+      type: object
+      properties:
+        onError:
+          description: |-
+            Indicates how to respond to errors during the import process.
+            Possible values: `abort` or `continue`.
+          x-enum:
+          - abort
+          - continue
+          type: string
+    StartImportResponse:
+      description: The response for the `start_import` operation.
+      type: object
+      properties:
+        id:
+          example: '101'
+          description: Unique identifier for the import operation.
+          type: string
+          minLength: 1
+          maxLength: 1000
+    CancelImportResponse:
+      description: The response for the `cancel_import` operation.
+      type: object
+    ImportModel:
+      description: The model for an import operation.
+      type: object
+      properties:
+        id:
+          example: '101'
+          description: Unique identifier for the import operation.
+          type: string
+          minLength: 1
+          maxLength: 1000
+        uri:
+          description: The URI from where the data is imported.
+          type: string
+        status:
+          example: Pending
+          description: |-
+            The status of the operation.
+            Possible values: `Pending`, `InProgress`, `Failed`, `Completed`, or `Cancelled`.
+          x-enum:
+          - Pending
+          - InProgress
+          - Failed
+          - Completed
+          - Cancelled
+          type: string
+        createdAt:
+          description: The start time of the import operation.
+          type: string
+          format: date-time
+        finishedAt:
+          description: The end time of the import operation.
+          type: string
+          format: date-time
+        percentComplete:
+          example: 42.2
+          description: The progress made by the operation, as a percentage.
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 100.0
+        recordsImported:
+          example: 1000000
+          description: The number of records successfully imported.
+          type: integer
+          format: int64
+        error:
+          description: The error message if the import process failed.
+          type: string
+    ListImportsResponse:
+      description: The response for the `list_imports` operation.
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportModel'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    DeleteRequest:
+      description: The request for the `delete` operation.
+      type: object
+      properties:
+        ids:
+          example:
+          - id-0
+          - id-1
+          description: Vectors to delete.
+          type: array
+          items:
+            type: string
+          minLength: 1
+          maxLength: 1000
+        deleteAll:
+          example: false
+          description: This indicates that all vectors in the index namespace should be deleted.
+          default: false
+          type: boolean
+        namespace:
+          example: example-namespace
+          description: The namespace to delete records from, if applicable.
+          type: string
+        filter:
+          description: If specified, the metadata filter here will be used to select the vectors to delete. This is mutually exclusive with specifying ids to delete in the ids param or using delete_all=True. See [Delete data](https://docs.pinecone.io/guides/manage-data/delete-data#delete-records-by-metadata).
+          type: object
+    DeleteResponse:
+      description: The response for the `delete` operation.
+      type: object
+    DescribeIndexStatsRequest:
+      description: The request for the `describe_index_stats` operation.
+      type: object
+      properties:
+        filter:
+          description: |-
+            If this parameter is present, the operation only returns statistics for vectors that satisfy the filter. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata).
+
+            Serverless indexes do not support filtering `describe_index_stats` by metadata.
+          type: object
+    IndexDescription:
+      example:
+        dimension: 1024
+        index_fullness: 0.4
+        namespaces:
+          '':
+            vectorCount: 50000
+          example-namespace-2:
+            vectorCount: 30000
+        totalVectorCount: 80000
+      description: The response for the `describe_index_stats` operation.
+      type: object
+      properties:
+        namespaces:
+          description: A mapping for each namespace in the index from the namespace name to a summary of its contents. If a metadata filter expression is present, the summary will reflect only vectors matching that expression.
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/NamespaceSummary'
+        dimension:
+          example: 1024
+          description: The dimension of the indexed vectors. Not specified if `sparse` index.
+          type: integer
+          format: int64
+        indexFullness:
+          example: 0.4
+          description: |-
+            The fullness of the index, regardless of whether a metadata filter expression was passed. The granularity of this metric is 10%.
+
+            Serverless indexes scale automatically as needed, so index fullness  is relevant only for pod-based indexes.
+
+            The index fullness result may be inaccurate during pod resizing; to get the status of a pod resizing process, use [`describe_index`](https://docs.pinecone.io/reference/api/2024-10/control-plane/describe_index).
+          type: number
+          format: float
+        totalVectorCount:
+          example: 80000
+          description: The total number of vectors in the index, regardless of whether a metadata filter expression was passed
+          type: integer
+          format: int64
+        metric:
+          example: cosine
+          description: The metric used to measure similarity.
+          type: string
+        vectorType:
+          example: dense
+          description: The type of vectors stored in the index.
+          type: string
+        memory_fullness:
+          description: The amount of memory used by a dedicated index
+          type: number
+          format: float
+        storage_fullness:
+          description: The amount of storage used by a dedicated index
+          type: number
+          format: float
+    FetchResponse:
+      example:
+        namespace: example-namespace
+        usage:
+          readUnits: 1
+        vectors:
+          id-1:
+            id: id-1
+            values:
+            - 1.0
+            - 1.5
+          id-2:
+            id: id-2
+            values:
+            - 2.0
+            - 1.0
+      description: The response for the `fetch` operation.
+      type: object
+      properties:
+        vectors:
+          title: The fetched vectors, in the form of a map between the fetched ids and the fetched vectors
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Vector'
+        namespace:
+          example: example-namespace
+          description: The namespace of the vectors.
+          type: string
+        usage:
+          $ref: '#/components/schemas/Usage'
+    ListItem:
+      type: object
+      properties:
+        id:
+          example: document1#abb
+          type: string
+    ListResponse:
+      description: The response for the `list` operation.
+      type: object
+      properties:
+        vectors:
+          example:
+          - id: document1#abb
+          - id: document1#abc
+          title: A list of ids
+          type: array
+          items:
+            $ref: '#/components/schemas/ListItem'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        namespace:
+          example: example-namespace
+          description: The namespace of the vectors.
+          type: string
+        usage:
+          $ref: '#/components/schemas/Usage'
+    NamespaceSummary:
+      description: A summary of the contents of a namespace.
+      type: object
+      properties:
+        vectorCount:
+          example: 50000
+          description: The number of vectors stored in this namespace. Note that updates to this field may lag behind updates to the underlying index and corresponding query results, etc.
+          type: integer
+          format: int64
+    Pagination:
+      type: object
+      properties:
+        next:
+          example: Tm90aGluZyB0byBzZWUgaGVyZQo=
+          type: string
+    CreateNamespaceRequest:
+      description: A request for creating a namespace with the specified namespace name.
+      type: object
+      properties:
+        name:
+          example: example-namespace
+          description: The name of the namespace.
+          type: string
+        schema:
+          example:
+            fields:
+              description:
+                filterable: true
+              genre:
+                filterable: true
+              year:
+                filterable: true
+          description: 'Schema for the behavior of Pinecone''s internal metadata index. By default, all metadata is indexed; when `schema` is present, only fields which are present in the `fields` object with a `filterable: true` are indexed. Note that `filterable: false` is not currently supported.'
+          x-component-name: MetadataSchema
+          type: object
+          properties:
+            fields:
+              description: A map of metadata field names to their configuration. The field name must be a valid metadata field name. The field name must be unique.
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  filterable:
+                    description: Whether the field is filterable. If true, the field is indexed and can be used in filters. Only true values are allowed.
+                    type: boolean
+          required:
+          - fields
+      required:
+      - name
+    NamespaceDescription:
+      description: A description of a namespace, including the name and record count.
+      type: object
+      properties:
+        name:
+          example: example-namespace
+          description: The name of the namespace.
+          type: string
+        record_count:
+          example: 20000
+          description: The total amount of records within the namespace.
+          type: integer
+          format: int64
+        schema:
+          example:
+            fields:
+              description:
+                filterable: true
+              genre:
+                filterable: true
+              year:
+                filterable: true
+          description: 'Schema for the behavior of Pinecone''s internal metadata index. By default, all metadata is indexed; when `schema` is present, only fields which are present in the `fields` object with a `filterable: true` are indexed. Note that `filterable: false` is not currently supported.'
+          x-component-name: MetadataSchema
+          type: object
+          properties:
+            fields:
+              description: A map of metadata field names to their configuration. The field name must be a valid metadata field name. The field name must be unique.
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  filterable:
+                    description: Whether the field is filterable. If true, the field is indexed and can be used in filters. Only true values are allowed.
+                    type: boolean
+          required:
+          - fields
+        indexed_fields:
+          description: A list of all indexed metatadata fields in the namespace
+          type: object
+          properties:
+            fields:
+              example:
+              - genre
+              - year
+              - author
+              type: array
+              items:
+                type: string
+    ListNamespacesResponse:
+      type: object
+      properties:
+        namespaces:
+          description: The list of namespaces belonging to this index.
+          type: array
+          items:
+            $ref: '#/components/schemas/NamespaceDescription'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        total_count:
+          example: 25
+          description: The total number of namespaces in the index matching the prefix
+          type: integer
+          format: int32
+    QueryRequest:
+      description: The request for the `query` operation.
+      type: object
+      properties:
+        namespace:
+          example: example-namespace
+          description: The namespace to query.
+          type: string
+        topK:
+          example: 10
+          description: The number of results to return for each query.
+          type: integer
+          minimum: 1.0
+          maximum: 10000.0
+          required:
+          - top_k
+          format: int64
+        filter:
+          example:
+            genre:
+              $in:
+              - comedy
+              - documentary
+              - drama
+            year:
+              $eq: 2019
+          description: The filter to apply. You can use vector metadata to limit your search. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata).
+          type: object
+        includeValues:
+          example: true
+          description: Indicates whether vector values are included in the response. For on-demand indexes, setting this to `true` may increase latency, especially with higher `topK` values, because vector values are retrieved from object storage. Unless you need vector values, set this to `false` for better performance.
+          default: false
+          type: boolean
+        includeMetadata:
+          example: true
+          description: Indicates whether metadata is included in the response as well as the ids.
+          default: false
+          type: boolean
+        queries:
+          deprecated: true
+          description: DEPRECATED. Use `vector` or `id` instead.
+          type: array
+          items:
+            $ref: '#/components/schemas/QueryVector'
+          minLength: 1
+          maxLength: 10
+        vector:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          - 0.4
+          - 0.5
+          - 0.6
+          - 0.7
+          - 0.8
+          description: The query vector. This should be the same length as the dimension of the index being queried. Each `query` request can contain only one of the parameters `id` or `vector`.
+          type: array
+          items:
+            type: number
+            format: float
+          minLength: 1
+          maxLength: 20000
+        sparseVector:
+          $ref: '#/components/schemas/SparseValues'
+        id:
+          example: example-vector-1
+          description: The unique ID of the vector to be used as a query vector. Each request can contain either the `vector` or `id` parameter.
+          type: string
+          maxLength: 512
+        scanFactor:
+          example: 2.0
+          description: |-
+            An optimization parameter for IVF dense indexes in dedicated read node indexes. It adjusts how much of the index is scanned to find vector candidates. Range: 0.5 – 4 (default).
+            Keep the default (4.0) for the best search results. If query latency is too high, try lowering this value incrementally (minimum 0.5) to speed up the search at the cost of slightly lower accuracy. This parameter is only supported for dedicated (DRN) dense indexes.
+          type: number
+          format: float
+          minimum: 0.5
+          maximum: 4.0
+        maxCandidates:
+          example: 1000
+          description: |-
+            An optimization parameter that controls the maximum number of candidate dense vectors to rerank. Reranking computes exact distances to improve recall but increases query latency. Range: top_k – 100000.
+            Keep the default for a balance of recall and latency. Increase this value if recall is too low, or decrease it to reduce latency at the cost of accuracy. This parameter is only supported for dedicated (DRN) dense indexes.
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 100000
+      required:
+      - topK
+    QueryResponse:
+      description: The response for the `query` operation. These are the matches found for a particular query vector. The matches are ordered from most similar to least similar.
+      type: object
+      properties:
+        results:
+          deprecated: true
+          description: DEPRECATED. The results of each query. The order is the same as `QueryRequest.queries`.
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleQueryResults'
+        matches:
+          description: The matches for the vectors.
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoredVector'
+        namespace:
+          description: The namespace for the vectors.
+          type: string
+        usage:
+          $ref: '#/components/schemas/Usage'
+    QueryVector:
+      deprecated: true
+      description: A single query vector within a `QueryRequest`.
+      type: object
+      properties:
+        values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          - 0.4
+          - 0.5
+          - 0.6
+          - 0.7
+          - 0.8
+          description: The query vector values. This should be the same length as the dimension of the index being queried.
+          type: array
+          required:
+          - values
+          items:
+            type: number
+            format: float
+          minLength: 1
+          maxLength: 20000
+        sparseValues:
+          $ref: '#/components/schemas/SparseValues'
+        topK:
+          example: 10
+          description: An override for the number of results to return for this query vector.
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 10000
+        namespace:
+          example: example-namespace
+          description: An override the namespace to search.
+          type: string
+        filter:
+          example:
+            genre:
+              $in:
+              - comedy
+              - documentary
+              - drama
+            year:
+              $eq: 2019
+          description: An override for the metadata filter to apply. This replaces the request-level filter.
+          type: object
+      required:
+      - values
+    ScoredVector:
+      type: object
+      properties:
+        id:
+          example: example-vector-1
+          description: This is the vector's unique id.
+          type: string
+          required:
+          - id
+          minLength: 1
+          maxLength: 512
+        score:
+          example: 0.08
+          description: This is a measure of similarity between this vector and the query vector.  The higher the score, the more they are similar.
+          type: number
+          format: float
+        values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          - 0.4
+          - 0.5
+          - 0.6
+          - 0.7
+          - 0.8
+          description: This is the vector data, if it is requested.
+          type: array
+          items:
+            type: number
+            format: float
+        sparseValues:
+          $ref: '#/components/schemas/SparseValues'
+        metadata:
+          example:
+            genre: documentary
+            year: 2019
+          description: This is the metadata, if it is requested.
+          type: object
+      required:
+      - id
+    SingleQueryResults:
+      title: The query results for a single `QueryVector`
+      type: object
+      properties:
+        matches:
+          description: The matches for the vectors.
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoredVector'
+        namespace:
+          example: example-namespace
+          description: The namespace for the vectors.
+          type: string
+    SparseValues:
+      description: Vector sparse data. Represented as a list of indices and a list of  corresponded values, which must be with the same length.
+      type: object
+      properties:
+        indices:
+          example:
+          - 1
+          - 312
+          - 822
+          - 14
+          - 980
+          description: The indices of the sparse data.
+          type: array
+          required:
+          - indices
+          items:
+            type: integer
+            format: int64
+          minLength: 1
+          maxLength: 1000
+        values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          - 0.4
+          - 0.5
+          description: The corresponding values of the sparse data, which must be with the same length as the indices.
+          type: array
+          required:
+          - values
+          items:
+            type: number
+            format: float
+          minLength: 1
+          maxLength: 1000
+      required:
+      - indices
+      - values
+    UpdateRequest:
+      description: The request for the `update` operation.
+      type: object
+      properties:
+        id:
+          example: example-vector-1
+          description: Vector's unique id.
+          type: string
+          minLength: 1
+          maxLength: 512
+        values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          - 0.4
+          - 0.5
+          - 0.6
+          - 0.7
+          - 0.8
+          description: Vector data.
+          type: array
+          items:
+            type: number
+            format: float
+          minLength: 1
+          maxLength: 20000
+        sparseValues:
+          $ref: '#/components/schemas/SparseValues'
+        setMetadata:
+          example:
+            genre: documentary
+            year: 2019
+          description: Metadata to set for the record.
+          type: object
+        namespace:
+          example: example-namespace
+          description: The namespace containing the record to update.
+          type: string
+        filter:
+          example:
+            genre:
+              $in:
+              - comedy
+              - documentary
+              - drama
+            year:
+              $eq: 2019
+          description: A metadata filter expression. When updating metadata across records in a namespace,  the update is applied to all records that match the filter.  See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata).
+          type: object
+        dryRun:
+          example: false
+          description: If `true`, return the number of records that match the `filter`, but do not execute the update.  Default is `false`.
+          default: false
+          type: boolean
+    UpdateResponse:
+      description: The response for the `update` operation.
+      type: object
+      properties:
+        matchedRecords:
+          example: 42
+          description: The number of records that matched the filter (if a filter was provided).
+          type: integer
+          format: int32
+    UpsertRequest:
+      description: The request for the `upsert` operation.
+      type: object
+      properties:
+        vectors:
+          description: An array containing the vectors to upsert. Recommended batch limit is up to 1000 vectors.
+          type: array
+          items:
+            $ref: '#/components/schemas/Vector'
+          minLength: 1
+          maxLength: 1000
+        namespace:
+          example: example-namespace
+          description: The namespace where you upsert records.
+          type: string
+      required:
+      - vectors
+    UpsertResponse:
+      description: The response for the `upsert` operation.
+      type: object
+      properties:
+        upsertedCount:
+          example: 2
+          description: The number of vectors upserted.
+          type: integer
+          format: int64
+    UpsertRecord:
+      example:
+        _id: example-record-1
+      description: The request for the `upsert` operation.
+      type: object
+      properties:
+        _id:
+          description: The unique ID of the record to upsert. Note that `id` can be used as an alias for `_id`.
+          type: string
+      required:
+      - _id
+    SearchRecordsRequest:
+      example:
+        fields:
+        - chunk_text
+        query:
+          inputs:
+            text: your query text
+          top_k: 10
+      description: A search request for records in a specific namespace.
+      type: object
+      properties:
+        query:
+          description: .
+          type: object
+          properties:
+            top_k:
+              example: 10
+              description: The number of similar records to return.
+              type: integer
+              format: int32
+            filter:
+              description: The filter to apply. You can use vector metadata to limit your search. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata).
+              type: object
+            inputs:
+              $ref: '#/components/schemas/EmbedInputs'
+            vector:
+              $ref: '#/components/schemas/SearchRecordsVector'
+            id:
+              example: example-vector-1
+              description: The unique ID of the vector to be used as a query vector.
+              type: string
+              maxLength: 512
+            match_terms:
+              $ref: '#/components/schemas/SearchMatchTerms'
+          required:
+          - top_k
+        fields:
+          example:
+          - chunk_text
+          description: The fields to return in the search results. If not specified, the response will include all fields.
+          type: array
+          items:
+            type: string
+          maxLength: 100
+        rerank:
+          description: Parameters for reranking the initial search results.
+          type: object
+          properties:
+            model:
+              example: bge-reranker-v2-m3
+              description: The name of the [reranking model](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) to use.
+              type: string
+            rank_fields:
+              example:
+              - chunk_text
+              - title
+              description: |
+                The field(s) to consider for reranking. If not provided, the default is `["text"]`.
+
+                The number of fields supported is [model-specific](https://docs.pinecone.io/guides/search/rerank-results#reranking-models).
+              type: array
+              items:
+                type: string
+            top_n:
+              example: 5
+              description: The number of top results to return after reranking. Defaults to top_k.
+              type: integer
+              format: int32
+            parameters:
+              example:
+                truncate: END
+              description: Additional model-specific parameters. Refer to the [model guide](https://docs.pinecone.io/guides/search/rerank-results#reranking-models) for available model parameters.
+              type: object
+              additionalProperties: true
+            query:
+              example: What is the capital of France?
+              description: The query to rerank documents against. If a specific rerank query is specified,  it overwrites the query input that was provided at the top level.
+              type: string
+          required:
+          - model
+          - rank_fields
+      required:
+      - query
+    SearchRecordsResponse:
+      example:
+        result:
+          hits:
+          - _id: example-record-1
+            _score: 0.9281134605407715
+            fields:
+              data: your example text
+        usage:
+          embed_total_tokens: 10
+          read_units: 5
+      description: The records search response.
+      type: object
+      properties:
+        result:
+          type: object
+          properties:
+            hits:
+              description: The hits for the search document request.
+              type: array
+              items:
+                $ref: '#/components/schemas/Hit'
+          required:
+          - hits
+        usage:
+          $ref: '#/components/schemas/SearchUsage'
+      required:
+      - usage
+      - result
+    Hit:
+      example:
+        _id: example-record-1
+        _score: 0.9281134605407715
+        fields:
+          data: your example text
+          more_data:
+            text: your example text
+      description: A record whose vector values are similar to the provided search query.
+      type: object
+      properties:
+        _id:
+          description: The record id of the search hit.
+          type: string
+        _score:
+          description: The similarity score of the returned record.
+          type: number
+          format: float
+        fields:
+          description: The selected record fields associated with the search hit.
+          type: object
+      required:
+      - _id
+      - _score
+      - fields
+    Usage:
+      type: object
+      properties:
+        readUnits:
+          example: 5
+          description: The number of read units consumed by this operation.
+          type: integer
+          format: int64
+    SearchUsage:
+      type: object
+      properties:
+        read_units:
+          example: 5
+          description: The number of read units consumed by this operation.
+          type: integer
+          format: int32
+          minimum: 0
+        embed_total_tokens:
+          example: 2
+          description: The number of embedding tokens consumed by this operation.
+          type: integer
+          format: int32
+          minimum: 0
+        rerank_units:
+          example: 1
+          description: The number of rerank units consumed by this operation.
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+      - read_units
+    EmbedInputs:
+      example:
+        text: chunk_text
+      type: object
+    VectorValues:
+      description: This is the vector data included in the request.
+      type: array
+      items:
+        type: number
+        format: float
+      minLength: 1
+      maxLength: 20000
+    Vector:
+      type: object
+      properties:
+        id:
+          example: example-vector-1
+          description: This is the vector's unique id.
+          type: string
+          required:
+          - id
+          minLength: 1
+          maxLength: 512
+        values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          - 0.4
+          - 0.5
+          - 0.6
+          - 0.7
+          - 0.8
+          description: This is the vector data included in the request.
+          type: array
+          required:
+          - values
+          items:
+            type: number
+            format: float
+          minLength: 1
+          maxLength: 20000
+        sparseValues:
+          $ref: '#/components/schemas/SparseValues'
+        metadata:
+          example:
+            genre: documentary
+            year: 2019
+          description: This is the metadata included in the request.
+          type: object
+      required:
+      - id
+    FetchByMetadataRequest:
+      description: The request for the `fetch_by_metadata` operation.
+      type: object
+      properties:
+        namespace:
+          example: example-namespace
+          description: The namespace to fetch records from.
+          type: string
+        filter:
+          example:
+            genre:
+              $in:
+              - comedy
+              - documentary
+              - drama
+            year:
+              $eq: 2019
+          description: Metadata filter expression to select vectors. See [Understanding metadata](https://docs.pinecone.io/guides/index-data/indexing-overview#metadata).
+          type: object
+        limit:
+          example: 12
+          description: Max number of vectors to return.
+          default: 100
+          type: integer
+          format: int64
+          minimum: 1
+        paginationToken:
+          example: Tm90aGluZyB0byBzZWUgaGVyZQo=
+          description: Pagination token to continue a previous listing operation.
+          type: string
+    FetchByMetadataResponse:
+      example:
+        namespace: example-namespace
+        pagination:
+          next: Tm90aGluZyB0byBzZWUgaGVyZQo=
+        usage:
+          readUnits: 5
+        vectors:
+          id-1:
+            id: id-1
+            metadata:
+              genre: documentary
+              year: 2019
+            values:
+            - 1.0
+            - 1.5
+          id-2:
+            id: id-2
+            metadata:
+              genre: comedy
+              year: 2019
+            values:
+            - 2.0
+            - 1.0
+      description: The response for the `fetch_by_metadata` operation.
+      type: object
+      properties:
+        vectors:
+          description: The fetched vectors, in the form of a map between the fetched ids and the fetched vectors
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Vector'
+        namespace:
+          example: example-namespace
+          description: The namespace of the vectors.
+          default: ''
+          type: string
+        usage:
+          $ref: '#/components/schemas/Usage'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    SearchRecordsVector:
+      type: object
+      properties:
+        values:
+          $ref: '#/components/schemas/VectorValues'
+        sparse_values:
+          example:
+          - 0.1
+          - 0.2
+          - 0.3
+          description: The sparse embedding values.
+          type: array
+          items:
+            type: number
+            format: float
+        sparse_indices:
+          example:
+          - 10
+          - 3
+          - 156
+          description: The sparse embedding indices.
+          type: array
+          items:
+            type: integer
+            format: int32
+            minimum: 0
+    SearchMatchTerms:
+      example:
+        strategy: all
+        terms:
+        - animal
+        - CHARACTER
+        - donald Duck
+      description: |-
+        Specifies which terms must be present in the text of each search hit based on the specified strategy. The match is performed
+        against the text field specified in the integrated index `field_map` configuration.
+
+        Terms are normalized and tokenized into single tokens before matching, and order does not matter.
+
+        Example:
+
+          `"match_terms": {"terms": ["animal", "CHARACTER", "donald Duck"], "strategy": "all"}` will tokenize
+          to `["animal", "character", "donald", "duck"]`, and would match
+          `"Donald F. Duck is a funny animal character"` but would not match `"A duck is a funny animal"`.
+
+        Match terms filtering is supported only for sparse indexes with [integrated embedding](https://docs.pinecone.io/guides/index-data/indexing-overview#vector-embedding)
+        configured to use the [pinecone-sparse-english-v0](https://docs.pinecone.io/models/pinecone-sparse-english-v0) model.
+      type: object
+      properties:
+        strategy:
+          description: The strategy for matching terms in the text. Currently, only `all` is supported, which means all specified terms must be present.
+          x-enum:
+          - all
+          type: string
+        terms:
+          description: A list of terms that must be present in the text of each search hit based on the specified strategy.
+          type: array
+          items:
+            type: string
+    protobufAny:
+      type: object
+      properties:
+        typeUrl:
+          type: string
+        value:
+          type: string
+          format: byte
+    rpcStatus:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/protobufAny'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Api-Key
+      description: An API Key is required to call Pinecone APIs. Get yours from the [console](https://app.pinecone.io/).
+security:
+- ApiKeyAuth: []
+tags:
+- name: Vector Operations
+- name: Bulk Operations
+- name: Namespace Operations
+externalDocs:
+  description: More Pinecone.io API docs
+  url: https://docs.pinecone.io/introduction

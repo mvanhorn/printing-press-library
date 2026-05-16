@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-05-16T00:24:48.242903Z",
+  "cli_dir": "/tmp/printing-press/publish/pinecone-E4wy6w/package/library/developer-tools/pinecone",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260515-180334/research/db_control_2026-04.oas.yaml",
+      "line": 8,
+      "column": 12,
+      "matched_span": "support@pinecone.io",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "OpenAPI 'info.contact.email' for the Pinecone db_control spec — Pinecone's published vendor support email (contact name: 'Pinecone Support', url: https://support.pinecone.io). Not customer PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260515-180334/research/db_data_2026-04.oas.yaml",
+      "line": 8,
+      "column": 12,
+      "matched_span": "support@pinecone.io",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "OpenAPI 'info.contact.email' for the Pinecone db_data spec — Pinecone's published vendor support email (data-plane spec), same vendor contact block as db_control. Not customer PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260515-180334/research/inference_2026-04.oas.yaml",
+      "line": 8,
+      "column": 12,
+      "matched_span": "support@pinecone.io",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "OpenAPI 'info.contact.email' for the Pinecone inference spec — Pinecone's published vendor support email (inference-plane spec). Not customer PII."
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260515-180334/research/inference_2026-04.oas.yaml",
+      "line": 537,
+      "column": 22,
+      "matched_span": "4294967295",
+      "status": "accepted",
+      "note": "uint32 maximum used as a numeric upper-bound in an OpenAPI integer schema; matched the phone-us regex by digit-count coincidence.",
+      "category": "other",
+      "evidence_context": "Schema field bound: `type: integer, format: int64, minimum: 0, maximum: 4294967295` — this is 2^32 - 1 (uint32 max), the upper bound of a sparse-token-id field, not a phone number."
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260515-180334/research/pinecone-merged.yaml",
+      "line": 6196,
+      "column": 22,
+      "matched_span": "4294967295",
+      "status": "accepted",
+      "note": "Duplicate of the inference-spec uint32 maximum; appears in the merged spec because the merger concatenates source specs.",
+      "category": "other",
+      "evidence_context": "Same uint32-max numeric bound (2^32 - 1) as in inference_2026-04.oas.yaml line 537, surfaced again here because pinecone-merged.yaml is the concatenated spec used at generate time."
+    }
+  ],
+  "findings_count_before": 0
+}

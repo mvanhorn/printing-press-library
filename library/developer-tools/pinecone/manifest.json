@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "pinecone-pp-mcp",
+  "display_name": "Pinecone",
+  "version": "4.6.1",
+  "description": "Pinecone API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pinecone-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pinecone-pp-mcp",
+      "args": [],
+      "env": {
+        "PINECONE_API_KEY": "${user_config.pinecone_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "pinecone_api_key": {
+      "type": "string",
+      "title": "PINECONE_API_KEY",
+      "description": "Sets PINECONE_API_KEY for the Pinecone MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T23:32:33.997762Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "pinecone",
+  "display_name": "Pinecone",
+  "cli_name": "pinecone-pp-cli",
+  "owner": "dan-bronson",
+  "printer": "armydan",
+  "printer_name": "Dan Bronson",
+  "spec_path": "/Users/danbronson/printing-press/.runstate/code-3ad4c651/runs/20260515-180334/research/pinecone-merged.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:89a469078a7b3ccadefeaf9f8bc14aa1a1c6af4e8ccda0433e538a651cd89c08",
+  "run_id": "20260515-180334",
+  "mcp_binary": "pinecone-pp-mcp",
+  "mcp_tool_count": 40,
+  "mcp_ready": "full",
+  "api_version": "2026-04",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PINECONE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Namespace stats summary",
+      "command": "ns-stats",
+      "description": "Per-namespace record counts and size across all your indexes, in one query."
+    },
+    {
+      "name": "Index inventory",
+      "command": "inventory",
+      "description": "All indexes with their dimension, metric, host, status, and last-modified time."
+    },
+    {
+      "name": "Reachability check",
+      "command": "doctor-deep",
+      "description": "Verifies API key works AND each index's data-plane host is reachable."
+    },
+    {
+      "name": "Bulk delete by filter",
+      "command": "purge",
+      "description": "Delete vectors matching a metadata filter across one or many namespaces with --dry-run preview."
+    },
+    {
+      "name": "Cascading-search local cache",
+      "command": "csearch",
+      "description": "Cascading search across multiple namespaces with local result merging and rerank."
+    },
+    {
+      "name": "Embedding-cost estimator",
+      "command": "estimate",
+      "description": "Estimates inference cost for a batch of texts before submitting (input-token count \u00d7 model price)."
+    },
+    {
+      "name": "Index drift",
+      "command": "drift",
+      "description": "Compares the last cached describe_index_stats vs current \u2014 surfaces namespaces that grew/shrank significantly."
+    },
+    {
+      "name": "Cross-index search",
+      "command": "xindex",
+      "description": "Run the same query against multiple indexes in parallel, merge and rerank."
+    }
+  ]
+}
