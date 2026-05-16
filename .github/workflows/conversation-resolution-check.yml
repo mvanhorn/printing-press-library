@@ -38,7 +38,15 @@ permissions:
 
 jobs:
   evaluate:
-    name: All conversations resolved
+    # Deliberately NOT named "All conversations resolved" — GitHub Actions
+    # auto-creates a check_run for every job using the job name, and we
+    # explicitly POST our own check_run named "All conversations resolved"
+    # at the end of the run. If the job were named the same, the auto
+    # check_run (always success since the script exits 0) would collide
+    # with our POSTed one (which reflects actual thread state). Using a
+    # distinct internal name keeps them separate so only our POSTed
+    # check_run shows up in the merge widget under the user-facing name.
+    name: Evaluate review threads
     if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -75,11 +83,24 @@ jobs:
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
           HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
 
           owner="${GITHUB_REPOSITORY%/*}"
           repo="${GITHUB_REPOSITORY#*/}"
+
+          # Synchronize event fires the moment a push lands, but GitHub
+          # marks threads outdated/resolved asynchronously based on the
+          # new file content. Querying immediately races that resolution
+          # and can report a stale "1 unresolved" for a thread that is
+          # about to flip resolved a second later (PR #587 hit this).
+          # Short settle delay lets the auto-resolution land before we
+          # snapshot thread state. No-op for other event types where the
+          # race doesn't apply.
+          if [ "${EVENT_NAME}" = "pull_request_target" ]; then
+            sleep 8
+          fi
 
           threads_json="$(mktemp)"
           gh api graphql --paginate \
@@ -153,5 +174,20 @@ jobs:
             '{name: $name, head_sha: $head_sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}' \
             > "${payload}"
 
-          gh api -X POST "repos/${GITHUB_REPOSITORY}/check-runs" --input "${payload}" >/dev/null
-          echo "Posted check_run: ${title} (${conclusion}) on ${HEAD_SHA}"
+          # POST creates a new check_run every time, so successive runs
+          # on the same SHA stack up — a stale failure can sit alongside
+          # a fresh success and confuse the merge widget (PR #587 hit
+          # this). PATCH-if-exists makes later runs update the same
+          # check_run so only the latest state is shown. Match by name +
+          # app (own runs only) so we don't trample anyone else's check.
+          existing_id="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100&check_name=All+conversations+resolved" \
+            --jq '[.check_runs[] | select(.app.slug == "github-actions")] | sort_by(.started_at) | .[-1].id // empty')"
+
+          if [ -n "${existing_id}" ]; then
+            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/check-runs/${existing_id}" --input "${payload}" >/dev/null
+            echo "Updated existing check_run ${existing_id}: ${title} (${conclusion}) on ${HEAD_SHA}"
+          else
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/check-runs" --input "${payload}" >/dev/null
+            echo "Posted new check_run: ${title} (${conclusion}) on ${HEAD_SHA}"
+          fi
