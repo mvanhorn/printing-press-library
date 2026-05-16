@@ -32,21 +32,20 @@ on:
         required: true
 
 permissions:
-  checks: write
   contents: read
   pull-requests: read
 
 jobs:
   evaluate:
-    # Deliberately NOT named "All conversations resolved" — GitHub Actions
-    # auto-creates a check_run for every job using the job name, and we
-    # explicitly POST our own check_run named "All conversations resolved"
-    # at the end of the run. If the job were named the same, the auto
-    # check_run (always success since the script exits 0) would collide
-    # with our POSTed one (which reflects actual thread state). Using a
-    # distinct internal name keeps them separate so only our POSTed
-    # check_run shows up in the merge widget under the user-facing name.
-    name: Evaluate review threads
+    # GitHub Actions auto-creates a check_run with this exact name when
+    # the job runs, and its conclusion mirrors the job's exit status.
+    # We rely on that auto-created check_run rather than POSTing our
+    # own because as of Feb 2025 the GitHub Actions runtime rejects
+    # external workflow attempts to update check_run status/conclusion
+    # via GITHUB_TOKEN (HTTP 403). The job exits non-zero when threads
+    # are unresolved, the auto check_run goes red, the merge widget
+    # shows the failure — no API calls, no duplicates, no PATCH races.
+    name: All conversations resolved
     if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -136,64 +135,46 @@ jobs:
           echo "total=${total} unresolved=${unresolved} (active=${unresolved_active} outdated=${unresolved_outdated})"
 
           if [ "${unresolved}" -eq 0 ]; then
-            conclusion="success"
-            title="All ${total} conversation(s) resolved"
-            summary=$'No unresolved review threads on this PR.'
-          else
-            conclusion="failure"
-            if [ "${unresolved_active}" -gt 0 ] && [ "${unresolved_outdated}" -gt 0 ]; then
-              title="${unresolved} unresolved (${unresolved_active} on current code, ${unresolved_outdated} outdated)"
-            elif [ "${unresolved_active}" -gt 0 ]; then
-              title="${unresolved} unresolved conversation(s)"
-            else
-              title="${unresolved} unresolved on outdated lines (likely addressed)"
-            fi
-
-            summary=$(jq -r '
-              def listing:
-                [.[] | select(.isResolved == false)] as $u |
-                ($u | length) as $count |
-                "**" + ($count|tostring) + " unresolved review thread(s):**\n\n" +
-                ([$u[0:10] | .[] |
-                  "- `" + .path + (if .line then ":" + (.line | tostring) else "" end) + "` by `" +
-                  (.comments.nodes[0].author.login // "unknown") + "`" +
-                  (if .isOutdated then " *(outdated — line no longer exists; likely addressed by a later commit)*" else "" end)
-                ] | join("\n")) +
-                (if $count > 10 then "\n\n_… and " + ($count - 10 | tostring) + " more._" else "" end) +
-                "\n\n---\n\n**To unblock the merge**, click \"Resolve conversation\" on each unresolved thread in the GitHub UI.\n\nThis check mirrors the `pull_request.required_review_thread_resolution` ruleset rule on `main`. The ruleset is the gate; this check is the visibility layer.\n\nMaintainers with bypass can override via `gh pr merge " + $PR_NUMBER + " --admin --squash` (use sparingly — see AGENTS.md cardinal rule #1 on Greptile findings)."
-              ;
-              listing
-            ' --arg PR_NUMBER "${PR_NUMBER}" "${threads_json}")
+            printf '## All %s conversation(s) resolved\n\nNo unresolved review threads on this PR.\n' \
+              "${total}" >> "${GITHUB_STEP_SUMMARY}"
+            echo "PASS: 0 unresolved threads on ${HEAD_SHA}"
+            exit 0
           fi
 
-          payload="$(mktemp)"
-          jq -n \
-            --arg name "All conversations resolved" \
-            --arg head_sha "${HEAD_SHA}" \
-            --arg conclusion "${conclusion}" \
-            --arg title "${title}" \
-            --arg summary "${summary}" \
-            '{name: $name, head_sha: $head_sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}' \
-            > "${payload}"
+          # Build the detailed thread listing once, reused for both the
+          # step summary (rendered on the workflow run page) and the
+          # ::error:: annotation (rendered on the check_run's "Files
+          # changed" tab and inline on each commented line).
+          listing="$(jq -r '
+            [.[] | select(.isResolved == false)] as $u |
+            ($u | length) as $count |
+            ([$u[0:10] | .[] |
+              "- `" + .path + (if .line then ":" + (.line | tostring) else "" end) + "` by `" +
+              (.comments.nodes[0].author.login // "unknown") + "`" +
+              (if .isOutdated then " *(outdated — line no longer exists; likely addressed by a later commit)*" else "" end)
+            ] | join("\n")) +
+            (if $count > 10 then "\n\n_… and " + ($count - 10 | tostring) + " more._" else "")
+          ' "${threads_json}")"
 
-          # POST creates a new check_run every time, so successive runs
-          # on the same SHA stack up — a stale failure can sit alongside
-          # a fresh success and confuse the merge widget (PR #587 hit
-          # this). PATCH-if-exists makes later runs update the same
-          # check_run so only the latest state is shown. Match by name +
-          # app (own runs only) so we don't trample anyone else's check.
-          existing_id="$(gh api \
-            "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?per_page=100&check_name=All+conversations+resolved" \
-            --jq '[.check_runs[] | select(.app.slug == "github-actions")] | sort_by(.started_at) | .[-1].id // empty')"
-
-          if [ -n "${existing_id}" ]; then
-            # head_sha is a POST-only field for /check-runs; PATCH rejects
-            # unknown body params with 422, which would `set -e` us out.
-            patch_payload="$(mktemp)"
-            jq 'del(.head_sha)' "${payload}" > "${patch_payload}"
-            gh api -X PATCH "repos/${GITHUB_REPOSITORY}/check-runs/${existing_id}" --input "${patch_payload}" >/dev/null
-            echo "Updated existing check_run ${existing_id}: ${title} (${conclusion}) on ${HEAD_SHA}"
+          if [ "${unresolved_active}" -gt 0 ] && [ "${unresolved_outdated}" -gt 0 ]; then
+            heading="${unresolved} unresolved (${unresolved_active} on current code, ${unresolved_outdated} outdated)"
+          elif [ "${unresolved_active}" -gt 0 ]; then
+            heading="${unresolved} unresolved conversation(s)"
           else
-            gh api -X POST "repos/${GITHUB_REPOSITORY}/check-runs" --input "${payload}" >/dev/null
-            echo "Posted new check_run: ${title} (${conclusion}) on ${HEAD_SHA}"
+            heading="${unresolved} unresolved on outdated lines (likely addressed)"
           fi
+
+          {
+            printf '## %s\n\n%s\n\n---\n\n' "${heading}" "${listing}"
+            printf '**To unblock the merge**, click "Resolve conversation" on each unresolved thread in the GitHub UI.\n\n'
+            printf 'This check mirrors the `pull_request.required_review_thread_resolution` ruleset rule on `main`. The ruleset is the gate; this check is the visibility layer.\n\n'
+            printf 'Maintainers with bypass can override via `gh pr merge %s --admin --squash` (use sparingly — see AGENTS.md cardinal rule #1 on Greptile findings).\n' \
+              "${PR_NUMBER}"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          # ::error:: annotation surfaces in the check_run UI without
+          # needing a POST. The job's non-zero exit drives the auto
+          # check_run's conclusion to failure, which is what the merge
+          # widget displays.
+          echo "::error::${heading} on PR #${PR_NUMBER}. See the workflow run summary for the list. Click \"Resolve conversation\" on each thread to unblock."
+          exit 1
