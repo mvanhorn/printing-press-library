@@ -79,6 +79,9 @@ func newRequestsDeniedReasonsCmd(flags *rootFlags) *cobra.Command {
 					freq[t]++
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating denied reasons: %w", err)
+			}
 
 			out := make([]deniedToken, 0, len(freq))
 			for t, c := range freq {

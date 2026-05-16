@@ -391,6 +391,12 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		}
 		resources = append(resources, r)
 	}
+	// Surface mid-iteration errors as a diagnostic row instead of silently
+	// returning a truncated "fresh" verdict — doctor's whole job is honesty.
+	if err := rows.Err(); err != nil {
+		report["resources_error"] = err.Error()
+		fresh = false
+	}
 	report["resources"] = resources
 	report["stale_after"] = staleAfter.String()
 
