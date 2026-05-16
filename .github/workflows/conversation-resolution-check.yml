@@ -18,10 +18,13 @@ on:
       - ready_for_review
   pull_request_review:
     types: [submitted]
-  pull_request_review_thread:
-    types: [resolved, unresolved]
   pull_request_review_comment:
     types: [created, deleted]
+  # Note: GitHub Actions does NOT support a `pull_request_review_thread`
+  # event trigger (despite that event existing in the webhook payload set).
+  # So clicking "Resolve conversation" in the UI does not auto-fire this
+  # workflow. The check_run will refresh on the next push, review, or
+  # comment event. workflow_dispatch is the manual escape hatch.
   workflow_dispatch:
     inputs:
       pr:
