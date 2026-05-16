@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.3",
-  "name": "n8n-public-pp-mcp",
-  "display_name": "N8n Public",
+  "name": "n8n-pp-mcp",
+  "display_name": "N8n",
   "version": "4.6.1",
   "description": "N8n Public API surface as MCP tools.",
   "author": {
@@ -10,20 +10,20 @@
   "license": "Apache-2.0",
   "server": {
     "type": "binary",
-    "entry_point": "bin/n8n-public-pp-mcp",
+    "entry_point": "bin/n8n-pp-mcp",
     "mcp_config": {
-      "command": "${__dirname}/bin/n8n-public-pp-mcp",
+      "command": "${__dirname}/bin/n8n-pp-mcp",
       "args": [],
       "env": {
-        "N8N_PUBLIC_BEARER_AUTH": "${user_config.n8n_public_bearer_auth}"
+        "N8N_PUBLIC_BEARER_AUTH": "${user_config.n8n_bearer_auth}"
       }
     }
   },
   "user_config": {
-    "n8n_public_bearer_auth": {
+    "n8n_bearer_auth": {
       "type": "string",
       "title": "N8N_PUBLIC_BEARER_AUTH",
-      "description": "Sets N8N_PUBLIC_BEARER_AUTH for the N8n Public MCP server.",
+      "description": "Sets N8N_PUBLIC_BEARER_AUTH for the N8n MCP server.",
       "sensitive": true,
       "required": true
     }
