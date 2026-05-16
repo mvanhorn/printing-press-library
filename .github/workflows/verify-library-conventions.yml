@@ -231,7 +231,12 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (steps.registry-diff.outputs.changed == 'true' || steps.skill-diff.outputs.changed == 'true')
         env:
           BASE_REPO: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ github.token }}
+          # PAT (not GITHUB_TOKEN) so the resulting push triggers
+          # pull_request_target workflows like greptile-policy-gate;
+          # GITHUB_TOKEN-authored pushes are suppressed by GitHub's
+          # anti-recursion rule and leave required checks missing on
+          # the new head SHA.
+          PUSH_TOKEN: ${{ secrets.MIRROR_AUTOPUSH_TOKEN }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
           REGISTRY_CHANGED: ${{ steps.registry-diff.outputs.changed }}
           SKILL_CHANGED: ${{ steps.skill-diff.outputs.changed }}
@@ -256,7 +261,7 @@ jobs:
           fi
 
           git commit -m "${message}"
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${BASE_REPO}.git" "HEAD:${HEAD_REF}"
+          git push "https://x-access-token:${PUSH_TOKEN}@github.com/${BASE_REPO}.git" "HEAD:${HEAD_REF}"
           echo "Committed generated convention fixes to the PR branch."
 
       - name: Fail on cli-skills drift from fork
