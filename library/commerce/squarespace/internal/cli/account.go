@@ -401,6 +401,10 @@ func accountDomainBillingRunE(flags *rootFlags, name, domainID, websiteID, contr
 		resolveURL := ""
 		if meta.WebsiteID == "" || meta.SubscriptionID == "" || (includeDomainName && meta.Name == "") {
 			if *name == "" {
+				if includeDomainName && meta.WebsiteID != "" && meta.SubscriptionID != "" {
+					// PATCH: billing-valid-terms always needs --name for the domainName query param
+					return usageErr(fmt.Errorf("--name is required for this command (the domain name is passed to the API endpoint)"))
+				}
 				return usageErr(fmt.Errorf("--name is required unless --website-id and --contract-id are both provided"))
 			}
 			resolved, url, err := resolveAccountDomainMeta(cmd.Context(), flags, *name)

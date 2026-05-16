@@ -24,7 +24,9 @@ func TestSplitShellArgs(t *testing.T) {
 		{"extra whitespace", "  foo   bar  ", []string{"foo", "bar"}},
 		{"tabs", "foo\tbar", []string{"foo", "bar"}},
 		{"quoted token", `"hello world"`, []string{"hello world"}},
+		{"single-quoted token", `'my domain'`, []string{"my domain"}},
 		{"mixed quoted and bare", `contacts "john doe" active`, []string{"contacts", "john doe", "active"}},
+		{"mixed single and double", `contacts 'john doe' "hello world"`, []string{"contacts", "john doe", "hello world"}},
 	}
 	for _, tc := range cases {
 		tc := tc
