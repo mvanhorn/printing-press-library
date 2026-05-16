@@ -110,7 +110,7 @@ func newAuthDeviceCmd() *cobra.Command {
 	cmd.Flags().StringVar(&contractString, "client-id", "", "")
 	cmd.Flags().StringVar(&contractString, "client-secret", "", "")
 	cmd.Flags().StringVar(&contractString, "scopes", "", "")
-	cmd.Flags().BoolVar(&contractBool, "save", false, "")
+	cmd.Flags().BoolVar(&contractBool, "save", true, "")
 	cmd.Flags().BoolVar(&contractBool, "no-open", false, "")
 	return cmd
 }
