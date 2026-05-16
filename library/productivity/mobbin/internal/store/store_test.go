@@ -27,6 +27,10 @@ func TestStoreSearchAndRawQuery(t *testing.T) {
 		t.Fatalf("UpsertApp() error = %v", err)
 	}
 
+	if err := db.RebuildFTS(ctx); err != nil {
+		t.Fatalf("RebuildFTS() error = %v", err)
+	}
+
 	rows, err := db.SearchApps(ctx, "Figma", 5)
 	if err != nil {
 		t.Fatalf("SearchApps() error = %v", err)

@@ -103,6 +103,9 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 				}
 				counts.Collections = collections
 			}
+			if err := db.RebuildFTS(cmd.Context()); err != nil {
+				return fmt.Errorf("rebuilding search index: %w", err)
+			}
 			tableCounts, err := tableCounts(cmd.Context(), db)
 			if err != nil {
 				return err

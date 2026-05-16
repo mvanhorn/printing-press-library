@@ -287,7 +287,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 				return nil, 0, fmt.Errorf("collection writes require auth login — run `mobbin-pp-cli auth login --chrome`: parsing supabase session: %w", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+token)
-			req.Header.Set("apikey", config.SupabaseAnonKey)
+			req.Header.Set("apikey", config.SupabaseAnonKey())
 			req.Header.Set("Content-Profile", "public")
 			req.Header.Set("Prefer", "return=representation")
 		}

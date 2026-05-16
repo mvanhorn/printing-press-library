@@ -16,8 +16,17 @@ import (
 )
 
 // PATCH: Decode Supabase SSR cookie chunks for REST bearer auth.
-const SupabaseAnonKey = "sb_publishable_YptnKskI90SD2g25sAvVxQ_tZltjYFE"
+const supabaseAnonKeyDefault = "sb_publishable_YptnKskI90SD2g25sAvVxQ_tZltjYFE"
 const SupabaseHost = "ujasntkfphywizsdaapi.supabase.co"
+
+// SupabaseAnonKey returns the publishable Supabase key. It is overridable via
+// the MOBBIN_SUPABASE_ANON_KEY env var so a rotated key needs no new release.
+func SupabaseAnonKey() string {
+	if v := os.Getenv("MOBBIN_SUPABASE_ANON_KEY"); v != "" {
+		return v
+	}
+	return supabaseAnonKeyDefault
+}
 
 const supabaseAuthCookieName = "sb-ujasntkfphywizsdaapi-auth-token"
 

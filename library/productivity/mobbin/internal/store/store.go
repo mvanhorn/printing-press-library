@@ -70,10 +70,7 @@ created_at=excluded.created_at, updated_at=excluded.updated_at, raw_json=exclude
 			jsonString(firstValue(app, "appCategories", "app_categories", "categories")), firstString(app, "thumbnailUrl", "thumbnail_url", "iconUrl"),
 			firstString(app, "latestVersionId", "latest_version_id"), firstString(app, "createdAt", "created_at"),
 			firstString(app, "updatedAt", "updated_at"), raw, synced)
-		if err != nil {
-			return err
-		}
-		return refreshFTS(ctx, tx, "apps", "apps_fts", id, "slug, app_name, platform, app_categories")
+		return err
 	})
 }
 
@@ -107,10 +104,7 @@ raw_json=excluded.raw_json, captured_at=excluded.captured_at, synced_at=excluded
 			id, firstString(s, "appId", "app_id"), firstString(s, "appVersionId", "app_version_id"), firstString(s, "flowId", "flow_id"),
 			firstString(s, "platform"), firstString(s, "imageUrl", "image_url"), firstString(s, "imageUrlFull", "image_url_full", "fullImageUrl"),
 			firstString(s, "ocrText", "ocr_text", "text"), rawJSON(s), firstString(s, "capturedAt", "captured_at"), now())
-		if err != nil {
-			return err
-		}
-		return refreshFTS(ctx, tx, "screens", "screens_fts", id, "image_url, ocr_text, app_id")
+		return err
 	})
 }
 
@@ -129,10 +123,7 @@ raw_json=excluded.raw_json, captured_at=excluded.captured_at, synced_at=excluded
 			id, firstString(f, "appId", "app_id"), firstString(f, "appVersionId", "app_version_id"), firstString(f, "name"),
 			jsonString(firstValue(f, "flowActions", "flow_actions", "actions")), jsonString(firstValue(f, "screenIds", "screen_ids")),
 			firstInt(f, "stepCount", "step_count"), firstString(f, "platform"), rawJSON(f), firstString(f, "capturedAt", "captured_at"), now())
-		if err != nil {
-			return err
-		}
-		return refreshFTS(ctx, tx, "flows", "flows_fts", id, "name, flow_actions, app_id")
+		return err
 	})
 }
 
@@ -268,13 +259,15 @@ func (db *DB) withTx(ctx context.Context, fn func(*sql.Tx) error) error {
 	return tx.Commit()
 }
 
-func refreshFTS(ctx context.Context, tx *sql.Tx, table, ftsTable, id, columns string) error {
-	var rowid int64
-	if err := tx.QueryRowContext(ctx, fmt.Sprintf(`SELECT rowid FROM %s WHERE id = ?`, table), id).Scan(&rowid); err != nil {
-		return err
+// RebuildFTS rebuilds the FTS5 indexes from their external content tables.
+// Call once after a sync batch completes — rebuilding per row is O(n²).
+func (db *DB) RebuildFTS(ctx context.Context) error {
+	for _, ftsTable := range []string{"apps_fts", "screens_fts", "flows_fts"} {
+		if _, err := db.ExecContext(ctx, fmt.Sprintf(`INSERT INTO %s(%s) VALUES('rebuild')`, ftsTable, ftsTable)); err != nil {
+			return fmt.Errorf("rebuilding %s: %w", ftsTable, err)
+		}
 	}
-	_, err := tx.ExecContext(ctx, fmt.Sprintf(`INSERT INTO %s(%s) VALUES('rebuild')`, ftsTable, ftsTable))
-	return err
+	return nil
 }
 
 func scanRows(rows *sql.Rows) ([]map[string]any, error) {
