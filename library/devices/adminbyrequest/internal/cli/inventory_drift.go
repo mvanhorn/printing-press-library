@@ -58,6 +58,7 @@ func newInventoryDriftCmd(flags *rootFlags) *cobra.Command {
 			defer rows.Close()
 
 			var out []driftDevice
+			var hitLimit bool
 			for rows.Next() {
 				var name, ver, invDate string
 				if err := rows.Scan(&name, &ver, &invDate); err != nil {
@@ -76,7 +77,15 @@ func newInventoryDriftCmd(flags *rootFlags) *cobra.Command {
 					})
 				}
 				if limit > 0 && len(out) >= limit {
+					hitLimit = true
 					break
+				}
+			}
+			// Only check rows.Err() when we drained the cursor; an intentional
+			// break-for-limit leaves it open and Err() would report nil anyway.
+			if !hitLimit {
+				if err := rows.Err(); err != nil {
+					return fmt.Errorf("iterating inventory: %w", err)
 				}
 			}
 			if out == nil {

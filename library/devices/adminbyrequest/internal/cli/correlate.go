@@ -97,6 +97,9 @@ reconstructing an elevation timeline from already-synced data.`,
 				}
 				evts = append(evts, json.RawMessage(d))
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating events: %w", err)
+			}
 			if evts == nil {
 				evts = []json.RawMessage{}
 			}

@@ -71,11 +71,17 @@ native streaming instead of polling.`,
 
 			enc := json.NewEncoder(os.Stdout)
 
-			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			if follow {
+				fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			}
 
-			// Initial fetch
+			// Initial fetch — also the *only* fetch when --follow=false, so a
+			// script can do "tail events --follow=false" for a one-shot snapshot.
 			if err := fetchAndEmit(c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
+			}
+			if !follow {
+				return nil
 			}
 
 			for {

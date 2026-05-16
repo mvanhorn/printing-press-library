@@ -85,6 +85,12 @@ func newInventoryRiskScoreCmd(flags *rootFlags) *cobra.Command {
 					LocalAdmins:      admins,
 				})
 			}
+			// rows.Err() check is critical here: latestVer is derived from the
+			// scan, so a truncated read would compute behindHint against a
+			// baseline lower than the real fleet maximum.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating risk metrics: %w", err)
+			}
 			for i := range all {
 				cur := parseSemverLike(all[i].AbrClientVersion)
 				behindHint := 0.0

@@ -135,10 +135,17 @@ func (c *Config) SaveCredential(token string) error {
 	return c.save()
 }
 
+// ClearTokens wipes every credential field that AuthHeader() consults, so
+// `auth logout` after either an OAuth flow or an `auth set-token` actually
+// removes the secret from disk. Clearing only OAuth fields would leave the
+// api_key persisted, and the next invocation would silently re-authenticate
+// because AuthHeader() falls back to AdminbyrequestApiKey.
 func (c *Config) ClearTokens() error {
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.AdminbyrequestApiKey = ""
+	c.AuthHeaderVal = ""
 	return c.save()
 }
 

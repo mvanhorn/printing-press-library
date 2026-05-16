@@ -119,6 +119,9 @@ func newReportComplianceCmd(flags *rootFlags) *cobra.Command {
 				}
 				data = append(data, r)
 			}
+			// rows.Err() is non-negotiable here: a compliance report missing
+			// entries is worse than an error, because auditors may rely on it
+			// for completeness. Fail loudly if the scan was truncated.
 			if err := rows.Err(); err != nil {
 				return fmt.Errorf("iterating auditlog rows: %w", err)
 			}

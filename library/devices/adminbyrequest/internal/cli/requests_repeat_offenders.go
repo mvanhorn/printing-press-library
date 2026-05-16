@@ -73,6 +73,9 @@ func newRequestsRepeatOffendersCmd(flags *rootFlags) *cobra.Command {
 				}
 				out = append(out, r)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating requests: %w", err)
+			}
 			if out == nil {
 				out = []repeatOffender{}
 			}

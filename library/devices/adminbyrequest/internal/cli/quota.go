@@ -109,12 +109,17 @@ func newQuotaForecastCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// computeQuotaSnapshot counts today's API calls. Prefers the http-cache
-// directory (every cached GET = one call routed through client.Get); falls
-// back to sync_state writes; finally degrades gracefully if neither exists.
+// computeQuotaSnapshot counts today's API calls. The authoritative source is
+// the persistent call counter at ~/.cache/adminbyrequest-pp-cli/calls/<day>.count,
+// which the HTTP client appends to on every successful non-dry-run request
+// regardless of method or NoCache mode. http-cache files and sync_state rows
+// are kept as best-effort fallbacks for installs predating the counter.
 func computeQuotaSnapshot(ctx context.Context, dbPath string, withForecast bool) (quotaSnapshot, error) {
 	day := time.Now().Format("2006-01-02")
-	startOfDay, _ := time.Parse("2006-01-02", day)
+	// Anchor start-of-day to the local timezone — day was derived from
+	// time.Now() which is local, so parsing must use the same locale or the
+	// elapsed-hours arithmetic crosses a TZ boundary and inflates the denominator.
+	startOfDay, _ := time.ParseInLocation("2006-01-02", day, time.Local)
 	hoursElapsed := time.Since(startOfDay).Hours()
 	if hoursElapsed < 0.01 {
 		hoursElapsed = 0.01
@@ -122,24 +127,42 @@ func computeQuotaSnapshot(ctx context.Context, dbPath string, withForecast bool)
 
 	calls, source := 0, "unavailable"
 
-	// 1) http-cache directory: every cached GET leaves a file. Mtime today == call today.
+	// 1) Persistent call counter — the HTTP client writes one byte per successful
+	// request to calls/YYYY-MM-DD.count, so file size = today's call count. This
+	// catches GETs whether cached or not, plus all POST/PUT/PATCH/DELETE traffic.
 	if home, err := os.UserHomeDir(); err == nil {
-		cacheDir := filepath.Join(home, ".cache", "adminbyrequest-pp-cli", "http")
-		if st, errStat := os.Stat(cacheDir); errStat == nil && st.IsDir() {
-			source = "http-cache"
-			_ = filepath.Walk(cacheDir, func(_ string, info os.FileInfo, walkErr error) error {
-				if walkErr != nil || info == nil || info.IsDir() {
-					return nil
-				}
-				if info.ModTime().Format("2006-01-02") == day {
-					calls++
-				}
-				return nil
-			})
+		counterFile := filepath.Join(home, ".cache", "adminbyrequest-pp-cli", "calls", day+".count")
+		if st, errStat := os.Stat(counterFile); errStat == nil && !st.IsDir() {
+			calls = int(st.Size())
+			source = "call-counter"
 		}
 	}
 
-	// 2) Fallback: sync_state writes today.
+	// 2) Fallback for installs without a counter file yet: http-cache mtime walk.
+	// Only counts cached GETs and silently misses NoCache/POST/PUT/PATCH/DELETE,
+	// but it's the historical signal and is non-zero on any tenant that's done
+	// some cached reads today.
+	if source == "unavailable" {
+		if home, err := os.UserHomeDir(); err == nil {
+			cacheDir := filepath.Join(home, ".cache", "adminbyrequest-pp-cli", "http")
+			if st, errStat := os.Stat(cacheDir); errStat == nil && st.IsDir() {
+				source = "http-cache"
+				_ = filepath.Walk(cacheDir, func(_ string, info os.FileInfo, walkErr error) error {
+					if walkErr != nil || info == nil || info.IsDir() {
+						return nil
+					}
+					if info.ModTime().Format("2006-01-02") == day {
+						calls++
+					}
+					return nil
+				})
+			}
+		}
+	}
+
+	// 3) Last-ditch: did any sync_state row write today? This is a low-fidelity
+	// "has the CLI talked to the API today" signal, not a real call count, but
+	// it lets the source field report something honest instead of "unavailable".
 	if source == "unavailable" {
 		if dbPath == "" {
 			dbPath = defaultDBPath("adminbyrequest-pp-cli")
@@ -148,8 +171,8 @@ func computeQuotaSnapshot(ctx context.Context, dbPath string, withForecast bool)
 		if err == nil {
 			defer db.Close()
 			row := db.DB().QueryRowContext(ctx,
-				`SELECT COUNT(*) FROM sync_state WHERE DATE(updated_at) = ?`, day)
-			if scanErr := row.Scan(&calls); scanErr == nil {
+				`SELECT COUNT(*) FROM sync_state WHERE DATE(last_synced_at) = ?`, day)
+			if scanErr := row.Scan(&calls); scanErr == nil && calls > 0 {
 				source = "sync-state"
 			}
 		}

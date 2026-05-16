@@ -142,6 +142,31 @@ func (c *Client) invalidateCache() {
 	_ = os.RemoveAll(c.cacheDir)
 }
 
+// recordCall appends a single byte to a per-day counter file. File size at
+// end-of-day == calls made today. Lives alongside the HTTP cache rather than
+// inside it because invalidateCache() wipes the cache after mutating calls,
+// which would otherwise reset the count to zero on every POST/PUT/PATCH/DELETE.
+// Single-byte appends on POSIX and Windows are atomic enough that concurrent
+// CLI invocations don't lose counts; the worst case is one missed count per
+// race-condition window, which is well inside the quota's tolerance.
+func (c *Client) recordCall() {
+	if c.cacheDir == "" || c.DryRun {
+		return
+	}
+	counterDir := filepath.Join(filepath.Dir(c.cacheDir), "calls")
+	if err := os.MkdirAll(counterDir, 0o755); err != nil {
+		return
+	}
+	day := time.Now().Format("2006-01-02")
+	counterFile := filepath.Join(counterDir, day+".count")
+	f, err := os.OpenFile(counterFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return
+	}
+	_, _ = f.Write([]byte{'1'})
+	_ = f.Close()
+}
+
 func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
 	return c.do("POST", path, nil, body, nil)
 }
@@ -277,6 +302,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		// Success
 		if resp.StatusCode < 400 {
 			c.limiter.OnSuccess()
+			c.recordCall()
 			if method != http.MethodGet && !c.DryRun {
 				c.invalidateCache()
 			}
