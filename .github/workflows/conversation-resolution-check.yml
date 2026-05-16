@@ -49,11 +49,20 @@ jobs:
     if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # Coalesce bursts (a push + Greptile review + several thread resolves can
-    # fire within seconds). Latest run wins; older runs are cancelled.
+    # Serialize concurrent triggers via the concurrency group, but do NOT
+    # cancel in-progress runs. Cancellation freezes the auto-created
+    # check_run in `cancelled` state forever (we can't PATCH it post-Feb
+    # 2025), and a single push commonly fires 3-5 events in seconds
+    # (synchronize + Greptile's review.submitted + multiple
+    # review_comment.created), which left a row of `cancelled` check_runs
+    # making the PR look "partially failed" even when the real result
+    # was success. With cancel-in-progress: false, queued runs execute
+    # serially, each completes with a terminal success/failure, and the
+    # required-check rollup uses the latest by completed_at. UI shows
+    # N consistent entries instead of cancelled noise.
     concurrency:
       group: conversation-resolution-${{ github.event.pull_request.number || inputs.pr || github.run_id }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
