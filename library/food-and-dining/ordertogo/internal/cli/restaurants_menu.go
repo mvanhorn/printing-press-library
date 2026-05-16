@@ -96,7 +96,7 @@ func newRestaurantsMenuCmd(flags *rootFlags) *cobra.Command {
 // The OrderToGo menu payload is a flat array of item-like records, some
 // of which carry nested child arrays (groupItems / subitems / items /
 // children). A parent record is kept if it matches directly OR if any of
-// its children match; child arrays are pruned to matching items only.
+// its children match. Child arrays are pruned only for non-matching parents.
 // Modifier `options` objects are intentionally NOT recursed into - those
 // are universal add-ons and would inflate the match set with noise.
 func filterMenuBySearch(data json.RawMessage, search string) json.RawMessage {
@@ -137,6 +137,10 @@ func pruneMenuRecord(rec map[string]any, tokens []string) (map[string]any, bool)
 		return nil, false
 	}
 	nameHit := recordMatches(rec, tokens)
+	if nameHit {
+		// PATCH: Direct menu hits keep their full modifier/sub-item trees.
+		return rec, true
+	}
 	childHit := false
 	for _, childKey := range []string{"groupItems", "subitems", "items", "children"} {
 		raw, ok := rec[childKey]
@@ -160,11 +164,11 @@ func pruneMenuRecord(rec map[string]any, tokens []string) (map[string]any, bool)
 		if len(pruned) > 0 {
 			rec[childKey] = pruned
 			childHit = true
-		} else if !nameHit {
+		} else {
 			delete(rec, childKey)
 		}
 	}
-	if nameHit || childHit {
+	if childHit {
 		return rec, true
 	}
 	return nil, false

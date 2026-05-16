@@ -61,6 +61,46 @@ func TestFilterMenuBySearch(t *testing.T) {
 	}
 }
 
+func TestFilterMenuBySearch_preservesChildrenForNameMatch(t *testing.T) {
+	menu := []map[string]any{
+		{
+			"id":   101,
+			"name": "Salmon Bento",
+			"subitems": []any{
+				map[string]any{
+					"id":   201,
+					"name": "Rice",
+					"groupItems": []any{
+						map[string]any{"id": 301, "name": "Miso Soup"},
+					},
+				},
+			},
+		},
+	}
+	raw, _ := json.Marshal(menu)
+
+	out := filterMenuBySearch(raw, "salmon")
+	var got []map[string]any
+	if err := json.Unmarshal(out, &got); err != nil {
+		t.Fatalf("output is not an array: %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("got %d records, want 1 (records: %v)", len(got), got)
+	}
+	subitems, ok := got[0]["subitems"].([]any)
+	if !ok || len(subitems) != 1 {
+		t.Fatalf("subitems were not preserved: %#v", got[0]["subitems"])
+	}
+	child, ok := subitems[0].(map[string]any)
+	if !ok {
+		t.Fatalf("subitem has unexpected shape: %#v", subitems[0])
+	}
+	groupItems, ok := child["groupItems"].([]any)
+	if !ok || len(groupItems) != 1 {
+		t.Fatalf("grandchild modifier tree was not preserved: %#v", child["groupItems"])
+	}
+}
+
 func TestFilterMenuBySearch_invalidJSON(t *testing.T) {
 	bad := json.RawMessage(`{"not": "an array"}`)
 	out := filterMenuBySearch(bad, "salmon")
