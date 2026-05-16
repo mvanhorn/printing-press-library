@@ -80,7 +80,7 @@ func newRestaurantsMenuCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagSlug, "slug", "", "Restaurant short slug")
-	cmd.Flags().StringVar(&flagSearch, "search", "", "Case-insensitive substring filter on item name; drops non-matching items and empty categories")
+	cmd.Flags().StringVar(&flagSearch, "search", "", "Case-insensitive AND-search across name/alt_name/itemsubtitle/item_id/upper_category; whitespace-tokenized so \"salmon nigiri\" keeps items matching both tokens in any field; drops non-matching items and empty child arrays")
 
 	return cmd
 }
