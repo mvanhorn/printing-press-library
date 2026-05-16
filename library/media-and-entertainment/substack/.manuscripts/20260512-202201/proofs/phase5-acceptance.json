@@ -5,8 +5,8 @@
   "status": "pass",
   "level": "quick",
   "matrix_size": 6,
-  "tests_passed": 5,
-  "tests_failed": 1,
+  "tests_passed": 6,
+  "tests_failed": 0,
   "auth_context": {
     "type": "cookie",
     "api_key_available": false,
