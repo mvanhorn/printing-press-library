@@ -261,6 +261,15 @@ jobs:
           fi
 
           git commit -m "${message}"
+
+          # set -u doesn't catch this: GitHub Actions expands a missing
+          # secret to an empty string, not an unset variable. Without
+          # this check the push fails with an opaque auth error.
+          if [ -z "${PUSH_TOKEN}" ]; then
+            echo "::error::MIRROR_AUTOPUSH_TOKEN repo secret is missing or empty. Create a fine-grained PAT with contents:write + workflows:write on this repo and store it as MIRROR_AUTOPUSH_TOKEN (Settings -> Secrets and variables -> Actions)."
+            exit 1
+          fi
+
           git push "https://x-access-token:${PUSH_TOKEN}@github.com/${BASE_REPO}.git" "HEAD:${HEAD_REF}"
           echo "Committed generated convention fixes to the PR branch."
 
