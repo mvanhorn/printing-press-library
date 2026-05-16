@@ -567,7 +567,12 @@ var (
 	boldPat        = regexp.MustCompile(`\*\*([^*]+)\*\*`)
 	italicPat      = regexp.MustCompile(`\*([^*\s][^*]*[^*\s]|\S)\*`)
 	codePat        = regexp.MustCompile("`([^`]+)`")
-	latexInlinePat = regexp.MustCompile(`\$([^$]+)\$`)
+	// Inline LaTeX requires the opening $ to be followed by a non-space, non-digit
+	// character and the closing $ to be preceded by a non-space character. This
+	// avoids matching across monetary dollar signs like "$10 and $20" — the
+	// previous greedy [^$]+ would have eaten the middle prose as a single
+	// inline_latex node, dropping content from the rendered body.
+	latexInlinePat = regexp.MustCompile(`\$([^\s\d$][^$\n]*[^\s$]|[^\s\d$])\$`)
 )
 
 func regexpFind(re *regexp.Regexp, s string) []int {

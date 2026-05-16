@@ -251,18 +251,16 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 				req.Header.Set("Authorization", authHeader)
 			}
 		}
-		req.Header.Set("User-Agent", "substack-pp-cli/0.1 (+https://github.com/JimPresting)")
+		req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/0.1 (+https://github.com/JimPresting)")
+		// Per-endpoint header overrides (e.g., different API version per resource)
+		// and config-level headers may both replace User-Agent intentionally.
 		if c.Config != nil {
 			for k, v := range c.Config.Headers {
 				req.Header.Set(k, v)
 			}
 		}
-		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
-		}
-		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "substack-pp-cli/0.1.0")
 		}
 
 		resp, err := c.HTTPClient.Do(req)
@@ -354,7 +352,16 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		// Mirror the live-path routing: cookie-shaped auth values render as
+		// `Cookie:` in the dry-run preview, everything else as `Authorization:`.
+		// Without this, a `--dry-run` against a `substack.sid=` value misleads
+		// the user into thinking the live request would also send an
+		// Authorization header.
+		headerName := "Authorization"
+		if strings.Contains(authHeader, "substack.sid=") || strings.Contains(authHeader, "connect.sid=") {
+			headerName = "Cookie"
+		}
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", headerName, maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil

@@ -133,7 +133,18 @@ func parseScheduleTime(s string) (time.Time, error) {
 		{"2006-01-02", true},
 	}
 	for _, l := range layouts {
-		t, err := time.Parse(l.layout, s)
+		// Try RFC3339 first via time.Parse — it has its own timezone token and
+		// preserves the user's explicit offset. For every other layout, use
+		// time.ParseInLocation with time.Local: 'YYYY-MM-DD HH:MM' without a
+		// timezone is what a human typed in their local clock, and parsing it
+		// as UTC would silently shift the publish time by the user's offset.
+		var t time.Time
+		var err error
+		if l.layout == time.RFC3339 {
+			t, err = time.Parse(l.layout, s)
+		} else {
+			t, err = time.ParseInLocation(l.layout, s, time.Local)
+		}
 		if err == nil {
 			if l.dateOnly {
 				// default to 09:00 local time
