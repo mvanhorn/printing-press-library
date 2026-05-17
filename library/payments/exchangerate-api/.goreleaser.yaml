@@ -1,0 +1,51 @@
+version: 2
+project_name: exchangerate-api-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: exchangerate-api-pp-cli
+    main: ./cmd/exchangerate-api-pp-cli
+    binary: exchangerate-api-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: exchangerate-api-pp-mcp
+    main: ./cmd/exchangerate-api-pp-mcp
+    binary: exchangerate-api-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: exchangerate-api-pp-cli
+    repository:
+      owner: vinny-pasceri
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every ExchangeRate-API endpoint, plus a local rate history, watchlists, drift alerts, and an MCP server no one else..."
+    install: |
+      bin.install "exchangerate-api-pp-cli"
+      bin.install "exchangerate-api-pp-mcp"

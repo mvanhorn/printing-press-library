@@ -1,0 +1,216 @@
+{
+  "api_name": "exchangerate-api",
+  "base_url": "https://v6.exchangerate-api.com",
+  "description": "ExchangeRate-API CLI — live FX rates, conversions, watchlists, and an MCP server",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "apikey_placeholder",
+    "in": "query",
+    "env_vars": [
+      "EXCHANGERATE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EXCHANGERATE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "codes_list",
+      "description": "List all 161 supported currency codes. Required: api_key. Returns the CodesResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/codes",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "quota_get",
+      "description": "Check remaining requests in the current quota period. Required: api_key. Returns the QuotaResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/quota",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rates_enriched",
+      "description": "Pair conversion with locale, flag, and currency display metadata (Business/Volume tier). Required: api_key, base_code, target_code. Returns the EnrichedResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/enriched/{base_code}/{target_code}",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        },
+        {
+          "name": "base_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 base currency",
+          "required": true
+        },
+        {
+          "name": "target_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 target currency",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rates_history",
+      "description": "Historical exchange rates for a specific date (Pro/Business/Volume tier). Required: api_key, base_code, year, month, day. Returns the HistoryResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/history/{base_code}/{year}/{month}/{day}",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        },
+        {
+          "name": "base_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 base currency",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "int",
+          "location": "path",
+          "description": "Year (e.g. 2024)",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "int",
+          "location": "path",
+          "description": "Month, no leading zero (1-12)",
+          "required": true
+        },
+        {
+          "name": "day",
+          "type": "int",
+          "location": "path",
+          "description": "Day, no leading zero (1-31)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rates_latest",
+      "description": "Get all exchange rates from a base currency. Required: api_key, base_code. Returns the LatestResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/latest/{base_code}",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        },
+        {
+          "name": "base_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 base currency (USD, EUR, JPY, ...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rates_pair",
+      "description": "Get conversion rate between two currencies. Required: api_key, base_code, target_code. Returns the PairResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/pair/{base_code}/{target_code}",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        },
+        {
+          "name": "base_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 base currency",
+          "required": true
+        },
+        {
+          "name": "target_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 target currency",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rates_pair_amount",
+      "description": "Convert a specific amount between two currencies. Required: api_key, base_code, target_code, amount. Returns the PairAmountResponse.",
+      "method": "GET",
+      "path": "/v6/{api_key}/pair/{base_code}/{target_code}/{amount}",
+      "params": [
+        {
+          "name": "api_key",
+          "type": "string",
+          "location": "path",
+          "description": "API key (auto-injected from EXCHANGERATE_API_KEY)",
+          "required": true
+        },
+        {
+          "name": "base_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 base currency",
+          "required": true
+        },
+        {
+          "name": "target_code",
+          "type": "string",
+          "location": "path",
+          "description": "ISO 4217 target currency",
+          "required": true
+        },
+        {
+          "name": "amount",
+          "type": "string",
+          "location": "path",
+          "description": "Amount to convert (decimal)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
