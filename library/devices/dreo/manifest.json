@@ -32,7 +32,7 @@
       "type": "string",
       "title": "DREO_USERNAME",
       "description": "Email address you use to sign in to the Dreo iOS/Android app.",
-      "sensitive": true,
+      "sensitive": false,
       "required": true
     }
   },
