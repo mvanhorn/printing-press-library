@@ -1,6 +1,6 @@
 ---
 name: pp-monarch-money
-description: "Use Monarch Money CLI for personal finance account balances, tags, transactions, cashflow summaries, and guarded read-only GraphQL queries. Use when the user asks about Monarch Money data, recent spending, tagged transactions, account balances, or cashflow from a terminal or agent workflow."
+description: "Use Monarch Money CLI for personal finance account balances, tags, transactions, cashflow summaries, explicit transaction CRUD workflows, and guarded read-only GraphQL queries. Use when the user asks about Monarch Money data, recent spending, tagged transactions, account balances, cashflow, or transaction cleanup from a terminal or agent workflow."
 author: "Count"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli"
@@ -50,9 +50,10 @@ Use this CLI when the user asks about:
 - Monarch Money transaction tags
 - recent or date-filtered Monarch transactions
 - monthly or custom-period cashflow
+- creating, updating, tagging, or deleting a specific Monarch transaction
 - a specific read-only Monarch GraphQL query
 
-Do not use it for transaction edits, rule changes, account refreshes, budgeting mutations, or other remote writes; this CLI intentionally exposes read-oriented commands only.
+Do not use it for rule changes, account refreshes, budgeting mutations, or broad remote writes. Transaction writes are available only through explicit first-class commands that dry-run by default and require `--yes` to apply.
 
 ## Authentication
 
@@ -92,6 +93,15 @@ These capabilities aren't available in generic shell access to Monarch data.
 monarch-money-pp-cli query query.graphql --operation OperationName --variables '{"limit":10}'
 ```
 
+- **Transaction CRUD commands** — Create, update, tag, and delete individual transactions through narrow mutation commands.
+
+  _Use these for transaction cleanup after the user has identified the intended transaction. Omit `--yes` first to inspect the dry-run payload._
+
+```bash
+monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed'
+monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed' --yes
+```
+
 ## Best command mapping
 
 - "Are we connected to Monarch?" → `monarch-money-pp-cli status`
@@ -100,6 +110,8 @@ monarch-money-pp-cli query query.graphql --operation OperationName --variables '
 - "Recent transactions" → `monarch-money-pp-cli transactions --days 30 --limit 50`
 - "Cashflow this month" → `monarch-money-pp-cli cashflow`
 - "Cashflow in January" → `monarch-money-pp-cli cashflow --start 2026-01-01 --end 2026-01-31`
+- "Update this transaction note" → `monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'NOTE'`, then rerun with `--yes` after review
+- "Put these tags on this transaction" → `monarch-money-pp-cli transactions set-tags TRANSACTION_ID --tag-id TAG_ID`, then rerun with `--yes` after review
 - "Need raw output for analysis" → add `--json`
 
 ## Command reference
@@ -107,6 +119,7 @@ monarch-money-pp-cli query query.graphql --operation OperationName --variables '
 **accounts** — List financial accounts with balances, account type, and institution.
 
 - `monarch-money-pp-cli accounts` — List account balances in a table.
+- `monarch-money-pp-cli accounts --limit 10` — Display the first 10 accounts.
 - `monarch-money-pp-cli accounts --json` — Return the raw GraphQL account payload.
 
 **tags** — List household transaction tags and transaction counts.
@@ -120,6 +133,25 @@ monarch-money-pp-cli query query.graphql --operation OperationName --variables '
 - `monarch-money-pp-cli transactions --days 7 --limit 25` — List recent transactions for a shorter window.
 - `monarch-money-pp-cli transactions --start 2026-01-01 --end 2026-01-31 --json` — Return a custom date range as JSON.
 - `monarch-money-pp-cli transactions --tag-id TAG_ID` — Filter by Monarch tag ID.
+
+**transactions create** — Create a manual transaction. Dry-runs unless `--yes` is passed.
+
+- `monarch-money-pp-cli transactions create --date 2026-01-15 --account-id ACCOUNT_ID --amount -42.50 --merchant 'Coffee Shop' --category-id CATEGORY_ID` — Preview a create mutation.
+- Add `--yes` to apply after reviewing the dry-run payload.
+
+**transactions update** — Update a transaction by ID. Dry-runs unless `--yes` is passed.
+
+- `monarch-money-pp-cli transactions update TRANSACTION_ID --category-id CATEGORY_ID --notes 'Reviewed'` — Preview a transaction update.
+- Supported update flags include `--category-id`, `--merchant`, `--goal-id`, `--amount`, `--date`, `--hide-from-reports true|false`, `--needs-review true|false`, and `--notes`.
+
+**transactions set-tags** — Replace all tags on a transaction. Dry-runs unless `--yes` is passed.
+
+- `monarch-money-pp-cli transactions set-tags TRANSACTION_ID --tag-id TAG_ID --tag-id ANOTHER_TAG_ID` — Preview replacing tags.
+- `monarch-money-pp-cli transactions set-tags TRANSACTION_ID --clear` — Preview clearing tags.
+
+**transactions delete** — Delete a transaction by ID. Dry-runs unless `--yes` is passed.
+
+- `monarch-money-pp-cli transactions delete TRANSACTION_ID` — Preview deleting a transaction.
 
 **cashflow** — Summarize income, expenses, net savings, and savings rate for a date range.
 
@@ -140,6 +172,8 @@ monarch-money-pp-cli query query.graphql --operation OperationName --variables '
 
 ## Safety notes
 
-This CLI is read-oriented. It does not expose Monarch mutations as first-class commands. The advanced `query` command refuses GraphQL files containing `mutation`.
+Transaction write commands dry-run by default and require `--yes` before sending a mutation to Monarch. Use transaction IDs for writes; do not guess ambiguous targets from merchant names or amounts.
+
+The advanced `query` command refuses GraphQL files containing `mutation`; do not use it as a write escape hatch.
 
 Do not print or expose `MONARCH_TOKEN`, saved session contents, email/password values, or raw authentication responses.
