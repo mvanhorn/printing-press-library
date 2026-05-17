@@ -69,11 +69,13 @@ func newListsDiffCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			listID := args[0]
-			// Use substr to clip the synced_at column to its leading
-			// 'YYYY-MM-DD HH:MM:SS' prefix. The generator stores it via
-			// Go's time.Time.String() which yields a trailing timezone
-			// suffix SQLite's strftime can't parse; substring keeps the
-			// comparable prefix and is safe for lexicographic compare.
+			// PATCH lists-diff-sqlite-strftime-workaround: clip synced_at
+			// to its leading 'YYYY-MM-DD HH:MM:SS' prefix via substr. The
+			// generator stores the column via Go's time.Time.String()
+			// which yields a trailing timezone suffix SQLite's strftime
+			// can't parse — it returns NULL, breaking both the SELECT
+			// projection and the WHERE comparison. The substring keeps
+			// the comparable prefix and is safe for lexicographic compare.
 			query := `
 SELECT c.id,
        COALESCE(json_extract(c.data,'$.email_address'), '') AS email,

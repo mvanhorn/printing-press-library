@@ -1241,12 +1241,13 @@ func syncDependentResource(c interface {
 				break
 			}
 
-			// Inject parent_id AND the typed-table FK column (e.g.,
-			// "lists_id" for dep "contacts" whose parent table is "lists")
-			// into each item before upserting. The typed upsert functions
-			// (upsertContactsTx, upsertTagsTx, etc.) read this column via
-			// lookupFieldValue and would otherwise see NULL and fail the
-			// NOT NULL constraint.
+			// PATCH sync-inject-typed-fk-column: inject `<parent_table>_id`
+			// (typed-table FK column) into each child item before upsert,
+			// alongside the existing `parent_id` injection. The typed
+			// upsert functions read this column via lookupFieldValue and
+			// would otherwise see NULL and fail the NOT NULL constraint —
+			// silently demoting rows to the generic `resources` table and
+			// breaking every novel command that queries the typed tables.
 			fkColumn := dep.ParentTable + "_id"
 			for i, item := range items {
 				var obj map[string]json.RawMessage

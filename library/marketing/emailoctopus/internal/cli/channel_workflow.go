@@ -67,13 +67,14 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				}
 			}
 
-			// syncResource writes per-event JSONL ({"event":"sync_start",...})
-			// directly to os.Stdout. In --json mode, that pollutes the
-			// final single-object response with a stream of events that
-			// breaks JSON parsing on the consumer side. Redirect stdout
-			// to /dev/null during the sync loop so only the final summary
-			// JSON makes it out. The user-facing progress lines we emit
-			// here already go to stderr.
+			// PATCH workflow-archive-json-stdout-suppression: redirect
+			// os.Stdout to /dev/null around the syncResource loop when
+			// --json is set, then restore before emitting the final
+			// summary. syncResource writes per-event JSONL directly to
+			// os.Stdout which pollutes the single-object response with
+			// a stream of events that breaks JSON parsing on the consumer
+			// side. The user-facing progress lines we emit here already
+			// go to stderr, so the suppression only affects sync's events.
 			var stdoutSaved *os.File
 			if flags.asJSON {
 				stdoutSaved = os.Stdout
