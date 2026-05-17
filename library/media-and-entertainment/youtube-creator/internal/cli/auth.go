@@ -44,13 +44,13 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "setup",
 		Short:   "Print steps for registering an OAuth app (use --launch to open the URL)",
-		Example: "  youtube-creator-pp-cli auth setup\n  youtube-creator-pp-cli auth setup --launch",
+		Example: "  youtube-pp-cli auth setup\n  youtube-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, "No setup URL is configured for this CLI; check the API's docs.")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then run:")
-			fmt.Fprintln(w, "  youtube-creator-pp-cli auth login --client-id <id> --client-secret <secret>")
+			fmt.Fprintln(w, "  youtube-pp-cli auth login --client-id <id> --client-secret <secret>")
 			if !launch {
 				return nil
 			}
@@ -70,7 +70,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "login",
 		Short:   "Authenticate via OAuth2 (browser-based authorization-code flow)",
-		Example: "  youtube-creator-pp-cli auth login --client-id <google-oauth-client-id> --client-secret <secret>",
+		Example: "  youtube-pp-cli auth login --client-id <google-oauth-client-id> --client-secret <secret>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if flags.dryRun {
 				fmt.Fprintln(cmd.OutOrStdout(), `{"would":"open browser for OAuth flow","required_flags":["--client-id","--client-secret"]}`)
@@ -104,11 +104,19 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			if authURL == "" {
 				authURL = "https://accounts.google.com/o/oauth2/auth"
 			}
+			// access_type=offline + prompt=consent is required for Google to
+			// issue a refresh_token. Without these, only a 1-hour access_token
+			// comes back and authHeader's refresh-on-expiry path is dead
+			// (RefreshToken would always be empty). Forces re-consent so the
+			// refresh_token is reissued on every login (Google omits it on
+			// re-auth when the user has already granted the scopes).
 			params := url.Values{
 				"client_id":     {clientID},
 				"redirect_uri":  {redirectURI},
 				"response_type": {"code"},
 				"state":         {state},
+				"access_type":   {"offline"},
+				"prompt":        {"consent"},
 			}
 			scopes := []string{
 				"https://www.googleapis.com/auth/youtube",

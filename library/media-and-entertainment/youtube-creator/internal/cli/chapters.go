@@ -50,8 +50,8 @@ Providers:
           Override model via YT_PP_CLI_OPENAI_MODEL.
   none    Heuristic preview only (no API call) — useful for testing the
           transcript-pull + write-back path without spending tokens.`,
-		Example: "  youtube-creator-pp-cli chapters auto dQw4w9WgXcQ --provider claude\n" +
-			"  youtube-creator-pp-cli chapters auto dQw4w9WgXcQ --provider claude --apply",
+		Example: "  youtube-pp-cli chapters auto dQw4w9WgXcQ --provider claude\n" +
+			"  youtube-pp-cli chapters auto dQw4w9WgXcQ --provider claude --apply",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -75,7 +75,10 @@ Providers:
 			}
 
 			// 1) Pull transcript (auto-subs)
-			tmpDir, _ := os.MkdirTemp("", "yt-chapters-*")
+			tmpDir, err := os.MkdirTemp("", "yt-chapters-*")
+			if err != nil {
+				return fmt.Errorf("creating temp dir: %w", err)
+			}
 			defer os.RemoveAll(tmpDir)
 			ytArgs := []string{
 				"--write-auto-subs", "--sub-langs", "en", "--skip-download",

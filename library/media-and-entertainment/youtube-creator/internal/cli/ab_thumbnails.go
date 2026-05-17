@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"mime/multipart"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/youtube-creator/internal/config"
 )
 
 type abTest struct {
@@ -39,7 +41,7 @@ type abRotation struct {
 
 func abStatePath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".config", "youtube-creator-pp-cli", "ab-thumbnails.json")
+	return filepath.Join(home, ".config", "youtube-pp-cli", "ab-thumbnails.json")
 }
 
 func abLoad() (map[string]*abTest, error) {
@@ -105,7 +107,7 @@ func newAbThumbnailsStartCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start an A/B test on a video's thumbnail",
-		Example: "  youtube-creator-pp-cli ab thumbnails start --video dQw4w9WgXcQ \\\n" +
+		Example: "  youtube-pp-cli ab thumbnails start --video dQw4w9WgXcQ \\\n" +
 			"    --variants A:./thumb_a.png,B:./thumb_b.png --rotate 24",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -159,7 +161,7 @@ func newAbThumbnailsStartCmd(flags *rootFlags) *cobra.Command {
 				"started":      video,
 				"variants":     parsed,
 				"rotate_hours": rotateHours,
-				"next_step":    "Schedule `youtube-creator-pp-cli ab thumbnails rotate " + video + "` every " + fmt.Sprintf("%d", rotateHours) + "h via cron/n8n",
+				"next_step":    "Schedule `youtube-pp-cli ab thumbnails rotate " + video + "` every " + fmt.Sprintf("%d", rotateHours) + "h via cron/n8n",
 			})
 		},
 	}
@@ -364,7 +366,7 @@ func newAbThumbnailsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "List active thumbnail A/B tests",
-		Example:     "  youtube-creator-pp-cli ab thumbnails list --json",
+		Example:     "  youtube-pp-cli ab thumbnails list --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -415,29 +417,49 @@ func newAbThumbnailsStopCmd(flags *rootFlags) *cobra.Command {
 
 // uploadThumbnail uses thumbnails.set with multipart upload. Returns nil on success.
 func uploadThumbnail(flags *rootFlags, videoID, thumbPath string) error {
-	c, err := flags.newClient()
+	// We bypass the generated client here: client.do() unconditionally
+	// json.Marshals its body argument, which would base64-encode the binary
+	// multipart frame and corrupt the upload. Direct http.Post with the
+	// OAuth token from the persisted config gets the bytes through as-is.
+	cfg, err := config.Load(flags.configPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("loading auth config: %w", err)
 	}
 	data, err := os.ReadFile(thumbPath)
 	if err != nil {
 		return fmt.Errorf("reading thumbnail: %w", err)
 	}
-	// Build multipart body
 	var body bytes.Buffer
 	w := multipart.NewWriter(&body)
-	part, _ := w.CreateFormFile("media", filepath.Base(thumbPath))
-	_, _ = part.Write(data)
-	w.Close()
+	part, perr := w.CreateFormFile("media", filepath.Base(thumbPath))
+	if perr != nil {
+		return fmt.Errorf("multipart writer: %w", perr)
+	}
+	if _, werr := part.Write(data); werr != nil {
+		return fmt.Errorf("writing multipart body: %w", werr)
+	}
+	if cerr := w.Close(); cerr != nil {
+		return fmt.Errorf("closing multipart writer: %w", cerr)
+	}
 
 	uploadURL := "https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=" + videoID + "&uploadType=multipart"
-	req, _ := http.NewRequest("POST", uploadURL, &body)
+	req, err := http.NewRequest("POST", uploadURL, &body)
+	if err != nil {
+		return fmt.Errorf("building upload request: %w", err)
+	}
 	req.Header.Set("Content-Type", w.FormDataContentType())
-	// Use the client's auth header somehow. The client wraps http.Client with auth.
-	// For simplicity, route through client.PostWithParams using the absolute URL.
+	if cfg.AccessToken != "" {
+		req.Header.Set("Authorization", "Bearer "+cfg.AccessToken)
+	}
 	quotaLogCost("thumbnails-set", 50)
-	_, _, err = c.PostWithParamsAndHeaders(uploadURL, nil, body.Bytes(), map[string]string{
-		"Content-Type": w.FormDataContentType(),
-	})
-	return err
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("uploading thumbnail: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		respBody, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("thumbnails.set returned %d: %s", resp.StatusCode, truncate(string(respBody), 200))
+	}
+	return nil
 }
