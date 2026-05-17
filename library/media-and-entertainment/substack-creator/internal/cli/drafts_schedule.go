@@ -71,11 +71,7 @@ Requires --subdomain <publication-subdomain>.`,
 				return usageErr(err)
 			}
 
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
+			path := "/drafts/" + args[0] + "/scheduled_release"
 			body := map[string]any{
 				"trigger_at":    triggerAt.UTC().Format(time.RFC3339),
 				"post_audience": postAudience,
@@ -84,7 +80,36 @@ Requires --subdomain <publication-subdomain>.`,
 				body["email_audience"] = emailAudience
 			}
 
-			path := "/drafts/" + args[0] + "/scheduled_release"
+			// Dry-run with --at: render the envelope without POSTing.
+			// The previous form fell through to c.Post and stamped
+			// dry_run:true onto the response of a request that had
+			// already scheduled the draft, which is the opposite of
+			// what --dry-run is supposed to mean.
+			if flags.dryRun {
+				if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
+					envelope := map[string]any{
+						"action":       "schedule",
+						"resource":     "drafts",
+						"path":         path,
+						"status":       0,
+						"success":      false,
+						"dry_run":      true,
+						"scheduled_at": triggerAt.UTC().Format(time.RFC3339),
+						"body":         body,
+					}
+					out, _ := json.Marshal(envelope)
+					return printOutput(cmd.OutOrStdout(), json.RawMessage(out), true)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "DRY-RUN: would POST %s with trigger_at=%s audience=%s\n",
+					path, triggerAt.UTC().Format(time.RFC3339), postAudience)
+				return nil
+			}
+
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+
 			resp, status, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -98,11 +123,6 @@ Requires --subdomain <publication-subdomain>.`,
 					"status":       status,
 					"success":      status >= 200 && status < 300,
 					"scheduled_at": triggerAt.UTC().Format(time.RFC3339),
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
 				}
 				if len(resp) > 0 {
 					var parsed any
