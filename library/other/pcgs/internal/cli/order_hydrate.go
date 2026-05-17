@@ -36,8 +36,23 @@ func newOrderHydrateCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if dryRunHydrate || flags.dryRun {
+			// PATCH order-hydrate-dry-run-scope: only `--dry-run-hydrate` opts the
+			// initial GetOrdersBySubmissionNo call into a real fetch; the global
+			// `--dry-run` flag preserves its no-API-call invariant. Previously this
+			// line was `if dryRunHydrate || flags.dryRun { c.DryRun = false }`, which
+			// silently fired a real HTTP request when the user passed `--dry-run`
+			// (and skipped the log hook because root.go conditions hook wiring on
+			// `!f.dryRun`). Greptile P1 finding on PR #630.
+			if dryRunHydrate {
 				c.DryRun = false
+			}
+			if flags.dryRun {
+				// Global --dry-run requested; the resolveRead below will return the
+				// dry-run sentinel, the per-cert fan-out will be skipped, and the
+				// user gets the dry-run preview without spending quota or making a
+				// real API call.
+				_, _ = fmt.Fprintln(cmd.ErrOrStderr(), "order hydrate: --dry-run set; skipping live order lookup (use --dry-run-hydrate to fetch the submission while skipping per-cert fan-out)")
+				return nil
 			}
 			path := "/orderdetail/GetOrdersBySubmissionNo"
 			params := map[string]string{"submissionNo": submissionNo}

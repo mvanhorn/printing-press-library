@@ -225,6 +225,23 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 	os.WriteFile(cacheFile, []byte(data), 0o644)
 }
 
+// IsCached reports whether the on-disk HTTP response cache has a fresh
+// (<5-minute-old) entry for the given (path, params) pair. Used by commands
+// that fan out many requests (e.g. coin pop-curve, coin batch) to compute an
+// accurate live-call count for quota forecasting before the fan-out runs.
+// Returns false when c.NoCache is set, when c.cacheDir is empty, or when no
+// cache file exists within the TTL window.
+//
+// PATCH isCached-public: added for Greptile P2 finding on PR #630
+// (coin_pop-curve.go quota check over-counted cached grades as live).
+func (c *Client) IsCached(path string, params map[string]string) bool {
+	if c.NoCache || c.cacheDir == "" {
+		return false
+	}
+	_, ok := c.readCache(path, params)
+	return ok
+}
+
 // invalidateCache wholesale-removes the cache directory so the next read
 // after a mutation cannot return a stale snapshot. Selective per-resource
 // invalidation rejected: cache keys are opaque sha256 hashes.

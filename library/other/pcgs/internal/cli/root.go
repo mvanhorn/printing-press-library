@@ -324,43 +324,53 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
-	// PATCH: wire lookup_log writes for cache hits and live API calls.
+	// PATCH log-hook-lazy-store: lazily open + close the store per log event so
+	// the long-lived connection isn't held for the lifetime of the client. The
+	// previous implementation opened once and never closed (Greptile P2 finding
+	// on PR #630). For a short-lived CLI the open+close per ~12 calls is fine;
+	// modernc.org/sqlite WAL handshake is sub-millisecond. The hook itself stays
+	// a no-op on `--dry-run` (matches the pre-existing invariant: hook only
+	// wires when `!f.dryRun`).
 	if !f.dryRun {
-		if s, err := store.OpenWithContext(context.Background(), defaultDBPath("pcgs-pp-cli")); err == nil {
-			c.SetLogHook(func(e client.LookupEvent) {
-				certNo := ""
-				if e.Params != nil {
-					if v, ok := e.Params["certNo"]; ok {
-						certNo = v
-					}
-					if v, ok := e.Params["CertNo"]; ok && certNo == "" {
-						certNo = v
-					}
+		dbPath := defaultDBPath("pcgs-pp-cli")
+		c.SetLogHook(func(e client.LookupEvent) {
+			s, err := store.OpenWithContext(context.Background(), dbPath)
+			if err != nil {
+				return
+			}
+			defer s.Close()
+			certNo := ""
+			if e.Params != nil {
+				if v, ok := e.Params["certNo"]; ok {
+					certNo = v
 				}
-				pcgsNo := ""
-				if e.Params != nil {
-					if v, ok := e.Params["PCGSNo"]; ok {
-						pcgsNo = v
-					}
-					if v, ok := e.Params["pcgsNo"]; ok && pcgsNo == "" {
-						pcgsNo = v
-					}
+				if v, ok := e.Params["CertNo"]; ok && certNo == "" {
+					certNo = v
 				}
-				_ = s.LogLookup(context.Background(), store.LookupLogEntry{
-					Endpoint:       e.Endpoint,
-					Method:         e.Method,
-					RequestHash:    e.RequestHash,
-					CertNo:         certNo,
-					PCGSNo:         pcgsNo,
-					HTTPStatus:     e.HTTPStatus,
-					IsValidRequest: e.IsValidRequest,
-					ServerMessage:  e.ServerMessage,
-					DurationMs:     e.DurationMs,
-					CacheHit:       e.CacheHit,
-					Error:          e.Error,
-				})
+			}
+			pcgsNo := ""
+			if e.Params != nil {
+				if v, ok := e.Params["PCGSNo"]; ok {
+					pcgsNo = v
+				}
+				if v, ok := e.Params["pcgsNo"]; ok && pcgsNo == "" {
+					pcgsNo = v
+				}
+			}
+			_ = s.LogLookup(context.Background(), store.LookupLogEntry{
+				Endpoint:       e.Endpoint,
+				Method:         e.Method,
+				RequestHash:    e.RequestHash,
+				CertNo:         certNo,
+				PCGSNo:         pcgsNo,
+				HTTPStatus:     e.HTTPStatus,
+				IsValidRequest: e.IsValidRequest,
+				ServerMessage:  e.ServerMessage,
+				DurationMs:     e.DurationMs,
+				CacheHit:       e.CacheHit,
+				Error:          e.Error,
 			})
-		}
+		})
 	}
 	return c, nil
 }

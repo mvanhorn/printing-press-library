@@ -63,8 +63,25 @@ func newCoinPopCurveCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("pop-curve: %w", err)
 			}
-			if q.Remaining < len(tuples) {
-				return fmt.Errorf("pop-curve: planned %d live calls exceeds remaining quota of %d (use --grades to narrow or wait for reset)", len(tuples), q.Remaining)
+			// PATCH pop-curve-cache-probe: probe the HTTP cache per tuple so
+			// already-cached grades aren't counted against the live-call gate.
+			// Previously this used `if q.Remaining < len(tuples)`, which blocked
+			// the command even when every grade was already served from cache.
+			// Greptile P2 finding on PR #630.
+			cacheHits := 0
+			for _, t := range tuples {
+				params := map[string]string{
+					"PCGSNo":    pcgsNo,
+					"GradeNo":   strconv.Itoa(t.grade),
+					"PlusGrade": strconv.FormatBool(t.plus),
+				}
+				if c.IsCached("/coindetail/GetCoinFactsByGrade", params) {
+					cacheHits++
+				}
+			}
+			liveCalls := len(tuples) - cacheHits
+			if q.Remaining < liveCalls {
+				return fmt.Errorf("pop-curve: planned %d live calls (%d cached / %d total grade lookups) exceeds remaining quota of %d (use --grades to narrow or wait for reset)", liveCalls, cacheHits, len(tuples), q.Remaining)
 			}
 
 			rows := make([]map[string]any, 0, len(tuples))
