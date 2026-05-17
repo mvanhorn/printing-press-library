@@ -1,0 +1,16 @@
+{
+  "manifest_version": "0.3",
+  "name": "icloud-pp-cli",
+  "display_name": "iCloud",
+  "version": "0.1.0",
+  "description": "Query your iCloud data from the command line — Photos library storage analysis, largest-file finder, and delete via AppleScript. All reads hit local SQLite directly; no network calls or iCloud API token required.",
+  "author": {
+    "name": "Matias Sanchez Moises"
+  },
+  "license": "Apache-2.0",
+  "compatibility": {
+    "platforms": [
+      "darwin"
+    ]
+  }
+}
