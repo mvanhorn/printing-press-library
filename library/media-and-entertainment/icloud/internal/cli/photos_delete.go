@@ -5,10 +5,13 @@ package cli
 import (
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+var uuidRE = regexp.MustCompile(`^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$`)
 
 func newDeleteCmd(f *rootFlags) *cobra.Command {
 	var confirm bool
@@ -72,8 +75,12 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 						formatFloat(a.SizeGB()),
 					)
 				} else {
+					short := uuid
+					if len(uuid) > 8 {
+						short = uuid[:8] + "..."
+					}
 					fmt.Fprintf(out, "  %s %s  (not found in library)\n",
-						red(f, "✗"), uuid[:8]+"...",
+						red(f, "✗"), short,
 					)
 				}
 			}
@@ -120,6 +127,9 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 // PATCH(applescript-delete): uses osascript because there is no public iCloud deletion API.
 // deleteViaPhotos calls Photos.app via osascript to move an item to Recently Deleted.
 func deleteViaPhotos(uuid string) error {
+	if !uuidRE.MatchString(uuid) {
+		return fmt.Errorf("invalid UUID %q: must be RFC 4122 hex-and-dash format", uuid)
+	}
 	script := fmt.Sprintf(`
 tell application "Photos"
 	activate

@@ -27,6 +27,9 @@ Sizes reflect the original file — useful for deciding what to delete from iClo
   # Pipe to agent (auto-enables JSON + compact)
   icloud-pp-cli photos videos | jq '.[].size_gb'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if month > 0 && year == 0 {
+				return usageErr(fmt.Errorf("--month requires --year"))
+			}
 			db, err := openPhotosDB(f.libraryPath)
 			if err != nil {
 				return configErr(err)
