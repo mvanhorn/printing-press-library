@@ -117,6 +117,7 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 	return cmd
 }
 
+// PATCH(applescript-delete): uses osascript because there is no public iCloud deletion API.
 // deleteViaPhotos calls Photos.app via osascript to move an item to Recently Deleted.
 func deleteViaPhotos(uuid string) error {
 	script := fmt.Sprintf(`

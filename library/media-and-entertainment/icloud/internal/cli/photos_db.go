@@ -15,6 +15,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+// PATCH(macos-only-guard): returns configErr on non-Darwin so the error is structured.
 // CoreData timestamps count seconds since Jan 1 2001 00:00:00 UTC.
 const coreDataEpoch int64 = 978307200
 

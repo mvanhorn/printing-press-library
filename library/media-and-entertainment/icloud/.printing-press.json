@@ -1,5 +1,7 @@
 {
   "schema_version": 1,
+  "run_id": "20260517-000000",
+  "printer": "matysanchez",
   "generated_at": "2026-05-17T00:00:00Z",
   "printing_press_version": "0.1.3",
   "api_name": "icloud",

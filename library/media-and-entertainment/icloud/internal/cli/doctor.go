@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PATCH(doctor-sectioned-output): emits System/Library/Assets sections for structured pre-flight.
 func newDoctorCmd(f *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "doctor",

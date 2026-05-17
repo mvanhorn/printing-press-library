@@ -102,7 +102,7 @@ icloud-pp-cli photos top --type video --limit 5 --json | jq -r '.[].uuid'
 icloud-pp-cli photos delete <uuid>
 
 # Actually move to Recently Deleted
-icloud-pp-cli photos delete --confirm <uuid>
+icloud-pp-cli photos delete <uuid> --confirm
 
 # Pipe directly
 icloud-pp-cli photos top --type video --limit 5 --json \
