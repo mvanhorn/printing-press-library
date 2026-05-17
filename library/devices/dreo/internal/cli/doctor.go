@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -188,7 +189,44 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						report["credentials"] = "present (not verified — set auth.verify_path in spec for an API acceptance check)"
+						// Real auth verify: the device-list endpoint is the
+						// canonical authenticated GET for Dreo. With a
+						// valid bearer it returns {"code":0, "msg":"OK", ...};
+						// with an invalid/expired bearer it returns HTTP
+						// 401 + {"code":401, ...}. The Client's 401-aware
+						// retry will lazy-re-login from env/persisted
+						// credentials before we see the failure, so a
+						// genuine FAIL here means the credentials are
+						// actually wrong (not just an expired token).
+						verifyClient, vcErr := flags.newClient()
+						if vcErr != nil {
+							report["credentials"] = fmt.Sprintf("present but verify-call init failed: %v", vcErr)
+						} else {
+							verifyClient.DryRun = false
+							raw, gerr := verifyClient.Get("/api/v2/user-device/device/list", map[string]string{"currentPage": "1", "pageSize": "1"})
+							switch {
+							case gerr == nil:
+								// Top-level envelope's code:0 is Dreo's "ok" signal.
+								var env struct {
+									Code int    `json:"code"`
+									Msg  string `json:"msg"`
+								}
+								if jerr := json.Unmarshal(raw, &env); jerr == nil && env.Code == 0 {
+									report["credentials"] = "verified (device-list returned code:0)"
+								} else if jerr == nil {
+									report["credentials"] = fmt.Sprintf("rejected by server: code=%d msg=%q", env.Code, env.Msg)
+								} else {
+									report["credentials"] = "verified (device-list call succeeded; response shape unfamiliar)"
+								}
+							default:
+								var apiErr *client.APIError
+								if errors.As(gerr, &apiErr) && apiErr.StatusCode == 401 {
+									report["credentials"] = "INVALID — server returned 401. Run `dreo-pp-cli auth login` after confirming DREO_USERNAME and DREO_PASSWORD."
+								} else {
+									report["credentials"] = fmt.Sprintf("verify call failed: %v", gerr)
+								}
+							}
+						}
 					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
