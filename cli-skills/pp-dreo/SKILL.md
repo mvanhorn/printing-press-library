@@ -205,13 +205,13 @@ export DREO_USERNAME='your-dreo-account-email'
 export DREO_PASSWORD='your-dreo-password'
 ```
 
-Then run any command. The CLI exchanges credentials for an access token on first use, caches it to `~/.config/dreo-pp-cli/config.toml` (mode `0600`), and reuses it. On 401 it re-logs in transparently. Optional: pin `DREO_REGION=us` (or `eu`) to skip the region-discovery round-trip on first login.
+Then run any command. The CLI exchanges credentials for an access token on first use, caches both the credentials and the bearer token to `~/.config/dreo-pp-cli/config.toml` (mode `0600`), and reuses them. When the bearer expires (Dreo issues no refresh token), the CLI mints a new one transparently using the cached credentials — cron jobs and unattended runs don't need env vars re-exported. Optional: pin `DREO_REGION=us` (or `eu`) to skip region discovery on first login.
 
 **Security contract:**
 - The `--password` and `--username` flags **do not exist** on `auth login` — flag-supplied secrets leak into `ps`, `/proc/<pid>/cmdline`, audit logs, and shell history. Env vars only.
-- Plaintext password is **never persisted to disk**. Only the bearer token, region, and timestamps land in the config file.
-- `dreo-pp-cli auth logout` clears the cached token.
-- `dreo-pp-cli auth status` shows current authentication state without revealing the token.
+- Credentials and the bearer token are **persisted to `~/.config/dreo-pp-cli/config.toml` at mode `0600`**. This matches AWS CLI's `~/.aws/credentials` pattern and is necessary because Dreo's OAuth flow has no refresh token — without persistence, expired bearer tokens would require manual re-login. Treat the config file as sensitive: don't commit it, don't share it, don't sync it to cloud-storage providers without encryption.
+- `dreo-pp-cli auth logout` wipes both the cached token and the persisted credentials.
+- `dreo-pp-cli auth status` shows current authentication state without revealing the token or password.
 
 Run `dreo-pp-cli doctor` to verify end-to-end.
 
