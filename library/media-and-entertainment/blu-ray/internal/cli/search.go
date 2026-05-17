@@ -110,10 +110,15 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 }
 
 func ftsQuery(q string) string {
-	// PATCH: Strip FTS5 syntax chars before adding prefix markers.
-	re := regexp.MustCompile(`[:()"^+*-]`)
+	// PATCH: Strip FTS5 syntax chars before adding prefix markers. Hyphens
+	// are NOT stripped — they are split on instead, mirroring titleFromSlug
+	// which replaces hyphens with spaces before indexing. Stripping turned
+	// "spider-man" into "spiderman*", which never matched the indexed tokens
+	// ["spider", "man"] and produced zero results for every hyphenated query.
+	// Fixes Greptile P1 on PR #634.
+	re := regexp.MustCompile(`[:()"^+*]`)
 	var parts []string
-	for _, tok := range strings.Fields(q) {
+	for _, tok := range strings.Fields(strings.ReplaceAll(q, "-", " ")) {
 		tok = re.ReplaceAllString(tok, "")
 		if tok == "" {
 			continue

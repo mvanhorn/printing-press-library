@@ -212,9 +212,13 @@ func (s *Store) MigrateBluRayCatalog() error {
 			price REAL NOT NULL,
 			PRIMARY KEY (release_id, retailer_id, observed_at)
 		)`,
-		// PATCH: Recreate price history index to cover retailer-filtered history queries.
+		// PATCH: One-time cleanup of the narrower legacy index. The wider index
+		// is created via IF NOT EXISTS so it is a no-op on subsequent calls.
+		// An earlier version of this migration dropped+recreated the wider index
+		// on every command invocation, which spent measurable latency on every
+		// read-only command and left a brief gap when concurrent readers had no
+		// retailer-aware index to plan against. Fixes Greptile P1 on PR #634.
 		`DROP INDEX IF EXISTS price_history_release`,
-		`DROP INDEX IF EXISTS price_history_release_retailer_observed`,
 		`CREATE INDEX IF NOT EXISTS price_history_release_retailer_observed ON price_history(release_id, retailer_id, observed_at)`,
 		`CREATE TABLE IF NOT EXISTS sitemap_snapshot (
 			taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
