@@ -201,6 +201,7 @@ func queryByUUIDs(db *sql.DB, uuids []string) ([]Asset, error) {
 		FROM ZASSET a
 		JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET = a.Z_PK
 		WHERE a.ZUUID IN (%s)
+		  AND a.ZTRASHEDSTATE = 0
 	`, strings.Join(placeholders, ","))
 	return scanAssets(db, q, args...)
 }
@@ -208,7 +209,7 @@ func queryByUUIDs(db *sql.DB, uuids []string) ([]Asset, error) {
 // queryTotals returns a single summary row across all non-trashed assets.
 func queryTotals(db *sql.DB) (count int64, sizeBytes int64, err error) {
 	row := db.QueryRow(`
-		SELECT COUNT(*), SUM(COALESCE(aa.ZORIGINALFILESIZE, 0))
+		SELECT COUNT(*), COALESCE(SUM(COALESCE(aa.ZORIGINALFILESIZE, 0)), 0)
 		FROM ZASSET a
 		JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET = a.Z_PK
 		WHERE a.ZTRASHEDSTATE = 0
