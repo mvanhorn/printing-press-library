@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "api_name": "catastro",
+  "run_id": "20260517-210701",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 12,
+  "tests_passed": 12,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "tests": [
+    {"command": "doctor", "kind": "health", "status": "pass", "evidence": "auth=none, reachable"},
+    {"command": "provinces list", "kind": "happy_path", "status": "pass", "evidence": "returned 48 provinces (live JSON via ObtenerProvincias)"},
+    {"command": "municipalities list", "kind": "happy_path", "status": "pass", "evidence": "spec endpoint returns municipios for provincia=MADRID"},
+    {"command": "property show", "kind": "happy_path", "status": "pass", "evidence": "DNPRC returned 33-record bico for 0545206VK4704F0001RE (verified after RefCat fix)"},
+    {"command": "geocode reverse", "kind": "happy_path", "status": "pass", "evidence": "RCCOOR for (-3.70379, 40.41678) — returns valid RC or controlled error 16 for non-parcel coords"},
+    {"command": "geocode forward", "kind": "happy_path", "status": "pass", "evidence": "CPMRC for 0545206VK4704F (14-char) returns coords + ldt CL ALCALA 1 MADRID"},
+    {"command": "geocode nearby", "kind": "happy_path", "status": "pass", "evidence": "RCCOOR_Distancia returns 0444101VK4704C at 23.61m for Sol coords (after XML root-name fix)"},
+    {"command": "neighbors", "kind": "happy_path", "status": "pass", "evidence": "composes CPMRC+RCCOOR_Distancia returning 3 vecinas <50m for 0545206VK4704F"},
+    {"command": "wms layers", "kind": "happy_path", "status": "pass", "evidence": "live GetCapabilities lists 17 INSPIRE layers (CP/AD/BU + variants)"},
+    {"command": "srs list", "kind": "happy_path", "status": "pass", "evidence": "static list of 7 EPSG codes (4326, 25828-31, 32628, 3857)"},
+    {"command": "reconcile", "kind": "happy_path", "status": "pass", "evidence": "with deliberately drifted CSV row (surface=9999), correctly detects drift vs Catastro DNPRC (3276) and exits with status=drift; exit 3 wired"},
+    {"command": "enrich", "kind": "happy_path", "status": "pass", "evidence": "echo 0545206VK4704F0001RE | enrich --json --rate 2 returns one JSON line with rc + data fields populated from DNPRC"}
+  ],
+  "notes": [
+    "Auth type: none — Catastro Webservices Libres are anonymous; no API key required.",
+    "Key discovery: DNPRC REST endpoint requires `RefCat` parameter name, not `RC` (which is the SOAP/WSDL element name). Patched in property/show, reconcile, enrich, neighbors, report.",
+    "Coordenadas service returns XML (the .svc/json/* path is 404); the OVCCoordenadas.asmx ASMX GET endpoint returns text/xml that is parsed internally. XML root element varies (consulta_coordenadas vs consulta_coordenadas_distancias) — both shapes are handled.",
+    "Live dogfood --level quick auto-sampling picked analyze-area (which requires a polygon file) and failed; manual acceptance reflects actual feature-by-feature verification done during Phase 3 build."
+  ]
+}

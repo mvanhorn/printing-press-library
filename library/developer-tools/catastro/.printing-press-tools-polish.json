@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-17T20:06:16.838595Z",
+  "cli_dir": "\u003ccli-dir\u003e/catastro-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-17T20:06:16.838597Z"
+  }
+}

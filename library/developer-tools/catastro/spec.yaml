@@ -1,0 +1,332 @@
+name: catastro
+description: "Sede Electrónica del Catastro español — CLI sobre OVC (Callejero + Coordenadas) e INSPIRE (WMS/WFS/ATOM)"
+version: "0.1.0"
+base_url: "https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero"
+health_check_path: "/COVCCallejero.svc/json/ObtenerProvincias"
+
+required_headers:
+  - name: User-Agent
+    value: "catastro-pp-cli"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+cli_description: "Every Catastro feature, plus offline SQLite, bulk RC enrichment, polygon export and change detection no other Catastro tool has."
+
+config:
+  format: toml
+  path: "~/.config/catastro-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio]
+
+resources:
+  provinces:
+    description: "Listado oficial de provincias del Catastro español"
+    endpoints:
+      list:
+        method: GET
+        path: "/COVCCallejero.svc/json/ObtenerProvincias"
+        description: "Lista las 48 provincias donde el Catastro tiene competencia (excluye País Vasco y Navarra)"
+        response:
+          type: array
+          item: Province
+        response_path: "consulta_provincieroResult.provinciero.prov"
+
+  municipalities:
+    description: "Listado de municipios por provincia"
+    endpoints:
+      list:
+        method: GET
+        path: "/COVCCallejero.svc/json/ObtenerMunicipios"
+        description: "Lista los municipios de una provincia (devuelve nombre + código INE)"
+        params:
+          - name: Provincia
+            flag_name: provincia
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre de la provincia (ej: MADRID, BARCELONA)"
+          - name: Municipio
+            flag_name: filter
+            aliases: []
+            type: string
+            required: false
+            description: "Filtro parcial por nombre de municipio (opcional)"
+        response:
+          type: array
+          item: Municipality
+        response_path: "consulta_municipieroResult.municipiero.muni"
+
+  streets:
+    description: "Callejero oficial del Catastro por municipio"
+    endpoints:
+      list:
+        method: GET
+        path: "/COVCCallejero.svc/json/ObtenerCallejero"
+        description: "Lista las vías de un municipio (calle, plaza, avenida, etc.) con sus códigos"
+        params:
+          - name: Provincia
+            flag_name: provincia
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre de la provincia"
+          - name: Municipio
+            flag_name: municipio
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre del municipio"
+          - name: TipoVia
+            flag_name: tipo
+            aliases: []
+            type: string
+            required: false
+            description: "Filtro por sigla de vía (CL=calle, AV=avenida, PZ=plaza, etc.)"
+          - name: NombreVia
+            flag_name: nombre
+            aliases: []
+            type: string
+            required: false
+            description: "Filtro parcial por nombre de vía"
+        response:
+          type: array
+          item: Street
+        response_path: "consulta_callejeroResult.callejero.calle"
+
+  numbers:
+    description: "Numeración de portales en una vía catastral"
+    endpoints:
+      list:
+        method: GET
+        path: "/COVCCallejero.svc/json/ObtenerNumerero"
+        description: "Lista los números de portal disponibles en una vía"
+        params:
+          - name: Provincia
+            flag_name: provincia
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre de la provincia"
+          - name: Municipio
+            flag_name: municipio
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre del municipio"
+          - name: TipoVia
+            flag_name: tipo
+            aliases: []
+            type: string
+            required: true
+            description: "Sigla de la vía (CL, AV, PZ, etc.)"
+          - name: NombreVia
+            flag_name: via
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre exacto de la vía"
+          - name: Numero
+            flag_name: numero
+            aliases: []
+            type: string
+            required: false
+            description: "Filtro por número específico (opcional)"
+        response:
+          type: array
+          item: StreetNumber
+        response_path: "consulta_numereroResult.numerero.nump"
+
+  property:
+    description: "Consulta de propiedades catastrales urbanas y rústicas"
+    endpoints:
+      by-address:
+        method: GET
+        path: "/COVCCallejero.svc/json/Consulta_DNPLOC"
+        description: "Datos no protegidos de una finca urbana por dirección (DNPLOC). Devuelve referencia catastral + datos de propiedad."
+        params:
+          - name: Provincia
+            flag_name: provincia
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre de la provincia (ej: MADRID)"
+          - name: Municipio
+            flag_name: municipio
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre del municipio (ej: MADRID)"
+          - name: Sigla
+            flag_name: sigla
+            aliases: [tipo]
+            type: string
+            required: false
+            description: "Sigla de la vía (CL=calle, AV=avenida, PZ=plaza, etc.)"
+          - name: Calle
+            flag_name: calle
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre de la vía (ej: ALCALA)"
+          - name: Numero
+            flag_name: numero
+            aliases: []
+            type: string
+            required: true
+            description: "Número de portal (ej: 1)"
+          - name: Bloque
+            flag_name: bloque
+            aliases: []
+            type: string
+            required: false
+            description: "Bloque dentro del portal (opcional)"
+          - name: Escalera
+            flag_name: escalera
+            aliases: []
+            type: string
+            required: false
+            description: "Escalera dentro del bloque (opcional)"
+          - name: Planta
+            flag_name: planta
+            aliases: []
+            type: string
+            required: false
+            description: "Planta (opcional, ej: 03)"
+          - name: Puerta
+            flag_name: puerta
+            aliases: []
+            type: string
+            required: false
+            description: "Puerta dentro de la planta (opcional)"
+        response:
+          type: object
+          item: PropertyByAddress
+
+      show:
+        method: GET
+        path: "/COVCCallejero.svc/json/Consulta_DNPRC"
+        description: "Datos no protegidos por referencia catastral (DNPRC). Devuelve la finca completa con sus sub-parts."
+        params:
+          - name: Provincia
+            flag_name: provincia
+            aliases: []
+            type: string
+            required: false
+            description: "Nombre de provincia (opcional si la RC tiene 20 dígitos)"
+          - name: Municipio
+            flag_name: municipio
+            aliases: []
+            type: string
+            required: false
+            description: "Nombre de municipio (opcional si la RC tiene 20 dígitos)"
+          - name: RC
+            flag_name: rc
+            aliases: []
+            type: string
+            required: true
+            positional: true
+            description: "Referencia catastral (14, 18 o 20 caracteres)"
+        response:
+          type: object
+          item: PropertyByRC
+
+      rural:
+        method: GET
+        path: "/COVCCallejero.svc/json/Consulta_DNPPP"
+        description: "Datos no protegidos de finca rústica por polígono + parcela (DNPPP)."
+        params:
+          - name: Provincia
+            flag_name: provincia
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre de la provincia"
+          - name: Municipio
+            flag_name: municipio
+            aliases: []
+            type: string
+            required: true
+            description: "Nombre del municipio"
+          - name: Poligono
+            flag_name: poligono
+            aliases: []
+            type: string
+            required: true
+            description: "Número de polígono catastral"
+          - name: Parcela
+            flag_name: parcela
+            aliases: []
+            type: string
+            required: true
+            description: "Número de parcela dentro del polígono"
+        response:
+          type: object
+          item: PropertyByPlot
+
+types:
+  Province:
+    fields:
+      - name: cpine
+        type: string
+      - name: np
+        type: string
+
+  Municipality:
+    fields:
+      - name: cmc
+        type: string
+      - name: cm
+        type: string
+      - name: nm
+        type: string
+      - name: cp
+        type: string
+
+  Street:
+    fields:
+      - name: dir
+        type: string
+      - name: loine
+        type: string
+
+  StreetNumber:
+    fields:
+      - name: pnp
+        type: string
+      - name: snp
+        type: string
+
+  PropertyByAddress:
+    fields:
+      - name: rc
+        type: string
+      - name: surface
+        type: int
+      - name: use
+        type: string
+      - name: address
+        type: string
+
+  PropertyByRC:
+    fields:
+      - name: rc
+        type: string
+      - name: surface
+        type: int
+      - name: use
+        type: string
+      - name: built_year
+        type: int
+
+  PropertyByPlot:
+    fields:
+      - name: rc
+        type: string
+      - name: surface
+        type: int
+      - name: use
+        type: string

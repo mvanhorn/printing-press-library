@@ -1,0 +1,362 @@
+{
+  "api_name": "catastro",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gisce/pycatastro",
+      "url": "https://github.com/gisce/pycatastro",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rOpenSpain/CatastRo",
+      "url": "https://github.com/rOpenSpain/CatastRo",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "geomatico/cidownloader",
+      "url": "https://github.com/geomatico/cidownloader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sigdeletras/Spanish_Inspire_Catastral_Downloader",
+      "url": "https://github.com/sigdeletras/Spanish_Inspire_Catastral_Downloader",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MrCabss69/Python-Catastro",
+      "url": "https://github.com/MrCabss69/Python-Catastro",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 16,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sperea/catastro-lib-python",
+      "url": "https://github.com/sperea/catastro-lib-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ibonkonesa/api-catastro",
+      "url": "https://github.com/ibonkonesa/api-catastro",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T19:11:45Z",
+  "novel_features": [
+    {
+      "name": "Reconcile local parcel table against Catastro",
+      "command": "reconcile",
+      "description": "Compara una tabla local (CSV/SQLite) de parcelas contra Catastro y reporta drift (superficie, uso, año, dirección) parcela a parcela, con exit code != 0 si hay cambios.",
+      "rationale": "No wrapper compara una tabla externa contra Catastro; los wrappers son uno-a-uno. Solo posible con store local + diff.",
+      "example": "catastro-pp-cli reconcile parcelas.csv --rc-col rc --fields surface,use,year,address --agent",
+      "why_it_matters": "Para administradores de fincas/urbanizaciones que mantienen padrones desactualizados, este es el comando central.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pipe-friendly bulk enrichment",
+      "command": "enrich",
+      "description": "Lee RCs o direcciones por stdin y emite JSONL con la property card completa de cada uno, con cache en disco y rate-limiting.",
+      "rationale": "Catastro devuelve una propiedad por llamada. Bulk-enrichment requiere fan-out con cache; ningún incumbente lo hace pipe-friendly.",
+      "example": "cat refs.txt | catastro-pp-cli enrich --json --agent",
+      "why_it_matters": "Sustituye el script pycatastro de un-solo-uso que cada due-diligence escribe; agentes pueden enriquecer listas en una llamada.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Detect parcel changes between syncs",
+      "command": "watch",
+      "description": "Re-sincroniza un municipio y reporta deltas (superficie, uso, año, dirección) por RC respecto al último sync.",
+      "rationale": "Catastro se actualiza diariamente (WMS) y bi-anualmente (ATOM). Sin store con historial no se puede detectar el delta.",
+      "example": "catastro-pp-cli watch --kind parcels --since 2026-01-01 --json",
+      "why_it_matters": "Único modo de saber si una parcela mutó (reforma, segregación) sin re-cargar 80M parcelas a mano.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Polygon-clipped parcel export",
+      "command": "export parcels",
+      "description": "Exporta las parcelas dentro de un polígono arbitrario (GeoJSON) a GeoPackage/GeoJSON/SHP, reproyectando al EPSG pedido.",
+      "rationale": "INSPIRE WFS solo recorta por bbox; QGIS/cidownloader trabajan a granularidad de municipio. Recorte por polígono arbitrario requiere store local + point-in-polygon.",
+      "example": "catastro-pp-cli export parcels --polygon ./urbanizacion.geojson --to ./parcels.gpkg --epsg 25830",
+      "why_it_matters": "Quita el paso QGIS de la rutina del GIS analyst; convierte 30 min de fontanería en un comando.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Expediente bundle for one RC",
+      "command": "report",
+      "description": "Dada una RC, compone un directorio (data.json, parts.csv, coords.json, neighbors.json, map.png, map-url.txt) con la parcela, sus vecinas, sub-parts y un PNG WMS — listo para anexar a un expediente técnico. Cada archivo se reporta en `files[]` solo si su escritura tuvo éxito, y los fallos parciales aparecen en `warnings[]`.",
+      "rationale": "Compone DNPRC + RCCOOR + RCCOOR_Distancia + WFS + WMS GetMap en una sola pasada. Ningún wrapper compone más de un endpoint.",
+      "example": "catastro-pp-cli report 0545206VK4704F0001RE --neighbors --to ./expediente-A12/",
+      "why_it_matters": "Reemplaza la fontanería de 4 herramientas (pycatastro + R CatastRo + QGIS + screenshot) del técnico de expedientes.",
+      "group": "Service-specific compositions"
+    },
+    {
+      "name": "Nearest-neighbor parcels for an RC",
+      "command": "neighbors",
+      "description": "Para una RC, devuelve las parcelas vecinas dentro del radio dado (típico 50 m) con sus datos DNPRC ya unidos.",
+      "rationale": "Requiere CPMRC (RC→coords) + RCCOOR_Distancia (coords→RCs vecinas) + DNPRC por cada RC vecina + join local. Ningún wrapper hace el join.",
+      "example": "catastro-pp-cli neighbors 0545206VK4704F0001RE --radius 50 --fetch --json",
+      "why_it_matters": "Vecinas es el dato crítico en segregaciones/agrupaciones y disputas de lindes.",
+      "group": "Service-specific compositions"
+    },
+    {
+      "name": "FTS over local store",
+      "command": "search",
+      "description": "Búsqueda full-text sobre la tabla local de parcels (rc, address, use) y streets (nombre, municipio), con filtros opcionales por código INE.",
+      "rationale": "Catastro no expone búsqueda full-text. SQLite FTS5 sobre el store local hace que `\"calle alcalá\"` funcione offline en milisegundos.",
+      "example": "catastro-pp-cli search \"calle alcalá\" --json --agent",
+      "why_it_matters": "Buscar por trozo de calle es lo que el visor web hace lentísimo; offline + FTS lo hace instantáneo.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale local data planning",
+      "command": "stale",
+      "description": "Lista RCs/municipios cuyo último sync supera la ventana --older-than, ordenados por antigüedad.",
+      "rationale": "Pura consulta SQL sobre `parcel_history.sync_at`; útil para planificar qué re-sincronizar antes de una entrega.",
+      "example": "catastro-pp-cli stale --older-than 180d --agent",
+      "why_it_matters": "Sin esto no hay manera de saber qué parcelas tienen data caducada en el store local.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Area aggregate analysis",
+      "command": "analyze-area",
+      "description": "Para un polígono, devuelve número de parcelas, hectáreas totales, histograma de usos, año medio de construcción y RCs únicas.",
+      "rationale": "Catastro responde por parcela; agregar requiere store local + SQL aggregate. Ningún wrapper lo hace.",
+      "example": "catastro-pp-cli analyze-area --polygon ./poligono.geojson --json --agent",
+      "why_it_matters": "Permite caracterizar una zona (potencial, antigüedad, usos) en un solo comando, sin pre-cargar QGIS.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local sync coverage overview",
+      "command": "coverage",
+      "description": "Resumen del estado local: por provincia/municipio, qué hay sincronizado y desde cuándo, con conteos por tipo (parcels/addresses/buildings).",
+      "rationale": "Útil para saber el alcance de tu store local; ningún wrapper lo expone.",
+      "example": "catastro-pp-cli coverage --provincia 28 --json",
+      "why_it_matters": "Antes de un trabajo, saber qué tienes en local evita re-descargas innecesarias.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Reconcile local parcel table against Catastro",
+      "command": "reconcile",
+      "description": "Compara una tabla local (CSV/SQLite) de parcelas contra Catastro y reporta drift (superficie, uso, año, dirección) parcela a parcela, con exit code != 0 si hay cambios.",
+      "rationale": "No wrapper compara una tabla externa contra Catastro; los wrappers son uno-a-uno. Solo posible con store local + diff.",
+      "example": "catastro-pp-cli reconcile parcelas.csv --rc-col rc --fields surface,use,year,address --agent",
+      "why_it_matters": "Para administradores de fincas/urbanizaciones que mantienen padrones desactualizados, este es el comando central.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pipe-friendly bulk enrichment",
+      "command": "enrich",
+      "description": "Lee RCs o direcciones por stdin y emite JSONL con la property card completa de cada uno, con cache en disco y rate-limiting.",
+      "rationale": "Catastro devuelve una propiedad por llamada. Bulk-enrichment requiere fan-out con cache; ningún incumbente lo hace pipe-friendly.",
+      "example": "cat refs.txt | catastro-pp-cli enrich --json --agent",
+      "why_it_matters": "Sustituye el script pycatastro de un-solo-uso que cada due-diligence escribe; agentes pueden enriquecer listas en una llamada.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Detect parcel changes between syncs",
+      "command": "watch",
+      "description": "Re-sincroniza un municipio y reporta deltas (superficie, uso, año, dirección) por RC respecto al último sync.",
+      "rationale": "Catastro se actualiza diariamente (WMS) y bi-anualmente (ATOM). Sin store con historial no se puede detectar el delta.",
+      "example": "catastro-pp-cli watch --kind parcels --since 2026-01-01 --json",
+      "why_it_matters": "Único modo de saber si una parcela mutó (reforma, segregación) sin re-cargar 80M parcelas a mano.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Polygon-clipped parcel export",
+      "command": "export parcels",
+      "description": "Exporta las parcelas dentro de un polígono arbitrario (GeoJSON) a GeoPackage/GeoJSON/SHP, reproyectando al EPSG pedido.",
+      "rationale": "INSPIRE WFS solo recorta por bbox; QGIS/cidownloader trabajan a granularidad de municipio. Recorte por polígono arbitrario requiere store local + point-in-polygon.",
+      "example": "catastro-pp-cli export parcels --polygon ./urbanizacion.geojson --to ./parcels.gpkg --epsg 25830",
+      "why_it_matters": "Quita el paso QGIS de la rutina del GIS analyst; convierte 30 min de fontanería en un comando.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Expediente bundle for one RC",
+      "command": "report",
+      "description": "Dada una RC, compone un directorio (data.json, parts.csv, coords.json, neighbors.json, map.png, map-url.txt) con la parcela, sus vecinas, sub-parts y un PNG WMS — listo para anexar a un expediente técnico. Cada archivo se reporta en `files[]` solo si su escritura tuvo éxito, y los fallos parciales aparecen en `warnings[]`.",
+      "rationale": "Compone DNPRC + RCCOOR + RCCOOR_Distancia + WFS + WMS GetMap en una sola pasada. Ningún wrapper compone más de un endpoint.",
+      "example": "catastro-pp-cli report 0545206VK4704F0001RE --neighbors --to ./expediente-A12/",
+      "why_it_matters": "Reemplaza la fontanería de 4 herramientas (pycatastro + R CatastRo + QGIS + screenshot) del técnico de expedientes.",
+      "group": "Service-specific compositions"
+    },
+    {
+      "name": "Nearest-neighbor parcels for an RC",
+      "command": "neighbors",
+      "description": "Para una RC, devuelve las parcelas vecinas dentro del radio dado (típico 50 m) con sus datos DNPRC ya unidos.",
+      "rationale": "Requiere CPMRC (RC→coords) + RCCOOR_Distancia (coords→RCs vecinas) + DNPRC por cada RC vecina + join local. Ningún wrapper hace el join.",
+      "example": "catastro-pp-cli neighbors 0545206VK4704F0001RE --radius 50 --fetch --json",
+      "why_it_matters": "Vecinas es el dato crítico en segregaciones/agrupaciones y disputas de lindes.",
+      "group": "Service-specific compositions"
+    },
+    {
+      "name": "FTS over local store",
+      "command": "search",
+      "description": "Búsqueda full-text sobre la tabla local de parcels (rc, address, use) y streets (nombre, municipio), con filtros opcionales por código INE.",
+      "rationale": "Catastro no expone búsqueda full-text. SQLite FTS5 sobre el store local hace que `\"calle alcalá\"` funcione offline en milisegundos.",
+      "example": "catastro-pp-cli search \"calle alcalá\" --json --agent",
+      "why_it_matters": "Buscar por trozo de calle es lo que el visor web hace lentísimo; offline + FTS lo hace instantáneo.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale local data planning",
+      "command": "stale",
+      "description": "Lista RCs/municipios cuyo último sync supera la ventana --older-than, ordenados por antigüedad.",
+      "rationale": "Pura consulta SQL sobre `parcel_history.sync_at`; útil para planificar qué re-sincronizar antes de una entrega.",
+      "example": "catastro-pp-cli stale --older-than 180d --agent",
+      "why_it_matters": "Sin esto no hay manera de saber qué parcelas tienen data caducada en el store local.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Area aggregate analysis",
+      "command": "analyze-area",
+      "description": "Para un polígono, devuelve número de parcelas, hectáreas totales, histograma de usos, año medio de construcción y RCs únicas.",
+      "rationale": "Catastro responde por parcela; agregar requiere store local + SQL aggregate. Ningún wrapper lo hace.",
+      "example": "catastro-pp-cli analyze-area --polygon ./poligono.geojson --json --agent",
+      "why_it_matters": "Permite caracterizar una zona (potencial, antigüedad, usos) en un solo comando, sin pre-cargar QGIS.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Local sync coverage overview",
+      "command": "coverage",
+      "description": "Resumen del estado local: por provincia/municipio, qué hay sincronizado y desde cuándo, con conteos por tipo (parcels/addresses/buildings).",
+      "rationale": "Útil para saber el alcance de tu store local; ningún wrapper lo expone.",
+      "example": "catastro-pp-cli coverage --provincia 28 --json",
+      "why_it_matters": "Antes de un trabajo, saber qué tienes en local evita re-descargas innecesarias.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Catastro",
+    "headline": "Every Catastro feature, plus offline SQLite, bulk RC enrichment, polygon export and change detection no other Catastro tool has.",
+    "value_prop": "Unifica la Oficina Virtual del Catastro (OVC Callejero + Coordenadas) y los servicios INSPIRE (WMS/WFS/ATOM) en un único binario Go. Añade un store SQLite local con FTS5 sobre parcelas y calles, comandos pipe-friendly para enriquecer listas de RC o direcciones, recorte por polígono arbitrario (no solo por bbox o municipio) y un comando reconcile que compara tu tabla local contra Catastro y reporta drift.",
+    "auth_narrative": "No requiere API key. Catastro publica los Webservices Libres en `ovc.catastro.meh.es` con acceso anónimo. El cliente respeta un rate-limit suave (~5 req/s) y cachea respuestas en `~/.cache/catastro-pp-cli/cache.sqlite`.",
+    "quickstart": [
+      {
+        "command": "catastro-pp-cli provinces list --json",
+        "comment": "Smoke-check: lista las 48 provincias del Catastro (sin auth)"
+      },
+      {
+        "command": "catastro-pp-cli property show 0545206VK4704F0001RE --json",
+        "comment": "Ficha completa por referencia catastral (DNPRC) — ejemplo: edificio de Calle Alcalá 1, Madrid"
+      },
+      {
+        "command": "catastro-pp-cli geocode reverse --lon -3.70379 --lat 40.41678 --json",
+        "comment": "De coordenadas WGS84 a referencias catastrales cercanas (Consulta_RCCOOR)"
+      },
+      {
+        "command": "catastro-pp-cli neighbors 0545206VK4704F --radius 50 --json",
+        "comment": "Parcelas vecinas a una RC dentro de 50 m: compone CPMRC + RCCOOR_Distancia + (opcional) DNPRC"
+      },
+      {
+        "command": "cat refs.txt | catastro-pp-cli enrich --json \u003e enriched.jsonl",
+        "comment": "Enriquecimiento masivo: por cada RC en stdin, una línea JSON con la ficha completa"
+      },
+      {
+        "command": "catastro-pp-cli reconcile parcelas.csv --rc-col rc --fields surface,use,year",
+        "comment": "Diff entre tu CSV local y Catastro: exit code != 0 si encuentra drift"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`property show` devuelve `RC no encontrada`",
+        "fix": "La RC debe tener 14, 18 o 20 caracteres. Verifica con `catastro-pp-cli property show \u003cRC\u003e --dry-run` que la validación local pasa antes de llamar a OVC"
+      },
+      {
+        "symptom": "`429 Too Many Requests` en `enrich` masivo",
+        "fix": "Reduce con `--rate 2` (req/s). El default es 5; OVC empieza a 429ear sobre 10"
+      },
+      {
+        "symptom": "`watch` no detecta cambios aunque sabe que los hay",
+        "fix": "OVC actualiza diariamente pero el ATOM municipal solo se refresca bi-anualmente. Para cambios diarios usa `enrich` sobre la lista de RCs en lugar de re-sync ATOM"
+      },
+      {
+        "symptom": "`export parcels --polygon` da `municipality not synced`",
+        "fix": "El polígono recorta sobre el store local. Ejecuta antes `catastro-pp-cli sync` para poblar el store con los recursos disponibles"
+      },
+      {
+        "symptom": "Coordenadas devuelven XML en lugar de JSON",
+        "fix": "Es esperado: OVCCoordenadas.asmx solo expone REST con respuesta XML; el cliente lo parsea internamente. Si llamas al endpoint directo, usa `Accept: application/xml`"
+      }
+    ],
+    "when_to_use": "Úsalo cuando necesites trabajar con datos del Catastro español a escala mayor que una consulta puntual: enriquecer listas de RC/direcciones, mantener un padrón sincronizado con drift detection, exportar parcelas por polígono arbitrario, o exponer el Catastro a un agente vía MCP. Para una consulta puntual la web `sedecatastro.gob.es` ya basta; este CLI gana cuando hay batch, comparación contra estado local, o composición de varios endpoints.",
+    "recipes": [
+      {
+        "title": "Auditar un padrón de urbanización contra Catastro",
+        "command": "catastro-pp-cli reconcile parcelas-urbanizacion.csv --rc-col rc --fields surface,use,year,address --json --agent",
+        "explanation": "Para cada RC en el CSV llama a Consulta_DNPRC, compara los campos declarados y emite un informe JSONL con el drift; exit 3 si encuentra mismatches (útil para pre-commit/CI)."
+      },
+      {
+        "title": "Enriquecer 200 direcciones con RC + datos catastrales",
+        "command": "cut -f1 addresses.tsv | catastro-pp-cli enrich --addresses --rate 3 --json --select rc,surface,use,year \u003e out.jsonl",
+        "explanation": "Por cada dirección llama a DNPLOC, cachea en SQLite, emite una línea JSON por entrada. `--select` reduce el payload para que el agente no se sature; `--rate 3` evita 429."
+      },
+      {
+        "title": "Recortar parcelas dentro de un polígono y exportar a EPSG:25830",
+        "command": "catastro-pp-cli export parcels --polygon ./urbanizacion.geojson --to ./parcels.gpkg --epsg 25830",
+        "explanation": "Sincroniza el municipio (si no está), aplica point-in-polygon sobre `parcels.geom_wkt`, reproyecta y escribe GeoPackage listo para CAD/QGIS sin un comando intermedio."
+      },
+      {
+        "title": "Detectar parcelas cambiadas en el último trimestre",
+        "command": "catastro-pp-cli watch --kind parcels --since 2026-02-01 --json --agent",
+        "explanation": "Re-sincroniza Madrid (28079), joinea contra `parcel_history` y emite por cada RC los campos que han cambiado; agentes pueden alertar sobre superficie/uso modificados."
+      },
+      {
+        "title": "Bundle expediente para un RC",
+        "command": "catastro-pp-cli report 0545206VK4704F0001RE --neighbors --to ./expediente/",
+        "explanation": "Compone DNPRC + RCCOOR_Distancia + WMS GetMap en un directorio con data.json, parts.csv, coords.json, neighbors.json, map.png y map-url.txt — listo para anexar a un informe técnico. Los archivos que fallen aparecen en un campo `warnings[]` del JSON de salida."
+      }
+    ],
+    "trigger_phrases": [
+      "consulta el catastro de",
+      "qué hay en esta referencia catastral",
+      "descarga las parcelas del municipio",
+      "enriquece estas direcciones con catastro",
+      "compara mi padrón contra catastro",
+      "use catastro",
+      "run catastro"
+    ]
+  }
+}

@@ -1,0 +1,292 @@
+{
+  "api_name": "catastro",
+  "base_url": "https://ovc.catastro.meh.es/OVCServWeb/OVCWcfCallejero",
+  "description": "Sede Electrónica del Catastro español — CLI sobre OVC (Callejero + Coordenadas) e INSPIRE (WMS/WFS/ATOM)",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "catastro-pp-cli"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "municipalities_list",
+      "description": "Lista los municipios de una provincia (devuelve nombre + código INE). Required: provincia. Optional: filter. Returns array of Municipality.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/ObtenerMunicipios",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "wire_name": "Provincia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de la provincia (ej: MADRID, BARCELONA)",
+          "required": true
+        },
+        {
+          "name": "filter",
+          "wire_name": "Municipio",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro parcial por nombre de municipio (opcional)"
+        }
+      ]
+    },
+    {
+      "name": "numbers_list",
+      "description": "Lista los números de portal disponibles en una vía. Required: provincia, municipio, tipo, via. Optional: numero. Returns array of StreetNumber.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/ObtenerNumerero",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "wire_name": "Provincia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de la provincia",
+          "required": true
+        },
+        {
+          "name": "municipio",
+          "wire_name": "Municipio",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre del municipio",
+          "required": true
+        },
+        {
+          "name": "tipo",
+          "wire_name": "TipoVia",
+          "type": "string",
+          "location": "query",
+          "description": "Sigla de la vía (CL, AV, PZ, etc.)",
+          "required": true
+        },
+        {
+          "name": "via",
+          "wire_name": "NombreVia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre exacto de la vía",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "wire_name": "Numero",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro por número específico (opcional)"
+        }
+      ]
+    },
+    {
+      "name": "property_by-address",
+      "description": "Datos no protegidos de una finca urbana por dirección (DNPLOC). Devuelve referencia catastral + datos de propiedad. Required: provincia, municipio, calle, numero. Optional: sigla, bloque, escalera (plus 2 more). Returns the PropertyByAddress.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/Consulta_DNPLOC",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "wire_name": "Provincia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de la provincia (ej: MADRID)",
+          "required": true
+        },
+        {
+          "name": "municipio",
+          "wire_name": "Municipio",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre del municipio (ej: MADRID)",
+          "required": true
+        },
+        {
+          "name": "sigla",
+          "wire_name": "Sigla",
+          "type": "string",
+          "location": "query",
+          "description": "Sigla de la vía (CL=calle, AV=avenida, PZ=plaza, etc.)",
+          "aliases": [
+            "tipo"
+          ]
+        },
+        {
+          "name": "calle",
+          "wire_name": "Calle",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de la vía (ej: ALCALA)",
+          "required": true
+        },
+        {
+          "name": "numero",
+          "wire_name": "Numero",
+          "type": "string",
+          "location": "query",
+          "description": "Número de portal (ej: 1)",
+          "required": true
+        },
+        {
+          "name": "bloque",
+          "wire_name": "Bloque",
+          "type": "string",
+          "location": "query",
+          "description": "Bloque dentro del portal (opcional)"
+        },
+        {
+          "name": "escalera",
+          "wire_name": "Escalera",
+          "type": "string",
+          "location": "query",
+          "description": "Escalera dentro del bloque (opcional)"
+        },
+        {
+          "name": "planta",
+          "wire_name": "Planta",
+          "type": "string",
+          "location": "query",
+          "description": "Planta (opcional, ej: 03)"
+        },
+        {
+          "name": "puerta",
+          "wire_name": "Puerta",
+          "type": "string",
+          "location": "query",
+          "description": "Puerta dentro de la planta (opcional)"
+        }
+      ]
+    },
+    {
+      "name": "property_rural",
+      "description": "Datos no protegidos de finca rústica por polígono + parcela (DNPPP). Required: provincia, municipio, poligono, parcela. Returns the PropertyByPlot.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/Consulta_DNPPP",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "wire_name": "Provincia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de la provincia",
+          "required": true
+        },
+        {
+          "name": "municipio",
+          "wire_name": "Municipio",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre del municipio",
+          "required": true
+        },
+        {
+          "name": "poligono",
+          "wire_name": "Poligono",
+          "type": "string",
+          "location": "query",
+          "description": "Número de polígono catastral",
+          "required": true
+        },
+        {
+          "name": "parcela",
+          "wire_name": "Parcela",
+          "type": "string",
+          "location": "query",
+          "description": "Número de parcela dentro del polígono",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "property_show",
+      "description": "Datos no protegidos por referencia catastral (DNPRC). Devuelve la finca completa con sus sub-parts. Required: rc. Optional: provincia, municipio. Returns the PropertyByRC.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/Consulta_DNPRC",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "wire_name": "Provincia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de provincia (opcional si la RC tiene 20 dígitos)"
+        },
+        {
+          "name": "municipio",
+          "wire_name": "Municipio",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de municipio (opcional si la RC tiene 20 dígitos)"
+        },
+        {
+          "name": "rc",
+          "wire_name": "RC",
+          "type": "string",
+          "location": "path",
+          "description": "Referencia catastral (14, 18 o 20 caracteres)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "provinces_list",
+      "description": "Lista las 48 provincias donde el Catastro tiene competencia (excluye País Vasco y Navarra). Returns array of Province.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/ObtenerProvincias",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "streets_list",
+      "description": "Lista las vías de un municipio (calle, plaza, avenida, etc.) con sus códigos. Required: provincia, municipio. Optional: tipo, nombre. Returns array of Street.",
+      "method": "GET",
+      "path": "/COVCCallejero.svc/json/ObtenerCallejero",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "provincia",
+          "wire_name": "Provincia",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre de la provincia",
+          "required": true
+        },
+        {
+          "name": "municipio",
+          "wire_name": "Municipio",
+          "type": "string",
+          "location": "query",
+          "description": "Nombre del municipio",
+          "required": true
+        },
+        {
+          "name": "tipo",
+          "wire_name": "TipoVia",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro por sigla de vía (CL=calle, AV=avenida, PZ=plaza, etc.)"
+        },
+        {
+          "name": "nombre",
+          "wire_name": "NombreVia",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro parcial por nombre de vía"
+        }
+      ]
+    }
+  ]
+}

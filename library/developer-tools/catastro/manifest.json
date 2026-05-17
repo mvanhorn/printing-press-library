@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "catastro-pp-mcp",
+  "display_name": "Catastro",
+  "version": "4.8.0",
+  "description": "Every Catastro feature, plus offline SQLite, bulk RC enrichment, polygon export and change detection no other Catastro tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/catastro-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/catastro-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T20:09:01.992993Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "catastro",
+  "display_name": "Catastro",
+  "cli_name": "catastro-pp-cli",
+  "owner": "user",
+  "printer": "rsolanilla",
+  "printer_name": "rsolanilla",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:128a12b3f18c4d8dceac6571c258368afb0bae15b661624e299136ac0c9f1d1a",
+  "run_id": "20260517-210701",
+  "description": "Every Catastro feature, plus offline SQLite, bulk RC enrichment, polygon export and change detection no other Catastro tool has.",
+  "mcp_binary": "catastro-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Reconcile local parcel table against Catastro",
+      "command": "reconcile",
+      "description": "Compara una tabla local (CSV/SQLite) de parcelas contra Catastro y reporta drift (superficie, uso, año, dirección) parcela a parcela, con exit code != 0 si hay cambios."
+    },
+    {
+      "name": "Pipe-friendly bulk enrichment",
+      "command": "enrich",
+      "description": "Lee RCs o direcciones por stdin y emite JSONL con la property card completa de cada uno, con cache en disco y rate-limiting."
+    },
+    {
+      "name": "Detect parcel changes between syncs",
+      "command": "watch",
+      "description": "Re-sincroniza un municipio y reporta deltas (superficie, uso, año, dirección) por RC respecto al último sync."
+    },
+    {
+      "name": "Polygon-clipped parcel export",
+      "command": "export parcels",
+      "description": "Exporta las parcelas dentro de un polígono arbitrario (GeoJSON) a GeoPackage/GeoJSON/SHP, reproyectando al EPSG pedido."
+    },
+    {
+      "name": "Expediente bundle for one RC",
+      "command": "report",
+      "description": "Dada una RC, compone un directorio (data.json, parts.csv, coords.json, neighbors.json, map.png, map-url.txt) con la parcela, sus vecinas, sub-parts y un PNG WMS — listo para anexar a un expediente técnico. Cada archivo se reporta en `files[]` solo si su escritura tuvo éxito, y los fallos parciales aparecen en `warnings[]`."
+    },
+    {
+      "name": "Nearest-neighbor parcels for an RC",
+      "command": "neighbors",
+      "description": "Para una RC, devuelve las parcelas vecinas dentro del radio dado (típico 50 m) con sus datos DNPRC ya unidos."
+    },
+    {
+      "name": "FTS over local store",
+      "command": "search",
+      "description": "Búsqueda full-text sobre la tabla local de parcels (rc, address, use) y streets (nombre, municipio), con filtros opcionales por código INE."
+    },
+    {
+      "name": "Stale local data planning",
+      "command": "stale",
+      "description": "Lista RCs/municipios cuyo último sync supera la ventana --older-than, ordenados por antigüedad."
+    },
+    {
+      "name": "Area aggregate analysis",
+      "command": "analyze-area",
+      "description": "Para un polígono, devuelve número de parcelas, hectáreas totales, histograma de usos, año medio de construcción y RCs únicas."
+    },
+    {
+      "name": "Local sync coverage overview",
+      "command": "coverage",
+      "description": "Resumen del estado local: por provincia/municipio, qué hay sincronizado y desde cuándo, con conteos por tipo (parcels/addresses/buildings)."
+    }
+  ],
+  "category": "developer-tools"
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: catastro-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: catastro-pp-cli
+    main: ./cmd/catastro-pp-cli
+    binary: catastro-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/catastro/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: catastro-pp-mcp
+    main: ./cmd/catastro-pp-mcp
+    binary: catastro-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: catastro-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Catastro feature, plus offline SQLite, bulk RC enrichment, polygon export and change detection no other..."
+    install: |
+      bin.install "catastro-pp-cli"
+      bin.install "catastro-pp-mcp"
