@@ -286,8 +286,20 @@ func detectFormat(filePath string, data []byte) string {
 		return "plain"
 	}
 	if trim[0] == '{' || trim[0] == '[' {
+		// PATCH detect-format-jsonl-vs-pretty-json: distinguish JSONL streams
+		// from pretty-printed JSON wrapper objects. Previously any input
+		// starting with `{` that contained a newline was classified as JSONL,
+		// which misroutes a pretty-printed `{"holdings": [...]}` to
+		// parseJSONLines (line 1 alone is `{`, which fails to unmarshal). A
+		// multi-line input is only JSONL when its first non-empty line is
+		// itself a complete JSON value. Greptile P1 finding on PR #630
+		// (review 6).
 		if strings.HasPrefix(trim, "{") && strings.Contains(trim, "\n") {
-			return "jsonl"
+			firstLine := strings.TrimSpace(strings.SplitN(trim, "\n", 2)[0])
+			if json.Valid([]byte(firstLine)) {
+				return "jsonl"
+			}
+			return "json"
 		}
 		return "json"
 	}
