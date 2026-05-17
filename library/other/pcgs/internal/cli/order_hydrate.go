@@ -98,24 +98,22 @@ func newOrderHydrateCmd(flags *rootFlags) *cobra.Command {
 			}
 			dry := dryRunHydrate || flags.dryRun
 			if dry {
-				hits := 0
-				for _, cert := range certs {
-					if _, err := s.Get("coin", cert); err == nil {
-						hits++
-					} else if err != sql.ErrNoRows {
-						return fmt.Errorf("cache probe %s: %w", cert, err)
-					}
-				}
-				live := len(certs) - hits
+				// PATCH order-hydrate-dry-run-reuse: reuse facts/imgHits from
+				// the pre-flight probe instead of a redundant second pass; and
+				// subtract imgHits from the image-live count instead of
+				// treating every image fetch as live. Greptile P1 finding on
+				// PR #630 (review 3).
+				live := liveFacts
 				if withImages {
-					live += len(certs)
+					live += liveImages
 				}
 				return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
-					"submission":  submissionNo,
-					"certs_found": len(certs),
-					"live_calls":  live,
-					"cache_hits":  hits,
-					"with_images": withImages,
+					"submission":      submissionNo,
+					"certs_found":     len(certs),
+					"live_calls":      live,
+					"cache_hits":      facts,
+					"image_cache_hits": imgHits,
+					"with_images":     withImages,
 				})
 			}
 			enc := json.NewEncoder(cmd.OutOrStdout())
@@ -169,7 +167,19 @@ func hydrateFacts(cmd *cobra.Command, flags *rootFlags, c *client.Client, s *sto
 	return data, nil
 }
 
+// PATCH order-hydrate-images-cache-short-circuit: hydrateImages now mirrors
+// hydrateFacts's cache-first pattern — check SQLite for a cached coin_images
+// row before calling the API. Without this, the pre-flight quota gate (which
+// probes s.Get("coin_images", cert)) under-counts: SQLite-cached certs whose
+// HTTP file cache has aged out of the 5-minute TTL would still trip a live
+// API call here, making the gate inaccurate and risking quota overrun on
+// large hydrate fan-outs. Greptile P1 finding on PR #630 (review 3).
 func hydrateImages(cmd *cobra.Command, flags *rootFlags, c *client.Client, s *store.Store, cert string) (json.RawMessage, error) {
+	if cached, err := s.Get("coin_images", cert); err == nil {
+		return cached, nil
+	} else if err != sql.ErrNoRows {
+		return nil, fmt.Errorf("image cache probe %s: %w", cert, err)
+	}
 	params := map[string]string{"certNo": cert}
 	data, _, err := resolveRead(cmd.Context(), c, flags, "coin", false, "/coindetail/GetImagesByCertNo", params, nil)
 	if err != nil {
