@@ -80,7 +80,16 @@ func newEditionsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if noEnrich {
+			// PATCH: The default ("enriched") path applies the ListPrice ->
+			// CurrentPrice fallback so the CURRENT column is populated for
+			// editions where the umbrella page only published a list price.
+			// --no-enrich opts out: it returns the raw umbrella-page values
+			// even when CurrentPrice is empty, for callers who need to see
+			// exactly what the page said. The prior implementation had the
+			// condition inverted — only --no-enrich applied the fallback, so
+			// the default produced strictly LESS data than --no-enrich, the
+			// opposite of the flag's name. Fixes Greptile P1 on PR #634.
+			if !noEnrich {
 				for i := range rows {
 					if rows[i].CurrentPrice == 0 {
 						rows[i].CurrentPrice = rows[i].ListPrice
@@ -98,7 +107,7 @@ func newEditionsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&country, "country", "", "Country filter (e.g. US, UK, DE).")
-	cmd.Flags().BoolVar(&noEnrich, "no-enrich", false, "Skip per-release enrichment; parse only the umbrella page.")
+	cmd.Flags().BoolVar(&noEnrich, "no-enrich", false, "Return raw umbrella-page values; skip the list-price -> current-price fallback applied in the default 'enriched' path.")
 	return cmd
 }
 
