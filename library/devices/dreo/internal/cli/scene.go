@@ -114,9 +114,6 @@ func newSceneSaveCmd(rflags *rootFlags) *cobra.Command {
 					"warning: %d/%d matched device(s) had no cached state and were omitted from scene %q (run `dreo-pp-cli sensors --live` to refresh, then retry)\n",
 					skipped, len(matched), name)
 			}
-			if skipped := len(matched) - len(snapshots); skipped > 0 {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d/%d matched device(s) had no cached state and were omitted from the scene (run `dreo-pp-cli devices state` to refresh)\n", skipped, len(matched))
-			}
 			if err := st.SaveScene(ctx, name, snapshots); err != nil {
 				return err
 			}
