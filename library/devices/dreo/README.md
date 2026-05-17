@@ -92,7 +92,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "dreo": {
       "command": "dreo-pp-mcp",
       "env": {
-        "DREO_USERNAME": "<your-key>"
+        "DREO_USERNAME": "<your-dreo-email>",
+        "DREO_PASSWORD": "<your-dreo-password>"
       }
     }
   }
@@ -103,7 +104,26 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Dreo has no public API. Authentication uses your Dreo account email and password (MD5-hashed) against the same OAuth endpoint the Dreo iOS app calls. Set DREO_USERNAME and DREO_PASSWORD; the CLI handles region discovery, token caching, and refresh on 401. No third-party developer account needed.
+Dreo has no public developer API. Authentication uses your Dreo account email and password against the same OAuth endpoint the Dreo iOS app calls — the password is MD5-hashed before the wire, and the bearer token returned is cached locally.
+
+**Set these two env vars:**
+
+```bash
+export DREO_USERNAME='your-dreo-account-email'
+export DREO_PASSWORD='your-dreo-password'
+```
+
+Then run any command. The CLI exchanges credentials for an access token on first use, caches it to `~/.config/dreo-pp-cli/config.toml`, and reuses it. On 401 (token expired or revoked), it transparently re-logs in. Region discovery (`us`/`eu`) happens automatically on first login; you can pin it with `DREO_REGION=us` to skip the discovery round-trip.
+
+**Why no `--password` flag.** `auth login` deliberately rejects flag-supplied credentials. A `--password <secret>` invocation leaks the plaintext into `/proc/<pid>/cmdline`, `ps aux`, audit logs, and your shell history. Env vars only.
+
+**What's cached on disk.** Only the bearer access token, region, and timestamps land in `~/.config/dreo-pp-cli/config.toml` (mode `0600`). The plaintext password is never persisted — even if you set the env vars and the lazy-login path runs, only the token is written. To wipe the cached token: `dreo-pp-cli auth logout`.
+
+**Useful commands:**
+- `dreo-pp-cli auth login` — explicit login (also runs lazily on first authenticated command)
+- `dreo-pp-cli auth status` — current authentication state
+- `dreo-pp-cli auth logout` — clear cached token
+- `dreo-pp-cli doctor` — verify everything end-to-end
 
 ## Quick Start
 

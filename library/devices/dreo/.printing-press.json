@@ -36,7 +36,7 @@
     {
       "name": "Live WebSocket state stream",
       "command": "watch",
-      "description": "Tail-f for Dreo device state — every WebSocket update as a JSON line on stdout."
+      "description": "Tail-f for Dreo device state \u2014 every WebSocket update as a JSON line on stdout."
     },
     {
       "name": "Sensor timeseries history",
@@ -63,5 +63,8 @@
       "command": "devices search",
       "description": "Full-text search over cached device name, room, model, and serial."
     }
-  ]
+  ],
+  "narrative": {
+    "auth_narrative": "Dreo has no public developer API. Authentication uses your Dreo account email and password against the same OAuth endpoint the Dreo iOS app calls. The password is MD5-hashed before the wire; the bearer token returned is cached to ~/.config/dreo-pp-cli/config.toml (mode 0600) and reused. Set DREO_USERNAME and DREO_PASSWORD as env vars \u2014 auth login deliberately rejects --username and --password flags because flag-supplied secrets leak into ps, /proc/<pid>/cmdline, audit logs, and shell history. The plaintext password is never persisted to disk; only the bearer token round-trips through SaveTokens. On 401 the CLI re-logs in transparently."
+  }
 }
