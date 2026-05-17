@@ -1,0 +1,3107 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Sales & Estimates",
+    "description": "Estimates",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.servicetitan.io/sales/v2",
+      "description": "Production"
+    },
+    {
+      "url": "https://api-integration.servicetitan.io/sales/v2",
+      "description": "Integration"
+    }
+  ],
+  "paths": {
+    "/tenant/{tenant}/estimates/{id}": {
+      "get": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_Get",
+        "operationId": "Estimates_Get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estimates.V2.EstimateResponse"
+                },
+                "example": {
+                  "id": 0,
+                  "jobId": 0,
+                  "projectId": 0,
+                  "locationId": 0,
+                  "customerId": 0,
+                  "name": "string",
+                  "jobNumber": "string",
+                  "status": {
+                    "value": 0,
+                    "name": "string"
+                  },
+                  "reviewStatus": "None",
+                  "summary": "string",
+                  "createdOn": "string",
+                  "modifiedOn": "string",
+                  "soldOn": "string",
+                  "soldBy": 0,
+                  "active": true,
+                  "items": [
+                    {
+                      "id": 0,
+                      "sku": {
+                        "id": 0,
+                        "name": "string",
+                        "displayName": "string",
+                        "type": "string",
+                        "soldHours": 0,
+                        "generalLedgerAccountId": 0,
+                        "generalLedgerAccountName": "string",
+                        "modifiedOn": "string"
+                      },
+                      "skuAccount": "string",
+                      "description": "string",
+                      "membershipTypeId": 0,
+                      "qty": 0,
+                      "unitRate": 0,
+                      "total": 0,
+                      "unitCost": 0,
+                      "totalCost": 0,
+                      "itemGroupName": "string",
+                      "itemGroupRootId": 0,
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "chargeable": true,
+                      "invoiceItemId": 0,
+                      "budgetCodeId": 0
+                    }
+                  ],
+                  "externalLinks": [
+                    {
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ],
+                  "subtotal": 0,
+                  "tax": 0,
+                  "businessUnitId": 0,
+                  "businessUnitName": "string",
+                  "isRecommended": true,
+                  "budgetCodeId": 0,
+                  "isChangeOrder": true,
+                  "proposalTagName": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:r"
+            ]
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_Update",
+        "operationId": "Estimates_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estimates.V2.UpdateEstimateRequest"
+              },
+              "example": {
+                "name": "string",
+                "summary": "string",
+                "tax": 0,
+                "status": {},
+                "reviewStatus": {},
+                "soldBy": 0,
+                "isRecommended": true,
+                "budgetCodeId": 0,
+                "items": [
+                  {
+                    "id": 0,
+                    "skuId": 0,
+                    "skuName": "string",
+                    "parentItemId": 0,
+                    "description": "string",
+                    "isAddOn": true,
+                    "quantity": 0,
+                    "unitPrice": 0,
+                    "skipUpdatingMembershipPrices": true,
+                    "itemGroupName": "string",
+                    "itemGroupRootId": 0,
+                    "chargeable": true,
+                    "useDefaultProjectLabels": true,
+                    "budgetCodeId": 0,
+                    "unitCost": 0
+                  }
+                ],
+                "externalLinks": [
+                  {
+                    "name": "string",
+                    "url": "string"
+                  }
+                ],
+                "useDefaultProjectLabels": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estimates.V2.EstimateResponse"
+                },
+                "example": {
+                  "id": 0,
+                  "jobId": 0,
+                  "projectId": 0,
+                  "locationId": 0,
+                  "customerId": 0,
+                  "name": "string",
+                  "jobNumber": "string",
+                  "status": {
+                    "value": 0,
+                    "name": "string"
+                  },
+                  "reviewStatus": "None",
+                  "summary": "string",
+                  "createdOn": "string",
+                  "modifiedOn": "string",
+                  "soldOn": "string",
+                  "soldBy": 0,
+                  "active": true,
+                  "items": [
+                    {
+                      "id": 0,
+                      "sku": {
+                        "id": 0,
+                        "name": "string",
+                        "displayName": "string",
+                        "type": "string",
+                        "soldHours": 0,
+                        "generalLedgerAccountId": 0,
+                        "generalLedgerAccountName": "string",
+                        "modifiedOn": "string"
+                      },
+                      "skuAccount": "string",
+                      "description": "string",
+                      "membershipTypeId": 0,
+                      "qty": 0,
+                      "unitRate": 0,
+                      "total": 0,
+                      "unitCost": 0,
+                      "totalCost": 0,
+                      "itemGroupName": "string",
+                      "itemGroupRootId": 0,
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "chargeable": true,
+                      "invoiceItemId": 0,
+                      "budgetCodeId": 0
+                    }
+                  ],
+                  "externalLinks": [
+                    {
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ],
+                  "subtotal": 0,
+                  "tax": 0,
+                  "businessUnitId": 0,
+                  "businessUnitName": "string",
+                  "isRecommended": true,
+                  "budgetCodeId": 0,
+                  "isChangeOrder": true,
+                  "proposalTagName": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates": {
+      "get": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_GetList",
+        "operationId": "Estimates_GetList",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "jobId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "jobNumber",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "totalGreater",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "decimal"
+            }
+          },
+          {
+            "name": "totalLess",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "decimal"
+            }
+          },
+          {
+            "name": "soldById",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "soldByEmployeeId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "Perform lookup by multiple IDs (maximum 50)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The logical number of page to return, starting from 1",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "How many records to return (50 by default)",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "includeTotal",
+            "in": "query",
+            "description": "Whether total count should be returned",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "soldAfter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "soldBefore",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "description": "What kind of items should be returned (only active items will be returned by default)\\\nValues: [True, Any, False]",
+            "schema": {
+              "type": "string",
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ActiveRequestArg"
+                }
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Applies sorting by specified fields",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "description": "Deprecated: Use Sort parameter instead. Field to sort by (Id, CreatedOn, ModifiedOn).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orderByDirection",
+            "in": "query",
+            "description": "Deprecated: Use Sort parameter instead. Sort direction (asc/desc).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "createdOnOrAfter",
+            "in": "query",
+            "description": "Return items created on or after certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "modifiedBefore",
+            "in": "query",
+            "description": "Return items modified before certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "modifiedOnOrAfter",
+            "in": "query",
+            "description": "Return items modified on or after certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "locationId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_Of_Estimates.V2.EstimateResponse"
+                },
+                "example": {
+                  "page": 0,
+                  "pageSize": 0,
+                  "hasMore": true,
+                  "totalCount": 0,
+                  "data": [
+                    {
+                      "id": 0,
+                      "jobId": 0,
+                      "projectId": 0,
+                      "locationId": 0,
+                      "customerId": 0,
+                      "name": "string",
+                      "jobNumber": "string",
+                      "status": {
+                        "value": 0,
+                        "name": "string"
+                      },
+                      "reviewStatus": "None",
+                      "summary": "string",
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "soldOn": "string",
+                      "soldBy": 0,
+                      "active": true,
+                      "items": [
+                        {
+                          "id": 0,
+                          "sku": {
+                            "id": 0,
+                            "name": "string",
+                            "displayName": "string",
+                            "type": "string",
+                            "soldHours": 0,
+                            "generalLedgerAccountId": 0,
+                            "generalLedgerAccountName": "string",
+                            "modifiedOn": "string"
+                          },
+                          "skuAccount": "string",
+                          "description": "string",
+                          "membershipTypeId": 0,
+                          "qty": 0,
+                          "unitRate": 0,
+                          "total": 0,
+                          "unitCost": 0,
+                          "totalCost": 0,
+                          "itemGroupName": "string",
+                          "itemGroupRootId": 0,
+                          "createdOn": "string",
+                          "modifiedOn": "string",
+                          "chargeable": true,
+                          "invoiceItemId": 0,
+                          "budgetCodeId": 0
+                        }
+                      ],
+                      "externalLinks": [
+                        {
+                          "name": "string",
+                          "url": "string"
+                        }
+                      ],
+                      "subtotal": 0,
+                      "tax": 0,
+                      "businessUnitId": 0,
+                      "businessUnitName": "string",
+                      "isRecommended": true,
+                      "budgetCodeId": 0,
+                      "isChangeOrder": true,
+                      "proposalTagName": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:r"
+            ]
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_Create",
+        "operationId": "Estimates_Create",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estimates.V2.CreateEstimateRequest"
+              },
+              "example": {
+                "name": "string",
+                "summary": "string",
+                "tax": 0,
+                "status": {},
+                "reviewStatus": {},
+                "soldBy": 0,
+                "isRecommended": true,
+                "budgetCodeId": 0,
+                "items": [
+                  {
+                    "id": 0,
+                    "skuId": 0,
+                    "skuName": "string",
+                    "parentItemId": 0,
+                    "description": "string",
+                    "isAddOn": true,
+                    "quantity": 0,
+                    "unitPrice": 0,
+                    "skipUpdatingMembershipPrices": true,
+                    "itemGroupName": "string",
+                    "itemGroupRootId": 0,
+                    "chargeable": true,
+                    "useDefaultProjectLabels": true,
+                    "budgetCodeId": 0,
+                    "unitCost": 0
+                  }
+                ],
+                "externalLinks": [
+                  {
+                    "name": "string",
+                    "url": "string"
+                  }
+                ],
+                "useDefaultProjectLabels": true,
+                "jobId": 0,
+                "projectId": 0,
+                "locationId": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estimates.V2.EstimateResponse"
+                },
+                "example": {
+                  "id": 0,
+                  "jobId": 0,
+                  "projectId": 0,
+                  "locationId": 0,
+                  "customerId": 0,
+                  "name": "string",
+                  "jobNumber": "string",
+                  "status": {
+                    "value": 0,
+                    "name": "string"
+                  },
+                  "reviewStatus": "None",
+                  "summary": "string",
+                  "createdOn": "string",
+                  "modifiedOn": "string",
+                  "soldOn": "string",
+                  "soldBy": 0,
+                  "active": true,
+                  "items": [
+                    {
+                      "id": 0,
+                      "sku": {
+                        "id": 0,
+                        "name": "string",
+                        "displayName": "string",
+                        "type": "string",
+                        "soldHours": 0,
+                        "generalLedgerAccountId": 0,
+                        "generalLedgerAccountName": "string",
+                        "modifiedOn": "string"
+                      },
+                      "skuAccount": "string",
+                      "description": "string",
+                      "membershipTypeId": 0,
+                      "qty": 0,
+                      "unitRate": 0,
+                      "total": 0,
+                      "unitCost": 0,
+                      "totalCost": 0,
+                      "itemGroupName": "string",
+                      "itemGroupRootId": 0,
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "chargeable": true,
+                      "invoiceItemId": 0,
+                      "budgetCodeId": 0
+                    }
+                  ],
+                  "externalLinks": [
+                    {
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ],
+                  "subtotal": 0,
+                  "tax": 0,
+                  "businessUnitId": 0,
+                  "businessUnitName": "string",
+                  "isRecommended": true,
+                  "budgetCodeId": 0,
+                  "isChangeOrder": true,
+                  "proposalTagName": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/items": {
+      "get": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_GetItems",
+        "operationId": "Estimates_GetItems",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "estimateId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "Perform lookup by multiple IDs (maximum 50)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "description": "What kind of items should be returned (only active items will be returned by default)\\\nValues: [True, Any, False]",
+            "schema": {
+              "type": "string",
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ActiveRequestArg"
+                }
+              ]
+            }
+          },
+          {
+            "name": "createdBefore",
+            "in": "query",
+            "description": "Return items created before certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "createdOnOrAfter",
+            "in": "query",
+            "description": "Return items created on or after certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "modifiedBefore",
+            "in": "query",
+            "description": "Return items modified before certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "modifiedOnOrAfter",
+            "in": "query",
+            "description": "Return items modified on or after certain date/time (in UTC)",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Applies sorting by specified fields",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The logical number of page to return, starting from 1",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "How many records to return (50 by default)",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "includeTotal",
+            "in": "query",
+            "description": "Whether total count should be returned",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_Of_Estimates.V2.EstimateItemResponse"
+                },
+                "example": {
+                  "page": 0,
+                  "pageSize": 0,
+                  "hasMore": true,
+                  "totalCount": 0,
+                  "data": [
+                    {
+                      "id": 0,
+                      "sku": {
+                        "id": 0,
+                        "name": "string",
+                        "displayName": "string",
+                        "type": "string",
+                        "soldHours": 0,
+                        "generalLedgerAccountId": 0,
+                        "generalLedgerAccountName": "string",
+                        "modifiedOn": "string"
+                      },
+                      "skuAccount": "string",
+                      "description": "string",
+                      "membershipTypeId": 0,
+                      "qty": 0,
+                      "unitRate": 0,
+                      "total": 0,
+                      "unitCost": 0,
+                      "totalCost": 0,
+                      "itemGroupName": "string",
+                      "itemGroupRootId": 0,
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "chargeable": true,
+                      "invoiceItemId": 0,
+                      "budgetCodeId": 0
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:r"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/{id}/sell": {
+      "put": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_Sell",
+        "operationId": "Estimates_Sell",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estimates.V2.SellRequest"
+              },
+              "example": {
+                "soldBy": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estimates.V2.EstimateResponse"
+                },
+                "example": {
+                  "id": 0,
+                  "jobId": 0,
+                  "projectId": 0,
+                  "locationId": 0,
+                  "customerId": 0,
+                  "name": "string",
+                  "jobNumber": "string",
+                  "status": {
+                    "value": 0,
+                    "name": "string"
+                  },
+                  "reviewStatus": "None",
+                  "summary": "string",
+                  "createdOn": "string",
+                  "modifiedOn": "string",
+                  "soldOn": "string",
+                  "soldBy": 0,
+                  "active": true,
+                  "items": [
+                    {
+                      "id": 0,
+                      "sku": {
+                        "id": 0,
+                        "name": "string",
+                        "displayName": "string",
+                        "type": "string",
+                        "soldHours": 0,
+                        "generalLedgerAccountId": 0,
+                        "generalLedgerAccountName": "string",
+                        "modifiedOn": "string"
+                      },
+                      "skuAccount": "string",
+                      "description": "string",
+                      "membershipTypeId": 0,
+                      "qty": 0,
+                      "unitRate": 0,
+                      "total": 0,
+                      "unitCost": 0,
+                      "totalCost": 0,
+                      "itemGroupName": "string",
+                      "itemGroupRootId": 0,
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "chargeable": true,
+                      "invoiceItemId": 0,
+                      "budgetCodeId": 0
+                    }
+                  ],
+                  "externalLinks": [
+                    {
+                      "name": "string",
+                      "url": "string"
+                    }
+                  ],
+                  "subtotal": 0,
+                  "tax": 0,
+                  "businessUnitId": 0,
+                  "businessUnitName": "string",
+                  "isRecommended": true,
+                  "budgetCodeId": 0,
+                  "isChangeOrder": true,
+                  "proposalTagName": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/{id}/unsell": {
+      "put": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_Unsell",
+        "operationId": "Estimates_Unsell",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded"
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/{id}/dismiss": {
+      "put": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_Dismiss",
+        "operationId": "Estimates_Dismiss",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded"
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/{id}/items": {
+      "put": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_PutItem",
+        "operationId": "Estimates_PutItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Estimates.V2.EstimateItemCreateUpdateRequest"
+              },
+              "example": {
+                "id": 0,
+                "skuId": 0,
+                "skuName": "string",
+                "parentItemId": 0,
+                "description": "string",
+                "isAddOn": true,
+                "quantity": 0,
+                "unitPrice": 0,
+                "skipUpdatingMembershipPrices": true,
+                "itemGroupName": "string",
+                "itemGroupRootId": 0,
+                "chargeable": true,
+                "useDefaultProjectLabels": true,
+                "budgetCodeId": 0,
+                "unitCost": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Estimates.V2.EstimateItemUpdateResponse"
+                },
+                "example": {
+                  "id": 0,
+                  "sku": {
+                    "id": 0,
+                    "name": "string",
+                    "displayName": "string",
+                    "type": "string",
+                    "soldHours": 0,
+                    "generalLedgerAccountId": 0,
+                    "generalLedgerAccountName": "string",
+                    "modifiedOn": "string"
+                  },
+                  "skuAccount": "string",
+                  "description": "string",
+                  "membershipTypeId": 0,
+                  "qty": 0,
+                  "unitRate": 0,
+                  "total": 0,
+                  "unitCost": 0,
+                  "totalCost": 0,
+                  "itemGroupName": "string",
+                  "itemGroupRootId": 0,
+                  "createdOn": "string",
+                  "modifiedOn": "string",
+                  "chargeable": true,
+                  "invoiceItemId": 0,
+                  "budgetCodeId": 0,
+                  "estimateId": 0
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/{id}/items/{itemId}": {
+      "delete": {
+        "tags": [
+          "Estimates"
+        ],
+        "summary": "Estimates_DeleteItem",
+        "operationId": "Estimates_DeleteItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded"
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:w"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/export/estimates": {
+      "get": {
+        "tags": [
+          "EstimatesExport"
+        ],
+        "summary": "Provides export feed for estimates",
+        "description": "Provides export feed for estimates",
+        "operationId": "EstimatesExport_Estimates",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Continuation token received from previous export request in \"continueFrom\" field.\nWhen not specified, the export process starts from the beginning.\\\nUse custom date strings, e.g. \"2020-01-01\" to start the export process from the certain point in time.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeRecentChanges",
+            "in": "query",
+            "description": "Use \"true\" to start receiving the most recent changes quicker.\nNote this may cause the same results appearing multiple times on consecutive requests.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse_Of_Estimates.V2.ExportEstimatesResponse"
+                },
+                "example": {
+                  "hasMore": true,
+                  "continueFrom": "string",
+                  "data": [
+                    {
+                      "id": 0,
+                      "jobId": 0,
+                      "projectId": 0,
+                      "locationId": 0,
+                      "customerId": 0,
+                      "name": "string",
+                      "jobNumber": "string",
+                      "status": {
+                        "value": 0,
+                        "name": "string"
+                      },
+                      "reviewStatus": "None",
+                      "summary": "string",
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "soldOn": "string",
+                      "soldBy": 0,
+                      "active": true,
+                      "items": [
+                        {
+                          "id": 0,
+                          "sku": {
+                            "id": 0,
+                            "name": "string",
+                            "displayName": "string",
+                            "type": "string",
+                            "soldHours": 0,
+                            "generalLedgerAccountId": 0,
+                            "generalLedgerAccountName": "string",
+                            "modifiedOn": "string"
+                          },
+                          "skuAccount": "string",
+                          "description": "string",
+                          "membershipTypeId": 0,
+                          "qty": 0,
+                          "unitRate": 0,
+                          "total": 0,
+                          "unitCost": 0,
+                          "totalCost": 0,
+                          "itemGroupName": "string",
+                          "itemGroupRootId": 0,
+                          "createdOn": "string",
+                          "modifiedOn": "string",
+                          "chargeable": true,
+                          "invoiceItemId": 0,
+                          "budgetCodeId": 0
+                        }
+                      ],
+                      "externalLinks": [
+                        {
+                          "name": "string",
+                          "url": "string"
+                        }
+                      ],
+                      "subtotal": 0,
+                      "tax": 0,
+                      "businessUnitId": 0,
+                      "businessUnitName": "string",
+                      "isRecommended": true,
+                      "budgetCodeId": 0,
+                      "isChangeOrder": true,
+                      "proposalTagName": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:r"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/estimates/export": {
+      "get": {
+        "tags": [
+          "EstimatesExport"
+        ],
+        "summary": "Provides export feed for estimates (legacy endpoint)",
+        "description": "Provides export feed for estimates (legacy endpoint)",
+        "operationId": "EstimatesExport_EstimatesAsyncLegacy",
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Continuation token received from previous export request in \"continueFrom\" field.\nWhen not specified, the export process starts from the beginning.\\\nUse custom date strings, e.g. \"2020-01-01\" to start the export process from the certain point in time.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeRecentChanges",
+            "in": "query",
+            "description": "Use \"true\" to start receiving the most recent changes quicker.\nNote this may cause the same results appearing multiple times on consecutive requests.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportResponse_Of_Estimates.V2.ExportEstimatesResponse"
+                },
+                "example": {
+                  "hasMore": true,
+                  "continueFrom": "string",
+                  "data": [
+                    {
+                      "id": 0,
+                      "jobId": 0,
+                      "projectId": 0,
+                      "locationId": 0,
+                      "customerId": 0,
+                      "name": "string",
+                      "jobNumber": "string",
+                      "status": {
+                        "value": 0,
+                        "name": "string"
+                      },
+                      "reviewStatus": "None",
+                      "summary": "string",
+                      "createdOn": "string",
+                      "modifiedOn": "string",
+                      "soldOn": "string",
+                      "soldBy": 0,
+                      "active": true,
+                      "items": [
+                        {
+                          "id": 0,
+                          "sku": {
+                            "id": 0,
+                            "name": "string",
+                            "displayName": "string",
+                            "type": "string",
+                            "soldHours": 0,
+                            "generalLedgerAccountId": 0,
+                            "generalLedgerAccountName": "string",
+                            "modifiedOn": "string"
+                          },
+                          "skuAccount": "string",
+                          "description": "string",
+                          "membershipTypeId": 0,
+                          "qty": 0,
+                          "unitRate": 0,
+                          "total": 0,
+                          "unitCost": 0,
+                          "totalCost": 0,
+                          "itemGroupName": "string",
+                          "itemGroupRootId": 0,
+                          "createdOn": "string",
+                          "modifiedOn": "string",
+                          "chargeable": true,
+                          "invoiceItemId": 0,
+                          "budgetCodeId": 0
+                        }
+                      ],
+                      "externalLinks": [
+                        {
+                          "name": "string",
+                          "url": "string"
+                        }
+                      ],
+                      "subtotal": 0,
+                      "tax": 0,
+                      "businessUnitId": 0,
+                      "businessUnitName": "string",
+                      "isRecommended": true,
+                      "budgetCodeId": 0,
+                      "isChangeOrder": true,
+                      "proposalTagName": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:r"
+            ]
+          }
+        ]
+      }
+    },
+    "/tenant/{tenant}/status/estimates/{id}/changes": {
+      "get": {
+        "tags": [
+          "EstimatesStatus"
+        ],
+        "summary": "Get estimate status change details along with UTC timestamp.",
+        "description": "Get estimate status change details along with UTC timestamp.",
+        "operationId": "EstimatesStatus_GetEstimateStatusChanges",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Estimate ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tenant",
+            "in": "path",
+            "description": "Tenant ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Estimates.V2.EstimateStatusChangesResponse"
+                  }
+                },
+                "example": [
+                  {
+                    "id": 0,
+                    "oldStatus": "string",
+                    "newStatus": "string",
+                    "createdOn": "string",
+                    "createdById": 0
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "The request cannot be processed, check validation errors or request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Estimate not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                },
+                "example": {
+                  "type": "string",
+                  "title": "string",
+                  "status": 0,
+                  "traceId": "string",
+                  "errors": {},
+                  "data": {}
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "apiKeyHeader": [],
+            "oauth": [
+              "tn.sal.estimates:r"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Estimates.V2.EstimateResponse": {
+        "required": [
+          "id",
+          "reviewStatus",
+          "createdOn",
+          "modifiedOn",
+          "active",
+          "subtotal",
+          "tax",
+          "isRecommended",
+          "isChangeOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "jobId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "projectId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "locationId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "customerId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jobNumber": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Estimates.V2.EstimateStatusModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviewStatus": {
+            "$ref": "#/components/schemas/Estimates.Types.EstimateReviewStatus"
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "soldOn": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "soldBy": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.EstimateItemResponse"
+            }
+          },
+          "externalLinks": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.ExternalLinkResponse"
+            }
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "tax": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "businessUnitId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "businessUnitName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isRecommended": {
+            "type": "boolean"
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "isChangeOrder": {
+            "type": "boolean"
+          },
+          "proposalTagName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.EstimateStatusModel": {
+        "required": [
+          "value",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.Types.EstimateReviewStatus": {
+        "enum": [
+          "None",
+          "NeedsApproval",
+          "Approved",
+          "NotApproved"
+        ],
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "None",
+          "NeedsApproval",
+          "Approved",
+          "NotApproved"
+        ]
+      },
+      "Estimates.V2.EstimateItemResponse": {
+        "required": [
+          "id",
+          "sku",
+          "skuAccount",
+          "description",
+          "qty",
+          "unitRate",
+          "total",
+          "unitCost",
+          "totalCost",
+          "itemGroupName",
+          "createdOn",
+          "modifiedOn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sku": {
+            "$ref": "#/components/schemas/Estimates.V2.SkuModel"
+          },
+          "skuAccount": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "format": "html"
+          },
+          "membershipTypeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "qty": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "unitRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "total": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "unitCost": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalCost": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "itemGroupName": {
+            "type": "string"
+          },
+          "itemGroupRootId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "chargeable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "invoiceItemId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "The invoice item which was created from this estimate item.",
+            "format": "int64"
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.SkuModel": {
+        "required": [
+          "id",
+          "name",
+          "displayName",
+          "type",
+          "soldHours",
+          "generalLedgerAccountId",
+          "generalLedgerAccountName",
+          "modifiedOn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "soldHours": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "generalLedgerAccountId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "generalLedgerAccountName": {
+            "type": "string"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.ExternalLinkResponse": {
+        "required": [
+          "name",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApiErrorResponse": {
+        "required": [
+          "type",
+          "title",
+          "status",
+          "traceId",
+          "errors",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference that identifies the problem type"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type"
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code generated by server",
+            "format": "int32"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "Internal trace ID for advanced diagnostics"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Provides more details about errors occurred, which can potentially be used for visual display"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Provides additional data, intended for programmatical usage"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Detailed error response, following RFC 7807 recommendations (https://tools.ietf.org/html/rfc7807)."
+      },
+      "PaginatedResponse_Of_Estimates.V2.EstimateResponse": {
+        "required": [
+          "page",
+          "pageSize",
+          "hasMore",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "From which page this output has started",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Page size for this query (i.e. how many records were requested to return)",
+            "format": "int32"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True if there are more records in the query than returned in this result"
+          },
+          "totalCount": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Total count of records for this query (can optionally be populated)",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.EstimateResponse"
+            },
+            "description": "The collection of result items, will never have more than PageSize items"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents paginated API response."
+      },
+      "ActiveRequestArg": {
+        "enum": [
+          "True",
+          "Any",
+          "False"
+        ],
+        "type": "string",
+        "description": "Represents possible HTTP query argument values, when applying filters based on active status.",
+        "x-enumNames": [
+          "True",
+          "Any",
+          "False"
+        ]
+      },
+      "PaginatedResponse_Of_Estimates.V2.EstimateItemResponse": {
+        "required": [
+          "page",
+          "pageSize",
+          "hasMore",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "description": "From which page this output has started",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Page size for this query (i.e. how many records were requested to return)",
+            "format": "int32"
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "True if there are more records in the query than returned in this result"
+          },
+          "totalCount": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Total count of records for this query (can optionally be populated)",
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.EstimateItemResponse"
+            },
+            "description": "The collection of result items, will never have more than PageSize items"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents paginated API response."
+      },
+      "Estimates.V2.CreateEstimateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tax": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "decimal"
+          },
+          "status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Estimates.Types.EstimateStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviewStatus": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Estimates.Types.EstimateReviewStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "soldBy": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "isRecommended": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "items": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.EstimateItemCreateUpdateRequest"
+            }
+          },
+          "externalLinks": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.ExternalLinkInModel"
+            }
+          },
+          "useDefaultProjectLabels": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "jobId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "projectId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "locationId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.Types.EstimateStatus": {
+        "enum": [
+          "Open",
+          "Sold",
+          "Dismissed"
+        ],
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Open",
+          "Sold",
+          "Dismissed"
+        ]
+      },
+      "Estimates.V2.EstimateItemCreateUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "skuId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "skuName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "parentItemId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "html"
+          },
+          "isAddOn": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "quantity": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "decimal"
+          },
+          "unitPrice": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "decimal"
+          },
+          "skipUpdatingMembershipPrices": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "itemGroupName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "itemGroupRootId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "chargeable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "useDefaultProjectLabels": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "unitCost": {
+            "type": "number",
+            "format": "decimal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.ExternalLinkInModel": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.UpdateEstimateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "tax": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "format": "decimal"
+          },
+          "status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Estimates.Types.EstimateStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviewStatus": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Estimates.Types.EstimateReviewStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "soldBy": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "isRecommended": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "items": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.EstimateItemCreateUpdateRequest"
+            }
+          },
+          "externalLinks": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.ExternalLinkInModel"
+            }
+          },
+          "useDefaultProjectLabels": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.SellRequest": {
+        "required": [
+          "soldBy"
+        ],
+        "type": "object",
+        "properties": {
+          "soldBy": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.EstimateItemUpdateResponse": {
+        "required": [
+          "id",
+          "sku",
+          "skuAccount",
+          "description",
+          "qty",
+          "unitRate",
+          "total",
+          "unitCost",
+          "totalCost",
+          "itemGroupName",
+          "createdOn",
+          "modifiedOn",
+          "estimateId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sku": {
+            "$ref": "#/components/schemas/Estimates.V2.SkuModel"
+          },
+          "skuAccount": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "format": "html"
+          },
+          "membershipTypeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "qty": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "unitRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "total": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "unitCost": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalCost": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "itemGroupName": {
+            "type": "string"
+          },
+          "itemGroupRootId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "chargeable": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "invoiceItemId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "The invoice item which was created from this estimate item.",
+            "format": "int64"
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "estimateId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ExportResponse_Of_Estimates.V2.ExportEstimatesResponse": {
+        "required": [
+          "hasMore",
+          "continueFrom",
+          "data"
+        ],
+        "type": "object",
+        "properties": {
+          "hasMore": {
+            "type": "boolean",
+            "description": "Indicates whether the export feed has reached its logical \"end\", or if there is more to export.\nTrue means the consumer can invoke another request right away using new continuation token value.\nFalse means there is now new data for the export, and the consumer should wait for some time (5-10 minutes)\nbefore making another request."
+          },
+          "continueFrom": {
+            "type": "string",
+            "description": "Continuation token used to resume the export operation. The value should be used in \"from\" query parameter of the following request."
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.ExportEstimatesResponse"
+            },
+            "description": "The collection of exported items, usually sorted chronologically based on modification date"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents export API response."
+      },
+      "Estimates.V2.ExportEstimatesResponse": {
+        "required": [
+          "id",
+          "reviewStatus",
+          "createdOn",
+          "modifiedOn",
+          "active",
+          "subtotal",
+          "tax",
+          "isRecommended",
+          "isChangeOrder"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "jobId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "projectId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "locationId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "customerId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "jobNumber": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Estimates.V2.EstimateStatusModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reviewStatus": {
+            "$ref": "#/components/schemas/Estimates.Types.EstimateReviewStatus"
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "soldOn": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "soldBy": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.EstimateItemResponse"
+            }
+          },
+          "externalLinks": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/Estimates.V2.ExternalLinkResponse"
+            }
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "tax": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "businessUnitId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "businessUnitName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isRecommended": {
+            "type": "boolean"
+          },
+          "budgetCodeId": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64"
+          },
+          "isChangeOrder": {
+            "type": "boolean"
+          },
+          "proposalTagName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Estimates.V2.EstimateStatusChangesResponse": {
+        "required": [
+          "id",
+          "createdOn"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID of the status change record",
+            "format": "int64"
+          },
+          "oldStatus": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Previous status value"
+          },
+          "newStatus": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "New status value"
+          },
+          "createdOn": {
+            "type": "string",
+            "description": "When this status change record was created",
+            "format": "date-time"
+          },
+          "createdById": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "ID of the user that created this status change record",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "apiKeyHeader": {
+        "type": "apiKey",
+        "name": "ST-App-Key",
+        "in": "header",
+        "description": "ServiceTitan App Key Header",
+        "x-auth-vars": [
+          {
+            "name": "ST_APP_KEY",
+            "kind": "per_call",
+            "required": true,
+            "sensitive": true,
+            "description": "ServiceTitan App Key (static integration key issued in the ST developer portal). Combined with the OAuth2 bearer token for composed auth on every Sales Tech endpoint."
+          }
+        ]
+      },
+      "oauth": {
+        "type": "oauth2",
+        "description": "OAuth 2.0 Client Credentials Flow",
+        "flows": {
+          "clientCredentials": {
+            "tokenUrl": "https://auth.servicetitan.io/connect/token",
+            "scopes": {
+              "tn.sal.estimates:r": "Sales & Estimates → Estimates (Read)",
+              "tn.sal.estimates:w": "Sales & Estimates → Estimates (Write)"
+            }
+          }
+        },
+        "x-auth-vars": [
+          {
+            "name": "ST_CLIENT_ID",
+            "kind": "auth_flow_input",
+            "required": true,
+            "sensitive": true,
+            "description": "ServiceTitan OAuth2 client_id for the integration. Used by the auth login flow to exchange for a bearer token at https://auth.servicetitan.io/connect/token. Whitespace is stripped defensively."
+          },
+          {
+            "name": "ST_CLIENT_SECRET",
+            "kind": "auth_flow_input",
+            "required": true,
+            "sensitive": true,
+            "description": "ServiceTitan OAuth2 client_secret paired with ST_CLIENT_ID. Whitespace is stripped defensively (a known JKA env gotcha that produced opaque invalid_client 400s)."
+          }
+        ]
+      }
+    }
+  },
+  "x-mcp": {
+    "transport": [
+      "stdio",
+      "http"
+    ],
+    "orchestration": "code",
+    "endpoint_tools": "hidden"
+  },
+  "x-tenant-env-var": "ST_TENANT_ID"
+}

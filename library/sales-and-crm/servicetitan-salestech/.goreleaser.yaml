@@ -1,0 +1,51 @@
+version: 2
+project_name: servicetitan-salestech-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: servicetitan-salestech-pp-cli
+    main: ./cmd/servicetitan-salestech-pp-cli
+    binary: servicetitan-salestech-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/servicetitan-salestech/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: servicetitan-salestech-pp-mcp
+    main: ./cmd/servicetitan-salestech-pp-mcp
+    binary: servicetitan-salestech-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: servicetitan-salestech-pp-cli
+    repository:
+      owner: pierc
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every ServiceTitan Sales/Estimates feature, plus a local mirror that answers the cross-cutting questions the ST web..."
+    install: |
+      bin.install "servicetitan-salestech-pp-cli"
+      bin.install "servicetitan-salestech-pp-mcp"

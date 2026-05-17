@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mvanhorn/printing-press-library/main/.printing-press-patches.schema.json",
+  "patches": [
+    {
+      "name": "composed-auth-apikey-config",
+      "file": "internal/config/config.go",
+      "marker": "PATCH: composed-auth-apikey-config",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1333",
+      "reason": "v4.8.0 generator wired only the OAuth bearer half of ServiceTitan composed auth; the ST-App-Key apiKey header half is missing. Adds StAppKey + TenantID fields to Config and reads ST_APP_KEY / ST_TENANT_ID env vars with TrimSpace."
+    },
+    {
+      "name": "composed-auth-credentials-trim",
+      "file": "internal/config/config.go",
+      "marker": "PATCH: composed-auth-credentials-trim",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1303",
+      "reason": "Defensively TrimSpace all four ST_* env vars in Load(). JKA's environment has had leading whitespace on ST_CLIENT_ID multiple times, surfacing as opaque invalid_client 400s from /connect/token."
+    },
+    {
+      "name": "tenant-env-config",
+      "file": "internal/config/config.go",
+      "marker": "PATCH: tenant-env-config",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1332",
+      "reason": "Read ST_TENANT_ID into Config.TenantID so the sync registry can substitute {tenant} in path templates and downstream commands can derive defaults from it."
+    },
+    {
+      "name": "composed-auth-apikey-wire",
+      "file": "internal/client/client.go",
+      "marker": "PATCH: composed-auth-apikey-wire",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1333",
+      "reason": "Inject the ST-App-Key header on every authenticated request alongside Authorization: Bearer; mirror the same header in dry-run output. Without this every authenticated endpoint returns 401 even with a valid OAuth bearer."
+    },
+    {
+      "name": "composed-auth-doctor",
+      "file": "internal/cli/doctor.go",
+      "marker": "PATCH: composed-auth-doctor",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1333",
+      "reason": "Recognize composed-auth-ready state from credentials present (ST-App-Key + client_id/secret) rather than from an already-minted bearer (which is lazy). Require all four ST_* env vars in the env-var check and report N/4 available."
+    },
+    {
+      "name": "sync-default-resources",
+      "file": "internal/cli/sync.go",
+      "marker": "PATCH: sync-default-resources",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1305",
+      "reason": "Populate defaultSyncResources() with `estimates`. v4.8.0 emits empty for tenant-scoped specs, so plain `sync` silently no-ops."
+    },
+    {
+      "name": "sync-paths-registry",
+      "file": "internal/cli/sync.go",
+      "marker": "PATCH: sync-paths-registry",
+      "issue": "https://github.com/mvanhorn/cli-printing-press/issues/1332",
+      "reason": "Populate syncResourcePath() with the tenant-scoped estimates list path and substitute {tenant} from ST_TENANT_ID. v4.8.0 leaves the map empty and has no fill mechanism, so every sync invocation errored 'unknown sync resource'."
+    }
+  ]
+}

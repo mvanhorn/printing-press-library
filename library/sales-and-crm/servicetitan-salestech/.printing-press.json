@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T22:41:04.0933011Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "servicetitan-salestech",
+  "display_name": "Sales Estimates",
+  "cli_name": "servicetitan-salestech-pp-cli",
+  "owner": "pierc",
+  "printer": "pierc",
+  "printer_name": "Pierce",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:db4d15e996c3f8ddf2f897e3549a6a106c6ee21f3da557a27cae8b6fa49a4a40",
+  "run_id": "20260517-150316",
+  "mcp_binary": "servicetitan-salestech-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ST_CLIENT_ID",
+    "ST_CLIENT_SECRET"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ST_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "ServiceTitan OAuth2 client_id for the integration. Used by the auth login flow to exchange for a bearer token at https://auth.servicetitan.io/connect/token. Whitespace is stripped defensively."
+    },
+    {
+      "name": "ST_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "ServiceTitan OAuth2 client_secret paired with ST_CLIENT_ID. Whitespace is stripped defensively (a known JKA env gotcha that produced opaque invalid_client 400s)."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Stale quotes",
+      "command": "estimates stale",
+      "description": "List Open estimates older than N days, ranked by age \u00d7 total $ so the biggest-dollar stuck quotes surface first."
+    },
+    {
+      "name": "Rep leaderboard",
+      "command": "reports rep-leaderboard",
+      "description": "Per-employee close rate, average days-to-sell, and total sold $ for the chosen window."
+    },
+    {
+      "name": "Close rate",
+      "command": "reports close-rate",
+      "description": "sold/(sold+dismissed) pivoted on businessUnit, rep, or month with a configurable date window."
+    },
+    {
+      "name": "Days to sell",
+      "command": "reports days-to-sell",
+      "description": "p50/p90 percentiles of (Sold timestamp \u2212 createdOn) per rep or business unit."
+    },
+    {
+      "name": "Dismissed reasons",
+      "command": "reports dismissed-reasons",
+      "description": "Top-N exact-match group-by on dismissal reason strings from the status-change feed."
+    },
+    {
+      "name": "Estimate audit",
+      "command": "audit estimate",
+      "description": "Single estimate forensic view \u2014 header + every line item + full status timeline in one shaped output."
+    },
+    {
+      "name": "Recent changes",
+      "command": "audit recent-changes",
+      "description": "Every estimate whose status changed in a time window with from\u2192to + actor + UTC timestamp."
+    },
+    {
+      "name": "Find",
+      "command": "find",
+      "description": "Ranked full-text search across estimate name, summary, jobNumber, and nested SKU fields with structured filters."
+    },
+    {
+      "name": "Pipeline snapshot",
+      "command": "reports pipeline",
+      "description": "Total $ Open / Sold / Dismissed reconstructed for an arbitrary past date by replaying status_changes."
+    },
+    {
+      "name": "Health",
+      "command": "health",
+      "description": "Cross-source reconciliation \u2014 API counts vs local SQLite counts vs last sync cursor age per table."
+    },
+    {
+      "name": "SKU frequency",
+      "command": "reports sku-frequency",
+      "description": "Top SKUs by appearance on sold (or dismissed) estimates in a time window."
+    },
+    {
+      "name": "Rep follow-ups",
+      "command": "reports follow-ups",
+      "description": "Per-rep open estimates from the last N hours with customerId, jobId/jobNumber, and ST web deeplinks \u2014 the daily call list for follow-up outreach."
+    },
+    {
+      "name": "Record follow-up",
+      "command": "audit follow-up",
+      "description": "Log a follow-up note + optional reminder date against an estimate into the local SQLite store, then list follow-ups due by date."
+    },
+    {
+      "name": "CSV \u2192 estimate import",
+      "command": "estimates import",
+      "description": "Read a defined CSV schema and create estimates with line items in ServiceTitan, with --dry-run preview and --batch-size flow control."
+    }
+  ],
+  "category": "sales-and-crm",
+  "description": "Every ServiceTitan Sales/Estimates feature, plus a local SQLite mirror that answers the cross-cutting pipeline questions the ST web UI never could."
+}

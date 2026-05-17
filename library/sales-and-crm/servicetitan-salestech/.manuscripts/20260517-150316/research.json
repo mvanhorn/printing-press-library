@@ -1,0 +1,387 @@
+{
+  "api_name": "servicetitan-salestech",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T22:04:00Z",
+  "novel_features": [
+    {
+      "name": "Stale quotes",
+      "command": "estimates stale",
+      "description": "List Open estimates older than N days, ranked by age × total $ so the biggest-dollar stuck quotes surface first.",
+      "rationale": "No ST API call sorts Open estimates by computed (now − createdOn) × total. Requires the local SQLite mirror.",
+      "example": "servicetitan-salestech-pp-cli estimates stale --older-than 3d --json",
+      "why_it_matters": "Use to find quotes the sales team has let go cold. Cheaper than walking the ST web UI page-by-page.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Rep leaderboard",
+      "command": "reports rep-leaderboard",
+      "description": "Per-employee close rate, average days-to-sell, and total sold $ for the chosen window.",
+      "rationale": "Joins estimates × status_changes and aggregates by soldById; not a single API call.",
+      "example": "servicetitan-salestech-pp-cli reports rep-leaderboard --since 2026-01-01 --json",
+      "why_it_matters": "Use when an agent or owner needs to compare sales reps on close performance without pivoting in Excel.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Close rate",
+      "command": "reports close-rate",
+      "description": "sold/(sold+dismissed) pivoted on businessUnit, rep, or month with a configurable date window.",
+      "rationale": "Requires SQLite GROUP BY across estimates and status_changes; the API has no equivalent.",
+      "example": "servicetitan-salestech-pp-cli reports close-rate --group-by businessUnit --since 90d --json",
+      "why_it_matters": "Use to answer 'what's our close rate by business unit this quarter?' in one MCP turn instead of a 400-tool ST MCP query.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Days to sell",
+      "command": "reports days-to-sell",
+      "description": "p50/p90 percentiles of (Sold timestamp − createdOn) per rep or business unit.",
+      "rationale": "Needs min(status_changes.changedAtUTC WHERE toStatus='Sold') joined to estimates.createdOn, then percentile math.",
+      "example": "servicetitan-salestech-pp-cli reports days-to-sell --percentiles --since 90d --json",
+      "why_it_matters": "Use to spot reps whose long-tail close time is dragging pipeline velocity.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Dismissed reasons",
+      "command": "reports dismissed-reasons",
+      "description": "Top-N exact-match group-by on dismissal reason strings from the status-change feed.",
+      "rationale": "Mechanical count over status_changes; no NLP; the API has no grouped-by-reason endpoint.",
+      "example": "servicetitan-salestech-pp-cli reports dismissed-reasons --since 90d --top 20 --json",
+      "why_it_matters": "Use to see what's killing deals (price, timing, scope) so the next sales script iteration addresses it.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Estimate audit",
+      "command": "audit estimate",
+      "description": "Single estimate forensic view — header + every line item + full status timeline in one shaped output.",
+      "rationale": "Three local SELECTs joined into one struct (estimate × items × status_changes); the API returns each separately.",
+      "example": "servicetitan-salestech-pp-cli audit estimate 78421 --json",
+      "why_it_matters": "Use when a CSR needs to explain to a customer 'what happened with quote 78421' without four ST web tabs.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "Recent changes",
+      "command": "audit recent-changes",
+      "description": "Every estimate whose status changed in a time window with from→to + actor + UTC timestamp.",
+      "rationale": "SQLite JOIN status_changes (where changedAtUTC \u003e now-window) with estimates header; no equivalent in any single API call.",
+      "example": "servicetitan-salestech-pp-cli audit recent-changes --since 24h --json",
+      "why_it_matters": "Use first thing in the morning to triage overnight sold/dismissed/unsold activity.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "Find",
+      "command": "find",
+      "description": "Ranked full-text search across estimate name, summary, jobNumber, and nested SKU fields with structured filters.",
+      "rationale": "Scored ranking over multi-table SQLite fields; the ST list endpoint does not full-text across nested line items.",
+      "example": "servicetitan-salestech-pp-cli find \"well pump\" --status Open --min-total 5000 --json",
+      "why_it_matters": "Use when the customer's phrase is the only handle you have on a quote.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "Pipeline snapshot",
+      "command": "reports pipeline",
+      "description": "Total $ Open / Sold / Dismissed reconstructed for an arbitrary past date by replaying status_changes.",
+      "rationale": "Temporal reconstruction from the status-change event log; the API only returns current state.",
+      "example": "servicetitan-salestech-pp-cli reports pipeline --as-of 2026-05-10 --json",
+      "why_it_matters": "Use to answer 'where was pipeline last Monday?' without a manual snapshot job.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Health",
+      "command": "health",
+      "description": "Cross-source reconciliation — API counts vs local SQLite counts vs last sync cursor age per table.",
+      "rationale": "Calls list endpoints with limit=1 to fetch totalCount; diffs against SQLite COUNT(*); reports cursor age.",
+      "example": "servicetitan-salestech-pp-cli health --json",
+      "why_it_matters": "Use as a pre-flight check before any audit so you know whether the local mirror is fresh enough to trust.",
+      "group": "Local mirror"
+    },
+    {
+      "name": "SKU frequency",
+      "command": "reports sku-frequency",
+      "description": "Top SKUs by appearance on sold (or dismissed) estimates in a time window.",
+      "rationale": "Joins estimate_items × estimates filtered by status; the API only returns items per single estimate.",
+      "example": "servicetitan-salestech-pp-cli reports sku-frequency --on sold --since 90d --top 50 --json",
+      "why_it_matters": "Use to inform pricebook decisions — which SKUs are actually carrying sold dollars.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Rep follow-ups",
+      "command": "reports follow-ups",
+      "description": "Per-rep open estimates from the last N hours with customerId, jobId/jobNumber, and ST web deeplinks — the daily call list for follow-up outreach.",
+      "rationale": "Joins estimates × status_changes filtered to Open + created in window, grouped by soldById; no single API call returns this rep-grouped follow-up view.",
+      "example": "servicetitan-salestech-pp-cli reports follow-ups --rep all --since 48h --json",
+      "why_it_matters": "Use to generate today's call list per rep. Pipe customerId into `servicetitan-crm-pp-cli customers get \u003cid\u003e` to enrich with phone numbers.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Record follow-up",
+      "command": "audit follow-up",
+      "description": "Log a follow-up note + optional reminder date against an estimate into the local SQLite store, then list follow-ups due by date.",
+      "rationale": "The ST API has no estimate-notes endpoint — this is a pure local-write feature filling the gap so follow-up state survives across calls.",
+      "example": "servicetitan-salestech-pp-cli audit follow-up add 78421 --note \"customer wants to talk Monday\" --remind 2026-05-20",
+      "why_it_matters": "Use to keep follow-up state next to the estimate it belongs to, so 'who needs a callback this week' is one local SQL query away.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "CSV → estimate import",
+      "command": "estimates import",
+      "description": "Read a defined CSV schema and create estimates with line items in ServiceTitan, with --dry-run preview and --batch-size flow control.",
+      "rationale": "Combines Estimates_Create + Estimates_PutItem calls per CSV row with row-level error reporting; no single API call accepts a sheet.",
+      "example": "servicetitan-salestech-pp-cli estimates import --csv quotes.csv --dry-run",
+      "why_it_matters": "Use to convert an Excel/Google Sheets quote into a real ServiceTitan estimate without copy-pasting field by field. Export the sheet to CSV first; XLSX and Google Sheets are documented v2 paths.",
+      "group": "Pipeline review"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Stale quotes",
+      "command": "estimates stale",
+      "description": "List Open estimates older than N days, ranked by age × total $ so the biggest-dollar stuck quotes surface first.",
+      "rationale": "No ST API call sorts Open estimates by computed (now − createdOn) × total. Requires the local SQLite mirror.",
+      "example": "servicetitan-salestech-pp-cli estimates stale --older-than 3d --json",
+      "why_it_matters": "Use to find quotes the sales team has let go cold. Cheaper than walking the ST web UI page-by-page.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Rep leaderboard",
+      "command": "reports rep-leaderboard",
+      "description": "Per-employee close rate, average days-to-sell, and total sold $ for the chosen window.",
+      "rationale": "Joins estimates × status_changes and aggregates by soldById; not a single API call.",
+      "example": "servicetitan-salestech-pp-cli reports rep-leaderboard --since 2026-01-01 --json",
+      "why_it_matters": "Use when an agent or owner needs to compare sales reps on close performance without pivoting in Excel.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Close rate",
+      "command": "reports close-rate",
+      "description": "sold/(sold+dismissed) pivoted on businessUnit, rep, or month with a configurable date window.",
+      "rationale": "Requires SQLite GROUP BY across estimates and status_changes; the API has no equivalent.",
+      "example": "servicetitan-salestech-pp-cli reports close-rate --group-by businessUnit --since 90d --json",
+      "why_it_matters": "Use to answer 'what's our close rate by business unit this quarter?' in one MCP turn instead of a 400-tool ST MCP query.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Days to sell",
+      "command": "reports days-to-sell",
+      "description": "p50/p90 percentiles of (Sold timestamp − createdOn) per rep or business unit.",
+      "rationale": "Needs min(status_changes.changedAtUTC WHERE toStatus='Sold') joined to estimates.createdOn, then percentile math.",
+      "example": "servicetitan-salestech-pp-cli reports days-to-sell --percentiles --since 90d --json",
+      "why_it_matters": "Use to spot reps whose long-tail close time is dragging pipeline velocity.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Dismissed reasons",
+      "command": "reports dismissed-reasons",
+      "description": "Top-N exact-match group-by on dismissal reason strings from the status-change feed.",
+      "rationale": "Mechanical count over status_changes; no NLP; the API has no grouped-by-reason endpoint.",
+      "example": "servicetitan-salestech-pp-cli reports dismissed-reasons --since 90d --top 20 --json",
+      "why_it_matters": "Use to see what's killing deals (price, timing, scope) so the next sales script iteration addresses it.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Estimate audit",
+      "command": "audit estimate",
+      "description": "Single estimate forensic view — header + every line item + full status timeline in one shaped output.",
+      "rationale": "Three local SELECTs joined into one struct (estimate × items × status_changes); the API returns each separately.",
+      "example": "servicetitan-salestech-pp-cli audit estimate 78421 --json",
+      "why_it_matters": "Use when a CSR needs to explain to a customer 'what happened with quote 78421' without four ST web tabs.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "Recent changes",
+      "command": "audit recent-changes",
+      "description": "Every estimate whose status changed in a time window with from→to + actor + UTC timestamp.",
+      "rationale": "SQLite JOIN status_changes (where changedAtUTC \u003e now-window) with estimates header; no equivalent in any single API call.",
+      "example": "servicetitan-salestech-pp-cli audit recent-changes --since 24h --json",
+      "why_it_matters": "Use first thing in the morning to triage overnight sold/dismissed/unsold activity.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "Find",
+      "command": "find",
+      "description": "Ranked full-text search across estimate name, summary, jobNumber, and nested SKU fields with structured filters.",
+      "rationale": "Scored ranking over multi-table SQLite fields; the ST list endpoint does not full-text across nested line items.",
+      "example": "servicetitan-salestech-pp-cli find \"well pump\" --status Open --min-total 5000 --json",
+      "why_it_matters": "Use when the customer's phrase is the only handle you have on a quote.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "Pipeline snapshot",
+      "command": "reports pipeline",
+      "description": "Total $ Open / Sold / Dismissed reconstructed for an arbitrary past date by replaying status_changes.",
+      "rationale": "Temporal reconstruction from the status-change event log; the API only returns current state.",
+      "example": "servicetitan-salestech-pp-cli reports pipeline --as-of 2026-05-10 --json",
+      "why_it_matters": "Use to answer 'where was pipeline last Monday?' without a manual snapshot job.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Health",
+      "command": "health",
+      "description": "Cross-source reconciliation — API counts vs local SQLite counts vs last sync cursor age per table.",
+      "rationale": "Calls list endpoints with limit=1 to fetch totalCount; diffs against SQLite COUNT(*); reports cursor age.",
+      "example": "servicetitan-salestech-pp-cli health --json",
+      "why_it_matters": "Use as a pre-flight check before any audit so you know whether the local mirror is fresh enough to trust.",
+      "group": "Local mirror"
+    },
+    {
+      "name": "SKU frequency",
+      "command": "reports sku-frequency",
+      "description": "Top SKUs by appearance on sold (or dismissed) estimates in a time window.",
+      "rationale": "Joins estimate_items × estimates filtered by status; the API only returns items per single estimate.",
+      "example": "servicetitan-salestech-pp-cli reports sku-frequency --on sold --since 90d --top 50 --json",
+      "why_it_matters": "Use to inform pricebook decisions — which SKUs are actually carrying sold dollars.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Rep follow-ups",
+      "command": "reports follow-ups",
+      "description": "Per-rep open estimates from the last N hours with customerId, jobId/jobNumber, and ST web deeplinks — the daily call list for follow-up outreach.",
+      "rationale": "Joins estimates × status_changes filtered to Open + created in window, grouped by soldById; no single API call returns this rep-grouped follow-up view.",
+      "example": "servicetitan-salestech-pp-cli reports follow-ups --rep all --since 48h --json",
+      "why_it_matters": "Use to generate today's call list per rep. Pipe customerId into `servicetitan-crm-pp-cli customers get \u003cid\u003e` to enrich with phone numbers.",
+      "group": "Pipeline review"
+    },
+    {
+      "name": "Record follow-up",
+      "command": "audit follow-up",
+      "description": "Log a follow-up note + optional reminder date against an estimate into the local SQLite store, then list follow-ups due by date.",
+      "rationale": "The ST API has no estimate-notes endpoint — this is a pure local-write feature filling the gap so follow-up state survives across calls.",
+      "example": "servicetitan-salestech-pp-cli audit follow-up add 78421 --note \"customer wants to talk Monday\" --remind 2026-05-20",
+      "why_it_matters": "Use to keep follow-up state next to the estimate it belongs to, so 'who needs a callback this week' is one local SQL query away.",
+      "group": "Forensic lookup"
+    },
+    {
+      "name": "CSV → estimate import",
+      "command": "estimates import",
+      "description": "Read a defined CSV schema and create estimates with line items in ServiceTitan, with --dry-run preview and --batch-size flow control.",
+      "rationale": "Combines Estimates_Create + Estimates_PutItem calls per CSV row with row-level error reporting; no single API call accepts a sheet.",
+      "example": "servicetitan-salestech-pp-cli estimates import --csv quotes.csv --dry-run",
+      "why_it_matters": "Use to convert an Excel/Google Sheets quote into a real ServiceTitan estimate without copy-pasting field by field. Export the sheet to CSV first; XLSX and Google Sheets are documented v2 paths.",
+      "group": "Pipeline review"
+    }
+  ],
+  "narrative": {
+    "display_name": "ServiceTitan Sales \u0026 Estimates",
+    "headline": "Every ServiceTitan Sales/Estimates feature, plus a local mirror that answers the cross-cutting questions the ST web UI never could.",
+    "value_prop": "Wraps all 13 Sales/Estimates endpoints (plus a convenience `estimates reopen`) with agent-native JSON, --select dotted paths, --csv, and typed exit codes. Then adds 14 hand-built audits and workflow commands (stale, leaderboard, close-rate, days-to-sell, dismissed-reasons, pipeline-snapshot, recent-changes, audit, find, health, sku-frequency, rep follow-ups, local follow-up logging, CSV→estimate import) that compose locally over a SQLite mirror — every question a pipeline review meeting asks, plus the daily follow-up call list and a way to ingest sheet-based quotes, in one command. The matching MCP collapses 14 endpoint tools to 2 intent tools so agents pay near-zero per-turn context tax.",
+    "auth_narrative": "Composed auth — both ST_APP_KEY (apiKey header) and an OAuth2 client_credentials bearer are required on every call. Set ST_APP_KEY, ST_CLIENT_ID, ST_CLIENT_SECRET, and ST_TENANT_ID, then run `auth login` to mint the bearer. `doctor` verifies all four are present and reachable. Whitespace is stripped defensively from every env var (a known JKA gotcha that produced opaque invalid_client 400s).",
+    "quickstart": [
+      {
+        "command": "servicetitan-salestech-pp-cli doctor",
+        "comment": "Verify all four ST_* env vars are set and the OAuth handshake works"
+      },
+      {
+        "command": "servicetitan-salestech-pp-cli auth login",
+        "comment": "Exchange ST_CLIENT_ID/SECRET for an OAuth2 bearer token cached locally"
+      },
+      {
+        "command": "servicetitan-salestech-pp-cli sync --full",
+        "comment": "Pull estimates, line items, and status changes into the local SQLite mirror"
+      },
+      {
+        "command": "servicetitan-salestech-pp-cli estimates stale --older-than 3d --json",
+        "comment": "Surface Open estimates that have aged past 3 days, sorted by age × total $"
+      },
+      {
+        "command": "servicetitan-salestech-pp-cli reports rep-leaderboard --since 2026-01-01 --json",
+        "comment": "Per-rep close rate + avg days-to-sell + sold $"
+      },
+      {
+        "command": "servicetitan-salestech-pp-cli audit estimate \u003cid\u003e --json",
+        "comment": "Single-estimate forensic: header + items + full status timeline"
+      },
+      {
+        "command": "servicetitan-salestech-pp-cli reports follow-ups --rep all --since 48h --json",
+        "comment": "Today's call list per rep — open estimates from the last 48h with customerId + jobNumber + deeplinks"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every command returns 401",
+        "fix": "Run `doctor` — most often ST_APP_KEY is missing from this shell. Composed auth needs BOTH ST_APP_KEY and the OAuth bearer; the bearer alone is not enough."
+      },
+      {
+        "symptom": "OAuth /connect/token returns invalid_client 400",
+        "fix": "One of ST_CLIENT_ID / ST_CLIENT_SECRET has stray whitespace. The CLI strips it defensively, but confirm both shells (PowerShell vs git-bash) see the same value by comparing **lengths** only — `python -c \"import os;print('id',len(os.environ['ST_CLIENT_ID']),'sec',len(os.environ['ST_CLIENT_SECRET']))\"` — and refresh the stale shell."
+      },
+      {
+        "symptom": "`sync` returns 0 rows",
+        "fix": "Verify ST_TENANT_ID is set — without it the {tenant} path template stays unfilled and every list call 404s."
+      },
+      {
+        "symptom": "`reports pipeline --as-of \u003cold-date\u003e` returns a warning about retention",
+        "fix": "Status-change retention on the ST tenant is shorter than the requested as-of date; the snapshot uses the oldest available baseline and notes the gap. Pull more recent dates for accurate point-in-time totals."
+      },
+      {
+        "symptom": "MCP server returns no tools",
+        "fix": "Check that the launching process exports all four ST_* env vars; the MCP inherits its env from the parent (Claude Desktop reads `claude_desktop_config.json`'s `env` block, NOT live OS env)."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or user needs to answer a cross-cutting estimates question that the ST web UI buries — close rates, stale quotes, days-to-sell distributions, dismissed-reason patterns, point-in-time pipeline state, or any forensic lookup of a single estimate's full history. The 13 endpoint mirrors cover write-side work too, but the headline value is the 14 local-mirror audits. If you only need to read or update one specific estimate by id, the absorbed `estimates get/update/sell/unsell/dismiss/reopen` commands are the right reach; if you need to know something about the whole pipeline, the `reports` and `audit` families are.",
+    "recipes": [
+      {
+        "title": "Monday pipeline review",
+        "command": "servicetitan-salestech-pp-cli reports rep-leaderboard --since 2026-01-01 --json",
+        "explanation": "Per-rep close rate + avg days-to-sell + sold $ for the year. Pipe to jq to filter the result, e.g. `... | jq '.[] | select(.close_rate \u003c 0.4)'` flags reps below a 40% close rate for coaching."
+      },
+      {
+        "title": "Triage overnight activity",
+        "command": "servicetitan-salestech-pp-cli audit recent-changes --since 24h --json --select id,from_status,to_status,changed_by_id,estimate_total",
+        "explanation": "See every estimate whose status moved in the last 24h with only the fields the dispatcher cares about; --select keeps the response under a few KB even when 200+ estimates moved."
+      },
+      {
+        "title": "Find a quote by customer phrase",
+        "command": "servicetitan-salestech-pp-cli find \"submersible pump\" --status Open --min-total 5000 --json",
+        "explanation": "FTS5 across name, summary, jobNumber, and SKU fields filtered to Open quotes over $5k."
+      },
+      {
+        "title": "Forensic on one estimate",
+        "command": "servicetitan-salestech-pp-cli audit estimate 78421 --json",
+        "explanation": "Header + every line item + full status timeline in one shaped JSON object — perfect for an agent to explain 'what happened' to a customer."
+      },
+      {
+        "title": "Historical pipeline check",
+        "command": "servicetitan-salestech-pp-cli reports pipeline --as-of 2026-04-30 --json",
+        "explanation": "Reconstruct end-of-month pipeline totals by replaying status_changes; impossible via any single ST API call."
+      },
+      {
+        "title": "Build today's rep call list (with phone enrichment)",
+        "command": "servicetitan-salestech-pp-cli reports follow-ups --rep all --since 48h --json",
+        "explanation": "Today's call list per rep with customerId + jobNumber + ST deeplinks. The Sales/Estimates spec deliberately omits customer contact data — enrich by piping each row's customer_id into `servicetitan-crm-pp-cli customers get \u003cid\u003e --json | jq -r .phoneSettings.phoneNumber`."
+      },
+      {
+        "title": "Reopen a dismissed estimate",
+        "command": "servicetitan-salestech-pp-cli estimates reopen 78421 --dry-run",
+        "explanation": "Wraps Estimates_Update with status=Open to reverse a dismiss. Drop --dry-run when you're ready to commit."
+      },
+      {
+        "title": "Log a follow-up reminder",
+        "command": "servicetitan-salestech-pp-cli audit follow-up add 78421 --note \"customer asked us to follow up Monday\" --remind 2026-05-20",
+        "explanation": "Writes to the local SQLite store only; later `audit follow-ups --due-by 2026-05-21` surfaces it."
+      },
+      {
+        "title": "Import an Excel quote (via CSV export)",
+        "command": "servicetitan-salestech-pp-cli estimates import --csv quotes.csv --dry-run",
+        "explanation": "Export your Excel/Sheets quote to CSV first, then dry-run to preview the Estimates_Create + line-item calls. Drop --dry-run to commit."
+      }
+    ],
+    "trigger_phrases": [
+      "stale quotes",
+      "close rate by business unit",
+      "rep leaderboard",
+      "days to sell",
+      "dismissed reasons",
+      "estimate audit",
+      "pipeline snapshot",
+      "rep follow-ups",
+      "today's call list",
+      "reopen estimate",
+      "log follow-up on estimate",
+      "import quote from csv",
+      "use servicetitan-salestech",
+      "run servicetitan-salestech"
+    ]
+  }
+}

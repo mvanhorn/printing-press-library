@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "estimates_dismiss_estimates": "Mark a ServiceTitan estimate as dismissed (lost/declined). Required: id (estimate ID), tenant (ServiceTitan tenant ID). Returns 200 on success. Use this to record that a customer declined a quote — moves the estimate out of the Open pipeline and into Dismissed reporting. Pair with the reports dismissed-reasons command later for funnel analysis.",
+    "estimates_unsell_estimates": "Reverse a previously sold ServiceTitan estimate, returning it to Open status. Required: id (estimate ID), tenant (ServiceTitan tenant ID). Returns 200 on success. Use this when an estimate was marked sold in error or the customer backed out before work began. After unsell, the estimate is editable and can be re-sold or dismissed."
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "timestamp": "2026-05-17T22:40:00.2693272Z",
+  "cli_dir": "\u003ccli-dir\u003e\\servicetitan-salestech-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "dismiss",
+      "file": "estimates_dismiss.go",
+      "line": 11,
+      "evidence": "Manage dismiss",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper (estimates dismiss namespace); only subcommand is 'estimates' which has its own rich Short. Generator-template fix needed so parent groupers either inherit child action descriptions or carry a richer template default."
+    },
+    {
+      "kind": "thin-short",
+      "command": "items",
+      "file": "estimates_items.go",
+      "line": 11,
+      "evidence": "Manage items",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for line-item subcommands (estimates-delete, estimates-put); has no leaf behavior of its own. Generator should compose a Short from child verbs or skip groupers in the audit when RunE == parentNoSubcommandRunE."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sell",
+      "file": "estimates_sell.go",
+      "line": 11,
+      "evidence": "Manage sell",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the sell namespace; only child is 'estimates' (mark estimate sold). Generator template needs to emit better defaults for single-child groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "unsell",
+      "file": "estimates_unsell.go",
+      "line": 11,
+      "evidence": "Manage unsell",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the unsell namespace; only child is 'estimates' (mark estimate unsold). Same generator-template gap as sibling sell/dismiss/items groupers."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-05-17T22:39:35.2451639Z"
+  }
+}

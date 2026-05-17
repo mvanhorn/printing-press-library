@@ -1,0 +1,761 @@
+{
+  "api_name": "servicetitan-salestech",
+  "base_url": "https://api.servicetitan.io/sales/v2",
+  "description": "Estimates",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ST_CLIENT_ID",
+      "ST_CLIENT_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ST_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "ServiceTitan OAuth2 client_id for the integration. Used by the auth login flow to exchange for a bearer token at https://auth.servicetitan.io/connect/token. Whitespace is stripped defensively."
+      },
+      {
+        "name": "ST_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "ServiceTitan OAuth2 client_secret paired with ST_CLIENT_ID. Whitespace is stripped defensively (a known JKA env gotcha that produced opaque invalid_client 400s)."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "estimates_create",
+      "description": "Estimates_create. Required: tenant. Optional: budgetCodeId, externalLinks, isRecommended (plus 11 more). Returns the new EstimatesV2EstimateResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/estimates",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "budgetCodeId",
+          "type": "int",
+          "location": "body",
+          "description": "Budget code id"
+        },
+        {
+          "name": "externalLinks",
+          "type": "array",
+          "location": "body",
+          "description": "External links"
+        },
+        {
+          "name": "isRecommended",
+          "type": "bool",
+          "location": "body",
+          "description": "Is recommended"
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        },
+        {
+          "name": "jobId",
+          "type": "int",
+          "location": "body",
+          "description": "Job id"
+        },
+        {
+          "name": "locationId",
+          "type": "int",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "projectId",
+          "type": "int",
+          "location": "body",
+          "description": "Project id"
+        },
+        {
+          "name": "reviewStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Review status"
+        },
+        {
+          "name": "soldBy",
+          "type": "int",
+          "location": "body",
+          "description": "Sold by"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Summary"
+        },
+        {
+          "name": "tax",
+          "type": "float",
+          "location": "body",
+          "description": "Tax"
+        },
+        {
+          "name": "useDefaultProjectLabels",
+          "type": "bool",
+          "location": "body",
+          "description": "Use default project labels"
+        }
+      ]
+    },
+    {
+      "name": "estimates_export-async-legacy",
+      "description": "Provides export feed for estimates (legacy endpoint). Required: tenant. Optional: from, includeRecentChanges. Returns array of EstimatesV2ExportEstimatesResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/estimates/export",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token received from previous export request in 'continueFrom' field. When not specified, the export process starts from the beginning. Use custom date strings, e.g. '2020-01-01' to start the export process from the certain point in time."
+        },
+        {
+          "name": "includeRecentChanges",
+          "type": "bool",
+          "location": "query",
+          "description": "Use 'true' to start receiving the most recent changes quicker. Note this may cause the same results appearing multiple times on consecutive requests."
+        }
+      ]
+    },
+    {
+      "name": "estimates_get",
+      "description": "Estimates_get. Required: id, tenant. Returns the EstimatesV2EstimateResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/estimates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_get-items",
+      "description": "Estimates_get items. Required: tenant. Optional: estimateId, ids, active (plus 8 more). Returns array of EstimatesV2EstimateItemResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/estimates/items",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "estimateId",
+          "type": "int",
+          "location": "query",
+          "description": "Estimate id"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Perform lookup by multiple IDs (maximum 50)"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default) Values: [True, Any, False]"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created before certain date/time (in UTC)"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by specified fields"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        }
+      ]
+    },
+    {
+      "name": "estimates_get-list",
+      "description": "Estimates_get list. Required: tenant. Optional: jobId, projectId, jobNumber (plus 20 more). Returns array of EstimatesV2EstimateResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/estimates",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "jobId",
+          "type": "int",
+          "location": "query",
+          "description": "Job id"
+        },
+        {
+          "name": "projectId",
+          "type": "int",
+          "location": "query",
+          "description": "Project id"
+        },
+        {
+          "name": "jobNumber",
+          "type": "string",
+          "location": "query",
+          "description": "Job number"
+        },
+        {
+          "name": "totalGreater",
+          "type": "float",
+          "location": "query",
+          "description": "Total greater"
+        },
+        {
+          "name": "totalLess",
+          "type": "float",
+          "location": "query",
+          "description": "Total less"
+        },
+        {
+          "name": "soldById",
+          "type": "int",
+          "location": "query",
+          "description": "Sold by id"
+        },
+        {
+          "name": "soldByEmployeeId",
+          "type": "int",
+          "location": "query",
+          "description": "Sold by employee id"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Perform lookup by multiple IDs (maximum 50)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        },
+        {
+          "name": "soldAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Sold after"
+        },
+        {
+          "name": "soldBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Sold before"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default) Values: [True, Any, False]"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by specified fields"
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "Deprecated: Use Sort parameter instead. Field to sort by (Id, CreatedOn, ModifiedOn)."
+        },
+        {
+          "name": "orderByDirection",
+          "type": "string",
+          "location": "query",
+          "description": "Deprecated: Use Sort parameter instead. Sort direction (asc/desc)."
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Created before"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "locationId",
+          "type": "int",
+          "location": "query",
+          "description": "Location id"
+        }
+      ]
+    },
+    {
+      "name": "estimates_update",
+      "description": "Estimates_update. Required: id, tenant. Optional: budgetCodeId, externalLinks, isRecommended (plus 8 more). Returns the updated EstimatesV2EstimateResponse.",
+      "method": "PUT",
+      "path": "/tenant/{tenant}/estimates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "budgetCodeId",
+          "type": "int",
+          "location": "body",
+          "description": "Budget code id"
+        },
+        {
+          "name": "externalLinks",
+          "type": "array",
+          "location": "body",
+          "description": "External links"
+        },
+        {
+          "name": "isRecommended",
+          "type": "bool",
+          "location": "body",
+          "description": "Is recommended"
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "Items"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "reviewStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Review status"
+        },
+        {
+          "name": "soldBy",
+          "type": "int",
+          "location": "body",
+          "description": "Sold by"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Summary"
+        },
+        {
+          "name": "tax",
+          "type": "float",
+          "location": "body",
+          "description": "Tax"
+        },
+        {
+          "name": "useDefaultProjectLabels",
+          "type": "bool",
+          "location": "body",
+          "description": "Use default project labels"
+        }
+      ]
+    },
+    {
+      "name": "estimates_dismiss_estimates",
+      "description": "Estimates_dismiss. Required: id, tenant.",
+      "method": "PUT",
+      "path": "/tenant/{tenant}/estimates/{id}/dismiss",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_items_estimates-delete",
+      "description": "Estimates_delete item. Required: id, itemId, tenant. Destructive.",
+      "method": "DELETE",
+      "path": "/tenant/{tenant}/estimates/{id}/items/{itemId}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "itemId",
+          "type": "int",
+          "location": "path",
+          "description": "Item id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_items_estimates-put",
+      "description": "Estimates_put item. Required: id, tenant. Optional: budgetCodeId, chargeable, description (plus 11 more). Returns the updated EstimatesV2EstimateItemUpdateResponse.",
+      "method": "PUT",
+      "path": "/tenant/{tenant}/estimates/{id}/items",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "budgetCodeId",
+          "type": "int",
+          "location": "body",
+          "description": "Budget code id"
+        },
+        {
+          "name": "chargeable",
+          "type": "bool",
+          "location": "body",
+          "description": "Chargeable"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "isAddOn",
+          "type": "bool",
+          "location": "body",
+          "description": "Is add on"
+        },
+        {
+          "name": "itemGroupName",
+          "type": "string",
+          "location": "body",
+          "description": "Item group name"
+        },
+        {
+          "name": "itemGroupRootId",
+          "type": "int",
+          "location": "body",
+          "description": "Item group root id"
+        },
+        {
+          "name": "parentItemId",
+          "type": "int",
+          "location": "body",
+          "description": "Parent item id"
+        },
+        {
+          "name": "quantity",
+          "type": "float",
+          "location": "body",
+          "description": "Quantity"
+        },
+        {
+          "name": "skipUpdatingMembershipPrices",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip updating membership prices"
+        },
+        {
+          "name": "skuId",
+          "type": "int",
+          "location": "body",
+          "description": "Sku id"
+        },
+        {
+          "name": "skuName",
+          "type": "string",
+          "location": "body",
+          "description": "Sku name"
+        },
+        {
+          "name": "unitCost",
+          "type": "float",
+          "location": "body",
+          "description": "Unit cost"
+        },
+        {
+          "name": "unitPrice",
+          "type": "float",
+          "location": "body",
+          "description": "Unit price"
+        },
+        {
+          "name": "useDefaultProjectLabels",
+          "type": "bool",
+          "location": "body",
+          "description": "Use default project labels"
+        }
+      ]
+    },
+    {
+      "name": "estimates_sell_estimates",
+      "description": "Estimates_sell. Required: id, tenant, soldBy. Returns the updated EstimatesV2EstimateResponse.",
+      "method": "PUT",
+      "path": "/tenant/{tenant}/estimates/{id}/sell",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "soldBy",
+          "type": "int",
+          "location": "body",
+          "description": "Sold by",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "estimates_unsell_estimates",
+      "description": "Estimates_unsell. Required: id, tenant.",
+      "method": "PUT",
+      "path": "/tenant/{tenant}/estimates/{id}/unsell",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sales-estimates-export_estimates-estimates",
+      "description": "Provides export feed for estimates. Required: tenant. Optional: from, includeRecentChanges. Returns array of EstimatesV2ExportEstimatesResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/export/estimates",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token received from previous export request in 'continueFrom' field. When not specified, the export process starts from the beginning. Use custom date strings, e.g. '2020-01-01' to start the export process from the certain point in time."
+        },
+        {
+          "name": "includeRecentChanges",
+          "type": "bool",
+          "location": "query",
+          "description": "Use 'true' to start receiving the most recent changes quicker. Note this may cause the same results appearing multiple times on consecutive requests."
+        }
+      ]
+    },
+    {
+      "name": "status_estimates-get-estimate-changes",
+      "description": "Get estimate status change details along with UTC timestamp. Required: id, tenant. Returns array of EstimatesV2EstimateStatusChangesResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/status/estimates/{id}/changes",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Estimate ID",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
