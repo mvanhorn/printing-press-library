@@ -215,7 +215,7 @@ func buildSetParams(cmd *cobra.Command, sf *setFlags) (map[string]any, error) {
 			return nil, fmt.Errorf("--oscillate: expected horizontal|vertical|both|off, got %q", sf.oscillate)
 		}
 		p["oscmode"] = oscNum
-		p["shakehorizon"] = oscNum != 0
+		p["shakehorizon"] = v == "horizontal" || v == "both"
 	}
 	if changed("oscillate-angle") {
 		p["shakehorizonangle"] = sf.oscillateAngle
