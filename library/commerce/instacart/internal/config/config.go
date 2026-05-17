@@ -201,6 +201,11 @@ func (c *Config) DeleteProfile(name string) error {
 // pick them up unchanged. It does NOT mark the profile active or save —
 // that is what UseProfile is for. ApplyProfile is the right hook for a
 // per-call `--profile <name>` override.
+//
+// ZoneID is copied verbatim, including when the new profile's ZoneID is
+// empty: leaving the previous value in place would silently route GraphQL
+// calls for the new address through the previous address's delivery zone.
+// `EffectiveZoneID` already handles the empty case by falling back to "38".
 func (c *Config) ApplyProfile(name string) error {
 	p, ok := c.GetProfile(name)
 	if !ok {
@@ -210,9 +215,7 @@ func (c *Config) ApplyProfile(name string) error {
 	c.AddressID = p.AddressID
 	c.Latitude = p.Latitude
 	c.Longitude = p.Longitude
-	if p.ZoneID != "" {
-		c.ZoneID = p.ZoneID
-	}
+	c.ZoneID = p.ZoneID
 	return nil
 }
 

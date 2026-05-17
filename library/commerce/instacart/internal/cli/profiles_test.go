@@ -8,11 +8,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/auth"
 	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/store"
 )
 
 // withTempConfig redirects config + store to a per-test temp dir.
@@ -26,13 +29,28 @@ func withTempConfig(t *testing.T) string {
 
 func runCmd(t *testing.T, args ...string) (string, error) {
 	t.Helper()
+	return runCmdCtx(t, context.Background(), args...)
+}
+
+// runCmdCtx is the variant that lets a test inject a fake
+// userAddressFetcher (via context) without mutating package globals.
+// Tests doing `profiles import` should call this with a context built by
+// withFetcher() so the real GraphQL stack is bypassed.
+func runCmdCtx(t *testing.T, ctx context.Context, args ...string) (string, error) {
+	t.Helper()
 	root := Root()
 	buf := &bytes.Buffer{}
 	root.SetOut(buf)
 	root.SetErr(buf)
 	root.SetArgs(args)
-	err := root.ExecuteContext(context.Background())
+	err := root.ExecuteContext(ctx)
 	return buf.String(), err
+}
+
+// withFetcher returns a context that pins f as the user-address fetcher
+// for the lifetime of one command run.
+func withFetcher(f userAddressFetcher) context.Context {
+	return context.WithValue(context.Background(), userAddressFetcherKey{}, f)
 }
 
 func TestProfilesAddListCoordsOnly(t *testing.T) {
@@ -223,6 +241,260 @@ func TestRootProfileFlagUnknownFails(t *testing.T) {
 	}
 }
 
-// silence unused-import warnings when go vet runs against this file alone.
-var _ = filepath.Join
-var _ = store.OpenAt
+// --- Codex review P2 follow-ups -------------------------------------------
+
+func TestResolveImportNameIdempotentReimport(t *testing.T) {
+	existing := map[string]config.Profile{
+		"1528-37th-ave-e": {Name: "1528-37th-ave-e", AddressID: "73256642"},
+	}
+	a := fetchedAddress{ID: "73256642", StreetAddress: "1528 37th Ave E"}
+
+	name, kind := resolveImportName("1528-37th-ave-e", a, existing, map[string]bool{}, false)
+	if name != "1528-37th-ave-e" || kind != "skipped" {
+		t.Errorf("re-import without --overwrite: got (%q,%q), want (1528-37th-ave-e, skipped)", name, kind)
+	}
+	name, kind = resolveImportName("1528-37th-ave-e", a, existing, map[string]bool{}, true)
+	if name != "1528-37th-ave-e" || kind != "updated" {
+		t.Errorf("re-import with --overwrite: got (%q,%q), want (1528-37th-ave-e, updated)", name, kind)
+	}
+}
+
+func TestResolveImportNameCollidesWithDifferentAddress(t *testing.T) {
+	existing := map[string]config.Profile{
+		"home": {Name: "home", AddressID: "111"},
+	}
+	a := fetchedAddress{ID: "222", StreetAddress: "Home"}
+	name, kind := resolveImportName("home", a, existing, map[string]bool{}, false)
+	if name != "home-2" || kind != "created" {
+		t.Errorf("different-address collision: got (%q,%q), want (home-2, created)", name, kind)
+	}
+}
+
+func TestResolveImportNameLongPrefixStillFits(t *testing.T) {
+	// Long prefix + long slug must still produce a name within the 40-char
+	// cap, otherwise SetProfile rejects it and the whole import aborts.
+	existing := map[string]config.Profile{}
+	a := fetchedAddress{ID: "1", StreetAddress: "1528 37th Avenue East"}
+	base := "very-long-prefix-" + slugifyName(a.StreetAddress)
+	if len(base) > profileNameMaxLen {
+		base = strings.TrimRight(base[:profileNameMaxLen], "-")
+	}
+	name, kind := resolveImportName(base, a, existing, map[string]bool{}, false)
+	if kind != "created" {
+		t.Fatalf("expected created, got %q", kind)
+	}
+	if !config.ValidProfileName(name) {
+		t.Errorf("resolveImportName produced an invalid name %q (len=%d)", name, len(name))
+	}
+}
+
+func TestApplyProfileClearsStaleZoneID(t *testing.T) {
+	c := &config.Config{
+		Profiles: map[string]config.Profile{
+			"a": {Name: "a", ZoneID: "42", PostalCode: "98112"},
+			"b": {Name: "b", PostalCode: "98052"}, // no ZoneID
+		},
+	}
+	if err := c.ApplyProfile("a"); err != nil {
+		t.Fatalf("apply a: %v", err)
+	}
+	if c.ZoneID != "42" {
+		t.Fatalf("ZoneID after apply(a) = %q, want 42", c.ZoneID)
+	}
+	if err := c.ApplyProfile("b"); err != nil {
+		t.Fatalf("apply b: %v", err)
+	}
+	if c.ZoneID != "" {
+		t.Errorf("ZoneID after apply(b) = %q, want empty (let EffectiveZoneID fall back to default)", c.ZoneID)
+	}
+}
+
+// TestResolveSetActivePrefersImportedOverExisting covers the Greptile P1:
+// when `--use home` is passed but an existing profile already holds the
+// name "home" for a different address, the import-loop creates the new
+// profile as "home-2"; resolveSetActive must point UseProfile at "home-2"
+// rather than letting it silently re-activate the stale "home".
+func TestResolveSetActivePrefersImportedOverExisting(t *testing.T) {
+	existing := map[string]config.Profile{
+		"home": {Name: "home", AddressID: "111", PostalCode: "98112"},
+	}
+	imported := []importedRef{
+		{Name: "home-2", Base: "home"},
+	}
+	got, warn, err := resolveSetActive("home", imported, existing)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "home-2" {
+		t.Errorf("resolveSetActive(home) = %q, want %q", got, "home-2")
+	}
+	if warn == "" {
+		t.Errorf("expected a warning when --use silently rerouted; got empty string")
+	}
+}
+
+// TestResolveSetActiveExactImportedName covers the happy path: the user
+// names the import slug exactly, no collision, no warning.
+func TestResolveSetActiveExactImportedName(t *testing.T) {
+	imported := []importedRef{{Name: "home", Base: "home"}}
+	got, warn, err := resolveSetActive("home", imported, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "home" || warn != "" {
+		t.Errorf("got (%q, %q), want (\"home\", \"\")", got, warn)
+	}
+}
+
+// TestResolveSetActiveFallsBackToExisting: --use may name a pre-existing
+// profile that wasn't part of this import run (e.g., import was a top-up).
+// That should still succeed.
+func TestResolveSetActiveFallsBackToExisting(t *testing.T) {
+	existing := map[string]config.Profile{
+		"work": {Name: "work", AddressID: "999"},
+	}
+	imported := []importedRef{{Name: "home", Base: "home"}}
+	got, _, err := resolveSetActive("work", imported, existing)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "work" {
+		t.Errorf("resolveSetActive(work) = %q, want \"work\"", got)
+	}
+}
+
+// TestResolveSetActiveAmbiguousBase: two imported rows shouldn't ever share
+// the same base in practice (each address has one slug + one suffix path),
+// but if it happens the function errors instead of silently picking.
+func TestResolveSetActiveAmbiguousBase(t *testing.T) {
+	imported := []importedRef{
+		{Name: "home-2", Base: "home"},
+		{Name: "home-3", Base: "home"},
+	}
+	_, _, err := resolveSetActive("home", imported, nil)
+	if err == nil {
+		t.Fatal("expected ambiguity error, got nil")
+	}
+}
+
+// TestResolveSetActiveUnknown: nothing matches → error.
+func TestResolveSetActiveUnknown(t *testing.T) {
+	_, _, err := resolveSetActive("nope", nil, nil)
+	if err == nil {
+		t.Fatal("expected not-found error, got nil")
+	}
+}
+
+// seedFakeSession writes a minimal session.json into the temp config dir so
+// the import command's `auth.LoadSession()` precondition passes. The
+// cookies are inert because tests swap `fetchUserAddressesFn` to a fake
+// before any network call.
+func seedFakeSession(t *testing.T) {
+	t.Helper()
+	dir, err := config.Dir()
+	if err != nil {
+		t.Fatalf("config.Dir: %v", err)
+	}
+	sess := auth.Session{
+		Cookies:   []auth.Cookie{{Name: "__Host-instacart_sid", Value: "fake", Domain: ".instacart.com", Path: "/"}},
+		Source:    "test",
+		CreatedAt: time.Now(),
+	}
+	data, _ := json.Marshal(sess)
+	if err := os.WriteFile(filepath.Join(dir, "session.json"), data, 0o600); err != nil {
+		t.Fatalf("write session: %v", err)
+	}
+}
+
+// TestProfilesImportPersistsOnBadUse covers the Greptile P1 on PR #643's
+// second review: when `profiles import --use <bad-name>` is run, the
+// command must persist the imported profiles to disk BEFORE attempting
+// the --use activation. Otherwise a typo in --use would silently discard
+// every address we just fetched from Instacart, forcing a full re-import.
+func TestProfilesImportPersistsOnBadUse(t *testing.T) {
+	withTempConfig(t)
+	seedFakeSession(t)
+
+	ctx := withFetcher(func(ctx context.Context, sess *auth.Session, cfg *config.Config) ([]fetchedAddress, error) {
+		return []fetchedAddress{
+			{ID: "111", StreetAddress: "1 Apple St", PostalCode: "98101", Latitude: 47.6, Longitude: -122.3},
+			{ID: "222", StreetAddress: "2 Pear Ave", PostalCode: "98102", Latitude: 47.7, Longitude: -122.4},
+		}, nil
+	})
+
+	_, err := runCmdCtx(t, ctx, "config", "profiles", "import", "--use", "totally-bogus-name")
+	if err == nil {
+		t.Fatal("expected error from --use of a name that doesn't match any imported or pre-existing profile, got nil")
+	}
+
+	// Despite the --use failure, the two fetched addresses must be on disk
+	// as profiles (the whole point of the save-before-use ordering).
+	got, loadErr := config.Load()
+	if loadErr != nil {
+		t.Fatalf("reload: %v", loadErr)
+	}
+	if len(got.Profiles) != 2 {
+		t.Fatalf("expected 2 saved profiles after import (despite --use failure), got %d: %v",
+			len(got.Profiles), got.ProfileNames())
+	}
+	if got.ActiveProfile != "" {
+		t.Errorf("expected ActiveProfile to remain empty when --use failed, got %q", got.ActiveProfile)
+	}
+}
+
+// TestProfilesImportActivatesOnGoodUse covers the happy path: --use with a
+// resolvable imported name persists the profiles AND activates the named one.
+func TestProfilesImportActivatesOnGoodUse(t *testing.T) {
+	withTempConfig(t)
+	seedFakeSession(t)
+
+	ctx := withFetcher(func(ctx context.Context, sess *auth.Session, cfg *config.Config) ([]fetchedAddress, error) {
+		return []fetchedAddress{
+			{ID: "111", StreetAddress: "1 Apple St", PostalCode: "98101", Latitude: 47.6, Longitude: -122.3},
+		}, nil
+	})
+
+	if _, err := runCmdCtx(t, ctx, "config", "profiles", "import", "--use", "1-apple-st"); err != nil {
+		t.Fatalf("import --use: %v", err)
+	}
+	got, _ := config.Load()
+	if got.ActiveProfile != "1-apple-st" {
+		t.Errorf("ActiveProfile = %q, want %q", got.ActiveProfile, "1-apple-st")
+	}
+	if got.Latitude == 0 {
+		t.Errorf("expected ApplyProfile to have hydrated lat from the imported profile, got 0")
+	}
+}
+
+// TestProfilesImportBadPrefixIsUsageError covers Greptile P1 on PR #643's
+// third review: when `--prefix` introduces an invalid character into the
+// resulting slug, SetProfile rejects the name. The CLI must surface that
+// as ExitUsage (input is wrong) rather than ExitTransient (which agents
+// interpret as "retry, the network is flaky") — otherwise an agent loop
+// would spin on the same bad prefix forever.
+func TestProfilesImportBadPrefixIsUsageError(t *testing.T) {
+	withTempConfig(t)
+	seedFakeSession(t)
+
+	ctx := withFetcher(func(ctx context.Context, sess *auth.Session, cfg *config.Config) ([]fetchedAddress, error) {
+		return []fetchedAddress{
+			{ID: "111", StreetAddress: "1 Apple St", PostalCode: "98101", Latitude: 47.6, Longitude: -122.3},
+		}, nil
+	})
+
+	// Uppercase + spaces are rejected by ValidProfileName; the prefix
+	// drags those characters into the final name regardless of how the
+	// slugifier handles the street portion.
+	_, err := runCmdCtx(t, ctx, "config", "profiles", "import", "--prefix", "Bad Prefix!")
+	if err == nil {
+		t.Fatal("expected error from invalid --prefix, got nil")
+	}
+	ce, ok := err.(CodedError)
+	if !ok {
+		t.Fatalf("err type=%T, want CodedError", err)
+	}
+	if ce.Code() != ExitUsage {
+		t.Errorf("ExitCode = %d, want ExitUsage (%d) so agents stop retrying", ce.Code(), ExitUsage)
+	}
+}
+
