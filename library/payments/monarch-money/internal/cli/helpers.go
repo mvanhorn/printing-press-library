@@ -109,12 +109,16 @@ func loginRequest(email, password, mfa string) (string, error) {
 		return "", err
 	}
 	setBaseHeaders(req)
-	resp, err := http.DefaultClient.Do(req)
+	client := &http.Client{Timeout: 120 * time.Second}
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("reading login response: %w", err)
+	}
 	if resp.StatusCode == http.StatusForbidden && strings.TrimSpace(mfa) == "" {
 		return "", fmt.Errorf("multi-factor authentication required; rerun login with --mfa <code>")
 	}
@@ -122,8 +126,7 @@ func loginRequest(email, password, mfa string) (string, error) {
 		return "", fmt.Errorf("login failed: HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
 	}
 	var parsed struct {
-		Token           string `json:"token"`
-		TokenExpiration any    `json:"tokenExpiration"`
+		Token string `json:"token"`
 	}
 	if err := json.Unmarshal(respBody, &parsed); err != nil {
 		return "", err
@@ -133,9 +136,6 @@ func loginRequest(email, password, mfa string) (string, error) {
 	}
 	if strings.Count(parsed.Token, ".") == 2 {
 		return "", fmt.Errorf("refusing to save JWT-style short-lived features token")
-	}
-	if parsed.TokenExpiration != nil {
-		return "", fmt.Errorf("refusing to save short-lived token with tokenExpiration=%v", parsed.TokenExpiration)
 	}
 	return parsed.Token, nil
 }
@@ -159,7 +159,10 @@ func graphql(operation, query string, variables map[string]any) (map[string]any,
 		return nil, err
 	}
 	defer resp.Body.Close()
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading graphql response: %w", err)
+	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("graphql HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
 	}

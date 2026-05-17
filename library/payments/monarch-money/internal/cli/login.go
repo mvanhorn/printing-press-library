@@ -35,7 +35,7 @@ func newLoginCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&email, "email", "", "Monarch email address (or MONARCH_EMAIL)")
-	cmd.Flags().StringVar(&password, "password", "", "Monarch password (or MONARCH_PASSWORD)")
+	cmd.Flags().StringVar(&password, "password", "", "Monarch password; prefer MONARCH_PASSWORD to avoid shell history and process-list exposure")
 	cmd.Flags().StringVar(&mfa, "mfa", "", "MFA/TOTP code when required")
 	return cmd
 }
