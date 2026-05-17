@@ -115,7 +115,15 @@ export DREO_PASSWORD='your-dreo-password'
 
 Then run any command. The CLI exchanges credentials for an access token on first use, caches both the credentials and the bearer to `~/.config/dreo-pp-cli/config.toml` at mode `0600`, and reuses them. When the bearer expires it transparently re-logs in using the cached credentials — Dreo's OAuth flow has no refresh token, so caching the credentials is what lets cron jobs and unattended runs survive token expiry without re-exporting env vars every session. Region discovery (`us`/`eu`) happens automatically on first login; pin it with `DREO_REGION=us` to skip the round-trip.
 
-**Why no `--password` flag.** `auth login` deliberately rejects flag-supplied credentials. A `--password <secret>` invocation leaks the plaintext into `/proc/<pid>/cmdline`, `ps aux`, audit logs, and your shell history. The process-table threat is real and separate from the at-rest disk threat — flag rejection is the right fix for one, mode-0600 file is the right fix for the other.
+**Three ways to supply credentials:**
+
+1. **Env vars (recommended):** Set `DREO_USERNAME` and `DREO_PASSWORD` and run `dreo-pp-cli auth login`.
+2. **`--password-stdin` (scriptable, no leak):** Pipe the password from a secret manager — Docker-style:
+   ```bash
+   op read 'op://Personal/Dreo/password' | dreo-pp-cli auth login --username me@example.com --password-stdin
+   pass dreo/password         | dreo-pp-cli auth login --username me@example.com --password-stdin
+   ```
+3. **`--password <value>` flag (insecure, warns):** Supported for ergonomics, but `auth login` prints a stderr warning every time because the plaintext lands in `/proc/<pid>/cmdline`, `ps aux`, audit logs, and shell history. Use only when you understand the trade-off.
 
 **What's cached on disk.** `~/.config/dreo-pp-cli/config.toml` (mode `0600`, in your home directory) contains:
 - `username` and `password` — the credentials you supplied via env vars (in plaintext, mirroring AWS CLI's `~/.aws/credentials` and Stripe CLI's config conventions)

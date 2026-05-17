@@ -5,7 +5,9 @@ package cli
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/cliutil"
@@ -16,37 +18,80 @@ import (
 )
 
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
-	// auth login intentionally has NO --password flag.
+	// Credential resolution (highest priority first):
+	//   1. --password-stdin: read from stdin until EOF (Docker pattern; no leak)
+	//   2. --password / --username: flag values (warns to stderr; legacy mysql/curl style)
+	//   3. $DREO_USERNAME / $DREO_PASSWORD env vars (canonical / MCP path)
+	//   4. cfg.DreoUsername / cfg.DreoPassword from ~/.config/dreo-pp-cli/config.toml
 	//
-	// A `--password <secret>` invocation leaks the plaintext value into
-	// /proc/<pid>/cmdline, `ps aux`, audit logs, and the user's shell
-	// history. Greptile P1 finding (auth_login.go) called this out;
-	// every reasonable IoT/cloud CLI rejects flag-supplied passwords
-	// for the same reason. Credentials come from env vars only:
-	//   DREO_USERNAME, DREO_PASSWORD (or `read -s` piped via the env).
+	// --password is supported because users coming from mysql/curl/wget
+	// expect it, but it prints a stderr warning every time it's used.
+	// The non-leak script-friendly path is --password-stdin:
+	//   echo $PWD | dreo-pp-cli auth login --username me@x.com --password-stdin
+	//   op read 'op://Personal/Dreo/password' | dreo-pp-cli auth login --password-stdin
+	var (
+		flagUsername  string
+		flagPassword  string
+		passwordStdin bool
+	)
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Exchange DREO_USERNAME/DREO_PASSWORD env vars for an access token (cached for subsequent calls)",
-		Example: `  # Credentials come from env, never from flags (process tables / shell history leak).
+		Short: "Exchange Dreo email/password for an access token (cached for subsequent calls)",
+		Example: `  # Recommended: env vars (no flag leak, no stdin).
   export DREO_USERNAME=me@example.com
   export DREO_PASSWORD='your-password'
-  dreo-pp-cli auth login`,
+  dreo-pp-cli auth login
+
+  # Scriptable: pipe password from a secret store (no leak; Docker-style).
+  op read 'op://Personal/Dreo/password' | dreo-pp-cli auth login --username me@example.com --password-stdin
+
+  # Flag-supplied (insecure; prints a stderr warning). Plaintext appears
+  # in 'ps aux', /proc/<pid>/cmdline, audit logs, and shell history.
+  dreo-pp-cli auth login --username me@example.com --password 'your-password'`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
-			username := os.Getenv("DREO_USERNAME")
+
+			username := flagUsername
+			if username == "" {
+				username = os.Getenv("DREO_USERNAME")
+			}
 			if username == "" {
 				username = cfg.DreoUsername
 			}
-			password := os.Getenv("DREO_PASSWORD")
-			if password == "" {
-				password = cfg.DreoPassword
+
+			password := ""
+			switch {
+			case passwordStdin:
+				if flagPassword != "" {
+					return usageErr(fmt.Errorf("--password and --password-stdin are mutually exclusive; pick one"))
+				}
+				raw, err := io.ReadAll(cmd.InOrStdin())
+				if err != nil {
+					return usageErr(fmt.Errorf("reading password from stdin: %w", err))
+				}
+				// Trim trailing newline only; tolerate intentional internal whitespace.
+				password = strings.TrimRight(string(raw), "\r\n")
+				if password == "" {
+					return usageErr(fmt.Errorf("--password-stdin received empty input"))
+				}
+			case flagPassword != "":
+				password = flagPassword
+				fmt.Fprintln(cmd.ErrOrStderr(),
+					"warning: --password leaks the plaintext value into `ps`, /proc/<pid>/cmdline, "+
+						"audit logs, and shell history. Prefer $DREO_PASSWORD env var or --password-stdin.")
+			default:
+				password = os.Getenv("DREO_PASSWORD")
+				if password == "" {
+					password = cfg.DreoPassword
+				}
 			}
+
 			if username == "" || password == "" {
-				return usageErr(fmt.Errorf("auth login requires DREO_USERNAME and DREO_PASSWORD env vars. Flag-supplied passwords are rejected because they leak into ps/proc/shell history"))
+				return usageErr(fmt.Errorf("auth login needs a username and password. Recommended: export DREO_USERNAME and DREO_PASSWORD env vars. Alternatives: --password-stdin (pipe-friendly) or --username/--password flags (insecure, warns)"))
 			}
 
 			if cliutil.IsVerifyEnv() {
@@ -68,7 +113,12 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				return authErr(fmt.Errorf("auth login: empty access token in response"))
 			}
 
-			// Persist token and region; switch base URL if region disagrees.
+			// Persist credentials + token + region (mode 0600). Credentials
+			// are written so 401-aware re-login can mint a fresh bearer
+			// when the cached one expires — Dreo issues no refresh_token,
+			// so the user/pass pair is the only refresh material we have.
+			cfg.DreoUsername = username
+			cfg.DreoPassword = password
 			expiry := time.Now().Add(time.Duration(resp.ExpiresIn) * time.Second)
 			if resp.ExpiresIn <= 0 {
 				expiry = time.Now().Add(30 * 24 * time.Hour) // sensible default
@@ -94,5 +144,8 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&flagUsername, "username", "", "Dreo account email (overrides $DREO_USERNAME)")
+	cmd.Flags().StringVar(&flagPassword, "password", "", "Dreo password (INSECURE: leaks into ps/cmdline/history; prefer env or --password-stdin)")
+	cmd.Flags().BoolVar(&passwordStdin, "password-stdin", false, "Read password from stdin until EOF (Docker-style; no leak)")
 	return cmd
 }

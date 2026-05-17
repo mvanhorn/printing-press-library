@@ -202,8 +202,17 @@ export DREO_PASSWORD='your-dreo-password'
 
 Then run any command. The CLI exchanges credentials for an access token on first use, caches both the credentials and the bearer token to `~/.config/dreo-pp-cli/config.toml` (mode `0600`), and reuses them. When the bearer expires (Dreo issues no refresh token), the CLI mints a new one transparently using the cached credentials — cron jobs and unattended runs don't need env vars re-exported. Optional: pin `DREO_REGION=us` (or `eu`) to skip region discovery on first login.
 
+**Three ways to supply credentials, in order of preference:**
+
+1. **Env vars (recommended):** `DREO_USERNAME` / `DREO_PASSWORD` exported in your shell or set by your secret-loading wrapper.
+2. **`--password-stdin` (scriptable, no leak):** pipe the password from a secret store. Docker-style:
+   ```bash
+   op read 'op://Personal/Dreo/password' | dreo-pp-cli auth login --username me@example.com --password-stdin
+   ```
+3. **`--password <value>` (insecure, prints a stderr warning):** mysql/curl-style. Supported for ergonomics but prints a warning every time because the plaintext value lands in `ps`, `/proc/<pid>/cmdline`, audit logs, and shell history.
+
 **Security contract:**
-- The `--password` and `--username` flags **do not exist** on `auth login` — flag-supplied secrets leak into `ps`, `/proc/<pid>/cmdline`, audit logs, and shell history. Env vars only.
+- Flag-supplied passwords (`--password <value>`) are accepted but warned against on stderr.
 - Credentials and the bearer token are **persisted to `~/.config/dreo-pp-cli/config.toml` at mode `0600`**. This matches AWS CLI's `~/.aws/credentials` pattern and is necessary because Dreo's OAuth flow has no refresh token — without persistence, expired bearer tokens would require manual re-login. Treat the config file as sensitive: don't commit it, don't share it, don't sync it to cloud-storage providers without encryption.
 - `dreo-pp-cli auth logout` wipes both the cached token and the persisted credentials.
 - `dreo-pp-cli auth status` shows current authentication state without revealing the token or password.
