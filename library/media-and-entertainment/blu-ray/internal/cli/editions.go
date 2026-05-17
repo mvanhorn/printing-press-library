@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"blu-ray-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
 	"github.com/spf13/cobra"
 	xhtml "golang.org/x/net/html"
 )
