@@ -1,0 +1,76 @@
+{
+  "api_name": "google-reviews",
+  "base_url": "https://www.google.com",
+  "description": "Discovered API spec for google",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "maps_list_listentitiesreviews",
+      "description": "GET /maps/preview/review/listentitiesreviews. Optional: authuser, gl, hl (plus 1 more). Returns the listentitiesreviews.",
+      "method": "GET",
+      "path": "/maps/preview/review/listentitiesreviews",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "authuser",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "pb",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "maps_list_place",
+      "description": "GET /maps/preview/place. Optional: authuser, gl, hl (plus 2 more). Returns the place.",
+      "method": "GET",
+      "path": "/maps/preview/place",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "authuser",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "gl",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "pb",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ]
+}

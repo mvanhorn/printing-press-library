@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T02:54:12.48964Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "google-reviews",
+  "display_name": "Google Reviews",
+  "cli_name": "google-reviews-pp-cli",
+  "owner": "dahlia",
+  "printer": "dahliasan",
+  "printer_name": "dahlia",
+  "spec_path": "/Users/dahlia/printing-press/.runstate/smolsites-workspace-bee8712c/runs/20260517-115025/research/google-reviews-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b97ecf25c08549b91adea74202f94beb41011e1a84595de802ca053668820c96",
+  "run_id": "20260517-115025",
+  "mcp_binary": "google-reviews-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "No API Key Required",
+      "command": "google-reviews-pp-cli reviews",
+      "description": "Fetches live Google Maps reviews by reverse-engineering the internal listentitiesreviews endpoint — no Google API key or OAuth needed. Authenticates via Chrome's NID cookie read automatically by agent-browser."
+    },
+    {
+      "name": "CID Auto-Parse",
+      "command": "google-reviews-pp-cli reviews",
+      "description": "Accepts full Google Maps URLs or raw 0xHEX:0xHEX CID strings, extracting the two uint64 values and encoding them into the Maps protobuf pb= parameter automatically."
+    },
+    {
+      "name": "Rating Distribution Summary",
+      "command": "google-reviews-pp-cli summary",
+      "description": "Returns the full star-distribution breakdown (1-5 stars) and total review count for any business — data not available via the official Places API."
+    },
+    {
+      "name": "Auto-Paginate All Reviews",
+      "command": "google-reviews-pp-cli reviews --all",
+      "description": "Paginates through all available reviews (up to ~300, Google's internal API limit) with graceful degradation — stops cleanly if the API returns 500 on later pages."
+    }
+  ]
+}

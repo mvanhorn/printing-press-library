@@ -1,0 +1,51 @@
+version: 2
+project_name: google-reviews-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: google-reviews-pp-cli
+    main: ./cmd/google-reviews-pp-cli
+    binary: google-reviews-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/google-reviews/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: google-reviews-pp-mcp
+    main: ./cmd/google-reviews-pp-mcp
+    binary: google-reviews-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: google-reviews-pp-cli
+    repository:
+      owner: dahlia
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Discovered API spec for google"
+    install: |
+      bin.install "google-reviews-pp-cli"
+      bin.install "google-reviews-pp-mcp"
