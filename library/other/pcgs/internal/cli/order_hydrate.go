@@ -73,10 +73,14 @@ func newOrderHydrateCmd(flags *rootFlags) *cobra.Command {
 			// the quota gate so already-cached certs aren't counted as live
 			// calls. Mirrors coin batch's emitForecast pattern and coin
 			// pop-curve's cache probe. Greptile P1 finding on PR #630 (review 2).
+			// PATCH order-hydrate-cache-probe-position: capture the first return
+			// (hits, not live) from both helpers. Greptile P1 finding on PR #630
+			// (review 5) — the previous `_, imgHits, factsErr` discarded hits
+			// and stored live, which inverted every downstream use.
 			facts, _, factsErr := countOrderHydrateCacheHits(s, certs)
 			imgHits := 0
 			if withImages {
-				_, imgHits, factsErr = countOrderHydrateImageHits(s, certs, factsErr)
+				imgHits, _, factsErr = countOrderHydrateImageHits(s, certs, factsErr)
 			}
 			if factsErr != nil {
 				return factsErr

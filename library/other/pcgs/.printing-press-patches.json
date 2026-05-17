@@ -149,6 +149,15 @@
         "internal/store/store.go"
       ],
       "validated_outcome": "go build ./... && go vet ./...; live smoke `search --text morgan --json` returns empty (correct for empty cache)"
+    },
+    {
+      "id": "order-hydrate-cache-probe-position",
+      "summary": "Captures the first return value (hits, not live) from countOrderHydrateCacheHits and countOrderHydrateImageHits.",
+      "reason": "The previous `_, imgHits, factsErr = countOrderHydrateImageHits(...)` discarded the hits count and stored the live count in imgHits, inverting every downstream use: liveImages, the quota gate's added count, the stderr error message, and the --dry-run-hydrate image_cache_hits field all referenced live as if it were hits. Greptile P1 finding on PR #630 (review 5).",
+      "files": [
+        "internal/cli/order_hydrate.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
     }
   ]
 }
