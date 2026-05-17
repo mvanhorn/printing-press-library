@@ -28,6 +28,11 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			// PATCH cert-input-normalization: accept both bare cert numbers
+			// (64674260) and full slab IDs (7258.58/64674260). Same normalizer
+			// is wired into coin_apr-cert, coin_images, banknote_facts-cert,
+			// banknote_images, and refresh --cert. Without this, slab-form
+			// input URL-encodes the slash and 404s.
 			cert, _, certErr := normalizeCertNo(args[0])
 			if certErr != nil {
 				return usageErr(certErr)

@@ -232,7 +232,7 @@ func (c *Client) writeCache(path string, params map[string]string, data json.Raw
 // Returns false when c.NoCache is set, when c.cacheDir is empty, or when no
 // cache file exists within the TTL window.
 //
-// PATCH isCached-public: added for Greptile P2 finding on PR #630
+// PATCH is-cached-public: added for Greptile P2 finding on PR #630
 // (coin_pop-curve.go quota check over-counted cached grades as live).
 func (c *Client) IsCached(path string, params map[string]string) bool {
 	if c.NoCache || c.cacheDir == "" {

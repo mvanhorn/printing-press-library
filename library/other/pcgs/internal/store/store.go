@@ -1263,6 +1263,11 @@ func boolToInt(b bool) int {
 	return 0
 }
 
+// PATCH typed-search-wrappers: hand-authored typed Search wrappers
+// (SearchCoins, SearchBanknotes) over the generic resources+FTS5 schema.
+// internal/cli/search.go calls SearchCoins instead of inlining raw SQL so
+// future search-shaped commands have one source of truth.
+//
 // CoinSearchOpts narrows a SearchCoins / SearchBanknotes call. Empty fields
 // (zero ints, empty strings) are treated as "no filter on this dimension."
 // TopPct enables continuous-rarity slicing: when set (1-100), the query is

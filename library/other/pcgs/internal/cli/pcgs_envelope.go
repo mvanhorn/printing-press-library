@@ -1,5 +1,14 @@
 // Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
 
+// PATCH envelope-classifier: hand-authored helper that translates PCGS's
+// HTTP-200 + envelope error shape into typed cliError values (usageErr,
+// notFoundErr) so the CLI's typed exit codes match the help-text contract.
+// Wired into resolveRead in data_source.go.
+//
+// PATCH envelope-docs-expanded: top-of-file docstring documents the three
+// classifier paths, the known false-positive on freshly-graded certs (path 3),
+// and cross-references retro issue mvanhorn/cli-printing-press#1551.
+
 package cli
 
 import (

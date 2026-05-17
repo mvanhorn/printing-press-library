@@ -397,6 +397,12 @@ func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
 }
 
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
+//
+// PATCH classify-api-error-typed-passthrough: pre-typed *cliError instances
+// (e.g. usageErr/notFoundErr returned from classifyPCGSEnvelope in
+// resolveRead) bypass the string-matching switch unchanged. Without this
+// guard, the switch's default arm (apiErr/exit-5) would clobber the
+// envelope-classifier's more-specific code.
 func classifyAPIError(err error, flags *rootFlags) error {
 	// Pre-typed errors (e.g. PCGS envelope classification surfaces usageErr /
 	// notFoundErr inside resolveRead) flow through unchanged — re-classifying
