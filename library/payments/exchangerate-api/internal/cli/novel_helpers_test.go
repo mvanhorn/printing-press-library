@@ -66,13 +66,15 @@ func TestParseDurationOrDate(t *testing.T) {
 		}
 	}
 
-	// ISO date.
+	// ISO date — end-of-day UTC semantics (start of next day) so the value
+	// works as a `captured_at <= ?` upper bound that includes the named day.
+	// See the PATCH exchangerate-as-of-date-inclusive note on parseDurationOrDate.
 	got, err := parseDurationOrDate("2024-03-27")
 	if err != nil {
 		t.Fatalf("parseDurationOrDate(\"2024-03-27\"): %v", err)
 	}
-	if got.Year() != 2024 || got.Month() != 3 || got.Day() != 27 {
-		t.Errorf("parseDurationOrDate(\"2024-03-27\"): got %v", got)
+	if got.Year() != 2024 || got.Month() != 3 || got.Day() != 28 || got.Hour() != 0 {
+		t.Errorf("parseDurationOrDate(\"2024-03-27\"): got %v, want 2024-03-28 00:00:00 UTC", got)
 	}
 
 	// RFC3339.

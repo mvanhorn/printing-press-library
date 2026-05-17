@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"exchangerate-api-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -119,11 +119,20 @@ Use --since to limit to recent history (e.g. "30d", "7d", "24h").`,
 	return cmd
 }
 
-// parseDurationOrDate accepts "30d", "24h", "15m", "2w", or YYYY-MM-DD.
+// PATCH exchangerate-as-of-date-inclusive: callers use the returned time as a
+// `captured_at <= ?` upper bound. A YYYY-MM-DD input was resolving to that
+// day's midnight, which excluded every snapshot captured during the named day
+// — `--as-of 2026-04-10` silently returned April 9 data. Advance the date-only
+// branch by 24h so the bound covers the full named day. RFC3339 stays exact
+// because the caller asked for a precise instant. Greptile P1 review of PR
+// #635 (mvanhorn/printing-press-library).
+//
+// parseDurationOrDate accepts "30d", "24h", "15m", "2w", YYYY-MM-DD (resolves
+// to end-of-day UTC for upper-bound semantics), or RFC3339 (exact instant).
 func parseDurationOrDate(s string) (time.Time, error) {
 	s = strings.TrimSpace(s)
 	if t, err := time.Parse("2006-01-02", s); err == nil {
-		return t, nil
+		return t.Add(24 * time.Hour), nil
 	}
 	if t, err := time.Parse(time.RFC3339, s); err == nil {
 		return t, nil

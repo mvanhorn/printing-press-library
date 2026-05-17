@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"strings"
 
-	"exchangerate-api-pp-cli/internal/client"
-	"exchangerate-api-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
 	"github.com/spf13/cobra"
 )
 
