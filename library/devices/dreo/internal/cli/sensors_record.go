@@ -80,6 +80,7 @@ Under PRINTING_PRESS_DOGFOOD the recorder caps at 10 seconds.`,
 			defer st.Close()
 
 			count := 0
+			writeErrs := 0
 			metrics := []string{"temperature", "humidity", "pm25", "targetTemperature", "targetHumidity", "tvoc", "co2"}
 
 			for {
@@ -96,7 +97,19 @@ Under PRINTING_PRESS_DOGFOOD the recorder caps at 10 seconds.`,
 						if !has {
 							continue
 						}
-						_ = st.AppendSensorReading(ctx, upd.DeviceSn, upd.ReceivedAt, metric, v)
+						// Only increment count when the row actually
+						// landed — on disk-full / sqlite-locked, inserts
+						// silently fail and the user would otherwise see
+						// "Recorded N readings" with zero rows persisted.
+						// First failure also logs to stderr so unattended
+						// cron jobs surface the disk problem.
+						if err := st.AppendSensorReading(ctx, upd.DeviceSn, upd.ReceivedAt, metric, v); err != nil {
+							if writeErrs == 0 {
+								fmt.Fprintf(cmd.ErrOrStderr(), "sensors record: failed to persist reading (%s for %s): %v\n", metric, upd.DeviceSn, err)
+							}
+							writeErrs++
+							continue
+						}
 						count++
 					}
 				case <-ctx.Done():
@@ -111,6 +124,9 @@ Under PRINTING_PRESS_DOGFOOD the recorder caps at 10 seconds.`,
 			// they query the empty store hours later.
 			wsErr := wsConn.Err()
 			result := map[string]any{"recorded": count}
+			if writeErrs > 0 {
+				result["write_errors"] = writeErrs
+			}
 			if wsErr != nil {
 				result["websocket_error"] = wsErr.Error()
 			}
@@ -118,6 +134,9 @@ Under PRINTING_PRESS_DOGFOOD the recorder caps at 10 seconds.`,
 				_ = printJSONFiltered(cmd.OutOrStdout(), result, rflags)
 			} else {
 				fmt.Fprintf(cmd.OutOrStdout(), "Recorded %d sensor readings.\n", count)
+				if writeErrs > 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d sensor readings failed to persist (see first failure above)\n", writeErrs)
+				}
 				if wsErr != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "websocket terminated unexpectedly: %v\n", wsErr)
 				}

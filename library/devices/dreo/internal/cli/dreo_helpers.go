@@ -17,6 +17,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/dreoauth"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/dreows"
 	"github.com/mvanhorn/printing-press-library/library/devices/dreo/internal/store"
 )
@@ -44,16 +45,37 @@ func loadAccessToken(flags *rootFlags) (string, *config.Config, error) {
 	return cfg.AccessToken, cfg, nil
 }
 
-// requireToken returns the token or a friendly authErr.
+// requireToken returns the cached access token, or — if none exists but
+// credentials are reachable via env vars or the persisted config — runs
+// the OAuth exchange to mint one. Mirrors the REST client's lazyLogin
+// path so the WebSocket-only commands (`watch`, `sensors record`) work
+// out-of-the-box for users who only have DREO_USERNAME/DREO_PASSWORD set
+// and haven't run an authenticated REST command yet in this session.
 func requireToken(flags *rootFlags) (string, *config.Config, error) {
 	tok, cfg, err := loadAccessToken(flags)
 	if err != nil {
 		return "", nil, configErr(err)
 	}
-	if tok == "" {
-		return "", nil, authErr(fmt.Errorf("not authenticated; run `dreo-pp-cli auth login`"))
+	if tok != "" {
+		return tok, cfg, nil
 	}
-	return tok, cfg, nil
+	if cfg.DreoUsername == "" || cfg.DreoPassword == "" {
+		return "", nil, authErr(fmt.Errorf("not authenticated; export DREO_USERNAME and DREO_PASSWORD or run `dreo-pp-cli auth login`"))
+	}
+	// Lazy login: same flow as Client.lazyLogin, but inlined here because
+	// the WebSocket commands don't otherwise instantiate a REST client.
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	resp, lerr := dreoauth.Login(ctx, cfg.BaseURL, cfg.DreoUsername, cfg.DreoPassword)
+	if lerr != nil {
+		return "", nil, authErr(fmt.Errorf("lazy login: %w", lerr))
+	}
+	cfg.AccessToken = resp.AccessToken
+	cfg.Region = resp.Region
+	// Best-effort persist; ignore errors so a read-only HOME (dogfood
+	// --live scoped tempdir) doesn't kill the WS connect.
+	_ = cfg.SaveTokens("", "", resp.AccessToken, "", time.Time{})
+	return resp.AccessToken, cfg, nil
 }
 
 // connectWS dials the Dreo websocket using the active credential.

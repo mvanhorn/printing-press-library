@@ -317,13 +317,16 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set("Content-Type", "application/json")
 		}
 
-		// Dreo requires a ?timestamp=<ms-epoch> query param on every REST call.
+		// Dreo requires a ?timestamp=<ms-epoch> query param on every REST
+		// call AND on every retry — server-side freshness checks may reject
+		// a replayed millisecond value. Always overwrite, not only when
+		// absent: on a 429 (Retry-After) or 5xx backoff retry, every
+		// subsequent attempt would otherwise carry the first attempt's
+		// stale ts.
 		if params == nil {
 			params = map[string]string{}
 		}
-		if _, ok := params["timestamp"]; !ok {
-			params["timestamp"] = fmt.Sprintf("%d", time.Now().UnixMilli())
-		}
+		params["timestamp"] = fmt.Sprintf("%d", time.Now().UnixMilli())
 		q := req.URL.Query()
 		for k, v := range params {
 			if v != "" {

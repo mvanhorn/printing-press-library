@@ -60,9 +60,25 @@ func Login(ctx context.Context, baseURL, username, password string) (*LoginRespo
 	}
 	resp, err := loginOnce(ctx, baseURL, username, password)
 	if err != nil {
+		// Cross-region path: server returns code != 0 with a Region hint
+		// when the account belongs to a different region. loginOnce wraps
+		// that into (&LoginResponse{Region: region}, error). Retry against
+		// the correct host before surfacing the error — without this branch
+		// EU users whose client defaults to the US endpoint hit a hard
+		// auth failure instead of the intended transparent retry.
+		if resp != nil && resp.Region != "" {
+			wantRegion := strings.ToUpper(resp.Region)
+			currentHost := hostFromBase(baseURL)
+			if wantRegion == "EU" && !strings.Contains(currentHost, "-eu.") {
+				return loginOnce(ctx, "https://app-api-eu.dreo-tech.com", username, password)
+			}
+			if wantRegion == "NA" && strings.Contains(currentHost, "-eu.") {
+				return loginOnce(ctx, "https://app-api-us.dreo-tech.com", username, password)
+			}
+		}
 		return nil, err
 	}
-	// Region mismatch: server tells us the correct region; retry there.
+	// Region mismatch on successful response: retry there.
 	wantRegion := strings.ToUpper(resp.Region)
 	currentHost := hostFromBase(baseURL)
 	if wantRegion == "EU" && !strings.Contains(currentHost, "-eu.") {
