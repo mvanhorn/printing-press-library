@@ -143,8 +143,15 @@ func parseBulkDeleteWhere(where string) ([]string, []any, error) {
 			binds = append(binds, v)
 		case strings.HasPrefix(p, "email-domain="):
 			v := strings.TrimPrefix(p, "email-domain=")
-			clauses = append(clauses, "LOWER(json_extract(data,'$.email_address')) LIKE ?")
-			binds = append(binds, "%@"+strings.ToLower(v))
+			// Escape SQL LIKE metacharacters from user-supplied domain so
+			// values like `exa%le.com` don't widen the deletion set to
+			// every contact whose email contains `exa…le.com` as a
+			// substring. The bound parameter still uses `%@` as the
+			// leading wildcard for the local-part; only the domain
+			// portion is escaped.
+			escaped := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(strings.ToLower(v))
+			clauses = append(clauses, `LOWER(json_extract(data,'$.email_address')) LIKE ? ESCAPE '\'`)
+			binds = append(binds, "%@"+escaped)
 		default:
 			return nil, nil, fmt.Errorf("unknown predicate %q (supported: status=<value>, tag:<value>, email-domain=<value>, joined with AND)", p)
 		}
@@ -193,7 +200,13 @@ func newContactsBulkDeleteCmd(flags *rootFlags) *cobra.Command {
 			report := bulkDeleteReport{Matched: len(ids)}
 
 			progressPath := progressFilePath(listID)
-			done, progress, _ := loadProgress(progressPath)
+			done, progress, loadErr := loadProgress(progressPath)
+			if loadErr != nil {
+				// Non-ENOENT errors (permission denied, corrupt directory)
+				// surface here; loadProgress returns a nil progress on
+				// those, which would panic on the field assignment below.
+				return fmt.Errorf("reading progress file %s: %w (delete the file to start fresh)", progressPath, loadErr)
+			}
 			progress.ListID = listID
 			progress.Where = where
 
