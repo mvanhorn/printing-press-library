@@ -73,6 +73,20 @@
       "reason": "The narrow 4-condition images heuristic isn't obvious from the function body alone. Expanded comment block documents when each path fires, why path 3 has a known false-positive on freshly-graded certs (PCGS API itself doesn't distinguish), and points readers to the broader retro filing.",
       "files": ["internal/cli/pcgs_envelope.go"],
       "validated_outcome": "go vet ./... clean"
+    },
+    {
+      "id": "order-hydrate-cache-probe",
+      "summary": "order hydrate's pre-flight quota check now probes the SQLite cache per cert (facts and images independently) so already-cached certs aren't counted as live calls.",
+      "reason": "Previously `cost = len(certs)` (or `len(certs)*2` with images) was passed straight to the quota gate. A 300-cert order with 200 already cached would refuse with quota=110 (needs 100 live, has 110). Greptile P1 finding on PR #630 (review 2). Mirrors the pattern from coin pop-curve's pop-curve-cache-probe and coin batch's emitForecast.",
+      "files": ["internal/cli/order_hydrate.go"],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "refresh-truncation-warning",
+      "summary": "refresh --all now refuses to silently truncate when quota < cert count; requires --accept-partial to proceed, and prints a stderr warning naming the dropped count.",
+      "reason": "Previously `certs = certs[:q.Remaining]` silently truncated the cert list. A user running `refresh --all` on 500 cached coins with 200 quota would only see 200 refreshed with no signal that 300 were dropped. Greptile P1 finding on PR #630 (review 2). Mirrors coin batch's explicit `ran out of quota at row %d of %d; resume tomorrow.` stderr message.",
+      "files": ["internal/cli/refresh.go"],
+      "validated_outcome": "go build ./... && go vet ./..."
     }
   ]
 }

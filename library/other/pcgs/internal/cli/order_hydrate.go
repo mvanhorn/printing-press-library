@@ -69,17 +69,32 @@ func newOrderHydrateCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("open store: %w", err)
 			}
 			defer s.Close()
-			cost := len(certs)
+			// PATCH order-hydrate-cache-probe: probe the cache per cert before
+			// the quota gate so already-cached certs aren't counted as live
+			// calls. Mirrors coin batch's emitForecast pattern and coin
+			// pop-curve's cache probe. Greptile P1 finding on PR #630 (review 2).
+			facts, _, factsErr := countOrderHydrateCacheHits(s, certs)
+			imgHits := 0
 			if withImages {
-				cost *= 2
+				_, imgHits, factsErr = countOrderHydrateImageHits(s, certs, factsErr)
 			}
+			if factsErr != nil {
+				return factsErr
+			}
+			liveFacts := len(certs) - facts
+			liveImages := 0
+			if withImages {
+				liveImages = len(certs) - imgHits
+			}
+			liveCalls := liveFacts + liveImages
 			q, err := cliutil.ReadQuotaFromDB(cmd.Context(), s.DB())
 			if err != nil {
 				return err
 			}
-			if cost > q.Remaining {
-				fmt.Fprintf(os.Stderr, "quota insufficient: need %d live calls, remaining %d, resets %s\n", cost, q.Remaining, q.Reset.Format("2006-01-02 15:04:05 UTC"))
-				return rateLimitErr(fmt.Errorf("quota insufficient: need %d live calls, remaining %d", cost, q.Remaining))
+			if liveCalls > q.Remaining {
+				fmt.Fprintf(os.Stderr, "quota insufficient: need %d live calls (%d cached of %d facts + %d cached of %d images), remaining %d, resets %s\n",
+					liveCalls, facts, len(certs), imgHits, len(certs), q.Remaining, q.Reset.Format("2006-01-02 15:04:05 UTC"))
+				return rateLimitErr(fmt.Errorf("quota insufficient: need %d live calls, remaining %d", liveCalls, q.Remaining))
 			}
 			dry := dryRunHydrate || flags.dryRun
 			if dry {
@@ -238,4 +253,44 @@ func scanCertsRecursive(v any, add func(any)) {
 			scanCertsRecursive(child, add)
 		}
 	}
+}
+
+// countOrderHydrateCacheHits probes the local resources table for each cert
+// to compute how many would be served from cache vs how many would be live
+// API calls. The cache miss path is err == sql.ErrNoRows; any other error
+// from s.Get propagates so the caller can surface it.
+func countOrderHydrateCacheHits(s *store.Store, certs []string) (hits, live int, err error) {
+	for _, cert := range certs {
+		_, getErr := s.Get("coin", cert)
+		switch {
+		case getErr == nil:
+			hits++
+		case getErr == sql.ErrNoRows:
+			live++
+		default:
+			return 0, 0, fmt.Errorf("order hydrate: cache probe %s: %w", cert, getErr)
+		}
+	}
+	return hits, live, nil
+}
+
+// countOrderHydrateImageHits is the images-table analog of
+// countOrderHydrateCacheHits. Images are stored under resource_type
+// "coin_images" with cert_no as the id (see hydrateImages below).
+func countOrderHydrateImageHits(s *store.Store, certs []string, prior error) (hits, live int, err error) {
+	if prior != nil {
+		return 0, 0, prior
+	}
+	for _, cert := range certs {
+		_, getErr := s.Get("coin_images", cert)
+		switch {
+		case getErr == nil:
+			hits++
+		case getErr == sql.ErrNoRows:
+			live++
+		default:
+			return 0, 0, fmt.Errorf("order hydrate: image cache probe %s: %w", cert, getErr)
+		}
+	}
+	return hits, live, nil
 }

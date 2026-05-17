@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -32,7 +33,7 @@ type refreshDiff struct {
 }
 
 func newRefreshCmd(flags *rootFlags) *cobra.Command {
-	var all, dryRunRefresh bool
+	var all, dryRunRefresh, acceptPartial bool
 	var certFlags, fieldFlags []string
 	var older string
 	var limit int
@@ -81,7 +82,20 @@ func newRefreshCmd(flags *rootFlags) *cobra.Command {
 				if q.Remaining <= 0 && len(certs) > 0 {
 					return rateLimitErr(fmt.Errorf("quota insufficient: need %d live calls, remaining %d, resets %s", len(certs), q.Remaining, q.Reset.Format("2006-01-02 15:04:05 UTC")))
 				}
+				// PATCH refresh-truncation-warning: when remaining quota can
+				// only cover part of the cert list, warn loudly and refuse to
+				// silently drop the rest. The user can decide whether to
+				// accept the partial refresh (--accept-partial) or narrow
+				// scope (--cert, --older) before re-running. Greptile P1
+				// finding on PR #630 (review 2).
 				if len(certs) > q.Remaining {
+					if !acceptPartial {
+						fmt.Fprintf(os.Stderr, "refresh: %d certs in scope but only %d quota calls remaining. The first %d would refresh; the remaining %d would be skipped silently. Re-run with --accept-partial to proceed, or narrow with --cert or --older.\n",
+							len(certs), q.Remaining, q.Remaining, len(certs)-q.Remaining)
+						return rateLimitErr(fmt.Errorf("refresh: %d certs > %d remaining quota; pass --accept-partial or narrow scope", len(certs), q.Remaining))
+					}
+					fmt.Fprintf(os.Stderr, "refresh: --accept-partial set; refreshing first %d of %d certs (quota cap); %d will be left stale this run.\n",
+						q.Remaining, len(certs), len(certs)-q.Remaining)
 					certs = certs[:q.Remaining]
 				}
 			}
@@ -152,6 +166,7 @@ func newRefreshCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&older, "older", "", "filter --all to coins whose updated_at is older than this duration (e.g. 7d, 24h, 30d)")
 	cmd.Flags().StringArrayVar(&fieldFlags, "field", nil, "limit mutable fields: price-guide, population, auction, images, notes")
 	cmd.Flags().BoolVar(&dryRunRefresh, "dry-run-refresh", false, "plan only; no API calls")
+	cmd.Flags().BoolVar(&acceptPartial, "accept-partial", false, "allow truncating the cert list to the remaining quota; prints a stderr warning")
 	cmd.Flags().IntVar(&limit, "limit", 1000, "max coins to refresh in one run")
 	return cmd
 }
