@@ -10,6 +10,7 @@
 package mcp
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"os"
@@ -38,9 +39,19 @@ func runCLISubprocess(ctx context.Context, args []string) (string, error) {
 		}
 	}
 	cmd.Env = filtered
-	out, err := cmd.CombinedOutput()
+	// PATCH intents-runner-split-stdout-stderr: capture stdout and stderr
+	// separately so intent callers can json.Unmarshal stdout without the
+	// root PersistentPostRunE's `[quota] X/1000 used, Y left` line (always
+	// written to stderr) corrupting the trailing bytes. CombinedOutput
+	// merged the two, which silently turned every forecast/curve parse in
+	// handleBatchWithQuotaGuard and handlePopScarcityReport into a nil
+	// result. Greptile P1 finding on PR #630 (review 7).
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err = cmd.Run()
 	if err != nil {
-		return string(out), fmt.Errorf("cli %s %s: %w", filepath.Base(binPath), strings.Join(args, " "), err)
+		return stdout.String(), fmt.Errorf("cli %s %s: %w (stderr: %s)", filepath.Base(binPath), strings.Join(args, " "), err, strings.TrimSpace(stderr.String()))
 	}
-	return string(out), nil
+	return stdout.String(), nil
 }
