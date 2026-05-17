@@ -24,14 +24,14 @@
     "dreo_password": {
       "type": "string",
       "title": "DREO_PASSWORD",
-      "description": "Sets DREO_PASSWORD for the Dreo MCP server.",
+      "description": "Password for your Dreo account. The CLI MD5-hashes it before sending to Dreo and never persists the plaintext to disk; only the bearer access token is cached.",
       "sensitive": true,
       "required": true
     },
     "dreo_username": {
       "type": "string",
       "title": "DREO_USERNAME",
-      "description": "Sets DREO_USERNAME for the Dreo MCP server.",
+      "description": "Email address you use to sign in to the Dreo iOS/Android app.",
       "sensitive": true,
       "required": true
     }
