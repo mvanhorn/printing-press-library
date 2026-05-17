@@ -13,6 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
 )
 
 // PATCH: hand-written issuer crawler with monthly quota forecast promised by README Highlights.
@@ -47,7 +48,9 @@ func newCrawlIssuerCmd(flags *rootFlags) *cobra.Command {
 				// PATCH: crawl dry-run forecasts from the live first page, not
 				// the generated client's generic no-request dry-run preview.
 				c.DryRun = false
-				c.SetLogHook(makeLookupLogHook())
+				if s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli")); err == nil {
+					c.SetLogHook(makeLookupLogHook(s))
+				}
 			}
 			params := issuerParams(issuer, years, category, 1)
 			first, firstLive, err := quotaTrackedGet(cmd.Context(), c, "/types", params)

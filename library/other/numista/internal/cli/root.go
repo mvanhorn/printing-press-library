@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -26,6 +27,13 @@ var version = "1.0.0"
 
 var quotaPrintOnly bool
 var quotaPrintOnlyJSON bool
+
+// errQuotaPrinted signals "quota was printed via the --quota or --quota-only
+// short-circuit; the command did its job and should exit 0." PersistentPreRunE
+// returns this instead of calling os.Exit(0), which would bypass every
+// `defer` in the call stack (including the open store) and make the path
+// untestable from root_test.go.
+var errQuotaPrinted = errors.New("quota printed; clean exit")
 
 type rootFlags struct {
 	asJSON        bool
@@ -68,6 +76,12 @@ func Execute() error {
 	rootCmd := newRootCmd(&flags)
 
 	err := rootCmd.Execute()
+	// errQuotaPrinted is the sentinel PersistentPreRunE returns after handling
+	// --quota / --quota-only. Treat as success — the side effect (quota line on
+	// stdout) is the command's output.
+	if errors.Is(err, errQuotaPrinted) {
+		return nil
+	}
 	if err != nil && strings.Contains(err.Error(), "unknown flag") {
 		msg := err.Error()
 		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
@@ -200,6 +214,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		// PATCH: short-circuit local quota reads before any API command logic.
+		// Return errQuotaPrinted (sentinel) instead of os.Exit(0) so the deferred
+		// s.Close() runs and so root_test.go can drive --quota.
 		if quotaPrintOnly || quotaPrintOnlyJSON {
 			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
 			if err != nil {
@@ -217,7 +233,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 			} else {
 				fmt.Fprintln(cmd.OutOrStdout(), cliutil.FormatQuotaLine(q))
 			}
-			os.Exit(0)
+			cmd.SilenceUsage = true
+			cmd.SilenceErrors = true
+			return errQuotaPrinted
 		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
@@ -342,21 +360,22 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
-	// PATCH: wire lookup_log writes for cache hits and live API calls.
+	// PATCH: wire lookup_log writes for cache hits and live API calls. Open
+	// the store ONCE here and capture the handle in the hook closure so a
+	// large batch (`types batch`, `crawl issuer`, `users collections hydrate`)
+	// doesn't pay per-call open+migrate+close overhead serialized through the
+	// migration lock. The OS reaps the connection on process exit — same
+	// lifecycle pattern as pcgs-pp-cli's makeLookupLogHook.
 	if !f.dryRun {
-		c.SetLogHook(makeLookupLogHook())
+		if s, err := store.OpenWithContext(context.Background(), defaultDBPath("numista-pp-cli")); err == nil {
+			c.SetLogHook(makeLookupLogHook(s))
+		}
 	}
 	return c, nil
 }
 
-func makeLookupLogHook() func(client.LookupEvent) {
+func makeLookupLogHook(s *store.Store) func(client.LookupEvent) {
 	return func(e client.LookupEvent) {
-		s, err := store.OpenWithContext(context.Background(), defaultDBPath("numista-pp-cli"))
-		if err != nil {
-			return
-		}
-		defer s.Close()
-
 		var typeID int64
 		if e.Params != nil {
 			if v := e.Params["type_id"]; v != "" {
