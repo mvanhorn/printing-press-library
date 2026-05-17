@@ -143,12 +143,14 @@ func parseBulkDeleteWhere(where string) ([]string, []any, error) {
 			binds = append(binds, v)
 		case strings.HasPrefix(p, "email-domain="):
 			v := strings.TrimPrefix(p, "email-domain=")
-			// Escape SQL LIKE metacharacters from user-supplied domain so
-			// values like `exa%le.com` don't widen the deletion set to
-			// every contact whose email contains `exa…le.com` as a
-			// substring. The bound parameter still uses `%@` as the
+			// PATCH bulk-delete-like-escape-and-nil-deref: escape SQL LIKE
+			// metacharacters from user-supplied domain (Greptile P1). A
+			// value like `exa%le.com` would otherwise widen the deletion
+			// set to every contact whose email contains `exa…le.com` as
+			// a substring. The bound parameter still uses `%@` as the
 			// leading wildcard for the local-part; only the domain
-			// portion is escaped.
+			// portion is escaped, with `ESCAPE '\'` selecting the escape
+			// character SQLite uses for the metacharacters.
 			escaped := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(strings.ToLower(v))
 			clauses = append(clauses, `LOWER(json_extract(data,'$.email_address')) LIKE ? ESCAPE '\'`)
 			binds = append(binds, "%@"+escaped)
