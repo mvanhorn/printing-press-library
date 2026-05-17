@@ -401,6 +401,28 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Body:       truncateBody(respBody),
 		}
 
+		// 401 — bearer token expired or revoked. Dreo's OAuth response
+		// carries no refresh_token, so a fresh login is the only way to
+		// recover. If credentials are reachable (env or persisted config),
+		// re-mint the token in place and retry once. Without this path,
+		// every cron job / long-lived shell would hit 401 the moment the
+		// cached token aged out and the user would have to re-login by
+		// hand. The retry is bounded to one attempt to avoid spinning on
+		// genuine credential failures (those land as a hard 401 on the
+		// re-login itself, surfaced as authErr).
+		if resp.StatusCode == 401 && attempt < maxRetries && c.Config != nil && c.Config.DreoUsername != "" && c.Config.DreoPassword != "" {
+			c.Config.AccessToken = ""
+			if err := c.lazyLogin(); err == nil {
+				if h := c.Config.AuthHeader(); h != "" {
+					authHeader = h
+				}
+				fmt.Fprintf(os.Stderr, "auth expired, re-logged in (attempt %d/%d)\n", attempt+1, maxRetries)
+				lastErr = apiErr
+				continue
+			}
+			// Re-login failed — fall through to the standard 401 return.
+		}
+
 		// Rate limited - adjust adaptive limiter and retry
 		if resp.StatusCode == 429 && attempt < maxRetries {
 			c.limiter.OnRateLimit()

@@ -24,14 +24,20 @@ type Config struct {
 	ClientID      string            `toml:"client_id"`
 	ClientSecret  string            `toml:"client_secret"`
 	Path string `toml:"-"`
-	// DreoUsername and DreoPassword come from env vars (DREO_USERNAME /
-	// DREO_PASSWORD) and are exchanged for an access_token by auth login
-	// or the client's lazy-login path. toml:"-" keeps the plaintext
-	// password out of ~/.config/dreo-pp-cli/config.toml — the durable
-	// artifact at rest is the bearer token, not the credentials that
-	// minted it.
-	DreoUsername string `toml:"-"`
-	DreoPassword string `toml:"-"`
+	// DreoUsername and DreoPassword are persisted to
+	// ~/.config/dreo-pp-cli/config.toml (mode 0600) alongside the bearer
+	// access token. Dreo's OAuth response carries no refresh_token, so
+	// when the bearer expires we need the credentials available to mint
+	// a fresh one — without persistence, cron jobs and any session that
+	// loses its env vars hits 401 and the user has to interactively
+	// re-export and re-login. Same pattern as the AWS CLI's
+	// ~/.aws/credentials and Stripe CLI's config; the threat surface is
+	// at-rest disk access in $HOME, which is the standard bar for CLI
+	// credentials. The --password / --username flags are still rejected
+	// in auth login (process-table threat is a separate axis from
+	// at-rest disk).
+	DreoUsername string `toml:"username"`
+	DreoPassword string `toml:"password"`
 	Region       string `toml:"region"`
 }
 

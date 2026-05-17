@@ -113,16 +113,21 @@ export DREO_USERNAME='your-dreo-account-email'
 export DREO_PASSWORD='your-dreo-password'
 ```
 
-Then run any command. The CLI exchanges credentials for an access token on first use, caches it to `~/.config/dreo-pp-cli/config.toml`, and reuses it. On 401 (token expired or revoked), it transparently re-logs in. Region discovery (`us`/`eu`) happens automatically on first login; you can pin it with `DREO_REGION=us` to skip the discovery round-trip.
+Then run any command. The CLI exchanges credentials for an access token on first use, caches both the credentials and the bearer to `~/.config/dreo-pp-cli/config.toml` at mode `0600`, and reuses them. When the bearer expires it transparently re-logs in using the cached credentials — Dreo's OAuth flow has no refresh token, so caching the credentials is what lets cron jobs and unattended runs survive token expiry without re-exporting env vars every session. Region discovery (`us`/`eu`) happens automatically on first login; pin it with `DREO_REGION=us` to skip the round-trip.
 
-**Why no `--password` flag.** `auth login` deliberately rejects flag-supplied credentials. A `--password <secret>` invocation leaks the plaintext into `/proc/<pid>/cmdline`, `ps aux`, audit logs, and your shell history. Env vars only.
+**Why no `--password` flag.** `auth login` deliberately rejects flag-supplied credentials. A `--password <secret>` invocation leaks the plaintext into `/proc/<pid>/cmdline`, `ps aux`, audit logs, and your shell history. The process-table threat is real and separate from the at-rest disk threat — flag rejection is the right fix for one, mode-0600 file is the right fix for the other.
 
-**What's cached on disk.** Only the bearer access token, region, and timestamps land in `~/.config/dreo-pp-cli/config.toml` (mode `0600`). The plaintext password is never persisted — even if you set the env vars and the lazy-login path runs, only the token is written. To wipe the cached token: `dreo-pp-cli auth logout`.
+**What's cached on disk.** `~/.config/dreo-pp-cli/config.toml` (mode `0600`, in your home directory) contains:
+- `username` and `password` — the credentials you supplied via env vars (in plaintext, mirroring AWS CLI's `~/.aws/credentials` and Stripe CLI's config conventions)
+- `access_token` — the OAuth bearer
+- `region`, `token_expiry`, timestamps — non-sensitive metadata
+
+Treat the file as sensitive: don't commit it to a public repo, don't share it, and don't sync it to cloud-storage providers without encryption. Mode `0600` keeps it readable only by your user account. To wipe everything (credentials and token): `dreo-pp-cli auth logout`.
 
 **Useful commands:**
-- `dreo-pp-cli auth login` — explicit login (also runs lazily on first authenticated command)
-- `dreo-pp-cli auth status` — current authentication state
-- `dreo-pp-cli auth logout` — clear cached token
+- `dreo-pp-cli auth login` — explicit login (also runs lazily on first authenticated command, and automatically on 401)
+- `dreo-pp-cli auth status` — current authentication state (doesn't reveal the token or password)
+- `dreo-pp-cli auth logout` — wipe cached token and persisted credentials
 - `dreo-pp-cli doctor` — verify everything end-to-end
 
 ## Quick Start
