@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
+	"blu-ray-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -69,16 +69,38 @@ func newDriftCmd(flags *rootFlags) *cobra.Command {
 					report.ReleasesIndexed = stats.TotalRows
 				}
 			} else {
+				// PATCH: Bucket snapshots by TakenAt so the comparison uses the two
+				// most recent distinct sync timestamps. The prior implementation
+				// (`prev := snaps[:len(snaps)-1]`) excluded only the final row, so
+				// when one sync touched N sitemaps at the same TakenAt, N-1 ended up
+				// being compared against themselves and reported as unchanged. Fixes
+				// Greptile P1 on PR #634.
+				latestTime := snaps[len(snaps)-1].TakenAt
+				prevTime := ""
+				for i := len(snaps) - 1; i >= 0; i-- {
+					if snaps[i].TakenAt != latestTime {
+						prevTime = snaps[i].TakenAt
+						break
+					}
+				}
 				prev := map[string]snapshot{}
 				latest := map[string]snapshot{}
-				for _, s := range snaps[:len(snaps)-1] {
-					prev[s.SitemapName] = s
-				}
-				lastTime := snaps[len(snaps)-1].TakenAt
 				for _, s := range snaps {
-					if s.TakenAt == lastTime {
+					switch s.TakenAt {
+					case latestTime:
 						latest[s.SitemapName] = s
+					case prevTime:
+						prev[s.SitemapName] = s
 					}
+				}
+				if prevTime == "" {
+					// Every snapshot shares one TakenAt — treat as the same first-sync
+					// case rather than fabricating drift against an empty baseline.
+					report.FirstSyncComplete = true
+					if stats, err := s.CatalogStats(cmd.Context()); err == nil {
+						report.ReleasesIndexed = stats.TotalRows
+					}
+					goto renderReport
 				}
 				for name, cur := range latest {
 					old, ok := prev[name]
@@ -95,6 +117,7 @@ func newDriftCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
+		renderReport:
 			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain || (!isTerminal(cmd.OutOrStdout()) && !humanFriendly) {
 				return flags.printJSON(cmd, report)
 			}

@@ -3,12 +3,14 @@ package cli
 // PATCH: Hand-built umbrella-page edition comparison command.
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
+	"blu-ray-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 	xhtml "golang.org/x/net/html"
 )
@@ -59,7 +61,13 @@ func newEditionsCmd(flags *rootFlags) *cobra.Command {
 			if err := s.MigrateBluRayCatalog(); err != nil {
 				return err
 			}
-			_, _, _ = s.GetRelease(cmd.Context(), id)
+			// PATCH: GetRelease serves as a local-catalog existence probe. Missing
+			// rows are not fatal (the network fetch is the source of truth for
+			// editions), but database-level errors should bubble up rather than
+			// being silently swallowed. Fixes Greptile P2 on PR #634.
+			if _, _, err := s.GetRelease(cmd.Context(), id); err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return fmt.Errorf("looking up umbrella id %d in local catalog: %w", id, err)
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

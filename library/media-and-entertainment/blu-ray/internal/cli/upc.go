@@ -9,19 +9,20 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
+	"blu-ray-pp-cli/internal/cliutil"
+	"blu-ray-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
 type upcRow struct {
-	UPC          string  `json:"upc"`
-	Resolved     bool    `json:"resolved"`
-	ReleaseID    int     `json:"release_id,omitempty"`
-	Title        string  `json:"title,omitempty"`
-	Kind         string  `json:"kind,omitempty"`
-	Year         int     `json:"year,omitempty"`
-	CurrentPrice float64 `json:"current_price,omitempty"`
+	UPC               string  `json:"upc"`
+	Resolved          bool    `json:"resolved"`
+	ReleaseID         int     `json:"release_id,omitempty"`
+	Title             string  `json:"title,omitempty"`
+	Kind              string  `json:"kind,omitempty"`
+	Year              int     `json:"year,omitempty"`
+	LastObservedPrice float64 `json:"last_observed_price,omitempty"`
+	LastObservedAt    string  `json:"last_observed_at,omitempty"`
 }
 
 func newUPCCmd(flags *rootFlags) *cobra.Command {
@@ -31,7 +32,9 @@ func newUPCCmd(flags *rootFlags) *cobra.Command {
 		Short: "Resolve UPC codes from a Blu-ray.com export against the local catalog.",
 		Long: `Resolve UPC codes from a Blu-ray.com export against the local catalog.
 
-Accepts a file with one UPC per line, or comma-separated on a single line -- the shape Blu-ray.com's own export produces. Non-numeric tokens are skipped, so CSV header rows are tolerated. Full RFC-4180 CSV with quoted commas inside fields is NOT parsed.`,
+Accepts a file with one UPC per line, or comma-separated on a single line -- the shape Blu-ray.com's own export produces. Non-numeric tokens are skipped, so CSV header rows are tolerated. Full RFC-4180 CSV with quoted commas inside fields is NOT parsed.
+
+When --enrich is set, the output includes last_observed_price + last_observed_at from the local price_history table — these are the most-recent locally-recorded prices, NOT live prices. Run \"watch check\" first to refresh prices before enriching for time-sensitive workflows.`,
 		// PATCH: Add agent-copyable examples for dogfood command detection.
 		Example: strings.Trim(`
   blu-ray-pp-cli upc ./my-collection.csv --json
@@ -90,8 +93,17 @@ Accepts a file with one UPC per line, or comma-separated on a single line -- the
 						if err != nil {
 							return err
 						}
+						// PATCH: Surface the most-recent locally-recorded price as
+						// last_observed_price + last_observed_at rather than current_price,
+						// because GetPriceHistory returns rows ordered by observed_at ASC
+						// (so prices[last] is the freshest historical row, which may be
+						// days/weeks old). The field name and accompanying timestamp let
+						// callers tell whether the value is current enough for their use.
+						// Fixes Greptile P2 on PR #634.
 						if len(prices) > 0 {
-							row.CurrentPrice = prices[len(prices)-1].Price
+							last := prices[len(prices)-1]
+							row.LastObservedPrice = last.Price
+							row.LastObservedAt = last.ObservedAt
 						}
 					}
 				}
@@ -102,9 +114,9 @@ Accepts a file with one UPC per line, or comma-separated on a single line -- the
 			}
 			var table [][]string
 			for _, r := range out {
-				table = append(table, []string{r.UPC, strconv.FormatBool(r.Resolved), strconv.Itoa(r.ReleaseID), r.Title, r.Kind, strconv.Itoa(r.Year), formatPrice(r.CurrentPrice)})
+				table = append(table, []string{r.UPC, strconv.FormatBool(r.Resolved), strconv.Itoa(r.ReleaseID), r.Title, r.Kind, strconv.Itoa(r.Year), formatPrice(r.LastObservedPrice), r.LastObservedAt})
 			}
-			return flags.printTable(cmd, []string{"UPC", "RESOLVED", "ID", "TITLE", "KIND", "YEAR", "PRICE"}, table)
+			return flags.printTable(cmd, []string{"UPC", "RESOLVED", "ID", "TITLE", "KIND", "YEAR", "LAST_PRICE", "OBSERVED_AT"}, table)
 		},
 	}
 	cmd.Flags().BoolVar(&enrich, "enrich", false, "Add locally known price data for resolved releases.")

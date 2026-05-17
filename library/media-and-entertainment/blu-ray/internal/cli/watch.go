@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
+	"blu-ray-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -149,7 +149,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 		// PATCH: Add agent-copyable examples for dogfood command detection.
 		Example: strings.Trim(`
   blu-ray-pp-cli watch check --agent
-  blu-ray-pp-cli watch check --retailer amazon --limit 50
+  blu-ray-pp-cli watch check --retailer 1 --limit 50
 `, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -197,8 +197,20 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			observed := nowText()
 			var alerts []DealRow
 			persistenceErrors := 0
+			// PATCH: --retailer accepts only a numeric retailer id. Blu-ray.com's
+			// deal rows don't expose retailer names — the prior name-style match
+			// (EqualFold(Itoa(d.RetailerID), retailer)) silently dropped every row
+			// when the user typed "amazon". Fixes Greptile P1 on PR #634.
+			retailerID := 0
+			if retailer != "" {
+				parsed, parseErr := strconv.Atoi(retailer)
+				if parseErr != nil || parsed <= 0 {
+					return fmt.Errorf("--retailer must be a numeric retailer id (got %q); Blu-ray.com deal rows do not carry retailer names", retailer)
+				}
+				retailerID = parsed
+			}
 			for _, d := range deals[:limit] {
-				if retailer != "" && !strings.EqualFold(strconv.Itoa(d.RetailerID), retailer) {
+				if retailerID > 0 && d.RetailerID != retailerID {
 					continue
 				}
 				target, ok := watched[d.ReleaseID]
@@ -249,7 +261,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&retailer, "retailer", "", "Only record deals from this retailer id or name when known.")
+	cmd.Flags().StringVar(&retailer, "retailer", "", "Only record deals from this numeric retailer id (Blu-ray.com deal rows do not expose retailer names).")
 	cmd.Flags().IntVar(&limit, "limit", 100, "Maximum deal rows to scan.")
 	return cmd
 }
