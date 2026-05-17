@@ -130,26 +130,33 @@ type gisHome struct {
 	Beds       json.RawMessage `json:"beds"`
 	Baths      json.RawMessage `json:"baths"`
 	Sqft       json.RawMessage `json:"sqFt"`
+	LotSize    json.RawMessage `json:"lotSize"`
 	YearBuilt  json.RawMessage `json:"yearBuilt"`
-	HOA        json.RawMessage `json:"hoa"`
-	DOM        json.RawMessage `json:"dom"`
-	ListedAt   json.RawMessage `json:"timeOnRedfin"`
-	Photos     json.RawMessage `json:"photos"`
-	StreetLine json.RawMessage `json:"streetLine"`
-	City       json.RawMessage `json:"city"`
-	State      json.RawMessage `json:"state"`
-	PostalCode json.RawMessage `json:"postalCode"`
-	Latitude   json.RawMessage `json:"latitude"`
-	Longitude  json.RawMessage `json:"longitude"`
-	Latlong    json.RawMessage `json:"latLong"`
+	// PATCH(upstream cli-printing-press): capture uiPropertyType from the
+	// gis response so filterListings can enforce --type client-side. Same
+	// class of bug as min_price / max_price: Stingray accepts `uipt=1` in
+	// the query but the response still includes land/lot rows. The CLI's
+	// --type flag was silently advisory until this field was parsed.
+	UIPropertyType json.RawMessage `json:"uiPropertyType"`
+	HOA            json.RawMessage `json:"hoa"`
+	DOM            json.RawMessage `json:"dom"`
+	ListedAt       json.RawMessage `json:"timeOnRedfin"`
+	Photos         json.RawMessage `json:"photos"`
+	StreetLine     json.RawMessage `json:"streetLine"`
+	City           json.RawMessage `json:"city"`
+	State          json.RawMessage `json:"state"`
+	PostalCode     json.RawMessage `json:"postalCode"`
+	Latitude       json.RawMessage `json:"latitude"`
+	Longitude      json.RawMessage `json:"longitude"`
+	Latlong        json.RawMessage `json:"latLong"`
 }
 
 // ParseSearchResponse decodes a /stingray/api/gis response (after prefix
 // strip) into a slice of Listings. Each home in payload.homes[] becomes a
 // Listing populated with the gis-endpoint fields (URL, PropertyID, MLS,
-// Status, Address, Price, Beds, Baths, Sqft, YearBuilt, HOA, DOM, ListedAt,
-// Photos[0:1]). Missing fields stay zero-valued; the caller can compose the
-// detail endpoints to fill them in.
+// Status, Address, Price, Beds, Baths, Sqft, LotSize, YearBuilt, HOA, DOM,
+// ListedAt, Photos[0:1]). Missing fields stay zero-valued; the caller can
+// compose the detail endpoints to fill them in.
 func ParseSearchResponse(data []byte) ([]Listing, error) {
 	data = StripStingrayPrefix(data)
 	var env stingrayEnvelope
@@ -175,19 +182,21 @@ func ParseSearchResponse(data []byte) ([]Listing, error) {
 	out := make([]Listing, 0, len(payload.Homes))
 	for _, h := range payload.Homes {
 		l := Listing{
-			URL:        valueOrString(h.URL),
-			PropertyID: h.PropertyID,
-			ListingID:  h.ListingID,
-			MLS:        valueOrString(h.MLS),
-			Status:     normalizeStatus(valueOrString(h.MLSStatus)),
-			Price:      valueOrInt(h.Price),
-			Beds:       valueOrFloat(h.Beds),
-			Baths:      valueOrFloat(h.Baths),
-			Sqft:       valueOrInt(h.Sqft),
-			YearBuilt:  valueOrInt(h.YearBuilt),
-			HOA:        valueOrInt(h.HOA),
-			DOM:        valueOrInt(h.DOM),
-			ListedAt:   valueOrString(h.ListedAt),
+			URL:            valueOrString(h.URL),
+			PropertyID:     h.PropertyID,
+			ListingID:      h.ListingID,
+			MLS:            valueOrString(h.MLS),
+			Status:         normalizeStatus(valueOrString(h.MLSStatus)),
+			Price:          valueOrInt(h.Price),
+			Beds:           valueOrFloat(h.Beds),
+			Baths:          valueOrFloat(h.Baths),
+			Sqft:           valueOrInt(h.Sqft),
+			LotSize:        valueOrInt(h.LotSize),
+			YearBuilt:      valueOrInt(h.YearBuilt),
+			UIPropertyType: valueOrInt(h.UIPropertyType),
+			HOA:            valueOrInt(h.HOA),
+			DOM:            valueOrInt(h.DOM),
+			ListedAt:       valueOrString(h.ListedAt),
 		}
 		l.Address = Address{
 			Street:     valueOrString(h.StreetLine),

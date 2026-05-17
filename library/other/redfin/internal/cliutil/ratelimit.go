@@ -131,7 +131,18 @@ func RetryAfter(resp *http.Response) time.Duration {
 	if header == "" {
 		return 5 * time.Second
 	}
-	if seconds, err := strconv.Atoi(header); err == nil {
+	if seconds, err := strconv.ParseInt(header, 10, 64); err == nil {
+		// PATCH(upstream cli-printing-press): Some upstreams send Unix epoch
+		// seconds/milliseconds in Retry-After despite RFC 7231 only defining
+		// delta-seconds or HTTP-date. The generated tests already cover this
+		// compatibility path; parse future epochs before treating small
+		// integers as delta seconds.
+		switch {
+		case seconds >= 1_000_000_000_000:
+			return boundedRetryWait(time.Until(time.UnixMilli(seconds)))
+		case seconds >= 1_000_000_000:
+			return boundedRetryWait(time.Until(time.Unix(seconds, 0)))
+		}
 		d := time.Duration(seconds) * time.Second
 		if d > MaxRetryWait {
 			return MaxRetryWait
@@ -151,6 +162,16 @@ func RetryAfter(resp *http.Response) time.Duration {
 		}
 	}
 	return 5 * time.Second
+}
+
+func boundedRetryWait(wait time.Duration) time.Duration {
+	if wait > MaxRetryWait {
+		return MaxRetryWait
+	}
+	if wait <= 0 {
+		return 5 * time.Second
+	}
+	return wait
 }
 
 // MaxBackoff caps Backoff so tests stay bounded. Callers needing jitter

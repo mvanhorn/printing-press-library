@@ -279,12 +279,11 @@ Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate
 
 ## Freshness
 
-This CLI owns bounded freshness for registered store-backed read command paths. In `--data-source auto` mode, covered commands check the local SQLite store before serving results; stale or missing resources trigger a bounded refresh, and refresh failures fall back to the existing local data with a warning. `--data-source local` never refreshes, and `--data-source live` reads the API without mutating the local store.
+This CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, covered commands check the local SQLite store before serving results; stale or missing resources trigger a bounded refresh, and refresh failures fall back to the existing local data with a warning. `--data-source local` never refreshes, and `--data-source live` reads the API without mutating the local store.
 
 Set `REDFIN_NO_AUTO_REFRESH=1` to disable the pre-read freshness hook while preserving the selected data source.
 
-Covered command paths:
-- `redfin-pp-cli homes`
+Covered command paths: none. `homes` is a live per-call search; the local store is populated by `sync-search` / `watch` only.
 
 JSON outputs that use the generated provenance envelope include freshness metadata at `meta.freshness`. This metadata describes the freshness decision for the covered command path; it does not claim full historical backfill or API-specific enrichment.
 
