@@ -176,14 +176,14 @@ func TestBluRayCatalogDomainMethods(t *testing.T) {
 				if err := s.RecordPrice(ctx, PriceObservation{ReleaseID: 20, RetailerID: 2, ObservedAt: "2026-01-02T00:00:00Z", Price: 17.99}); err != nil {
 					t.Fatalf("record price 2: %v", err)
 				}
-				rows, err := s.GetPriceHistory(ctx, 20, "2")
+				rows, err := s.GetPriceHistory(ctx, 20, 2)
 				if err != nil {
 					t.Fatalf("history: %v", err)
 				}
 				if len(rows) != 1 || rows[0].RetailerID != 2 {
 					t.Fatalf("history rows = %#v", rows)
 				}
-				rows, err = s.GetPriceHistory(ctx, 404, "")
+				rows, err = s.GetPriceHistory(ctx, 404, 0)
 				if err != nil || len(rows) != 0 {
 					t.Fatalf("missing history rows = %#v err=%v", rows, err)
 				}
@@ -219,7 +219,7 @@ func TestBluRayCatalogDomainMethodsMissingSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
-	_, err = s.GetPriceHistory(context.Background(), 1, "")
+	_, err = s.GetPriceHistory(context.Background(), 1, 0)
 	if err == nil || err == sql.ErrNoRows {
 		t.Fatalf("missing schema err = %v, want table error", err)
 	}

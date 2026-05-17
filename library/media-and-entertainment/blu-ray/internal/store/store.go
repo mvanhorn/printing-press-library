@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -511,14 +510,18 @@ func (s *Store) RecordPrice(ctx context.Context, p PriceObservation) error {
 	return err
 }
 
-func (s *Store) GetPriceHistory(ctx context.Context, releaseID int, retailerName string) ([]PriceObservation, error) {
+// PATCH: GetPriceHistory takes a numeric retailerID. Pass 0 to skip the
+// retailer filter. The prior signature accepted a free-form string and
+// silently dropped the filter when strconv.Atoi failed, which meant
+// `history 9929 --retailer amazon` returned every retailer's history with no
+// warning. Forcing the caller to parse moves the failure to the command
+// boundary where it becomes an actionable error. Fixes Greptile P1 on PR #634.
+func (s *Store) GetPriceHistory(ctx context.Context, releaseID int, retailerID int) ([]PriceObservation, error) {
 	query := `SELECT release_id, retailer_id, observed_at, price FROM price_history WHERE release_id=?`
 	args := []any{releaseID}
-	if retailerName != "" {
-		if retailerID, err := strconv.Atoi(retailerName); err == nil {
-			query += ` AND retailer_id=?`
-			args = append(args, retailerID)
-		}
+	if retailerID > 0 {
+		query += ` AND retailer_id=?`
+		args = append(args, retailerID)
 	}
 	query += ` ORDER BY observed_at`
 	rows, err := s.db.QueryContext(ctx, query, args...)

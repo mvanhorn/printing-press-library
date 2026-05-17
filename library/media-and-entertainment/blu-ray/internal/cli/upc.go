@@ -89,7 +89,7 @@ When --enrich is set, the output includes last_observed_price + last_observed_at
 						row.Year = catalogRow.YearHint
 					}
 					if enrich {
-						prices, err := s.GetPriceHistory(cmd.Context(), row.ReleaseID, "")
+						prices, err := s.GetPriceHistory(cmd.Context(), row.ReleaseID, 0)
 						if err != nil {
 							return err
 						}

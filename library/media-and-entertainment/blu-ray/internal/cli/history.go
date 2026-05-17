@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/internal/store"
+	"blu-ray-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 		// PATCH: Add agent-copyable examples for dogfood command detection.
 		Example: strings.Trim(`
   blu-ray-pp-cli history 9929 --json
-  blu-ray-pp-cli history 9929 --retailer amazon --plot
+  blu-ray-pp-cli history 9929 --retailer 1 --plot
 `, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -41,6 +41,19 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(fmt.Errorf("release-id must be numeric"))
 			}
+			// PATCH: --retailer accepts only a numeric retailer id. The prior
+			// implementation passed the raw string to GetPriceHistory, which
+			// silently dropped the filter when strconv.Atoi failed — so the
+			// bundled example `--retailer amazon` returned every retailer's
+			// history without warning. Fixes Greptile P1 on PR #634.
+			retailerID := 0
+			if retailer != "" {
+				parsed, parseErr := strconv.Atoi(retailer)
+				if parseErr != nil || parsed <= 0 {
+					return fmt.Errorf("--retailer must be a numeric retailer id (got %q); Blu-ray.com price-history rows are keyed by numeric retailer id", retailer)
+				}
+				retailerID = parsed
+			}
 			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("blu-ray-pp-cli"))
 			if err != nil {
 				return err
@@ -49,7 +62,7 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 			if err := s.MigrateBluRayCatalog(); err != nil {
 				return err
 			}
-			observations, err := s.GetPriceHistory(cmd.Context(), id, retailer)
+			observations, err := s.GetPriceHistory(cmd.Context(), id, retailerID)
 			if err != nil {
 				return err
 			}
@@ -74,7 +87,7 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 			return flags.printTable(cmd, []string{"ID", "RETAILER", "OBSERVED", "PRICE"}, table)
 		},
 	}
-	cmd.Flags().StringVar(&retailer, "retailer", "", "Retailer id to filter price observations.")
+	cmd.Flags().StringVar(&retailer, "retailer", "", "Numeric retailer id to filter price observations (Blu-ray.com price-history rows are keyed by retailer id, not name).")
 	cmd.Flags().BoolVar(&plot, "plot", false, "Render a 60-character ASCII spark plot before the table.")
 	return cmd
 }
