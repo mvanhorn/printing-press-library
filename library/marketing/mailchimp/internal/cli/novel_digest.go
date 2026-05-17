@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -258,9 +259,10 @@ type digestRollupEntry struct {
 }
 
 type digestRollup struct {
-	Window      int                 `json:"window"`
-	Campaigns   []digestRollupEntry `json:"campaigns"`
-	Totals      digestRollupTotals  `json:"totals"`
+	Window        int                 `json:"window"`
+	Campaigns     []digestRollupEntry `json:"campaigns"`
+	Totals        digestRollupTotals  `json:"totals"`
+	FetchFailures []string            `json:"fetch_failures,omitempty"`
 }
 
 type digestRollupTotals struct {
@@ -432,17 +434,37 @@ the rollup is what a founder pastes into a Monday "what shipped last week" doc.
 
 			rollup := digestRollup{Window: last}
 			ordered := make([]digestRollupEntry, len(campaigns))
+			fetchErrors := make([]bool, len(campaigns))
+			var failedIDs []string
 			for r := range results {
 				ordered[r.idx] = r.entry
+				if r.err != nil {
+					fetchErrors[r.idx] = true
+					if r.entry.CampaignID != "" {
+						failedIDs = append(failedIDs, r.entry.CampaignID)
+					}
+				}
 			}
-			// Filter empty (zero-id) entries and compute totals
+			// Compute totals + averages over successfully fetched entries only.
+			// Including failed fetches (which have all-zero metrics) would
+			// silently dilute AvgOpenRate/AvgClickRate with phantom zeros —
+			// a rollup of 10 campaigns where one fetch transiently 5xx'd
+			// would under-report engagement rates compared to the 9
+			// successful campaigns. Failed campaigns still appear in
+			// rollup.Campaigns (with a fetch_failed marker) so the user
+			// can see the gap, but they don't pollute the averages.
 			var totalOpen, totalClick float64
 			var n int
-			for _, e := range ordered {
+			for i, e := range ordered {
 				if e.CampaignID == "" {
 					continue
 				}
 				rollup.Campaigns = append(rollup.Campaigns, e)
+				if fetchErrors[i] {
+					// Don't count toward totals/averages — but keep the row
+					// so the user sees that this campaign was attempted.
+					continue
+				}
 				rollup.Totals.EmailsSent += e.EmailsSent
 				rollup.Totals.TotalRevenue += e.Revenue
 				rollup.Totals.Unsubscribed += e.Unsubscribed
@@ -453,6 +475,11 @@ the rollup is what a founder pastes into a Monday "what shipped last week" doc.
 			if n > 0 {
 				rollup.Totals.AvgOpenRate = totalOpen / float64(n)
 				rollup.Totals.AvgClickRate = totalClick / float64(n)
+			}
+			if len(failedIDs) > 0 {
+				rollup.FetchFailures = failedIDs
+				fmt.Fprintf(os.Stderr, "warning: %d of %d report fetches failed; averages computed over the remaining %d campaigns.\n",
+					len(failedIDs), len(campaigns), n)
 			}
 
 			if md {
