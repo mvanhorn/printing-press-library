@@ -11,7 +11,6 @@
       "files": [
         "internal/store/store.go",
         "internal/cli/root.go",
-        "internal/cli/sync.go",
         "internal/cli/sync_bluray.go",
         "internal/cli/channel_workflow.go",
         "internal/cli/bluray_helpers.go",
