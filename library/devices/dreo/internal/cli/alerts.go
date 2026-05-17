@@ -30,7 +30,11 @@ devices crossing any of these thresholds:
 
 Also surfaces water-tank-empty (humidifier "wrong" == "Empty").
 
-Acts entirely on cached data; run 'dreo-pp-cli devices state' to refresh first.`,
+Acts entirely on cached data. To refresh the state snapshots that this
+command reads, run 'dreo-pp-cli sensors --live' first — that path
+iterates every device, calls /api/user-device/device/state, and writes
+the flattened result to the local store. ('dreo-pp-cli devices state'
+prints the raw API response but does NOT update the cache.)`,
 		Example: `  dreo-pp-cli alerts
   dreo-pp-cli alerts --pm25-above 35 --filter-below 20 --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},

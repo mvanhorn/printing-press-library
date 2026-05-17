@@ -100,7 +100,19 @@ func newSceneSaveCmd(rflags *rootFlags) *cobra.Command {
 				snapshots[d.Sn] = extractSceneFields(m)
 			}
 			if len(snapshots) == 0 {
-				return notFoundErr(errors.New("no cached device_state to snapshot; run `dreo-pp-cli devices state --device-sn <sn>` first"))
+				return notFoundErr(errors.New("no cached device_state to snapshot; run `dreo-pp-cli sensors --live` first to populate the state cache"))
+			}
+			// Partial captures are a real correctness hazard: silently
+			// dropping unsynced devices means a later `scene apply` only
+			// controls a subset of the matched filter and the user has no
+			// way to tell. Warn (stderr) when this happens, name the
+			// command that refreshes the cache, and surface the dropped
+			// count in JSON output too.
+			skipped := len(matched) - len(snapshots)
+			if skipped > 0 {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: %d/%d matched device(s) had no cached state and were omitted from scene %q (run `dreo-pp-cli sensors --live` to refresh, then retry)\n",
+					skipped, len(matched), name)
 			}
 			if skipped := len(matched) - len(snapshots); skipped > 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d/%d matched device(s) had no cached state and were omitted from the scene (run `dreo-pp-cli devices state` to refresh)\n", skipped, len(matched))
@@ -109,10 +121,15 @@ func newSceneSaveCmd(rflags *rootFlags) *cobra.Command {
 				return err
 			}
 			if rflags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				out := map[string]any{
 					"saved":   name,
 					"devices": len(snapshots),
-				}, rflags)
+				}
+				if skipped > 0 {
+					out["matched"] = len(matched)
+					out["skipped_uncached"] = skipped
+				}
+				return printJSONFiltered(cmd.OutOrStdout(), out, rflags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Saved scene %q with %d devices.\n", name, len(snapshots))
 			return nil

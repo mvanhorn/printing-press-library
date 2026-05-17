@@ -218,7 +218,12 @@ func listCachedOrFetch(ctx context.Context, flags *rootFlags, forceLive bool) ([
 // The state response wraps fields in a `mixed` sub-object (Dreo's packaging quirk);
 // flattenState pulls those up so callers see a flat state map.
 func fetchDeviceState(ctx context.Context, flags *rootFlags, c *client.Client, sn string) (map[string]any, error) {
-	raw, err := c.Get("/api/user-device/device/state", map[string]string{"deviceSn": sn})
+	// GetNoCache bypasses the 5-minute on-disk HTTP cache so the
+	// `--live` paths in sensors/alerts actually hit the API on every
+	// invocation. Going through c.Get would let a 4-minute-old cached
+	// response satisfy --live silently, which contradicts the flag's
+	// documented "fetch fresh state for every device" contract.
+	raw, err := c.GetNoCache("/api/user-device/device/state", map[string]string{"deviceSn": sn})
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
