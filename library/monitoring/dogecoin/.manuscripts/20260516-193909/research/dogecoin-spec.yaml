@@ -1,0 +1,195 @@
+name: dogecoin
+description: "Dogecoin Core node CLI — mining monitoring, chain state, peer health, and historical trending"
+version: "0.1.0"
+base_url: "http://10.10.20.7:8332"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/dogecoin-pp-cli/config.toml"
+  fields:
+    - name: rpc_url
+      description: "Dogecoin Core RPC endpoint"
+      default: "http://10.10.20.7:8332"
+    - name: rpc_user
+      description: "RPC username"
+      env_var: DOGECOIN_RPC_USER
+    - name: rpc_pass
+      description: "RPC password"
+      env_var: DOGECOIN_RPC_PASS
+    - name: min_peers
+      description: "Minimum peer count before health alert (exit 3)"
+      default: "8"
+
+resources:
+  blockchain:
+    description: "Blockchain state — height, difficulty, sync status"
+    endpoints:
+      info:
+        method: POST
+        path: "/"
+        description: "Get blockchain state (height, difficulty, sync progress)"
+        rpc_method: getblockchaininfo
+        response:
+          type: object
+          item: BlockchainInfo
+
+      count:
+        method: POST
+        path: "/"
+        description: "Get current block height"
+        rpc_method: getblockcount
+        response:
+          type: object
+          item: BlockCount
+
+      hash:
+        method: POST
+        path: "/"
+        description: "Get block hash at height"
+        rpc_method: getblockhash
+        params:
+          - name: height
+            type: int
+            required: true
+            positional: true
+            description: "Block height"
+        response:
+          type: object
+          item: BlockHash
+
+      get:
+        method: POST
+        path: "/"
+        description: "Get block data by hash"
+        rpc_method: getblock
+        params:
+          - name: hash
+            type: string
+            required: true
+            positional: true
+            description: "Block hash"
+          - name: verbose
+            type: int
+            description: "Verbosity level (0=hex, 1=json, 2=json+tx)"
+        response:
+          type: object
+          item: Block
+
+  mining:
+    description: "Mining metrics — hashrate, difficulty, pool status"
+    endpoints:
+      info:
+        method: POST
+        path: "/"
+        description: "Get mining info (difficulty, hashrate, mempool)"
+        rpc_method: getmininginfo
+        response:
+          type: object
+          item: MiningInfo
+
+      networkhashps:
+        method: POST
+        path: "/"
+        description: "Get network hash rate in H/s"
+        rpc_method: getnetworkhashps
+        params:
+          - name: blocks
+            type: int
+            description: "Blocks to average over (default 120)"
+          - name: height
+            type: int
+            description: "Chain height (-1 = current)"
+        response:
+          type: object
+          item: NetworkHashPS
+
+  network:
+    description: "Node network status — peers, connections, version"
+    endpoints:
+      info:
+        method: POST
+        path: "/"
+        description: "Get network info (version, peers, services)"
+        rpc_method: getnetworkinfo
+        response:
+          type: object
+          item: NetworkInfo
+
+      peers:
+        method: POST
+        path: "/"
+        description: "Get detailed peer connection info"
+        rpc_method: getpeerinfo
+        response:
+          type: array
+          item: PeerInfo
+
+  wallet:
+    description: "Wallet state — balance, transactions"
+    endpoints:
+      info:
+        method: POST
+        path: "/"
+        description: "Get wallet summary (balance, unconfirmed, immature)"
+        rpc_method: getwalletinfo
+        response:
+          type: object
+          item: WalletInfo
+
+      transactions:
+        method: POST
+        path: "/"
+        description: "List recent wallet transactions"
+        rpc_method: listtransactions
+        params:
+          - name: count
+            type: int
+            description: "Number of transactions to return (default 10)"
+          - name: skip
+            type: int
+            description: "Transactions to skip"
+        response:
+          type: array
+          item: Transaction
+
+  mempool:
+    description: "Memory pool state — pending transactions and fee estimates"
+    endpoints:
+      info:
+        method: POST
+        path: "/"
+        description: "Get mempool statistics (size, bytes)"
+        rpc_method: getmempoolinfo
+        response:
+          type: object
+          item: MempoolInfo
+
+      fees:
+        method: POST
+        path: "/"
+        description: "Estimate fee per KB for target confirmation blocks"
+        rpc_method: estimatefee
+        params:
+          - name: blocks
+            type: int
+            required: true
+            positional: true
+            description: "Target confirmation blocks"
+        response:
+          type: object
+          item: FeeEstimate
+
+  node:
+    description: "Node management — uptime, diagnostics"
+    endpoints:
+      uptime:
+        method: POST
+        path: "/"
+        description: "Get node uptime in seconds"
+        rpc_method: uptime
+        response:
+          type: object
+          item: Uptime

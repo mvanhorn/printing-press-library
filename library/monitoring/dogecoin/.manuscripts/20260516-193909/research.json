@@ -1,0 +1,245 @@
+{
+  "api_name": "dogecoin",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "dogecoin-node-monitor",
+      "url": "https://github.com/Hippoish24/dogecoin-node-monitor",
+      "language": "Other",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-bitcoin-core-rpc",
+      "url": "https://github.com/stevenroose/go-bitcoin-core-rpc",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T19:39:09Z",
+  "novel_features": [
+    {
+      "name": "Mining Stats Compound",
+      "command": "mining stats",
+      "description": "One command returns hashrate + difficulty + network hashrate + block height — formatted for n8n shell nodes, XEMD widgets, and agent consumption.",
+      "rationale": "No existing Dogecoin tool combines these into a single scriptable command with typed exit codes and --compact output.",
+      "example": "dogecoin-pp-cli mining stats --compact --json",
+      "why_it_matters": "Use when an n8n workflow needs a single snapshot of mining health without chaining multiple RPC calls.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Peer Health Check",
+      "command": "peers health",
+      "description": "Checks connected peer count and exits 0 (healthy) or 3 (below threshold) — n8n shell nodes branch on this exit code.",
+      "rationale": "Typed exit codes for n8n branching require machine-readable pass/fail signals; no existing tool does this.",
+      "example": "dogecoin-pp-cli peers health --min-peers 8",
+      "why_it_matters": "Use in n8n shell nodes to trigger peer-drop alerts without writing custom scripts.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Blocks Found Window",
+      "command": "blocks found",
+      "description": "Detects if blocks were mined in a time window (--since 7d). Exit 0=found, exit 2=none found.",
+      "rationale": "Block window detection with typed exit codes is not available in any existing Dogecoin monitoring tool.",
+      "example": "dogecoin-pp-cli blocks found --since 7d",
+      "why_it_matters": "Use in n8n to alert when no blocks have been found in the expected window — indicates mining pool issue.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Hashrate History Trend",
+      "command": "mining history",
+      "description": "Queries SQLite for historical hashrate over a time window — powers XEMD dashboard trend charts.",
+      "rationale": "Requires local SQLite time-series populated by sync; no existing Dogecoin tool stores and queries historical hashrate.",
+      "example": "dogecoin-pp-cli mining history --since 30d --json",
+      "why_it_matters": "Use when an agent or dashboard needs hashrate trends, not just current snapshot.",
+      "group": "historical trending"
+    },
+    {
+      "name": "Difficulty Trend Alert",
+      "command": "difficulty trend",
+      "description": "Detects difficulty spikes or drops from SQLite history. Exit 0=stable, exit 5=significant change detected.",
+      "rationale": "Requires comparing multiple historical snapshots in local SQLite; no single RPC call provides this.",
+      "example": "dogecoin-pp-cli difficulty trend --days 7 --threshold 20",
+      "why_it_matters": "Use to proactively alert when mining difficulty changes significantly, indicating network events.",
+      "group": "historical trending"
+    },
+    {
+      "name": "Mempool Status Compound",
+      "command": "mempool status",
+      "description": "Combines getmempoolinfo + estimatefee with human-readable fee tier labels (low/medium/high DOGE/KB).",
+      "rationale": "Combines two RPC calls into a single monitoring-friendly view with fee tier context.",
+      "example": "dogecoin-pp-cli mempool status --json",
+      "why_it_matters": "Use when planning coinbase transactions or monitoring network congestion.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Node Doctor",
+      "command": "doctor",
+      "description": "Version obsolescence check, auth validation, peer count, sync progress, and uptime in one command. Emits warning when node version is obsolete (\u003c 1.14.0).",
+      "rationale": "Combines multiple RPC calls into a single diagnostic view with version threshold checking.",
+      "example": "dogecoin-pp-cli doctor --json",
+      "why_it_matters": "Use for homelab monitoring; the version warning surfaces the upgrade requirement that the raw node surfaces only in errors fields.",
+      "group": "node health"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mining Stats Compound",
+      "command": "mining stats",
+      "description": "One command returns hashrate + difficulty + network hashrate + block height — formatted for n8n shell nodes, XEMD widgets, and agent consumption.",
+      "rationale": "No existing Dogecoin tool combines these into a single scriptable command with typed exit codes and --compact output.",
+      "example": "dogecoin-pp-cli mining stats --compact --json",
+      "why_it_matters": "Use when an n8n workflow needs a single snapshot of mining health without chaining multiple RPC calls.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Peer Health Check",
+      "command": "peers health",
+      "description": "Checks connected peer count and exits 0 (healthy) or 3 (below threshold) — n8n shell nodes branch on this exit code.",
+      "rationale": "Typed exit codes for n8n branching require machine-readable pass/fail signals; no existing tool does this.",
+      "example": "dogecoin-pp-cli peers health --min-peers 8",
+      "why_it_matters": "Use in n8n shell nodes to trigger peer-drop alerts without writing custom scripts.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Blocks Found Window",
+      "command": "blocks found",
+      "description": "Detects if blocks were mined in a time window (--since 7d). Exit 0=found, exit 2=none found.",
+      "rationale": "Block window detection with typed exit codes is not available in any existing Dogecoin monitoring tool.",
+      "example": "dogecoin-pp-cli blocks found --since 7d",
+      "why_it_matters": "Use in n8n to alert when no blocks have been found in the expected window — indicates mining pool issue.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Hashrate History Trend",
+      "command": "mining history",
+      "description": "Queries SQLite for historical hashrate over a time window — powers XEMD dashboard trend charts.",
+      "rationale": "Requires local SQLite time-series populated by sync; no existing Dogecoin tool stores and queries historical hashrate.",
+      "example": "dogecoin-pp-cli mining history --since 30d --json",
+      "why_it_matters": "Use when an agent or dashboard needs hashrate trends, not just current snapshot.",
+      "group": "historical trending"
+    },
+    {
+      "name": "Difficulty Trend Alert",
+      "command": "difficulty trend",
+      "description": "Detects difficulty spikes or drops from SQLite history. Exit 0=stable, exit 5=significant change detected.",
+      "rationale": "Requires comparing multiple historical snapshots in local SQLite; no single RPC call provides this.",
+      "example": "dogecoin-pp-cli difficulty trend --days 7 --threshold 20",
+      "why_it_matters": "Use to proactively alert when mining difficulty changes significantly, indicating network events.",
+      "group": "historical trending"
+    },
+    {
+      "name": "Mempool Status Compound",
+      "command": "mempool status",
+      "description": "Combines getmempoolinfo + estimatefee with human-readable fee tier labels (low/medium/high DOGE/KB).",
+      "rationale": "Combines two RPC calls into a single monitoring-friendly view with fee tier context.",
+      "example": "dogecoin-pp-cli mempool status --json",
+      "why_it_matters": "Use when planning coinbase transactions or monitoring network congestion.",
+      "group": "n8n integration"
+    },
+    {
+      "name": "Node Doctor",
+      "command": "doctor",
+      "description": "Version obsolescence check, auth validation, peer count, sync progress, and uptime in one command. Emits warning when node version is obsolete (\u003c 1.14.0).",
+      "rationale": "Combines multiple RPC calls into a single diagnostic view with version threshold checking.",
+      "example": "dogecoin-pp-cli doctor --json",
+      "why_it_matters": "Use for homelab monitoring; the version warning surfaces the upgrade requirement that the raw node surfaces only in errors fields.",
+      "group": "node health"
+    }
+  ],
+  "narrative": {
+    "display_name": "Dogecoin Core",
+    "headline": "Monitor your Dogecoin node with typed exit codes, SQLite trending, and native MCP — everything bitcoin-cli lacks for automation.",
+    "value_prop": "dogecoin-pp-cli wraps your Dogecoin Core JSON-RPC node in a monitoring-first CLI built for n8n workflows. Typed exit codes let shell nodes branch on peer health and block discovery. SQLite sync enables 30-day hashrate trends for dashboard widgets. Every command is agent-native via Homelab MCP.",
+    "auth_narrative": "Set DOGECOIN_RPC_USER and DOGECOIN_RPC_PASS, or configure rpc_url/rpc_user/rpc_pass in ~/.config/dogecoin-pp-cli/config.toml. The node must accept HTTP Basic auth (configured via dogecoin.conf: rpcallowip, rpcuser, rpcpassword).",
+    "quickstart": [
+      {
+        "command": "dogecoin-pp-cli doctor",
+        "comment": "Check node health and version status first"
+      },
+      {
+        "command": "dogecoin-pp-cli mining stats --compact --json",
+        "comment": "Snapshot for n8n or dashboard"
+      },
+      {
+        "command": "dogecoin-pp-cli peers health",
+        "comment": "Exit 0=healthy, exit 3=low peers"
+      },
+      {
+        "command": "dogecoin-pp-cli sync",
+        "comment": "Populate SQLite for historical queries"
+      },
+      {
+        "command": "dogecoin-pp-cli mining history --since 30d --json",
+        "comment": "30-day hashrate trend for XEMD widget"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "connection refused on 8332",
+        "fix": "Verify rpcallowip includes your client IP in dogecoin.conf"
+      },
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Check DOGECOIN_RPC_USER / DOGECOIN_RPC_PASS match dogecoin.conf rpcuser/rpcpassword"
+      },
+      {
+        "symptom": "doctor shows version warning",
+        "fix": "Node is running Dogecoin Core \u003c 1.14.0; upgrade recommended but not required for monitoring"
+      },
+      {
+        "symptom": "peers health exits 3",
+        "fix": "Node has fewer peers than --min-peers threshold; check Docker network / port exposure"
+      }
+    ],
+    "when_to_use": "Use dogecoin-pp-cli when n8n workflows need to branch on node state (peer health, block found, hashrate drop). Use when Homelab MCP sessions need to query mining state without writing custom scripts. Use when XEMD or Obsidian dashboards need historical trending that a single RPC call cannot provide.",
+    "recipes": [
+      {
+        "title": "Daily mining stats to Obsidian via n8n",
+        "command": "dogecoin-pp-cli mining stats --compact --json",
+        "explanation": "Output feeds directly into n8n's JSON node for Obsidian note creation"
+      },
+      {
+        "title": "Peer health gate in n8n",
+        "command": "dogecoin-pp-cli peers health --min-peers 6",
+        "explanation": "Exit 3 triggers the error branch; exit 0 continues the workflow"
+      },
+      {
+        "title": "Block found alert",
+        "command": "dogecoin-pp-cli blocks found --since 24h",
+        "explanation": "Exit 2 means no blocks in 24h — trigger alert workflow"
+      },
+      {
+        "title": "30-day hashrate trend with field selection",
+        "command": "dogecoin-pp-cli mining history --since 30d --json --select timestamp,hashrate_net_ths",
+        "explanation": "Narrow output for XEMD dashboard widget ingestion"
+      },
+      {
+        "title": "Full node health report for Claude",
+        "command": "dogecoin-pp-cli doctor --json",
+        "explanation": "Agent-readable JSON covering version, peers, sync, uptime, and wallet balance"
+      }
+    ],
+    "trigger_phrases": [
+      "check dogecoin node",
+      "mining stats dogecoin",
+      "peer health dogecoin",
+      "blocks found this week",
+      "hashrate history",
+      "use dogecoin-pp-cli",
+      "dogecoin node status"
+    ]
+  }
+}

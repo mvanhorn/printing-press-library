@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T06:56:35.146714Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "dogecoin",
+  "cli_name": "dogecoin-pp-cli",
+  "printer": "jaelving",
+  "printer_name": "Jorge",
+  "run_id": "20260516-193909",
+  "novel_features": [
+    {
+      "name": "Mining Stats Compound",
+      "command": "mining stats",
+      "description": "One command returns hashrate + difficulty + network hashrate + block height \u2014 formatted for n8n shell nodes, XEMD widgets, and agent consumption."
+    },
+    {
+      "name": "Peer Health Check",
+      "command": "peers health",
+      "description": "Checks connected peer count and exits 0 (healthy) or 3 (below threshold) \u2014 n8n shell nodes branch on this exit code."
+    },
+    {
+      "name": "Blocks Found Window",
+      "command": "blocks found",
+      "description": "Detects if blocks were mined in a time window (--since 7d). Exit 0=found, exit 2=none found."
+    },
+    {
+      "name": "Hashrate History Trend",
+      "command": "mining history",
+      "description": "Queries SQLite for historical hashrate over a time window \u2014 powers XEMD dashboard trend charts."
+    },
+    {
+      "name": "Difficulty Trend Alert",
+      "command": "difficulty trend",
+      "description": "Detects difficulty spikes or drops from SQLite history. Exit 0=stable, exit 5=significant change detected."
+    },
+    {
+      "name": "Mempool Status Compound",
+      "command": "mempool status",
+      "description": "Combines getmempoolinfo + estimatefee with human-readable fee tier labels (low/medium/high DOGE/KB)."
+    },
+    {
+      "name": "Node Doctor",
+      "command": "doctor",
+      "description": "Version obsolescence check, auth validation, peer count, sync progress, and uptime in one command. Emits warning when node version is obsolete (< 1.14.0)."
+    }
+  ],
+  "category": "monitoring"
+}

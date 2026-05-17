@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "dogecoin",
+  "run_id": "20260516-193909",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 20,
+  "tests_passed": 20,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "basic",
+    "api_key_available": true,
+    "browser_session_available": false
+  }
+}

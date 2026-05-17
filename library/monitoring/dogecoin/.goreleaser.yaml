@@ -1,0 +1,51 @@
+version: 2
+project_name: dogecoin-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: dogecoin-pp-cli
+    main: ./cmd/dogecoin-pp-cli
+    binary: dogecoin-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/monitoring/dogecoin/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: dogecoin-pp-mcp
+    main: ./cmd/dogecoin-pp-mcp
+    binary: dogecoin-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: dogecoin-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Monitor your Dogecoin node with typed exit codes, SQLite trending, and native MCP — everything bitcoin-cli lacks..."
+    install: |
+      bin.install "dogecoin-pp-cli"
+      bin.install "dogecoin-pp-mcp"
