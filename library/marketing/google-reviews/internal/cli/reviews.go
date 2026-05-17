@@ -474,8 +474,16 @@ func printRatingSummary(w io.Writer, s *RatingSummary) {
 
 	fmt.Fprintf(w, "Total: %s reviews\n\n", fmtNum(s.Total))
 	for _, r := range rows {
-		pct := float64(r.count) * 100 / float64(s.Total)
-		bar := strings.Repeat("█", int(pct/5))
+		count := r.count
+		if count < 0 {
+			count = 0
+		}
+		pct := float64(count) * 100 / float64(s.Total)
+		barLen := int(pct / 5)
+		if barLen < 0 {
+			barLen = 0
+		}
+		bar := strings.Repeat("█", barLen)
 		fmt.Fprintf(w, "%d ★  %5.1f%%  %-20s  %s\n", r.stars, pct, bar, fmtNum(r.count))
 	}
 }
