@@ -99,11 +99,23 @@ one update (or 5 seconds, whichever comes first).`,
 			defer wsConn.Close()
 
 			enc := json.NewEncoder(cmd.OutOrStdout())
+			// terminate exits the watch loop, reporting any unexpected
+			// WebSocket disconnect to the caller. tail-style monitoring
+			// tools downstream rely on a non-zero exit + stderr message
+			// to distinguish "stream ended on its own" from "user said
+			// stop"; without this branch both look like exit 0 / EOF.
+			terminate := func() error {
+				if wsErr := wsConn.Err(); wsErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "websocket terminated unexpectedly: %v\n", wsErr)
+					return apiErr(fmt.Errorf("watch: %w", wsErr))
+				}
+				return nil
+			}
 			for {
 				select {
 				case upd, ok := <-wsConn.Updates():
 					if !ok {
-						return nil
+						return terminate()
 					}
 					if filterSn != "" && !strings.EqualFold(upd.DeviceSn, filterSn) {
 						continue
@@ -120,7 +132,7 @@ one update (or 5 seconds, whichever comes first).`,
 						return nil
 					}
 				case <-ctx.Done():
-					return nil
+					return terminate()
 				}
 			}
 		},

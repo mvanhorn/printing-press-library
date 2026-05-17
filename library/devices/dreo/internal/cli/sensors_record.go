@@ -104,12 +104,27 @@ Under PRINTING_PRESS_DOGFOOD the recorder caps at 10 seconds.`,
 				}
 			}
 		done:
-			if rflags.asJSON {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"recorded": count,
-				}, rflags)
+			// Distinguish clean stop (user Ctrl-C, --duration elapsed) from
+			// an unexpected WebSocket disconnect. For unattended cron use
+			// the silent-exit case is indistinguishable from success
+			// otherwise — the operator only learns recording died when
+			// they query the empty store hours later.
+			wsErr := wsConn.Err()
+			result := map[string]any{"recorded": count}
+			if wsErr != nil {
+				result["websocket_error"] = wsErr.Error()
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Recorded %d sensor readings.\n", count)
+			if rflags.asJSON {
+				_ = printJSONFiltered(cmd.OutOrStdout(), result, rflags)
+			} else {
+				fmt.Fprintf(cmd.OutOrStdout(), "Recorded %d sensor readings.\n", count)
+				if wsErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "websocket terminated unexpectedly: %v\n", wsErr)
+				}
+			}
+			if wsErr != nil {
+				return apiErr(fmt.Errorf("sensors record: %w", wsErr))
+			}
 			return nil
 		},
 	}

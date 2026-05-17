@@ -54,14 +54,25 @@ Acts entirely on cached data; run 'dreo-pp-cli devices state' to refresh first.`
 				if serr == nil {
 					_ = json.Unmarshal(raw, &state)
 				}
-				if !d.Online {
-					alerts = append(alerts, map[string]any{
-						"sn":    d.Sn,
-						"name":  d.Name,
-						"room":  d.Room,
-						"kind":  "offline",
-						"value": false,
-					})
+				// Dreo's device list endpoint doesn't return `online`; the
+				// authoritative connectivity signal lives in mixed.connected
+				// from the state endpoint (flattened into the state map by
+				// flattenState). d.Online stays a "have I ever seen this
+				// device?" hint; "is it reachable right now?" comes from
+				// state.connected. Only treat the device as offline when we
+				// have a state snapshot AND it says disconnected — a missing
+				// snapshot is "unknown" (covered by the stale_state alert
+				// below), not "offline".
+				if state != nil {
+					if connected, ok := state["connected"].(bool); ok && !connected {
+						alerts = append(alerts, map[string]any{
+							"sn":    d.Sn,
+							"name":  d.Name,
+							"room":  d.Room,
+							"kind":  "offline",
+							"value": false,
+						})
+					}
 				}
 				if state != nil {
 					if pm25, ok := asFloat(state, "pm25"); ok && pm25Above > 0 && pm25 > pm25Above {

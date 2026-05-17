@@ -36,6 +36,35 @@ type Conn struct {
 	closed   chan struct{}
 	ctx      context.Context
 	cancel   context.CancelFunc
+
+	// errMu protects closeErr. readLoop stashes the underlying error when
+	// ReadMessage returns BEFORE Close() was called by the caller —
+	// otherwise the channel-close looks identical to a clean shutdown to
+	// downstream consumers. Err() exposes it after the updates channel is
+	// drained so commands like `watch` and `sensors record` can distinguish
+	// "user Ctrl-C / clean stop" (returns nil) from "WS dropped, token
+	// expired, server restart, network blip" (returns non-nil).
+	errMu    sync.Mutex
+	closeErr error
+}
+
+// Err returns the error that terminated the connection, if any. A nil
+// return means the connection was closed cleanly via Close(); a non-nil
+// return means readLoop exited because of an underlying I/O failure
+// (server hangup, network drop, token revoked mid-session, etc).
+// Callers should read this after the Updates() channel closes.
+func (c *Conn) Err() error {
+	c.errMu.Lock()
+	defer c.errMu.Unlock()
+	return c.closeErr
+}
+
+func (c *Conn) setErr(err error) {
+	c.errMu.Lock()
+	defer c.errMu.Unlock()
+	if c.closeErr == nil {
+		c.closeErr = err
+	}
 }
 
 // Connect dials wss://<wsHost>/websocket?accessToken=...&timestamp=...
@@ -128,6 +157,13 @@ func (c *Conn) keepalive() {
 			err := c.ws.WriteMessage(websocket.TextMessage, []byte("2"))
 			c.writeMu.Unlock()
 			if err != nil {
+				select {
+				case <-c.ctx.Done():
+					// clean shutdown raced the ticker; ignore
+				default:
+					c.setErr(fmt.Errorf("websocket keepalive failed: %w", err))
+					c.cancel() // wake readLoop so it exits promptly
+				}
 				return
 			}
 		}
@@ -147,6 +183,17 @@ func (c *Conn) readLoop() {
 		}
 		_, msg, err := c.ws.ReadMessage()
 		if err != nil {
+			// Distinguish "caller asked us to close" (clean) from "server
+			// hung up / network dropped / TLS reset" (unclean). When ctx
+			// is already cancelled, Close() ran and the error is the
+			// expected post-close failure; leave closeErr nil. Otherwise,
+			// stash the error so Err() can surface it to callers.
+			select {
+			case <-c.ctx.Done():
+				// Clean shutdown — Close() cancelled ctx first.
+			default:
+				c.setErr(fmt.Errorf("websocket disconnect: %w", err))
+			}
 			return
 		}
 		// Server may send a bare "2" pong or other ping frames; ignore non-JSON.
