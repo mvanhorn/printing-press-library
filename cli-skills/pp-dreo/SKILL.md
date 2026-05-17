@@ -196,9 +196,24 @@ Run the recorder in the background, then query the local timeseries — no other
 
 ## Auth Setup
 
-Dreo has no public API. Authentication uses your Dreo account email and password (MD5-hashed) against the same OAuth endpoint the Dreo iOS app calls. Set DREO_USERNAME and DREO_PASSWORD; the CLI handles region discovery, token caching, and refresh on 401. No third-party developer account needed.
+Dreo has no public developer API. Authentication uses your Dreo account email and password against the same OAuth endpoint the Dreo iOS app calls. The password is MD5-hashed before the wire; the bearer token returned is cached locally and reused.
 
-Run `dreo-pp-cli doctor` to verify setup.
+**Env vars (only — no `--password` flag):**
+
+```bash
+export DREO_USERNAME='your-dreo-account-email'
+export DREO_PASSWORD='your-dreo-password'
+```
+
+Then run any command. The CLI exchanges credentials for an access token on first use, caches it to `~/.config/dreo-pp-cli/config.toml` (mode `0600`), and reuses it. On 401 it re-logs in transparently. Optional: pin `DREO_REGION=us` (or `eu`) to skip the region-discovery round-trip on first login.
+
+**Security contract:**
+- The `--password` and `--username` flags **do not exist** on `auth login` — flag-supplied secrets leak into `ps`, `/proc/<pid>/cmdline`, audit logs, and shell history. Env vars only.
+- Plaintext password is **never persisted to disk**. Only the bearer token, region, and timestamps land in the config file.
+- `dreo-pp-cli auth logout` clears the cached token.
+- `dreo-pp-cli auth status` shows current authentication state without revealing the token.
+
+Run `dreo-pp-cli doctor` to verify end-to-end.
 
 ## Agent Mode
 
