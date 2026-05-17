@@ -355,11 +355,11 @@ func newTransactionDeleteCmd() *cobra.Command {
 			if msg := payloadErrors(root["errors"]); msg != "" {
 				return fmt.Errorf("delete transaction failed: %s", msg)
 			}
-			if jsonOut {
-				return printJSON(data)
-			}
 			if root["deleted"] != true {
 				return fmt.Errorf("delete transaction failed")
+			}
+			if jsonOut {
+				return printJSON(data)
 			}
 			fmt.Printf("deleted transaction %s\n", args[0])
 			return nil
