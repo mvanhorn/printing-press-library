@@ -1322,7 +1322,12 @@ func (s *Store) searchResourceTyped(ctx context.Context, resourceType string, op
 	}
 	sb.WriteString(` WHERE r.resource_type = ?`)
 	if strings.TrimSpace(opts.Text) != "" {
-		sb.WriteString(` AND f.resources_fts MATCH ?`)
+		// PATCH search-coins-fts-match-syntax: use the bare-table form
+		// `resources_fts MATCH ?` (matches the existing Search method at
+		// line ~661). The previous form `f.resources_fts MATCH ?` was
+		// invalid (`f.resources_fts` is not a column on alias `f`; it's
+		// the virtual table name). Greptile P1 finding on PR #630 (review 4).
+		sb.WriteString(` AND resources_fts MATCH ?`)
 		args = append(args, opts.Text)
 	}
 	if opts.Year > 0 {
