@@ -119,20 +119,17 @@ Use --since to limit to recent history (e.g. "30d", "7d", "24h").`,
 	return cmd
 }
 
-// PATCH exchangerate-as-of-date-inclusive: callers use the returned time as a
-// `captured_at <= ?` upper bound. A YYYY-MM-DD input was resolving to that
-// day's midnight, which excluded every snapshot captured during the named day
-// — `--as-of 2026-04-10` silently returned April 9 data. Advance the date-only
-// branch by 24h so the bound covers the full named day. RFC3339 stays exact
-// because the caller asked for a precise instant. Greptile P1 review of PR
-// #635 (mvanhorn/printing-press-library).
-//
 // parseDurationOrDate accepts "30d", "24h", "15m", "2w", YYYY-MM-DD (resolves
-// to end-of-day UTC for upper-bound semantics), or RFC3339 (exact instant).
+// to that day's midnight UTC — the natural lower bound for `captured_at >= ?`
+// callers like --since), or RFC3339 (exact instant).
+//
+// Use parseDurationOrDateUpperBound for `captured_at <= ?` callers like
+// --as-of where YYYY-MM-DD should clamp to end-of-day so the named day is
+// included.
 func parseDurationOrDate(s string) (time.Time, error) {
 	s = strings.TrimSpace(s)
 	if t, err := time.Parse("2006-01-02", s); err == nil {
-		return t.Add(24 * time.Hour), nil
+		return t, nil
 	}
 	if t, err := time.Parse(time.RFC3339, s); err == nil {
 		return t, nil
@@ -160,4 +157,30 @@ func parseDurationOrDate(s string) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("expected duration (e.g. 30d, 24h) or date (YYYY-MM-DD)")
 	}
 	return time.Now().UTC().Add(-d), nil
+}
+
+// PATCH exchangerate-as-of-date-inclusive: --as-of uses the returned time as a
+// `captured_at <= ?` upper bound. A YYYY-MM-DD input resolving to that day's
+// midnight excluded every snapshot captured during the named day. The first
+// version of the fix added +24h inside parseDurationOrDate but that silently
+// broke the three --since callers (history-cache, drift, log show) which use
+// `captured_at >= ?` — they need start-of-day for the named day to be
+// included. Split into two functions: parseDurationOrDate (start-of-day,
+// lower bound) and parseDurationOrDateUpperBound (end-of-day, upper bound).
+// Greptile P1 review of PR #635 (round 2).
+//
+// parseDurationOrDateUpperBound is like parseDurationOrDate but advances
+// YYYY-MM-DD inputs by 24h so the returned time works as an inclusive
+// `captured_at <= ?` upper bound covering the full named day. Duration
+// shortcuts and RFC3339 timestamps are unchanged — those callers asked for a
+// precise instant relative to now or a precise wall-clock time.
+func parseDurationOrDateUpperBound(s string) (time.Time, error) {
+	t, err := parseDurationOrDate(s)
+	if err != nil {
+		return t, err
+	}
+	if _, dateErr := time.Parse("2006-01-02", strings.TrimSpace(s)); dateErr == nil {
+		return t.Add(24 * time.Hour), nil
+	}
+	return t, nil
 }

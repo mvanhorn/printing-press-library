@@ -33,7 +33,9 @@ func newRatesPairCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Time-travel branch: resolve from local rates_snapshots, no API call.
 			if asOf != "" {
-				cutoff, parseErr := parseDurationOrDate(asOf)
+				// Use the upper-bound variant: --as-of is a `captured_at <= ?`
+				// query and a YYYY-MM-DD input should include the full named day.
+				cutoff, parseErr := parseDurationOrDateUpperBound(asOf)
 				if parseErr != nil {
 					return usageErr(fmt.Errorf("--as-of %q: %w", asOf, parseErr))
 				}

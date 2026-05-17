@@ -66,15 +66,40 @@ func TestParseDurationOrDate(t *testing.T) {
 		}
 	}
 
-	// ISO date — end-of-day UTC semantics (start of next day) so the value
-	// works as a `captured_at <= ?` upper bound that includes the named day.
-	// See the PATCH exchangerate-as-of-date-inclusive note on parseDurationOrDate.
+	// ISO date — start-of-day UTC. parseDurationOrDate is the lower-bound
+	// variant used by --since callers (history-cache/drift/log), so the
+	// named day's start is correct — `captured_at >= 2024-03-27 00:00:00`
+	// includes the full named day.
 	got, err := parseDurationOrDate("2024-03-27")
 	if err != nil {
 		t.Fatalf("parseDurationOrDate(\"2024-03-27\"): %v", err)
 	}
+	if got.Year() != 2024 || got.Month() != 3 || got.Day() != 27 || got.Hour() != 0 {
+		t.Errorf("parseDurationOrDate(\"2024-03-27\"): got %v, want 2024-03-27 00:00:00 UTC", got)
+	}
+
+	// ISO date via the upper-bound variant — end-of-day UTC (start of next
+	// day) so --as-of callers' `captured_at <= ?` upper bound includes the
+	// named day. See PATCH exchangerate-as-of-date-inclusive.
+	got, err = parseDurationOrDateUpperBound("2024-03-27")
+	if err != nil {
+		t.Fatalf("parseDurationOrDateUpperBound(\"2024-03-27\"): %v", err)
+	}
 	if got.Year() != 2024 || got.Month() != 3 || got.Day() != 28 || got.Hour() != 0 {
-		t.Errorf("parseDurationOrDate(\"2024-03-27\"): got %v, want 2024-03-28 00:00:00 UTC", got)
+		t.Errorf("parseDurationOrDateUpperBound(\"2024-03-27\"): got %v, want 2024-03-28 00:00:00 UTC", got)
+	}
+
+	// Upper-bound variant must NOT shift duration shortcuts or RFC3339 —
+	// those caller asked for a precise instant.
+	gotUB, _ := parseDurationOrDateUpperBound("24h")
+	gotLB, _ := parseDurationOrDate("24h")
+	if !gotUB.Equal(gotLB) {
+		t.Errorf("parseDurationOrDateUpperBound(\"24h\") should equal parseDurationOrDate(\"24h\"); got UB=%v LB=%v", gotUB, gotLB)
+	}
+	gotUB, _ = parseDurationOrDateUpperBound("2024-03-27T10:00:00Z")
+	gotLB, _ = parseDurationOrDate("2024-03-27T10:00:00Z")
+	if !gotUB.Equal(gotLB) {
+		t.Errorf("parseDurationOrDateUpperBound(rfc3339) should equal parseDurationOrDate(rfc3339); got UB=%v LB=%v", gotUB, gotLB)
 	}
 
 	// RFC3339.
