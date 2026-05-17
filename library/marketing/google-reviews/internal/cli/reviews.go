@@ -335,8 +335,12 @@ Examples:
 					break
 				}
 				offset += len(batch)
-				// Rate limit between paginated requests
-				time.Sleep(500 * time.Millisecond)
+				// Rate limit between paginated requests; honour context cancellation.
+				select {
+				case <-time.After(500 * time.Millisecond):
+				case <-cmd.Context().Done():
+					return fmt.Errorf("cancelled: %w", cmd.Context().Err())
+				}
 			}
 
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
@@ -367,7 +371,14 @@ func printReviewsTable(w io.Writer, reviews []Review) {
 	fmt.Fprintf(w, "%-6s  %-20s  %-16s  %s\n", "Rating", "Author", "Date", "Review")
 	fmt.Fprintf(w, "%-6s  %-20s  %-16s  %s\n", "------", "--------------------", "----------------", "------")
 	for _, r := range reviews {
-		stars := strings.Repeat("★", r.Rating) + strings.Repeat("☆", 5-r.Rating)
+		rating := r.Rating
+		if rating < 0 {
+			rating = 0
+		}
+		if rating > 5 {
+			rating = 5
+		}
+		stars := strings.Repeat("★", rating) + strings.Repeat("☆", 5-rating)
 		author := truncateRunes(r.Author, 20)
 		date := truncateRunes(r.Date, 16)
 		text := truncateRunes(r.Text, 60)
