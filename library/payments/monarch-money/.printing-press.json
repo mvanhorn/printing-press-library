@@ -14,7 +14,7 @@
   "run_id": "manual-plan-20260509",
   "catalog_entry": "monarch-money",
   "category": "payments",
-  "description": "Read Monarch Money account balances, tags, transactions, and cashflow summaries from the terminal.",
+  "description": "Use Monarch Money account balances, tags, transactions, cashflow summaries, and explicit transaction CRUD workflows from the terminal.",
   "auth_type": "token",
   "auth_env_vars": [
     "MONARCH_TOKEN",
@@ -26,6 +26,11 @@
       "name": "Guarded GraphQL query runner",
       "command": "query",
       "description": "Runs custom read-only Monarch Money GraphQL query files and refuses files that contain GraphQL mutations."
+    },
+    {
+      "name": "Dry-run transaction CRUD",
+      "command": "transactions create|update|set-tags|delete",
+      "description": "Creates, updates, tags, and deletes individual transactions through explicit commands that dry-run by default and require --yes to apply."
     }
   ]
 }

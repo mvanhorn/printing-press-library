@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +25,100 @@ const transactionsQuery = `query GetTransactionsList($offset: Int, $limit: Int, 
       tags { id name color order }
     }
   }
+}`
+
+const createTransactionMutation = `mutation Common_CreateTransactionMutation($input: CreateTransactionMutationInput!) {
+  createTransaction(input: $input) {
+    errors {
+      ...PayloadErrorFields
+    }
+    transaction {
+      id
+      amount
+      date
+      notes
+      merchant { id name }
+      category { id name }
+      account { id displayName }
+    }
+  }
+}
+
+fragment PayloadErrorFields on PayloadError {
+  fieldErrors {
+    field
+    messages
+  }
+  message
+  code
+}`
+
+const updateTransactionMutation = `mutation Web_TransactionDrawerUpdateTransaction($input: UpdateTransactionMutationInput!) {
+  updateTransaction(input: $input) {
+    transaction {
+      id
+      amount
+      pending
+      date
+      hideFromReports
+      needsReview
+      notes
+      merchant { id name }
+      category { id name }
+      tags { id name }
+    }
+    errors {
+      ...PayloadErrorFields
+    }
+  }
+}
+
+fragment PayloadErrorFields on PayloadError {
+  fieldErrors {
+    field
+    messages
+  }
+  message
+  code
+}`
+
+const deleteTransactionMutation = `mutation Common_DeleteTransactionMutation($input: DeleteTransactionMutationInput!) {
+  deleteTransaction(input: $input) {
+    deleted
+    errors {
+      ...PayloadErrorFields
+    }
+  }
+}
+
+fragment PayloadErrorFields on PayloadError {
+  fieldErrors {
+    field
+    messages
+  }
+  message
+  code
+}`
+
+const setTransactionTagsMutation = `mutation Web_SetTransactionTags($input: SetTransactionTagsInput!) {
+  setTransactionTags(input: $input) {
+    errors {
+      ...PayloadErrorFields
+    }
+    transaction {
+      id
+      tags { id name }
+    }
+  }
+}
+
+fragment PayloadErrorFields on PayloadError {
+  fieldErrors {
+    field
+    messages
+  }
+  message
+  code
 }`
 
 func newTransactionsCmd() *cobra.Command {
@@ -96,5 +191,224 @@ func newTransactionsCmd() *cobra.Command {
 	cmd.Flags().StringVar(&search, "search", "", "Search text")
 	cmd.Flags().StringVar(&tagID, "tag-id", "", "Filter by Monarch tag ID")
 	cmd.Flags().StringVar(&accountID, "account-id", "", "Filter by Monarch account ID")
+	cmd.AddCommand(newTransactionCreateCmd())
+	cmd.AddCommand(newTransactionUpdateCmd())
+	cmd.AddCommand(newTransactionDeleteCmd())
+	cmd.AddCommand(newTransactionSetTagsCmd())
+	return cmd
+}
+
+func newTransactionCreateCmd() *cobra.Command {
+	var date, accountID, merchantName, categoryID, notes string
+	var amount float64
+	var updateBalance, yes, jsonOut bool
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a manual transaction.",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if date == "" || accountID == "" || merchantName == "" || categoryID == "" {
+				return fmt.Errorf("--date, --account-id, --merchant, and --category-id are required")
+			}
+			if amount == 0 {
+				return fmt.Errorf("--amount is required and cannot be zero")
+			}
+			input := map[string]any{
+				"date":                date,
+				"accountId":           accountID,
+				"amount":              amount,
+				"merchantName":        merchantName,
+				"categoryId":          categoryID,
+				"notes":               notes,
+				"shouldUpdateBalance": updateBalance,
+			}
+			vars := map[string]any{"input": input}
+			if !yes {
+				return printDryRun("Common_CreateTransactionMutation", vars)
+			}
+			data, err := graphql("Common_CreateTransactionMutation", createTransactionMutation, vars)
+			if err != nil {
+				return err
+			}
+			root := asMap(data["createTransaction"])
+			if msg := payloadErrors(root["errors"]); msg != "" {
+				return fmt.Errorf("create transaction failed: %s", msg)
+			}
+			if jsonOut {
+				return printJSON(data)
+			}
+			fmt.Printf("created transaction %s\n", str(field(root, "transaction", "id")))
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&date, "date", "", "Transaction date YYYY-MM-DD")
+	cmd.Flags().StringVar(&accountID, "account-id", "", "Monarch account ID")
+	cmd.Flags().Float64Var(&amount, "amount", 0, "Transaction amount")
+	cmd.Flags().StringVar(&merchantName, "merchant", "", "Merchant name")
+	cmd.Flags().StringVar(&categoryID, "category-id", "", "Monarch category ID")
+	cmd.Flags().StringVar(&notes, "notes", "", "Transaction notes")
+	cmd.Flags().BoolVar(&updateBalance, "update-balance", false, "Update the manual account balance")
+	cmd.Flags().BoolVar(&yes, "yes", false, "Apply the write; omitted means dry-run")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output raw JSON after applying")
+	return cmd
+}
+
+func newTransactionUpdateCmd() *cobra.Command {
+	var categoryID, merchantName, goalID, amountText, date, hideText, reviewText, notes string
+	var yes, jsonOut bool
+	cmd := &cobra.Command{
+		Use:   "update <transaction-id>",
+		Short: "Update a transaction by ID.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			input := map[string]any{"id": args[0]}
+			if cmd.Flags().Changed("category-id") {
+				input["category"] = categoryID
+			}
+			if cmd.Flags().Changed("merchant") {
+				if strings.TrimSpace(merchantName) == "" {
+					return fmt.Errorf("--merchant cannot be empty")
+				}
+				input["name"] = merchantName
+			}
+			if cmd.Flags().Changed("goal-id") {
+				input["goalId"] = goalID
+			}
+			if cmd.Flags().Changed("amount") {
+				amount, err := strconv.ParseFloat(amountText, 64)
+				if err != nil {
+					return fmt.Errorf("invalid --amount: %w", err)
+				}
+				input["amount"] = amount
+			}
+			if cmd.Flags().Changed("date") {
+				input["date"] = date
+			}
+			if cmd.Flags().Changed("hide-from-reports") {
+				v, err := strconv.ParseBool(hideText)
+				if err != nil {
+					return fmt.Errorf("--hide-from-reports must be true or false")
+				}
+				input["hideFromReports"] = v
+			}
+			if cmd.Flags().Changed("needs-review") {
+				v, err := strconv.ParseBool(reviewText)
+				if err != nil {
+					return fmt.Errorf("--needs-review must be true or false")
+				}
+				input["needsReview"] = v
+			}
+			if cmd.Flags().Changed("notes") {
+				input["notes"] = notes
+			}
+			if len(input) == 1 {
+				return fmt.Errorf("at least one update flag is required")
+			}
+			vars := map[string]any{"input": input}
+			if !yes {
+				return printDryRun("Web_TransactionDrawerUpdateTransaction", vars)
+			}
+			data, err := graphql("Web_TransactionDrawerUpdateTransaction", updateTransactionMutation, vars)
+			if err != nil {
+				return err
+			}
+			root := asMap(data["updateTransaction"])
+			if msg := payloadErrors(root["errors"]); msg != "" {
+				return fmt.Errorf("update transaction failed: %s", msg)
+			}
+			if jsonOut {
+				return printJSON(data)
+			}
+			fmt.Printf("updated transaction %s\n", str(field(root, "transaction", "id")))
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&categoryID, "category-id", "", "Set Monarch category ID")
+	cmd.Flags().StringVar(&merchantName, "merchant", "", "Set merchant name")
+	cmd.Flags().StringVar(&goalID, "goal-id", "", "Set Monarch goal ID; pass empty string to clear")
+	cmd.Flags().StringVar(&amountText, "amount", "", "Set transaction amount")
+	cmd.Flags().StringVar(&date, "date", "", "Set transaction date YYYY-MM-DD")
+	cmd.Flags().StringVar(&hideText, "hide-from-reports", "", "Set hide-from-reports true or false")
+	cmd.Flags().StringVar(&reviewText, "needs-review", "", "Set needs-review true or false")
+	cmd.Flags().StringVar(&notes, "notes", "", "Set notes; pass empty string to clear")
+	cmd.Flags().BoolVar(&yes, "yes", false, "Apply the write; omitted means dry-run")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output raw JSON after applying")
+	return cmd
+}
+
+func newTransactionDeleteCmd() *cobra.Command {
+	var yes, jsonOut bool
+	cmd := &cobra.Command{
+		Use:   "delete <transaction-id>",
+		Short: "Delete a transaction by ID.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			vars := map[string]any{"input": map[string]any{"transactionId": args[0]}}
+			if !yes {
+				return printDryRun("Common_DeleteTransactionMutation", vars)
+			}
+			data, err := graphql("Common_DeleteTransactionMutation", deleteTransactionMutation, vars)
+			if err != nil {
+				return err
+			}
+			root := asMap(data["deleteTransaction"])
+			if msg := payloadErrors(root["errors"]); msg != "" {
+				return fmt.Errorf("delete transaction failed: %s", msg)
+			}
+			if jsonOut {
+				return printJSON(data)
+			}
+			if root["deleted"] != true {
+				return fmt.Errorf("delete transaction failed")
+			}
+			fmt.Printf("deleted transaction %s\n", args[0])
+			return nil
+		},
+	}
+	cmd.Flags().BoolVar(&yes, "yes", false, "Apply the write; omitted means dry-run")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output raw JSON after applying")
+	return cmd
+}
+
+func newTransactionSetTagsCmd() *cobra.Command {
+	var tagIDs []string
+	var clear, yes, jsonOut bool
+	cmd := &cobra.Command{
+		Use:   "set-tags <transaction-id>",
+		Short: "Replace all tags on a transaction.",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if clear && len(tagIDs) > 0 {
+				return fmt.Errorf("--clear cannot be combined with --tag-id")
+			}
+			if !clear && len(tagIDs) == 0 {
+				return fmt.Errorf("provide at least one --tag-id or pass --clear")
+			}
+			if clear {
+				tagIDs = []string{}
+			}
+			vars := map[string]any{"input": map[string]any{"transactionId": args[0], "tagIds": tagIDs}}
+			if !yes {
+				return printDryRun("Web_SetTransactionTags", vars)
+			}
+			data, err := graphql("Web_SetTransactionTags", setTransactionTagsMutation, vars)
+			if err != nil {
+				return err
+			}
+			root := asMap(data["setTransactionTags"])
+			if msg := payloadErrors(root["errors"]); msg != "" {
+				return fmt.Errorf("set transaction tags failed: %s", msg)
+			}
+			if jsonOut {
+				return printJSON(data)
+			}
+			fmt.Printf("updated tags for transaction %s\n", args[0])
+			return nil
+		},
+	}
+	cmd.Flags().StringArrayVar(&tagIDs, "tag-id", nil, "Monarch tag ID to set; repeat for multiple tags")
+	cmd.Flags().BoolVar(&clear, "clear", false, "Remove all tags from the transaction")
+	cmd.Flags().BoolVar(&yes, "yes", false, "Apply the write; omitted means dry-run")
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output raw JSON after applying")
 	return cmd
 }

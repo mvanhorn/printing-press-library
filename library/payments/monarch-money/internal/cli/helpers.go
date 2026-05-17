@@ -44,6 +44,15 @@ func printJSON(v any) error {
 	return enc.Encode(v)
 }
 
+func printDryRun(operation string, variables map[string]any) error {
+	return printJSON(map[string]any{
+		"dryRun":    true,
+		"operation": operation,
+		"variables": variables,
+		"applyHint": "rerun with --yes to apply this write",
+	})
+}
+
 func printError(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, "Error: "+format+"\n", args...)
 }
@@ -178,6 +187,33 @@ func graphql(operation, query string, variables map[string]any) (map[string]any,
 		return nil, fmt.Errorf("graphql error: %s", strings.Join(msgs, "; "))
 	}
 	return parsed.Data, nil
+}
+
+func payloadErrors(v any) string {
+	errs := asSlice(v)
+	if len(errs) == 0 {
+		return ""
+	}
+	parts := make([]string, 0, len(errs))
+	for _, ev := range errs {
+		em := asMap(ev)
+		msg := str(em["message"])
+		if msg != "" {
+			parts = append(parts, msg)
+		}
+		for _, fv := range asSlice(em["fieldErrors"]) {
+			fm := asMap(fv)
+			field := str(fm["field"])
+			messages := []string{}
+			for _, mv := range asSlice(fm["messages"]) {
+				messages = append(messages, str(mv))
+			}
+			if field != "" && len(messages) > 0 {
+				parts = append(parts, fmt.Sprintf("%s: %s", field, strings.Join(messages, ", ")))
+			}
+		}
+	}
+	return strings.Join(parts, "; ")
 }
 
 func setBaseHeaders(req *http.Request) {

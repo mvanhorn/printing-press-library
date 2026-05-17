@@ -16,7 +16,7 @@ var version = "1.0.0"
 func Execute() error {
 	rootCmd := &cobra.Command{
 		Use:          "monarch-money-pp-cli",
-		Short:        "Read-oriented CLI for Monarch Money personal finance data",
+		Short:        "CLI for Monarch Money personal finance data",
 		SilenceUsage: true,
 		Version:      version,
 	}

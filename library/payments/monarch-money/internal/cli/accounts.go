@@ -19,6 +19,7 @@ const accountsQuery = `query GetAccounts {
 
 func newAccountsCmd() *cobra.Command {
 	var jsonOut bool
+	var limit int
 	cmd := &cobra.Command{
 		Use:   "accounts",
 		Short: "List financial accounts with balances, account type, and institution.",
@@ -32,7 +33,11 @@ func newAccountsCmd() *cobra.Command {
 				return printJSON(data)
 			}
 			rows := [][]string{}
-			for _, v := range asSlice(data["accounts"]) {
+			accounts := asSlice(data["accounts"])
+			if limit > 0 && limit < len(accounts) {
+				accounts = accounts[:limit]
+			}
+			for _, v := range accounts {
 				acct := asMap(v)
 				inst := str(field(acct, "institution", "name"))
 				if inst == "" {
@@ -50,5 +55,6 @@ func newAccountsCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&jsonOut, "json", false, "Output raw JSON")
+	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum accounts to display; 0 means all accounts")
 	return cmd
 }

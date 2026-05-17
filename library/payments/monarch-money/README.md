@@ -1,8 +1,8 @@
 # Monarch Money CLI
 
-Read-oriented Monarch Money CLI generated with CLI Printing Press.
+Monarch Money CLI generated with CLI Printing Press.
 
-This CLI wraps Monarch's browser API/GraphQL interface for practical terminal and agent workflows: checking connectivity, listing accounts and tags, reviewing transactions, summarizing cashflow, and running guarded read-only GraphQL queries.
+This CLI wraps Monarch's browser API/GraphQL interface for practical terminal and agent workflows: checking connectivity, listing accounts and tags, reviewing transactions, summarizing cashflow, creating and editing manual transactions, and running guarded read-only GraphQL queries.
 
 ## Install
 
@@ -67,6 +67,13 @@ The login flow requests Monarch's trusted-device `/auth/login/` token and refuse
   monarch-money-pp-cli query query.graphql --operation OperationName --variables '{"limit":10}'
   ```
 
+- **Explicit transaction writes** — create, update, tag, and delete transaction workflows are exposed as first-class commands. Write commands dry-run by default and require `--yes` to apply.
+
+  ```bash
+  monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed by agent'
+  monarch-money-pp-cli transactions update TRANSACTION_ID --notes 'Reviewed by agent' --yes
+  ```
+
 ## Commands
 
 - `login` — log in and save a local session token
@@ -75,6 +82,10 @@ The login flow requests Monarch's trusted-device `/auth/login/` token and refuse
 - `accounts` — list accounts with balances, type, and institution
 - `tags` — list household transaction tags and counts
 - `transactions` — list recent transactions with merchant, category, account, amount, and tags
+- `transactions create` — create a manual transaction; dry-run unless `--yes` is passed
+- `transactions update` — update a transaction by ID; dry-run unless `--yes` is passed
+- `transactions set-tags` — replace all tags on a transaction; dry-run unless `--yes` is passed
+- `transactions delete` — delete a transaction by ID; dry-run unless `--yes` is passed
 - `cashflow` — summarize income, expenses, net savings, and savings rate for a date range
 - `query` — run a read-only GraphQL query from a file; GraphQL mutations are refused
 
@@ -85,14 +96,17 @@ monarch-money-pp-cli accounts
 monarch-money-pp-cli tags --limit 20
 monarch-money-pp-cli transactions --days 30 --limit 25
 monarch-money-pp-cli transactions --start 2026-01-01 --end 2026-01-31 --json
+monarch-money-pp-cli transactions create --date 2026-01-15 --account-id ACCOUNT_ID --amount -42.50 --merchant 'Coffee Shop' --category-id CATEGORY_ID
+monarch-money-pp-cli transactions update TRANSACTION_ID --category-id CATEGORY_ID --notes 'Reviewed'
+monarch-money-pp-cli transactions set-tags TRANSACTION_ID --tag-id TAG_ID --tag-id ANOTHER_TAG_ID
 monarch-money-pp-cli cashflow --start 2026-01-01 --end 2026-01-31
 ```
 
 ## Safety model
 
-This contribution is intentionally read-oriented first. Mutation workflows should be added only with explicit dry-run/confirmation semantics.
+GraphQL writes are exposed through explicit commands with narrow inputs. Transaction write commands print a dry-run payload by default and require `--yes` before sending a mutation to Monarch.
 
-`query` performs a simple safety check and refuses query files containing `mutation`.
+`query` performs a safety check and refuses query files containing `mutation`; it is not a raw write escape hatch.
 
 ## Known limitations
 
