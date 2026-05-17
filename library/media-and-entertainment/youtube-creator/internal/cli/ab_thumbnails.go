@@ -417,14 +417,45 @@ func newAbThumbnailsStopCmd(flags *rootFlags) *cobra.Command {
 
 // uploadThumbnail uses thumbnails.set with multipart upload. Returns nil on success.
 func uploadThumbnail(flags *rootFlags, videoID, thumbPath string) error {
-	// We bypass the generated client here: client.do() unconditionally
-	// json.Marshals its body argument, which would base64-encode the binary
-	// multipart frame and corrupt the upload. Direct http.Post with the
-	// OAuth token from the persisted config gets the bytes through as-is.
+	// We bypass the generated client's request body path here: client.do()
+	// unconditionally json.Marshals its body argument, which would base64-
+	// encode the binary multipart frame and corrupt the upload.
+	//
+	// We still need client.do()'s refresh-if-expired logic — so we make one
+	// trivial GET through the client first (i18nLanguages.list, 1 quota
+	// unit). That call triggers the in-flight token refresh and persists a
+	// fresh access_token into Config + config.toml. We then construct the
+	// upload request manually using that freshly-validated token.
+	c, err := flags.newClient()
+	if err != nil {
+		return fmt.Errorf("building client: %w", err)
+	}
+	if _, gerr := c.Get("/youtube/v3/i18nLanguages", map[string]string{
+		"part":       "snippet",
+		"hl":         "en",
+		"maxResults": "1",
+	}); gerr != nil {
+		// Surface auth/network failures from the refresh probe so we don't
+		// silently send a stale Bearer header below.
+		return classifyAPIError(gerr, flags)
+	}
+	// c.Config now holds the freshest access token (refresh fired inside
+	// the client's do() if it was needed). Reload from config to also pick
+	// up any side-effect updates a parallel CLI process may have written.
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
 		return fmt.Errorf("loading auth config: %w", err)
 	}
+	// Prefer the in-memory client config (most current); fall back to
+	// reloaded cfg only when client config is empty.
+	accessToken := c.Config.AccessToken
+	if accessToken == "" {
+		accessToken = cfg.AccessToken
+	}
+	if accessToken == "" {
+		return fmt.Errorf("no access token available; run `youtube-pp-cli auth login` first")
+	}
+
 	data, err := os.ReadFile(thumbPath)
 	if err != nil {
 		return fmt.Errorf("reading thumbnail: %w", err)
@@ -448,9 +479,7 @@ func uploadThumbnail(flags *rootFlags, videoID, thumbPath string) error {
 		return fmt.Errorf("building upload request: %w", err)
 	}
 	req.Header.Set("Content-Type", w.FormDataContentType())
-	if cfg.AccessToken != "" {
-		req.Header.Set("Authorization", "Bearer "+cfg.AccessToken)
-	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 	quotaLogCost("thumbnails-set", 50)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

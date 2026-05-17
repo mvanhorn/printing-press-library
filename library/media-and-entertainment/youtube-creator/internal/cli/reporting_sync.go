@@ -41,9 +41,9 @@ func newReportingSyncCmd(flags *rootFlags) *cobra.Command {
 		Long: `Idempotent: lists existing jobs, creates missing ones, polls for completed
 reports in the --since window, downloads CSVs to --out.
 
-Use 'youtube-creator-pp-cli report-types' (generated) to list available report type
+Use 'youtube-pp-cli report-types' (generated) to list available report type
 identifiers (e.g. channel_basic_a2, content_owner_a1).`,
-		Example:     "  youtube-creator-pp-cli reporting sync --types channel_basic_a2,channel_combined_a2 --since 30d --out ./reports/",
+		Example:     "  youtube-pp-cli reporting sync --types channel_basic_a2,channel_combined_a2 --since 30d --out ./reports/",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if typesCSV == "" || outDir == "" {
@@ -157,8 +157,17 @@ identifiers (e.g. channel_basic_a2, content_owner_a1).`,
 					if _, err := os.Stat(path); err == nil {
 						continue
 					}
-					// Download
-					req, _ := http.NewRequest("GET", r.DownloadURL, nil)
+					// Download. Skip reports without a downloadUrl — the
+					// Reporting API leaves it empty for pending/expired
+					// reports, and http.NewRequest("GET", "", nil) returns
+					// (nil, err); passing that nil to Do() panics.
+					if r.DownloadURL == "" {
+						continue
+					}
+					req, rerr := http.NewRequest("GET", r.DownloadURL, nil)
+					if rerr != nil {
+						continue
+					}
 					// Use http.DefaultClient since download URLs are signed
 					resp, err := http.DefaultClient.Do(req)
 					if err != nil {
