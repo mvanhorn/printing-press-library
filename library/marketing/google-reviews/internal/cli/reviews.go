@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -117,14 +118,14 @@ func extractChromeCookies() string {
 }
 
 // fetchReviews calls the listentitiesreviews endpoint and returns raw JSON response body.
-func fetchReviews(lo, hi uint64, count, offset, sc int, lang, country, cookieOverride string, timeout time.Duration) ([]byte, error) {
+func fetchReviews(ctx context.Context, lo, hi uint64, count, offset, sc int, lang, country, cookieOverride string, timeout time.Duration) ([]byte, error) {
 	pb := buildPB(lo, hi, count, offset, sc)
 	apiURL := fmt.Sprintf(
 		"https://www.google.com/maps/preview/review/listentitiesreviews?authuser=0&hl=%s&gl=%s&pb=%s",
 		url.QueryEscape(lang), url.QueryEscape(country), url.QueryEscape(pb),
 	)
 
-	req, err := http.NewRequest("GET", apiURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -308,11 +309,11 @@ Examples:
 			}
 
 			cookies := extractChromeCookies()
-			var allReviews []Review
+			allReviews := make([]Review, 0)
 			offset := flagOffset
 
 			for {
-				body, err := fetchReviews(lo, hi, flagCount, offset, sc, flagLang, flagCountry, cookies, flags.timeout)
+				body, err := fetchReviews(cmd.Context(), lo, hi, flagCount, offset, sc, flagLang, flagCountry, cookies, flags.timeout)
 				if err != nil {
 					if flagAll && len(allReviews) > 0 {
 						// Google's API uses cursor-based pagination internally;
@@ -416,7 +417,7 @@ Examples:
 			}
 
 			cookies := extractChromeCookies()
-			body, err := fetchReviews(lo, hi, 1, 0, 1, flagLang, flagCountry, cookies, flags.timeout)
+			body, err := fetchReviews(cmd.Context(), lo, hi, 1, 0, 1, flagLang, flagCountry, cookies, flags.timeout)
 			if err != nil {
 				return fmt.Errorf("fetch summary: %w", err)
 			}
